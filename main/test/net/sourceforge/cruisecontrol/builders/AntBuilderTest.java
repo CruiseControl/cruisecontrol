@@ -209,7 +209,6 @@ public class AntBuilderTest extends TestCase {
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
                 "-debug",
-                "-verbose",
                 "-buildfile",
                 "buildfile",
                 "target" };
@@ -233,7 +232,6 @@ public class AntBuilderTest extends TestCase {
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
                 "-debug",
-                "-verbose",
                 "-buildfile",
                 "buildfile",
                 "target" };
@@ -260,7 +258,6 @@ public class AntBuilderTest extends TestCase {
                 "-Dlabel=200.1.23",
                 "-Dfoo=bar",
                 "-debug",
-                "-verbose",
                 "-buildfile",
                 "buildfile",
                 "target" };

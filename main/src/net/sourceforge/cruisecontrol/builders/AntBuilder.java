@@ -313,7 +313,6 @@ public class AntBuilder extends Builder {
 
         if (useDebug) {
             cmdLine.createArgument().setValue("-debug");
-            cmdLine.createArgument().setValue("-verbose");
         }
 
         cmdLine.createArgument().setValue("-buildfile");
