@@ -36,17 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.TimeZone;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  *@author  Robert Watkins
@@ -54,9 +59,8 @@ import java.util.*;
  */
 public class CVSTest extends TestCase {
 
-    public CVSTest(java.lang.String testName) {
-        super(testName);
-    }
+    private static final Date MAY_18_2001_SIX_PM = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
+    private static final Date MAY_8_2001_SIX_PM = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
 
     private Date createDate(String dateString) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
@@ -384,43 +388,31 @@ public class CVSTest extends TestCase {
     }
 
     public void testFormatLogDate() {
-        Date may18_2001_6pm =
-                new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001/05/18 18:00:00 "
                      + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT),
-                     CVS.LOGDATE.format(may18_2001_6pm));
+                     CVS.LOGDATE.format(MAY_18_2001_SIX_PM));
     }
 
     public void testFormatCVSDateGMTPlusZero() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+0:00"));
-        Date may18_2001_6pm =
-                new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001-05-18 18:00:00 GMT",
-                     CVS.formatCVSDate(may18_2001_6pm));
+                     CVS.formatCVSDate(MAY_18_2001_SIX_PM));
     }
 
     public void testFormatCVSDateGMTPlusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
-        Date may18_2001_6pm = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001-05-18 08:00:00 GMT",
-                     CVS.formatCVSDate(may18_2001_6pm));
-        Date may8_2001_6pm = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
+                     CVS.formatCVSDate(MAY_18_2001_SIX_PM));
         assertEquals("2001-05-17 22:00:00 GMT",
-                     CVS.formatCVSDate(may8_2001_6pm));
+                     CVS.formatCVSDate(MAY_8_2001_SIX_PM));
     }
 
     public void testFormatCVSDateGMTMinusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
-        Date may18_2001_6pm = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001-05-19 04:00:00 GMT",
-                     CVS.formatCVSDate(may18_2001_6pm));
-        Date may8_2001_6pm = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
+                     CVS.formatCVSDate(MAY_18_2001_SIX_PM));
         assertEquals("2001-05-18 18:00:00 GMT",
-                     CVS.formatCVSDate(may8_2001_6pm));
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(CVSTest.class);
+                     CVS.formatCVSDate(MAY_8_2001_SIX_PM));
     }
 
 }

@@ -87,7 +87,7 @@ public class MockSourceControl implements SourceControl {
             mod1.folderName = "dir1";
             mod1.userName = "user1";
             mod1.modifiedTime = _modifiedDate;
-            mod1.comment ="comment1";
+            mod1.comment = "comment1";
             result.add(mod1);
 
             Modification mod2 = new Modification();
@@ -99,7 +99,7 @@ public class MockSourceControl implements SourceControl {
             mod2.comment = "comment2";
             result.add(mod2);
 
-            if( _property != null ) {
+            if (_property != null) {
                 _properties.put(_property, "true");
             }
         }
@@ -123,7 +123,7 @@ public class MockSourceControl implements SourceControl {
             mod4.comment = "comment4";
             result.add(mod4);
 
-            if( _propertyOnDelete != null ) {
+            if (_propertyOnDelete != null) {
                 _properties.put(_propertyOnDelete, "true");
             }
         }

@@ -1,73 +1,117 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 500
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.io.File;
-
 public class SCPPublisherTest extends TestCase {
-
-    public SCPPublisherTest(String name) {
-        super(name);
-    }
-
     public void testValidate() {
         SCPPublisher publisher = new SCPPublisher();
         publisher.setSourceUser("user1");
-
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions when only user is set.");
         } catch (CruiseControlException e) {
         }
-
         publisher.setSourceUser(null);
         publisher.setSourceHost("host1");
-
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions when only host is set.");
         } catch (CruiseControlException e) {
         }
-
         publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
-
         publisher.setSourceUser(null);
         publisher.setSourceHost("host1");
-
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions when only user is set.");
         } catch (CruiseControlException e) {
         }
     }
-
     public void testCreateCommandline() {
         SCPPublisher publisher = new SCPPublisher();
-
         publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
         publisher.setTargetUser("user2");
         publisher.setTargetHost("host2");
-        assertEquals("scp -S ssh user1@host1:." + File.separator + "filename " +
-                     "user2@host2:." + File.separator + "filename",
-                     publisher.createCommandline("filename").toString());
+        assertEquals(
+            "scp -S ssh user1@host1:."
+                + File.separator
+                + "filename "
+                + "user2@host2:."
+                + File.separator
+                + "filename",
+            publisher.createCommandline("filename").toString());
 
         publisher.setOptions("-P 1000");
-        assertEquals("scp -P 1000 -S ssh user1@host1:." + File.separator + "filename " +
-                     "user2@host2:." + File.separator + "filename",
-                     publisher.createCommandline("filename").toString());
+        assertEquals(
+            "scp -P 1000 -S ssh user1@host1:."
+                + File.separator
+                + "filename "
+                + "user2@host2:."
+                + File.separator
+                + "filename",
+            publisher.createCommandline("filename").toString());
 
         publisher.setSSH("plink");
-        assertEquals("scp -P 1000 -S plink user1@host1:." + File.separator + "filename " +
-                     "user2@host2:." + File.separator + "filename",
-                     publisher.createCommandline("filename").toString());
+        assertEquals(
+            "scp -P 1000 -S plink user1@host1:."
+                + File.separator
+                + "filename "
+                + "user2@host2:."
+                + File.separator
+                + "filename",
+            publisher.createCommandline("filename").toString());
 
-        publisher.setTargetDir(File.separator + "home" + File.separator + "httpd");
-        assertEquals("scp -P 1000 -S plink user1@host1:." + File.separator + "filename " +
-                     "user2@host2:" + File.separator + "home" + File.separator + "httpd" +
-                     File.separator + "filename",
-                     publisher.createCommandline("filename").toString());
-
+        publisher.setTargetDir(
+            File.separator + "home" + File.separator + "httpd");
+        assertEquals(
+            "scp -P 1000 -S plink user1@host1:."
+                + File.separator
+                + "filename "
+                + "user2@host2:"
+                + File.separator
+                + "home"
+                + File.separator
+                + "httpd"
+                + File.separator
+                + "filename",
+            publisher.createCommandline("filename").toString());
     }
 }

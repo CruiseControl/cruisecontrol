@@ -43,7 +43,7 @@ import java.util.Map;
 
 public class MockSchedule extends Schedule {
 
-    Map _properties = null;
+    private Map _properties = null;
 
     public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
         _properties = properties;

@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,8 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-********************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
@@ -87,7 +86,10 @@ public class EmailPublisherTest extends TestCase {
         emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
 
         PluginXMLHelper xmlHelper = new PluginXMLHelper();
-        _emailPublisher = (MockEmailPublisher) xmlHelper.configure(emailPublisherElement, "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher");
+        _emailPublisher =
+            (MockEmailPublisher) xmlHelper.configure(
+                emailPublisherElement,
+                "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher");
 
         _successLogHelper = createLogHelper(true, true);
         _failureLogHelper = createLogHelper(false, false);
@@ -174,22 +176,30 @@ public class EmailPublisherTest extends TestCase {
 
     public void testCreateUserList() {
         PropertyConfigurator.configure("log4j.properties");
-        assertEquals("always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com", _emailPublisher.createUserList(_successLogHelper));
-        assertEquals("always1@host.com,always2@host.com,failure1@host.com,failure2@host.com,user1@host.com,user2@host.com,user3@host2.com", _emailPublisher.createUserList(_failureLogHelper));
+        assertEquals(
+            "always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com",
+            _emailPublisher.createUserList(_successLogHelper));
+        assertEquals(
+            "always1@host.com,always2@host.com,failure1@host.com,"
+                + "failure2@host.com,user1@host.com,user2@host.com,user3@host2.com",
+            _emailPublisher.createUserList(_failureLogHelper));
 
         _emailPublisher.setSkipUsers(true);
         assertEquals("always1@host.com,always2@host.com", _emailPublisher.createUserList(_successLogHelper));
-        assertEquals("always1@host.com,always2@host.com,failure1@host.com,failure2@host.com", _emailPublisher.createUserList(_failureLogHelper));
+        assertEquals(
+            "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com",
+            _emailPublisher.createUserList(_failureLogHelper));
 
     }
     
     public void testGetFromAddress() throws AddressException {
-		String returnAddress = "me@you.com";
-		String returnName = "Me you Me";
-		_emailPublisher.setReturnAddress(returnAddress);
-		_emailPublisher.setReturnName(returnName);
-		InternetAddress fromAddress = _emailPublisher.getFromAddress();
-		assertEquals(returnAddress, fromAddress.getAddress());
-		assertEquals(returnName, fromAddress.getPersonal());
+        String returnAddress = "me@you.com";
+        String returnName = "Me you Me";
+        _emailPublisher.setReturnAddress(returnAddress);
+        _emailPublisher.setReturnName(returnName);
+        InternetAddress fromAddress = _emailPublisher.getFromAddress();
+        assertEquals(returnAddress, fromAddress.getAddress());
+        assertEquals(returnName, fromAddress.getPersonal());
     }
+    
 }

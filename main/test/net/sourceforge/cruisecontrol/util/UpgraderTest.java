@@ -36,32 +36,38 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Properties;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import java.io.*;
-import java.util.Properties;
 
 public class UpgraderTest extends TestCase {
-    private static Logger log = Logger.getLogger(UpgraderTest.class);
+    private static final Logger LOG = Logger.getLogger(UpgraderTest.class);
 
     public UpgraderTest(String name) {
         super(name);
 
         // Turn off logging
         BasicConfigurator.configure();
-        log.getLoggerRepository().setThreshold(Level.OFF);
+        LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void testCreateBootstappers() throws Exception {
-        String expected = "<bootstrappers><currentbuildstatusbootstrapper file=\"currentbuildstatus.txt\"/></bootstrappers>";
+        String expected =
+            "<bootstrappers><currentbuildstatusbootstrapper file=\"currentbuildstatus.txt\"/></bootstrappers>";
         Properties properties = new Properties();
         properties.put("currentBuildStatusFile", "currentbuildstatus.txt");
 
@@ -70,7 +76,11 @@ public class UpgraderTest extends TestCase {
 
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         Element expectedElement = builder.build(new StringReader(expected)).getRootElement();
-        Element actualElement = builder.build(new StringReader(upgrader.createBootstrappers(properties))).getRootElement();
+        Element actualElement =
+            builder
+                .build(
+                    new StringReader(upgrader.createBootstrappers(properties)))
+                .getRootElement();
 
         assertEquals(outputter.outputString(expectedElement), outputter.outputString(actualElement));
     }
@@ -91,7 +101,8 @@ public class UpgraderTest extends TestCase {
     }
 
     public void testCreateLabelIncrementer() throws Exception {
-        String expectedIncrementerSpecified = "<plugin name=\"labelincrementer\" classname=\"somelabelincrementer\"/>";
+        String expectedIncrementerSpecified =
+            "<plugin name=\"labelincrementer\" classname=\"somelabelincrementer\"/>";
         Properties propertiesIncrementerSpecified = new Properties();
         propertiesIncrementerSpecified.put("labelIncrementerClass", "somelabelincrementer");
 
@@ -101,11 +112,21 @@ public class UpgraderTest extends TestCase {
         Upgrader upgrader = new Upgrader();
 
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        Element expectedIncrementerSpecifiedElement = builder.build(new StringReader(expectedIncrementerSpecified)).getRootElement();
-        Element actualIncrementerSpecifiedElement = builder.build(new StringReader(upgrader.createLabelIncrementerPlugin(propertiesIncrementerSpecified))).getRootElement();
+        Element expectedIncrementerSpecifiedElement =
+            builder
+                .build(new StringReader(expectedIncrementerSpecified))
+                .getRootElement();
+        Element actualIncrementerSpecifiedElement =
+            builder
+                .build(
+                    new StringReader(
+                        upgrader.createLabelIncrementerPlugin(
+                            propertiesIncrementerSpecified)))
+                .getRootElement();
 
-        assertEquals(outputter.outputString(expectedIncrementerSpecifiedElement), outputter.outputString(actualIncrementerSpecifiedElement));
-
+        assertEquals(
+            outputter.outputString(expectedIncrementerSpecifiedElement),
+            outputter.outputString(actualIncrementerSpecifiedElement));
         assertEquals("", upgrader.createLabelIncrementerPlugin(propertiesIncrementerNotSpecified));
     }
 
@@ -113,7 +134,9 @@ public class UpgraderTest extends TestCase {
         StringBuffer expected = new StringBuffer();
         expected.append("<publishers>");
         expected.append("<currentbuildstatuspublisher file=\"currentbuildstatus.txt\"/>");
-        expected.append("<email mailhost=\"mail@mail.com\" returnaddress=\"user@host.com\" defaultsuffix=\"@host.com\" buildresultsurl=\"http://host.com\">");
+        expected.append(
+            "<email mailhost=\"mail@mail.com\" returnaddress=\"user@host.com\""
+                + " defaultsuffix=\"@host.com\" buildresultsurl=\"http://host.com\">");
         expected.append("<always address=\"user1@host.com\"/>");
         expected.append("<always address=\"user2@host.com\"/>");
         expected.append("<failure address=\"user3@host.com\"/>");
@@ -135,7 +158,10 @@ public class UpgraderTest extends TestCase {
 
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         Element expectedElement = builder.build(new StringReader(expected.toString())).getRootElement();
-        Element actualElement = builder.build(new StringReader(upgrader.createPublishers(properties))).getRootElement();
+        Element actualElement =
+            builder
+                .build(new StringReader(upgrader.createPublishers(properties)))
+                .getRootElement();
 
         assertEquals(outputter.outputString(expectedElement), outputter.outputString(actualElement));
     }
@@ -207,8 +233,14 @@ public class UpgraderTest extends TestCase {
     }
 
     public void testFindModificationSet() throws Exception {
-        String xml = "<project><taskdef name=\"modset\" classname=\"net.sourceforge.cruisecontrol.ModificationSet\"/><target><modset quietperiod=\"15\"><vsselement att1=\"value1\" /></modset></target></project>";
-        String xml2 = "<project><target><taskdef name=\"modset\" classname=\"net.sourceforge.cruisecontrol.ModificationSet\"/><modset quietperiod=\"15\"><vsselement att1=\"value1\" /></modset></target></project>";
+        String xml =
+            "<project><taskdef name=\"modset\" classname=\"net.sourceforge."
+                + "cruisecontrol.ModificationSet\"/><target><modset quietperiod"
+                + "=\"15\"><vsselement att1=\"value1\" /></modset></target></project>";
+        String xml2 =
+            "<project><target><taskdef name=\"modset\" classname=\"net."
+                + "sourceforge.cruisecontrol.ModificationSet\"/><modset "
+                + "quietperiod=\"15\"><vsselement att1=\"value1\" /></modset></target></project>";
         String xml3 = "<project><target></target></project>";
         String modset = "<modset quietperiod=\"15\"><vsselement att1=\"value1\" /></modset>";
 
@@ -270,7 +302,11 @@ public class UpgraderTest extends TestCase {
             fail("Expected CruiseControlException, but didn't get it");
         } catch (CruiseControlException e) {
             // expected behavior
-            assertEquals("The specified build file: '" + tempBuildFile.getAbsolutePath() + "' does not exist.", e.getMessage());
+            assertEquals(
+                "The specified build file: '"
+                    + tempBuildFile.getAbsolutePath()
+                    + "' does not exist.",
+                e.getMessage());
         }
         writeFile("_tempBuildFile");
         upgrader.setBuildFile(new File("_tempBuildFile"));
@@ -280,11 +316,15 @@ public class UpgraderTest extends TestCase {
             fail("Expected CruiseControlException, but didn't get it");
         } catch (Exception e) {
             // expected behavior
-            assertEquals("The specified properties file: '" + tempPropertiesFile.getAbsolutePath() + "' does not exist.", e.getMessage());
+            assertEquals(
+                "The specified properties file: '"
+                    + tempPropertiesFile.getAbsolutePath()
+                    + "' does not exist.",
+                e.getMessage());
         }
         writeFile("_tempPropertiesFile");
         upgrader.setPropertiesFile(new File("_tempPropertiesFile"));
-		
+        
         // we create this file because the assertion is that it doesn't exist.
         writeFile(tempConfigFile.getName());
         try {
@@ -292,7 +332,11 @@ public class UpgraderTest extends TestCase {
             fail("Expected CruiseControlException, but didn't get it");
         } catch (Exception e) {
             // expected behavior
-            assertEquals("The specified configuration file: '" + tempConfigFile.getAbsolutePath() + "' exists.  Delete and try again.", e.getMessage());
+            assertEquals(
+                "The specified configuration file: '"
+                    + tempConfigFile.getAbsolutePath()
+                    + "' exists.  Delete and try again.",
+                e.getMessage());
         }
     }
 
@@ -309,4 +353,5 @@ public class UpgraderTest extends TestCase {
             bw = null;
         }
     }
+    
 }

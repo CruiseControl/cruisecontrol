@@ -47,30 +47,30 @@ import org.apache.log4j.Logger;
  */
 public class P4Bootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(P4Bootstrapper.class);
-    private String _path;
-    private String _p4Port;
-    private String _p4Client;
-    private String _p4User;
+    private String path;
+    private String p4Port;
+    private String p4Client;
+    private String p4User;
     public void setPath(String path) {
-        _path = path;
+        this.path = path;
     }
     public void setP4Port(String p4Port) {
-        _p4Port = p4Port;
+        this.p4Port = p4Port;
     }
     public void setP4Client(String p4Client) {
-        _p4Client = p4Client;
+        this.p4Client = p4Client;
     }
     public void setP4User(String p4User) {
-        _p4User = p4User;
+        this.p4User = p4User;
     }
     public void validate() throws CruiseControlException {
-        if (_path == null) {
+        if (path == null) {
             throw new CruiseControlException("Path is not set.");
         }
-        failIfNotNullButEmpty(_path, "path");
-        failIfNotNullButEmpty(_p4Port, "P4Port");
-        failIfNotNullButEmpty(_p4Client, "P4Client");
-        failIfNotNullButEmpty(_p4User, "P4User");
+        failIfNotNullButEmpty(path, "path");
+        failIfNotNullButEmpty(p4Port, "P4Port");
+        failIfNotNullButEmpty(p4Client, "P4Client");
+        failIfNotNullButEmpty(p4User, "P4User");
     }
     private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest) throws CruiseControlException {
         if (stringToTest != null && stringToTest.equals("")) {
@@ -85,23 +85,23 @@ public class P4Bootstrapper implements Bootstrapper {
     public String createCommandline() throws CruiseControlException {
         validate();
         StringBuffer commandline = new StringBuffer("p4 -s ");
-        if (_p4Port != null) {
+        if (p4Port != null) {
             commandline.append("-p ");
-            commandline.append(_p4Port);
+            commandline.append(p4Port);
             commandline.append(' ');
         }
-        if (_p4Client != null) {
+        if (p4Client != null) {
             commandline.append("-c ");
-            commandline.append(_p4Client);
+            commandline.append(p4Client);
             commandline.append(' ');
         }
-        if (_p4User != null) {
+        if (p4User != null) {
             commandline.append("-u ");
-            commandline.append(_p4User);
+            commandline.append(p4User);
             commandline.append(' ');
         }
         commandline.append("sync ");
-        commandline.append(_path);
+        commandline.append(path);
         return commandline.toString();
     }
     // TODO: Refactor this into a class. Then we can mock it and unit test bootstrap()

@@ -42,42 +42,40 @@ import java.util.Date;
 
 public class MockModificationSet extends ModificationSet {
 
-    private int modCheckCount = 0;
-
-    Element modifications = new Element("modifications");
-
+    private int _modCheckCount = 0;
+    private Element _modifications = new Element("modifications");
+    private boolean _modified = true;
+    private Date _time = null;
+    
     public Element getModifications(Date lastBuild) {
-        modCheckCount++;
-        return modifications;
+        _modCheckCount++;
+        return _modifications;
     }
 
-    boolean modified = true;
     public boolean isModified() {
-        return modified;
+        return _modified;
     }
     
     public void setModified(boolean isModified) {
-        modified = isModified;
+        _modified = isModified;
     }
 
-    public java.util.Hashtable getProperties(){
+    public java.util.Hashtable getProperties() {
         java.util.Hashtable table = new java.util.Hashtable();
         table.put("filemodified", "true");
         table.put("fileremoved", "true");
         return table;
     }
-
-    Date time = null;
     
     public Date getTimeOfCheck() {
-        return time;
+        return _time;
     }
     
     public void setTimeOfCheck(Date timeOfCheck) {
-        time = timeOfCheck;
+        _time = timeOfCheck;
     }
     
     public int getModCheckCount() {
-        return modCheckCount;
+        return _modCheckCount;
     }
 }

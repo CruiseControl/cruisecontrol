@@ -50,19 +50,19 @@ import java.util.Date;
  */
 public class PauseBuilder {
 
-    private int _day = -1;
-    private int _startTime = -1;
-    private int _endTime = -1;
+    private int day = -1;
+    private int startTime = -1;
+    private int endTime = -1;
     private static final int INVALID_NAME_OF_DAY = -2;
 
     public void validate() throws CruiseControlException {
-        if (_startTime < 0) {
+        if (startTime < 0) {
             throw new CruiseControlException("'starttime' is a required attribute on PauseBuilder");
         }
-        if (_endTime < 0) {
+        if (endTime < 0) {
             throw new CruiseControlException("'endtime' is a required attribute on PauseBuilder");
         }
-        if (_day == INVALID_NAME_OF_DAY) {
+        if (day == INVALID_NAME_OF_DAY) {
             throw new CruiseControlException(
                 "setDay attribute on PauseBuilder requires english name for "
                     + " day of week (case insensitive)");
@@ -72,38 +72,38 @@ public class PauseBuilder {
 
     public void setDay(String dayString) {
         if (dayString.equalsIgnoreCase("sunday")) {
-            _day = Calendar.SUNDAY;
+            day = Calendar.SUNDAY;
         } else if (dayString.equalsIgnoreCase("monday")) {
-            _day = Calendar.MONDAY;
+            day = Calendar.MONDAY;
         } else if (dayString.equalsIgnoreCase("tuesday")) {
-            _day = Calendar.TUESDAY;
+            day = Calendar.TUESDAY;
         } else if (dayString.equalsIgnoreCase("wednesday")) {
-            _day = Calendar.WEDNESDAY;
+            day = Calendar.WEDNESDAY;
         } else if (dayString.equalsIgnoreCase("thursday")) {
-            _day = Calendar.THURSDAY;
+            day = Calendar.THURSDAY;
         } else if (dayString.equalsIgnoreCase("friday")) {
-            _day = Calendar.FRIDAY;
+            day = Calendar.FRIDAY;
         } else if (dayString.equalsIgnoreCase("saturday")) {
-            _day = Calendar.SATURDAY;
+            day = Calendar.SATURDAY;
         } else {
-            _day = INVALID_NAME_OF_DAY;
+            day = INVALID_NAME_OF_DAY;
         }
     }
 
     public void setStartTime(int time) {
-        _startTime = time;
+        startTime = time;
     }
 
     public void setEndTime(int time) {
-        _endTime = time;
+        endTime = time;
     }
 
     public int getStartTime() {
-        return _startTime;
+        return startTime;
     }
 
     public int getEndTime() {
-        return _endTime;
+        return endTime;
     }
 
     /**
@@ -119,19 +119,19 @@ public class PauseBuilder {
         int currentDay = now.get(Calendar.DAY_OF_WEEK);
         int currentTime = Util.getTimeFromDate(date);
 
-        boolean isValidDay = ((_day < 0) || (_day == currentDay));
+        boolean isValidDay = ((day < 0) || (day == currentDay));
 
-        if (_startTime < _endTime) {
+        if (startTime < endTime) {
             return (
-                _startTime <= currentTime
-                    && currentTime <= _endTime
+                startTime <= currentTime
+                    && currentTime <= endTime
                     && isValidDay);
         }
 
         return (
-            (_startTime <= currentTime && (_day < 0 || _day == currentDay))
-                || (currentTime <= _endTime
-                    && (_day < 0 || _day == (currentDay - 1))));
+            (startTime <= currentTime && (day < 0 || day == currentDay))
+                || (currentTime <= endTime
+                    && (day < 0 || day == (currentDay - 1))));
     }
     
 }

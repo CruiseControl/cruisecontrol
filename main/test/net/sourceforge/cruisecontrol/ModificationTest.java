@@ -57,8 +57,10 @@ public class ModificationTest extends TestCase {
         mod.userName = "User<>Name";
         mod.comment = "Comment";
 
-        String base = "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>" +
-        formatter.format(modifiedTime) + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Comment]]></comment>";
+        String base =
+            "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>"
+                + formatter.format(modifiedTime)
+                + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Comment]]></comment>";
         String closingTag = "</modification>";
         String expected = base + closingTag;
         assertEquals(expected, mod.toXml(formatter));
@@ -78,10 +80,14 @@ public class ModificationTest extends TestCase {
         mod.userName = "User<>Name";
         mod.comment = "Attempting to heal the wounded build.\0x18";
 
-        String base = "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>" +
-        formatter.format(modifiedTime) + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Unable to parse comment.  It contains illegal data.]]></comment>";
+        String base =
+            "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>"
+                + formatter.format(modifiedTime)
+                + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Unable"
+                + " to parse comment.  It contains illegal data.]]></comment>";
         String closingTag = "</modification>";
         String expected = base + closingTag;
         assertEquals(expected, mod.toXml(formatter));
     }
+    
 }
