@@ -66,7 +66,8 @@ public class Main {
             controller.setConfigFile(new File(configFileName));
 
             if (shouldStartController(args)) {
-                CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller, parsePort(args));
+                CruiseControlControllerAgent agent
+                        = new CruiseControlControllerAgent(controller, parsePort(args), parseXslPath(args));
                 agent.start();
             }
             controller.resume();
@@ -158,6 +159,17 @@ public class Main {
                     + "', requires integer argument");
         }
         return port;
+    }
+
+    static String parseXslPath(String[] args) throws CruiseControlException {
+        String xslpath = parseArgument(args, "xslpath", null);
+        if (xslpath != null) {
+            File directory = new File(xslpath);
+            if (!directory.isDirectory()) {
+                throw new IllegalArgumentException("'xslpath' argument must specify an existing directory.");
+            }
+        }
+        return xslpath;
     }
 
     /**

@@ -237,6 +237,30 @@ public class MainTest extends TestCase {
         }
     }
 
+    public void testParseXslPath() throws CruiseControlException {
+        String[] correctArgs = new String[] {"-xslpath", "xsl"};
+        String[] missingArgs = new String[] {""};
+        String[] incorrectArgs = new String[] {"-xslpath"};
+        String[] invalidArgs = new String[] {"-xslpath", "does_Not_Exist"};
+
+        assertEquals("xsl", Main.parseXslPath(correctArgs));
+        assertNull(Main.parseXslPath(missingArgs));
+
+        try {
+            Main.parseXslPath(incorrectArgs);
+            fail();
+        } catch (CruiseControlException expected) {
+            assertEquals("'xslpath' argument was not specified.", expected.getMessage());
+        }
+
+        try {
+            Main.parseXslPath(invalidArgs);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertEquals("'xslpath' argument must specify an existing directory.", expected.getMessage());
+        }
+    }
+
     public void testParseArgs() throws Exception {
         String argName = "port";
         String defaultValue = "8080";
