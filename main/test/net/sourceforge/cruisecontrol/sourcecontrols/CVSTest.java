@@ -103,7 +103,7 @@ public class CVSTest extends TestCase {
      * Overrides the getCommandLine() method by returnning a MockCommandLine whose
      * process input stream will read its contents from the specific input stream.
      */
-     static class InputBasedCommandLineMockCVS extends CVS {
+    static class InputBasedCommandLineMockCVS extends CVS {
         private final InputStream inputStream;
         private final String[] expectedCommandline;
         private final String expectedWorkingDirectory;
@@ -115,6 +115,7 @@ public class CVSTest extends TestCase {
             expectedCommandline = expectedCommandLine;
             this.expectedWorkingDirectory = expectedWorkingDirectory;
         }
+
         // factory method for mock...
         protected Commandline getCommandline() {
             final MockCommandline mockCommandline = new MockCommandline();
@@ -637,9 +638,9 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        final CVS cvs = new InputBasedCommandLineMockCVS(input, CVS_VERSION_COMMANDLINE, null);
         assertEquals("differing client & server version",
-            getOfficialCVSVersion("1.11.16"), cvs.getCvsServerVersion());
+                getOfficialCVSVersion("1.11.16"), cvs.getCvsServerVersion());
         assertEquals("differing client & server version", false, cvs.isCvsNewOutputFormat());
         input.close();
     }
@@ -649,9 +650,9 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        final CVS cvs = new InputBasedCommandLineMockCVS(input, CVS_VERSION_COMMANDLINE, null);
         assertEquals("identical client & server version 1.11.16",
-            getOfficialCVSVersion("1.11.16"), cvs.getCvsServerVersion());
+                getOfficialCVSVersion("1.11.16"), cvs.getCvsServerVersion());
         assertEquals("old output format", false, cvs.isCvsNewOutputFormat());
         input.close();
     }
@@ -661,9 +662,9 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        final CVS cvs = new InputBasedCommandLineMockCVS(input, CVS_VERSION_COMMANDLINE, null);
         assertEquals("identical client & server version 1.12.9",
-            getOfficialCVSVersion("1.12.9"), cvs.getCvsServerVersion());
+                getOfficialCVSVersion("1.12.9"), cvs.getCvsServerVersion());
         assertEquals("new output format", true, cvs.isCvsNewOutputFormat());
         input.close();
     }
@@ -674,9 +675,9 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        final CVS cvs = new InputBasedCommandLineMockCVS(input, CVS_VERSION_COMMANDLINE, null);
         assertEquals("differing client & server version",
-            new CVS.Version("CVSNT", "2.0.14"), cvs.getCvsServerVersion());
+                new CVS.Version("CVSNT", "2.0.14"), cvs.getCvsServerVersion());
         assertEquals("differing client & server version", false, cvs.isCvsNewOutputFormat());
         input.close();
     }

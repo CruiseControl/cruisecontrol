@@ -62,10 +62,10 @@ import java.util.StringTokenizer;
  * The call to CVS is assumed to work without any setup. This implies that if
  * the authentication type is pserver the call to cvs login should be done
  * prior to calling this class.
- * <p>
+ * <p/>
  * There are also differing CVS client/server implementations (e.g. the <i>official</i>
  * CVS and the CVSNT fork).
- * <p>
+ * <p/>
  * Note that the log formats of the official CVS have changed starting from version 1.12.9.
  * This class currently knows of 2 different outputs referred to as the 'old'
  * and the 'new' output formats.
@@ -79,56 +79,64 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:m@loonsoft.com">McClain Looney</a>
  */
 public class CVS implements SourceControl {
-    /** name of the official cvs as returned as part of the 'cvs version' command output */
+    /**
+     * name of the official cvs as returned as part of the 'cvs version' command output
+     */
     static final String OFFICIAL_CVS_NAME = "CVS";
 
     /**
      * Represents the version of a CVS client or server
      */
     static class Version {
-        private final String CVSName;
-        private final String CVSVersion;
+        private final String cvsName;
+        private final String cvsVersion;
 
-        public Version(String CVSName, String CVSVersion) {
-            if (CVSName == null) {
-                throw new NullPointerException("null argument name ");
+        public Version(String name, String version) {
+            if (name == null) {
+                throw new IllegalArgumentException("name can't be null");
             }
-            if (CVSVersion == null) {
-                throw new NullPointerException("null argument version ");
+            if (version == null) {
+                throw new IllegalArgumentException("version can't be null");
             }
-            this.CVSName = CVSName;
-            this.CVSVersion = CVSVersion;
+            this.cvsName = name;
+            this.cvsVersion = version;
         }
 
-        public String getCVSName() {
-            return CVSName;
+        public String getCvsName() {
+            return cvsName;
         }
 
-        public String getCVSVersion() {
-            return CVSVersion;
+        public String getCvsVersion() {
+            return cvsVersion;
         }
 
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Version)) return false;
+            if (this == o) {
+                return true;
+            } else if (!(o instanceof Version)) {
+                return false;
+            }
 
             final Version version = (Version) o;
 
-            if (!CVSName.equals(version.CVSName)) return false;
-            if (!CVSVersion.equals(version.CVSVersion)) return false;
+            if (!cvsName.equals(version.cvsName)) {
+                return false;
+            } else if (!cvsVersion.equals(version.cvsVersion)) {
+                return false;
+            }
 
             return true;
         }
 
         public int hashCode() {
             int result;
-            result = CVSName.hashCode();
-            result = 29 * result + CVSVersion.hashCode();
+            result = cvsName.hashCode();
+            result = 29 * result + cvsVersion.hashCode();
             return result;
         }
 
         public String toString() {
-            return CVSName + " " + CVSVersion;
+            return cvsName + " " + cvsVersion;
         }
     }
 
@@ -317,8 +325,7 @@ public class CVS implements SourceControl {
                 final String version;
                 if (nameBegin == -1 || nameEnd < nameBegin || nameBegin + 2 >= line.length()) {
                     name = "";
-                }
-                else {
+                } else {
                     name = line.substring(nameBegin + 2, nameEnd);
                 }
                 int verEnd = line.indexOf(" ", nameEnd + 2);
@@ -355,8 +362,8 @@ public class CVS implements SourceControl {
 
     public boolean isCvsNewOutputFormat() {
         Version version = getCvsServerVersion();
-        if (OFFICIAL_CVS_NAME.equals(version.getCVSName())) {
-            String csv = version.getCVSVersion();
+        if (OFFICIAL_CVS_NAME.equals(version.getCvsName())) {
+            String csv = version.getCvsVersion();
             StringTokenizer st = new StringTokenizer(csv, ".");
             try {
                 st.nextToken();
