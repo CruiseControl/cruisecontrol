@@ -57,14 +57,14 @@ import java.util.Comparator;
  */
 public class NavigationTag implements Tag, BodyTag {
 
-    private Tag _parent;
-    private BodyContent _bodyOut;
-    private PageContext _pageContext;
-    private File _logDir;
-    private String[] _fileNames;
-    private int _count;
-    private DateFormat _dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-    private String _labelSeparator = "L";
+    private Tag parent;
+    private BodyContent bodyOut;
+    private PageContext pageContext;
+    private File logDir;
+    private String[] fileNames;
+    private int count;
+    private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private String labelSeparator = "L";
 
     /**
      *
@@ -80,14 +80,14 @@ public class NavigationTag implements Tag, BodyTag {
     protected String getLinkText(String fileName) {
         String dateString = "";
         String label = "";
-        if(fileName.lastIndexOf(_labelSeparator) > -1) {
-            dateString = fileName.substring(3, fileName.indexOf(_labelSeparator));
-            label = " (" + fileName.substring(fileName.indexOf(_labelSeparator) + 1, fileName.lastIndexOf(".xml")) + ")";            
+        if (fileName.lastIndexOf(labelSeparator) > -1) {
+            dateString = fileName.substring(3, fileName.indexOf(labelSeparator));
+            label = " (" + fileName.substring(fileName.indexOf(labelSeparator) + 1, fileName.lastIndexOf(".xml")) + ")";
         } else {
             dateString = fileName.substring(3, fileName.lastIndexOf(".xml"));
         }
         DateFormat inputDate = null;
-        if(dateString.length() == 14) {
+        if (dateString.length() == 14) {
             inputDate = new SimpleDateFormat("yyyyMMddHHmmss");
         } else {
             inputDate = new SimpleDateFormat("yyyyMMddHHmm");
@@ -100,12 +100,12 @@ public class NavigationTag implements Tag, BodyTag {
             e.printStackTrace();
         }
 
-        return _dateFormat.format(date) + label;
+        return dateFormat.format(date) + label;
     }
 
     protected String getServletPath() {
-        String servletPath = ((HttpServletRequest) _pageContext.getRequest()).getServletPath();
-        String contextPath = ((HttpServletRequest) _pageContext.getRequest()).getContextPath();
+        String servletPath = ((HttpServletRequest) pageContext.getRequest()).getServletPath();
+        String contextPath = ((HttpServletRequest) pageContext.getRequest()).getContextPath();
         return contextPath + servletPath;
     }
 
@@ -113,35 +113,35 @@ public class NavigationTag implements Tag, BodyTag {
      *
      */
     public void setDateFormat(String dateFormat) {
-        _dateFormat = new SimpleDateFormat(dateFormat);
+        this.dateFormat = new SimpleDateFormat(dateFormat);
     }
 
     public int doStartTag() throws JspException {
-        _count = 0;
-        String logDirName = _pageContext.getServletConfig().getInitParameter("logDir");
+        count = 0;
+        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
         if (logDirName == null) {
-            logDirName = _pageContext.getServletContext().getInitParameter("logDir");
+            logDirName = pageContext.getServletContext().getInitParameter("logDir");
         }
-        _logDir = new File(logDirName);
+        logDir = new File(logDirName);
 
-        String logDirPath = _logDir.getAbsolutePath();
+        String logDirPath = logDir.getAbsolutePath();
 
         System.out.println("Scanning directory: " + logDirPath + " for log files.");
 
-        _fileNames = _logDir.list(new FilenameFilter() {
+        fileNames = logDir.list(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.startsWith("log") && name.endsWith(".xml") && !(new File(dir, name).isDirectory());
             }
         });
 
-        if(_fileNames == null) {
+        if (fileNames == null) {
             throw new JspException(
                     "Configuration problem? No logs found in logDir: "
                     + logDirPath);
         }
 
         //sort links...
-        Arrays.sort(_fileNames, new Comparator() {
+        Arrays.sort(fileNames, new Comparator() {
             public int compare(Object o1, Object o2) {
                 return ((String) o2).compareTo((String) o1);
             }
@@ -151,22 +151,22 @@ public class NavigationTag implements Tag, BodyTag {
     }
 
     public void doInitBody() throws JspException {
-        if (_count < _fileNames.length) {
-            _pageContext.setAttribute("url", getUrl(_fileNames[_count], getServletPath()));
-            _pageContext.setAttribute("linktext", getLinkText(_fileNames[_count]));
-            _count++;
+        if (count < fileNames.length) {
+            pageContext.setAttribute("url", getUrl(fileNames[count], getServletPath()));
+            pageContext.setAttribute("linktext", getLinkText(fileNames[count]));
+            count++;
         }
     }
 
     public int doAfterBody() throws JspException {
-        if (_count < _fileNames.length) {
-            _pageContext.setAttribute("url", getUrl(_fileNames[_count], getServletPath()));
-            _pageContext.setAttribute("linktext", getLinkText(_fileNames[_count]));
-            _count++;
+        if (count < fileNames.length) {
+            pageContext.setAttribute("url", getUrl(fileNames[count], getServletPath()));
+            pageContext.setAttribute("linktext", getLinkText(fileNames[count]));
+            count++;
             return EVAL_BODY_TAG;
         } else {
             try {
-                _bodyOut.writeOut(_bodyOut.getEnclosingWriter());
+                bodyOut.writeOut(bodyOut.getEnclosingWriter());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -178,7 +178,7 @@ public class NavigationTag implements Tag, BodyTag {
     }
 
     public void setPageContext(PageContext pageContext) {
-        _pageContext = pageContext;
+        this.pageContext = pageContext;
     }
 
     public int doEndTag() throws JspException {
@@ -186,14 +186,14 @@ public class NavigationTag implements Tag, BodyTag {
     }
 
     public void setParent(Tag parent) {
-        _parent = parent;
+        this.parent = parent;
     }
 
     public Tag getParent() {
-        return _parent;
+        return parent;
     }
 
     public void setBodyContent(BodyContent bodyOut) {
-        _bodyOut = bodyOut;
+        this.bodyOut = bodyOut;
     }
 }

@@ -49,7 +49,8 @@ public class NavigationTagTest extends TestCase {
 
     public void testGetUrl() {
         NavigationTag tag = new NavigationTag();
-        assertEquals("cruisecontrol/buildresults?log=log20020222120000", tag.getUrl("log20020222120000.xml", "cruisecontrol/buildresults"));
+        final String expectedValue = "cruisecontrol/buildresults?log=log20020222120000";
+        assertEquals(expectedValue, tag.getUrl("log20020222120000.xml", "cruisecontrol/buildresults"));
     }
 
     public void testGetLinkText() {

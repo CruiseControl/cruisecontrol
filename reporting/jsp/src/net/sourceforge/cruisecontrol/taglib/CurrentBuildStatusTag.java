@@ -1,6 +1,6 @@
-/*******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,8 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
+
 package net.sourceforge.cruisecontrol.taglib;
 
 import javax.servlet.jsp.PageContext;
@@ -48,31 +49,31 @@ import java.io.BufferedReader;
 
 public class CurrentBuildStatusTag implements Tag, BodyTag {
 
-    private BodyContent _bodyOut;
-    private Tag _parent;
-    private PageContext _pageContext;
+    private BodyContent bodyOut;
+    private Tag parent;
+    private PageContext pageContext;
 
     public int doAfterBody() throws JspException {
-        // writeStatus(_bodyOut.getEnclosingWriter());
+        // writeStatus(bodyOut.getEnclosingWriter());
         return SKIP_BODY;
     }
 
     public int doEndTag() throws JspException {
-        writeStatus(_pageContext.getOut());
+        writeStatus(pageContext.getOut());
         return EVAL_PAGE;
     }
 
     private void writeStatus(java.io.Writer out) throws JspException {
         BufferedReader br = null;
-        String currentBuildFileName = _pageContext.getServletConfig().getInitParameter("currentBuildStatusFile");
+        String currentBuildFileName = pageContext.getServletConfig().getInitParameter("currentBuildStatusFile");
         if (currentBuildFileName == null) {
-            currentBuildFileName =_pageContext.getServletContext().getInitParameter("currentBuildStatusFile");
+            currentBuildFileName = pageContext.getServletContext().getInitParameter("currentBuildStatusFile");
         }
 
         try {
             br = new BufferedReader(new FileReader(currentBuildFileName));
             String s = br.readLine();
-            while(s != null) {
+            while (s != null) {
                 out.write(s);
                 s = br.readLine();
             }
@@ -82,7 +83,9 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
                     + currentBuildFileName + " : " + e.getMessage());
         } finally {
             try {
-               if(br != null) br.close();
+               if (br != null) {
+                   br.close();
+               }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -95,24 +98,24 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
     }
 
     public Tag getParent() {
-        return _parent;
+        return parent;
     }
 
     public void release() {
     }
 
     public void setPageContext(PageContext pageContext) {
-        _pageContext = pageContext;
+        this.pageContext = pageContext;
     }
 
     public void setParent(Tag parent) {
-        _parent = parent;
+        this.parent = parent;
     }
 
     public void doInitBody() throws JspException {
     }
 
     public void setBodyContent(BodyContent bodyOut) {
-        _bodyOut = bodyOut;
+        this.bodyOut = bodyOut;
     }
 }
