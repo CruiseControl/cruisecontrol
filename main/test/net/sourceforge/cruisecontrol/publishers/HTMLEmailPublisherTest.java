@@ -36,12 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.jdom.Element;
-
-import java.io.File;
 
 public class HTMLEmailPublisherTest extends TestCase {
 
@@ -166,36 +164,10 @@ public class HTMLEmailPublisherTest extends TestCase {
         assertEquals(withCharset, publisher.getContentType());
     }
 
-    private void setEmailPublisherVariables(HTMLEmailPublisher publisher) {
-        publisher.setBuildResultsURL("url");
-        publisher.setMailHost("host");
-        publisher.setReturnAddress("address");
-    }
-
-    /**
-     * used from main.  not a test because of the need for hardcoded paths.
-     * leaving it in as it might be useful to others for local testing
-     * (after editing paths)
-     */
-    private void generateMessage() {
-        HTMLEmailPublisher testPublisher = new HTMLEmailPublisher();
-        testPublisher.setLogDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\main");
-        testPublisher.setXSLDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\xsl\\");
-        testPublisher.setCSS(
-            "c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\css\\cruisecontrol.css");
-        XMLLogHelper helper = new TestHelper();
-        String message = testPublisher.createMessage(helper);
-        System.out.print(message);
-    }
-
-    private class TestHelper extends XMLLogHelper {
-        TestHelper() {
-            super(new Element("foo"));
-        }
-
-        public String getLogFileName() {
-            return "TestLog.xml";
-        }
+    private void setEmailPublisherVariables(HTMLEmailPublisher htmlemailpublisher) {
+        htmlemailpublisher.setBuildResultsURL("url");
+        htmlemailpublisher.setMailHost("host");
+        htmlemailpublisher.setReturnAddress("address");
     }
 
 }
