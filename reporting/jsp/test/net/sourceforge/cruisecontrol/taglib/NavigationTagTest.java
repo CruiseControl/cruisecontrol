@@ -45,7 +45,6 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
-import net.sourceforge.cruisecontrol.mock.MockServletContext;
 import net.sourceforge.cruisecontrol.mock.MockServletRequest;
 
 public class NavigationTagTest extends TestCase {
@@ -61,9 +60,6 @@ public class NavigationTagTest extends TestCase {
     public void setUp() throws IOException {
         tag = new NavigationTag();
         pageContext = new MockPageContext();
-        final MockServletConfig config = new MockServletConfig();
-        pageContext.setServletConfig(config);
-        pageContext.setServletContext(new MockServletContext());
         MockServletRequest request = new MockServletRequest("context", "servlet");
         pageContext.setHttpServletRequest(request);
 
@@ -74,7 +70,8 @@ public class NavigationTagTest extends TestCase {
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
-        config.setInitParameter("logDir", logDir.getAbsolutePath());
+        final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
+        servletConfig.setInitParameter("logDir", logDir.getAbsolutePath());
 
         logFiles = new File[] { new File(logDir, "log20020222120000.xml"), new File(logDir, "log20020223120000.xml"),
                                 new File(logDir, "log20020224120000.xml"), new File(logDir, "log20020225120000.xml") };

@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.File;
 import javax.servlet.jsp.JspException;
 
 public class CurrentBuildStatusTag extends CruiseControlTagSupport {
@@ -51,13 +52,18 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
     private void writeStatus(java.io.Writer out) throws JspException {
         BufferedReader br = null;
-        String currentBuildFileName = getPageContext().getServletConfig().getInitParameter("currentBuildStatusFile");
-        if (currentBuildFileName == null) {
-            currentBuildFileName = getPageContext().getServletContext().getInitParameter("currentBuildStatusFile");
-        }
+        File logDir = findLogDir();
 
+        String currentBuildFileName = getContextParam("currentBuildStatusFile");
+        if (currentBuildFileName == null) {
+            throw new JspException("You need to declare the current build file");
+        }
+        File currentBuildFile = new File(logDir, currentBuildFileName);
+        if (!currentBuildFile.exists()) {
+            return;
+        }
         try {
-            br = new BufferedReader(new FileReader(currentBuildFileName));
+            br = new BufferedReader(new FileReader(currentBuildFile));
             String s = br.readLine();
             while (s != null) {
                 out.write(s);
@@ -65,8 +71,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new JspException("Error reading status file: "
-                    + currentBuildFileName + " : " + e.getMessage());
+            throw new JspException("Error reading status file: " + currentBuildFileName + " : " + e.getMessage());
         } finally {
             try {
                if (br != null) {
