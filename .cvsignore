@@ -5,3 +5,7 @@ vssver.scc
 .project
 CruiseControl.iws
 CruiseControl.ipr
+test-results
+_auxLogs
+logs
+
