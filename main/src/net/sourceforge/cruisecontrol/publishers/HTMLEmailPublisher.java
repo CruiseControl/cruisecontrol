@@ -41,15 +41,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -71,8 +66,7 @@ import org.apache.log4j.Logger;
  */
 public class HTMLEmailPublisher extends EmailPublisher {
 
-    private static final Logger LOG =
-        Logger.getLogger(HTMLEmailPublisher.class);
+    private static final Logger LOG = Logger.getLogger(HTMLEmailPublisher.class);
 
     private String xslFile;
     private String xslDir;
@@ -121,11 +115,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
     }
 
-    private void verifyDirectory(String dirName, String dir)
-        throws CruiseControlException {
+    private void verifyDirectory(String dirName, String dir) throws CruiseControlException {
         if (dir == null) {
-            throw new CruiseControlException(
-                dirName + " not specified in configuration file");
+            throw new CruiseControlException(dirName + " not specified in configuration file");
         }
         File dirFile = new File(dir);
         if (!dirFile.exists()) {
@@ -138,17 +130,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
     }
 
-    private void verifyFile(String fileName, String file)
-        throws CruiseControlException {
+    private void verifyFile(String fileName, String file) throws CruiseControlException {
         if (file == null) {
-            throw new CruiseControlException(
-                fileName + " not specified in configuration file");
+            throw new CruiseControlException(fileName + " not specified in configuration file");
         }
         verifyFile(fileName, new File(file));
     }
 
-    private void verifyFile(String fileName, File file)
-        throws CruiseControlException {
+    private void verifyFile(String fileName, File file) throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException(
                 fileName + " does not exist: " + file.getAbsolutePath());
@@ -160,38 +149,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     /**
-     *  @param toList comma delimited <code>String</code> of email addresses
-     *  @param subject subject line for the message
-     *  @param message body of the message
-     *  @throws CruiseControlException
+     * sets the content as an attachment w/proper mime-type
      */
-    protected void sendMail(String toList, String subject, String message)
-        throws CruiseControlException {
-        LOG.info("Sending mail notifications.");
-        Session session = Session.getDefaultInstance(getMailProperties(), null);
-        session.setDebug(LOG.isDebugEnabled());
+    protected void addContentToMessage(String htmlContent, Message msg) throws MessagingException {
+        MimeMultipart attachments = new MimeMultipart();
+        MimeBodyPart textbody = new MimeBodyPart();
+        String contentType = getContentType();
+        textbody.setContent(htmlContent, contentType);
+        attachments.addBodyPart(textbody);
 
-        try {
-            Message msg = new MimeMessage(session);
-            msg.setFrom(getFromAddress());
-            msg.setRecipients(
-                Message.RecipientType.TO,
-                InternetAddress.parse(toList, false));
-            msg.setSubject(subject);
-            msg.setSentDate(new Date());
-
-            MimeMultipart attachments = new MimeMultipart();
-            MimeBodyPart textbody = new MimeBodyPart();
-            String contentType = getContentType();
-            textbody.setContent(message, contentType);
-            attachments.addBodyPart(textbody);
-
-            msg.setContent(attachments);
-
-            Transport.send(msg);
-        } catch (MessagingException e) {
-            throw new CruiseControlException(e.getMessage());
-        }
+        msg.setContent(attachments);
     }
 
     String getContentType() {
@@ -208,16 +175,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * etc.
      * @param xslFile
      */
-    public void setXSLFile(String xslFile) {
-        this.xslFile = xslFile;
+    public void setXSLFile(String fullPathToXslFile) {
+        xslFile = fullPathToXslFile;
     }
 
     /**
      * Directory where xsl files are located.
      * @param xslDir
      */
-    public void setXSLDir(String xslDir) {
-        this.xslDir = xslDir;
+    public void setXSLDir(String xslDirectory) {
+        xslDir = xslDirectory;
     }
 
     /**
@@ -247,8 +214,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * Path to cruisecontrol.css.  Only used with xslDir, not xslFile.
      * @param css
      */
-    public void setCSS(String css) {
-        this.css = css;
+    public void setCSS(String cssFilename) {
+        css = cssFilename;
     }
 
     /**
@@ -256,12 +223,12 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * xml file.
      * @param logDir
      */
-    public void setLogDir(String logDir) {
-        if (logDir == null) {
+    public void setLogDir(String directory) {
+        if (directory == null) {
             throw new IllegalArgumentException("logDir cannot be null!");
         }
 
-        this.logDir = logDir;
+        this.logDir = directory;
     }
 
     public void setCharset(String characterSet) {
@@ -275,7 +242,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @return created message; empty string if logDir not set
      */
 
-    //TODO: address whether this should ever return null;
+    // TODO: address whether this should ever return null;
     // dependent also on transform(File) and createLinkLine()
     protected String createMessage(XMLLogHelper logHelper) {
         String message = "";
@@ -356,20 +323,15 @@ public class HTMLEmailPublisher extends EmailPublisher {
         File inFile,
         StringBuffer messageBuffer,
         TransformerFactory tFactory,
-        File xslFile)
+        File xsl)
         throws IOException, TransformerException {
         messageBuffer.append("<p>\n");
-        Transformer transformer =
-            tFactory.newTransformer(new StreamSource(xslFile));
+        Transformer transformer = tFactory.newTransformer(new StreamSource(xsl));
         File outFile = File.createTempFile("mail", ".html");
         try {
-            transformer.transform(
-                new StreamSource(inFile),
-                new StreamResult(outFile));
+            transformer.transform(new StreamSource(inFile), new StreamResult(outFile));
         } catch (Exception e) {
-            LOG.error(
-                "error transforming with xslFile " + xslFile.getName(),
-                e);
+            LOG.error("error transforming with xslFile " + xsl.getName(), e);
             return;
         }
         FileReader outfileReader = new FileReader(outFile);
@@ -381,8 +343,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
     }
 
-    protected void appendHeader(StringBuffer messageBuffer)
-        throws IOException {
+    protected void appendHeader(StringBuffer messageBuffer) throws IOException {
         messageBuffer.append("<html><head>\n<style>\n");
 
         File cssFile = new File(css);
