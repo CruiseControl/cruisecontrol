@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+build.xml (jsp)
+----------------------
+* will build war w/out jars in WEB-INF/lib if property jdk1.4 is defined.
+
 Project
 ----------------------
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
@@ -7,6 +11,10 @@ Project
 SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
+
+TabSheetTag
+----------------------
+* changed to not use images for tabs. should make it easier to add new tabs.
 
 CruiseControl Release Notes - 2.1.4
 
