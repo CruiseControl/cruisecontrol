@@ -102,6 +102,8 @@ public class PluginXMLHelper {
                 adders.add(method);
             }
         }
+        
+        setFromPluginDef(setters, object);
 
         setFromAttributes(objectElement, setters, object);
 
@@ -148,33 +150,48 @@ public class PluginXMLHelper {
     }
 
     private void setFromAttributes(Element objectElement, Map setters, Object object) throws CruiseControlException {
-        Iterator attributeIterator = objectElement.getAttributes().iterator();
-        while (attributeIterator.hasNext()) {
-            Attribute attribute = (Attribute) attributeIterator.next();
-            if (setters.containsKey(attribute.getName().toLowerCase())) {
-                LOG.debug("Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
-                try {
-                    Method method = (Method) setters.get(attribute.getName().toLowerCase());
-                    Class[] parameters = method.getParameterTypes();
-                    if (String.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{attribute.getValue()});
-                    } else if (int.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{new Integer(attribute.getIntValue())});
-                    } else if (long.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{new Long(attribute.getLongValue())});
-                    } else if (boolean.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object,
-                                new Object[]{new Boolean(attribute.getBooleanValue())});
-                    } else {
-                        LOG.error("Couldn't invoke setter " + attribute.getName().toLowerCase());
-                    }
-                } catch (Exception e) {
-                    LOG.fatal("Error configuring plugin.", e);
-                }
-            } else {
-                throw new CruiseControlException("Attribute: '" + attribute.getName()
-                        + "' is not supported for class: '" + object.getClass().getName() + "'.");
-            }
+        for (Iterator iter = objectElement.getAttributes().iterator(); iter.hasNext(); ) {
+            Attribute attribute = (Attribute) iter.next();
+            callSetter(attribute.getName(), attribute.getValue(), setters, object);
         }
     }
+    
+    private void setFromPluginDef(Map setters, Object pluginInstance) throws CruiseControlException {
+        String className = pluginInstance.getClass().getName();
+        Map defaultProperties = projectHelper.getPlugins().getDefaultProperties(className);
+        for (Iterator iter = defaultProperties.entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            callSetter((String) entry.getKey(), (String) entry.getValue(), setters, pluginInstance);
+        }
+    }
+    
+    private void callSetter(String propName, String propValue, Map setters, Object object) 
+        throws CruiseControlException {
+        
+        if (setters.containsKey(propName.toLowerCase())) {
+            LOG.debug("Setting " + propName.toLowerCase() + " to " + propValue);
+            try {
+                Method method = (Method) setters.get(propName.toLowerCase());
+                Class[] parameters = method.getParameterTypes();
+                if (String.class.isAssignableFrom(parameters[0])) {
+                    method.invoke(object, new Object[]{propValue});
+                } else if (int.class.isAssignableFrom(parameters[0])) {
+                    method.invoke(object, new Object[]{Integer.valueOf(propValue)});
+                } else if (long.class.isAssignableFrom(parameters[0])) {
+                    method.invoke(object, new Object[]{Long.valueOf(propValue)});
+                } else if (boolean.class.isAssignableFrom(parameters[0])) {
+                    method.invoke(object,
+                            new Object[]{new Boolean(propValue)});
+                } else {
+                    LOG.error("Couldn't invoke setter " + propName.toLowerCase());
+                }
+            } catch (Exception e) {
+                LOG.fatal("Error configuring plugin.", e);
+            }
+        } else {
+            throw new CruiseControlException("Attribute: '" + propName
+                    + "' is not supported for class: '" + object.getClass().getName() + "'.");
+        }
+    }
+
 }

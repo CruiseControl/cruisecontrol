@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.publishers.MockPublisher;
+import net.sourceforge.cruisecontrol.publishers.email.MockMapping;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -83,8 +85,13 @@ public class PluginXMLHelperTest extends TestCase {
         childMapper.setAttribute("address", "foo");
         testElement.addContent(childMapper);
 
+        Element pluginElement = new Element("plugin");
+        pluginElement.setAttribute("name", "mockMapper");
+        pluginElement.setAttribute("classname", "net.sourceforge.cruisecontrol.publishers.email.MockMapping");
+        // set a default value for the 'mockProperty' property of the MockMapping
+        pluginElement.setAttribute("mockProperty", "bar");
         PluginRegistry registry = projectXmlHelper.getPlugins();
-        registry.register("mockMapper", "net.sourceforge.cruisecontrol.publishers.email.MockMapping");
+        registry.register(pluginElement);
 
         MockPublisher plugin = (MockPublisher) helper.configure(testElement,
                 Class.forName("net.sourceforge.cruisecontrol.publishers.MockPublisher"), false);
@@ -95,7 +102,8 @@ public class PluginXMLHelperTest extends TestCase {
         assertEquals("childString", plugin.getMockPluginChild().getSomeString());
         assertEquals(SOME_OTHER_INT, plugin.getMockPluginChild().getSomeInt());
         assertEquals("foo", plugin.getEmailMapping().getAddress());
-    }
+        assertEquals("bar", ((MockMapping) plugin.getEmailMapping()).getMockProperty());
+}
 
     public void testConfigureNoClass() {
         try {

@@ -43,4 +43,14 @@ package net.sourceforge.cruisecontrol.publishers.email;
  * Time: 2:32:32 PM
  */
 public class MockMapping extends EmailMapping {
+    
+    private String mockProperty;
+
+    public String getMockProperty() {
+        return mockProperty;
+    }
+    
+    public void setMockProperty(String mockProperty) {
+        this.mockProperty = mockProperty;
+    }
 }
