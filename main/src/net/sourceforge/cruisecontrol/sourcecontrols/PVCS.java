@@ -61,6 +61,7 @@ public class PVCS implements SourceControl {
     private Hashtable _properties = new Hashtable();
     private String _property;
     private String _propertyOnDelete;
+    private Date lastBuild;
 
         private String _pvcsProject;
         // i.e. "esa";
@@ -127,6 +128,7 @@ public class PVCS implements SourceControl {
          *  Note:  Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
 	 */
 	public List getModifications(Date lastBuild, Date now) {
+                this.lastBuild = lastBuild;
                 // build file of PVCS command line instructions
                 String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
                 String nowDate = IN_DATE_FORMAT.format(now);
@@ -267,7 +269,21 @@ public class PVCS implements SourceControl {
                 }
                 else if (line.startsWith("Workfile:")){ 
                     modification.fileName = line.substring(18);
-                }           
+                }
+                else if (line.startsWith("Archive created:")) {
+                    try {
+                        String createdDate = line.substring(18);
+                        Date createTime = OUT_DATE_FORMAT.parse(createdDate);
+                        if (createTime.after(lastBuild)) {
+                            modification.type = "added";
+                        } else {
+                            modification.type = "modified";
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        log.error("Error parsing create date : ", e);
+                    }
+                }
                 else if (line.startsWith("Last modified:")){
                     // if this is the newest revision...
                     if (firstModifiedTime){
@@ -278,6 +294,7 @@ public class PVCS implements SourceControl {
                         }
                         catch (ParseException e) {
                             modification.modifiedTime = null;
+                            log.error("Error parsing modification time : ", e);
                         }
                     }
                 }
