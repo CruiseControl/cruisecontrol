@@ -166,6 +166,7 @@ public final class PluginRegistry {
         registry.register("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
         registry.register("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
         registry.register("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
+        registry.register("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
         registry.register("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
         registry.register("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
         registry.register("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
