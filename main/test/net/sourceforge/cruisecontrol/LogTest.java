@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.text.ParseException;
 
 
 public class LogTest extends TestCase {
@@ -62,5 +63,25 @@ public class LogTest extends TestCase {
 
         assertEquals("log20040812010101.xml", Log.formatLogFileName(augTweleve));
         assertEquals("log20040812010101Lbuild.1.xml", Log.formatLogFileName(augTweleve, "build.1"));
+    }
+
+    public void testWasSuccessfulBuild() {
+        assertTrue(Log.wasSuccessfulBuild("log20040812010101Lbuild.1.xml"));
+        assertFalse(Log.wasSuccessfulBuild("log20040812010101.xml"));
+        assertFalse(Log.wasSuccessfulBuild(null));
+    }
+
+    public void testParseDateFromLogFileName() throws ParseException {
+        Calendar augTweleveCalendar = Calendar.getInstance();
+        augTweleveCalendar.set(2004, 7, 12, 1, 1, 1);
+        Date augTweleve = augTweleveCalendar.getTime();
+
+        assertEquals(augTweleve.toString(), Log.parseDateFromLogFileName("log20040812010101Lbuild.1.xml").toString());
+        assertEquals(augTweleve.toString(), Log.parseDateFromLogFileName("log20040812010101.xml").toString());
+    }
+
+    public void testParseLabelFromLogFileName() {
+        assertEquals("build.1", Log.parseLabelFromLogFileName("log20040812010101Lbuild.1.xml"));
+        assertEquals("", Log.parseLabelFromLogFileName("log20040812010101.xml"));
     }
 }

@@ -49,6 +49,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 /**
  * Handles the Log element, and subelements, of the CruiseControl configuration
@@ -190,11 +192,11 @@ public class Log {
         }
     }
 
-    static String formatLogFileName(Date date) {
+    public static String formatLogFileName(Date date) {
         return formatLogFileName(date, null);
     }
 
-    static String formatLogFileName(Date date, String label) {
+    public static String formatLogFileName(Date date, String label) {
         StringBuffer logFileName = new StringBuffer();
         logFileName.append("log");
         logFileName.append(Project.getFormatedTime(date));
@@ -225,5 +227,28 @@ public class Log {
      */
     public void reset() {
         this.buildLog = new Element("cruisecontrol");
+    }
+
+    public static boolean wasSuccessfulBuild(String filename) {
+        if (filename == null) {
+            return false;
+        }
+        return filename.matches("log\\d{14}L.*\\.xml");
+    }
+
+    public static Date parseDateFromLogFileName(String filename) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        return formatter.parse(filename.substring(3, 17));
+    }
+
+    public static String parseLabelFromLogFileName(String filename) {
+        if (!Log.wasSuccessfulBuild(filename)) {
+            return "";
+        }
+        String beforeLabel = "log??????????????L";
+        String afterLabel = ".xml";
+        String label = filename.substring(beforeLabel.length());
+        label = label.substring(0, label.length() - afterLabel.length());
+        return label;
     }
 }
