@@ -37,11 +37,8 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -53,11 +50,14 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  * we often see builds that fail because the previous build is still holding on to some resource.
@@ -101,33 +101,26 @@ public class AntBuilder extends Builder {
 
         Process p = null;
         try {
-            String[] commandLine =
-                    getCommandLineArgs(buildProperties,
-                            useLogger,
-                            antScript != null,
-                            isWindows());
+            String[] commandLine = getCommandLineArgs(buildProperties, useLogger, antScript != null, isWindows());
 
-            File workingDir =
-                    (antWorkingDir != null) ? (new File(antWorkingDir)) : null;
+            File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
-            StringBuffer sb = new StringBuffer();
-            sb.append("Executing Command: ");
-            for (int i = 0; i < commandLine.length; i++) {
-                String arg = commandLine[i];
-                sb.append(arg);
-                sb.append(" ");
+            if (LOG.isDebugEnabled()) {
+                StringBuffer sb = new StringBuffer();
+                sb.append("Executing Command: ");
+                for (int i = 0; i < commandLine.length; i++) {
+                    sb.append(commandLine[i]).append(" ");
+                }
+                if (antWorkingDir != null) {
+                    sb.append("in directory " + workingDir.getCanonicalPath());
+                }
+                LOG.debug(sb);
             }
-            if (antWorkingDir != null) {
-                sb.append("in directory " + workingDir.getCanonicalPath());
-            }
-            LOG.debug(sb.toString());
-
 
             p = Runtime.getRuntime().exec(commandLine, null, workingDir);
         } catch (IOException e) {
             throw new CruiseControlException("Encountered an IO exception while attempting to execute Ant."
-                    + " CruiseControl cannot continue.",
-                    e);
+                    + " CruiseControl cannot continue.", e);
         }
 
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
@@ -155,36 +148,26 @@ public class AntBuilder extends Builder {
         outPumper.flush();
         errorPumper.flush();
 
+        File logFile = new File(antWorkingDir, tempFileName);
+        Element buildLogElement;
         if (killer.processKilled()) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
-            Element timeoutLogElement = new Element("build");
-            timeoutLogElement.setAttribute("error", "build timeout");
+            buildLogElement = new Element("build");
+            buildLogElement.setAttribute("error", "build timeout");
             // although log file is most certainly empy, let's try to preserve it
             // somebody should really fix ant's XmlLogger
-            File logFile = new File(antWorkingDir, tempFileName);
             if (logFile.exists()) {
                 try {
-                    timeoutLogElement.setText(getFileContent(logFile));
+                    buildLogElement.setText(Util.readFileToString(logFile));
                 } catch (IOException likely) {
                 }
             }
-            return timeoutLogElement;
         } else {
             //read in log file as element, return it
-            File logFile = new File(antWorkingDir, tempFileName);
-            if (!logFile.exists()) {
-                LOG.error("Ant logfile ["
-                        + logFile.getAbsolutePath()
-                        + "] cannot be found");
-            }
-
-            Element buildLogElement = getAntLogAsElement(logFile);
-            if (logFile.exists()) {
-                logFile.delete();
-            }
-
-            return buildLogElement;
+            buildLogElement = getAntLogAsElement(logFile);
+            logFile.delete();
         }
+        return buildLogElement;
     }
 
     /**
@@ -344,30 +327,30 @@ public class AntBuilder extends Builder {
         return cmdLine.getCommandline();
     }
 
-    /**
-     * JDOM doesn't like the <?xml:stylesheet ?> tag.  we don't need it, so we'll skip it.
-     * TO DO: make sure that we are only skipping this string and not something else
-     */
     protected static Element getAntLogAsElement(File file) throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException("ant logfile " + file.getAbsolutePath() + " does not exist.");
         }
         try {
-            String beginning = getFileContent(file);
-            int skip = beginning.lastIndexOf("<build");
-            if (skip < 0) {
-                throw new CruiseControlException("build tag not found in " + file.getAbsolutePath());
-            }
-
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            bufferedReader.skip(skip);
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+
+            // old Ant-versions contain a bug in the XmlLogger that outputs
+            // an invalid PI containing the target "xml:stylesheet" 
+            // instead of "xml-stylesheet": fix this
+            XMLFilter piFilter = new XMLFilterImpl() {
+                public void processingInstruction(String target, String data) throws SAXException {
+                    if (target.equals("xml:stylesheet")) { target = "xml-stylesheet"; }
+                    super.processingInstruction(target, data);
+                }
+            };
+
             // get rid of empty <task>- and <message>-elements created by Ant's XmlLogger
             XMLFilter emptyTaskFilter = new EmptyElementFilter("task");
+            emptyTaskFilter.setParent(piFilter);
             XMLFilter emptyMessageFilter = new EmptyElementFilter("message");
             emptyMessageFilter.setParent(emptyTaskFilter);
             builder.setXMLFilter(emptyMessageFilter);
-            return builder.build(bufferedReader).getRootElement();
+            return builder.build(file).getRootElement();
         } catch (Exception ee) {
             if (ee instanceof CruiseControlException) {
                 throw (CruiseControlException) ee;
@@ -376,24 +359,6 @@ public class AntBuilder extends Builder {
             file.renameTo(saveFile);
             throw new CruiseControlException("Error reading : " + file.getAbsolutePath()
                     + ".  Saved as : " + saveFile.getAbsolutePath(), ee);
-        }
-    }
-
-    private static String getFileContent(File f) throws IOException {
-        Reader r = new FileReader(f);
-        try {
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < 150; i++) {
-                int character = r.read();
-                if (character == -1) {
-                    break;
-                }
-                sb.append((char) character);
-            }
-            String beginning = sb.toString();
-            return beginning;
-        } finally {
-            r.close();
         }
     }
 
