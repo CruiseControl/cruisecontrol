@@ -37,13 +37,11 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
@@ -58,16 +56,16 @@ public class NavigationTag extends CruiseControlTagSupport {
     public static final String URL_ATTR = "url";
     public static final String LOG_FILE_ATTR = "logfile";
 
-    private File logDir;
-    private String[] fileNames;
-    private int count;
+    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
+
+    private String[] fileNames; // the log files in the log directory.
+    private int count;  // How many times around the loop have we gone.
     private DateFormat dateFormat = US_DATE_FORMAT;
 
     private int startingBuildNumber = 0;
     private int finalBuildNumber = Integer.MAX_VALUE;
     private int endPoint;
-    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
-    private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
     private String extractLogNameFromFileName(String fileName) {
         return fileName.substring(0, fileName.lastIndexOf(".xml"));
@@ -103,11 +101,7 @@ public class NavigationTag extends CruiseControlTagSupport {
     public int doStartTag() throws JspException {
         String [] logFileNames = findLogFiles();
         //sort links...
-        Arrays.sort(logFileNames, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return ((String) o2).compareTo((String) o1);
-            }
-        });
+        Arrays.sort(logFileNames, new ReversedComparator());
         setFileNames(logFileNames);
         count = Math.max(0, startingBuildNumber);
         endPoint = Math.min(finalBuildNumber, fileNames.length - 1) + 1;
@@ -119,10 +113,10 @@ public class NavigationTag extends CruiseControlTagSupport {
     }
 
     private String[] findLogFiles() throws JspException {
-        logDir = findLogDir();
+        File logDir = findLogDir();
         String logDirPath = logDir.getAbsolutePath();
         info("Scanning directory: " + logDirPath + " for log files.");
-        String [] logFileNames = logDir.list(new CruiseLogFileNameFilter());
+        String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
             throw new JspException("Could not access the directory " + logDirPath);
         } else if (logFileNames.length == 0) {
@@ -188,16 +182,4 @@ public class NavigationTag extends CruiseControlTagSupport {
         dateFormat = new SimpleDateFormat(dateFormatString);
     }
 
-    private static class CruiseLogFileNameFilter implements FilenameFilter {
-        public boolean accept(File dir, String name) {
-            if (!name.startsWith("log")) {
-                return false;
-            } else if (!name.endsWith(".xml")) {
-                return false;
-            } else if (new File(dir, name).isDirectory()) {
-                return false;
-            }
-            return true;
-        }
-    }
 }

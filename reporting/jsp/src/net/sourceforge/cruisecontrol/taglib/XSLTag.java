@@ -40,14 +40,12 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
-import java.util.Comparator;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -185,17 +183,9 @@ public class XSLTag extends CruiseControlTagSupport implements Tag, BodyTag {
      *  @return The latest log file.
      */
     protected File getLatestLogFile(File logDir) {
-        File[] logs = logDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return (name.startsWith("log") && name.endsWith(".xml") && name.length() > 7);
-            }
-        });
+        File[] logs = logDir.listFiles(new CruiseControlLogFileFilter());
         if (logs != null && logs.length > 0) {
-            Arrays.sort(logs, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    return ((File) o2).getName().compareTo(((File) o1).getName());
-                }
-            });
+            Arrays.sort(logs, new ReversedComparator());
             return logs[0];
         } else {
             return null;
