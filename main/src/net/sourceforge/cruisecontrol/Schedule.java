@@ -91,8 +91,7 @@ public class Schedule {
     public boolean isPaused(Date now) {
         PauseBuilder pause = findPause(now);
         if (pause != null) {
-            LOG.info(
-                "CruiseControl is paused until: " + getEndTimeString(pause));
+            LOG.info("CruiseControl is paused until: " + getEndTimeString(pause));
             return true;
         }
         return false;
@@ -136,11 +135,7 @@ public class Schedule {
      *
      *  @return JDOM Element representation of build log.
      */
-    public Element build(
-        int buildNumber,
-        Date lastBuild,
-        Date now,
-        Map properties)
+    public Element build(int buildNumber, Date lastBuild, Date now, Map properties)
         throws CruiseControlException {
         Builder builder = selectBuilder(buildNumber, lastBuild, now);
         return builder.build(properties);
@@ -163,10 +158,8 @@ public class Schedule {
             int buildTime = builder.getTime();
             boolean isTimeBuilder = buildTime >= 0;
             if (isTimeBuilder) {
-                boolean didntBuildToday =
-                    builderDidntBuildToday(lastBuild, now, buildTime);
-                boolean isAfterBuildTime =
-                    buildTime <= Util.getTimeFromDate(now);
+                boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
+                boolean isAfterBuildTime = buildTime <= Util.getTimeFromDate(now);
                 boolean isValidDay = builder.isValidDay(now);
                 if (didntBuildToday && isAfterBuildTime && isValidDay) {
                     return builder;
@@ -187,24 +180,18 @@ public class Schedule {
         long timeMillis = Util.convertToMillis(time);
         long startOfToday = now.getTime() - timeMillis;
         boolean lastBuildYesterday = lastBuild.getTime() < startOfToday;
-        boolean lastBuildTimeBeforeBuildTime =
-            Util.getTimeFromDate(lastBuild) < buildTime;
-        boolean didntBuildToday =
-            lastBuildYesterday || lastBuildTimeBeforeBuildTime;
+        boolean lastBuildTimeBeforeBuildTime = Util.getTimeFromDate(lastBuild) < buildTime;
+        boolean didntBuildToday = lastBuildYesterday || lastBuildTimeBeforeBuildTime;
         return didntBuildToday;
     }
 
     long getTimeToNextBuild(Date now, long sleepInterval) {
         long timeToNextBuild = sleepInterval;
-        LOG.debug(
-            "getTimeToNextBuild: initial timeToNextBuild = " + timeToNextBuild);
+        LOG.debug("getTimeToNextBuild: initial timeToNextBuild = " + timeToNextBuild);
         timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
-        LOG.debug(
-            "getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
+        LOG.debug("getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
         timeToNextBuild = checkPauseBuilders(now, timeToNextBuild);
-        LOG.debug(
-            "getTimeToNextBuild: after checkPauseBuilders = "
-                + timeToNextBuild);
+        LOG.debug("getTimeToNextBuild: after checkPauseBuilders = " + timeToNextBuild);
         return timeToNextBuild;
     }
 
@@ -221,14 +208,12 @@ public class Schedule {
                 boolean isBeforeBuild = nowTime <= thisBuildTime;
                 boolean isValidDay = builder.isValidDay(now);
                 if (isBeforeBuild && isValidDay) {
-                    timeToThisBuild =
-                        Util.milliTimeDiffernce(nowTime, thisBuildTime);
+                    timeToThisBuild = Util.milliTimeDiffernce(nowTime, thisBuildTime);
                 } else {
                     Date tomorrow = new Date(now.getTime() + ONE_DAY);
                     boolean tomorrowIsValid = builder.isValidDay(tomorrow);
                     if (tomorrowIsValid) {
-                        long remainingTimeToday =
-                            ONE_DAY - Util.convertToMillis(nowTime);
+                        long remainingTimeToday = ONE_DAY - Util.convertToMillis(nowTime);
                         long timeTomorrow = Util.convertToMillis(thisBuildTime);
                         timeToThisBuild = remainingTimeToday + timeTomorrow;
                     }
@@ -246,9 +231,9 @@ public class Schedule {
         long newTime = checkForPauseAtProposedTime(now, oldTime);
         while (oldTime != newTime) {
             oldTime = newTime;
-            newTime = checkForPauseAtProposedTime(now, oldTime);    
-        }        
-        
+            newTime = checkForPauseAtProposedTime(now, oldTime);
+        }
+
         return newTime;
     }
 
@@ -261,18 +246,18 @@ public class Schedule {
 
         int endPause = pause.getEndTime();
         int currentTime = Util.getTimeFromDate(now);
-        
+
         long timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
-        
+
         while (timeToEndOfPause < proposedTime) {
             timeToEndOfPause += ONE_DAY;
         }
-        
+
         if (timeToEndOfPause > MAX_INTERVAL_MILLISECONDS) {
             LOG.error("maximum pause interval exceeded! project perpetually paused?");
             return MAX_INTERVAL_MILLISECONDS;
-        }        
-        
+        }
+
         return timeToEndOfPause + ONE_MINUTE;
     }
 
@@ -294,10 +279,11 @@ public class Schedule {
         if (builders.size() == 0) {
             throw new CruiseControlException("schedule element requires at least one nested builder element");
         }
-        
+
         if (interval > ONE_YEAR) {
-            throw new CruiseControlException("maximum interval value is " + MAX_INTERVAL_SECONDS + ", which is one year");
+            throw new CruiseControlException(
+                "maximum interval value is " + MAX_INTERVAL_SECONDS + ", which is one year");
         }
     }
-    
+
 }
