@@ -207,7 +207,6 @@ public class MavenBuilder extends Builder implements StreamConsumer {
                 al.add("/C");
                 al.add(mavenScript);
             } else {
-                al.add("sh");
                 al.add(mavenScript);
             }
         } else {
