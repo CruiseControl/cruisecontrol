@@ -53,6 +53,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     //build iteration info
     private static long _buildInterval;
+    private static boolean _isIntervalAbsolute;
     private int _cleanBuildEvery;
 
     //build properties
@@ -199,6 +200,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             }
 
             _buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
+            _isIntervalAbsolute = Boolean.valueOf(props.getProperty("absoluteInterval", "false")).booleanValue();
+            
             _debug = props.getProperty("debug").equals("true");
             _verbose = props.getProperty("verbose").equals("true");
             _mailhost = props.getProperty("mailhost");
@@ -258,6 +261,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         try {
             int buildcounter = 0;
             while (true) {
+                Date startTime = new Date();
                 startLog();
 
                 loadProperties();
@@ -287,8 +291,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                         emailReport(emails, _projectName + " Build Failed");
                     }
                 }
-                endLog();
-                Thread.sleep(_buildInterval);
+                long timeToSleep = getSleepTime(startTime);
+                endLog(timeToSleep);
+                Thread.sleep(timeToSleep);
             }
 
         } catch (InterruptedException e) {
@@ -299,6 +304,20 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
     }
 
+    private long getSleepTime(Date startTime) {
+        if (_isIntervalAbsolute) {
+            // We need to sleep up until startTime + buildInterval.
+            // Therefore, we need startTime + buildInterval - now.
+            Date now = new Date();
+            long sleepTime = startTime.getTime() + _buildInterval - now.getTime();
+            sleepTime = (sleepTime < 0 ? 0 : sleepTime);
+            return sleepTime;
+        }
+        else {
+            return _buildInterval;
+        }
+    }
+    
     private String[] getCommandLine(int buildCounter) {
         Vector v = new Vector();
         v.add("-DlastGoodBuildTime=" + _lastGoodBuildTime);
@@ -629,9 +648,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      *	Print footer for each build attempt.
      */
-    private void endLog() {
+    private void endLog(long sleepTime) {
         log("\n");
-        log("***** Ending Build Cycle, sleeping " + (_buildInterval/1000.0) + " seconds until next build.\n\n\n");
+        log("***** Ending Build Cycle, sleeping " + (sleepTime/1000.0) + " seconds until next build.\n\n\n");
         log("***** Label: " + _label);
         log("***** Last Good Build: " + _lastGoodBuildTime);
         log("\n");
