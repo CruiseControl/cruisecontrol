@@ -138,6 +138,17 @@
         </javac>
     </target>
 
+    <target name="checkstyle"
+          description="Generates a report of code convention violations.">
+
+        <taskdef resource="checkstyletask.properties"/>
+        <checkstyle config="checkstyle.xml" failOnViolation="true">
+            <formatter type="plain"/>
+            <formatter type="xml" tofile="checkstyleReport.xml"/>
+            <fileset dir="src" includes="**/*.java"/>
+        </checkstyle>
+    </target>
+
     <!-- **************************************************** -->
     <!-- Executes the unit tests                              -->
     <!-- **************************************************** -->
