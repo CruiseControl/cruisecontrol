@@ -40,10 +40,12 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import java.io.IOException;
 
 public class HTMLEmailPublisherTest extends TestCase {
 
     private HTMLEmailPublisher publisher;
+    private File tmpFile;
 
     public void setUp() {
         publisher = new HTMLEmailPublisher();
@@ -75,6 +77,119 @@ public class HTMLEmailPublisherTest extends TestCase {
             publisher.setLogDir(null);
             fail("setLogDir should fail when called with null");
         } catch (IllegalArgumentException e) {
+            // should fail
+        }
+    }
+
+    private void checkFileNames(String dir) throws CruiseControlException {
+        String[] fileNames = publisher.getXslFileNames();
+        if (fileNames == null) {
+            throw new CruiseControlException("HTMLEmailPublisher.getXslFileNames() can't return null");
+        }
+
+        for (int i = 0; i < fileNames.length; i++) {
+            String fileName = fileNames[i];
+            File file = new File(dir, fileName);
+            if (!file.exists()) {
+                throw new CruiseControlException(
+                    fileName + " does not exist: " + file.getAbsolutePath());
+            }
+            if (!file.isFile()) {
+                throw new CruiseControlException(
+                    fileName + " is not a file: " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    public void testSetXSLFileList() throws IOException {
+        try {
+            publisher.setXSLFileList(null);
+            fail("setXSLFileList should fail when called with null");
+        } catch (IllegalArgumentException ex) {
+            // should fail
+        }
+        try {
+            publisher.setXSLFileList("");
+            fail("should fail if specified xslFileList file is empty");
+        } catch (IllegalArgumentException ex) {
+            // should fail
+        }
+        
+        tmpFile =  File.createTempFile("HTMLEmailPublisherTest", null);
+        tmpFile.deleteOnExit();
+        publisher.setXSLDir(tmpFile.getParent());
+        String[] origFileNames = publisher.getXslFileNames();
+        publisher.setXSLFileList(tmpFile.getName());
+        String[] newFileNames = publisher.getXslFileNames();
+        try {
+            checkFileNames(tmpFile.getParent());
+        } catch (CruiseControlException ex) {
+            fail("setXSLFileList with single filename failed to validate:\n" + ex);
+        }
+
+        assertEquals(1, newFileNames.length);
+
+        // should work, regardless of spaces & comma between filenames
+        publisher.setXSLFileList("  ,, " 
+                                 + tmpFile.getName() 
+                                 + "   ,,,"
+                                 + tmpFile.getName());
+        newFileNames = publisher.getXslFileNames();
+        try {
+            checkFileNames(tmpFile.getParent());
+        } catch (CruiseControlException ex) {
+            fail("setXSLFileList with two filenames failed to validate");
+        }
+        assertEquals(2, newFileNames.length);
+
+        // append should work
+        publisher.setXSLFileList("+" + tmpFile.getName());
+        newFileNames = publisher.getXslFileNames();
+        try {
+            checkFileNames(tmpFile.getParent());
+        } catch (CruiseControlException ex) {
+            fail("setXSLFileList, append mode failed to validate");
+        }
+        
+        assertEquals(3, newFileNames.length);
+
+        // should work, if leading spaces
+        publisher.setXSLFileList("     +" + tmpFile.getName());
+        newFileNames = publisher.getXslFileNames();
+        try {
+            checkFileNames(tmpFile.getParent());
+        } catch (CruiseControlException ex) {
+            fail("setXSLFileList, append with leading spaces failed to validate");
+        }
+        assertEquals(4, newFileNames.length);
+
+        // should fail if some files exist, but some don't
+        publisher.setXSLFileList(tmpFile.getName()
+                                 + " "
+                                 + "this-file-does-not-exist");
+        try {
+            checkFileNames(tmpFile.getParent());
+            fail ("should fail if some xslFileList exist, but some files don't");
+        } catch (CruiseControlException ex) {
+            // should fail
+        }
+
+        publisher.setXSLFileList("+"
+                                 + tmpFile.getName()
+                                 + " "
+                                 + "this-file-does-not-exist");
+        try {
+            checkFileNames(tmpFile.getParent());
+            fail ("should fail to append if some xslFileList exist, but some files don't");
+        } catch (CruiseControlException ex) {
+            // should fail
+        }
+        
+        publisher.setXSLFileList("+ " + tmpFile.getName());
+        try {
+            checkFileNames(tmpFile.getParent());
+            fail ("should fail if space between leading '+' and first file in xslFileList");
+        } catch (CruiseControlException ex) {
             // should fail
         }
     }
@@ -140,6 +255,7 @@ public class HTMLEmailPublisherTest extends TestCase {
         }
         publisher.setXSLDir(".");
 
+        String[] origFileNames = publisher.getXslFileNames();
         try {
             publisher.validate();
             fail("should fail if xslFileNames is null");
@@ -147,10 +263,38 @@ public class HTMLEmailPublisherTest extends TestCase {
             // should fail
         }
 
+        publisher.setXSLFileNames(origFileNames);
         publisher.setXSLFile("this file doesn't exist");
         try {
             publisher.validate();
             fail("should fail if the specified xslFile doesn't exist");
+        } catch (CruiseControlException ex) {
+            // should fail
+        }
+
+        publisher.setXSLFileNames(origFileNames);
+        publisher.setXSLFileList("this-file-doesn't-exist");
+        try {
+            publisher.validate();
+            fail("should fail if specified xslFileList file doesn't exist");
+        } catch (CruiseControlException ex) {
+            // should fail
+        }
+
+        publisher.setXSLFileNames(origFileNames);
+        publisher.setXSLFileList("+this-file-doesn't-exist");
+        try {
+            publisher.validate();
+            fail("should fail if sepcified xslFileList file to append doesn't exist");
+        } catch (CruiseControlException ex) {
+            // should fail
+        }
+
+        publisher.setXSLFileNames(origFileNames);
+        publisher.setXSLFileList(".");
+        try {
+            publisher.validate();
+            fail("should fail if xslFileList file is a directory");
         } catch (CruiseControlException ex) {
             // should fail
         }

@@ -186,29 +186,34 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * if xslFile is set, this is ignored.
      */
     public void setXSLFileList(String relativePathToXslFile) {
+        if (relativePathToXslFile == null || relativePathToXslFile.equals("")) {
+            throw new IllegalArgumentException("xslFileList shouldn't be null or empty");
+        }
+
+        relativePathToXslFile = relativePathToXslFile.trim();
+        boolean appending = relativePathToXslFile.startsWith("+");
         String[] newXSLFileNames = null;
+
+        if (appending) {
+            relativePathToXslFile = relativePathToXslFile.substring(1);
+        }
+
         StringTokenizer st = new StringTokenizer(relativePathToXslFile, " ,");
         int numTokens = st.countTokens();
 
-        String firstStr = st.nextToken();
-        int i = 0;
-        if (firstStr.startsWith("+")) {
-            // appending files
+        int i;
+        if (appending) {
             i = xslFileNames.length;
-            newXSLFileNames = new String[i + numTokens];
-            System.arraycopy(xslFileNames, 0, newXSLFileNames, 0, i);
-            newXSLFileNames[i++] = firstStr.substring(1);
         } else {
-            // replacing files
             i = 0;
-            newXSLFileNames = new String[numTokens];
-            newXSLFileNames[i++] = firstStr;
         }
-
+        newXSLFileNames = new String[i + numTokens];
+        System.arraycopy(xslFileNames, 0, newXSLFileNames, 0, i);
+        
         while (st.hasMoreTokens()) {
             newXSLFileNames[i++] = st.nextToken();
         }
-
+        
         setXSLFileNames(newXSLFileNames);
     }
 
