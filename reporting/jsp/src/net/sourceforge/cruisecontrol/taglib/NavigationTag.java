@@ -45,24 +45,19 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.Tag;
 
 /**
  *
  */
-public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
+public class NavigationTag extends CruiseTagSupport {
     public static final String LABEL_SEPARATOR = "L";
     public static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String URL_ATTR = "url";
     public static final String LOG_FILE_ATTR = "logfile";
 
-    private Tag parent;
-    private BodyContent bodyOut;
     private File logDir;
     private String[] fileNames;
     private int count;
@@ -73,10 +68,6 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
     private int endPoint;
     private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
-
-    protected String getUrl(String logName, String servletPath) {
-        return servletPath + "?log=" + logName;
-    }
 
     private String extractLogNameFromFileName(String fileName) {
         return fileName.substring(0, fileName.lastIndexOf(".xml"));
@@ -108,12 +99,6 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
 
         return dateFormat.format(date) + label;
     }
-
-    protected String getServletPath() {
-        final HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-        return request.getContextPath() + request.getServletPath();
-    }
-
 
     public int doStartTag() throws JspException {
         String [] logFileNames = findLogFiles();
@@ -154,10 +139,10 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
        setupLinkVariables();
     }
 
-    private void setupLinkVariables() {
+    void setupLinkVariables() {
         final String fileName = fileNames[count];
         String logName = extractLogNameFromFileName(fileName);
-        getPageContext().setAttribute(URL_ATTR, getUrl(logName, getServletPath()));
+        getPageContext().setAttribute(URL_ATTR, createUrl("log", logName));
         getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(logName));
         getPageContext().setAttribute(LOG_FILE_ATTR, logName);
         count++;
@@ -169,31 +154,13 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
             return EVAL_BODY_TAG;
         } else {
             try {
-                bodyOut.writeOut(bodyOut.getEnclosingWriter());
+                BodyContent out = getBodyContent();
+                out.writeOut(out.getEnclosingWriter());
             } catch (IOException e) {
                 err(e);
             }
             return SKIP_BODY;
         }
-    }
-
-    public void release() {
-    }
-
-    public int doEndTag() throws JspException {
-        return EVAL_PAGE;
-    }
-
-    public void setParent(Tag parent) {
-        this.parent = parent;
-    }
-
-    public Tag getParent() {
-        return parent;
-    }
-
-    public void setBodyContent(BodyContent bodyOut) {
-        this.bodyOut = bodyOut;
     }
 
     public int getStartingBuildNumber() {

@@ -43,6 +43,8 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
+import java.util.ArrayList;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -91,15 +93,23 @@ public class MockServletRequest implements HttpServletRequest {
     }
 
     public String getParameter(String paramName) {
-        return (String) params.get(paramName);
+        ArrayList values = (ArrayList) params.get(paramName);
+        if (values == null || values.isEmpty()) {
+            return null;    // param not found
+        }
+        return (String) values.get(0);
     }
 
     public Enumeration getParameterNames() {
-        return null;
+        return Collections.enumeration(params.keySet());
     }
 
-    public String[] getParameterValues(String s) {
-        return new String[0];
+    public String[] getParameterValues(String paramName) {
+        ArrayList values = (ArrayList) params.get(paramName);
+        if (values == null || values.isEmpty()) {
+            return null;    // param not found
+        }
+        return (String[]) values.toArray(new String[] {});
     }
 
     public String getProtocol() {
@@ -253,6 +263,11 @@ public class MockServletRequest implements HttpServletRequest {
     }
 
     public void addParameter(String paramName, String paramValue) {
-        params.put(paramName, paramValue);
+        ArrayList values = (ArrayList) params.get(paramName);
+        if (values == null) {
+            values = new ArrayList();
+            params.put(paramName, values);
+        }
+        values.add(paramValue);
     }
 }

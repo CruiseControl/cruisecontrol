@@ -41,20 +41,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 /**
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class TabSheetTag extends BodyTagSupport {
+public class TabSheetTag extends CruiseTagSupport {
     private List tabs = new ArrayList();
     private Tab selectedTab;
     private static final Tab NONE_SELECTED = null;
@@ -111,10 +108,6 @@ public class TabSheetTag extends BodyTagSupport {
         out.write("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">");
     }
 
-    private PageContext getPageContext() {
-        return super.pageContext;
-    }
-
     private void clearTabs() {
         selectedTab = NONE_SELECTED;
         tabs.clear();
@@ -137,9 +130,7 @@ public class TabSheetTag extends BodyTagSupport {
                 out.write("Tab-off.gif\" />");
             } else {
                 out.write("<a href=\"");
-                out.write(getServletPath());
-                out.write("?tab=");
-                out.write(tab.getName());
+                out.write(createUrl("tab", tab.getName()));
                 out.write("\">");
                 out.write("<img border=\"0\" alt=\"");
                 out.write(tab.getLabel());
@@ -159,13 +150,8 @@ public class TabSheetTag extends BodyTagSupport {
      */
     private void printBody(JspWriter out) throws IOException {
         if (selectedTab != NONE_SELECTED) {
-            out.write(getBodyContent().getString());
+            getBodyContent().writeOut(out);
         }
-    }
-
-    private String getServletPath() {
-        final HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-        return request.getContextPath() + request.getServletPath();
     }
 
     public boolean hasTabs() {

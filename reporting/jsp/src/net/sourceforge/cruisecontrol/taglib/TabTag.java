@@ -39,15 +39,13 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 /**
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class TabTag extends BodyTagSupport {
+public class TabTag extends CruiseTagSupport {
     private String name;
     private String label;
 
@@ -76,9 +74,5 @@ public class TabTag extends BodyTagSupport {
             return true;
         }
         return name.equals(expectedTab);
-    }
-
-    private PageContext getPageContext() {
-        return pageContext;
     }
 }

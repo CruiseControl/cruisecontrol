@@ -52,7 +52,6 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
 import javax.xml.transform.Transformer;
@@ -67,10 +66,8 @@ import javax.xml.transform.stream.StreamSource;
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
-public class XSLTag extends AbstractLogAwareTag implements Tag, BodyTag {
+public class XSLTag extends CruiseTagSupport implements Tag, BodyTag {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
-    private BodyContent bodyOut;
-    private Tag parent;
     private String xslFileName;
     private String xslRootContext = DEFAULT_XSL_ROOT;
     private static final String CACHE_DIR = "_cache";
@@ -278,34 +275,8 @@ public class XSLTag extends AbstractLogAwareTag implements Tag, BodyTag {
         return xmlFile;
     }
 
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
-
     public int doEndTag() throws JspException {
         writeContent(getPageContext().getOut());
         return EVAL_PAGE;
-    }
-
-    public int doStartTag() throws JspException {
-        return EVAL_BODY_TAG;
-    }
-
-    public Tag getParent() {
-        return parent;
-    }
-
-    public void release() {
-    }
-
-    public void setParent(Tag parent) {
-        this.parent = parent;
-    }
-
-    public void doInitBody() throws JspException {
-    }
-
-    public void setBodyContent(BodyContent bodyOut) {
-        this.bodyOut = bodyOut;
     }
 }

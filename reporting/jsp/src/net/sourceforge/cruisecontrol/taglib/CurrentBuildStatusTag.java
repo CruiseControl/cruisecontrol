@@ -37,37 +37,23 @@
 
 package net.sourceforge.cruisecontrol.taglib;
 
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.Tag;
-
-import java.io.IOException;
-import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import javax.servlet.jsp.JspException;
 
-public class CurrentBuildStatusTag implements Tag, BodyTag {
-
-    private BodyContent bodyOut;
-    private Tag parent;
-    private PageContext pageContext;
-
-    public int doAfterBody() throws JspException {
-        // writeStatus(bodyOut.getEnclosingWriter());
-        return SKIP_BODY;
-    }
+public class CurrentBuildStatusTag extends CruiseTagSupport {
 
     public int doEndTag() throws JspException {
-        writeStatus(pageContext.getOut());
+        writeStatus(getPageContext().getOut());
         return EVAL_PAGE;
     }
 
     private void writeStatus(java.io.Writer out) throws JspException {
         BufferedReader br = null;
-        String currentBuildFileName = pageContext.getServletConfig().getInitParameter("currentBuildStatusFile");
+        String currentBuildFileName = getPageContext().getServletConfig().getInitParameter("currentBuildStatusFile");
         if (currentBuildFileName == null) {
-            currentBuildFileName = pageContext.getServletContext().getInitParameter("currentBuildStatusFile");
+            currentBuildFileName = getPageContext().getServletContext().getInitParameter("currentBuildStatusFile");
         }
 
         try {
@@ -91,31 +77,5 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
             }
             br = null;
         }
-    }
-
-    public int doStartTag() throws JspException {
-        return EVAL_BODY_TAG;
-    }
-
-    public Tag getParent() {
-        return parent;
-    }
-
-    public void release() {
-    }
-
-    public void setPageContext(PageContext pageContext) {
-        this.pageContext = pageContext;
-    }
-
-    public void setParent(Tag parent) {
-        this.parent = parent;
-    }
-
-    public void doInitBody() throws JspException {
-    }
-
-    public void setBodyContent(BodyContent bodyOut) {
-        this.bodyOut = bodyOut;
     }
 }
