@@ -91,6 +91,7 @@ Plugin defaults:
 Project:
 ----------------------
 * Catch Throwable during publishing, so errors don't propagate to build()
+* Fire BuildResultEvent using log.wasBuildSuccessful() instead of the incorrect 'wasLastBuildSuccessful'. Patch by Michael Beauregard
 
 PVCS:
 ----------------------
