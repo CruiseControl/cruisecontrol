@@ -1,6 +1,6 @@
 <project default="conf">
 
-	<property file="overrides.properties" />
+	<property file="override.properties" />
 	<property name="cc.home" location="../.." />
 
 
@@ -25,10 +25,8 @@
 				<filter token="JAVA_HOME" value="${java.home}" />
 				<filter token="CC_HOME" value="${cc.home}" />
 				<filter token="VERSION" value="v2.1.6" />
-				<filter token="PROJECT_NAME" value="MyProjct" />
 				<filter token="WORK_DIR" value="${cc.work.dir}" />
 				<filter token="CONFIG_FILE" value="${cc.config.file}" />
-				<filter token="PATH_SEPERATOR" value="${path.separator}" />
 			</filterset>
 			<mapper type="glob" from="*.template.conf" to="*.conf" />
 		</copy>
@@ -79,7 +77,7 @@
     <!-- ================================= 
           target: reinstall              
          ================================= -->
-    <target name="reinstall" depends="conf"  description="Remove and isstall">
+    <target name="reinstall" depends="conf"  description="Remove and install">
     	<cruisecontrol command="remove" failonerror="false"/>
         <cruisecontrol command="install"/>
     </target>
