@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
 
@@ -128,6 +129,9 @@ public class ClearCase implements SourceControl {
 
     public Hashtable getProperties() {
         return _properties;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
     /**

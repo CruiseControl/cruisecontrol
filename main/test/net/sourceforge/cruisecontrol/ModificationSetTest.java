@@ -184,6 +184,9 @@ public class ModificationSetTest extends TestCase {
             }
 
             // None of the below is used
+            public void validate() throws CruiseControlException {
+            }
+
             public Hashtable getProperties() {
                 return null;
             }

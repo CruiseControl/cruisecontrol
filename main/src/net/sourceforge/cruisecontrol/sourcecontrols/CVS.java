@@ -224,6 +224,9 @@ public class CVS implements SourceControl {
         return _properties;
     }
 
+    public void validate() throws CruiseControlException {
+    }
+
     /**
      * Returns a List of Modifications detailing all the changes between the
      * last build and the latest revision at the repository
