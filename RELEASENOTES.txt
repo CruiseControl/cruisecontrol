@@ -20,6 +20,7 @@ CruiseControlTagSupport
 Email Publishers (LinkEmailPublisher and HTMLEmailPublisher)
 ----------------------
 * failure subelements now contain an optional attribute "reportWhenFixed" to specify if the email address should be sent mail when the build is fixed.
+* added emailaddressmapper attribute. Patch by Esa Laine
 
 FileSystem Sourcecontrol
 ----------------------
