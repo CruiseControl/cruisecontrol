@@ -85,6 +85,10 @@ Log
 ----------------------
 * use directly a Stream instead of wrapping it in a Writer (CC-77). Patch by Hack Kampbjørn
 
+LogTest
+----------------------
+* make test independent of compile time environment. Patch by Hack Kampbjørn
+
 LoggerController
 ----------------------
 * new JMX MBean to control a Logger's logging level. A controller for the root logger is registered at startup.
