@@ -40,7 +40,9 @@ REM ############################################################################
 REM Set this if you're using SSH-based CVS
 REM set CVS_RSH=
 
-rem Assume they are using the batch file from the local directory.
+REM The root of the CruiseControl directory.  The key requirement is that this is the parent
+REM directory of CruiseControl's lib directory.
+REM By default assume they are using the batch file from the local directory.
 set CCDIR=..
 
 :setClassPath
