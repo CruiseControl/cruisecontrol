@@ -81,6 +81,7 @@ public class FileMerger {
             aggregatedXMLLog.append("<today>" + proj.getProperty("TODAY") + "</today>");
             aggregatedXMLLog.append("</build>");
 
+            info.setLogfile(logFile);
             writeFile(logFile, aggregatedXMLLog.toString());
 
         } catch (Throwable ioe) {
