@@ -50,24 +50,23 @@ public class PluginXMLHelper {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelper.class);
 
     /**
-     *  given a JDOM Element and a classname, this method will instantiate an object of type className, and
-     *  call all setters that correspond to attributes on the Element.
+     * given a JDOM Element and a class, this method will instantiate an object
+     * of type pluginClass, and call all setters that correspond to attributes
+     * on the Element.
      *
-     *  @return fully configured Object
+     * @return fully configured Object
      */
-    public Object configure(Element objectElement, String className, boolean skipChildElements)
-        throws CruiseControlException {
-        Class pluginClass = null;
+    public Object configure(Element objectElement, Class pluginClass,
+                            boolean skipChildElements)
+            throws CruiseControlException {
+
         Object pluginInstance = null;
         try {
-            pluginClass = Class.forName(className);
             pluginInstance = pluginClass.getConstructor(null).newInstance(null);
-        } catch (ClassNotFoundException e) {
-            LOG.fatal("Could not find class", e);
-            throw new CruiseControlException("Could not find class: " + className);
         } catch (Exception e) {
             LOG.fatal("Could not instantiate class", e);
-            throw new CruiseControlException("Could not instantiate class: " + className);
+            throw new CruiseControlException("Could not instantiate class: "
+                    + pluginClass.getName());
         }
         configureObject(objectElement, pluginInstance, skipChildElements);
 
@@ -75,11 +74,12 @@ public class PluginXMLHelper {
     }
 
     /**
-     * given a JDOM Element and an object, this method will call all setters that correspond to attributes 
+     * given a JDOM Element and an object, this method will call all setters that correspond to attributes
      * on the Element.
      */
-    protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
-        throws CruiseControlException {
+    protected void configureObject(Element objectElement, Object object,
+                                   boolean skipChildElements)
+            throws CruiseControlException {
         Map setters = new HashMap();
         Map creators = new HashMap();
 
@@ -97,20 +97,20 @@ public class PluginXMLHelper {
             Attribute attribute = (Attribute) attributeIterator.next();
             if (setters.containsKey(attribute.getName().toLowerCase())) {
                 LOG.debug(
-                    "Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
+                        "Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
                 try {
                     Method method = (Method) setters.get(attribute.getName().toLowerCase());
                     Class[] parameters = method.getParameterTypes();
                     if (String.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[] { attribute.getValue()});
+                        method.invoke(object, new Object[]{attribute.getValue()});
                     } else if (int.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[] { new Integer(attribute.getIntValue())});
+                        method.invoke(object, new Object[]{new Integer(attribute.getIntValue())});
                     } else if (long.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[] { new Long(attribute.getLongValue())});
+                        method.invoke(object, new Object[]{new Long(attribute.getLongValue())});
                     } else if (boolean.class.isAssignableFrom(parameters[0])) {
                         method.invoke(
-                            object,
-                            new Object[] { new Boolean(attribute.getBooleanValue())});
+                                object,
+                                new Object[]{new Boolean(attribute.getBooleanValue())});
                     } else {
                         LOG.error("Couldn't invoke setter " + attribute.getName().toLowerCase());
                     }
@@ -119,7 +119,7 @@ public class PluginXMLHelper {
                 }
             } else {
                 throw new CruiseControlException(
-                    "Attribute: '"
+                        "Attribute: '"
                         + attribute.getName()
                         + "' is not supported for class: '"
                         + object.getClass().getName()
@@ -141,7 +141,7 @@ public class PluginXMLHelper {
                     }
                 } else {
                     throw new CruiseControlException(
-                        "Nested element: '"
+                            "Nested element: '"
                             + childElement.getName()
                             + "' is not supported for the <"
                             + objectElement.getName()

@@ -41,7 +41,7 @@ import java.util.HashMap;
 
 
 /**
- * [TODO]Handles "registering" plugins that will be used by the CruiseControl
+ * Handles "registering" plugins that will be used by the CruiseControl
  * configuration file .
  *
  * Also contains the default list of plugins, i.e. those
@@ -52,8 +52,7 @@ public final class PluginRegistry {
 
     /**
      * Map of plugins where the key is the plugin name (e.g. ant) and the value is
-     * the fully qualified classname
-     * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
+     * the class (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
     private final Map plugins;
 
@@ -71,10 +70,24 @@ public final class PluginRegistry {
      * names are always treated as case insensitive, so Ant, ant, and AnT are
      * all treated as the same plugin.
      *
-     * @param pluginClass The fully qualified classname for the
+     * @param pluginClassname The fully qualified classname for the
      * plugin class, e.g. net.sourceforge.cruisecontrol.builders.AntBuilder.
+     *
+     * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    public void register(String pluginName, String pluginClass) {
+    public void register(String pluginName, String pluginClassname)
+            throws CruiseControlException {
+
+        Class pluginClass = null;
+        try {
+            pluginClass = Class.forName(pluginClassname);
+        } catch (ClassNotFoundException e) {
+            throw new CruiseControlException(
+                    "Attemping to register plugin named [" + pluginName
+                    + "], but couldn't load corresponding class ["
+                    + pluginClassname + "].");
+        }
+
         plugins.put(pluginName.toLowerCase(), pluginClass);
     }
 
@@ -86,7 +99,21 @@ public final class PluginRegistry {
      * all treated as the same plugin.
      */
     public String getPluginClassname(String pluginName) {
-        return (String) plugins.get(pluginName.toLowerCase());
+        if (!isPluginRegistered(pluginName)) {
+            return null;
+        }
+
+        return getPluginClass(pluginName).getName();
+    }
+
+    /**
+     * @return Returns null if no plugin has been registered with the specified
+     * name, otherwise the Class representing the the plugin class. Note that
+     * plugin names are always treated as case insensitive, so Ant, ant,
+     * and AnT are all treated as the same plugin.
+     */
+    public Class getPluginClass(String pluginName) {
+        return (Class) plugins.get(pluginName.toLowerCase());
     }
 
     /**
@@ -110,7 +137,8 @@ public final class PluginRegistry {
      * the fully qualified classname
      * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
-    public static PluginRegistry getDefaultPluginRegistry() {
+    public static PluginRegistry getDefaultPluginRegistry()
+            throws CruiseControlException {
         PluginRegistry registry = new PluginRegistry();
         // bootstrappers
         registry.register(
