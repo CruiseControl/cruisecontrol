@@ -118,7 +118,8 @@ public class AntBuilder extends Builder {
         Element propertiesElement = null;
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            propertiesElement = builder.build(PROPERTY_LOGGER_FILE_NAME).getRootElement();
+            InputStreamReader propertyLogReader = new InputStreamReader(new FileInputStream(PROPERTY_LOGGER_FILE_NAME), "UTF-8");
+            propertiesElement = builder.build(propertyLogReader).getRootElement();
             buildLogElement.addContent(propertiesElement.detach());
         } catch (Exception ee) {
             throw new CruiseControlException("Error reading " + PROPERTY_LOGGER_FILE_NAME, ee);
@@ -230,18 +231,18 @@ public class AntBuilder extends Builder {
      */
     protected static Element getAntLogAsElement(File f) throws CruiseControlException {
         try {
-            FileReader fr = new FileReader(f);
+            Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8");
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 150; i++) {
-                sb.append((char) fr.read());
+                sb.append((char) r.read());
             }
             String beginning = sb.toString();
             int skip = beginning.lastIndexOf("<build");
 
-            BufferedInputStream bufferedStream = new BufferedInputStream(new FileInputStream(f));
-            bufferedStream.skip(skip);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+            bufferedReader.skip(skip);
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            return builder.build(bufferedStream).getRootElement();
+            return builder.build(bufferedReader).getRootElement();
         } catch (Exception ee) {
             throw new CruiseControlException("Error reading : " + f.getAbsolutePath(), ee);
         }
