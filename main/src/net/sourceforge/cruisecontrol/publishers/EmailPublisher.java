@@ -136,8 +136,11 @@ public abstract class EmailPublisher implements Publisher {
         }
         subjectLine.append(logHelper.getProjectName());
         if (logHelper.isBuildSuccessful()) {
-            subjectLine.append(" ");
-            subjectLine.append(logHelper.getLabel());
+            String label = logHelper.getLabel();
+            if (label.length() > 0) {
+                subjectLine.append(" ");
+                subjectLine.append(logHelper.getLabel());
+            }
             if (reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
                 subjectLine.append(" Build Fixed");
                 return subjectLine.toString();
@@ -332,7 +335,7 @@ public abstract class EmailPublisher implements Publisher {
             throw new CruiseControlException(e.getMessage());
         }
     }
-    
+
     protected InternetAddress getFromAddress() throws AddressException {
         InternetAddress fromAddress = new InternetAddress(returnAddress);
         if (returnName != null) {

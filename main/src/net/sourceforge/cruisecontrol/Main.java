@@ -191,8 +191,14 @@ public class Main {
      * @return final value of lastbuild; never null
      * @throws CruiseControlException if final lastbuild value is null
      */
-    protected String parseLastBuild(String args[], String lastBuild) throws CruiseControlException {
-        return parseArgument(args, "lastbuild", (lastBuild != null ? lastBuild : new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())));
+    protected String parseLastBuild(String args[], String lastBuild)
+        throws CruiseControlException {
+        return parseArgument(
+            args,
+            "lastbuild",
+            (lastBuild != null
+                ? lastBuild
+                : new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())));
     }
 
     /**

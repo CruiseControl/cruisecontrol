@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -38,76 +38,19 @@ package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import org.jdom.Element;
-import org.apache.log4j.Logger;
 
-/**
- * This class provides a label incrementation compatible with CVS tagging.
- * This class expects the label format to be "x-y",
- * where x is any String and y is an integer.
- *
- * @author Jeff Brekke (Jeff.Brekke@qg.com)
- * @author alden almagro (alden@thoughtworks.com)
- * @author Paul Julius (pdjulius@thoughtworks.com)
- */
-public class CVSLabelIncrementer implements LabelIncrementer {
+public class EmptyLabelIncrementer implements LabelIncrementer {
 
-    private static final Logger LOG =
-        Logger.getLogger(CVSLabelIncrementer.class);
-
-    private boolean preIncrement = false;
-
-    /**
-     * Increments the label when a successful build occurs.
-     * Assumes that the label will be in
-     * the format of "x-y", where x can be anything, and y is an integer.
-     * The y value will be incremented by one, the rest will remain the same.
-     *
-     * @param oldLabel Label from previous successful build.
-     * @return Label to use for most recent successful build.
-     */
     public String incrementLabel(String oldLabel, Element buildLog) {
-
-        String prefix = oldLabel.substring(0, oldLabel.lastIndexOf("-") + 1);
-        String suffix =
-            oldLabel.substring(
-                oldLabel.lastIndexOf("-") + 1,
-                oldLabel.length());
-        int i = Integer.parseInt(suffix);
-        String newLabel = prefix + ++i;
-        LOG.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
-        return newLabel;
+        return "";
     }
 
     public boolean isPreBuildIncrementer() {
-        return preIncrement;
+        return true;
     }
 
-    /**
-     *  Set the pre/post behavior of the label incrementer.
-     */
-    public void setPreBuildIncrementer(boolean preIncrement) {
-        this.preIncrement = preIncrement;
-    }
-
-    /**
-     * Verify that the label specified is a valid label.  In this case a valid
-     * label contains at least one '-' character, and an integer after the last
-     * occurrence of the '-' character.
-     */
     public boolean isValidLabel(String label) {
-
-        if (label.indexOf("-") < 0) {
-            return false;
-        }
-
-        try {
-            String suffix =
-                label.substring(label.lastIndexOf("-") + 1, label.length());
-            Integer.parseInt(suffix);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return true;
     }
 
 }

@@ -104,7 +104,8 @@ public class XMLLogHelper {
      *  @return true if the previous build was successful, false if it was not
      */
     public boolean wasPreviousBuildSuccessful() throws CruiseControlException {
-        return getCruiseControlInfoProperty("lastbuildsuccessful").equals("true");
+        return getCruiseControlInfoProperty("lastbuildsuccessful").equals(
+            "true");
     }
 
     /**
@@ -113,8 +114,9 @@ public class XMLLogHelper {
     public boolean isBuildNecessary() {
         if (log.getChild("build") != null
             && log.getChild("build").getAttributeValue("error") != null) {
-                
-            return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
+
+            return !log.getChild("build").getAttributeValue("error").equals(
+                "No Build Necessary");
         }
         return true;
     }
@@ -140,14 +142,22 @@ public class XMLLogHelper {
     public Set getBuildParticipants() {
         Set results = new HashSet();
         if (isP4Modifications()) {
-                    
-            Iterator changelistIterator = log.getChild("modifications").getChildren("changelist").iterator();
+
+            Iterator changelistIterator =
+                log
+                    .getChild("modifications")
+                    .getChildren("changelist")
+                    .iterator();
             while (changelistIterator.hasNext()) {
                 Element changelistElement = (Element) changelistIterator.next();
                 results.add(changelistElement.getAttributeValue("user"));
             }
         } else {
-            Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
+            Iterator modificationIterator =
+                log
+                    .getChild("modifications")
+                    .getChildren("modification")
+                    .iterator();
             while (modificationIterator.hasNext()) {
                 Element modification = (Element) modificationIterator.next();
                 Element emailElement = modification.getChild("email");
@@ -160,53 +170,66 @@ public class XMLLogHelper {
         return results;
     }
 
-	private boolean isP4Modifications() {
-		return log.getChild("modifications").getChildren("changelist") != null
-					&& !log
-						.getChild("modifications")
-						.getChildren("changelist")
-						.isEmpty();
-	}
+    private boolean isP4Modifications() {
+        return log.getChild("modifications").getChildren("changelist") != null
+            && !log.getChild("modifications").getChildren("changelist").isEmpty();
+    }
 
-	/**
+    /**
      *  @param propertyName the name of the ant property
      *  @return the value of the ant property
      */
-    public String getAntProperty(String propertyName) throws CruiseControlException {
-        Iterator propertyIterator = log.getChild("build").getChild("properties").getChildren("property").iterator();
+    public String getAntProperty(String propertyName)
+        throws CruiseControlException {
+        Iterator propertyIterator =
+            log
+                .getChild("build")
+                .getChild("properties")
+                .getChildren("property")
+                .iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
             if (property.getAttributeValue("name").equals(propertyName)) {
                 return property.getAttributeValue("value");
             }
         }
-        throw new CruiseControlException("Property: " + propertyName + " not found.");
+        throw new CruiseControlException(
+            "Property: " + propertyName + " not found.");
     }
 
-    public String getCruiseControlInfoProperty(String propertyName) throws CruiseControlException {
-        Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
+    public String getCruiseControlInfoProperty(String propertyName)
+        throws CruiseControlException {
+        Iterator propertyIterator =
+            log.getChild("info").getChildren("property").iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
             if (property.getAttributeValue("name").equals(propertyName)) {
                 return property.getAttributeValue("value");
             }
         }
-        throw new CruiseControlException("Property: " + propertyName + " not found.");
+        throw new CruiseControlException(
+            "Property: " + propertyName + " not found.");
     }
 
-	public Set getModifications() {
-		Set results = new HashSet();
-		if (isP4Modifications()){
-			//todo implement this
-		}else{
-			Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
-			while (modificationIterator.hasNext()) {
-				Element modification = (Element) modificationIterator.next();
-				Modification mod = new Modification();
-				mod.fromElement(modification, new SimpleDateFormat(DateFormatFactory.getFormat()));
-				results.add(mod);
-			}
-		}
-		return results;
-	}
+    public Set getModifications() {
+        Set results = new HashSet();
+        if (isP4Modifications()) {
+            //TODO: implement this
+        } else {
+            Iterator modificationIterator =
+                log
+                    .getChild("modifications")
+                    .getChildren("modification")
+                    .iterator();
+            while (modificationIterator.hasNext()) {
+                Element modification = (Element) modificationIterator.next();
+                Modification mod = new Modification();
+                mod.fromElement(
+                    modification,
+                    new SimpleDateFormat(DateFormatFactory.getFormat()));
+                results.add(mod);
+            }
+        }
+        return results;
+    }
 }

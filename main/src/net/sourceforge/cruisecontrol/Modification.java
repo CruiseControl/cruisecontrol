@@ -54,14 +54,14 @@ import java.util.Date;
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
 public class Modification implements Comparable {
-	private static final String TAGNAME_MODIFICATION = "modification";
-	private static final String TAGNAME_TYPE = "type";
-	private static final String TAGNAME_FILENAME = "filename";
-	private static final String TAGNAME_FOLDERNAME = "project";
-	private static final String TAGNAME_DATE = "date";
-	private static final String TAGNAME_USER = "user";
-	private static final String TAGNAME_COMMENT = "comment";
-	private static final String TAGNAME_EMAIL = "email";
+    private static final String TAGNAME_MODIFICATION = "modification";
+    private static final String TAGNAME_TYPE = "type";
+    private static final String TAGNAME_FILENAME = "filename";
+    private static final String TAGNAME_FOLDERNAME = "project";
+    private static final String TAGNAME_DATE = "date";
+    private static final String TAGNAME_USER = "user";
+    private static final String TAGNAME_COMMENT = "comment";
+    private static final String TAGNAME_EMAIL = "email";
 
     private static final Logger LOG = Logger.getLogger(Modification.class);
 
@@ -73,7 +73,7 @@ public class Modification implements Comparable {
     public String emailAddress;
     public String comment = "";
 
-	public Element toElement(DateFormat formatter) {
+    public Element toElement(DateFormat formatter) {
         Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
         Element filenameElement = new Element(TAGNAME_FILENAME);
@@ -91,7 +91,8 @@ public class Modification implements Comparable {
             cd = new CDATA(comment);
         } catch (org.jdom.IllegalDataException e) {
             LOG.error(e);
-            cd = new CDATA("Unable to parse comment.  It contains illegal data.");
+            cd =
+                new CDATA("Unable to parse comment.  It contains illegal data.");
         }
         commentElement.addContent(cd);
 
@@ -117,7 +118,8 @@ public class Modification implements Comparable {
     }
 
     public String toString() {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat formatter =
+            new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
         sb.append("FileName: " + fileName + "\n");
         sb.append("FolderName: " + folderName + "\n");
@@ -177,21 +179,23 @@ public class Modification implements Comparable {
         mod.modifiedTime = now;
         mod.userName = "User<>Name";
         mod.comment = "Comment";
-        System.out.println(mod.toXml(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")));
+        System.out.println(
+            mod.toXml(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")));
     }
 
-	public void fromElement(Element modification, DateFormat formatter) {
-		type = modification.getAttributeValue(TAGNAME_TYPE);
-		fileName = modification.getChildText(TAGNAME_FILENAME);
-		folderName = modification.getChildText(TAGNAME_FOLDERNAME);
-		try {
-			modifiedTime = formatter.parse(modification.getChildText(TAGNAME_DATE));
-		} catch (ParseException e) {
-			//maybe we should do something different
-			modifiedTime = new Date();
-		}
-		userName = modification.getChildText(TAGNAME_USER);
-		comment = modification.getChildText(TAGNAME_COMMENT);
-		emailAddress = modification.getChildText(TAGNAME_EMAIL);		
-	}
+    public void fromElement(Element modification, DateFormat formatter) {
+        type = modification.getAttributeValue(TAGNAME_TYPE);
+        fileName = modification.getChildText(TAGNAME_FILENAME);
+        folderName = modification.getChildText(TAGNAME_FOLDERNAME);
+        try {
+            modifiedTime =
+                formatter.parse(modification.getChildText(TAGNAME_DATE));
+        } catch (ParseException e) {
+            //maybe we should do something different
+            modifiedTime = new Date();
+        }
+        userName = modification.getChildText(TAGNAME_USER);
+        comment = modification.getChildText(TAGNAME_COMMENT);
+        emailAddress = modification.getChildText(TAGNAME_EMAIL);
+    }
 }

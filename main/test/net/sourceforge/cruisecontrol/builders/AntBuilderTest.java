@@ -183,20 +183,36 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
+        BasicConfigurator.configure(
+            new ConsoleAppender(new PatternLayout("%m%n")));
 
         Logger.getRoot().setLevel(Level.INFO);
-        assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties, false, false, false)));
-        assertTrue(Arrays.equals(resultLogger, builder.getCommandLineArgs(properties, true, false, false)));
+        assertTrue(
+            Arrays.equals(
+                resultInfo,
+                builder.getCommandLineArgs(properties, false, false, false)));
+        assertTrue(
+            Arrays.equals(
+                resultLogger,
+                builder.getCommandLineArgs(properties, true, false, false)));
 
         builder.setAntScript("ant.bat");
-        assertTrue(Arrays.equals(resultBatchFile, builder.getCommandLineArgs(properties, false, true, true)));
+        assertTrue(
+            Arrays.equals(
+                resultBatchFile,
+                builder.getCommandLineArgs(properties, false, true, true)));
         builder.setAntScript("ant.sh");
-        assertTrue(Arrays.equals(resultShellScript, builder.getCommandLineArgs(properties, false, true, false)));
+        assertTrue(
+            Arrays.equals(
+                resultShellScript,
+                builder.getCommandLineArgs(properties, false, true, false)));
         builder.setAntScript(null);
 
         Logger.getRoot().setLevel(Level.DEBUG);
-        assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties, false, false, false)));
+        assertTrue(
+            Arrays.equals(
+                resultDebug,
+                builder.getCommandLineArgs(properties, false, false, false)));
 
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
@@ -220,7 +236,8 @@ public class AntBuilderTest extends TestCase {
             Element buildLogElement = new Element("build");
             File logFile = new File("_tempAntLog14.xml");
             BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
-            bw1.write("<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
+            bw1.write(
+                "<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
             bw1.flush();
             bw1.close();
             File logFile2 = new File("_tempAntLog141.xml");
@@ -231,8 +248,12 @@ public class AntBuilderTest extends TestCase {
             bw2.flush();
             bw2.close();
 
-            assertEquals(buildLogElement.toString(), AntBuilder.getAntLogAsElement(logFile).toString());
-            assertEquals(buildLogElement.toString(), AntBuilder.getAntLogAsElement(logFile2).toString());
+            assertEquals(
+                buildLogElement.toString(),
+                AntBuilder.getAntLogAsElement(logFile).toString());
+            assertEquals(
+                buildLogElement.toString(),
+                AntBuilder.getAntLogAsElement(logFile2).toString());
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -244,7 +265,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("init");
         HashMap buildProperties = new HashMap();
         Element buildElement = builder.build(buildProperties);
-	int initCount = getInitCount(buildElement);
+        int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
     }
 
@@ -254,7 +275,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("init init");
         HashMap buildProperties = new HashMap();
         Element buildElement = builder.build(buildProperties);
-	int initCount = getInitCount(buildElement);
+        int initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
     }
 
@@ -263,11 +284,11 @@ public class AntBuilderTest extends TestCase {
         Iterator targetIterator = buildElement.getChildren("target").iterator();
         String name;
         while (targetIterator.hasNext()) {
-            name = ((Element)targetIterator.next()).getAttributeValue("name");
+            name = ((Element) targetIterator.next()).getAttributeValue("name");
             if (name.equals("init")) {
                 initFoundCount++;
             }
         }
-	return initFoundCount;
+        return initFoundCount;
     }
 }

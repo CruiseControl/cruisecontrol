@@ -147,7 +147,8 @@
           description="Generates a report of code convention violations.">
 
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
-        <checkstyle config="checkstyle.xml" failOnViolation="true">
+        <checkstyle config="checkstyle.xml" failOnViolation="false">
+			<formatter type="plain"/>
             <formatter type="plain" tofile="checkstyleResults.txt"/>
             <fileset dir="src" includes="**/*.java"/>
             <fileset dir="test" includes="**/*.java"/>
@@ -221,7 +222,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,compile,compile-starteam,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
+    <target name="all" depends="clean,init,checkstyle,compile,compile-starteam,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- Updates local code with cvs changes                    -->

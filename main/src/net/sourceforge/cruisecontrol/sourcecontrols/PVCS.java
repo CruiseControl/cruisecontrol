@@ -68,7 +68,8 @@ import org.apache.log4j.Logger;
 public class PVCS implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(PVCS.class);
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR =
+        System.getProperty("line.separator");
     private static final String DOUBLE_QUOTE = "\"";
 
     private Hashtable properties = new Hashtable();
@@ -99,13 +100,12 @@ public class PVCS implements SourceControl {
     private static final String PVCS_TEMP_WORK_FILE = "files.tmp";
     private static final String PVCS_RESULTS_FILE = "vlog.txt";
 
-
     /**
      * Get name of the PVCS bin directory
      * @return String
      */
     public String getPvcsbin() {
-      return pvcsbin;
+        return pvcsbin;
     }
 
     /**
@@ -113,7 +113,7 @@ public class PVCS implements SourceControl {
      * @param bin Specifies the location of the PVCS bin directory
      */
     public void setPvcsbin(String bin) {
-      this.pvcsbin = bin;
+        this.pvcsbin = bin;
     }
 
     public void setPvcsproject(String project) {
@@ -169,7 +169,8 @@ public class PVCS implements SourceControl {
         // build file of PVCS command line instructions
         String lastBuildDate = inDateFormat.format(lastBuild);
         String nowDate = inDateFormat.format(now);
-        final String command = getExecutable("pcli") + " run -s" + PVCS_INSTRUCTIONS_FILE;
+        final String command =
+            getExecutable("pcli") + " run -s" + PVCS_INSTRUCTIONS_FILE;
         try {
             buildExecFilePre();
             exec(command);
@@ -197,7 +198,8 @@ public class PVCS implements SourceControl {
         return correctedExe.append(exe).toString();
     }
 
-    private void exec(String command) throws IOException, InterruptedException {
+    private void exec(String command)
+        throws IOException, InterruptedException {
         Process p = Runtime.getRuntime().exec(command);
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
         new Thread(errorPumper).start();
@@ -259,11 +261,10 @@ public class PVCS implements SourceControl {
         String line3 =
             "run ->files.tmp listversionedfiles -z -aw $Project $SubProject";
 
-        LOG.debug(
-            "#### PVCSElement about to write this line:\n " + line3);
+        LOG.debug("#### PVCSElement about to write this line:\n " + line3);
 
-	String[] instructions = new String[] {line1, line2, line3};
-	writeInstructionFile(instructions);
+        String[] instructions = new String[] { line1, line2, line3 };
+        writeInstructionFile(instructions);
     }
 
     /**
@@ -288,7 +289,8 @@ public class PVCS implements SourceControl {
         String line3Subline1 =
             "run -e vlog "
                 + DOUBLE_QUOTE
-                + "-xo+e" + PVCS_RESULTS_FILE
+                + "-xo+e"
+                + PVCS_RESULTS_FILE
                 + DOUBLE_QUOTE
                 + " ";
         String line3Subline2 =
@@ -300,9 +302,9 @@ public class PVCS implements SourceControl {
         LOG.debug(
             "#### PVCSElement about to write this line:\n " + line3Subline2);
 
-	String[] instructions = new String[] {line1, line2, line3};
+        String[] instructions = new String[] { line1, line2, line3 };
 
-	writeInstructionFile(instructions);
+        writeInstructionFile(instructions);
     }
 
     void writeInstructionFile(String[] instructions) {
@@ -310,21 +312,21 @@ public class PVCS implements SourceControl {
         BufferedWriter bwOut = null;
         try {
             bwOut = new BufferedWriter(new FileWriter(outputFile));
-	    for(int i=0;i<instructions.length;i++) {
-		String instruction = instructions[i];
-		bwOut.write(instruction);
-		bwOut.write(LINE_SEPARATOR);
-	    }
+            for (int i = 0; i < instructions.length; i++) {
+                String instruction = instructions[i];
+                bwOut.write(instruction);
+                bwOut.write(LINE_SEPARATOR);
+            }
         } catch (IOException e) {
             LOG.error("Error in building PVCS pcli file : ", e);
         } finally {
-	    if (bwOut != null) {
-		try {
-		    bwOut.close();
-		} catch (Exception e) {
-		}
-	    }
-	}
+            if (bwOut != null) {
+                try {
+                    bwOut.close();
+                } catch (Exception e) {
+                }
+            }
+        }
     }
 
     // ugly but it's a temporary fix that works...
@@ -332,11 +334,11 @@ public class PVCS implements SourceControl {
         final File file = new File(PVCS_TEMP_WORK_FILE);
 
         List lines = readFile(file);
-	writeFileAndFixLines(lines, file);
+        writeFileAndFixLines(lines, file);
     }
 
     List readFile(File file) throws IOException {
-	List lines = new ArrayList();
+        List lines = new ArrayList();
         // read files.tmp into List...
         BufferedReader in = null;
         try {
@@ -346,19 +348,22 @@ public class PVCS implements SourceControl {
                 lines.add(line);
             }
         } catch (IOException e) {
-            LOG.debug("Error in reading " + PVCS_TEMP_WORK_FILE +
-                    " file of PVCS file listing: " + e);
+            LOG.debug(
+                "Error in reading "
+                    + PVCS_TEMP_WORK_FILE
+                    + " file of PVCS file listing: "
+                    + e);
             e.printStackTrace();
             throw e;
         } finally {
             try {
                 if (in != null) {
-		    in.close();
-		}
+                    in.close();
+                }
             } catch (Exception e) {
             }
         }
-	return lines;
+        return lines;
     }
 
     void writeFileAndFixLines(List lines, File file) throws IOException {
@@ -369,31 +374,34 @@ public class PVCS implements SourceControl {
             final Iterator iter = lines.iterator();
             while (iter.hasNext()) {
                 String line = (String) iter.next();
-		line = getFixedLine(line);
+                line = getFixedLine(line);
                 out.write(line);
                 out.write(LINE_SEPARATOR);
             }
         } catch (IOException e) {
-            LOG.debug("Error in writing " + PVCS_TEMP_WORK_FILE +
-                    " file of PVCS file listing: " + e);
+            LOG.debug(
+                "Error in writing "
+                    + PVCS_TEMP_WORK_FILE
+                    + " file of PVCS file listing: "
+                    + e);
             e.printStackTrace();
             throw e;
         } finally {
             try {
                 if (out != null) {
-		    out.close();
-		}
+                    out.close();
+                }
             } catch (Exception e) {
             }
         }
     }
 
     String getFixedLine(String line) {
-	String fixedLine = line;
-	if (line.startsWith("\"\\\\") && !line.startsWith("\"\\\\\\")) {
-	    fixedLine = "\"\\\\\\" + line.substring(3);
-	}
-	return fixedLine;
+        String fixedLine = line;
+        if (line.startsWith("\"\\\\") && !line.startsWith("\"\\\\\\")) {
+            fixedLine = "\"\\\\\\" + line.substring(3);
+        }
+        return fixedLine;
     }
 
     /**
