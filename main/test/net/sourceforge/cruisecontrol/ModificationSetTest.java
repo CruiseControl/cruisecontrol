@@ -265,6 +265,13 @@ public class ModificationSetTest extends TestCase {
         modSet.addSourceControl(new Vss());
         modSet.validate();
     }
+    
+    public void testSetRequireModification() {
+        modSet.getModifications(new Date());
+        assertFalse(modSet.isModified());
+        modSet.setRequireModification(false);
+        assertTrue(modSet.isModified());
+    }
 
     protected void setUp() throws Exception {
         modSet = new ModificationSet();
