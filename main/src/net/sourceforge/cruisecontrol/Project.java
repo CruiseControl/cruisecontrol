@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
@@ -66,6 +67,7 @@ public class Project implements Serializable {
     private transient List _publishers = new ArrayList();
     private transient LabelIncrementer _labelIncrementer;
     private transient List _auxLogs = new ArrayList();
+	private transient String _logXmlEncoding = null;
     private transient long _sleepMillis;
     private transient String _logFileName;
     private transient String _logDir;
@@ -204,7 +206,11 @@ public class Project implements Serializable {
         _labelIncrementer = incrementer;
     }
 
-    public void setConfigFileName(String fileName) {
+	public void setLogXmlEncoding(String logXmlEncoding) {
+		_logXmlEncoding = logXmlEncoding;
+	}
+
+	public void setConfigFileName(String fileName) {
         log.debug("Config file set to: " + fileName);
         _configFileName = fileName;
     }
@@ -314,6 +320,7 @@ public class Project implements Serializable {
         ProjectXMLHelper helper = new ProjectXMLHelper(new File(_configFileName), _name);
         _sleepMillis = 1000 * helper.getBuildInterval();
         _logDir = helper.getLogDir();
+		_logXmlEncoding = helper.getLogXmlEncoding();
         File logDir = new File(_logDir);
         if(!logDir.exists()) {
             throw new CruiseControlException(
@@ -417,8 +424,11 @@ public class Project implements Serializable {
                         + ".xml").getAbsolutePath();
             log.debug("Writing log file: " + _logFileName);
             logWriter = new BufferedWriter(new FileWriter(_logFileName));
-            XMLOutputter outputter = new XMLOutputter("   ", true);
-            outputter.output(logElement, logWriter);
+            XMLOutputter outputter = new XMLOutputter("   ", true, _logXmlEncoding);
+			// If encoding is provided we will put out an XML declartion. Otherwise not (old behavior).
+			outputter.setOmitDeclaration(_logXmlEncoding == null);
+			outputter.setOmitEncoding(_logXmlEncoding == null);
+            outputter.output(new Document(logElement), logWriter);
             logWriter = null;
         } catch (IOException e) {
             throw new CruiseControlException(e);

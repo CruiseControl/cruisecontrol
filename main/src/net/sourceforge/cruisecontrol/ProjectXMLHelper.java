@@ -125,7 +125,12 @@ public class ProjectXMLHelper {
         }
         return auxLogs;
     }
-
+	
+	public String getLogXmlEncoding() throws CruiseControlException {
+        String encoding = _projectElement.getChild("log").getAttributeValue("encoding");
+        return encoding;
+    }
+	
     public Schedule getSchedule() throws CruiseControlException {
         Schedule schedule = new Schedule();
         Iterator builderIterator = _projectElement.getChild("schedule").getChildren().iterator();
