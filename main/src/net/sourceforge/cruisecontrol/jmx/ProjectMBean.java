@@ -56,6 +56,12 @@ public interface ProjectMBean {
     public void build();
 
     /**
+     * Runs a build now, overriding the target of the used builder
+     *
+     */
+    public void buildWithTarget(String target);
+    
+    /**
      * Serialize the project
      */
     public void serialize();

@@ -211,6 +211,13 @@ public class AntBuilder extends Builder {
     }
 
     /**
+     * Used to invoke the builder via JMX with a different target.
+     */
+    protected void overrideTarget(String target) {
+        setTarget(target);    
+    }
+
+    /**
      * Sets the name of the build file that Ant will use.  The Ant default is
      * build.xml, use this to override it.
      *

@@ -57,6 +57,7 @@ public class ProjectXMLHelper {
     private PluginRegistry plugins;
     private Element projectElement;
     private String projectName;
+    private String overrideTarget = null;
     public static final String LABEL_INCREMENTER = "labelincrementer";
 
     public ProjectXMLHelper() throws CruiseControlException {
@@ -157,15 +158,17 @@ public class ProjectXMLHelper {
         Iterator builderIterator = scheduleElement.getChildren().iterator();
         while (builderIterator.hasNext()) {
             Element builderElement = (Element) builderIterator.next();
+            
+            Builder builder = (Builder) configurePlugin(builderElement, false);
+            if (overrideTarget != null) {
+                builder.overrideTarget(overrideTarget);
+            }
+            builder.validate();
             // TODO: PauseBuilder should be able to be handled like any other
             // Builder
-            if (builderElement.getName().equalsIgnoreCase("pause")) {
-                PauseBuilder pauseBuilder = (PauseBuilder) configurePlugin(builderElement, false);
-                pauseBuilder.validate();
-                schedule.addPauseBuilder(pauseBuilder);
+            if (builder instanceof PauseBuilder) {
+                schedule.addPauseBuilder((PauseBuilder) builder);
             } else {
-                Builder builder = (Builder) configurePlugin(builderElement, false);
-                builder.validate();
                 schedule.addBuilder(builder);
             }
         }
@@ -314,5 +317,12 @@ public class ProjectXMLHelper {
             LOG.debug("Project " + projectName + " has no listeners");
         }
         return listeners;
+    }
+    
+    /**
+     * @param overrideTarget An overrideTarget to set on Builders in the Schedule.
+     */
+    public void setOverrideTarget(String overrideTarget) {
+        this.overrideTarget = overrideTarget;
     }
 }

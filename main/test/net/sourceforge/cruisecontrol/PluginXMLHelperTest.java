@@ -123,5 +123,8 @@ class MockBadBuilder extends Builder {
             throws CruiseControlException {
         return null;
     }
+    
+    protected void overrideTarget(String target) {
+    }
 
 }

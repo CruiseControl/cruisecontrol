@@ -106,6 +106,7 @@ public class Project implements Serializable, Runnable {
     private File configFile;
     private String name;
     private boolean buildForced = false;
+    private String buildTarget = null;
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
     private transient Thread projectSchedulingThread;
@@ -309,6 +310,11 @@ public class Project implements Serializable, Runnable {
         synchronized (waitMutex) {
             waitMutex.notify();
         }
+    }
+    
+    public void forceBuildWithTarget(String buildTarget) {
+        this.buildTarget = buildTarget;
+        setBuildForced(true);
     }
 
     void waitForBuildToFinish() throws InterruptedException {
@@ -579,6 +585,13 @@ public class Project implements Serializable, Runnable {
 
         setListeners(helper.getListeners());
         bootstrappers = helper.getBootstrappers();
+        if (buildTarget != null) {
+            // tell the helper to set the given buildTarget
+            // on all Builders, just for this run (so we need to reset it)
+            info("Overriding build target with \"" + buildTarget + "\"");
+            helper.setOverrideTarget(buildTarget);
+            buildTarget = null;
+        }
         setSchedule(helper.getSchedule());
         log = helper.getLog();
         setModificationSet(helper.getModificationSet());

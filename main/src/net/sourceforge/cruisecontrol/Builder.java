@@ -55,8 +55,9 @@ public abstract class Builder implements Comparable {
     private String group = "default";
 
     //should return log from build
-    public abstract Element build(Map properties)
-        throws CruiseControlException;
+    public abstract Element build(Map properties) throws CruiseControlException;
+    
+    protected abstract void overrideTarget(String target);
 
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
