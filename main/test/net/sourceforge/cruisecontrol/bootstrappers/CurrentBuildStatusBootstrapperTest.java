@@ -52,12 +52,18 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
     }
 
 
-    public void testBootstrap() {
+    public void testValidate() {
         CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
         try {
-            cbsb.bootstrap();
-            assertTrue("'file' should be a required attribute on CurrentBuildStatusBootstrapper", false);
+            cbsb.validate();
+            fail("'file' should be a required attribute on CurrentBuildStatusBootstrapper");
         } catch (CruiseControlException cce) {
+        }
+        cbsb.setFile("somefile");
+        try {
+            cbsb.validate();
+        } catch (CruiseControlException e) {
+            fail("CurrentBuildStatusBootstrapper should throw an exception if required attributes are not set");
         }
     }
 
