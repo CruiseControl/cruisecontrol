@@ -128,6 +128,15 @@ public class P4Element extends SourceControlElement {
 		return _lastModified.getTime();
 	}
 
+	/**
+	 *  Get a List of Modifications detailing all the changes between now and
+	 *  the last build.
+	 *
+	 * @param  date of lastBuild
+	 * @param  now
+	 * @param  quietPeriod (in P4Element NOT supported?)
+	 * @return list of modifications
+	 */
 	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
 
 		ArrayList mods = new ArrayList();
