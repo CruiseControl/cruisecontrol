@@ -29,6 +29,7 @@
     <property name="build.compiler" value="jikes"/>
 
     <property name="build.dir" value="classes"/>
+    <property name="dist.dir" value="dist"/>
     <property name="masterbuild.logdir" value="logs"/>
     <property name="source.dir" value="src"/>
 
@@ -46,12 +47,15 @@
     <target name="init" description="Prepare for build">
         <tstamp/>
         <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
         <mkdir dir="${masterbuild.logdir}"/>
     </target>
 
     <target name="clean" description="Clean all build products">
         <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
         <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
     </target>
 
     <target name="compile" depends="init" description="Compile application without cleaning">
@@ -76,7 +80,13 @@
         
     </target>
 
-    <target name="all" depends="init,clean,compile,test" description="Build application">
+    <target name="jar">
+        <jar jarfile="${dist.dir}\helloWorld.jar">
+            <fileset dir="${build.dir}"/>
+        </jar>
+    </target>
+
+    <target name="all" depends="init,clean,compile,test,jar" description="Build application">
         <echo message="Application built!"/>
     </target>
 
@@ -92,7 +102,7 @@
         </modificationset>
     </target>
 
-    <target name="masterbuild" depends="modificationset,cvs-update,compile,test" description="Cruise control master build"/>
+    <target name="masterbuild" depends="modificationset,cvs-update,compile,test,jar" description="Cruise control master build"/>
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
     
 </project>
