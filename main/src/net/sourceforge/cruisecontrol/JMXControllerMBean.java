@@ -97,4 +97,9 @@ public interface JMXControllerMBean {
      * Resumes the controlled process.
      */
     public void resume();
+
+    /**
+     * Stops the controlled process, including any other support processes that may have been started.
+     */
+    public void stop();
 }
