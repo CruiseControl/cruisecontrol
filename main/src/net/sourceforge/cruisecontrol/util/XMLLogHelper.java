@@ -36,15 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
-import net.sourceforge.cruisecontrol.Modification;
-import org.jdom.Element;
-
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
+import net.sourceforge.cruisecontrol.Modification;
+
+import org.jdom.Element;
 
 /**
  *  Wrapper for the cruisecontrol build log.  This class serves two purposes:<br>
@@ -76,15 +78,26 @@ import java.util.Set;
  *
  *  @author Alden Almagro
  *  @author Jonny Boman
+ *  @version $Id$
  */
 public class XMLLogHelper {
 
     private Element log;
+    private DateFormat dateFormat;
 
     public XMLLogHelper(Element log) {
-        this.log = log;
+        this(log, DateFormatFactory.getFormat());
     }
 
+    public XMLLogHelper(Element log, String dateFormatString) {
+        this(log, new SimpleDateFormat(dateFormatString));
+    }
+
+    public XMLLogHelper(Element log, DateFormat dateFormat) {
+        this.log = log;
+        this.dateFormat = dateFormat;
+    }
+    
     /**
      *  @return the build log name
      */
@@ -107,20 +120,16 @@ public class XMLLogHelper {
      *  @return true if the previous build was successful, false if it was not
      */
     public boolean wasPreviousBuildSuccessful() throws CruiseControlException {
-        return getCruiseControlInfoProperty("lastbuildsuccessful").equals(
-            "true");
+        return getCruiseControlInfoProperty("lastbuildsuccessful").equals("true");
     }
 
     /**
      *  @return true if the build was necessary
      */
     public boolean isBuildNecessary() {
-        if (log.getChild("build") != null
-            && log.getChild("build").getAttributeValue("error") != null) {
+        if (log.getChild("build") != null && log.getChild("build").getAttributeValue("error") != null) {
 
-            return !log.getChild("build").getAttributeValue("error").equals(
-                "No Build Necessary");
-        }
+        return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary"); }
         return true;
     }
 
@@ -146,20 +155,13 @@ public class XMLLogHelper {
         Set results = new HashSet();
         if (isP4Modifications()) {
 
-            Iterator changelistIterator =
-                log
-                    .getChild("modifications")
-                    .getChildren("changelist")
-                    .iterator();
+            Iterator changelistIterator = log.getChild("modifications").getChildren("changelist").iterator();
             while (changelistIterator.hasNext()) {
                 Element changelistElement = (Element) changelistIterator.next();
                 results.add(changelistElement.getAttributeValue("user"));
             }
         } else {
-            Iterator modificationIterator =
-                log
-                    .getChild("modifications")
-                    .getChildren("modification")
+            Iterator modificationIterator = log.getChild("modifications").getChildren("modification")
                     .iterator();
             while (modificationIterator.hasNext()) {
                 Element modification = (Element) modificationIterator.next();
@@ -175,43 +177,32 @@ public class XMLLogHelper {
 
     private boolean isP4Modifications() {
         return log.getChild("modifications").getChildren("changelist") != null
-            && !log.getChild("modifications").getChildren("changelist").isEmpty();
+                && !log.getChild("modifications").getChildren("changelist").isEmpty();
     }
 
     /**
      *  @param propertyName the name of the ant property
      *  @return the value of the ant property
      */
-    public String getAntProperty(String propertyName)
-        throws CruiseControlException {
-        Iterator propertyIterator =
-            log
-                .getChild("build")
-                .getChild("properties")
-                .getChildren("property")
+    public String getAntProperty(String propertyName) throws CruiseControlException {
+        Iterator propertyIterator = log.getChild("build").getChild("properties").getChildren("property")
                 .iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
-            if (property.getAttributeValue("name").equals(propertyName)) {
-                return property.getAttributeValue("value");
-            }
+            if (property.getAttributeValue("name").equals(propertyName)) { return property
+                    .getAttributeValue("value"); }
         }
-        throw new CruiseControlException(
-            "Property: " + propertyName + " not found.");
+        throw new CruiseControlException("Property: " + propertyName + " not found.");
     }
 
-    public String getCruiseControlInfoProperty(String propertyName)
-        throws CruiseControlException {
-        Iterator propertyIterator =
-            log.getChild("info").getChildren("property").iterator();
+    public String getCruiseControlInfoProperty(String propertyName) throws CruiseControlException {
+        Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
-            if (property.getAttributeValue("name").equals(propertyName)) {
-                return property.getAttributeValue("value");
-            }
+            if (property.getAttributeValue("name").equals(propertyName)) { return property
+                    .getAttributeValue("value"); }
         }
-        throw new CruiseControlException(
-            "Property: " + propertyName + " not found.");
+        throw new CruiseControlException("Property: " + propertyName + " not found.");
     }
 
     public Set getModifications() {
@@ -219,17 +210,12 @@ public class XMLLogHelper {
         if (isP4Modifications()) {
             //TODO: implement this
         } else {
-            Iterator modificationIterator =
-                log
-                    .getChild("modifications")
-                    .getChildren("modification")
+            Iterator modificationIterator = log.getChild("modifications").getChildren("modification")
                     .iterator();
             while (modificationIterator.hasNext()) {
                 Element modification = (Element) modificationIterator.next();
                 Modification mod = new Modification();
-                mod.fromElement(
-                    modification,
-                    new SimpleDateFormat(DateFormatFactory.getFormat()));
+                mod.fromElement(modification, dateFormat);
                 results.add(mod);
             }
         }
@@ -239,4 +225,5 @@ public class XMLLogHelper {
     public boolean isBuildFix() throws CruiseControlException {
         return !this.wasPreviousBuildSuccessful() && this.isBuildSuccessful();
     }
+    
 }

@@ -36,30 +36,36 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+
 import org.jdom.Element;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-
+/**
+ * @version $Id$
+ */
 public class XMLLogHelperTest extends TestCase {
 
     private Element successfulLogElement;
     private Element failedLogElement;
-    private Date date = new Date();
+
+    private static final Date SOME_DATE = new Date(2333);
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
     public XMLLogHelperTest(String name) {
         super(name);
     }
 
-    private Modification[] createModifications(
-        String username1,
-        String username2) {
+    private Modification[] createModifications(String username1, String username2) {
         Modification[] mods = new Modification[3];
         mods[0] = createModification(username1, false);
         mods[1] = createModification(username2, false);
@@ -77,22 +83,17 @@ public class XMLLogHelperTest extends TestCase {
 
         mod.fileName = "file.txt";
         mod.folderName = "myfolder";
-        mod.modifiedTime = date;
+        mod.modifiedTime = SOME_DATE;
         mod.type = "checkin";
         return mod;
     }
 
-    private Element createModificationsElement(
-        String username1,
-        String username2) {
+    private Element createModificationsElement(String username1, String username2) {
         Element modificationsElement = new Element("modifications");
         Modification[] mods = createModifications(username1, username2);
-        modificationsElement.addContent(
-            mods[0].toElement(new SimpleDateFormat("yyyyMMddHHmmss")));
-        modificationsElement.addContent(
-            mods[1].toElement(new SimpleDateFormat("yyyyMMddHHmmss")));
-        modificationsElement.addContent(
-            mods[2].toElement(new SimpleDateFormat("yyyyMMddHHmmss")));
+        modificationsElement.addContent(mods[0].toElement(DATE_FORMAT));
+        modificationsElement.addContent(mods[1].toElement(DATE_FORMAT));
+        modificationsElement.addContent(mods[2].toElement(DATE_FORMAT));
         return modificationsElement;
     }
 
@@ -122,9 +123,7 @@ public class XMLLogHelperTest extends TestCase {
             String propertyName = (String) propertyIterator.next();
             Element propertyElement = new Element("property");
             propertyElement.setAttribute("name", propertyName);
-            propertyElement.setAttribute(
-                "value",
-                (String) properties.get(propertyName));
+            propertyElement.setAttribute("value", (String) properties.get(propertyName));
             infoElement.addContent(propertyElement);
         }
 
@@ -135,14 +134,12 @@ public class XMLLogHelperTest extends TestCase {
         successfulLogElement = new Element("cruisecontrol");
         successfulLogElement.addContent(createInfoElement("1.0", false));
         successfulLogElement.addContent(createBuildElement(true));
-        successfulLogElement.addContent(
-            createModificationsElement("username1", "username2"));
+        successfulLogElement.addContent(createModificationsElement("username1", "username2"));
 
         failedLogElement = new Element("cruisecontrol");
         failedLogElement.addContent(createInfoElement("1.1", true));
         failedLogElement.addContent(createBuildElement(false));
-        failedLogElement.addContent(
-            createModificationsElement("username3", "username4"));
+        failedLogElement.addContent(createModificationsElement("username3", "username4"));
     }
 
     public void testGetLabel() {
@@ -159,9 +156,7 @@ public class XMLLogHelperTest extends TestCase {
     public void testGetLogFileName() {
         XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         try {
-            assertEquals(
-                "log20020313120000.xml",
-                successHelper.getLogFileName());
+            assertEquals("log20020313120000.xml", successHelper.getLogFileName());
         } catch (CruiseControlException e) {
             assertTrue(false);
         }
@@ -181,9 +176,7 @@ public class XMLLogHelperTest extends TestCase {
     public void testGetCruiseControlInfoProperty() {
         XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         try {
-            assertEquals(
-                "1.0",
-                successHelper.getCruiseControlInfoProperty("label"));
+            assertEquals("1.0", successHelper.getCruiseControlInfoProperty("label"));
         } catch (CruiseControlException e) {
             assertTrue(false);
         }
@@ -224,9 +217,7 @@ public class XMLLogHelperTest extends TestCase {
         assertEquals(true, successHelperParticipants.contains("username1"));
         assertEquals(true, successHelperParticipants.contains("username2"));
         assertEquals(false, successHelperParticipants.contains("notaperson"));
-        assertEquals(
-            true,
-            successHelperParticipants.contains("user3@host.com"));
+        assertEquals(true, successHelperParticipants.contains("user3@host.com"));
 
         //test P4 changelist structure
         Element ccElement = new Element("cruisecontrol");
@@ -252,36 +243,36 @@ public class XMLLogHelperTest extends TestCase {
         //NOTE:  There is an issue with dateformat if you convert
         //a date to a string and parse it back to a date the milliseconds will
         //be different.  Therefore the test gets all of the modifications
-        //and sets the date on all of them to account for this.
-        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        //and sets the date on all of them to account for this, after it compares the date by string
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement, DATE_FORMAT);
         Set modifications = successHelper.getModifications();
         Modification[] mods = createModifications("username1", "username2");
-        boolean found1 = false;
-        boolean found2 = false;
-        boolean found3 = false;
-        for (Iterator iterator = modifications.iterator();
-            iterator.hasNext();
-            ) {
-            Modification modification = (Modification) iterator.next();
-            modification.modifiedTime = date;
-
-            //NOTE:  HashSet contains() doesn't work properly therefore
-            //there is this horrible assert statement
-            if (modification.userName.equals("username1")) {
-                found1 = true;
-                assertEquals(modification, mods[0]);
-            }
-            if (modification.userName.equals("username2")) {
-                found2 = true;
-                assertEquals(modification, mods[1]);
-            }
-            if (modification.userName.equals("user3")) {
-                found3 = true;
-                assertEquals(modification, mods[2]);
-            }
+        Map map = createMapByUserName(mods);
+        for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
+            Modification actual = (Modification) iterator.next();
+            Modification expected = (Modification) map.get(actual.userName);
+            assertNotNull(actual.userName, expected);
+            assertModificationsEquals(expected, actual);
         }
-        assertTrue(
-            "1: " + found1 + " 2:" + found2 + " 3:" + found3,
-            found1 && found2 && found3);
     }
+
+    private Map createMapByUserName(Modification[] modifications) {
+        Map map = new HashMap();
+        for (int i = 0; i < modifications.length; i++) {
+            map.put(modifications[i].userName, modifications[i]);
+        }
+
+        return map;
+    }
+
+    private void assertModificationsEquals(Modification expected, Modification actual) {
+        assertDateEquals(expected.modifiedTime, actual.modifiedTime);
+        actual.modifiedTime = SOME_DATE;
+        assertEquals(expected, actual);
+    }
+
+    private void assertDateEquals(Date expected, Date actual) {
+        assertEquals(DATE_FORMAT.format(expected), DATE_FORMAT.format(actual));
+    }
+    
 }
