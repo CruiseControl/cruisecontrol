@@ -184,7 +184,7 @@
         <zip zipfile="release\${release.zip}">
             <fileset dir="${dist}" includes="*.*"/>
             <fileset dir="." 
-             includes="${docs}/**, ${lib}/**, *.txt" />
+             includes="${docs}/**, ${lib}/*.jar, *.txt" />
         </zip>
     </target>
                   
