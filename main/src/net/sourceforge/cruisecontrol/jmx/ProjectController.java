@@ -83,7 +83,7 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     public void handleBuildProgress(BuildProgressEvent event) {
         log("build progress event: " + event.getState().getDescription());
-        if (event.getProject() == project) {
+        if (checkSourceProject(event.getProject())) {
             Notification notification = new Notification("cruisecontrol.progress.event", this, nextSequence());
             notification.setUserData(event.getState().getName());
             sendNotification(notification);
@@ -92,11 +92,26 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     public void handleBuildResult(BuildResultEvent event) {
         log("build result event: build " + String.valueOf(event.isBuildSuccessful() ? "successful" : "failed"));
-        if (event.getProject() == project) {
+        if (checkSourceProject(event.getProject())) {
             Notification notification = new Notification("cruisecontrol.result.event", this, nextSequence());
             notification.setUserData(new Boolean(event.isBuildSuccessful()));
             sendNotification(notification);
         }
+    }
+
+    private boolean checkSourceProject(Project sourceProject) {
+        boolean projectsMatch = false;
+        if (project == sourceProject) {
+            projectsMatch = true;
+        } else {
+            if (sourceProject == null) {
+                LOG.warn("source project was null");
+            } else {
+                LOG.warn("source project " + sourceProject.getName()
+                        + " didn't match internal project " + project.getName());
+            }
+        }
+        return projectsMatch;
     }
 
     public void pause() {
@@ -143,7 +158,7 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     public void setLabelIncrementer(String classname) {
         log("setting label incrementer to [" + classname + "]");
-        LabelIncrementer incrementer = null;
+        LabelIncrementer incrementer;
         try {
             incrementer =
                 (LabelIncrementer) Class.forName(classname).newInstance();
