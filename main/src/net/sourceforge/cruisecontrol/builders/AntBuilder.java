@@ -61,6 +61,8 @@ public class AntBuilder extends Builder {
 
     private String _buildFile;
     private String _target;
+    List _args = new ArrayList();
+
 
     /**
      * build and return the results via xml.  debug status can be determined
@@ -73,7 +75,7 @@ public class AntBuilder extends Builder {
             p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties));
         } catch (IOException e) {
             log.error(
-                    "Encountered an IO exception will attempting to execute Ant."
+                    "Encountered an IO exception while attempting to execute Ant."
                     + " CruiseControl cannot continue.",
                     e);
         }
@@ -122,6 +124,12 @@ public class AntBuilder extends Builder {
         _buildFile = buildFile;
     }
 
+    public Object createJVMArg() {
+        JVMArg arg = new JVMArg();
+        _args.add(arg);
+        return arg;
+    }
+
     /**
      *  construct the command that we're going to execute.
      *  @param buildProperties Map holding key/value pairs of arguments to the build process
@@ -130,6 +138,10 @@ public class AntBuilder extends Builder {
     protected String[] getCommandLineArgs(Map buildProperties) {
         List al = new ArrayList();
         al.add("java");
+        Iterator argsIterator = _args.iterator();
+        while(argsIterator.hasNext()) {
+            al.add(((JVMArg) argsIterator.next()).getArg());
+        }
         al.add("-classpath");
         al.add(System.getProperty("java.class.path"));
         al.add("org.apache.tools.ant.Main");
@@ -188,5 +200,18 @@ public class AntBuilder extends Builder {
             ee.printStackTrace();
         }
         return null;
+    }
+
+    public class JVMArg {
+
+        private String _arg;
+
+        public void setArg(String arg) {
+            _arg = arg;
+        }
+
+        public String getArg() {
+            return _arg;
+        }
     }
 }
