@@ -60,6 +60,10 @@ CVSBootstrapper:
 ----------------------
 * Add resetStickyTags attribute
 
+documentation
+----------------------
+* Add gettingsstarted.html. Patch by Joe Schmetzer
+
 errors.xsl:
 ----------------------
 * Added errors.xsl to replace compile.xsl. Similar logic, but shows errors and warnings from all tasks.
