@@ -38,13 +38,13 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.BodyTagSupport;
@@ -92,12 +92,23 @@ public class TabSheetTag extends BodyTagSupport {
      */
     public int doEndTag() throws JspException {
         try {
-            printTabHeaders();
-            printBody();
+            final JspWriter out = getPageContext().getOut();
+            startTable(out);
+            printTabHeaders(out);
+            printBody(out);
+            endTable(out);
             return Tag.EVAL_PAGE;
         } catch (IOException e) {
             throw new JspTagException("IO Error: " + e.getMessage());
         }
+    }
+
+    private void endTable(final JspWriter out) throws IOException {
+        out.write("</table>");
+    }
+
+    private void startTable(final JspWriter out) throws IOException {
+        out.write("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">");
     }
 
     private PageContext getPageContext() {
@@ -113,25 +124,32 @@ public class TabSheetTag extends BodyTagSupport {
      * Print out the tab headers. The selected tab is rendered as a plain label, the other tabs are rendered as links.
      * @throws IOException  if there's an IO error.
      */
-    private void printTabHeaders() throws IOException {
-        final Writer out = getPageContext().getOut();
+    private void printTabHeaders(JspWriter out) throws IOException {
         out.write("<tr>");
+        out.write("<th>");
         for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
             Tab tab = (Tab) iterator.next();
-            out.write("<th>");
             if (tab == selectedTab) {
+                out.write("<img border=\"0\" alt=\"");
                 out.write(tab.getLabel());
+                out.write("\" src=\"images/");
+                out.write(tab.getName());
+                out.write("Tab-off.gif\" />");
             } else {
                 out.write("<a href=\"");
                 out.write(getServletPath());
                 out.write("?tab=");
                 out.write(tab.getName());
                 out.write("\">");
+                out.write("<img border=\"0\" alt=\"");
                 out.write(tab.getLabel());
+                out.write("\" src=\"images/");
+                out.write(tab.getName());
+                out.write("Tab-on.gif\" />");
                 out.write("</a>");
             }
-            out.write("</th>");
         }
+        out.write("</th>");
         out.write("</tr>");
     }
 
@@ -139,15 +157,10 @@ public class TabSheetTag extends BodyTagSupport {
      * Print out the body of the selected tab (if any).
      * @throws IOException  if there's an IO error.
      */
-    private void printBody() throws IOException {
-        final Writer out = getPageContext().getOut();
-        out.write("<tr>");
+    private void printBody(JspWriter out) throws IOException {
         if (selectedTab != NONE_SELECTED) {
-            out.write("<td>");
             out.write(getBodyContent().getString());
-            out.write("</td>");
         }
-        out.write("</tr>");
     }
 
     private String getServletPath() {

@@ -36,29 +36,4 @@
  ********************************************************************************--%>
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<html>
-<head>
-  <title>CruiseControl Build Results</title>
-  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-</head>
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
-  <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
-    <jsp:include page="navigation.jsp" />
-    <tr>
-      <% String queryString = (request.getQueryString() != null) ? request.getQueryString() : ""; %>
-      <td><img src="images/blank35.gif"><a href="/cruisecontrol/buildresults?<%= queryString %>" border="0"><img src="images/buildResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><img src="images/xmlLogFileTab-on.gif" border="0"><a href="/cruisecontrol/controlpanel?<%= queryString %>" border="0"><img src="images/controlPanelTab-off.gif" border="0"></a></td>
-    </tr>
-    <tr>
-      <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>
-    </tr>
-    <tr>
-      <td valign="top" bgcolor="#FFFFFF">
         <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/rawlog.xsl"/></pre>
-      </td>
-    </tr>
-    <tr>
-      <td background="images/bluestripesbottom.gif"><img src="images/blank8.gif" border="0"></td>
-    </tr>
-  </table>
-</body>
-</html>
