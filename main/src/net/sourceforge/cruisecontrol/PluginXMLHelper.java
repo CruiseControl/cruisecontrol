@@ -105,6 +105,8 @@ public class PluginXMLHelper {
                         method.invoke(object, new Object[] { attribute.getValue()});
                     } else if (int.class.isAssignableFrom(parameters[0])) {
                         method.invoke(object, new Object[] { new Integer(attribute.getIntValue())});
+                    } else if (long.class.isAssignableFrom(parameters[0])) {
+                        method.invoke(object, new Object[] { new Long(attribute.getLongValue())});
                     } else if (boolean.class.isAssignableFrom(parameters[0])) {
                         method.invoke(
                             object,
