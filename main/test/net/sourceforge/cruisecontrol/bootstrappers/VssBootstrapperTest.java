@@ -84,7 +84,7 @@ public class VssBootstrapperTest extends TestCase {
   public void testCommandLine() {
     VssBootstrapper bootstrapper = new VssBootstrapper();
     String commandLine = bootstrapper.generateCommandLine();
-    this.assertNotNull("command line should never be null", commandLine);
+    assertNotNull("command line should never be null", commandLine);
 
     final String vssPath = "$Project/subproject/file.ext";
     bootstrapper.setVssPath(vssPath);
@@ -93,12 +93,12 @@ public class VssBootstrapperTest extends TestCase {
 
     commandLine = bootstrapper.generateCommandLine();
     String expectedCommandLine = "ss.exe get \"" + vssPath + "\" -GL\"" + localDirectory + "\" -I-N";
-    this.assertEquals(expectedCommandLine, commandLine);
+    assertEquals(expectedCommandLine, commandLine);
 
     bootstrapper.setLogin("bob,password");
     commandLine = bootstrapper.generateCommandLine();
     expectedCommandLine = expectedCommandLine + " -Ybob,password";
-    this.assertEquals(expectedCommandLine, commandLine);
+    assertEquals(expectedCommandLine, commandLine);
 
     final String ssDir = "c:\\buildtools\\vss";
     bootstrapper.setSsDir(ssDir);
@@ -106,6 +106,6 @@ public class VssBootstrapperTest extends TestCase {
     bootstrapper.setServerPath(serverPath);
     expectedCommandLine = ssDir + "\\" + expectedCommandLine;
     commandLine = bootstrapper.generateCommandLine();
-    this.assertEquals(expectedCommandLine, commandLine);
+    assertEquals(expectedCommandLine, commandLine);
   }
 }
