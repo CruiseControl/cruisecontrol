@@ -1,6 +1,10 @@
 package net.sourceforge.cruisecontrol.util;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher;
+import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper;
 import org.apache.log4j.Category;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -238,10 +242,10 @@ public class Upgrader {
         config.append(createSchedule(properties));
         config.append(createLog(properties));
         config.append(createPublishers(properties));
-        config.append("<plugin name=\"currentbuildstatusbootstrapper\" classname=\"net.sourceforge.cruisecontrol.CurrentBuildStatusBootstrapper\"/>");
-        config.append("<plugin name=\"ant\" classname=\"net.sourceforge.cruisecontrol.builders.AntBuilder\"/>");
-        config.append("<plugin name=\"email\" classname=\"net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher\"/>");
-        config.append("<plugin name=\"currentbuildstatuspublisher\" classname=\"net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher\"/>");
+        config.append("<plugin name=\"currentbuildstatusbootstrapper\" classname=\"" + CurrentBuildStatusBootstrapper.class.getName() + "\"/>");
+        config.append("<plugin name=\"ant\" classname=\"" + AntBuilder.class.getName() + "\"/>");
+        config.append("<plugin name=\"email\" classname=\"" + LinkEmailPublisher.class.getName() + "\"/>");
+        config.append("<plugin name=\"currentbuildstatuspublisher\" classname=\"" + CurrentBuildStatusPublisher.class.getName() + "\"/>");
         config.append(createLabelIncrementerPlugin(properties));
         config.append("</project></cruisecontrol>");
 
