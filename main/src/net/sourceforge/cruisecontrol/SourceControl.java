@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.List;
 import java.util.Date;
+import java.util.Hashtable;
 
 /**
  * This interface defines behavior required by ModificationSet.java when
@@ -58,6 +59,15 @@ public interface SourceControl {
 	 *@param  now
 	 *@return List of Modification objects
 	 */
-    public List getModifications(Date lastBuild, Date now);
+    public List getModifications(Date lastBuild, Date now, long quietperiod);
 
+
+    /**
+     *  Any properties that have been set in this sourcecontrol.  Formerly set on the Ant Project.
+     */
+    public Hashtable getProperties();
+
+    public void setProperty(String property);
+
+    public void setPropertyOnDelete(String property);
 }
