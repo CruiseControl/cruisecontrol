@@ -128,15 +128,9 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals("utf-8", helper.getLog().getLogXmlEncoding());
     }
 
-    public void testGetAuxLogs() throws CruiseControlException {
-        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
-        assertEquals(0, helper.getLog().getOtherLogFilenames().length);
-        helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals(1, helper.getLog().getOtherLogFilenames().length);
-    }
-
     protected void setUp() throws Exception {
         configFile = File.createTempFile("tempConfig", "xml");
+        configFile.deleteOnExit();
         File tempDirectory = configFile.getParentFile();
 
         String config =

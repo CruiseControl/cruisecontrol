@@ -51,14 +51,15 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
-    private static final Logger LOG = Logger.getLogger(ProjectTest.class);
+    private static final org.apache.log4j.Logger LOG4J =
+            org.apache.log4j.Logger.getLogger(ProjectTest.class);
 
     private Project project;
     private static final long ONE_MINUTE = 60 * 1000;
@@ -69,7 +70,7 @@ public class ProjectTest extends TestCase {
 
         // Turn off logging
         BasicConfigurator.configure();
-        LOG.getLoggerRepository().setThreshold(Level.OFF);
+        LOG4J.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void setUp() {
@@ -112,8 +113,14 @@ public class ProjectTest extends TestCase {
         logDir.mkdir();
         project.getLog().setLogDir("test-results");
         project.setLogXmlEncoding("ISO-8859-1");
-        project.getLog().addOtherLog("_auxLog1.xml");
-        project.getLog().addOtherLog("_auxLogs");
+        MergeLogger logger = new MergeLogger();
+        logger.setFile("_auxLog1.xml");
+        project.getLog().addLogger(logger);
+
+        logger = new MergeLogger();
+        logger.setDir("_auxLogs");
+        project.getLog().addLogger(logger);
+
         project.setLabelIncrementer(new DefaultLabelIncrementer());
         project.setModificationSet(modSet);
         project.setLastBuild(formatTime(now));
@@ -188,7 +195,7 @@ public class ProjectTest extends TestCase {
         project.setPublishers(publishers);
         project.setName("projectName");
         project.setLabel("label");
-        Element element = project.getProjectPropertiesElement(new Date());
+        //Element element = project.getProjectPropertiesElement(new Date());
         project.publish();
         
         assertEquals(2, publisher.getPublishCount());
