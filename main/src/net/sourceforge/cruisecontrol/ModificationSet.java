@@ -12,7 +12,6 @@
  *  write to the Free Software * Foundation, Inc., 59 Temple Place - Suite 330,
  *  Boston, MA 02111-1307, USA. *
  */
-
 package net.sourceforge.cruisecontrol;
 
 import java.io.*;
@@ -43,17 +42,12 @@ public class ModificationSet extends Task {
 
 	private final static SimpleDateFormat _simpleDateFormat =
 			new SimpleDateFormat("yyyyMMddHHmmss");
-
     
     public void setDateFormat(String format) {
 		if (format != null && format.length() > 0) {
 			_formatter = new SimpleDateFormat(format);
 		}
 	}
-
-    public void setEmailSuffix(String emailSuffix) {
-        _emailSuffix = emailSuffix;
-    }
     
 	/**
 	 *  set the timestamp of the last build time. String should be formatted as
@@ -88,13 +82,14 @@ public class ModificationSet extends Task {
 	 */
 	public void execute() throws BuildException {
         ArrayList modifications = new ArrayList();
+        long currentTime = 0;
 		try {
 			Date currentDate = new Date();
 			_lastModified = _lastBuild.getTime();
             
             modifications = processSourceControlElements(currentDate, _lastBuild);            
             
-            long currentTime = currentDate.getTime();
+            currentTime = currentDate.getTime();
 			while (tooMuchRepositoryActivity(currentTime)) {
                 long sleepTime = calculateSleepTime(currentTime);
 
@@ -106,6 +101,7 @@ public class ModificationSet extends Task {
                  processSourceControlElements(currentDate, _lastBuild);
                 
 				currentDate = new Date();
+                currentTime = currentDate.getTime();
 			}
 
 			//If there aren't any modifications, then a build is not necessary, so
