@@ -37,6 +37,9 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
+import net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher;
 
 import java.io.*;
 import java.util.*;
@@ -81,6 +84,53 @@ public class CruiseControlProperties {
     private  String labelIncrementerClassName;
     private  String reportSuccess;
 
+    /**
+     *  Factory method for creating an <code>EmailPublisher</code> from the properties file, rather than making repeated calls
+     *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     *
+     *  @return EmailPublisher that is fully configured
+     */
+    public LinkEmailPublisher createLinkEmailPublisher() {
+        LinkEmailPublisher result = new LinkEmailPublisher();
+        result.setDefaultSuffix(defaultEmailSuffix);
+        result.setMailHost(mailhost);
+        result.setReportSuccess(reportSuccess);
+        result.setReturnAddress(returnAddress);
+        result.setServletUrl(servletURL);
+        result.setSpamWhileBroken(spamWhileBroken);
+        result.setEmailMap(emailmapFilename);
+
+        Iterator alwaysEmailIterator = buildmaster.iterator();
+        while(alwaysEmailIterator.hasNext()) {
+            result.addAlwaysAddress((String) alwaysEmailIterator.next());
+        }
+
+        Iterator failureEmailIterator = notifyOnFailure.iterator();
+        while(failureEmailIterator.hasNext()) {
+            result.addFailureAddress((String) failureEmailIterator.next());
+        }
+        return result;
+    }
+
+    /**
+     *  Factory method for creating an <code>AntBuilder</code> from the properties file, rather than making repeated calls
+     *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     *
+     *  @return AntBuilder that is fully configured for the appropriate build target, based on the build counter
+     */
+    public AntBuilder createAntBuilder(int buildCounter) {
+        AntBuilder builder = new AntBuilder();
+        builder.setBuildFile(antFile);
+
+        if (((buildCounter % cleanBuildEvery) == 0) && !cleanAntTarget.equals("")) {
+            builder.setTarget(cleanAntTarget);
+        } else {
+            builder.setTarget(antTarget);
+        }
+        builder.setTarget(antTarget);
+        return builder;
+    }
+
     public CruiseControlProperties(String propertiesFile) throws IOException {
 
         if (propertiesFile == null
@@ -96,7 +146,7 @@ public class CruiseControlProperties {
      * Load properties file, see cruisecontrol.properties for descriptions of
      * properties.
      */
-    private  void loadProperties(String propsFileName) throws IOException {
+    private void loadProperties(String propsFileName) throws IOException {
         File propFile = new File(propsFileName);
 
         if (!propFile.exists()) {
