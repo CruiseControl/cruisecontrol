@@ -4,34 +4,34 @@
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
+ *
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
- *     + Redistributions of source code must retain the above copyright 
- *       notice, this list of conditions and the following disclaimer. 
- *       
- *     + Redistributions in binary form must reproduce the above 
- *       copyright notice, this list of conditions and the following 
- *       disclaimer in the documentation and/or other materials provided 
- *       with the distribution. 
- *       
- *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the 
- *       names of its contributors may be used to endorse or promote 
- *       products derived from this software without specific prior 
- *       written permission. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.element;
@@ -55,9 +55,9 @@ import org.apache.tools.ant.Task;
 public class VssElement extends SourceControlElement {
 
     private final String VSS_TEMP_FILE = "vsstempfile.txt";
-    public static final SimpleDateFormat VSS_OUT_FORMAT = 
-         new SimpleDateFormat("'Date: 'MM/dd/yy   'Time:  'hh:mma");        
-    
+    public static final SimpleDateFormat VSS_OUT_FORMAT =
+         new SimpleDateFormat("'Date: 'MM/dd/yy   'Time: 'hh:mma");
+
 	private String _ssDir;
 	private String _login;
 	private String _property;
@@ -132,7 +132,7 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  Do the work... I'm writing to a file since VSS will start wrapping lines 
+	 *  Do the work... I'm writing to a file since VSS will start wrapping lines
      * if I read directly from the stream.
 	 *
 	 *@param  lastBuild
@@ -145,7 +145,7 @@ public class VssElement extends SourceControlElement {
 		//call vss, write output to intermediate file
 		try {
 			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", "-Vd" +
-					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild), 
+					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
                     "-Y" + _login, "-I-N", "-O" + VSS_TEMP_FILE};
 			Process p = Runtime.getRuntime().exec(cmdArray);
 			p.waitFor();
@@ -206,7 +206,7 @@ public class VssElement extends SourceControlElement {
 		log("User: " + mod.userName + " Date: " + mod.modifiedTime);
 		log("");
 	}
-    
+
 	// ***** the rest of this is just parsing the vss output *****
 
     //(PENDING) Extract class VSSEntryParser
@@ -216,6 +216,19 @@ public class VssElement extends SourceControlElement {
 	 *@param  historyEntry
 	 */
 	private void handleEntry(List historyEntry) {
+        // Ignore unusual labels of directories which cause parsing errors that 
+        // look like this:
+        //
+        // *****  built  *****
+        // Version 4
+        // Label: "autobuild_test"
+        // User: Etucker      Date:  6/26/01   Time: 11:53a
+        // Labeled
+        if ((historyEntry.size() > 4) && 
+            (((String) historyEntry.get(4)).startsWith("Labeled"))) {
+           return;
+        }
+
 		Modification mod = new Modification();
         String nameAndDateLine = (String) historyEntry.get(2);
 		mod.userName = parseUser(nameAndDateLine);
@@ -248,11 +261,11 @@ public class VssElement extends SourceControlElement {
 		if (_propertyOnDelete != null && "delete".equals(mod.type)) {
 			getAntTask().getProject().setProperty(_propertyOnDelete, "true");
 		}
-        
+
         if (_property != null) {
     		getAntTask().getProject().setProperty(_property, "true");
         }
-        
+
 		_modifications.add(mod);
 		logModification(mod);
 	}
@@ -281,7 +294,7 @@ public class VssElement extends SourceControlElement {
 	 */
 	Date parseDate(String dateLine) {
 		try {
-			Date lastModifiedDate = 
+			Date lastModifiedDate =
              VSS_OUT_FORMAT.parse(dateLine.substring(dateLine.indexOf("Date: ")).trim() + "m");
 			if (lastModifiedDate.getTime() < _lastModified) {
 				_lastModified = lastModifiedDate.getTime();
