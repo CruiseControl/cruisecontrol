@@ -92,7 +92,13 @@ public abstract class EmailPublisher implements Publisher {
      */
     public void validate() throws CruiseControlException {
         if(_servletUrl == null) {
-            throw new CruiseControlException("EmailPublisher.servletUrl not specified in configuration file.");
+            throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
+        }
+        if(getMailHost() == null) {
+            throw new CruiseControlException("'mailhost' not specified in configuration file.");
+        }
+        if(getReturnAddress() == null) {
+            throw new CruiseControlException("'returnaddress' not specified in configuration file.");
         }
     }
 
