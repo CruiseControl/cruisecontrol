@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -112,6 +112,12 @@ public class CVSTest extends TestCase {
         }
     }
 
+    private InputStream loadTestLog(String name) {
+        InputStream testStream = getClass().getResourceAsStream(name);
+        assertNotNull("failed to load resource " + name + " in class " + getClass().getName(), testStream);
+        return testStream;
+    }
+
     public void testParseStream() throws IOException, ParseException {
         CVS cvs = new CVS();
         Hashtable emailAliases = new Hashtable();
@@ -119,11 +125,8 @@ public class CVSTest extends TestCase {
         emailAliases.put("tim", "tim@tim.net");
         cvs.setMailAliases(emailAliases);
 
-        File testLog =
-                new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
-        //System.out.println(testLog.getAbsolutePath());
         BufferedInputStream input =
-                new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog("cvslog1-11.txt"));
         List modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
@@ -198,11 +201,8 @@ public class CVSTest extends TestCase {
         cvs.setMailAliases(emailAliases);
 
         cvs.setTag("BRANCH_TEST_BUILD");
-        File testLog =
-                new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11branch.txt");
-        //System.out.println(testLog.getAbsolutePath());
         BufferedInputStream input =
-                new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog("cvslog1-11branch.txt"));
         List modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
@@ -259,10 +259,10 @@ public class CVSTest extends TestCase {
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
-        File testLog =
-                new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
+
+        String logName = "cvslog1-11.txt";
         BufferedInputStream input =
-                new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog(logName));
         cvs.parseStream(input);
         input.close();
 
@@ -279,7 +279,7 @@ public class CVSTest extends TestCase {
         //negative test
         CVS cvs2 = new CVS();
         cvs2.setMailAliases(new Hashtable());
-        input = new BufferedInputStream(new FileInputStream(testLog));
+        input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
         input.close();
 
@@ -295,10 +295,9 @@ public class CVSTest extends TestCase {
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
-        File testLog =
-                new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11noMods.txt");
+        String logName = "cvslog1-11noMods.txt";
         BufferedInputStream input =
-                new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog(logName));
         cvs.parseStream(input);
         input.close();
 
@@ -314,10 +313,9 @@ public class CVSTest extends TestCase {
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
-        File testLog =
-                new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11mods.txt");
+        String logName = "cvslog1-11mods.txt";
         BufferedInputStream input =
-                new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog(logName));
         cvs.parseStream(input);
         input.close();
 
@@ -331,7 +329,7 @@ public class CVSTest extends TestCase {
         CVS cvs2 = new CVS();
         cvs2.setMailAliases(new Hashtable());
         cvs2.setPropertyOnDelete("propertyOnDelete");
-        input = new BufferedInputStream(new FileInputStream(testLog));
+        input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
         input.close();
 
@@ -346,10 +344,9 @@ public class CVSTest extends TestCase {
         CVS cvs = new CVS();
         cvs.setMailAliases(new Hashtable());
         cvs.setPropertyOnDelete("propertyOnDelete");
-        File testLog =
-                new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11del.txt");
+        String logName = "cvslog1-11del.txt";
         BufferedInputStream input =
-                new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog(logName));
         cvs.parseStream(input);
         input.close();
 
@@ -364,7 +361,7 @@ public class CVSTest extends TestCase {
         //negative test
         CVS cvs2 = new CVS();
         cvs2.setMailAliases(new Hashtable());
-        input = new BufferedInputStream(new FileInputStream(testLog));
+        input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
         input.close();
 

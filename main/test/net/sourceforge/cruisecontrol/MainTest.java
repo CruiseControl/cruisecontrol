@@ -94,13 +94,13 @@ public class MainTest extends TestCase {
     }
 
     public void testParseXslPath() throws CruiseControlException {
-        String[] correctArgs = new String[] {"-xslpath", "xsl"};
+        String[] correctArgs = new String[] {"-xslpath", "tmp"};
         String[] missingParam = new String[] {""};
         String[] missingValue = new String[] {"-xslpath"};
         final String invalidXsl = "does_Not_Exist";
         String[] invalidArgs = new String[] {"-xslpath", invalidXsl};
 
-        assertEquals("xsl", Main.parseXslPath(correctArgs));
+        assertEquals("tmp", Main.parseXslPath(correctArgs));
         assertNull(Main.parseXslPath(missingParam));
         assertNull(Main.parseXslPath(missingValue));
 

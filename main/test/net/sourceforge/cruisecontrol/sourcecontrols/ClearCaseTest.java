@@ -37,9 +37,9 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -59,29 +59,28 @@ import net.sourceforge.cruisecontrol.ClearCaseModification;
  */
 public class ClearCaseTest extends TestCase {
 
-    public static final File TEST_DIR =
-        new File("test/net/sourceforge/cruisecontrol/sourcecontrols");
-    public static final File WINDOWS_LOG = 
-        new File(TEST_DIR, "clearcase-history.txt");
-    public static final File UNIX_LOG = 
-        new File(TEST_DIR, "clearcase-history-alt.txt");    
-    public static final File WINDOWS_XML =
-        new File(TEST_DIR, "clearcase-history.xml");
-    public static final File UNIX_XML =
-        new File(TEST_DIR, "clearcase-history-alt.xml");
+     private static final String WINDOWS_LOG = "clearcase-history.txt";
+     private static final String UNIX_LOG = "clearcase-history-alt.txt";
+     private static final String WINDOWS_XML = "clearcase-history.xml";
+     private static final String UNIX_XML = "clearcase-history-alt.xml";
 
-    public static final SimpleDateFormat DATE_FMT =
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    public static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private ClearCase clearCase;
     private List mods;
+
+    private InputStream loadTestLog(String name) {
+        InputStream testStream = getClass().getResourceAsStream(name);
+        assertNotNull("failed to load resource " + name + " in class " + getClass().getName(), testStream);
+        return testStream;
+    }
 
     protected void setUp() throws JDOMException, IOException {
         // Initialize our ClearCase element
         clearCase = new ClearCase();
         mods = new Vector();
 
-        File testXML;
+        String testXML;
         if (File.separatorChar == '\\') {
             testXML = WINDOWS_XML;
         } else {
@@ -90,7 +89,7 @@ public class ClearCaseTest extends TestCase {
 
         // Set up the modification list to match against
         SAXBuilder parser = new SAXBuilder();
-        Document doc = parser.build(testXML);
+        Document doc = parser.build(loadTestLog(testXML));
         List elts = doc.getRootElement().getChildren();
 
         Iterator it = elts.iterator();
@@ -106,14 +105,14 @@ public class ClearCaseTest extends TestCase {
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
     public void testClearCaseStream() throws IOException {
-        File testLog;
+        String testLog;
         if (File.separatorChar == '\\') {
             testLog = WINDOWS_LOG;
         } else {
             testLog = UNIX_LOG;
         }
         BufferedInputStream stream =
-            new BufferedInputStream(new FileInputStream(testLog));
+            new BufferedInputStream(loadTestLog(testLog));
 
         List list = clearCase.parseStream(stream);
         assertEquals(mods.size(), list.size());

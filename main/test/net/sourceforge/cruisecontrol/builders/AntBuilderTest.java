@@ -370,7 +370,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        builder.setBuildFile("build.xml");
+        builder.setBuildFile("testbuild.xml");
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
         HashMap buildProperties = new HashMap();
@@ -408,7 +408,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
-        builder.setBuildFile("build.xml");
+        builder.setBuildFile("testbuild.xml");
         builder.setTarget("timeout-test-target");
         builder.setTimeout(5);
         builder.setUseDebug(true);

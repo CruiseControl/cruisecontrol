@@ -39,29 +39,42 @@
     <property file="override.properties"/>
 
     <property name="dist" value="dist"/>
+    <property name="target" value="target"/>
     <property name="deploy.dir" value="${dist}"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
-    <property name="classes" value="classes"/>
-    <property name="temp.dir" value="tmp"/>
+    <property name="classes" value="${target}/classes"/>
+    <property name="test.classes" value="${target}/test-classes"/>
+    <property name="temp.dir" value="${target}/tmp"/>
     <property name="docs" value="docs"/>
     <property name="test" value="test"/>
-    <property name="test.results" value="testresults"/>
+    <property name="test.results" value="${target}/testresults"/>
     <property name="tests" value="*Test"/>
 
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
 
+    <path id="project.classpath" >
+        <pathelement location="${lib}/servlet.jar"/>
+        <pathelement location="${lib}/xalan.jar"/>
+        <pathelement location="${lib}/junit.jar"/>
+    </path>
+
+    <path id="project.runtime.classpath" >
+        <path refid="project.classpath" />
+        <pathelement location="${classes}"/>
+        <pathelement location="${test.classes}"/>
+    </path>
+
+
     <target name="clean">
-        <delete dir="${dist}"/>
-        <delete dir="${classes}"/>
-        <delete dir="${test.results}"/>
-        <delete dir="${temp.dir}"/>
+        <delete dir="${target}"/>
     </target>
 
     <target name="init" depends="clean">
         <mkdir dir="${dist}"/>
         <mkdir dir="${classes}"/>
+        <mkdir dir="${test.classes}"/>
         <mkdir dir="${test.results}"/>
         <mkdir dir="${temp.dir}"/>
     </target>
@@ -84,9 +97,9 @@
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
         <checkstyle config="checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
             <formatter type="plain"/>
-            <formatter type="plain" tofile="checkstyleResults.txt"/>
-            <fileset dir="src" includes="**/*.java"/>
-            <fileset dir="test" includes="**/*.java"/>
+            <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
+            <fileset dir="${src}" includes="**/*.java"/>
+            <fileset dir="${test}" includes="**/*.java"/>
         </checkstyle>
     </target>
 
@@ -101,26 +114,35 @@
         </javac>
     </target>
 
-    <target name="test" depends="compile" description="Executes the unit tests">
-        <javac srcdir="${test}" destdir="${classes}" debug="true">
-            <classpath>
-                <pathelement location="${lib}/servlet.jar"/>
-                <pathelement location="${lib}/xalan.jar"/>
-                <pathelement location="${lib}/junit.jar"/>
-           </classpath>
+    <target name="compile-test" depends="compile"
+        description="Compile test code">
+        <javac srcdir="${test}" destdir="${test.classes}" debug="true">
+            <classpath refid="project.runtime.classpath"/>
         </javac>
-        <junit fork="yes" haltonfailure="yes" printsummary="on">
-            <classpath>
-                <pathelement location="${lib}/servlet.jar"/>
-                <pathelement location="${lib}/xalan.jar"/>
-                <pathelement location="${lib}/junit.jar"/>
-                <pathelement location="${classes}"/>
+    </target>
+
+
+    <target name="test" depends="compile-test" description="Executes the unit tests">
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+            <classpath >
+                <path refid="project.runtime.classpath" />
             </classpath>
             <formatter type="brief" usefile="false" />
             <formatter type="xml"/>
             <batchtest todir="${test.results}" >
-                <fileset dir="${classes}" includes="**/${tests}.class" />
+                <fileset dir="${test.classes}" includes="**/${tests}.class" />
             </batchtest>
+        </junit>
+    </target>
+
+    <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+            <classpath >
+                <path refid="project.runtime.classpath" />
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <test name="${testcase}" todir="${junit.results}" />
         </junit>
     </target>
 

@@ -37,8 +37,7 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -78,11 +77,15 @@ public class P4Test extends TestCase {
         }
     }
 
+    private InputStream loadTestLog(String name) {
+        InputStream testStream = getClass().getResourceAsStream(name);
+        assertNotNull("failed to load resource " + name + " in class " + getClass().getName(), testStream);
+        return testStream;
+    }
+
     public void testParseChangelists() throws IOException, ParseException {
-        File testLog =
-            new File("test/net/sourceforge/cruisecontrol/sourcecontrols/p4_changes.txt");
         BufferedInputStream input =
-            new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog("p4_changes.txt"));
 
         P4 p4 = new P4();
         String[] changelists = p4.parseChangelistNumbers(input);
@@ -103,10 +106,8 @@ public class P4Test extends TestCase {
 
     public void testParseChangeDescriptions()
         throws IOException, ParseException {
-        File testLog =
-            new File("test/net/sourceforge/cruisecontrol/sourcecontrols/p4_describe.txt");
         BufferedInputStream input =
-            new BufferedInputStream(new FileInputStream(testLog));
+                new BufferedInputStream(loadTestLog("p4_describe.txt"));
 
         P4 p4 = new P4();
         List changelists = p4.parseChangeDescriptions(input);
