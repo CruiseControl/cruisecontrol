@@ -62,8 +62,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static final String DEFAULT_MAP = "emailmap.properties";
     private final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
     private static final String XML_LOGGER_FILE = "log.xml";
-    private final String DEFAULT_LABEL = "label.0";
-    private final String DEFAULT_LASTBUILD = "20010101120000";
 
     // Needs to be static since new instance used each build
     //label/modificationset/build participants
@@ -73,7 +71,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static String  _lastGoodBuildTime;
     private static String  _lastBuildAttemptTime;
     
-    private static boolean _lastBuildSuccessful;
+    private static boolean _lastBuildSuccessful = true;
     private static boolean _buildNotNecessary;
     
     private static boolean _spamWhileBroken = true;
@@ -133,7 +131,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
         mb.readBuildInfo();
         mb.overwriteWithUserArguments(args);
-        mb.setRemainingDefaultValues();
+        mb.setDefaultPropsFileIfNecessary()();
 
         if (mb.buildInfoSpecified()) {
             mb.execute();
@@ -189,16 +187,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
     }
 
-    public void setRemainingDefaultValues() {
-        if (_lastBuildAttemptTime == null) {
-            _lastBuildAttemptTime = DEFAULT_LASTBUILD;
-            _lastGoodBuildTime = _lastBuildAttemptTime;
-        }
-        
-        if (_label == null) {
-            _label = DEFAULT_LABEL;
-        }
-
+    public void setDefaultPropsFileIfNecessary() {
         if (_propsFileName == null) {
             if (new File(DEFAULT_PROPERTIES_FILENAME).exists()) {
                 _propsFileName = DEFAULT_PROPERTIES_FILENAME;
@@ -367,6 +356,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                     System.setSecurityManager(oldSecMgr);
                 }
 
+                //(PENDING) do this in buildFinished?
                 if (_buildNotNecessary) {
                     if (!_lastBuildSuccessful && _spamWhileBroken) {
                         sendBuildEmail(_projectName + "Build still failing...");
