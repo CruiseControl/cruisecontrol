@@ -299,10 +299,16 @@ public class Project implements Serializable, Runnable {
     void waitForNextBuild() throws InterruptedException {
         Date now = new Date();
         long waitTime = schedule.getTimeToNextBuild(now, buildInterval);
-        log("next build in " + formatTime(waitTime));
-        synchronized (waitMutex) {
-            waitMutex.wait(waitTime);
+        if (needToWaitForNextBuild(waitTime)) {
+            log("next build in " + formatTime(waitTime));
+            synchronized (waitMutex) {
+                waitMutex.wait(waitTime);
+            }
         }
+    }
+
+    static boolean needToWaitForNextBuild(long waitTime) {
+        return waitTime > 0;
     }
 
     void forceBuild() {
