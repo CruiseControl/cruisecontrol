@@ -97,14 +97,18 @@ public class HTMLEmailPublisherTest extends TestCase {
         String successLink = "View results here -> <a href=\"" + successURL + "\">" + successURL + "</a>";
         String successFile = successFilePrefix + ".xml";
         String successLogFileName = path + successFile;
-        this.assertEquals(successLink, publisher.createLinkLine(successLogFileName));
+        assertEquals(successLink, publisher.createLinkLine(successLogFileName));
 
+		publisher.setBuildResultsUrl(null);
+		assertEquals("", publisher.createLinkLine(successLogFileName));
+    	
+		publisher.setBuildResultsUrl(serverURL);
         String failFilePrefix = "log" + date;
         String failURL = serverURL + "?log=" + failFilePrefix;
         String failLink = "View results here -> <a href=\"" + failURL + "\">" + failURL + "</a>";
         String failFile = failFilePrefix + ".xml";
         String failLogFileName = path + failFile;
-        this.assertEquals(failLink, publisher.createLinkLine(failLogFileName));
+        assertEquals(failLink, publisher.createLinkLine(failLogFileName));
     }
 
     public void testValidate() {
