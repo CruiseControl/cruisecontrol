@@ -98,6 +98,15 @@
             Inserts link to the artifacts FileServlet
         </description>
     </tag>
+     <tag>
+        <name>buildInfo</name>
+        <tag-class>net.sourceforge.cruisecontrol.taglib.BuildInfoTag</tag-class>
+        <tei-class>net.sourceforge.cruisecontrol.taglib.BuildInfoTagExtraInfo</tei-class>
+        <body-content>empty</bodycontent>
+        <description>
+            Inserts information about the various builds into the page scope.
+        </description>
+    </tag>
     <tag>
         <name>tabsheet</name>
         <tag-class>net.sourceforge.cruisecontrol.taglib.TabSheetTag</tag-class>

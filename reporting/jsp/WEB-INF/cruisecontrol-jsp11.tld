@@ -102,6 +102,15 @@
         </info>
     </tag>
     <tag>
+        <name>buildInfo</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.BuildInfoTag</tagclass>
+        <teiclass>net.sourceforge.cruisecontrol.taglib.BuildInfoTagExtraInfo</teiclass>
+        <bodycontent>empty</bodycontent>
+        <info>
+            Inserts information about the various builds into the page scope.
+        </info>
+    </tag>
+    <tag>
         <name>tabsheet</name>
         <tagclass>net.sourceforge.cruisecontrol.taglib.TabSheetTag</tagclass>
         <bodycontent>JSP</bodycontent>
