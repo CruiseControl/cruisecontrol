@@ -17,6 +17,10 @@ Project
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
 * fixed to allow changing build interval from JMX interface. Project was reloading the original value from Schedule, overwriting any change a user had made in the JMX interface.
 
+SametimeAnnouncementPublisher
+----------------------
+* New publisher implementation to publish build results to IBM/Lotus Sametime server. Contributed by Richard Lewis-Shell.
+
 SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
