@@ -40,11 +40,14 @@ import junit.framework.TestCase;
 import org.jdom.Element;
 import org.apache.log4j.PropertyConfigurator;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 public class LinkEmailPublisherTest extends TestCase {
 
@@ -58,6 +61,7 @@ public class LinkEmailPublisherTest extends TestCase {
     }
 
     protected XMLLogHelper createLogHelper(boolean success, boolean fixed) {
+        Element cruisecontrolElement = new Element("cruisecontrol");
         Element buildElement = new Element("build");
         Element modificationsElement = new Element("modifications");
         String[] users = new String[]{"user1", "user2", "user2", "user3"};
@@ -68,7 +72,6 @@ public class LinkEmailPublisherTest extends TestCase {
             modificationElement.addContent(userElement);
             modificationsElement.addContent(modificationElement);
         }
-        buildElement.addContent(modificationsElement);
 
         Element propertiesElement = new Element("properties");
         Element propertyElement = new Element("property");
@@ -78,26 +81,34 @@ public class LinkEmailPublisherTest extends TestCase {
         buildElement.addContent(propertiesElement);
 
         if(!success) {
-            buildElement.setAttribute("error", "Build Not Necessary");
+            buildElement.setAttribute("error", "No Build Necessary");
         }
 
-        Element cruisecontrolElement = new Element("cruisecontrol");
-        Element lastBuildSuccessfulElement = new Element("lastbuildsuccessful");
-        Element labelElement = new Element("label");
-        labelElement.setAttribute("value", "somelabel");
-        Element logFileElement = new Element("logfile");
-        logFileElement.setAttribute("value", "log20020206120000.xml");
-        if(fixed) {
-            lastBuildSuccessfulElement.setAttribute("value", "true");
-        } else {
-            lastBuildSuccessfulElement.setAttribute("value", "false");
-        }
-        cruisecontrolElement.addContent(lastBuildSuccessfulElement);
-        cruisecontrolElement.addContent(labelElement);
-        cruisecontrolElement.addContent(logFileElement);
-        buildElement.addContent(cruisecontrolElement);
+        cruisecontrolElement.addContent(modificationsElement);
+        cruisecontrolElement.addContent(buildElement);
+        cruisecontrolElement.addContent(createInfoElement("somelabel", fixed));
 
-        return new XMLLogHelper(buildElement);
+        return new XMLLogHelper(cruisecontrolElement);
+    }
+
+    private Element createInfoElement(String label, boolean fixed) {
+        Element infoElement = new Element("info");
+
+        Hashtable properties = new Hashtable();
+        properties.put("label", label);
+        properties.put("lastbuildsuccessful", !fixed + "");
+        properties.put("logfile", "log20020206120000.xml");
+
+        Iterator propertyIterator = properties.keySet().iterator();
+        while(propertyIterator.hasNext()) {
+            String propertyName = (String) propertyIterator.next();
+            Element propertyElement = new Element("property");
+            propertyElement.setAttribute("name", propertyName);
+            propertyElement.setAttribute("value", (String) properties.get(propertyName));
+            infoElement.addContent(propertyElement);
+        }
+
+        return infoElement;
     }
 
     public void setUp() {
@@ -117,7 +128,7 @@ public class LinkEmailPublisherTest extends TestCase {
 
         _successLogHelper = createLogHelper(true, true);
         _failureLogHelper = createLogHelper(false, false);
-        _fixedLogHelper = createLogHelper(true, false);
+        _fixedLogHelper = createLogHelper(true, true);
         _emailPublisher = new LinkEmailPublisher();
         _emailPublisher.setDefaultSuffix("@host.com");
         _emailPublisher.setEmailMap("_emailmap.properties");
@@ -128,40 +139,46 @@ public class LinkEmailPublisherTest extends TestCase {
     }
 
     public void testShouldSend() {
-        //build not necessary, spam while broken=true
-        _emailPublisher.setSpamWhileBroken(true);
-        assertEquals(_emailPublisher.shouldSend(_failureLogHelper), true);
+        try {
+            //build not necessary, spam while broken=true
+            _emailPublisher.setSpamWhileBroken(true);
+            assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
 
-        //build necessary, spam while broken = true
-        assertEquals(_emailPublisher.shouldSend(_successLogHelper), true);
+            //build necessary, spam while broken = true
+            assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
 
-        //build not necessary, spam while broken=false
-        _emailPublisher.setSpamWhileBroken(false);
-        assertEquals(_emailPublisher.shouldSend(_failureLogHelper), false);
+            //build not necessary, spam while broken=false
+            _emailPublisher.setSpamWhileBroken(false);
+            assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
 
-        //build necessary, spam while broken = false
-        assertEquals(_emailPublisher.shouldSend(_successLogHelper), true);
-
-
+            //build necessary, spam while broken = false
+            assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
+        } catch (CruiseControlException e) {
+            assertTrue(false);
+        }
     }
 
     public void testCreateMessage() {
         _emailPublisher.setServletUrl("http://mybuildserver.com:8080/buildservlet/BuildServlet");
-        assertEquals(_emailPublisher.createMessage(_successLogHelper), "View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log20020206120000");
+        assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log20020206120000", _emailPublisher.createMessage(_successLogHelper));
     }
 
     public void testCreateSubject() {
-        _emailPublisher.setReportSuccess("always");
-        assertEquals(_emailPublisher.createSubject(_successLogHelper), "some project somelabel Build Successful");
-        _emailPublisher.setReportSuccess("fixes");
-        assertEquals(_emailPublisher.createSubject(_fixedLogHelper), "some project somelabel Build Fixed");
+        try {
+            _emailPublisher.setReportSuccess("always");
+            assertEquals("some project somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
+            _emailPublisher.setReportSuccess("fixes");
+            assertEquals("some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
 
-        assertEquals(_emailPublisher.createSubject(_failureLogHelper), "some project Build Failed");
+            assertEquals("some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+        } catch (CruiseControlException e) {
+            assertTrue(false);
+        }
     }
 
     public void testCreateUserList() {
         PropertyConfigurator.configure("log4j.properties");
-        assertEquals(_emailPublisher.createUserList(_successLogHelper), "always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com");
-        assertEquals(_emailPublisher.createUserList(_failureLogHelper), "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com,user1@host.com,user2@host.com,user3@host2.com");
+        assertEquals("always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com", _emailPublisher.createUserList(_successLogHelper));
+        assertEquals("always1@host.com,always2@host.com,failure1@host.com,failure2@host.com,user1@host.com,user2@host.com,user3@host2.com", _emailPublisher.createUserList(_failureLogHelper));
     }
 }
