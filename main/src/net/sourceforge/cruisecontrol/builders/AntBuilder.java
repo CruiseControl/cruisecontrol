@@ -44,7 +44,12 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -341,7 +346,7 @@ public class AntBuilder extends Builder {
             return builder.build(bufferedReader).getRootElement();
         } catch (Exception ee) {
             if (ee instanceof CruiseControlException) {
-                throw (CruiseControlException)ee;
+                throw (CruiseControlException) ee;
             }
             File saveFile = new File(file.getParentFile(), System.currentTimeMillis() + file.getName());
             file.renameTo(saveFile);
