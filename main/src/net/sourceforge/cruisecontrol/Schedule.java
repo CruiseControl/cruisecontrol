@@ -195,8 +195,25 @@ public class Schedule {
         return timeToNextBuild;
     }
 
+    private boolean ignoreIntervalSetting() {
+        boolean onlyTimeBuilders = true;
+        Iterator iterator = builders.iterator();
+        while (iterator.hasNext()) {
+            Builder builder = (Builder) iterator.next();
+            boolean isTimeBuilder = builder.getTime() > 0;
+            if (!isTimeBuilder) {
+                onlyTimeBuilders = false;
+                break;
+            }
+        }
+        return onlyTimeBuilders;
+    }
+
     long checkTimeBuilders(Date now, long proposedTime) {
         long timeToNextBuild = proposedTime;
+        if (ignoreIntervalSetting()) {
+            timeToNextBuild = Long.MAX_VALUE;
+        }
         int nowTime = Util.getTimeFromDate(now);
         Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
@@ -222,6 +239,14 @@ public class Schedule {
                     timeToNextBuild = timeToThisBuild;
                 }
             }
+        }
+
+        if (timeToNextBuild > MAX_INTERVAL_MILLISECONDS) {
+            LOG.error(
+                "checkTimeBuilders exceeding maximum interval. using proposed value ["
+                    + proposedTime
+                    + "] instead");
+            timeToNextBuild = proposedTime;
         }
         return timeToNextBuild;
     }
