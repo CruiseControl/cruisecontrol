@@ -70,6 +70,10 @@ Main
 ----------------------
 * Use current time if lastbuildtime isn't specified - Patch by Josh Knowles
 
+VSS
+----------------------
+* Fixed issues with label entries, files added or deleted in root directory, branching, and sharing. - Patch by Matt Stave
+
 
 CruiseControl Release Notes - 2.0.2
 
