@@ -42,7 +42,6 @@
     <property name="bin" value="bin"/>
     <property name="classes" value="classes"/>
     <property name="dist" value="dist"/>
-    <property name="release" value="release"/>
     <property name="images" value="images"/>
     <property name="junit.results" value="test-results" />
     <property name="lib" value="lib"/>
@@ -76,7 +75,6 @@
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${apidocs}"/>
-        <mkdir dir="${release}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
         <tstamp/>
         <property name="label" value="2.0 Compiled on ${TODAY} ${TSTAMP}"/>
@@ -92,7 +90,6 @@
        <delete dir="${classes}" quiet="yes"/>
        <delete dir="${apidocs}" quiet="yes"/>
        <delete dir="${junit.results}" quiet="yes"/>
-       <delete dir="${release}" quiet="yes"/>
     </target>
 
     <!-- **************************************************** -->
@@ -204,34 +201,6 @@
        </javadoc>
     </target>
 
-    <!-- **************************************************** -->
-    <!-- Builds the release zip                               -->
-    <!-- **************************************************** -->
-    <target name="release" depends="jar" description="Build release zip">
-        <fixcrlf srcdir="${bin}" eol="lf" includes="*.sh"/>
-        <zip zipfile="${release}\cruisecontrol-2-bin.zip">
-            <fileset dir=".">
-               <include name="${bin}/"/>
-               <include name="${dist}/"/>
-               <include name="${lib}/"/>
-               <include name="${docs}/"/>
-               <include name="*.txt"/>
-            </fileset>
-        </zip>
-        <zip zipfile="${release}\cruisecontrol-2-src.zip">
-            <fileset dir=".">
-               <include name="${bin}/"/>
-               <include name="${src}/"/>
-               <include name="${test}/"/>
-               <include name="${lib}/"/>
-               <include name="${docs}/"/>
-               <include name="build.*"/>
-               <include name="log4j.properties"/>
-               <include name="manifest.mf"/>
-               <include name="version.properties"/>
-            </fileset>
-        </zip>
-    </target>
 
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
