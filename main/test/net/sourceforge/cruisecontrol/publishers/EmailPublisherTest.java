@@ -201,6 +201,15 @@ public class EmailPublisherTest extends TestCase {
         assertEquals("some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
 
         assertEquals("some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+
+        _emailPublisher.setSubjectPrefix("[CC]");
+        _emailPublisher.setReportSuccess("always");
+        assertEquals("[CC] some project somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
+        _emailPublisher.setReportSuccess("fixes");
+        assertEquals("[CC] some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
+
+        assertEquals("[CC] some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+
     }
 
     public void testCreateUserList() {
