@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+BuildLogger
+----------------------
+* New interface to handle the Log subelements from the CruiseControl config. Implementers have the opportunity to manipulate the CruiseControl build log just before it gets written to disk.
+
 build.xml (jsp)
 ----------------------
 * will build war w/out jars in WEB-INF/lib if property jdk1.4 is defined.
