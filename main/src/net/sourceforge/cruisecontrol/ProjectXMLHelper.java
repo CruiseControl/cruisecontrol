@@ -242,6 +242,7 @@ public class ProjectXMLHelper {
         _plugins = new HashMap();
         _plugins.put("currentbuildstatusbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
         _plugins.put("cvsbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
+        _plugins.put("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
         _plugins.put("vssbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
 
         _plugins.put("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
