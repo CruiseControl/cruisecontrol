@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.StringTokenizer;
 
 /**
  * Used to publish an HTML e-mail that includes the build report
@@ -172,6 +173,43 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } else {
             return messageMimeType;
         }
+    }
+
+
+    /**
+     * updates xslFileNames, based on value of xslFileList
+     * If first character is +  the list is appended, otherwise
+     * the list is replaced. xslFileNames is comma or space-separated
+     * list of existing files, located in xslDir. These files are used,
+     * in-order, to generate HTML email. If xslFileNames is not
+     * specified, xslFileList remains as default.
+     * if xslFile is set, this is ignored.
+     */
+    public void setXSLFileList(String relativePathToXslFile) {
+        String[] newXSLFileNames = null;
+        StringTokenizer st = new StringTokenizer(relativePathToXslFile, " ,");
+        int numTokens = st.countTokens();
+
+        String firstStr = st.nextToken();
+        int i = 0;
+        if (firstStr.startsWith("+")) {
+            // appending files
+            i = xslFileNames.length;
+            newXSLFileNames = new String[i + numTokens];
+            System.arraycopy(xslFileNames, 0, newXSLFileNames, 0, i);
+            newXSLFileNames[i++] = firstStr.substring(1);
+        } else {
+            // replacing files
+            i = 0;
+            newXSLFileNames = new String[numTokens];
+            newXSLFileNames[i++] = firstStr;
+        }
+
+        while (st.hasMoreTokens()) {
+            newXSLFileNames[i++] = st.nextToken();
+        }
+
+        setXSLFileNames(newXSLFileNames);
     }
 
     /**
