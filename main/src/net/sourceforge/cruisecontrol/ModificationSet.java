@@ -26,7 +26,6 @@ import org.apache.tools.ant.*;
  */
 public class ModificationSet extends Task {
 
-    private String _emailSuffix;
     private Date _lastBuild;
     private long _quietPeriod;
     private ArrayList _sourceControlElements = new ArrayList();
