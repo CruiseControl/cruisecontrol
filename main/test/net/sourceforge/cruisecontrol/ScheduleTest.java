@@ -135,6 +135,14 @@ public class ScheduleTest extends TestCase {
 		assertEquals(twentyFourHours-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal3.getTime(),twentyFourHours*2));
         // time till end of pause that we're currently in
         assertEquals(oneHour-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal4.getTime(),fiveSeconds));
+        
+        PauseBuilder pauseBuilder = new PauseBuilder();
+        pauseBuilder.setStartTime(0000);
+        pauseBuilder.setEndTime(100);
+        _schedule.addPauseBuilder(pauseBuilder);
+        
+        // next build would be in a pause interval on the next day
+        assertEquals(2*oneHour, _schedule.getTimeToNextBuild(_cal4.getTime(),oneHour));
 	}
     
     public void testFormatTime() {
