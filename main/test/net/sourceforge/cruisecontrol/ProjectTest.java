@@ -84,6 +84,8 @@ public class ProjectTest extends TestCase {
 
         project.build();
 
+        assertTrue(project.isLastBuildSuccessful());
+
         String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
         assertEquals("Didn't increment the label", "1.2.3",
