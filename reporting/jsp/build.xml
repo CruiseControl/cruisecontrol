@@ -35,6 +35,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <project name="reporting-jsp" default="war" basedir=".">
+    <property file="override.properties"/>
+
     <property name="dist" value="dist"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
