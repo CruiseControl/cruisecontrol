@@ -143,8 +143,8 @@ public class Project implements Serializable {
         // BUILD
         cruisecontrolElement.addContent(_schedule.build(_buildCounter, _lastBuild, _now, getProjectPropertiesMap()).detach());
 
-        // increment label if nesseccary
-        if (!_labelIncrementer.isPreBuildIncrementer()) {
+        // increment label if neccessary
+        if (!_labelIncrementer.isPreBuildIncrementer() && (new XMLLogHelper(cruisecontrolElement)).isBuildSuccessful()) {
             _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
 
