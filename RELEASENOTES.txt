@@ -30,6 +30,10 @@ ClearCaseBootstrapper
 ----------------------
 * fixed /dev/nul to /dev/null (CC-76). Patch by Esa Laine 
 
+compile.xsl
+----------------------
+* Support ant-contrib's "compilewithwalls" task. Patch by Paul McLachlan
+
 Contrib
 ----------------------
 * A Windows system tray icon for monitoring a CruiseControl build process. Contributed by Ivan Moore.
