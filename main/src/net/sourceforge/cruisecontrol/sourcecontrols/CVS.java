@@ -626,6 +626,8 @@ public class CVS implements SourceControl {
 
             Modification nextModification = new Modification();
 
+            nextModification.revision = revision;
+
             int lastSlashIndex = workingFileName.lastIndexOf("/");
             nextModification.fileName =
                 workingFileName.substring(lastSlashIndex + 1);

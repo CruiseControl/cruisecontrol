@@ -110,6 +110,7 @@ public class CVSTest extends TestCase {
         mod1.type = "modified";
         mod1.fileName = "log4j.properties";
         mod1.folderName = "";
+        mod1.revision = "1.2";
         mod1.modifiedTime = createDate("2002/03/13 13:45:50 GMT-6:00");
         mod1.userName = "alden";
         mod1.comment =
@@ -120,6 +121,7 @@ public class CVSTest extends TestCase {
         mod2.type = "modified";
         mod2.fileName = "build.xml";
         mod2.folderName = "main";
+        mod2.revision = "1.41";
         mod2.modifiedTime = createDate("2002/03/13 19:56:34 GMT-6:00");
         mod2.userName = "alden";
         mod2.comment = "Added target to clean up test results.";
@@ -129,6 +131,7 @@ public class CVSTest extends TestCase {
         mod3.type = "modified";
         mod3.fileName = "build.xml";
         mod3.folderName = "main";
+        mod3.revision = "1.42";
         mod3.modifiedTime = createDate("2002/03/15 13:20:28 GMT-6:00");
         mod3.userName = "alden";
         mod3.comment = "enabled debug info when compiling tests.";
@@ -138,6 +141,7 @@ public class CVSTest extends TestCase {
         mod4.type = "deleted";
         mod4.fileName = "kungfu.xml";
         mod4.folderName = "main";
+        mod4.revision = "1.2";
         mod4.modifiedTime = createDate("2002/03/13 13:45:42 GMT-6:00");
         mod4.userName = "alden";
         mod4.comment = "Hey, look, a deleted file.";
@@ -147,6 +151,7 @@ public class CVSTest extends TestCase {
         mod5.type = "deleted";
         mod5.fileName = "stuff.xml";
         mod5.folderName = "main";
+        mod5.revision = "1.4";
         mod5.modifiedTime = createDate("2002/03/13 13:38:42 GMT-6:00");
         mod5.userName = "alden";
         mod5.comment = "Hey, look, another deleted file.";
@@ -184,6 +189,7 @@ public class CVSTest extends TestCase {
         mod1.type = "modified";
         mod1.fileName = "test.version";
         mod1.folderName = "";
+        mod1.revision = "1.1.2.4";
         mod1.modifiedTime = createDate("2002/10/03 16:05:23 GMT");
         mod1.userName = "tim";
         mod1.comment = "Test commit once more";
@@ -192,6 +198,7 @@ public class CVSTest extends TestCase {
         mod2.type = "modified";
         mod2.fileName = "test.version";
         mod2.folderName = "";
+        mod2.revision = "1.1.2.3";
         mod2.modifiedTime = createDate("2002/10/03 14:24:17 GMT");
         mod2.userName = "tim";
         mod2.comment = "Test commit";
@@ -200,6 +207,7 @@ public class CVSTest extends TestCase {
         mod3.type = "modified";
         mod3.fileName = "test.version";
         mod3.folderName = "";
+        mod3.revision = "1.1.2.2";
         mod3.modifiedTime = createDate("2002/10/02 21:54:44 GMT");
         mod3.userName = "tim";
         mod3.comment = "Update parameters for test";
@@ -208,6 +216,7 @@ public class CVSTest extends TestCase {
         mod4.type = "modified";
         mod4.fileName = "test.version";
         mod4.folderName = "";
+        mod4.revision = "1.1.2.1";
         mod4.modifiedTime = createDate("2002/10/02 21:49:31 GMT");
         mod4.userName = "tim";
         mod4.comment = "Add parameters for test";
