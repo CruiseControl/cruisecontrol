@@ -96,6 +96,7 @@ public class BuildQueue implements Runnable {
         } catch (Throwable e) {
             LOG.error("BuildQueue.run()", e);
         } finally {
+            waiting = false;
             LOG.info("BuildQueue thread is no longer alive");
         }
     }
