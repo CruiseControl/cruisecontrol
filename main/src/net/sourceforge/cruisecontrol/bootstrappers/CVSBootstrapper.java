@@ -68,6 +68,7 @@ public class CVSBootstrapper implements Bootstrapper {
     private String filename;
     private String cvsroot;
     private boolean resetStickyTags = false;
+    private boolean overwriteChanges = false;
 
     public void setCvsroot(String cvsroot) {
         this.cvsroot = cvsroot;
@@ -151,11 +152,14 @@ public class CVSBootstrapper implements Bootstrapper {
         }
         commandLine.createArgument().setValue("update");
         
+        StringBuffer flags = new StringBuffer("-dP");
         if (resetStickyTags) {
-            commandLine.createArgument().setValue("-dPA");
-        } else {
-            commandLine.createArgument().setValue("-dP");
+            flags.append("A");
         }
+        if (overwriteChanges) {
+            flags.append("C");
+        }
+        commandLine.createArgument().setValue(flags.toString());
 
         if (filename != null) {
             commandLine.createArgument().setValue(filename);
@@ -166,6 +170,10 @@ public class CVSBootstrapper implements Bootstrapper {
 
     public void setResetStickyTags(boolean reset) {
         resetStickyTags = reset;
+    }
+
+    public void setOverwriteChanges(boolean overwrite) {
+      overwriteChanges = overwrite;
     }
 
 }

@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+CVSBootstrapper:
+----------------------
+* Add overwriteChanges attribute.
+
 Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
