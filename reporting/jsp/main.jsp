@@ -48,6 +48,7 @@
         <jsp:include page="navigation.jsp" />
       </td>
       <td valign="top">
+        &nbsp;<br>
         <cruisecontrol:tabsheet>
           <tr>
             <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>

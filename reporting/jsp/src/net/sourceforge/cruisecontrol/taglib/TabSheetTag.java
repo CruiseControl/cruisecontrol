@@ -119,7 +119,8 @@ public class TabSheetTag extends CruiseControlTagSupport {
      */
     private void printTabHeaders(JspWriter out) throws IOException {
         out.write("<tr>");
-        out.write("<th>");
+        out.write("<td>");
+        out.write("<img border=\"0\" src=\"images/blank35.gif\" />");
         for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
             Tab tab = (Tab) iterator.next();
             if (tab == selectedTab) {
@@ -140,7 +141,7 @@ public class TabSheetTag extends CruiseControlTagSupport {
                 out.write("</a>");
             }
         }
-        out.write("</th>");
+        out.write("</td>");
         out.write("</tr>");
     }
 
