@@ -70,7 +70,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private static Logger log = Logger.getLogger(
             HTMLEmailPublisher.class);
 
-    private String returnAddress;
     private String xslFile;
     private String xslDir;
     private String css;
@@ -144,7 +143,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(returnAddress));
+            msg.setFrom(new InternetAddress(getReturnAddress()));
             msg.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(toList, false));
             msg.setSubject(subject);
@@ -161,11 +160,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } catch (MessagingException e) {
             throw new CruiseControlException(e.getMessage());
         }
-    }
-
-    public void setReturnAddress(String emailAddress) {
-        returnAddress = emailAddress;
-        super.setReturnAddress(emailAddress);
     }
 
     /**

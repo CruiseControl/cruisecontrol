@@ -73,6 +73,7 @@
                   <ul>
                      <li><a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>
                      <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
+                     <li><a class="small" href="#htmlemailpublisher">HTMLEmailPublisher</a></li>
                   </ul>
                <li><a class="small" href="#labelincrementers">LabelIncrementers</a>
                   <ul>
@@ -361,8 +362,8 @@
             </tr>
          </table>
 
-         <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br>
-         [about link email publisher]
+         <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span></p>
+	 <p>Publisher that sends an email with a URL to the build results JSP.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -370,15 +371,96 @@
                <td class="tableheader">Description</td>
             </tr>
             <tr>
-               <td class="tabledata">name</td>
+               <td class="tabledata">buildresultsurl</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">URL to the build results JSP</td>
             </tr>
             <tr>
-               <td class="tabledata">classname</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">defaultsuffix</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
             </tr>
+            <tr>
+               <td class="tabledata">mailhost</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Mail server address</td>
+            </tr>
+            <tr>
+               <td class="tabledata">reportsuccess</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Valid values are <i>success</i>, <i>fixes</i>, and <i>never</i>.  <i>success</i> publishes (<i>i.e.</i>, e-mails) results on every successful build.  <i>fixes</i> publishes results only on the first successful build and the first successful build after a failed build.  <i>fixes</i> does not publish on subsequent successful builds.  <i>never</i> only publishes on failed builds.  Default value is <i>always</i>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">returnaddress</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">E-mail address that will appear in the sent email's From field</td>
+            </tr>
+            <tr>
+               <td class="tabledata">spamwhilebroken</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether or not e-mail reports on failed builds will continue for subsequent failed builds.  Default value is true.</td>
+            </tr>
+         </table>
+
+         <p><a name="htmlemailpublisher"><span class="small">HTMLEmailPublisher</span></p>
+         <p>Publisher that sends an email with the build results embedded.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">buildresultsurl</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">URL to the build results JSP</td>
+            </tr>
+            <tr>
+               <td class="tabledata">defaultsuffix</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">mailhost</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Mail server address</td>
+            </tr>
+            <tr>
+               <td class="tabledata">reportsuccess</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Valid values are <i>success</i>, <i>fixes</i>, and <i>never</i>.  <i>success</i> publishes (<i>i.e.</i>, e-mails) results on every successful build.  <i>fixes</i> publishes results only on the first successful build and the first successful build after a failed build.  <i>fixes</i> does not publish on subsequent successful builds.  <i>never</i> only publishes on failed builds.  Default value is <i>always</i>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">returnaddress</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">E-mail address that will appear in the sent email's From field</td>
+            </tr>
+            <tr>
+               <td class="tabledata">spamwhilebroken</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether or not e-mail reports on failed builds will continue for subsequent failed builds.  Default value is true.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">css</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Path to cruisecontrol.css.  Used only if xsldir set and not xslfile.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">logdir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Path to the log file as set in the log element of the configuration xml file.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">xsldir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Directory where standard CruiseControl xsl files are located.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">xslfile</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">If specified, both xsldir and css are ignored.  Must handle the entire document.</td>
+            </tr>
+
          </table>
 
          <hr>
