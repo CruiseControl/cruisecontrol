@@ -75,7 +75,7 @@ public class Project implements Serializable {
     private int _buildCounter = 0;
     private Date _lastBuild;
     private Date _now;
-    private boolean _wasLastBuildSuccessful;
+    private boolean _wasLastBuildSuccessful = false;
     private String _label;
     private String _configFileName = "config.xml";
     private String _name;
@@ -149,7 +149,6 @@ public class Project implements Serializable {
                     cruisecontrolElement);
         }
 
-
         // collect log files and merge with CC log file
         Iterator auxLogIterator = getAuxLogElements().iterator();
         while (auxLogIterator.hasNext()) {
@@ -163,9 +162,15 @@ public class Project implements Serializable {
                 _logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
 
-        if (buildSuccessful) _lastBuild = _now;
+        if (buildSuccessful) {
+            _lastBuild = _now;
+        }
+
         _buildCounter++;
+        _wasLastBuildSuccessful = buildSuccessful;
+
         serializeProject();
+
         publish(cruisecontrolElement);
         cruisecontrolElement = null;
     }
@@ -508,6 +513,10 @@ public class Project implements Serializable {
         if (!labelIncrementer.isValidLabel(label)) {
             throw new CruiseControlException(label + " is not a valid label");
         }
+    }
+
+    protected boolean isLastBuildSuccessful() {
+        return _wasLastBuildSuccessful;
     }
 
 }
