@@ -143,8 +143,8 @@
         </tr>
     </xsl:template>
 
-    <!-- Modifications template -->
-    <xsl:template match="modification[file]">
+    <!-- Modifications template for other SourceControls -->
+    <xsl:template match="modification[file][@type!='p4']">
         <tr>
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
