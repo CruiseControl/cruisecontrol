@@ -1,11 +1,11 @@
-
 <html>
 
 <head>
-   <title>CruiseControl Contact Information</title>
+   <title>CruiseControl FAQ</title>
    <style type="text/css">
       .body { background:#CCCCFF; font-family:arial,helvetica,sans-serif; color:#000066; }
       .header { font-size:16pt; font-weight:bold; }
+      pre { font-family:courier,serif; }
       .small { font-size:8pt; font-weight:bold; }
    </style>
 </head>
@@ -16,6 +16,7 @@
    <tr>
       <td valign="top" width="150" class="body">
       <!-- navigation begins here -->
+
 
 <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
 <a href="news.html"><img src="menunews.gif" border="0"></a><br>
@@ -36,24 +37,31 @@
       <!-- content begins here -->
 
 <p>&nbsp;<p>
-<span class="header">Mailing List Information:</span><p>
-
-We've set up the standard email lists for CruiseControl.
-<p>
-cruisecontrol-devel@lists.sourceforge.net [ <a href="http://www.geocrawler.com/redir-sf.php3?list=cruisecontrol-devel">Archives</a> | <a href="http://lists.sourceforge.net/mailman/listinfo/cruisecontrol-devel">Subscribe/Unsubscribe</a> ]<br>
-CruiseControl development issues.
-<p>
-cruisecontrol-user@lists.sourceforge.net [ <a href="http://www.geocrawler.com/redir-sf.php3?list=cruisecontrol-user">Archives</a> | <a href="http://lists.sourceforge.net/mailman/listinfo/cruisecontrol-user">Subscribe/Unsubscribe</a> ]<br>
-CruiseControl user support.
-<p>
-cruisecontrol-announce@lists.sourceforge.net [ <a href="http://www.geocrawler.com/redir-sf.php3?list=cruisecontrol-announce">Archives</a> | <a href="http://lists.sourceforge.net/mailman/listinfo/cruisecontrol-announce">Subscribe/Unsubscribe</a> ]<br>
-General CruiseControl announcements.
+<ul>
+	<li> <a href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a>
+</ul>
 
 <p>&nbsp;<p>
-<span class="header">Project Administrators:</span><p>
-Alden Almagro (<a href="mailto:alden@users.sourceforge.net">alden@users.sourceforge.net</a>)<br>
-Matt Foemmel (<a href="mailto:mfoemmel@users.sourceforge.net">mfoemmel@users.sourceforge.net</a>)<br>
-Paul Julius (<a href="mailto:pauljulius@users.sourceforge.net">pauljulius@users.sourceforge.net</a>)<br>
+
+<span class="header"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span><br>
+<br>
+Usually this problem manifest itself like:<br>
+
+<pre>My CruiseControl builds are failing because ant can't use the modern java
+compiler and my project won't compile with the classic compiler.  But my
+JAVA_HOME env var is set properly--in fact I can run the various ant targets
+myself just fine.</pre>
+
+<p>Usually this is because tools.jar is not in the CLASSPATH. It's worth noting here 
+that the Ant scripts pick up JAVA_HOME and add tools.jar to the classpath automatically. 
+However, at the time of writing, CruiseControl does not.</p>
+
+<p>The main reason for this is that, if you are not using the classic or modern
+compilers, you don't need it. Furthermore, due to problems with javac
+locking JAR files, it is advisable to use a different compiler (such as
+Jikes).</p>
+
+
 
       <!-- content ends here -->
       </td>
