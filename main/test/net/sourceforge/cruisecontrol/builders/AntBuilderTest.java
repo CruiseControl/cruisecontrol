@@ -50,8 +50,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.jdom.Element;
 
@@ -186,7 +184,6 @@ public class AntBuilderTest extends TestCase {
         BasicConfigurator.configure(
             new ConsoleAppender(new PatternLayout("%m%n")));
 
-        Logger.getRoot().setLevel(Level.INFO);
         assertTrue(
             Arrays.equals(
                 resultInfo,
@@ -208,7 +205,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, true, false)));
         builder.setAntScript(null);
 
-        Logger.getRoot().setLevel(Level.DEBUG);
+        builder.setUseDebug(true);
         assertTrue(
             Arrays.equals(
                 resultDebug,
