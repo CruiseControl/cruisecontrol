@@ -1,0 +1,38 @@
+CruiseControl Release Notes - 2.0.1
+
+PVCS
+----------------------
+* Configurable date formats - Patch by Kalpesh Parmar
+* Modification type support - Patch by Steven E. Newton
+
+CVS
+----------------------
+* Correct modifications when HEAD is specified as the branch - Patch by McClain Looney
+* No more 'deleted' modifications when a file addition occurs on a branch - Patch by McClain Looney
+
+EmailPublisher
+----------------------
+* Allow mail port to be set - Patch by Neale Swinnerton
+
+Project
+----------------------
+* XML encoding is only used if explicitly specified in <log> - Patch by Alden Almagro
+
+New Publishers
+----------------------
+* Execute Publisher - Patch by Oren Miller
+* SCPPublisher - Patch by Oren Miller
+
+lib
+----------------------
+* Upgraded to Ant 1.5.1
+
+docs
+----------------------
+* Fixed broken links
+
+JSP
+----------------------
+* Fixed 'null' navigation bug - Patch by Sanjay Madhaven
+* Allow configuration via ServletContext or ServletConfig - Patch by Ed Howe
+
