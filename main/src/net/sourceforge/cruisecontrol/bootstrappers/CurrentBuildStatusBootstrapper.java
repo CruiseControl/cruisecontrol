@@ -67,8 +67,9 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     protected void writeFile(Date date) throws CruiseControlException {
         SimpleDateFormat formatter = new SimpleDateFormat(_dateFormat);
         StringBuffer sb = new StringBuffer();
-        sb.append("<br>&nbsp;<br><b>Current Build Started At:</b><br>");
+        sb.append("<span class=\"link\">Current Build Started At:<br>");
         sb.append(formatter.format(date));
+        sb.append("</span>");
         FileWriter fw = null;
         try {
             fw = new FileWriter(_fileName);

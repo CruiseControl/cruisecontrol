@@ -74,8 +74,9 @@ public class CurrentBuildStatusPublisher implements Publisher {
         SimpleDateFormat formatter = new SimpleDateFormat(_dateFormat);
         Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
         StringBuffer sb = new StringBuffer();
-        sb.append("<br>&nbsp;<br><b>Next Build Starts At:</b><br>");
+        sb.append("<span class=\"link\">Next Build Starts At:<br>");
         sb.append(formatter.format(datePlusInterval));
+        sb.append("</span>");
         FileWriter fw = null;
         try {
             fw = new FileWriter(_fileName);
