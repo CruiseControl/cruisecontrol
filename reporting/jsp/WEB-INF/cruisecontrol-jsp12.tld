@@ -91,9 +91,9 @@
     </tag>
     <tag>
         <name>artifactsLink</name>
-        <tag-class>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTag</tagclass>
-        <tei-class>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTagExtraInfo</teiclass>
-        <body-content>JSP</bodycontent>
+        <tag-class>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTag</tag-class>
+        <tei-class>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTagExtraInfo</tei-class>
+        <body-content>JSP</body-content>
         <description>
             Inserts link to the artifacts FileServlet
         </description>
