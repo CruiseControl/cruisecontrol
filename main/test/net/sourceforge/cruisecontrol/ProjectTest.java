@@ -103,21 +103,22 @@ public class ProjectTest extends TestCase {
 
         String expected =
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
-                + "<modifications /><info><property name=\"projectname\""
+                + "<modifications /><info><property name=\"projectname\" "
                 + "value=\"myproject\" /><property name=\"lastbuild\" value=\""
                 + _project.getFormatedTime(now)
                 + "\" /><property name=\"lastsuccessfulbuild\" value=\""
                 + _project.getLastSuccessfulBuild()
                 + "\" /><property name=\"builddate\" value=\""
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
-                + "\" /><property name=\"label\" value=\"1.2.2\" /><property"
+                + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
                 + "name=\"interval\" value=\"0\" /><property name=\""
                 + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
                 + File.separator
                 + "log"
                 + _project.getFormatedTime(now)
-                + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase"
+                + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
                 + "/></testsuite><testsuite /></cruisecontrol>";
+
         assertEquals(expected, readFileToString(_project.getLogFileName()));
         assertEquals(
             "Didn't increment the label",
