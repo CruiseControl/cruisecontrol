@@ -57,7 +57,6 @@ public class Schedule {
     private List _builders = new ArrayList();
     private List _pauseBuilders = new ArrayList();
     
-    private final Object mutex = new Object();
     static final long ONE_MINUTE = 60 * 1000;
     static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
 
@@ -217,39 +216,5 @@ public class Schedule {
             timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
         }
 		return timeToEndOfPause + ONE_MINUTE;
-	}
-
-	void waitForNextBuild(long waitTime) throws InterruptedException {
-		log.info("waiting for " + formatTime(waitTime));
-		synchronized(mutex) {
-			mutex.wait(waitTime);
-		}
-	}
-	
-	void forceBuild() {
-		synchronized(mutex) {
-			mutex.notifyAll();
-		}		
-	}
-
-	/**
-	 * @param time time in milliseconds
-	 * @return Time formatted as X hours Y minutes Z seconds
-	 */
-	public static String formatTime(long time) {
-	    long seconds = time / 1000;
-	    long hours = seconds / 3600;
-	    long minutes = (seconds % 3600) / 60;
-	    seconds = seconds % 60;
-	
-	    StringBuffer sb = new StringBuffer();
-	    if (hours != 0)
-	        sb.append(hours + " hours ");
-	    if (minutes != 0)
-	        sb.append(minutes + " minutes ");
-	    if (seconds != 0)
-	        sb.append(seconds + " seconds");
-	
-	    return sb.toString();
 	}
 }
