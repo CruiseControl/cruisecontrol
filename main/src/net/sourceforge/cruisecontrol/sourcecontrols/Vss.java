@@ -172,7 +172,9 @@ public class Vss implements SourceControl {
 						vssEntry.add(currLine);
 						currLine = reader.readLine();
 					}
-					handleEntry(vssEntry);
+                    Modification mod = handleEntry(vssEntry);
+                    if(mod != null)
+                        modifications.add(mod);
 				} else {
 					currLine = reader.readLine();
 				}
@@ -214,7 +216,7 @@ public class Vss implements SourceControl {
 	 *
 	 *@param  historyEntry
 	 */
-	protected void handleEntry(List historyEntry) {
+	protected Modification handleEntry(List historyEntry) {
         // Ignore unusual labels of directories which cause parsing errors that 
         // look like this:
         //
@@ -225,7 +227,7 @@ public class Vss implements SourceControl {
         // Labeled
         if ((historyEntry.size() > 4) && 
             (((String) historyEntry.get(4)).startsWith("Labeled"))) {
-           return;
+           return null;
         }
 
 		Modification mod = new Modification();
@@ -265,7 +267,7 @@ public class Vss implements SourceControl {
     		_properties.put(_property,  "true");
         }
 
-		modifications.add(mod);
+        return mod;
 	}
 
 	/**
