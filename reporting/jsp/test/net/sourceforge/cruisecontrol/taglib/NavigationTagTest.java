@@ -36,75 +36,115 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import java.io.File;
+import java.io.IOException;
+import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockServletConfig;
+import net.sourceforge.cruisecontrol.mock.MockServletContext;
 
 public class NavigationTagTest extends TestCase {
+    private NavigationTag tag;
+    private MockPageContext pageContext;
+    private File[] logFiles;
+    private File logDir;
 
     public NavigationTagTest(String name) {
         super(name);
     }
 
+    public void setUp() throws IOException {
+        tag = new NavigationTag();
+        pageContext = new MockPageContext();
+        final MockServletConfig config = new MockServletConfig();
+        pageContext.setServletConfig(config);
+        pageContext.setServletContext(new MockServletContext());
+
+        tag.setPageContext(pageContext);
+        tag.setBodyContent(new MockBodyContent());
+
+        logDir = new File("testresults/");
+        if (!logDir.exists()) {
+            assertTrue("Failed to create test result dir", logDir.mkdir());
+        }
+        config.setInitParameter("logDir", logDir.getAbsolutePath());
+
+        logFiles = new File[] { new File(logDir, "log20020222120000.xml"), new File(logDir, "log20020223120000.xml"),
+                                new File(logDir, "log20020224120000.xml"), new File(logDir, "log20020225120000.xml") };
+        for (int i = 0; i < logFiles.length; i++) {
+            File logFile = logFiles[i];
+            logFile.createNewFile();
+        }
+    }
+
+    protected void tearDown() throws Exception {
+        for (int i = 0; i < logFiles.length; i++) {
+            logFiles[i].delete();
+        }
+        logDir.delete();
+    }
+
     public void testGetUrl() {
-        NavigationTag tag = new NavigationTag();
         final String expectedValue = "cruisecontrol/buildresults?log=log20020222120000";
         assertEquals(expectedValue, tag.getUrl("log20020222120000.xml", "cruisecontrol/buildresults"));
     }
 
     public void testGetLinkText() {
-        NavigationTag tag = new NavigationTag();
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200.xml"));
         assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
-        assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0.xml"));        
+        assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0.xml"));
+    }
 
+    public void testGetFormattedLinkText() {
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
-
         assertEquals("22-Feb-2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
         assertEquals("22-Feb-2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
     }
 
-    public void testGetLinksWithSubRange() throws Exception {
-        NavigationTag tag = new NavigationTag();
-        final MockPageContext pageContext = new MockPageContext();
-        tag.setPageContext(pageContext);
-        tag.setBodyContent(new MockBodyContent());
+    public void testGetLinks() throws JspException {
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
+        tag.doInitBody();
+        assertEquals("02/25/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
+        assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
+        assertEquals("02/23/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
+        assertEquals("02/22/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
+    }
 
-        String[] logFiles = { "log20020222120000.xml", "log20020223120000.xml", "log20020224120000.xml",
-                              "log20020225120000.xml" };
-        tag.setFileNames(logFiles);
+    public void testGetLinksWithSubRange() throws Exception {
         tag.setStartingBuildNumber(1);
         tag.setFinalBuildNumber(2);
 
-        assertEquals(0, tag.getCount());
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
         tag.doInitBody();
-        assertEquals(2, tag.getCount());
-        assertEquals("02/23/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
-        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
-        assertEquals(3, tag.getCount());
         assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
+        assertEquals("02/23/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
         assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
-        assertEquals(3, tag.getCount());
     }
 
-    public void testGetLinksWithBadRange() throws Exception {
-        NavigationTag tag = new NavigationTag();
-        final MockPageContext pageContext = new MockPageContext();
-        tag.setPageContext(pageContext);
-        tag.setBodyContent(new MockBodyContent());
-
-        String[] logFiles = { "log20020222120000.xml", "log20020223120000.xml", "log20020224120000.xml",
-                              "log20020225120000.xml" };
-        tag.setFileNames(logFiles);
+    public void testGetLinksWithLargeStartRange() throws Exception {
         tag.setStartingBuildNumber(10);
+        assertEquals(BodyTag.SKIP_BODY, tag.doStartTag());
+    }
 
-        assertEquals(0, tag.getCount());
-        tag.doInitBody();
-        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
-        assertEquals(10, tag.getCount());
+    public void testGetLinksWithLowEndRange() throws Exception {
+        tag.setFinalBuildNumber(-1);
+        assertEquals(BodyTag.SKIP_BODY, tag.doStartTag());
+    }
+
+    public void testGetLinksWithInvertedRange() throws Exception {
+        tag.setFinalBuildNumber(0);
+        tag.setStartingBuildNumber(10);
+        assertEquals(BodyTag.SKIP_BODY, tag.doStartTag());
     }
 }

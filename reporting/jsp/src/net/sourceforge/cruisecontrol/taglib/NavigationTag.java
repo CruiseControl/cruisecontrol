@@ -36,26 +36,25 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyContent;
+import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.Tag;
 
 /**
  *
  */
-public class NavigationTag implements Tag, BodyTag {
+public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
     public static final String LABEL_SEPARATOR = "L";
     public static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     public static final String LINK_TEXT_ATTR = "linktext";
@@ -63,7 +62,6 @@ public class NavigationTag implements Tag, BodyTag {
 
     private Tag parent;
     private BodyContent bodyOut;
-    private PageContext pageContext;
     private File logDir;
     private String[] fileNames;
     private int count;
@@ -99,51 +97,48 @@ public class NavigationTag implements Tag, BodyTag {
         try {
             date = inputDate.parse(dateString);
         } catch (ParseException e) {
-            e.printStackTrace();
+            err(e);
         }
 
         return dateFormat.format(date) + label;
     }
 
     protected String getServletPath() {
-        String servletPath = ((HttpServletRequest) pageContext.getRequest()).getServletPath();
-        String contextPath = ((HttpServletRequest) pageContext.getRequest()).getContextPath();
+        String servletPath = ((HttpServletRequest) getPageContext().getRequest()).getServletPath();
+        String contextPath = ((HttpServletRequest) getPageContext().getRequest()).getContextPath();
         return contextPath + servletPath;
     }
 
 
     public int doStartTag() throws JspException {
-        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
-        if (logDirName == null) {
-            logDirName = pageContext.getServletContext().getInitParameter("logDir");
-        }
-        logDir = new File(logDirName);
-
-        String logDirPath = logDir.getAbsolutePath();
-
-        System.out.println("Scanning directory: " + logDirPath + " for log files.");
-
-        String [] logFileNames = logDir.list(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.startsWith("log") && name.endsWith(".xml") && !(new File(dir, name).isDirectory());
-            }
-        });
-
-        if (logFileNames == null) {
-            throw new JspException(
-                    "Configuration problem? No logs found in logDir: "
-                    + logDirPath);
-        }
-
+        String [] logFileNames = findLogFiles();
         //sort links...
         Arrays.sort(logFileNames, new Comparator() {
             public int compare(Object o1, Object o2) {
                 return ((String) o2).compareTo((String) o1);
             }
         });
-
         setFileNames(logFileNames);
-        return EVAL_BODY_TAG;
+        count = Math.max(0, startingBuildNumber);
+        endPoint = Math.min(finalBuildNumber, fileNames.length - 1) + 1;
+        if (count < endPoint) {
+            return EVAL_BODY_TAG;
+        } else {
+            return SKIP_BODY;
+        }
+    }
+
+    private String[] findLogFiles() throws JspException {
+        logDir = findLogDir();
+        String logDirPath = logDir.getAbsolutePath();
+        info("Scanning directory: " + logDirPath + " for log files.");
+        String [] logFileNames = logDir.list(new CruiseLogFileNameFilter());
+        if (logFileNames == null) {
+            throw new JspException("Could not access the directory " + logDirPath);
+        } else if (logFileNames.length == 0) {
+            throw new JspException("Configuration problem? No logs found in logDir: " + logDirPath);
+        }
+        return logFileNames;
     }
 
     void setFileNames(String [] logFileNames) {
@@ -151,17 +146,13 @@ public class NavigationTag implements Tag, BodyTag {
     }
 
     public void doInitBody() throws JspException {
-        count = Math.max(0, startingBuildNumber);
-        endPoint = Math.min(finalBuildNumber + 1, fileNames.length);
-        if (count < endPoint) {
-            setupLinkVariables();
-        }
+       setupLinkVariables();
     }
 
     private void setupLinkVariables() {
         final String fileName = fileNames[count];
-        pageContext.setAttribute(URL_ATTR, getUrl(fileName, getServletPath()));
-        pageContext.setAttribute(LINK_TEXT_ATTR, getLinkText(fileName));
+        getPageContext().setAttribute(URL_ATTR, getUrl(fileName, getServletPath()));
+        getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(fileName));
         count++;
     }
 
@@ -173,17 +164,13 @@ public class NavigationTag implements Tag, BodyTag {
             try {
                 bodyOut.writeOut(bodyOut.getEnclosingWriter());
             } catch (IOException e) {
-                e.printStackTrace();
+                err(e);
             }
             return SKIP_BODY;
         }
     }
 
     public void release() {
-    }
-
-    public void setPageContext(PageContext pageContext) {
-        this.pageContext = pageContext;
     }
 
     public int doEndTag() throws JspException {
@@ -227,11 +214,16 @@ public class NavigationTag implements Tag, BodyTag {
         dateFormat = new SimpleDateFormat(dateFormatString);
     }
 
-    /**
-     * Return the count through the list of files.
-     * @return  the current count.
-     */
-    public int getCount() {
-        return count;
+    private static class CruiseLogFileNameFilter implements FilenameFilter {
+        public boolean accept(File dir, String name) {
+            if (!name.startsWith("log")) {
+                return false;
+            } else if (!name.endsWith(".xml")) {
+                return false;
+            } else if (new File(dir, name).isDirectory()) {
+                return false;
+            }
+            return true;
+        }
     }
 }

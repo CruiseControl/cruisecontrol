@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -36,22 +36,46 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import javax.servlet.jsp.tagext.TagData;
-import javax.servlet.jsp.tagext.TagExtraInfo;
-import javax.servlet.jsp.tagext.VariableInfo;
+import java.io.File;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspException;
 
-public class NavigationTagExtraInfo extends TagExtraInfo {
+/**
+ *
+ * @author <a href="mailto:robert.watkins@suncorp.com.au">Robert Watkins</a>
+ */
+public class AbstractLogAwareTag {
+    private PageContext pageContext;
 
-    public VariableInfo[] getVariableInfo(TagData data) {
-        return new VariableInfo[] {
-            new VariableInfo("url",
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-            new VariableInfo("linktext",
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-        };
+    protected void info(String message) {
+        System.out.println(message);
+    }
+
+    protected void err(String message) {
+        System.err.println(message);
+    }
+
+    protected void err(Throwable exception) {
+        exception.printStackTrace();
+    }
+
+    protected File findLogDir() throws JspException {
+        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
+        if (logDirName == null) {
+            logDirName = pageContext.getServletContext().getInitParameter("logDir");
+        }
+        File logDir = new File(logDirName);
+        if (!logDir.exists() || !logDir.isDirectory()) {
+            throw new JspException(logDirName + " either does not exist, or is not a directory");
+        }
+        return logDir;
+    }
+
+    public void setPageContext(PageContext pageContext) {
+        this.pageContext = pageContext;
+    }
+
+    protected PageContext getPageContext() {
+        return pageContext;
     }
 }

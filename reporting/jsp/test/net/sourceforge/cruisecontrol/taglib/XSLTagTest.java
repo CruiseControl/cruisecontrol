@@ -65,7 +65,6 @@ public class XSLTagTest extends TestCase {
         log1 = new File(logDir, "log1.xml");
         log2 = new File(logDir, "log2.xml");
         log3 = new File(logDir, "log3.xml");
-
     }
 
     protected void tearDown() throws Exception {
