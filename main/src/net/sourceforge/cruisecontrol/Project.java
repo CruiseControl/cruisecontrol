@@ -71,6 +71,8 @@ public class Project implements Serializable {
     private transient long _sleepMillis;
     private transient String _logFileName;
     private transient String _logDir;
+    private transient String _status;
+    private transient Date _buildStartTime;
 
     private int _buildCounter = 0;
     private Date _lastBuild;
@@ -110,16 +112,19 @@ public class Project implements Serializable {
      *  Unless paused, runs any bootstrappers and then the entire build.
      */
     public void build() throws CruiseControlException {
+        _buildStartTime = new Date();
         _now = new Date();
         if (_schedule.isPaused(_now)) {
             return; //we've paused
         }
 
+        _status = "Bootstrapping";
         bootstrap();
 
         Element cruisecontrolElement = new Element("cruisecontrol");
 
         // check for modifications
+        _status = "Scanning for modified code";
         cruisecontrolElement.addContent(_modificationSet.getModifications(
                 _lastBuild));
         if (!_modificationSet.isModified()) {
@@ -138,6 +143,7 @@ public class Project implements Serializable {
         cruisecontrolElement.addContent(getProjectPropertiesElement());
 
         // BUILD
+        _status = "Building";
         cruisecontrolElement.addContent(_schedule.build(_buildCounter,
                 _lastBuild, _now, getProjectPropertiesMap()).detach());
 
@@ -150,6 +156,7 @@ public class Project implements Serializable {
         }
 
         // collect log files and merge with CC log file
+        _status = "Merging additional XML files";
         Iterator auxLogIterator = getAuxLogElements().iterator();
         while (auxLogIterator.hasNext()) {
             cruisecontrolElement.addContent((Element) auxLogIterator.next());
@@ -174,8 +181,11 @@ public class Project implements Serializable {
 
         serializeProject();
 
+        _status = "Publishing build results";
         publish(cruisecontrolElement);
         cruisecontrolElement = null;
+
+        _status = "";
     }
 
     /**
@@ -298,6 +308,14 @@ public class Project implements Serializable {
 
     public void setPaused(boolean paused) {
         _isPaused = paused;
+    }
+
+    public String getStatus() {
+        return _status;
+    }
+
+    public Date getBuildStartTime() {
+        return _buildStartTime;
     }
 
     /**
