@@ -35,18 +35,22 @@ public class Upgrader {
 
     public void setBuildFile(File buildFile) {
         _buildFile = buildFile;
+        log.info("Build file: " + buildFile);
     }
 
     public void setConfigFile(File configFile) {
         _configFile = configFile;
+        log.info("Config file: " + configFile);
     }
 
     public void setPropertiesFile(File propertiesFile) {
         _propertiesFile = propertiesFile;
+        log.info("Properties file: " + propertiesFile);
     }
 
     public void setProjectName(String projectName) {
         _projectName = projectName;
+        log.info("Project name: " + projectName);
     }
 
     protected void validate() throws CruiseControlException {
@@ -301,6 +305,11 @@ public class Upgrader {
 
     public static void main(String args[]) {
         log.info("started upgrader...");
+        final String usageInfo = "Usage: java -jar cruisecontrol.jar -upgrade <build file> <properties file> <config file> <projectname>";
+        if(args.length != 4) {
+            log.fatal(usageInfo);
+            return;
+        }
         Upgrader upgrader = new Upgrader();
         try {
             upgrader.setBuildFile(new File(args[0]));
@@ -310,7 +319,7 @@ public class Upgrader {
             try {
                 upgrader.validate();
             } catch (CruiseControlException e) {
-                log.fatal("Usage: java -jar cruisecontrol.jar -upgrade <build file> <properties file> <config file> <projectname>");
+                log.fatal(usageInfo);
             }
             upgrader.execute();
             log.info("upgrader finished");
