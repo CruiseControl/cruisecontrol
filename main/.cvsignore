@@ -1,2 +1,4 @@
 classes
 test-results
+checkstyle.cache
+checkstyleReport.xml
