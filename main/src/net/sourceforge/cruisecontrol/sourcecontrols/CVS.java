@@ -63,11 +63,11 @@ import java.util.StringTokenizer;
  * the authentication type is pserver the call to cvs login should be done
  * prior to calling this class.
  *
- * @author  <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
- * @author  Robert Watkins
- * @author  Frederic Lavigne
- * @author  <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
- * @author  Marc Paquette
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
+ * @author Robert Watkins
+ * @author Frederic Lavigne
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author Marc Paquette
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  * @author <a href="mailto:m@loonsoft.com">McClain Looney</a>
  */
@@ -102,14 +102,16 @@ public class CVS implements SourceControl {
 
     private String cvsServerVersion;
 
-    /** enable logging for this class */
+    /**
+     * enable logging for this class
+     */
     private static Logger log = Logger.getLogger(CVS.class);
 
     /**
-     *  This line delimits seperate files in the CVS log information.
+     * This line delimits seperate files in the CVS log information.
      */
     private static final String CVS_FILE_DELIM =
-        "=============================================================================";
+            "=============================================================================";
 
     /**
      * This is the keyword that precedes the name of the RCS filename in the CVS
@@ -165,7 +167,7 @@ public class CVS implements SourceControl {
     static final SimpleDateFormat CVSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
 
     /**
-     *  This is the date format returned in the log information from CVS.
+     * This is the date format returned in the log information from CVS.
      */
     static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
 
@@ -179,7 +181,7 @@ public class CVS implements SourceControl {
     /**
      * Sets the CVSROOT for all calls to CVS.
      *
-     *@param cvsroot CVSROOT to use.
+     * @param cvsroot CVSROOT to use.
      */
     public void setCvsRoot(String cvsroot) {
         this.cvsroot = cvsroot;
@@ -188,8 +190,8 @@ public class CVS implements SourceControl {
     /**
      * Sets the local working copy to use when making calls to CVS.
      *
-     *@param local String indicating the relative or absolute path to the local
-     *      working copy of the module of which to find the log history.
+     * @param local String indicating the relative or absolute path to the local
+     *              working copy of the module of which to find the log history.
      */
     public void setLocalWorkingCopy(String local) throws CruiseControlException {
         this.local = local;
@@ -198,6 +200,7 @@ public class CVS implements SourceControl {
     /**
      * Set the cvs tag.  Note this should work with names, numbers, and anything
      * else you can put on log -rTAG
+     *
      * @param tag the cvs tag
      */
     public void setTag(String tag) {
@@ -294,14 +297,12 @@ public class CVS implements SourceControl {
 
     public void validate() throws CruiseControlException {
         if (cvsroot == null && local == null) {
-            throw new CruiseControlException(
-                "at least one of 'localWorkingCopy'"
+            throw new CruiseControlException("at least one of 'localWorkingCopy'"
                     + " or 'cvsroot' is a required attribute on CVS");
         }
 
         if (local != null && !new File(local).exists()) {
-            throw new CruiseControlException(
-                "Local working copy \"" + local + "\" does not exist!");
+            throw new CruiseControlException("Local working copy \"" + local + "\" does not exist!");
         }
     }
 
@@ -309,8 +310,8 @@ public class CVS implements SourceControl {
      * Returns a List of Modifications detailing all the changes between the
      * last build and the latest revision at the repository
      *
-     *@param lastBuild last build time
-     *@return maybe empty, never null.
+     * @param lastBuild last build time
+     * @return maybe empty, never null.
      */
     public List getModifications(Date lastBuild, Date now) {
         mailAliases = getMailAliases();
@@ -333,7 +334,7 @@ public class CVS implements SourceControl {
      * instance. Won't run if the mailAlias was already set.
      *
      * @return a Hashtable containing the mapping defined in CVSROOT/users.
-     * If CVSROOT/users doesn't exist, an empty Hashtable is returned.
+     *         If CVSROOT/users doesn't exist, an empty Hashtable is returned.
      */
     private Hashtable getMailAliases() {
         if (mailAliases == null) {
@@ -451,9 +452,9 @@ public class CVS implements SourceControl {
      * method will format the data found in the input stream into a List of
      * Modification instances.
      *
-     *@param input InputStream to get log data from.
-     *@return List of Modification elements, maybe empty never null.
-     *@throws IOException
+     * @param input InputStream to get log data from.
+     * @return List of Modification elements, maybe empty never null.
+     * @throws IOException
      */
     protected List parseStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -507,7 +508,7 @@ public class CVS implements SourceControl {
 
     private void logErrorStream(Process p) {
         StreamPumper errorPumper =
-            new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
         new Thread(errorPumper).start();
     }
 
@@ -517,9 +518,9 @@ public class CVS implements SourceControl {
      * more revisions. This method may consume the next CVS_FILE_DELIMITER line
      * from the reader, but no further.
      *
-     *@param reader Reader to parse data from.
-     *@return modifications found in this entry; maybe empty, never null.
-     *@throws IOException
+     * @param reader Reader to parse data from.
+     * @return modifications found in this entry; maybe empty, never null.
+     * @throws IOException
      */
     private List parseEntry(BufferedReader reader) throws IOException {
         ArrayList mods = new ArrayList();
@@ -587,8 +588,8 @@ public class CVS implements SourceControl {
             boolean multiLine = false;
 
             while (nextLine != null
-                && !nextLine.startsWith(CVS_FILE_DELIM)
-                && !nextLine.startsWith(CVS_REVISION_DELIM)) {
+                    && !nextLine.startsWith(CVS_FILE_DELIM)
+                    && !nextLine.startsWith(CVS_REVISION_DELIM)) {
 
                 if (multiLine) {
                     message += NEW_LINE;
@@ -635,7 +636,7 @@ public class CVS implements SourceControl {
             nextModification.comment = (message != null ? message : "");
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)
-                && message.indexOf("was initially added on branch") != -1) {
+                    && message.indexOf("was initially added on branch") != -1) {
                 log.debug("skipping branch addition activity for " + nextModification);
                 //this prevents additions to a branch from showing up as action "deleted" from head
                 continue;
@@ -682,8 +683,8 @@ public class CVS implements SourceControl {
                 branchRevisionName = branchRevisionLine.substring(tag.length() + 3);
                 if (branchRevisionName.charAt(branchRevisionName.lastIndexOf(".") - 1) == '0') {
                     branchRevisionName =
-                        branchRevisionName.substring(0, branchRevisionName.lastIndexOf(".") - 2)
-                        + branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
+                            branchRevisionName.substring(0, branchRevisionName.lastIndexOf(".") - 2)
+                            + branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
                 }
             }
         }
@@ -696,17 +697,17 @@ public class CVS implements SourceControl {
      * notPast String. If the line that begins with the beginsWith String is
      * found then it will be returned. Otherwise null is returned.
      *
-     *@param reader Reader to read lines from.
-     *@param beginsWith String to match to the beginning of a line.
-     *@param notPast String which indicates that lines should stop being consumed,
-     *      even if the begins with match has not been found. Pass null to this
-     *      method to ignore this string.
-     *@return String that begin as indicated, or null if none matched to the end
-     *      of the reader or the notPast line was found.
-     *@throws IOException
+     * @param reader     Reader to read lines from.
+     * @param beginsWith String to match to the beginning of a line.
+     * @param notPast    String which indicates that lines should stop being consumed,
+     *                   even if the begins with match has not been found. Pass null to this
+     *                   method to ignore this string.
+     * @return String that begin as indicated, or null if none matched to the end
+     *         of the reader or the notPast line was found.
+     * @throws IOException
      */
     private static String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
-        throws IOException {
+            throws IOException {
         boolean checkingNotPast = notPast != null;
 
         String nextLine = reader.readLine();
