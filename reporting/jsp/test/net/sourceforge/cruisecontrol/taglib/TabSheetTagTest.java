@@ -68,6 +68,7 @@ public class TabSheetTagTest extends TestCase {
     private TabSheetTag tabSheet;
     private MockBodyContent content;
     private MockServletRequest request;
+    private MockPageContext pageContext;
 
     public TabSheetTagTest(String name) {
         super(name);
@@ -77,7 +78,7 @@ public class TabSheetTagTest extends TestCase {
         tabSheet = new TabSheetTag();
         content = new MockBodyContent();
         tabSheet.setBodyContent(content);
-        MockPageContext pageContext = new MockPageContext();
+        pageContext = new MockPageContext();
         request = new MockServletRequest("context", "servlet");
         pageContext.setHttpServletRequest(request);
         tabSheet.setPageContext(pageContext);
@@ -87,32 +88,30 @@ public class TabSheetTagTest extends TestCase {
         tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag()); // side effect of this should clear
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
-        assertEquals("<tr></tr><tr></tr>", content.getString());
+        assertEquals("<tr></tr><tr></tr>", pageContext.getOut().toString());
     }
 
     public void testClearTabsOnRelease() throws IOException, JspException {
         tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
         tabSheet.release();
-        // reset the content writer.
-        tabSheet.setBodyContent(content);
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag()); // wouldn't normally call this after a release
                                                           // but good enough way to test.
-        assertEquals("<tr></tr><tr></tr>", content.getString());
+        assertEquals("<tr></tr><tr></tr>", pageContext.getOut().toString());
     }
 
     // Let's put it all together...
-    public void testPrintTabSheetTab1Selected() throws JspException {
+    public void testPrintTabSheetTab1Selected() throws JspException, IOException {
         final Tab tab1 = new Tab("tabname1", "Tab Name 1", true);
         final Tab tab2 = new Tab("tabname2", "Tab Name 2", false);
-        tab1.setText("This is Tab 1");
-        tab2.setText("This is Tab 2");
 
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag());
+
+        tabSheet.getBodyContent().write("This is Tab 1");
 
         tabSheet.addTab(tab1);
         tabSheet.addTab(tab2);
         assertEquals(Tag.SKIP_BODY, tabSheet.doAfterBody());
-        assertEquals("", content.getString());  // don't write out anything during afterbody
+        assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
         final String headerText = "<tr>"
@@ -120,21 +119,21 @@ public class TabSheetTagTest extends TestCase {
                 + "<th><a href=\"/context/servlet?tab=tabname2\">Tab Name 2</a></th>"
                 + "</tr>";
         final String bodyText = "<tr><td>This is Tab 1</td></tr>";
-        assertEquals(headerText + bodyText, content.getString());
+        assertEquals(headerText + bodyText, pageContext.getOut().toString());
     }
 
-    public void testPrintTabSheetTab2Selected() throws JspException {
+    public void testPrintTabSheetTab2Selected() throws JspException, IOException {
         final Tab tab1 = new Tab("tabname1", "Tab Name 1", false);
         final Tab tab2 = new Tab("tabname2", "Tab Name 2", true);
-        tab1.setText("This is Tab 1");
-        tab2.setText("This is Tab 2");
+
+        tabSheet.getBodyContent().write("This is Tab 2");
 
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag());
 
         tabSheet.addTab(tab1);
         tabSheet.addTab(tab2);
         assertEquals(Tag.SKIP_BODY, tabSheet.doAfterBody());
-        assertEquals("", content.getString());  // don't write out anything during afterbody
+        assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
         final String headerText = "<tr>"
@@ -142,41 +141,19 @@ public class TabSheetTagTest extends TestCase {
                 + "<th>Tab Name 2</th>"
                 + "</tr>";
         final String bodyText = "<tr><td>This is Tab 2</td></tr>";
-        assertEquals(headerText + bodyText, content.getString());
-    }
-
-    public void testPrintTabSheetTabNoneSelected() throws JspException {
-        final Tab tab1 = new Tab("tabname1", "Tab Name 1", false);
-        final Tab tab2 = new Tab("tabname2", "Tab Name 2", false);
-        tab1.setText("This is Tab 1");
-        tab2.setText("This is Tab 2");
-
-        assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag());
-
-        tabSheet.addTab(tab1);
-        tabSheet.addTab(tab2);
-        assertEquals(Tag.SKIP_BODY, tabSheet.doAfterBody());
-        assertEquals("", content.getString());  // don't write out anything during afterbody
-        assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
-
-        final String headerText = "<tr>"
-                + "<th>Tab Name 1</th>"
-                + "<th><a href=\"/context/servlet?tab=tabname2\">Tab Name 2</a></th>"
-                + "</tr>";
-        final String bodyText = "<tr><td>This is Tab 1</td></tr>";
-        assertEquals(headerText + bodyText, content.getString());
+        assertEquals(headerText + bodyText, pageContext.getOut().toString());
     }
 
     public void testPrintTabSheetNoTab() throws JspException {
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag());
         assertEquals(Tag.SKIP_BODY, tabSheet.doAfterBody());
-        assertEquals("", content.getString());  // don't write out anything during afterbody
+        assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
         final String headerText = "<tr>"
                 + "</tr>";
         final String bodyText = "<tr></tr>";
-        assertEquals(headerText + bodyText, content.getString());
+        assertEquals(headerText + bodyText, pageContext.getOut().toString());
     }
 
 }

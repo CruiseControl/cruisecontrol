@@ -44,7 +44,6 @@ public class Tab {
     private final String name;
     private final String label;
     private final boolean selected;
-    private String text = "";
 
     public Tab(String name, String label, boolean selected) {
         this.name = name;
@@ -62,13 +61,5 @@ public class Tab {
 
     public boolean isSelected() {
         return selected;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
     }
 }

@@ -187,4 +187,8 @@ public class MockBodyContent extends BodyContent {
         return 0;
     }
 
+    public String toString() {
+        return getString();
+    }
+
 }

@@ -55,6 +55,7 @@ import javax.servlet.jsp.PageContext;
  */
 public class MockPageContext extends PageContext {
     private MockServletRequest request = new MockServletRequest();
+    private JspWriter out = new MockBodyContent();
 
     private HashMap[] scopes = { new HashMap(), new HashMap(), new HashMap(), new HashMap() };
     private MockServletContext servletContext;
@@ -108,7 +109,7 @@ public class MockPageContext extends PageContext {
     }
 
     public JspWriter getOut() {
-        return null;
+        return out;
     }
 
     public HttpSession getSession() {
