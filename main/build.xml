@@ -56,6 +56,7 @@
 
     <property name="clover.home" value="${env.CLOVER_HOME}"/>
     <property name="clover.jar" value="${clover.home}/lib/clover.jar"/>
+    <property name="clover.results" value="clover-results"/>
 
     <path id="clover.classpath">
         <pathelement location="${clover.jar}"/>
@@ -89,6 +90,7 @@
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${junit.results}"/>
+        <mkdir dir="${clover.results}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
         <tstamp/>
         <property name="label" value="2.1 Compiled on ${TODAY} ${TSTAMP}"/>
@@ -104,6 +106,7 @@
        <delete dir="${classes}" quiet="yes"/>
        <delete dir="${apidocs}" quiet="yes"/>
        <delete dir="${junit.results}" quiet="yes"/>
+       <delete dir="${clover.results}" quiet="yes"/>
        <delete>
             <fileset dir="${basedir}" includes="_*" />
        </delete>
@@ -186,19 +189,13 @@
     <!-- Initialize Clover. -->
     <!-- **************************************************** -->
     <target name="report-coverage" depends="with-clover, clean, compile, compile-test, test, report-clover" 
-        description="Check test coverage">
-        
-        <!-- Don't instrument the test code -->
-<!--        <clover-setup initstring="cc_coverage.db" enabled="false"/>
-        
-        <antcall target="test"/>
-        <antcall target="report-clover"/>-->
-    </target>
+        description="Check test coverage"/>
     
     <target name="report-clover" depends="with-clover">
         <clover-report>
-            <current outfile="clover-results" title="CruiseControl test coverage">
-                <format type="html"/> 
+            <current outfile="${clover.results}" title="CruiseControl test coverage">
+                <format type="html"/>
+                <fileset dir="${src}"/>
             </current>   
         </clover-report>
     </target>
@@ -208,7 +205,7 @@
         <fail message="Can't get Clover to work with Jikes..." 
             if="env.JIKESPATH"/>
         <taskdef resource="clovertasks" classpathref="clover.classpath"/>
-        <clover-setup initstring="cc_coverage.db"/>
+        <clover-setup initstring="${clover.results}/cc_coverage.db"/>
     </target>
 
     <!-- **************************************************** -->
