@@ -133,16 +133,17 @@ public class ModificationSetTest extends TestCase {
 
         Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
 
+        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Element modificationsElement = new Element("modifications");
         Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date()).iterator();
         while (mock1ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock1ModificationsIterator.next();
-            modificationsElement.addContent(modification.toElement(modSet._formatter));
+            modificationsElement.addContent(modification.toElement(formatter));
         }
         Iterator mock2ModificationsIterator = mock2.getModifications(new Date(), new Date()).iterator();
         while (mock2ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock2ModificationsIterator.next();
-            modificationsElement.addContent(modification.toElement(modSet._formatter));
+            modificationsElement.addContent(modification.toElement(formatter));
         }
 
         XMLOutputter outputter = new XMLOutputter();
@@ -158,6 +159,7 @@ public class ModificationSetTest extends TestCase {
      */
     public void testGetMixedModifications() {
         ModificationSet modSet = new ModificationSet();
+        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
 
         Modification mod1 = new Modification();
         mod1.type = "Checkin";
@@ -175,7 +177,7 @@ public class ModificationSetTest extends TestCase {
         mod2.modifiedTime = new Date();
         mod2.comment = "comment4";
         final List result = new ArrayList();
-        result.add(mod1.toElement(modSet._formatter));
+        result.add(mod1.toElement(formatter));
         result.add(mod2);
 
         modSet.addSourceControl(new SourceControl() {
@@ -201,8 +203,8 @@ public class ModificationSetTest extends TestCase {
         Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
 
         Element expectedModificationsElement = new Element("modifications");
-        expectedModificationsElement.addContent(mod1.toElement(modSet._formatter));
-        expectedModificationsElement.addContent(mod2.toElement(modSet._formatter));
+        expectedModificationsElement.addContent(mod1.toElement(formatter));
+        expectedModificationsElement.addContent(mod2.toElement(formatter));
 
         XMLOutputter outputter = new XMLOutputter();
         assertEquals("XML data differ", 
