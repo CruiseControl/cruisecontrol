@@ -53,6 +53,10 @@ FTP support
 * Added CurrentBuildStatusFTPBootstrapper and CurrentBuildStatusFTPPublisher. Submitted by Matt Albrecht
 * Also added an FTPPublisher. (Submitted by Matt Albrecht)
 
+index.jsp
+----------------------
+* Table of projects with status from last build. Adapted from a patch by Jared Richardson
+
 JMX Interface
 ----------------------
 * Added a halt operation on the CruiseControl process JMX interface. Patch from Matt Albrecht
