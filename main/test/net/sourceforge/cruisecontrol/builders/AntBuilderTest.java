@@ -216,11 +216,12 @@ public class AntBuilderTest extends TestCase {
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
                 classpath,
-                "-listener",
+                "-logger",
                 "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
+                "-logfile",
+                "log.xml",
                 "-debug",
+                "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
@@ -228,11 +229,46 @@ public class AntBuilderTest extends TestCase {
         assertTrue(
             Arrays.equals(
                 resultDebug,
-                builder.getCommandLineArgs(properties, false, false, false)));
+                builder.getCommandLineArgs(properties, true, false, false)));
     }
 
-    public void testGetCommandLineArgs_DebugMaxMemory() throws CruiseControlException {
-        String[] resultDebugWithMaxMemory =
+    public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
+        String[] resultQuiet =
+            {
+                javaCmd,
+                "-classpath",
+                antLauncherPath,
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
+                "-logger",
+                "org.apache.tools.ant.XmlLogger",
+                "-logfile",
+                "log.xml",
+                "-quiet",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        builder.setUseQuiet(true);
+        assertTrue(
+            Arrays.equals(
+                resultQuiet,
+                builder.getCommandLineArgs(properties, true, false, false)));
+    }
+
+    public void testGetCommandLineArgs_DebugAndQuiet() throws CruiseControlException {
+        builder.setUseDebug(true);
+        builder.setUseQuiet(true);
+        try {
+            builder.validate();
+            fail("validate() should throw CruiseControlException when both useDebug and useQuiet are true");
+        } catch (CruiseControlException expected) {
+        }
+    }
+
+    public void testGetCommandLineArgs_MaxMemory() throws CruiseControlException {
+        String[] resultWithMaxMemory =
             {
                 javaCmd,
                 "-Xmx256m",
@@ -245,21 +281,19 @@ public class AntBuilderTest extends TestCase {
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-debug",
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setUseDebug(true);
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
         assertTrue(
             Arrays.equals(
-                resultDebugWithMaxMemory,
+                    resultWithMaxMemory,
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
-
-    public void testGetCommandLineArgs_DebugMaxMemoryAndProperty() throws CruiseControlException {
-        String[] resultDebugWithMaxMemoryAndProperty =
+    
+    public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
+        String[] resultWithMaxMemoryAndProperty =
             {
                 javaCmd,
                 "-Xmx256m",
@@ -273,11 +307,9 @@ public class AntBuilderTest extends TestCase {
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
                 "-Dfoo=bar",
-                "-debug",
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setUseDebug(true);
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
         AntBuilder.Property prop = builder.createProperty();
@@ -285,7 +317,7 @@ public class AntBuilderTest extends TestCase {
         prop.setValue("bar");
         assertTrue(
             Arrays.equals(
-                resultDebugWithMaxMemoryAndProperty,
+                resultWithMaxMemoryAndProperty,
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 

@@ -2644,11 +2644,18 @@
             <tr>
                 <td>uselogger</td>
                 <td>No</td>
-                <td>'true' if CruiseControl should call Ant's XmlLogger as a
-                Logger; 'false' to call it as a Listener. Logger will log
-                messages based on log4j setting which can make for smaller log
-                files. Listener will echo ant messages to console which is
-                useful when debugging your ant build. Defaults to 'false'</td>
+                <td>'true' if CruiseControl should call Ant using -logger; 
+                'false' to call Ant without '-logger', thus using the 
+                loggerclass as a Listener. uselogger="true" will make Ant
+                log its messages using the class specified by loggerclassname 
+                as an Ant Logger,  which can make for smaller log files since 
+                it doesn't log DEBUG messages (see useDebug and useQuiet 
+                attributes below, and the 
+                <a href="http://ant.apache.org/manual/listeners.html">Ant manual</a>). 
+                Listener will echo ant messages to console which is
+                useful when debugging your ant build. Defaults to 'false'
+                for historical reasons, but setting it to 'true' is recommended
+                for production situations.</td>
             </tr>
             <tr class="oddrow">
                 <td>loggerclassname</td>
@@ -2662,7 +2669,18 @@
                 <td>usedebug</td>
                 <td>No</td>
                 <td>If true will invoke ant with -debug, which can be
-                useful for debugging your ant build. Defaults to 'false'</td>
+                useful for debugging your ant build. Defaults to 'false',
+                cannot be set to 'true' if usequiet is also set to 'true'.
+                Is only effective when used in combination with uselogger="true"!</td>
+            </tr>
+            <tr class="oddrow">
+                <td>usequiet</td>
+                <td>No</td>
+                <td>If true will invoke ant with -quiet, which can be
+                useful for creating smaller log files since messages with
+                a priority of INFO will not be logged. Defaults to 'false',
+                cannot be set to 'true' if usedebug is also set to 'true'</td>
+                Is only effective when used in combination with uselogger="true"!</td>
             </tr>
             </tbody>
         </table>

@@ -4,6 +4,8 @@ AntBuilder:
 ----------------------
 * Changed command to run internal ant to use the -lib switch and only include ant-launcher.jar on the classpath.
   This should fix the error where optional tasks couldn't be found by Ant even though they where present on the classpath
+* Added useQuiet attribute to call Ant using -quiet, which is mutually exclusive with useDebug
+* Corrected documentation for uselogger and usedebug and added docs for usequiet
 
 AntBuilderTest:
 ----------------------

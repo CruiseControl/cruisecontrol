@@ -78,6 +78,7 @@ public class AntBuilder extends Builder {
     private List args = new ArrayList();
     private List properties = new ArrayList();
     private boolean useDebug = false;
+    private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private long timeout = -1;
 
@@ -90,6 +91,18 @@ public class AntBuilder extends Builder {
 
         if (target == null) {
             throw new CruiseControlException("'target' is a required attribute on AntBuilder");
+        }
+        
+        if (useDebug && useQuiet) {
+            throw new CruiseControlException("'useDebug' and 'useQuiet' can't be used together");
+        }
+        
+        if (!useLogger && (useDebug || useQuiet)) {
+            LOG.warn("usedebug and usequiet are ignored if uselogger is not set to 'true'!");
+        }
+        
+        if (antScript != null && !args.isEmpty()) {
+            LOG.warn("jvmargs will be ignored if you specify your own antscript!");
         }
     }
 
@@ -302,6 +315,12 @@ public class AntBuilder extends Builder {
             cmdLine.createArgument().setValue(getLoggerClassName());
             cmdLine.createArgument().setValue("-logfile");
             cmdLine.createArgument().setValue(tempFileName);
+            // -debug and -quiet have no effect when using a listener instead of a logger
+            if (useDebug) {
+                cmdLine.createArgument().setValue("-debug");
+            } else if (useQuiet) {
+                cmdLine.createArgument().setValue("-quiet");
+            }
         } else {
             cmdLine.createArgument().setValue("-listener");
             cmdLine.createArgument().setValue(getLoggerClassName());
@@ -319,10 +338,6 @@ public class AntBuilder extends Builder {
         for (Iterator antPropertiesIterator = properties.iterator(); antPropertiesIterator.hasNext(); ) {
             Property property = (Property) antPropertiesIterator.next();
             cmdLine.createArgument().setValue("-D" + property.getName() + "=" + property.getValue());
-        }
-
-        if (useDebug) {
-            cmdLine.createArgument().setValue("-debug");
         }
 
         cmdLine.createArgument().setValue("-buildfile");
@@ -397,6 +412,10 @@ public class AntBuilder extends Builder {
 
     public void setUseDebug(boolean debug) {
         useDebug = debug;
+    }
+
+    public void setUseQuiet(boolean quiet) {
+        useQuiet = quiet;
     }
 
     public String getLoggerClassName() {
