@@ -207,7 +207,7 @@ public class BuildStatus implements SourceControl {
         } catch (IOException ex) {
             LOG.info("Failed to load BuildStatus xml document" + ex);
         } catch (CruiseControlException ex) {
-            LOG.info("Could load BuildStstus xml log document, but generated exception anyway" + ex);
+            LOG.info("Could load BuildStatus xml log document, but generated exception anyway" + ex);
         }
         return "Unknown";
     }
