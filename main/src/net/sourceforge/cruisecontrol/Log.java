@@ -37,17 +37,13 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -59,13 +55,14 @@ import java.util.List;
  * file. Also represents the Build Log used by the CruiseControl build process.
  */
 public class Log {
-    private static final Logger LOG = Logger.getLogger(Project.class);
+    private static final org.apache.log4j.Logger LOG4J =
+            org.apache.log4j.Logger.getLogger(Log.class);
 
     private transient String logDir;
     private transient String logXmlEncoding;
     private transient File lastLogFile;
     private transient Element buildLog;
-    private transient List otherLogFilenames = new ArrayList();
+    private transient List loggers = new ArrayList();
     private final transient String projectName;
 
     public Log(String projectName) {
@@ -78,22 +75,15 @@ public class Log {
     }
 
     /**
-     * These are other log files that should be incorporated into the
-     * main CruiseControl build file.
+     * Adds a BuildLogger that will be called to manipulate the project log
+     * just prior to writing the log.
      */
-    public void addOtherLog(String filename) {
-        otherLogFilenames.add(filename);
+    public void addLogger(BuildLogger logger) {
+        loggers.add(logger);
     }
 
-    public void addOtherLogs(List auxLogs) {
-        for (int i = 0; i < auxLogs.size(); i++) {
-            String nextFilename = (String) auxLogs.get(i);
-            addOtherLog(nextFilename);
-        }
-    }
-
-    public String[] getOtherLogFilenames() {
-        return (String[]) otherLogFilenames.toArray(new String[0]);
+    public BuildLogger[] getLoggers() {
+        return (BuildLogger[]) loggers.toArray(new BuildLogger[0]);
     }
 
     public String getLogXmlEncoding() {
@@ -122,12 +112,13 @@ public class Log {
 
     /**
      * creates log directory if it doesn't already exist
-     * @throws CruiseControlException if directory can't be created or there is a file of the same name
+     * @throws CruiseControlException if directory can't be created or there is
+     * a file of the same name
      */
     public void checkLogDirectory() throws CruiseControlException {
         File logDirectory = new File(logDir);
         if (!logDirectory.exists()) {
-            LOG.info(
+            LOG4J.info(
                 "log directory specified in config file does not exist; creating: "
                     + logDirectory.getAbsolutePath());
             if (!logDirectory.mkdirs()) {
@@ -148,8 +139,13 @@ public class Log {
     public void writeLogFile(Date now)
             throws CruiseControlException {
 
-        //Merge the other logs into the build log.
-        mergeOtherLogContents(buildLog);
+        //Call the Loggers to let them do their thing
+        for (int i = 0; i < loggers.size(); i++) {
+            BuildLogger nextLogger = (BuildLogger) loggers.get(i);
+            //The buildloggers get the "real" build log, not a clone. Therefore,
+            //  call getContent() wouldn't be appropriate here.
+            nextLogger.log(buildLog);
+        }
 
         //Figure out what the log filename will be.
         XMLLogHelper helper = new XMLLogHelper(buildLog);
@@ -168,7 +164,7 @@ public class Log {
 
 
         this.lastLogFile = new File(logDir, logFilename);
-        LOG.debug("Project " + projectName + ":  Writing log file ["
+        LOG4J.debug("Project " + projectName + ":  Writing log file ["
                 + lastLogFile.getAbsolutePath() + "]");
 
         //Write the log file out using the proper encoding.
@@ -192,64 +188,6 @@ public class Log {
         } finally {
             logWriter = null;
         }
-    }
-
-    /**
-     * Merges all of the other auxilliary log
-     * files.  If any of the other logs is a directory, all the XML files
-     * in that directory will be merged.
-     */
-    private void mergeOtherLogContents(Element buildLog) {
-        for (int i = 0; i < otherLogFilenames.size(); i++) {
-            String nextLogFilename = (String) otherLogFilenames.get(i);
-
-            File auxLogFile = new File(nextLogFilename);
-            if (auxLogFile.isDirectory()) {
-                String[] childFileNames = auxLogFile.list(new FilenameFilter() {
-                    public boolean accept(File dir, String filename) {
-                        return filename.endsWith(".xml");
-                    }
-                });
-                for (int j = 0; j < childFileNames.length; j++) {
-                    String nextChildFilename = childFileNames[j];
-
-                    Element auxLogElement =
-                            getElementFromAuxLogFile(nextLogFilename + File.separator + nextChildFilename);
-                    if (auxLogElement != null) {
-                        buildLog.addContent(auxLogElement.detach());
-                    }
-                }
-            } else {
-                Element auxLogElement = getElementFromAuxLogFile(nextLogFilename);
-                if (auxLogElement != null) {
-                    buildLog.addContent(auxLogElement.detach());
-                }
-            }
-        }
-    }
-
-
-    /**
-     *  Get a JDOM <code>Element</code> from an XML file.
-     *
-     *  @param fileName The file name to read.
-     *  @return JDOM <code>Element</code> representing that xml file.
-     */
-    private Element getElementFromAuxLogFile(String fileName) {
-        try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Element element = builder.build(fileName).getRootElement();
-            if (element.getName().equals("testsuite")) {
-                if (element.getChild("properties") != null) {
-                    element.getChild("properties").detach();
-                }
-            }
-            return element;
-        } catch (JDOMException e) {
-            LOG.warn("Could not read aux log: " + fileName + ".  Skipping...", e);
-        }
-
-        return null;
     }
 
     public void addContent(Element newContent) {

@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Util;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.io.File;
@@ -51,7 +50,8 @@ import java.util.List;
  */
 public class ProjectXMLHelper {
 
-    private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
+    private static final org.apache.log4j.Logger LOG4J =
+            org.apache.log4j.Logger.getLogger(ProjectXMLHelper.class);
 
     private PluginRegistry plugins;
     private Element projectElement;
@@ -64,11 +64,11 @@ public class ProjectXMLHelper {
     public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
         this();
         Iterator projectIterator =
-            Util.loadConfigFile(configFile).getChildren("project").iterator();
+                Util.loadConfigFile(configFile).getChildren("project").iterator();
         while (projectIterator.hasNext()) {
             Element currentProjectElement = (Element) projectIterator.next();
             if (currentProjectElement.getAttributeValue("name") != null
-                && currentProjectElement.getAttributeValue("name").equals(projName)) {
+                    && currentProjectElement.getAttributeValue("name").equals(projName)) {
                 projectElement = currentProjectElement;
             }
         }
@@ -87,18 +87,18 @@ public class ProjectXMLHelper {
             if (pluginName == null || pluginClassName == null) {
                 throw new CruiseControlException("name and classname are required on <plugin>");
             }
-            LOG.debug("Registering plugin: " + pluginName);
-            LOG.debug("to classname: " + pluginClassName);
-            LOG.debug("");
+            LOG4J.debug("Registering plugin: " + pluginName);
+            LOG4J.debug("to classname: " + pluginClassName);
+            LOG4J.debug("");
             plugins.register(pluginName, pluginClassName);
         }
     }
 
     protected void setDateFormat(Element projElement) {
         if (projElement.getChild("dateformat") != null
-            && projElement.getChild("dateformat").getAttributeValue("format") != null) {
+                && projElement.getChild("dateformat").getAttributeValue("format") != null) {
             DateFormatFactory.setFormat(
-                projElement.getChild("dateformat").getAttributeValue("format"));
+                    projElement.getChild("dateformat").getAttributeValue("format"));
         }
     }
 
@@ -109,7 +109,7 @@ public class ProjectXMLHelper {
             buildAfterFailedAttr = "true";
         }
         boolean buildafterfailed = Boolean.valueOf(buildAfterFailedAttr).booleanValue();
-        LOG.debug("Setting BuildAfterFailed to " + buildafterfailed);
+        LOG4J.debug("Setting BuildAfterFailed to " + buildafterfailed);
         return buildafterfailed;
     }
 
@@ -121,12 +121,12 @@ public class ProjectXMLHelper {
             while (bootstrapperIterator.hasNext()) {
                 Element bootstrapperElement = (Element) bootstrapperIterator.next();
                 Bootstrapper bootstrapper =
-                    (Bootstrapper) configurePlugin(bootstrapperElement, false);
+                        (Bootstrapper) configurePlugin(bootstrapperElement, false);
                 bootstrapper.validate();
                 bootstrappers.add(bootstrapper);
             }
         } else {
-            LOG.debug("Project " + projectName + " has no bootstrappers");
+            LOG4J.debug("Project " + projectName + " has no bootstrappers");
         }
         return bootstrappers;
     }
@@ -143,7 +143,7 @@ public class ProjectXMLHelper {
                 publishers.add(publisher);
             }
         } else {
-            LOG.debug("Project " + projectName + " has no publishers");
+            LOG4J.debug("Project " + projectName + " has no publishers");
         }
         return publishers;
     }
@@ -167,7 +167,7 @@ public class ProjectXMLHelper {
             }
         }
         schedule.validate();
-        
+
         return schedule;
     }
 
@@ -178,7 +178,7 @@ public class ProjectXMLHelper {
         while (sourceControlIterator.hasNext()) {
             Element sourceControlElement = (Element) sourceControlIterator.next();
             SourceControl sourceControl =
-                (SourceControl) configurePlugin(sourceControlElement, false);
+                    (SourceControl) configurePlugin(sourceControlElement, false);
             sourceControl.validate();
             modificationSet.addSourceControl(sourceControl);
         }
@@ -196,11 +196,11 @@ public class ProjectXMLHelper {
             try {
                 incrementer = (LabelIncrementer) labelIncrClass.newInstance();
             } catch (Exception e) {
-                LOG.error(
-                    "Error instantiating label incrementer named "
+                LOG4J.error(
+                        "Error instantiating label incrementer named "
                         + labelIncrClass.getName()
                         + ". Using DefaultLabelIncrementer instead.",
-                    e);
+                        e);
                 incrementer = new DefaultLabelIncrementer();
             }
         }
@@ -211,12 +211,12 @@ public class ProjectXMLHelper {
      *  returns the String value of an attribute on an element, exception if it's not set
      */
     protected String getRequiredAttribute(Element element, String attributeName)
-        throws CruiseControlException {
+            throws CruiseControlException {
         if (element.getAttributeValue(attributeName) != null) {
             return element.getAttributeValue(attributeName);
         } else {
             throw new CruiseControlException(
-                "Project "
+                    "Project "
                     + projectName
                     + ":  attribute "
                     + attributeName
@@ -226,11 +226,11 @@ public class ProjectXMLHelper {
     }
 
     private Element getRequiredElement(final Element parentElement, final String childName)
-        throws CruiseControlException {
+            throws CruiseControlException {
         final Element requiredElement = parentElement.getChild(childName);
         if (requiredElement == null) {
             throw new CruiseControlException(
-                "Project "
+                    "Project "
                     + projectName
                     + ": <"
                     + parentElement.getName()
@@ -243,36 +243,19 @@ public class ProjectXMLHelper {
     }
 
     /**
-     *  make sure that this element has an attribute 'file' or 'dir' but not both
-     */
-    protected String parseMergeElement(Element mergeElement) throws CruiseControlException {
-        String file = mergeElement.getAttributeValue("file");
-        String dir = mergeElement.getAttributeValue("dir");
-        if (file == null && dir == null) {
-            throw new CruiseControlException("one of file or dir are required attributes");
-        } else if (file != null && dir != null) {
-            throw new CruiseControlException("only one of file or dir may be specified");
-        } else if (file != null) {
-            return file;
-        } else {
-            return dir;
-        }
-    }
-
-    /**
      *  TODO: also check that instantiated class implements/extends correct interface/class
      */
     protected Object configurePlugin(Element pluginElement, boolean skipChildElements)
-        throws CruiseControlException {
+            throws CruiseControlException {
         String name = pluginElement.getName();
         PluginXMLHelper pluginHelper = new PluginXMLHelper();
         String pluginName = pluginElement.getName();
 
         if (plugins.isPluginRegistered(pluginName)) {
             return pluginHelper.configure(
-                pluginElement,
-                plugins.getPluginClass(pluginName),
-                skipChildElements);
+                    pluginElement,
+                    plugins.getPluginClass(pluginName),
+                    skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
@@ -284,47 +267,35 @@ public class ProjectXMLHelper {
     public Log getLog() throws CruiseControlException {
         Log log = new Log(this.projectName);
 
-        log.setLogDir(getLogDir());
-        log.setLogXmlEncoding(getLogXmlEncoding());
-
-        log.addOtherLogs(getAuxLogs());
-
-        return log;
-    }
-
-    private String getLogDir() {
-        String logDir = "logs" + File.separatorChar + projectName;
+        //Init the log dir to the default.
+        String defaultLogDir = "logs" + File.separatorChar + projectName;
+        log.setLogDir(defaultLogDir);
 
         Element logElement = projectElement.getChild("log");
         if (logElement != null) {
             String logDirValue = logElement.getAttributeValue("dir");
+            //The user has specified a different log dir, so set
+            //  that one instead.
             if (logDirValue != null) {
-                logDir = logDirValue;
+                log.setLogDir(logDirValue);
+            }
+            log.setLogXmlEncoding(logElement.getAttributeValue("encoding"));
+
+
+            //Get the BuildLoggers...all the children of the Log element should be
+            //  BuildLogger implementations
+            Iterator loggerIter = logElement.getChildren().iterator();
+            while (loggerIter.hasNext()) {
+                Element nextLoggerElement = (Element) loggerIter.next();
+
+                BuildLogger nextLogger =
+                        (BuildLogger) configurePlugin(nextLoggerElement, false);
+                nextLogger.validate();
+
+                log.addLogger(nextLogger);
             }
         }
 
-        return logDir;
-    }
-
-    private String getLogXmlEncoding() {
-        String encoding = null;
-        Element logElement = projectElement.getChild("log");
-        if (logElement != null) {
-            encoding = logElement.getAttributeValue("encoding");
-        }
-        return encoding;
-    }
-
-    private List getAuxLogs() throws CruiseControlException {
-        List auxLogs = new ArrayList();
-        Element logElement = projectElement.getChild("log");
-        if (logElement != null) {
-            Iterator additionalLogIterator = logElement.getChildren("merge").iterator();
-            while (additionalLogIterator.hasNext()) {
-                Element additionalLogElement = (Element) additionalLogIterator.next();
-                auxLogs.add(parseMergeElement(additionalLogElement));
-            }
-        }
-        return auxLogs;
+        return log;
     }
 }

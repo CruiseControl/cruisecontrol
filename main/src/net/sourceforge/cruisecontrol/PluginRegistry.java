@@ -143,8 +143,7 @@ public final class PluginRegistry {
      * the fully qualified classname
      * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
-    public static PluginRegistry getDefaultPluginRegistry()
-            throws CruiseControlException {
+    public static PluginRegistry getDefaultPluginRegistry() {
         PluginRegistry registry = new PluginRegistry();
         // bootstrappers
         registry.register(
@@ -190,6 +189,7 @@ public final class PluginRegistry {
         registry.register("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
         registry.register("schedule", "net.sourceforge.cruisecontrol.Schedule");
         registry.register("log", "net.sourceforge.cruisecontrol.Log");
+        registry.register("merge", "net.sourceforge.cruisecontrol.buildloggers.MergeLogger");
 
         return registry;
     }
