@@ -10,7 +10,6 @@ import org.apache.tools.ant.*;
  *
  *@author  alden almagro, ThoughtWorks, Inc. 2001,
  *@author  Jason Yip, jcyip@thoughtworks.com
- *@created  June 11, 2001
  */
 
 //(PENDING) move all source control elements to net.sourceforge.cruisecontrol.element
@@ -39,10 +38,11 @@ public abstract class SourceControlElement {
 	 *  has a field for email addresses, so we would return a set of full email
 	 *  addresses here. SourceSafe doesn't have the same functionality, so we'll
 	 *  just return the usernames here (which should correspond to email IDs).
-	 *  We'll tack on the suffix, e.g.,
+	 *  We'll tack on the suffix, e.g., "@apache.org" in MasterBuild.java before 
+     *  mailing results of the build.
 	 *
 	 *@return
-	 *@apache.org,  in MasterBuild.java before mailing results of the build.
+	 *
 	 */
 	public abstract Set getEmails();
 

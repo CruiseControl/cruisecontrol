@@ -21,8 +21,7 @@ import org.apache.tools.ant.types.*;
  *@author  Robert Watkins
  *@author  Frederic Lavigne
  *@author  Jason Yip, jcyip@thoughtworks.com
- *@author  marcpa
- *@created  June 11, 2001
+ *@author  Marc Paquette
  */
 public class CVSElement extends SourceControlElement {
 
@@ -182,21 +181,27 @@ public class CVSElement extends SourceControlElement {
 		return lastModified.getTime();
 	}
 
+    /**
+     * Delegate to getHistory(Date lastBuild) since now and quietPeriod are not
+     * used.
+     */
+    public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+        return getHistory(lastBuild);
+    }
+    
 	/**
 	 *  Returns an ArrayList of Modifications detailing all the changes between the
 	 *  last build and the latest revision at the repository
 	 *
 	 *@param  lastBuild last build time
-	 *@param  now current time
-	 *@param  quietPeriod NOT USED.
 	 *@return  maybe empty, never null.
 	 */
-	public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+	public ArrayList getHistory(Date lastBuild) {
 		setLastModified(lastBuild);
 
 		ArrayList mods = null;
 		try {
-			mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
+			mods = execHistoryCommand(buildHistoryCommand(lastBuild));
 		}
 		catch (Exception e) {
 			log("Log command failed to execute succesfully");
@@ -211,10 +216,9 @@ public class CVSElement extends SourceControlElement {
 
 	/**
 	 *@param  lastBuildTime
-	 *@param  currentTime
 	 *@return  CommandLine for "cvs -d CVSROOT log -N -d "lastbuildtime<currtime" "
 	 */
-	public Commandline buildHistoryCommand(Date lastBuildTime, Date currentTime) {
+	public Commandline buildHistoryCommand(Date lastBuildTime) {
 		Commandline commandLine = new Commandline();
 		commandLine.setExecutable("cvs");
 
@@ -226,8 +230,7 @@ public class CVSElement extends SourceControlElement {
 		commandLine.createArgument().setValue("log");
 		commandLine.createArgument().setValue("-N");
 		commandLine.createArgument().setValue("-d");
-		String dateRange = formatCVSDate(lastBuildTime) + "<"
-				 + formatCVSDate(currentTime);
+		String dateRange = ">" + formatCVSDate(lastBuildTime);
 		commandLine.createArgument().setValue(dateRange);
 
 		if (local != null) {
@@ -467,9 +470,6 @@ public class CVSElement extends SourceControlElement {
 	/**
 	 *  Inner class for continually pumping the input stream during Process's
 	 *  runtime. This was copied/duplicated from the Ant Exec built-in task.
-	 *
-	 *@author  jcyip
-	 *@created  June 11, 2001
 	 */
 	class StreamPumper extends Thread {
 		private BufferedReader dataStream;

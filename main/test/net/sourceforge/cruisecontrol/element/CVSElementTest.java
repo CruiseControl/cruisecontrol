@@ -22,11 +22,10 @@ public class CVSElementTest extends TestCase {
 		element.setLocalWorkingCopy(".");
 
 		String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "log",
-				"-N", "-d", CVSElement.formatCVSDate(lastBuildTime) + "<"
-				 + CVSElement.formatCVSDate(currTime), "."};
+				"-N", "-d", ">" + CVSElement.formatCVSDate(lastBuildTime), "."};
 
 		String[] actualCommand =
-				element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
+				element.buildHistoryCommand(lastBuildTime).getCommandline();
 
 		assertEquals("Mismatched lengths!", expectedCommand.length,
 				actualCommand.length);
@@ -44,11 +43,10 @@ public class CVSElementTest extends TestCase {
 		element.setLocalWorkingCopy(null);
 
 		String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "log",
-				"-N", "-d", CVSElement.formatCVSDate(lastBuildTime) + "<"
-				 + CVSElement.formatCVSDate(currTime)};
+				"-N", "-d", ">" + CVSElement.formatCVSDate(lastBuildTime)};
 
 		String[] actualCommand =
-				element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
+				element.buildHistoryCommand(lastBuildTime).getCommandline();
 
 		assertEquals("Mismatched lengths!", expectedCommand.length,
 				actualCommand.length);
@@ -65,11 +63,10 @@ public class CVSElementTest extends TestCase {
 		element.setLocalWorkingCopy(".");
 
 		String[] expectedCommand = new String[]{"cvs", "log",
-				"-N", "-d", CVSElement.formatCVSDate(lastBuildTime) + "<"
-				 + CVSElement.formatCVSDate(currTime), "."};
+				"-N", "-d", ">" + CVSElement.formatCVSDate(lastBuildTime), "."};
 
 		String[] actualCommand =
-				element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
+				element.buildHistoryCommand(lastBuildTime).getCommandline();
 		assertEquals("Mismatched lengths!", expectedCommand.length,
 				actualCommand.length);
 		for (int i = 0; i < expectedCommand.length; i++) {
