@@ -6,6 +6,10 @@ AntBuilder
 * Added check to ensure that log file exists before trying to get contents.
 * Fixed getCommandLineArgs to handle EmptyLabelIncrementer
 
+Compound
+----------------------
+* New SourceControl implementation uses nested Trigger and Target sourcecontrols. The targets are only checked for changes if there is a change detected by a trigger. Submitted by Will Gwaltney
+
 CVS
 ----------------------
 * Fixed a bug with not returning modfications when the tag attribute is used.

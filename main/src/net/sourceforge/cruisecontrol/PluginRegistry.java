@@ -172,6 +172,9 @@ public final class PluginRegistry {
         registry.register("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         registry.register("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
         registry.register("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
+        registry.register("compound", "net.sourceforge.cruisecontrol.sourcecontrols.Compound");
+        registry.register("triggers", "net.sourceforge.cruisecontrol.sourcecontrols.Triggers");
+        registry.register("targets", "net.sourceforge.cruisecontrol.sourcecontrols.Targets");
         // builders
         registry.register("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
         registry.register("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
