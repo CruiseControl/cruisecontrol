@@ -108,9 +108,10 @@ public class ProjectXMLHelperTest extends TestCase {
 
     public void testGetLabelIncrementer() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project2");
-        DefaultLabelIncrementer incrementer = (DefaultLabelIncrementer) helper.getLabelIncrementer();
+        DefaultLabelIncrementer incrementer =
+            (DefaultLabelIncrementer) helper.getLabelIncrementer();
         assertTrue(incrementer.isValidLabel("build#9"));
-        
+
         helper = new ProjectXMLHelper(configFile, "project1");
         incrementer = (DefaultLabelIncrementer) helper.getLabelIncrementer();
         assertFalse(incrementer.isValidLabel("build#9"));
@@ -137,7 +138,15 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(1, helper.getAuxLogs().size());
     }
 
-    public void testPluginRegistry() throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    public void testPluginRegistry()
+        throws
+            IllegalArgumentException,
+            SecurityException,
+            ClassNotFoundException,
+            InstantiationException,
+            IllegalAccessException,
+            InvocationTargetException,
+            NoSuchMethodException {
         verifyPluginClass(
             "currentbuildstatusbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
@@ -182,13 +191,21 @@ public class ProjectXMLHelperTest extends TestCase {
         verifyPluginClass("schedule", "net.sourceforge.cruisecontrol.Schedule");
     }
 
-    private void verifyPluginClass(String pluginName, String expectedName) throws ClassNotFoundException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private void verifyPluginClass(String pluginName, String expectedName)
+        throws
+            ClassNotFoundException,
+            IllegalArgumentException,
+            SecurityException,
+            InstantiationException,
+            IllegalAccessException,
+            InvocationTargetException,
+            NoSuchMethodException {
         ProjectXMLHelper helper = new ProjectXMLHelper();
         String className = helper.getClassNameForPlugin(pluginName);
         assertEquals(expectedName, className);
         Class pluginClass = Class.forName(className);
         Object pluginInstance = pluginClass.getConstructor(null).newInstance(null);
-  
+
     }
 
     protected void setUp() throws Exception {
