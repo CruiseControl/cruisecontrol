@@ -44,10 +44,10 @@ import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 /**
  *  class to instantiate a project from a JDOM Element
@@ -63,7 +63,7 @@ public class ProjectXMLHelper {
     };
 
     public ProjectXMLHelper(File configFile, String projectName) throws CruiseControlException {
-        Iterator projectIterator = loadConfigFile(configFile).getChildren("project").iterator();
+        Iterator projectIterator = Util.loadConfigFile(configFile).getChildren("project").iterator();
         while (projectIterator.hasNext()) {
             Element currentProjectElement = (Element) projectIterator.next();
             if (currentProjectElement.getAttributeValue("name") != null
@@ -205,17 +205,6 @@ public class ProjectXMLHelper {
             LOG.error("Error instantiating label incrementer, using DefaultLabelIncrementer.", e);
             return new DefaultLabelIncrementer();
         }
-    }
-
-    protected Element loadConfigFile(File configFile) {
-        Element cruisecontrolElement = null;
-        try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            cruisecontrolElement = builder.build(configFile).getRootElement();
-        } catch (Exception e) {
-            LOG.fatal("", e);
-        }
-        return cruisecontrolElement;
     }
 
     /**
