@@ -70,6 +70,11 @@ reporting application:
 ----------------------
 * Moved JSP's, WEB-INF and static content to dedicated subdirectory (CC-95)
 
+Plugin defaults:
+----------------------
+* You can now specify extra attributes on the <plugin> elements that will be used as defaults for plugin instances.
+  You can override each default when you actually use the plugin.
+
 Project:
 ----------------------
 * Catch Throwable during publishing, so errors don't propagate to build()

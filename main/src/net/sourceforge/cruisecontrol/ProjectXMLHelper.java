@@ -85,16 +85,7 @@ public class ProjectXMLHelper {
         Iterator pluginIterator = projectElement.getChildren("plugin").iterator();
         while (pluginIterator.hasNext()) {
             Element pluginElement = (Element) pluginIterator.next();
-            String pluginName = pluginElement.getAttributeValue("name");
-            String pluginClassName = pluginElement.getAttributeValue("classname");
-            if (pluginName == null || pluginClassName == null) {
-                throw new CruiseControlException("name and classname are required on <plugin>");
-            }
-            LOG.debug("Registering plugin '" + pluginName
-                    + "' to classname '" + pluginClassName
-                    + "' for project " + projectName);
-            LOG.debug("");
-            plugins.register(pluginName, pluginClassName);
+            plugins.register(pluginElement);
         }
     }
 

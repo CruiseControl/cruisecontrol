@@ -37,12 +37,16 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.jdom.Attribute;
+import org.jdom.Element;
 
 
 /**
@@ -90,6 +94,13 @@ public final class PluginRegistry {
     private final Map plugins = new HashMap();
 
     /**
+     * Map that holds the default properties to set for a plugin class.
+     * Key is the fully qualified classname, 
+     * value is a Map with property keys and values.
+     */
+    private final Map defaultProperties = new HashMap();
+
+    /**
      * Creates a new PluginRegistry with no plugins registered, with the given parent registry.
      * Only used internally for now, Projects should call createRegistry instead.
      */
@@ -107,6 +118,40 @@ public final class PluginRegistry {
      */
     public void register(String pluginName, String pluginClassname) {
         plugins.put(pluginName.toLowerCase(), pluginClassname);
+    }
+    
+    /**
+     * Registers the given plugin, including default properties.
+     * 
+     * @param pluginElement the JDom element that contains the plugin definition.
+     */
+    public void register(Element pluginElement) throws CruiseControlException {
+        String pluginName = pluginElement.getAttributeValue("name");
+        String pluginClassName = pluginElement.getAttributeValue("classname");
+        if (pluginClassName != null) {
+            register(pluginName, pluginClassName);
+        } else {
+            // should be known plugin, then
+            if (!isPluginRegistered(pluginName)) {
+                throw new CruiseControlException("Can't set defaults for unknown plugin '"
+                        + pluginName + "'; maybe you forgot to specify a classname?");
+            }
+        }
+        Map properties = new HashMap();
+        List attributes = pluginElement.getAttributes();
+        for (Iterator iter = attributes.iterator(); iter.hasNext(); ) {
+            Attribute attr = (Attribute) iter.next();
+            String name = attr.getName();
+            if (name.equals("name") || name.equals("classname")) {
+                continue;
+            }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("setting default property " + name + " to '" + attr.getValue()
+                    + "' for " + pluginClassName);
+            }
+            properties.put(name, attr.getValue());
+        }
+        defaultProperties.put(pluginClassName, Collections.unmodifiableMap(properties));
     }
 
     /**
@@ -207,5 +252,22 @@ public final class PluginRegistry {
             rootRegistry.register((String) entry.getKey(), (String) entry.getValue());
         }
         return rootRegistry;
+    }
+    
+    /**
+     * Returns a Map containing the default properties for the plugin 
+     * with the given className. If there's no such plugin, an empty
+     * Map will be returned. The default properties can be inherited 
+     * from a parent registry.
+     */
+    public Map getDefaultProperties(String className) {
+        Map properties = new HashMap();
+        if (parentRegistry != null) {
+            properties.putAll(parentRegistry.getDefaultProperties(className));
+        }
+        if (defaultProperties.containsKey(className)) {
+            properties.putAll((Map) defaultProperties.get(className));
+        }
+        return properties;
     }
 }
