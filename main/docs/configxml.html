@@ -1290,7 +1290,7 @@
         only checked for modifications if there was any modifications detected
         in the triggers.</p>
 
-        <p>Arbirary nesting of source controls under <code>&lt;triggers&gt;</code>
+        <p>Arbitrary nesting of source controls under <code>&lt;triggers&gt;</code>
         and <code>&lt;targets&gt;</code> is possible.</p>
 
         <p>The <code>&lt;compound&gt;</code> element allows optimised access to
@@ -2118,7 +2118,7 @@
         found the multiple builds are evaluated <em>in the order they appear in
         the file</em>, so a multiple='1' on the first builder will hide all the
         subsequent builders.</p>
-
+        
         <h3>Attributes</h3>
 
         <table class="documentation">
@@ -2170,6 +2170,64 @@
             </tr>
             </tbody>
         </table>
+
+        <h3><a name="buildproperties">Properties Passed to Builders</a></h3>
+                
+        <p>When CruiseControl runs your build script (Ant or Maven), it passes
+        some information in the form of system properties to the script. These
+        can be accessed in your script like any other property, using the syntax
+        ${propertyname}.<p>
+        
+        <p>Here's a list of all the properties that are available to your
+        script:</p>
+        
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>label</td>
+                <td>The build label determined by the labelincrementer</td>
+            </tr>
+            <tr>
+                <td>cvstimestamp</td>
+                <td>Timestamp that indicates when the build started, using the
+                format <code>yyyy-MM-dd HH:mm:ss 'GMT'</code> so it can be used
+                as a CVS argument</td>
+            </tr>
+            <tr class="oddrow">
+                <td>cctimestamp</td>
+                <td>Timestamp that indicates when the build started, using the
+                format <code>yyyyMMddHHmmss</code></td>
+            </tr>
+            <tr>
+                <td>cclastgoodbuildtimestamp</td>
+                <td>Timestamp that indicates when the last succesful build was
+                run, using the format <code>yyyyMMddHHmmss</code></td>
+            </tr>
+            <tr class="oddrow">
+                <td>cclastbuildtimestamp</td>
+                <td>Timestamp that indicates when the last build was run, using
+                the format <code>yyyyMMddHHmmss</code></td>
+            </tr>
+            <tr>
+                <td>lastbuildsuccessful</td>
+                <td>indicates if the last build was successful; either "true"
+                or "false"</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>If you're using the <code>property</code> or <code>propertyondelete</code> 
+        attributes that are available on some of the 
+        <a href="#modificationset">&lt;modificationset&gt;</a> child-elements, 
+		the properties specified by the attribute values will also be passed to your script.</p>
+
+
         </div>
 
         <div class="elementdocumentation">
@@ -2184,13 +2242,30 @@
       &lt;ant&gt;</pre>
         </div>
 
-        <p>Specify an Ant build to be run at a given time or build number.
+        <p>Specifies an Ant build to be run at a given time or build number.
         For instance, we can run a clean build every 5 builds, or run more
         comprehensive (and time intensive) system tests every 10 builds.  We
         can also schedule an official build to run every night at midnight,
-        if we so desire.  AntBuilder runs Ant in as a separate Java process
-        and you can specify settings for the virtual machine using the nested
-        jvmarg element.</p>
+        if we so desire.</p>
+          
+        <p>When a build runs, Ant is invoked in a separate Java process. There
+        are two alternative ways in which ant may be invoked:</p>
+        <ol>
+            <li>Using the <b><code>antscript</code></b> attribute. This is the
+            preferred alternative, as it helps to ensure that builds are run
+            completely independently of the CruiseControl distribution, and that
+            extra jars required in the ant lib-directory need not be
+            duplicated within CruiseControl.</li>
+            <li>Using the ant binaries distributed with CruiseControl. Settings
+            for the virtual machine can be specified using the nested <code>
+            &lt;jvmarg&gt;</code> element.</li>
+        </ol>
+        
+        <p>The standard CruiseControl <a href="#buildproperties">properties
+        passed to builders</a> are available from within the ant build.</p>
+        
+        <p>See below for <a href="#ant-examples">examples</a> of the
+        <code>&lt;ant&gt;</code> element.</p>
 
         <h3>Attributes</h3>
 
@@ -2242,15 +2317,10 @@
                 <td>antscript</td>
                 <td>No, but recommended</td>
                 <td>Absolute filename of script (shell script or bat file) used
-				to start Ant. You can use this to make CruiseControl use your own
-				Ant installation. If this is not specified, the AntBuilder uses 
-				the Ant 1.6.2 distribution that ships with CruiseControl. You can provide a 
-				custom script, to set some environment variables for example, but you
-				can also specify a script that comes with the Ant distribution: under
-				Windows, a valid setting might be 
-				<code>C:\Java\apache-ant-1.6.2\bin\ant.bat</code>. 
-				This is convenient if your own Ant installation contains extra jars
-				in the lib-directory that are needed by your build script, for example.</td>
+                to start Ant. You can use this to make CruiseControl use your own
+                Ant installation. If this is not specified, the AntBuilder uses 
+                the Ant 1.6.2 distribution that ships with CruiseControl. See
+                below for <a href="#ant-examples">examples</a>.</td>
             </tr>
             <tr>
                 <td>antWorkingDir</td>
@@ -2308,7 +2378,7 @@
                 attribute: "arg".<br/>
                 <b>Example:</b> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</code></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>&lt;property&gt;</td>
                 <td>0 .. *</td>
                 <td>Used to define properties for the ant build. The element
@@ -2318,6 +2388,62 @@
             </tr>
             </tbody>
         </table>
+        
+        <h3><a name="ant-examples">Examples</a></h3>
+
+        <ol>
+            <li>Invoke the ant.bat script distributed with ant, specifying the
+            working directory as <code>D:\workspace\MyProject</code> and the
+            ant build file as <code>MyProject-nightlybuild.xml</code> using the default target.
+        
+            <pre>&lt;schedule&gt;
+    &lt;ant antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
+         antworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml" 
+         uselogger="true" 
+         usedebug="false"/&gt;
+&lt/schedule&gt;</pre>
+            </li>
+
+            <li>Invoke a custom ant script <code>/home/cc/workspace/build.sh</code>,
+            specifying the working directory as <code>/home/cc/workspace</code>
+            and the ant target as <code>smoketest</code>.
+            
+            <pre>&lt;schedule&gt;
+    &lt;ant antscript="/home/cc/workspace/build.sh"
+         antworkingdir="/home/cc/workspace"
+         target="smoketest" 
+         uselogger="true"/&gt;
+&lt/schedule&gt;</pre>
+
+            <p>The custom build script can be any shell script, batch file or
+            program that understands how to invoke ant. Here is an example that
+            would be appropriate under unix:</p>
+            
+            <pre>#!/bin/sh
+PROJECT_HOME=`dirname "$0"`
+ANT_HOME=${PROJECT_HOME}/tools/ant
+chmod 0777 ${ANT_HOME}/bin/ant
+ANT_CMD=${ANT_HOME}/bin/ant
+"$ANT_CMD" "$@"</pre>
+
+            <p>Note the double quotes around $@: this ensures that all arguments
+            will be quoted, which is necessary for arguments containing spaces.</p>
+            
+            <p>An example of a Windows batch file to invoke ant:</p>
+            
+            <pre>@echo off
+setlocal
+set PROJECT_HOME=%~dp0
+call %PROJECT_HOME%..\devtools\env.bat
+call ant.bat %*
+endlocal</pre>
+
+            <p>The %* as a param to ant.bat is important &mdash; it means that all
+            the arguments to build.bat are passed along to ant.bat. If this is
+            skipped then CruiseControl wouldn't work properly.<p></li>
+
+        </ol>
         </div>
 
         <div class="elementdocumentation">
@@ -2352,6 +2478,9 @@
             allowed . Subset separator is '|'.
             </li>
         </ul>
+        
+        <p>The standard CruiseControl <a href="#buildproperties">properties
+        passed to builders</a> are available from within the maven build.</p>
 
         <h3>Attributes</h3>
 
@@ -3129,7 +3258,6 @@
         <h3>Attributes</h3>
         <p>All of the attributes and child elements of <a href="#email"><code>&lt;email&gt;</code></a>
         apply to <code>&lt;htmlemail&gt;</code> as well. The following table
-            <thead>
         specifies the additional or changed attributes.</p>
 
         <table class="documentation">
