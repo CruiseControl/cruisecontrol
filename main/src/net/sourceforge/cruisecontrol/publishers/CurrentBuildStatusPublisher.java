@@ -40,7 +40,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.DateFormatFactory;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.jdom.DataConversionException;
 import org.jdom.Element;
 
 import java.io.FileWriter;
