@@ -37,7 +37,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
+# The root of the CruiseControl directory.  The key requirement is that this is the parent
+# directory of CruiseControl's lib directory.
+# By default assume they are using the batch file from the local directory.
 CCDIR=..
+
 LIBDIR=$CCDIR/lib
 CRUISE_PATH=$JAVA_HOME/lib/tools.jar:cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant.jar:$LIBDIR/xerces.jar:$LIBDIR/mail.jar:$LIBDIR/optional.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:.
 
