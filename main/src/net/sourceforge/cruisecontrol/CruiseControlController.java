@@ -91,7 +91,7 @@ public class CruiseControlController {
         }
     }
 
-    public void start() {
+    public void resume() {
         buildQueue.start();
         for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
             Project currentProject = (Project) iterator.next();
@@ -100,11 +100,28 @@ public class CruiseControlController {
         }
     }
 
-    public void stop() {
+    public void pause() {
         buildQueue.stop();
-        for (Iterator iterator = projects.iterator(); iterator.hasNext(); ) {
+        for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
             Project currentProject = (Project) iterator.next();
             currentProject.stop();
+        }
+    }
+
+    public void halt() {
+        pause();
+        System.exit(0);
+    }
+
+    public String getBuildQueueStatus() {
+        if (buildQueue.isAlive()) {
+            if (buildQueue.isWaiting()) {
+                return "waiting";
+            } else {
+                return "alive";
+            }
+        } else {
+            return "dead";
         }
     }
 
@@ -152,8 +169,8 @@ public class CruiseControlController {
             serializedProjectFile = new File(fileName);
             LOG.debug(fileName + ".ser not found, looking for serialized project file: " + fileName);
             if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
-               LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
-               return new Project();
+                LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
+                return new Project();
             }
         }
 
@@ -180,7 +197,7 @@ public class CruiseControlController {
                 projectNames.add(projectName);
             }
         }
-        return (String[]) projectNames.toArray(new String[] {});
+        return (String[]) projectNames.toArray(new String[]{});
     }
 
     public void addListener(Listener listener) {
