@@ -38,13 +38,15 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.testutil.Util;
 
 import java.io.StringReader;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import org.jdom.input.SAXBuilder;
 import org.jdom.Element;
@@ -179,5 +181,15 @@ public class EmailPublisherTest extends TestCase {
         assertEquals("always1@host.com,always2@host.com", _emailPublisher.createUserList(_successLogHelper));
         assertEquals("always1@host.com,always2@host.com,failure1@host.com,failure2@host.com", _emailPublisher.createUserList(_failureLogHelper));
 
+    }
+    
+    public void testGetFromAddress() throws AddressException {
+		String returnAddress = "me@you.com";
+		String returnName = "Me you Me";
+		_emailPublisher.setReturnAddress(returnAddress);
+		_emailPublisher.setReturnName(returnName);
+		InternetAddress fromAddress = _emailPublisher.getFromAddress();
+		assertEquals(returnAddress, fromAddress.getAddress());
+		assertEquals(returnName, fromAddress.getPersonal());
     }
 }
