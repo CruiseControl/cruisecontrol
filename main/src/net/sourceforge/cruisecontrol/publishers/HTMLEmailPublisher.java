@@ -327,7 +327,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         String buildResultsURL = getBuildResultsURL();
 
         if (buildResultsURL == null) {
-            return linkLine.toString();
+            return "";
         }
 
         int startName = logFileName.lastIndexOf(File.separator) + 1;
