@@ -51,13 +51,20 @@ public class PauseBuilder {
     private int _day = -1;
     private int _startTime = -1;
     private int _endTime = -1;
+    private static final int INVALID_NAME_OF_DAY = -2;
 
     public void validate() throws CruiseControlException {
-        if(_startTime < 0)
+        if(_startTime < 0) {
             throw new CruiseControlException("'starttime' is a required attribute on PauseBuilder");
-        if(_endTime < 0)
+        }
+        if(_endTime < 0) {
             throw new CruiseControlException("'endtime' is a required attribute on PauseBuilder");
+        }
+        if(_day == INVALID_NAME_OF_DAY) {
+                throw new CruiseControlException("setDay attribute on PauseBuilder requires english name for day of week (case insensitive)");
+        }
     }
+
 
     public void setDay(String dayString) {
         if(dayString.equalsIgnoreCase("sunday")) {
@@ -74,6 +81,8 @@ public class PauseBuilder {
             _day = Calendar.FRIDAY;
         } else if(dayString.equalsIgnoreCase("saturday")) {
             _day = Calendar.SATURDAY;
+        } else {
+            _day = INVALID_NAME_OF_DAY;
         }
     }
 
@@ -105,6 +114,6 @@ public class PauseBuilder {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
-        return cal.get(Calendar.DAY_OF_WEEK) == (_day + 1);
+        return cal.get(Calendar.DAY_OF_WEEK) == _day;
     }
 }
