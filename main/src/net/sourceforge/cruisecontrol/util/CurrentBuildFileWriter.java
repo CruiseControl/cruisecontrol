@@ -48,7 +48,11 @@ import net.sourceforge.cruisecontrol.DateFormatFactory;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @version $Id$
  */
-public class CurrentBuildFileWriter {
+public final class CurrentBuildFileWriter {
+
+    private CurrentBuildFileWriter() {
+        
+    }
 
     public static void writefile(String info, Date date, String fileName)
         throws CruiseControlException {

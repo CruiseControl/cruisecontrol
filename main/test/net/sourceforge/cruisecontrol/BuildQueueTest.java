@@ -54,7 +54,7 @@ public class BuildQueueTest extends TestCase {
     }
 
     public void testServiceQueue() {
-        MockProject queuedProjects[] = new MockProject[3];
+        MockProject[] queuedProjects = new MockProject[3];
         for (int i = 0; i < queuedProjects.length; i++) {
             queuedProjects[i] = new MockProject();
             queuedProjects[i].setName("Build " + i);

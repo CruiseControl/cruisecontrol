@@ -64,11 +64,11 @@ public class MockBodyContent extends BodyContent {
         printer.write(c);
     }
 
-    public void write(char buf[], int off, int len) {
+    public void write(char[] buf, int off, int len) {
         printer.write(buf, off, len);
     }
 
-    public void write(char buf[]) {
+    public void write(char[] buf) {
         printer.write(buf);
     }
 
@@ -104,7 +104,7 @@ public class MockBodyContent extends BodyContent {
         printer.print(d);
     }
 
-    public void print(char s[]) {
+    public void print(char[] s) {
         printer.print(s);
     }
 
@@ -144,7 +144,7 @@ public class MockBodyContent extends BodyContent {
         printer.println(x);
     }
 
-    public void println(char x[]) {
+    public void println(char[] x) {
         printer.println(x);
     }
 

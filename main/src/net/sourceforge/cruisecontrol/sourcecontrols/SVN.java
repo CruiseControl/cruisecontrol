@@ -258,7 +258,12 @@ public class SVN implements SourceControl {
         return SVNLogXMLParser.parseAndFilter(svnStream, lastBuild);
     }
 
-    static class SVNLogXMLParser {
+    static final class SVNLogXMLParser {
+        
+        private SVNLogXMLParser() {
+            
+        }
+        
         static List parseAndFilter(InputStream inputStream, Date lastBuild)
             throws JDOMException, ParseException, UnsupportedEncodingException {
 

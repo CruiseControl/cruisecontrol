@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
-    "-//Puppy Crawl//DTD Check Configuration 1.0//EN"
-    "http://www.puppycrawl.com/dtds/configuration_1_0.dtd">
+    "-//Puppy Crawl//DTD Check Configuration 1.1//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
 
 <module name="Checker">
-    <module name="Translation"/>
+    <module name="Translation"/>   
     <module name="TreeWalker">
         <property name="cacheFile" value="checkstyle.cache"/>
         <property name="tabWidth" value="4"/>
@@ -35,9 +35,12 @@
         <module name="UnusedImports"/>
 
         <!-- Size violations -->
+        <module name="FileLength"/>
         <module name="LineLength">
             <property name="max" value="120"/>
         </module>
+        <module name="MethodLength"/>
+        <module name="ParameterNumber"/>
 
         <!-- Whitespace -->
         <module name="NoWhitespaceAfter">
@@ -53,27 +56,37 @@
 
         <!-- Modifiers -->
         <module name="ModifierOrder"/>
-        <module name="VisibilityModifier">
-            <property name="publicMemberPattern" value="^[a-zA-Z0-9]*$"/>
-        </module>
 
         <!-- Blocks -->
         <module name="EmptyBlock">
             <property name="tokens"
-                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_IF, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT"/>
+                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT"/>
         </module>
         <module name="LeftCurly"/>
         <module name="NeedBraces"/>
         <module name="RightCurly"/>
+        <module name="AvoidNestedBlocks"/>
 
-        <!-- Miscellaneous -->
+        <!-- Checks for coding problems -->
+        <module name="DoubleCheckedLocking"/>
         <module name="HiddenField">
             <property name="tokens" value="VARIABLE_DEF"/>
         </module>
         <module name="InnerAssignment"/>
+        <module name="MissingSwitchDefault"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
-        <!-- <module name="Translation"/> -->
+        
+        <!-- Design checks -->
+        <module name="VisibilityModifier">
+            <property name="publicMemberPattern" value="^[a-zA-Z0-9]*$"/>
+        </module>
+        <module name="FinalClass"/>
+        <module name="InterfaceIsType"/>
+        <module name="HideUtilityClassConstructor"/>
+
+        <!-- Miscellaneous -->
         <module name="UpperEll"/>
+        <module name="ArrayTypeStyle"/>        
     </module>
 </module>

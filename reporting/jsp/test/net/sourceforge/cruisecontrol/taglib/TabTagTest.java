@@ -113,6 +113,6 @@ public class TabTagTest extends TestCase {
             assertEquals(expectedLabel, tab.getLabel());
             assertEquals(expectedSelected, tab.isSelected());
         }
-    };
+    }
 
 }

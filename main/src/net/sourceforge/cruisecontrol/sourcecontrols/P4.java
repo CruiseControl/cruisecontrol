@@ -154,49 +154,57 @@ public class P4 implements SourceControl {
      *                      that took place. If no changes, this method returns an empty list.
      */
     public List getModifications(Date lastBuild, Date now) {
-
         List mods = new ArrayList();
         try {
-
-            // collect changelists since last build
-            String[] changelistNumbers = null;
-            {
-                Commandline command = buildChangesCommand(lastBuild, now);
-                LOG.debug("Executing: " + command.toString());
-                Process p = Runtime.getRuntime().exec(command.getCommandline());
-
-                logErrorStream(p.getErrorStream());
-                InputStream p4Stream = p.getInputStream();
-                changelistNumbers = parseChangelistNumbers(p4Stream);
-                getRidOfLeftoverData(p4Stream);
-                p.waitFor();
-
-            }
+            String[] changelistNumbers = collectChangelistSinceLastBuild(lastBuild, now);
             if (changelistNumbers.length == 0) {
                 return mods;
             }
-            // describe all changelists and build output.
-            {
-                Commandline command = buildDescribeCommand(changelistNumbers);
-                System.out.println(command.toString());
-                Process p = Runtime.getRuntime().exec(command.getCommandline());
-
-                logErrorStream(p.getErrorStream());
-                InputStream p4Stream = p.getInputStream();
-                mods = parseChangeDescriptions(p4Stream);
-                getRidOfLeftoverData(p4Stream);
-                p.waitFor();
-                p.getInputStream().close();
-                p.getOutputStream().close();
-                p.getErrorStream().close();
-            }
-
+            mods = describeAllChangelistsAndBuildOutput(changelistNumbers);
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Log command failed to execute succesfully", e);
         }
 
         return changeListsToElement(mods);
+    }
+
+    private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers)
+        throws IOException, InterruptedException {
+
+        Commandline command = buildDescribeCommand(changelistNumbers);
+        LOG.info(command.toString());
+        Process p = Runtime.getRuntime().exec(command.getCommandline());
+
+        logErrorStream(p.getErrorStream());
+        InputStream p4Stream = p.getInputStream();
+        List mods = parseChangeDescriptions(p4Stream);
+        getRidOfLeftoverData(p4Stream);
+
+        p.waitFor();
+        p.getInputStream().close();
+        p.getOutputStream().close();
+        p.getErrorStream().close();
+
+        return mods;
+    }
+
+    private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now)
+        throws IOException, InterruptedException {
+
+        Commandline command = buildChangesCommand(lastBuild, now);
+        LOG.debug("Executing: " + command.toString());
+        Process p = Runtime.getRuntime().exec(command.getCommandline());
+
+        logErrorStream(p.getErrorStream());
+        InputStream p4Stream = p.getInputStream();
+
+        String[] changelistNumbers = parseChangelistNumbers(p4Stream);
+
+        getRidOfLeftoverData(p4Stream);
+        p.waitFor();
+
+        return changelistNumbers;
     }
 
     private void getRidOfLeftoverData(InputStream stream) {
@@ -253,12 +261,12 @@ public class P4 implements SourceControl {
                 st.nextToken(); // skip 'Change' text
                 changelist.changelistNumber = st.nextToken();
                 st.nextToken(); // skip 'by' text
-                {
-                    // split user@client
-                    StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
-                    changelist.user = st2.nextToken();
-                    changelist.client = st2.nextToken();
-                }
+
+                // split user@client
+                StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
+                changelist.user = st2.nextToken();
+                changelist.client = st2.nextToken();
+
                 st.nextToken(); // skip 'on' text
                 changelist.dateOfSubmission = st.nextToken();
             }

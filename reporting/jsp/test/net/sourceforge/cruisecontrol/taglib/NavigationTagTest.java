@@ -45,6 +45,7 @@ import java.util.Date;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.Tag;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
@@ -57,10 +58,6 @@ public class NavigationTagTest extends TestCase {
     private MockPageContext pageContext;
     private File[] logFiles;
     private File logDir;
-
-    public NavigationTagTest(String name) {
-        super(name);
-    }
 
     public void setUp() throws IOException {
         tag = new NavigationTag();
@@ -126,7 +123,7 @@ public class NavigationTagTest extends TestCase {
         assertEquals("02/23/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
         assertEquals("02/22/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
-        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
+        assertEquals(Tag.SKIP_BODY, tag.doAfterBody());
     }
 
     public void testGetLinksWithSubRange() throws Exception {
@@ -138,22 +135,22 @@ public class NavigationTagTest extends TestCase {
         assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
         assertEquals("02/23/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
-        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
+        assertEquals(Tag.SKIP_BODY, tag.doAfterBody());
     }
 
     public void testGetLinksWithLargeStartRange() throws Exception {
         tag.setStartingBuildNumber(10);
-        assertEquals(BodyTag.SKIP_BODY, tag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, tag.doStartTag());
     }
 
     public void testGetLinksWithLowEndRange() throws Exception {
         tag.setFinalBuildNumber(-1);
-        assertEquals(BodyTag.SKIP_BODY, tag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, tag.doStartTag());
     }
 
     public void testGetLinksWithInvertedRange() throws Exception {
         tag.setFinalBuildNumber(0);
         tag.setStartingBuildNumber(10);
-        assertEquals(BodyTag.SKIP_BODY, tag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, tag.doStartTag());
     }
 }

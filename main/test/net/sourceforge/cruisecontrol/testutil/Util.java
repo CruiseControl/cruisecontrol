@@ -42,7 +42,12 @@ import org.jdom.Element;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-public class Util {
+public final class Util {
+    
+    private Util() {
+        
+    }
+    
     public static Element createElement(boolean success, boolean lastBuildSuccess) {
         return createElement(success, lastBuildSuccess, "2 minutes 20 seconds", 4, null);
     }

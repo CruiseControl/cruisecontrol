@@ -56,7 +56,7 @@ public class Main {
      * Print the version, configure the project with serialized build info
      * and/or arguments and start the project build process.
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         Main main = new Main();
         main.printVersion();
 
@@ -110,7 +110,7 @@ public class Main {
      * @return final value of configFileName; never null
      * @throws CruiseControlException if final configfile value is null
      */
-    static String parseConfigFileName(String args[], String configFileName)
+    static String parseConfigFileName(String[] args, String configFileName)
         throws CruiseControlException {
         configFileName = parseArgument(args, "configfile", configFileName);
         if (configFileName == null) {
@@ -139,7 +139,7 @@ public class Main {
      * @throws IllegalArgumentException if port argument is not specified
      *          or invalid
      */
-    static int parsePort(String args[])
+    static int parsePort(String[] args)
         throws IllegalArgumentException, CruiseControlException {
 
         String portString = parseArgument(args, "port", null);

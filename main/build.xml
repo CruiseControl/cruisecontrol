@@ -52,7 +52,7 @@
     <property name="tests" value="*Test"/>
 
     <property name="checkstyle.fail.on.violation" value="true"/>
-    <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
+    <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
 
     <property name="clover.home" value="${env.CLOVER_HOME}"/>
     <property name="clover.jar" value="${clover.home}/lib/clover.jar"/>
@@ -211,9 +211,9 @@
     <!-- **************************************************** -->
     <!-- Run duplication check on code -->
     <!-- **************************************************** -->
-    <target name="check-duplication" description="Check for duplicated code">
-        <fail message="SIMIAN_HOME must be set!" unless="env.SIMIAN_HOME"/>
+    <target name="check-duplication" if="env.SIMIAN_HOME" description="Check for duplicated code">
         <taskdef resource="simiantask.properties" classpath="${env.SIMIAN_HOME}/simian.jar"/>
+		<!-- Simian is failing even if no duplicated lines? -->
         <simian failOnDuplication="false">
             <fileset dir="${src}" includes="**/*.java"/>
         </simian>        
@@ -281,7 +281,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,checkstyle,compile,compile-starteam,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
+    <target name="all" depends="clean,init,compile,compile-starteam,checkstyle,check-duplication,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- Updates local code with cvs changes                    -->

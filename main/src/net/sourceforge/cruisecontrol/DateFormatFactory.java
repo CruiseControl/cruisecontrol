@@ -36,9 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-public class DateFormatFactory {
+public final class DateFormatFactory {
 
     private static String format = "MM/dd/yyyy HH:mm:ss";
+
+    private DateFormatFactory() {
+    }
 
     public static String getFormat() {
         return format;
