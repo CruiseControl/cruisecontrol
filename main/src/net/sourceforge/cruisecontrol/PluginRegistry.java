@@ -156,6 +156,9 @@ public final class PluginRegistry {
             "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
         registry.register("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
         registry.register(
+            "svnbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper");
+        registry.register(
             "vssbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
         registry.register(
@@ -171,6 +174,7 @@ public final class PluginRegistry {
         registry.register("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
         registry.register("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
         registry.register("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
+        registry.register("svn", "net.sourceforge.cruisecontrol.sourcecontrols.SVN");
         registry.register("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
         registry.register("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
         registry.register("compound", "net.sourceforge.cruisecontrol.sourcecontrols.Compound");

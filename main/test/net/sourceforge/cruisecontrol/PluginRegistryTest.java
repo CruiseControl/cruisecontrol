@@ -117,6 +117,9 @@ public class PluginRegistryTest extends TestCase {
                 "p4bootstrapper",
                 "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
         verifyPluginClass(
+                "svnbootstrapper",
+                "net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper");
+        verifyPluginClass(
                 "vssbootstrapper",
                 "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
         verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
@@ -126,6 +129,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
         verifyPluginClass("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
         verifyPluginClass("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
+        verifyPluginClass("svn", "net.sourceforge.cruisecontrol.sourcecontrols.SVN");
         // skipped because not everyone has starteam api jar
         // verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         verifyPluginClass("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
