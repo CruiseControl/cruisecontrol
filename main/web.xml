@@ -31,7 +31,7 @@
       <init-param>
         <!-- directory where log files are stored.  the servlet will look at these files to build the links on the left-side nav -->
         <param-name>logDir</param-name>
-        <param-value>d:/CruiseControl/logs</param-value>
+        <param-value>d:/projects/cruisecontroltest/logs</param-value>
       </init-param>
       <init-param>
         <!-- absolute path to cruisecontrol.xsl stylesheet for the servlet.  should be modified in the future to just check classpath, so we won't need this anymore -->
