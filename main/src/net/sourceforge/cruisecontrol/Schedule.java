@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
+import org.apache.log4j.Category;
 
 import java.util.*;
 
@@ -46,6 +47,9 @@ import java.util.*;
  *  @author alden almagro, ThoughtWorks, Inc. 2001-2
  */
 public class Schedule {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(Schedule.class.getName());
 
     private List _builders = new ArrayList();
     private List _pauseBuilders = new ArrayList();
@@ -70,8 +74,10 @@ public class Schedule {
             PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
             if (builder.getStartTime() <= getTimeFromDate(now) &&
                     getTimeFromDate(now) <= builder.getEndTime() &&
-                    builder.isValidDay(now))
+                    builder.isValidDay(now)) {
+                    log.info("CruiseControl is paused until: " + builder.getEndTime()+1);
                 return true;
+            }
         }
         return false;
     }
