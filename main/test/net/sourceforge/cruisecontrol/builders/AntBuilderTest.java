@@ -57,6 +57,23 @@ import org.jdom.Element;
 
 public class AntBuilderTest extends TestCase {
     private final List filesToClear = new ArrayList();
+    private AntBuilder builder;
+    private String classpath;
+    private Hashtable properties;
+
+    protected void setUp() throws Exception {
+        builder = new AntBuilder();
+        builder.setTarget("target");
+        builder.setBuildFile("buildfile");
+        
+        properties = new Hashtable();
+        properties.put("label", "200.1.23");
+        
+        classpath = System.getProperty("java.class.path");
+        
+        BasicConfigurator.configure(
+            new ConsoleAppender(new PatternLayout("%m%n")));
+    }
 
     public void tearDown() {
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
@@ -65,43 +82,80 @@ public class AntBuilderTest extends TestCase {
                 file.delete();
             }
         }
+        
+        builder = null;
+        classpath = null;
+        properties = null;
     }
 
     public void testValidate() {
-        AntBuilder ab = new AntBuilder();
+        builder = new AntBuilder();
 
         try {
-            ab.validate();
+            builder.validate();
         } catch (CruiseControlException e) {
             fail("antbuilder has no required attributes");
         }
 
-        ab.setTime("0100");
-        ab.setBuildFile("buildfile");
-        ab.setTarget("target");
+        builder.setTime("0100");
+        builder.setBuildFile("buildfile");
+        builder.setTarget("target");
 
         try {
-            ab.validate();
+            builder.validate();
         } catch (CruiseControlException e) {
             fail("validate should not throw exceptions when options are set.");
         }
         
-        ab.setMultiple(2);
+        builder.setMultiple(2);
 
         try {
-            ab.validate();
+            builder.validate();
             fail("validate should throw exceptions when multiple and time are both set.");
         } catch (CruiseControlException e) {
         }
     }
 
     public void testGetCommandLineArgs() {
-        AntBuilder builder = new AntBuilder();
-        builder.setTarget("target");
-        builder.setBuildFile("buildfile");
-        Hashtable properties = new Hashtable();
-        properties.put("label", "200.1.23");
-        String classpath = System.getProperty("java.class.path");
+        String[] resultInfo =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        assertTrue(
+            Arrays.equals(
+                resultInfo,
+                builder.getCommandLineArgs(properties, false, false, false)));
+
+        String[] resultLogger =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-logger",
+                "org.apache.tools.ant.XmlLogger",
+                "-logfile",
+                "log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        assertTrue(
+            Arrays.equals(
+                resultLogger,
+                builder.getCommandLineArgs(properties, true, false, false)));
+    }
+
+    public void testGetCommandLineArgs_Debug() {
         String[] resultDebug =
             {
                 "java",
@@ -117,33 +171,14 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        String[] resultInfo =
-            {
-                "java",
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        String[] resultLogger =
-            {
-                "java",
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
+        builder.setUseDebug(true);
+        assertTrue(
+            Arrays.equals(
+                resultDebug,
+                builder.getCommandLineArgs(properties, false, false, false)));
+    }
+
+    public void testGetCommandLineArgs_DebugMaxMemory() {
         String[] resultDebugWithMaxMemory =
             {
                 "java",
@@ -160,6 +195,16 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
+        builder.setUseDebug(true);
+        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
+        arg.setArg("-Xmx256m");
+        assertTrue(
+            Arrays.equals(
+                resultDebugWithMaxMemory,
+                builder.getCommandLineArgs(properties, false, false, false)));
+    }
+
+    public void testGetCommandLineArgs_DebugMaxMemoryAndProperty() {
         String[] resultDebugWithMaxMemoryAndProperty =
             {
                 "java",
@@ -177,6 +222,19 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
+        builder.setUseDebug(true);
+        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
+        arg.setArg("-Xmx256m");
+        AntBuilder.Property prop = builder.createProperty();
+        prop.setName("foo");
+        prop.setValue("bar");
+        assertTrue(
+            Arrays.equals(
+                resultDebugWithMaxMemoryAndProperty,
+                builder.getCommandLineArgs(properties, false, false, false)));
+    }
+
+    public void testGetCommandLineArgs_BatchFile() {
         String[] resultBatchFile =
             {
                 "cmd.exe",
@@ -189,6 +247,14 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
+        builder.setAntScript("ant.bat");
+        assertTrue(
+            Arrays.equals(
+                resultBatchFile,
+                builder.getCommandLineArgs(properties, false, true, true)));
+    }
+
+    public void testGetCommandLineArgs_ShellScript() {
         String[] resultShellScript =
             {
                 "ant.sh",
@@ -199,51 +265,32 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        BasicConfigurator.configure(
-            new ConsoleAppender(new PatternLayout("%m%n")));
-
-        assertTrue(
-            Arrays.equals(
-                resultInfo,
-                builder.getCommandLineArgs(properties, false, false, false)));
-        assertTrue(
-            Arrays.equals(
-                resultLogger,
-                builder.getCommandLineArgs(properties, true, false, false)));
-
-        builder.setAntScript("ant.bat");
-        assertTrue(
-            Arrays.equals(
-                resultBatchFile,
-                builder.getCommandLineArgs(properties, false, true, true)));
         builder.setAntScript("ant.sh");
         assertTrue(
             Arrays.equals(
                 resultShellScript,
                 builder.getCommandLineArgs(properties, false, true, false)));
-        builder.setAntScript(null);
-
-        builder.setUseDebug(true);
+    }
+    
+    public void testGetCommandLineArgs_AlternateLogger() {
+        String[] args =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "com.canoo.Logger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        builder.setLoggerClassName("com.canoo.Logger");
         assertTrue(
             Arrays.equals(
-                resultDebug,
+                args,
                 builder.getCommandLineArgs(properties, false, false, false)));
-
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
-        arg.setArg("-Xmx256m");
-        assertTrue(
-            Arrays.equals(
-                resultDebugWithMaxMemory,
-                builder.getCommandLineArgs(properties, false, false, false)));
-
-        AntBuilder.Property prop = builder.createProperty();
-        prop.setName("foo");
-        prop.setValue("bar");
-        assertTrue(
-            Arrays.equals(
-                resultDebugWithMaxMemoryAndProperty,
-                builder.getCommandLineArgs(properties, false, false, false)));
-
     }
 
     public void testGetAntLogAsElement() throws Exception {
@@ -277,7 +324,6 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        AntBuilder builder = new AntBuilder();
         builder.setBuildFile("build.xml");
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
@@ -293,7 +339,7 @@ public class AntBuilderTest extends TestCase {
     }
     
     public void testIsWindows() {
-        AntBuilder builder = new AntBuilder() {
+        builder = new AntBuilder() {
             protected String getOsName() {
                 return "Windows 2000";
             }
@@ -314,4 +360,5 @@ public class AntBuilderTest extends TestCase {
         }
         return initFoundCount;
     }
+
 }

@@ -64,6 +64,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class AntBuilder extends Builder {
 
+    private static final String DEFAULT_LOGGER = "org.apache.tools.ant.XmlLogger";
     private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
     private String antWorkingDir = null;
@@ -75,6 +76,7 @@ public class AntBuilder extends Builder {
     private List args = new ArrayList();
     private List properties = new ArrayList();
     private boolean useDebug = false;
+    private String loggerClassName = DEFAULT_LOGGER;
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -281,12 +283,12 @@ public class AntBuilder extends Builder {
 
         if (useLogger) {
             al.add("-logger");
-            al.add("org.apache.tools.ant.XmlLogger");
+            al.add(getLoggerClassName());
             al.add("-logfile");
             al.add(tempFileName);
         } else {
             al.add("-listener");
-            al.add("org.apache.tools.ant.XmlLogger");
+            al.add(getLoggerClassName());
             al.add("-DXmlLogger.file=" + tempFileName);
         }
 
@@ -394,6 +396,14 @@ public class AntBuilder extends Builder {
 
     public void setUseDebug(boolean debug) {
         useDebug = debug;
+    }
+
+    public String getLoggerClassName() {
+        return loggerClassName;
+    }
+
+    public void setLoggerClassName(String string) {
+        loggerClassName = string;
     }
 
 }

@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+AntBuilder
+----------------------
+* Added loggerClassName attribute to allow alternative ant listener/logger - Patch by Patrick Lisser
+
 build.xml
 ----------------------
 * Constrain checkstyle to only run against cruisecontrol code; ignore other packages.
