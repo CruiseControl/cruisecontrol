@@ -37,18 +37,24 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Builder;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 /**
  *  we often see builds that fail because the previous build is still holding on to some resource.
@@ -57,27 +63,26 @@ import java.util.Map;
  */
 public class AntBuilder extends Builder {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(AntBuilder.class);
+    private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
     private String _buildFile;
     private String _target;
     private String _tempFileName = "log.xml";
     private String _antScript;
     private boolean _useLogger;
-    List _args = new ArrayList();
+    private List _args = new ArrayList();
     private List _properties = new ArrayList();
-
-
-
 
     public void validate() throws CruiseControlException {
         super.validate();
 
-        if(_buildFile == null)
+        if (_buildFile == null) {
             throw new CruiseControlException("'buildfile' is a required attribute on AntBuilder");
-        if(_target == null)
+        }
+
+        if (_target == null) {
             throw new CruiseControlException("'target' is a required attribute on AntBuilder");
+        }
     }
 
     /**
@@ -88,12 +93,18 @@ public class AntBuilder extends Builder {
 
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties, _useLogger, _antScript != null, isWindows()));
+            p =
+                Runtime.getRuntime().exec(
+                    getCommandLineArgs(
+                        buildProperties,
+                        _useLogger,
+                        _antScript != null,
+                        isWindows()));
         } catch (IOException e) {
             throw new CruiseControlException(
-                    "Encountered an IO exception while attempting to execute Ant."
+                "Encountered an IO exception while attempting to execute Ant."
                     + " CruiseControl cannot continue.",
-                    e);
+                e);
         }
 
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
@@ -107,10 +118,11 @@ public class AntBuilder extends Builder {
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (InterruptedException e) {
-            log.info("Was interrupted while waiting for Ant to finish."
+            LOG.info(
+                "Was interrupted while waiting for Ant to finish."
                     + " CruiseControl will continue, assuming that it completed");
         } catch (IOException ie) {
-            log.info("Exception trying to close Process streams.", ie);
+            LOG.info("Exception trying to close Process streams.", ie);
         }
 
         outPumper.flush();
@@ -118,8 +130,8 @@ public class AntBuilder extends Builder {
 
         //read in log file as element, return it
         File logFile = new File(_tempFileName);
-        if(!logFile.exists()) {
-            log.error("Ant logfile cannot be found");
+        if (!logFile.exists()) {
+            LOG.error("Ant logfile cannot be found");
         }
         Element buildLogElement = getAntLogAsElement(logFile);
         logFile.delete();
@@ -154,9 +166,9 @@ public class AntBuilder extends Builder {
     }
 
     public Property createProperty() {
-    	Property property = new Property();
-    	_properties.add(property);
-    	return property;
+        Property property = new Property();
+        _properties.add(property);
+        return property;
     }
 
     protected boolean isWindows() {
@@ -168,11 +180,15 @@ public class AntBuilder extends Builder {
      *  @param buildProperties Map holding key/value pairs of arguments to the build process
      *  @return String[] holding command to be executed
      */
-    protected String[] getCommandLineArgs(Map buildProperties, boolean useLogger, boolean useScript, boolean isWindows) {
+    protected String[] getCommandLineArgs(
+        Map buildProperties,
+        boolean useLogger,
+        boolean useScript,
+        boolean isWindows) {
         List al = new ArrayList();
 
-        if(useScript) {
-            if(isWindows) {
+        if (useScript) {
+            if (isWindows) {
                 al.add("cmd.exe");
                 al.add("/C");
                 al.add(_antScript);
@@ -182,18 +198,19 @@ public class AntBuilder extends Builder {
         } else {
             al.add("java");
             Iterator argsIterator = _args.iterator();
-            while(argsIterator.hasNext()) {
+            while (argsIterator.hasNext()) {
                 String arg = ((JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
-                if ( arg != null && arg.length() > 0 )
+                if (arg != null && arg.length() > 0) {
                     al.add(arg);
+                }
             }
             al.add("-classpath");
             al.add(System.getProperty("java.class.path"));
             al.add("org.apache.tools.ant.Main");
         }
 
-        if(useLogger) {
+        if (useLogger) {
             al.add("-logger");
             al.add("org.apache.tools.ant.XmlLogger");
             al.add("-logfile");
@@ -216,7 +233,7 @@ public class AntBuilder extends Builder {
             al.add("-D" + property.getName() + "=" + property.getValue());
         }
 
-        if (log.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             al.add("-debug");
             al.add("-verbose");
         }
@@ -233,7 +250,7 @@ public class AntBuilder extends Builder {
             sb.append(arg);
             sb.append(" ");
         }
-        log.debug(sb.toString());
+        LOG.debug(sb.toString());
 
         return (String[]) al.toArray(new String[al.size()]);
     }
@@ -242,7 +259,8 @@ public class AntBuilder extends Builder {
      *  JDOM doesn't like the <?xml:stylesheet ?> tag.  we don't need it, so we'll skip it.
      *  TO DO: make sure that we are only skipping this string and not something else
      */
-    protected static Element getAntLogAsElement(File f) throws CruiseControlException {
+    protected static Element getAntLogAsElement(File f)
+        throws CruiseControlException {
         try {
             Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8");
             StringBuffer sb = new StringBuffer();
@@ -252,12 +270,17 @@ public class AntBuilder extends Builder {
             String beginning = sb.toString();
             int skip = beginning.lastIndexOf("<build");
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+            BufferedReader bufferedReader =
+                new BufferedReader(
+                    new InputStreamReader(new FileInputStream(f), "UTF-8"));
             bufferedReader.skip(skip);
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder =
+                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             return builder.build(bufferedReader).getRootElement();
         } catch (Exception ee) {
-            throw new CruiseControlException("Error reading : " + f.getAbsolutePath(), ee);
+            throw new CruiseControlException(
+                "Error reading : " + f.getAbsolutePath(),
+                ee);
         }
     }
 

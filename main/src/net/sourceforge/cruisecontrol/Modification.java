@@ -54,8 +54,7 @@ import java.util.Date;
  */
 public class Modification implements Comparable {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(Modification.class);
+    private static final Logger LOG = Logger.getLogger(Modification.class);
 
     public String type = "unknown";
     public String fileName;
@@ -82,7 +81,7 @@ public class Modification implements Comparable {
         try {
             cd = new CDATA(comment);
         } catch (org.jdom.IllegalDataException e) {
-            log.error(e);
+            LOG.error(e);
             cd = new CDATA("Unable to parse comment.  It contains illegal data.");
         }
         commentElement.addContent(cd);
@@ -94,7 +93,7 @@ public class Modification implements Comparable {
         modificationElement.addContent(commentElement);
 
         // not all sourcecontrols guarantee a non-null email address
-        if ( emailAddress != null ) {
+        if (emailAddress != null) {
             Element emailAddressElement = new Element("email");
             emailAddressElement.addContent(emailAddress);
             modificationElement.addContent(emailAddressElement);
@@ -121,13 +120,13 @@ public class Modification implements Comparable {
     }
 
     public void log(DateFormat formatter) {
-        log.debug("FileName: " + fileName);
-        log.debug("FolderName: " + folderName);
-        log.debug("Last Modified: " + formatter.format(modifiedTime));
-        log.debug("UserName: " + userName);
-        log.debug("EmailAddress: " + emailAddress);
-        log.debug("Comment: " + comment);
-        log.debug("");
+        LOG.debug("FileName: " + fileName);
+        LOG.debug("FolderName: " + folderName);
+        LOG.debug("Last Modified: " + formatter.format(modifiedTime));
+        LOG.debug("UserName: " + userName);
+        LOG.debug("EmailAddress: " + emailAddress);
+        LOG.debug("Comment: " + comment);
+        LOG.debug("");
     }
 
     public int compareTo(Object o) {
@@ -136,23 +135,28 @@ public class Modification implements Comparable {
     }
 
     public boolean equals(Object o) {
-        if(o == null)
+        if (o == null) {
             return false;
+        }
 
-        if(!(o instanceof Modification))
+        if (!(o instanceof Modification)) {
             return false;
+        }
 
         Modification mod = (Modification) o;
 
-        boolean emailsAreEqual = ((emailAddress == null && mod.emailAddress == null) || emailAddress.equals(mod.emailAddress));
+        boolean emailsAreEqual =
+            ((emailAddress == null && mod.emailAddress == null)
+                || emailAddress.equals(mod.emailAddress));
 
-        return (type.equals(mod.type) &&
-            fileName.equals(mod.fileName) &&
-            folderName.equals(mod.folderName) &&
-            modifiedTime.equals(mod.modifiedTime) &&
-            userName.equals(mod.userName) &&
-            emailsAreEqual &&
-            comment.equals(mod.comment));
+        return (
+            type.equals(mod.type)
+                && fileName.equals(mod.fileName)
+                && folderName.equals(mod.folderName)
+                && modifiedTime.equals(mod.modifiedTime)
+                && userName.equals(mod.userName)
+                && emailsAreEqual
+                && comment.equals(mod.comment));
     }
 
     //for brief testing only

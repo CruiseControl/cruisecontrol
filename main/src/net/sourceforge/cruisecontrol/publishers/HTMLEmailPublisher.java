@@ -296,12 +296,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected String createLinkLine(String logFileName) {
         String linkLine = "";
         
-        if (_servletUrl == null) return linkLine;
+        if (getBuildResultsURL() == null) {
+            return linkLine;
+        } 
 
         int startName = logFileName.lastIndexOf(File.separator) + 1;
         int endName = logFileName.lastIndexOf(".");
         String baseLogFileName = logFileName.substring(startName, endName);
-        String url = _servletUrl + "?log=" + baseLogFileName;
+        String url = getBuildResultsURL() + "?log=" + baseLogFileName;
 
         linkLine = "View results here -> <a href=\"" + url + "\">" + url + "</a>";
 

@@ -1,6 +1,6 @@
-/*******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,15 +33,18 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import net.sourceforge.cruisecontrol.Project;
-import com.sun.jdmk.comm.HtmlAdaptorServer;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
 
-import javax.management.*;
+import net.sourceforge.cruisecontrol.Project;
 
 import org.apache.log4j.Logger;
+
+import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 /**
  * JMX agent for a ProjectController
@@ -51,55 +54,54 @@ import org.apache.log4j.Logger;
  */
 public class ProjectControllerAgent {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ProjectControllerAgent.class);
+    private static final Logger LOG = Logger.getLogger(ProjectControllerAgent.class);
 
-    private HtmlAdaptorServer adaptor = new HtmlAdaptorServer();
-    private int port;
-    private Project project;
+    private HtmlAdaptorServer _adaptor = new HtmlAdaptorServer();
+    private int _port;
+    private Project _project;
 
     public ProjectControllerAgent(Project project, int port) {
-        this.port = port;
-        this.project = project;
+        _port = port;
+        _project = project;
 
         MBeanServer server = MBeanServerFactory.createMBeanServer();
 
         try {
             createAndRegisterController(server);
         } catch (Exception e) {
-            log.error("Problem registering ProjectController", e);
+            LOG.error("Problem registering ProjectController", e);
         }
 
         try {
             registerHTMLAdaptor(server);
         } catch (Exception e) {
-            log.error("Problem registering HTML adaptor", e);
+            LOG.error("Problem registering HTML adaptor", e);
         }
     }
 
     public void start() {
-        adaptor.start();
+        _adaptor.start();
     }
 
     public void stop() {
-        adaptor.stop();
+        _adaptor.stop();
     }
 
     private void createAndRegisterController(MBeanServer server)
             throws Exception {
 
-        ProjectController controller = new ProjectController(project);
+        ProjectController controller = new ProjectController(_project);
         ObjectName controllerName = new ObjectName(
-                "CruiseControl Manager:adminPort=" + port);
+                "CruiseControl Manager:adminPort=" + _port);
         server.registerMBean(controller, controllerName);
     }
 
     private void registerHTMLAdaptor(MBeanServer server) throws Exception {
-        adaptor.setPort(port);
+        _adaptor.setPort(_port);
 
         ObjectName adaptorName = new ObjectName("Adaptor:name=html,port="
-                + port);
-        server.registerMBean(adaptor, adaptorName);
+                + _port);
+        server.registerMBean(_adaptor, adaptorName);
     }
 
 }

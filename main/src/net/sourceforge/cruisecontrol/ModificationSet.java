@@ -36,11 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Set of modifications collected from included SourceControls
@@ -49,13 +53,12 @@ import java.util.*;
  */
 public class ModificationSet {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ModificationSet.class);
+    private static final Logger LOG = Logger.getLogger(ModificationSet.class);
 
-    protected List _modifications = new ArrayList();
-    protected List _sourceControls = new ArrayList();
-    protected int _quietPeriod;
-    protected Date timeOfCheck;
+    private List _modifications = new ArrayList();
+    private List _sourceControls = new ArrayList();
+    private int _quietPeriod;
+    private Date _timeOfCheck;
 
     /**
      * Set the amount of time in which there is no source control activity
@@ -80,9 +83,10 @@ public class ModificationSet {
             long temp = 0;
             if (modifications.get(i) instanceof Modification) {
                 temp = ((Modification) modifications.get(i)).modifiedTime.getTime();
-            } else if (modifications.get(i) instanceof org.jdom.Element) {
-                //set the temp date
-            }
+            } 
+//            else if (modifications.get(i) instanceof org.jdom.Element) {
+//                //set the temp date
+//            }
             lastBuildMillis = Math.max(lastBuildMillis, temp);
         }
 
@@ -115,17 +119,21 @@ public class ModificationSet {
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Element modificationsElement = null;
         do {
-            timeOfCheck = new Date();
+            _timeOfCheck = new Date();
             _modifications = new ArrayList();
             Iterator sourceControlIterator = _sourceControls.iterator();
             while (sourceControlIterator.hasNext()) {
                 SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
-                _modifications.addAll(sourceControl.getModifications(lastBuild, timeOfCheck));
+                _modifications.addAll(sourceControl.getModifications(lastBuild, _timeOfCheck));
             }
             modificationsElement = new Element("modifications");
             Iterator modificationIterator = _modifications.iterator();
             if (_modifications.size() > 0) {
-                log.info(_modifications.size() + ((_modifications.size() > 1) ? " modifications have been detected." : " modification has been detected."));
+                LOG.info(
+                    _modifications.size()
+                        + ((_modifications.size() > 1)
+                            ? " modifications have been detected."
+                            : " modification has been detected."));
             }
             while (modificationIterator.hasNext()) {
                 Object object = (Object) modificationIterator.next();
@@ -139,25 +147,37 @@ public class ModificationSet {
                 }
             }
 
-            if(isLastModificationInQuietPeriod(timeOfCheck, _modifications)) {
-                log.info("A modification has been detected in the quiet period.  ");
-                log.debug(formatter.format(new Date(timeOfCheck.getTime() - _quietPeriod)) + " <= Quiet Period <= " + formatter.format(timeOfCheck));
-                log.debug("Last modification: " + formatter.format(new Date(getLastModificationMillis(_modifications))));
-                log.info("Sleeping for " + getQuietPeriodDifference(timeOfCheck, _modifications)/1000 + " seconds before retrying.");
+            if (isLastModificationInQuietPeriod(_timeOfCheck, _modifications)) {
+                LOG.info("A modification has been detected in the quiet period.  ");
+                LOG.debug(
+                    formatter.format(
+                        new Date(_timeOfCheck.getTime() - _quietPeriod))
+                        + " <= Quiet Period <= "
+                        + formatter.format(_timeOfCheck));
+                LOG.debug(
+                    "Last modification: "
+                        + formatter.format(
+                            new Date(
+                                getLastModificationMillis(_modifications))));
+                LOG.info(
+                    "Sleeping for "
+                        + getQuietPeriodDifference(_timeOfCheck, _modifications)
+                            / 1000
+                        + " seconds before retrying.");
                 try {
-                    Thread.sleep(getQuietPeriodDifference(timeOfCheck, _modifications));
+                    Thread.sleep(getQuietPeriodDifference(_timeOfCheck, _modifications));
                 } catch (InterruptedException e) {
-                    log.error("", e);
+                    LOG.error("", e);
                 }
             }
-        } while (isLastModificationInQuietPeriod(timeOfCheck, _modifications));
+        } while (isLastModificationInQuietPeriod(_timeOfCheck, _modifications));
 
 
         return modificationsElement;
     }
 
     public Date getTimeOfCheck() {
-        return timeOfCheck;
+        return _timeOfCheck;
     }
 
     public boolean isModified() {

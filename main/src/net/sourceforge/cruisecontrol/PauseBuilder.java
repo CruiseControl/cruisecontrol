@@ -56,32 +56,34 @@ public class PauseBuilder {
     private static final int INVALID_NAME_OF_DAY = -2;
 
     public void validate() throws CruiseControlException {
-        if(_startTime < 0) {
+        if (_startTime < 0) {
             throw new CruiseControlException("'starttime' is a required attribute on PauseBuilder");
         }
-        if(_endTime < 0) {
+        if (_endTime < 0) {
             throw new CruiseControlException("'endtime' is a required attribute on PauseBuilder");
         }
-        if(_day == INVALID_NAME_OF_DAY) {
-                throw new CruiseControlException("setDay attribute on PauseBuilder requires english name for day of week (case insensitive)");
+        if (_day == INVALID_NAME_OF_DAY) {
+            throw new CruiseControlException(
+                "setDay attribute on PauseBuilder requires english name for "
+                    + " day of week (case insensitive)");
         }
     }
 
 
     public void setDay(String dayString) {
-        if(dayString.equalsIgnoreCase("sunday")) {
+        if (dayString.equalsIgnoreCase("sunday")) {
             _day = Calendar.SUNDAY;
-        } else if(dayString.equalsIgnoreCase("monday")) {
+        } else if (dayString.equalsIgnoreCase("monday")) {
             _day = Calendar.MONDAY;
-        } else if(dayString.equalsIgnoreCase("tuesday")) {
+        } else if (dayString.equalsIgnoreCase("tuesday")) {
             _day = Calendar.TUESDAY;
-        } else if(dayString.equalsIgnoreCase("wednesday")) {
+        } else if (dayString.equalsIgnoreCase("wednesday")) {
             _day = Calendar.WEDNESDAY;
-        } else if(dayString.equalsIgnoreCase("thursday")) {
+        } else if (dayString.equalsIgnoreCase("thursday")) {
             _day = Calendar.THURSDAY;
-        } else if(dayString.equalsIgnoreCase("friday")) {
+        } else if (dayString.equalsIgnoreCase("friday")) {
             _day = Calendar.FRIDAY;
-        } else if(dayString.equalsIgnoreCase("saturday")) {
+        } else if (dayString.equalsIgnoreCase("saturday")) {
             _day = Calendar.SATURDAY;
         } else {
             _day = INVALID_NAME_OF_DAY;
@@ -112,17 +114,24 @@ public class PauseBuilder {
      *  @return true if the build is paused at date
      */
     public boolean isPaused(Date date) {
-		Calendar now = Calendar.getInstance();
-		now.setTime(date);
-		int currentDay = now.get(Calendar.DAY_OF_WEEK);
+        Calendar now = Calendar.getInstance();
+        now.setTime(date);
+        int currentDay = now.get(Calendar.DAY_OF_WEEK);
         int currentTime = Util.getTimeFromDate(date);
 
         boolean isValidDay = ((_day < 0) || (_day == currentDay));
 
-        if(_startTime < _endTime)
-            return (_startTime <= currentTime && currentTime <= _endTime && isValidDay);
+        if (_startTime < _endTime) {
+            return (
+                _startTime <= currentTime
+                    && currentTime <= _endTime
+                    && isValidDay);
+        }
 
-        return ((_startTime <= currentTime && (_day < 0 || _day == currentDay)) ||
-                   (currentTime <= _endTime && (_day < 0 || _day == (currentDay - 1))));
+        return (
+            (_startTime <= currentTime && (_day < 0 || _day == currentDay))
+                || (currentTime <= _endTime
+                    && (_day < 0 || _day == (currentDay - 1))));
     }
+    
 }

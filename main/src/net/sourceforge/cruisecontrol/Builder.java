@@ -43,9 +43,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-/**
- *
- */
 public abstract class Builder implements Comparable {
 
     private int _day = -1;
@@ -59,8 +56,9 @@ public abstract class Builder implements Comparable {
     public abstract Element build(Map properties) throws CruiseControlException;
 
     public void validate() throws CruiseControlException {
-        if((_time < 0) && (_multiple < 0))
+        if ((_time < 0) && (_multiple < 0)) {
             throw new CruiseControlException("One of 'time' or 'multiple' are required on builders.");
+        }
     }
 
     public void setDay(String dayString) {
@@ -89,7 +87,7 @@ public abstract class Builder implements Comparable {
         _multiple = multiple;
     }
 
-    public void setBuildAfterFailed(boolean buildAfterFailed){
+    public void setBuildAfterFailed(boolean buildAfterFailed) {
         _buildAfterFailed = buildAfterFailed;
     }
 
@@ -105,7 +103,7 @@ public abstract class Builder implements Comparable {
         return _day;
     }
 
-    public boolean getBuildAfterFailed(){
+    public boolean getBuildAfterFailed() {
         return _buildAfterFailed;
     }
 
@@ -121,8 +119,9 @@ public abstract class Builder implements Comparable {
      *  is this the correct day to be running this builder?
      */
     public boolean isValidDay(Date now) {
-        if (_day < 0)
+        if (_day < 0) {
             return true;
+        }
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);

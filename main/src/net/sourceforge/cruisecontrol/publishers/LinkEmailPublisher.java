@@ -71,7 +71,7 @@ public class LinkEmailPublisher extends EmailPublisher {
 
         StringBuffer message = new StringBuffer();
         message.append("View results here -> ");
-        message.append(_servletUrl);
+        message.append(getBuildResultsURL());
         message.append("?log=");
         message.append(baseLogFileName);
         return message.toString();
@@ -85,7 +85,7 @@ public class LinkEmailPublisher extends EmailPublisher {
 	 *  @throws  CruiseControlException if there was a configuration error.
   	 */
 	public void validate() throws CruiseControlException {
-		 if(_servletUrl == null) {
+		 if(getBuildResultsURL() == null) {
 			 throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
 		 }
 		 super.validate();

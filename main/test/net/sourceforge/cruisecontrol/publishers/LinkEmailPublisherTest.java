@@ -67,7 +67,7 @@ public class LinkEmailPublisherTest extends TestCase {
 
     public void testCreateMessage() {
         EmailPublisher publisher = new LinkEmailPublisher();
-        publisher.setBuildResultsUrl("http://mybuildserver.com:8080/buildservlet/BuildServlet");
+        publisher.setBuildResultsURL("http://mybuildserver.com:8080/buildservlet/BuildServlet");
         assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000", publisher.createMessage(_successLogHelper));
     }
     
@@ -80,7 +80,7 @@ public class LinkEmailPublisherTest extends TestCase {
 			fail("should throw exception if BuildResultURL not set");
 		} catch (CruiseControlException e) {
 		}
-		publisher.setBuildResultsUrl("buildResultsURL");
+		publisher.setBuildResultsURL("buildResultsURL");
 		try {
 			publisher.validate();
 		} catch (CruiseControlException e) {

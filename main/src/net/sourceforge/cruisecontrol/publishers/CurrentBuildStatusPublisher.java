@@ -62,7 +62,7 @@ public class CurrentBuildStatusPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if(_fileName == null) {
+        if (_fileName == null) {
             throw new CruiseControlException ("'file' not specified in configuration file.");
         }
     }

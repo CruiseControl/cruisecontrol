@@ -87,7 +87,7 @@ public class HTMLEmailPublisherTest extends TestCase {
 
     public void testCreateLinkLine() {
         String serverURL = "http://myserver/context/servlet";
-        publisher.setBuildResultsUrl(serverURL);
+        publisher.setBuildResultsURL(serverURL);
         String path = "logs" + File.separator;
         String date = "20020607115519";
         String label = "mylabel.100";
@@ -99,10 +99,10 @@ public class HTMLEmailPublisherTest extends TestCase {
         String successLogFileName = path + successFile;
         assertEquals(successLink, publisher.createLinkLine(successLogFileName));
 
-		publisher.setBuildResultsUrl(null);
+		publisher.setBuildResultsURL(null);
 		assertEquals("", publisher.createLinkLine(successLogFileName));
     	
-		publisher.setBuildResultsUrl(serverURL);
+		publisher.setBuildResultsURL(serverURL);
         String failFilePrefix = "log" + date;
         String failURL = serverURL + "?log=" + failFilePrefix;
         String failLink = "View results here -> <a href=\"" + failURL + "\">" + failURL + "</a>";
@@ -147,7 +147,7 @@ public class HTMLEmailPublisherTest extends TestCase {
     }
 
     private void setEmailPublisherVariables(HTMLEmailPublisher publisher) {
-        publisher.setBuildResultsUrl("url");
+        publisher.setBuildResultsURL("url");
         publisher.setMailHost("host");
         publisher.setReturnAddress("address");
     }
