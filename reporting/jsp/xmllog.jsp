@@ -36,4 +36,4 @@
  ********************************************************************************--%>
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-        <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/rawlog.xsl"/></pre>
+        <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
