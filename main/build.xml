@@ -80,7 +80,7 @@
         <mkdir dir="${dist}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
         <tstamp/>
-        <property name="label" value="2.0 Compiled on ${TODAY} ${TSTAMP}"/>
+        <property name="label" value="2.1 Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
     <!-- **************************************************** -->
