@@ -35,34 +35,29 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.*;
-
-import java.util.*;
-import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
-
-import org.apache.oro.text.perl.*;
-
-import org.apache.tools.ant.taskdefs.optional.perforce.*;
-import org.apache.tools.ant.taskdefs.Execute;
-import org.apache.tools.ant.BuildException;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Category;
 
+import java.io.*;
+import java.util.*;
+
 /**
- *  This class implements the SourceControlElement methods for a P4 depot. The
- *  call to CVS is assumed to work without any setup. This implies that if the
- *  authentication type is pserver the call to cvs login should be done prior to
- *  calling this class. <p>
+ * This class implements the SourceControlElement methods for a P4 depot. The
+ * call to CVS is assumed to work without any setup. This implies that if the
+ * authentication type is pserver the call to cvs login should be done prior to
+ * calling this class. 
+ * <p>
+ * P4Element depends on the optional P4 package delivered with Ant v1.3. But
+ * since it probably doesn't make much sense using the P4Element without other
+ * P4 support it shouldn't be a problem.
+ * <p>
+ * P4Element sets the property ${p4element.change} with the latest changelist
+ * number or the changelist with the latest date. This should then be passed 
+ * into p4sync or other p4 commands.
  * 
- *  P4Element depends on the optional P4 package delivered with Ant v1.3. But
- *  since it probably doesn't make much sense using the P4Element without other
- *  P4 support it shouldn't be a problem. <p>
- * 
- *  P4Element sets the property ${p4element.change} with the current changelist
- *  number. This should then be passed into p4sync or other p4 commands.
- * 
- * @author niclas.olofsson@ismobile.com
+ * @author <a href="mailto:niclas.olofsson@ismobile.com">Niclas Olofsson - isMobile.com</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
  */
@@ -71,41 +66,42 @@ public class P4 implements SourceControl {
     /** enable logging for this class */
     private static Category log = Category.getInstance(P4.class.getName());
 
-	//P4 runtime directives
+    //P4 runtime directives
 
-	private String _P4Port;
-	private String _P4Client;
-	private String _P4User;
-	private String _P4View;
-	private int _P4lastChange;
-	private final static java.text.SimpleDateFormat p4Date = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private String _P4Port;
+    private String _P4Client;
+    private String _P4User;
+    private String _P4View;
+    private int _P4lastChange;
+    private final static java.text.SimpleDateFormat P4DATE = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private final static java.text.SimpleDateFormat P4REVISIONDATE = new java.text.SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
-    private Hashtable _properties;
+    private Hashtable _properties = new Hashtable();
     private String _property;
     private String _propertyOnDelete;
 
-	/**
-	 *  Constructor for P4Element. Doesn't do much.
-	 */
-	public P4() {
-	}
+    /**
+     *  Constructor for P4Element. Doesn't do much.
+     */
+    public P4() {
+    }
 
-	//Setters called by Ant
-	public void setPort(String P4Port) {
-		this._P4Port = P4Port;
-	}
+    //Setters called by PluginXMLHelper
+    public void setPort(String P4Port) {
+        this._P4Port = P4Port;
+    }
 
-	public void setClient(String P4Client) {
-		this._P4Client = P4Client;
-	}
+    public void setClient(String P4Client) {
+        this._P4Client = P4Client;
+    }
 
-	public void setUser(String P4User) {
-		this._P4User = P4User;
-	}
+    public void setUser(String P4User) {
+        this._P4User = P4User;
+    }
 
-	public void setView(String P4View) {
-		this._P4View = P4View;
-	}
+    public void setView(String P4View) {
+        this._P4View = P4View;
+    }
 
     public void setProperty(String property) {
         _property = property;
@@ -119,183 +115,257 @@ public class P4 implements SourceControl {
         return _properties;
     }
 
-	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
 
-		ArrayList mods = new ArrayList();
-		final Perl5Util util = new Perl5Util();
+        List mods = new ArrayList();
+        try {
 
-		// next line is a trick to get the variable usable within the adhoc handler.
-		final List changeNumbers = new ArrayList();
-		final StringBuffer sbModifiedTime = new StringBuffer();
-		//if this._P4lastChange != p4 changes -m 1 -s submitted <depotpath>
-		execP4Command("changes -m 1 -s submitted " + _P4View,
-			new P4HandlerAdapter() {
-				public void process(String line) {
-					if (util.match("/Change/", line)) {
-						//Parse out the change number
-						String changeNumber = util.substitute("s/Change\\s([0-9]*?)\\son\\s.*/$1/gx", line);
-						changeNumbers.add(changeNumber);
-						log.info("Latest change is " + changeNumber);
-                    } else if (util.match("/error/", line)) {
-						throw new BuildException("Perforce Error, check client settings and/or server");
-					}
-				}
-			});
+            // collect changelists since last build
+            String[] changelistNumbers = null;
+            {
+                Commandline command = buildChangesCommand(lastBuild, now);
+                Process p = Runtime.getRuntime().exec(command.getCommandline());
 
-		// and collect info for this change
+                logErrorStream(p.getErrorStream());
+                InputStream p4Stream = p.getInputStream();
+                changelistNumbers = parseChangelistNumbers(p4Stream);
+                getRidOfLeftoverData(p4Stream);
+                p.waitFor();
 
-		Iterator iter = changeNumbers.iterator();
-		while (iter.hasNext()) {
-			mods.addAll(getChangeInfo((String) iter.next(), lastBuild));
-		}
-		return mods;
-	}
-	
-	private List getChangeInfo(String changeNumber, Date lastBuild) {
-		List rtn = new ArrayList();
-		final Perl5Util util = new Perl5Util();            
-            
-		final StringBuffer sbDescription = new StringBuffer();
-		execP4Command("describe -s " + changeNumber.toString(),
-			new P4HandlerAdapter() {
-				public void process(String line) {
-					sbDescription.append(line);
-					sbDescription.append("\n");
-				}
-			});
-		// now, lets parse the data out
-		String userName = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*/$2/s", sbDescription.toString());
-		String sModifiedTime = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*/$3/s", sbDescription.toString());
-		String comment = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*/$4/s", sbDescription.toString());
-		comment = util.substitute("s/\\t//g", comment);
+            }
+            if (changelistNumbers.length == 0) {
+                return mods;
+            }
+            // describe all changelists and build output.
+            {
+                Commandline command = buildDescribeCommand(changelistNumbers);
+                System.out.println(command.toString());
+                Process p = Runtime.getRuntime().exec(command.getCommandline());
 
-		Date modifiedTime = null;
-		try {
-			modifiedTime = p4Date.parse(sModifiedTime);
-		} catch (Exception ex) {
-			log.error("Wrong date format exception caught. Using lastModified date from project instead.", ex);
-		}
+                logErrorStream(p.getErrorStream());
+                InputStream p4Stream = p.getInputStream();
+                mods = parseChangeDescriptions(p4Stream);
+                getRidOfLeftoverData(p4Stream);
+                p.waitFor();
+            }
 
-		if (modifiedTime.compareTo(lastBuild) > 0) {
-			// if it differs, we build,
-			_P4lastChange = Integer.parseInt(changeNumber);
-            _properties.put("p4element.change", changeNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Log command failed to execute succesfully", e);
+        }
+        return mods;
+    }
 
-			// the rest should be a list of the files affected and the resp action
-			String affectedFiles = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*?\\n\\n(.*)\\n\\n/$5/s", sbDescription.toString());
-			ArrayList files = new ArrayList();
-			util.split(files, "/\\n/s", affectedFiles);
-			Iterator iter = files.iterator();
-			while (iter.hasNext()) {
-				String file = (String) iter.next();
-				String folderName = util.substitute("s/\\.\\.\\.\\s(\\/\\/.*\\/)(.*?)\\s(.*)/$1/s", file);
-				String fileName = util.substitute("s/\\.\\.\\.\\s(\\/\\/.*\\/)(.*?)\\s(.*)/$2/s", file);
-				String action = util.substitute("s/\\.\\.\\.\\s(\\/\\/.*\\/)(.*?)\\s(.*)/$3/s", file);
-				Modification mod = new Modification();
-				mod.comment = comment;
-				mod.fileName = fileName;
-				mod.folderName = folderName;
-				mod.modifiedTime = modifiedTime;
-				mod.type = action;
-				mod.userName = userName;
+    private void getRidOfLeftoverData(InputStream stream) {
+        StreamPumper outPumper = new StreamPumper(stream, null);
+        new Thread(outPumper).start();
+    }
 
-				rtn.add(mod);
-			}
+    protected String[] parseChangelistNumbers(InputStream is) throws IOException {
+        ArrayList changelists = new ArrayList();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line.trim();
+            if (line.startsWith("error:")) {
+                throw new IOException("Error reading P4 stream: P4 says: " + line);
+            } else if (line.startsWith("exit: 1")) {
+                throw new IOException("Error reading P4 stream: P4 says: " + line);
+            } else if (line.startsWith("exit: 0")) {
+                break;
+            } else if (line.startsWith("info:")) {
+                StringTokenizer st = new StringTokenizer(line);
+                st.nextToken(); // skip 'info:' text
+                st.nextToken(); // skip 'Change' text
+                changelists.add(st.nextToken());
+            }
+        }
+        if (line == null) {
+            throw new IOException("Error reading P4 stream: Unexpected EOF reached");
+        }
+        String[] changelistNumbers = new String[0];
+        return (String[]) changelists.toArray(changelistNumbers);
+    }
+
+    protected List parseChangeDescriptions(InputStream is) throws IOException {
+        ArrayList changelists = new ArrayList();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        
+        // Find first Changelist item if there is one.
+        String line;
+        while ((line = readToNotPast(reader, "text: Change", "exit:")) != null) {
+            Changelist changelist = new Changelist();
+            if (line.startsWith("error:")) {
+                throw new IOException("Error reading P4 stream: P4 says: " + line);
+            } else if (line.startsWith("exit: 1")) {
+                throw new IOException("Error reading P4 stream: P4 says: " + line);
+            } else if (line.startsWith("exit: 0")) {
+                return changelists;
+            } else if (line.startsWith("text: Change")) {
+                StringTokenizer st = new StringTokenizer(line);
+
+                st.nextToken(); // skip 'text:' text
+                st.nextToken(); // skip 'Change' text
+                changelist._changelistNumber = st.nextToken();
+                st.nextToken(); // skip 'by' text
+                {
+                    // split user@client
+                    StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
+                    changelist._user = st2.nextToken();
+                    changelist._client = st2.nextToken();
+                }
+                st.nextToken(); // skip 'on' text
+                changelist._dateOfSubmission = st.nextToken();
+            }
+
+            String description = "";
+            while ((line = readToNotPast(reader, "text:\t", "text:")) != null && line.startsWith("text:\t")) {
+                description += line.substring(6);
+            }
+
+            // Ok, read affected files if there are any.
+            line = readToNotPast(reader, "text: Affected files ...", "exit:");
+            if (line != null) {
+                reader.readLine(); // read past next 'text:'
+                while ((line = readToNotPast(reader, "info1:", "text:")) != null && line.startsWith("info1:")) {
+                    AffectedFile affectedFile = new AffectedFile();
+                    affectedFile.filename = line.substring(7, line.lastIndexOf(" ") - 2);
+                    affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
+                    affectedFile.revision = line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
+                    changelist._affectedFiles.add(affectedFile);
+                }
+            }
+            changelists.add(changelist);
         }
 
-        return rtn;
-	}
+        return changelists;
+    }
 
-	/**
-	 *@param  command
-	 *@throws  BuildException
-	 */
-	protected void execP4Command(String command) throws BuildException {
-		execP4Command(command, null);
-	}
+    private boolean preJava13() {
+        String javaVersion = System.getProperty("java.version");
+        return javaVersion.startsWith("1.1") || javaVersion.startsWith("1.2");
+    }
 
-	/**
-	 *  Execute P4 commands. Giv a P4Handler to process the events.
-	 *
-	 *@param  command The command to run
-	 *@param  handler A P4Handler to process any input and output
-	 *@throws  BuildException Description of Exception
-	 */
-	protected void execP4Command(String command, P4Handler handler) throws BuildException {
+    private void logErrorStream(InputStream is) {
+        StreamPumper errorPumper = new StreamPumper(is, new PrintWriter(System.err, true));
+        new Thread(errorPumper).start();
+    }
 
-		final Perl5Util util = new Perl5Util();
+    /**
+     *@param lastBuildTime
+     */
+    public Commandline buildChangesCommand(Date lastBuildTime, Date now) {
+        Commandline commandLine = new Commandline();
+        commandLine.setExecutable("p4");
+        commandLine.createArgument().setValue("-s");
 
-		try {
+        if (_P4Client != null) {
+            commandLine.createArgument().setValue("-c");
+            commandLine.createArgument().setValue(_P4Client);
+        }
 
-			String cCmd = "";
-			if (_P4Client != null) {
-				cCmd = "-c" + _P4Client;
-			}
-			String pCmd = "";
-			if (_P4Port != null) {
-				pCmd = "-p" + _P4Port;
-			}
-			String uCmd = "";
-			if (_P4User != null) {
-				uCmd = "-u" + _P4User;
-			}
+        if (_P4Port != null) {
+            commandLine.createArgument().setValue("-p");
+            commandLine.createArgument().setValue(_P4Port);
+        }
 
-			Commandline commandline = new Commandline();
-			commandline.setExecutable("p4");
+        if (_P4User != null) {
+            commandLine.createArgument().setValue("-u");
+            commandLine.createArgument().setValue(_P4User);
+        }
 
-			commandline.createArgument().setValue(pCmd);
-			commandline.createArgument().setValue(uCmd);
-			commandline.createArgument().setValue(cCmd);
-			commandline.createArgument().setLine(command);
+//        execP4Command("changes -m 1 -s submitted " + _P4View,
+        
+        commandLine.createArgument().setValue("changes");
+        commandLine.createArgument().setValue("-s");
+        commandLine.createArgument().setValue("submitted");
+        commandLine.createArgument().setValue(_P4View + "@" + P4REVISIONDATE.format(lastBuildTime) + ",@" + P4REVISIONDATE.format(now));
 
-			log.debug("Executing: " + commandline);
+        return commandLine;
+    }
 
-			// Just a simple handler to record the events in question.
-			//handler = null;
-			if (handler == null) {
-				handler =
-					new P4HandlerAdapter() {
-						public void process(String line) {
-							if (util.match("/^exit/", line)) {
-								return;
-							}
-							if (util.match("/error:/", line) && !util.match("/up-to-date/", line)) {
-								throw new BuildException(line);
-							}
-							log.debug(util.substitute("s/^.*: //", line));
-						}
-					};
+    public Commandline buildDescribeCommand(String[] changelistNumbers) {
 
-			}
+        Commandline commandLine = new Commandline();
+        commandLine.setExecutable("p4");
+        commandLine.createArgument().setValue("-s");
 
-			Execute exe = new Execute(handler);
+        if (_P4Client != null) {
+            commandLine.createArgument().setValue("-c");
+            commandLine.createArgument().setValue(_P4Client);
+        }
 
-			/*
-            if (getAntTask() != null) {
-				exe.setAntRun(getAntTask().getProject());
-			}
-            */
-			exe.setCommandline(commandline.getCommandline());
+        if (_P4Port != null) {
+            commandLine.createArgument().setValue("-p");
+            commandLine.createArgument().setValue(_P4Port);
+        }
 
-			try {
-				exe.execute();
-			}
-			catch (IOException e) {
-				throw new BuildException(e);
-			}
-			finally {
-				try {
-					handler.stop();
-				}
-				catch (Exception e) {
-				}
-			}
+        if (_P4User != null) {
+            commandLine.createArgument().setValue("-u");
+            commandLine.createArgument().setValue(_P4User);
+        }
 
-		}
-		catch (Exception e) {
-			throw new BuildException("Problem executing P4 command: " + e.getMessage());
-		}
-	}
+//        execP4Command("describe -s " + changeNumber.toString(),
+        
+        commandLine.createArgument().setValue("describe");
+        commandLine.createArgument().setValue("-s");
+
+        for (int i = 0; i < changelistNumbers.length; i++) {
+            commandLine.createArgument().setValue(changelistNumbers[i]);
+        }
+
+        return commandLine;
+    }
+
+    /**
+     * This is a modified version of the one in the CVS element. I found it far 
+     * more useful if you acctually return either or, because otherwise it would
+     * be darn hard to use in places where I acctually need the notPast line.
+     * Or did I missunderatnd something?
+     */
+    private String readToNotPast(BufferedReader reader, String beginsWith,
+                                 String notPast) throws IOException {
+        boolean checkingNotPast = notPast != null;
+
+        String nextLine = reader.readLine();
+        
+        // (!A && !B) || (!A && !C) || (!B && !C)
+        // !A || !B || !C
+        while (!(nextLine == null || nextLine.startsWith(beginsWith) || nextLine.startsWith(notPast))) {
+            nextLine = reader.readLine();
+        }
+        return nextLine;
+    }
+
+    /**
+     * Contains a changelist description, including the changelist number,
+     * user, client, date of submission, textual description, list
+     * of affected files
+     */
+
+    class Changelist {
+        String _changelistNumber;
+        String _user;
+        String _client;
+        String _dateOfSubmission;
+        String _description;
+        Vector _affectedFiles = new Vector();
+    }
+
+    class AffectedFile {
+        String filename;
+        String revision;
+        String action;
+
+        public void log() {
+            System.out.println("Filename:\t<" + filename + ">");
+            System.out.println("Revision:\t<" + revision + ">");
+            System.out.println("Action:\t<" + action + ">");
+        }
+    }
 
 }
+
 // P4Element
