@@ -349,32 +349,32 @@ public abstract class EmailPublisher implements Publisher {
         return fromAddress;
     }
 
-    public void setMailHost(String mailHost) {
-        this.mailHost = mailHost;
+    public void setMailHost(String hostname) {
+        mailHost = hostname;
     }
 
     public String getMailHost() {
         return mailHost;
     }
 
-    public void setUsername(String username) {
-        this.userName = username;
+    public void setUsername(String name) {
+        userName = name;
     }
 
     public String getUsername() {
         return userName;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String passwd) {
+        password = passwd;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setMailPort(String mailPort) {
-        this.mailPort = mailPort;
+    public void setMailPort(String port) {
+        mailPort = port;
     }
 
     public String getMailPort() {
@@ -417,8 +417,8 @@ public abstract class EmailPublisher implements Publisher {
         defaultSuffix = defaultEmailSuffix;
     }
 
-    public void setReportSuccess(String reportSuccess) {
-        this.reportSuccess = reportSuccess;
+    public void setReportSuccess(String report) {
+        reportSuccess = report;
     }
 
     public void setSkipUsers(boolean skip) {
@@ -476,41 +476,26 @@ public abstract class EmailPublisher implements Publisher {
 
         return map;
     }
-
-    public class Always {
+    
+   public class Address {
         private String address;
 
         public String getAddress() {
             return address;
         }
 
-        public void setAddress(String address) {
-            this.address = address;
-        }
+        public void setAddress(String theAddress) {
+            address = theAddress;
+        }        
     }
 
-    public class Failure {
-        private String address;
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
+    public class Always extends Address {
     }
 
-    public class Success {
-        private String address;
+    public class Failure extends Address {
+    }
 
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
+    public class Success extends Address {
     }
 
     public class EmailMapping {
@@ -521,16 +506,16 @@ public abstract class EmailPublisher implements Publisher {
             return alias;
         }
 
-        public void setAlias(String alias) {
-            this.alias = alias;
+        public void setAlias(String theAlias) {
+            alias = theAlias;
         }
 
         public String getAddress() {
             return address;
         }
 
-        public void setAddress(String address) {
-            this.address = address;
+        public void setAddress(String theAddress) {
+            this.address = theAddress;
         }
     }
 
