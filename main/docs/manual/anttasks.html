@@ -11,9 +11,11 @@
 <ul>
   <li>Alden Almagro (<a href="mailto:alden@thoughtworks.com">alden@thoughtworks.com</a>)</li>
   <li>Paul Julius (<a href="mailto:pdjulius@thoughtworks.com">pdjulius@thoughtworks.com</a>)</li>
+  <li>Jason Yip (<a href="mailto:jcyip@thoughtworks.com">jcyip@thoughtworks.com</a>)</li>
+  <li>Niclas Olofsson</li>
 </ul>
 
-<p>Version 1.11 - 06/04/2001</p>
+<p>Version 1.12 - 06/04/2001</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -143,34 +145,72 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
 
 <a name="p4element"></a>
 <h3>P4Element</h3>
+
+<p>Returns a list of modifications found in the depot between two dates. This element
+is meant to be used in conjuction with a ModificationSet to control a build process.</p>
+<p>Requires additional libraries to run.
+<ul>
+    <li>ORO 2.0 regexp package from Apache.
+    <li>Ant's optional package containing P4 tasks.
+</ul>
+Because of this, the P4Element is distributed in it's own package.
+</p>
 <h4>Parameters</h4>
 <table border="1" cellpadding="2" cellspacing="0">
   <tr>
     <td valign="top"><b>Attribute</b></td>
     <td valign="top"><b>Description</b></td>
     <td align="center" valign="top"><b>Required</b></td>
+    <td align="center" valign="top"><b>Example</b></td>
   </tr>
   <tr>
     <td valign="top">port</td>
-    <td valign="top"></td>
+    <td valign="top">The p4d server and port to connect to.</td>
+    <td valign="top" align="center">Yes</td>
+    <td valign="top">perforce:1666</td>
+  </tr>
+  <tr>
+    <td valign="top">user</td>
+    <td valign="top">The p4 username.</td>
     <td valign="top" align="center">Yes</td>
   </tr>
   <tr>
     <td valign="top">client</td>
-        <td valign="top"></td>
-    <td valign="top" align="center">Yes</td>
-  </tr>
-  <tr>
-    <td valign="top">user</td>
-        <td valign="top"></td>
+    <td valign="top">The p4 client spec to use.</td>
     <td valign="top" align="center">Yes</td>
   </tr>
   <tr>
     <td valign="top">view</td>
-        <td valign="top"></td>
+    <td valign="top">The client, branch or label view to operate upon. See the p4 user guide for more info.</td>
     <td valign="top" align="center">Yes</td>
+    <td valign="top">//depot/project/...</td>
   </tr>
 </table>
+<h4>Example</h4>
+<pre>
+&lt;target name=&quot;modificationset&quot;&gt;
+    &lt;modificationset ...
+
+        ...
+
+        &lt;p4element port=&quot;perforce:1666&quot;
+            user=&quot;non&quot;
+            client=&quot;myclient&quot;
+            view=&quot;//depot/test...&quot;/&gt;
+
+        ...
+
+    &lt;/modificationset&gt;
+&lt;/target&gt;
+</pre>
+<h4>Futures</h4>
+<p>
+<ul>
+    <li>Use project set/get property to set attributes.
+    <li>Verify that several P4Elements can be specified (should work).
+    <li>Unit-tests.
+</ul>
+</p>
 
 <a name="vsselement"></a>
 <h3>VssElement</h3>
@@ -253,7 +293,6 @@ library.
     <td valign="top" align="center">Yes</td>
   </tr>
 </table>
-
 
 <h3>Examples</h3>
 <PRE>
