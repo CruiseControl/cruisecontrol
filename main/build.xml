@@ -72,7 +72,7 @@
     in lib directory will be included in CLASSPATH
     **************************************************** -->
     <path id="project.classpath" >
-        <fileset dir="${lib}">
+        <fileset dir="${lib}" includes="*.jar">
             <exclude name="ant.jar"/>
             <exclude name="optional.jar"/>
         </fileset>
@@ -200,7 +200,7 @@
     </target>
 
     <target name="test" depends="compile-test" description="Executes the unit tests">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath >
                 <path refid="project.runtime.classpath" />
             </classpath>
