@@ -134,12 +134,16 @@ public class StarTeamElement extends SourceControlElement {
         nowDate = new OLEDate(now.getTime());
         OLEDate lastBuildDate = new OLEDate(lastBuild.getTime());
 
-        // Set up two view snapshots, one at lastbuild time, one now
-        View view = StarTeamFinder.openView(this.username + ":"
-         + this.password + "@" + this.url);
-        Server server = view.getServer();
-
+        //StarTeam SDK does not like NoExitSecurityManager
+        System.setSecurityManager(null);
+        
+        Server server = null;
         try {
+            // Set up two view snapshots, one at lastbuild time, one now
+            View view = StarTeamFinder.openView(this.username + ":"
+             + this.password + "@" + this.url);
+            server = view.getServer();
+            
             View snapshotAtNow = new View(view,
             ViewConfiguration.createFromTime(nowDate));
             View snapshotAtLastBuild = new View(view,
@@ -178,6 +182,7 @@ public class StarTeamElement extends SourceControlElement {
             return (ArrayList) modifications;
         } finally {
             server.disconnect();
+            System.setSecurityManager(new NoExitSecurityManager());
         }
     }
 
