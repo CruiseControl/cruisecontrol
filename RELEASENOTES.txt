@@ -1,4 +1,4 @@
-CruiseControl Release Notes - CVS
+CruiseControl Release Notes - 2.2.1
 
 AlwaysBuild:
 ----------------------
