@@ -51,6 +51,8 @@
       <td width="180" valign="top">
         <img src="images/continuousintegration.gif" border="0"><br>
         <table border="0" align="center" width="98%">
+            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
+            <tr><td>&nbsp;</td></tr>
             <cruisecontrol:nav>
                 <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
             </cruisecontrol:nav>

@@ -60,6 +60,14 @@
     </attribute>
   </tag>
   <tag>
+    <name>currentbuildstatus</name>
+    <tagclass>net.sourceforge.cruisecontrol.taglib.CurrentBuildStatusTag</tagclass>
+    <bodycontent>JSP</bodycontent>
+    <info>
+        Report when the build started, or when it will start again.
+    </info>
+  </tag>
+  <tag>
     <name>nav</name>
     <tagclass>net.sourceforge.cruisecontrol.taglib.NavigationTag</tagclass>
     <teiclass>net.sourceforge.cruisecontrol.taglib.NavigationTagExtraInfo</teiclass>
