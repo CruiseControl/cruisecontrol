@@ -38,8 +38,6 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 
-import java.text.DateFormat;
-
 import org.jdom.Element;
 
 public class ProjectXMLHelperTest extends TestCase {

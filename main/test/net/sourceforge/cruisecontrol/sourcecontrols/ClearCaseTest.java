@@ -40,7 +40,6 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
