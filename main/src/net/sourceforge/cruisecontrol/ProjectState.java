@@ -1,0 +1,90 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol;
+
+/**
+ * An enumeration of Project states following standard typesafe enumeration
+ * pattern in Java.
+ */
+public final class ProjectState {
+
+    public static final ProjectState QUEUED_STATE =
+            new ProjectState(1, "in build queue");
+    public static final ProjectState IDLE_STATE =
+            new ProjectState(0, "idle");
+    public static final ProjectState BOOTSTRAPPING_STATE =
+            new ProjectState(2, "bootstrapping");
+    public static final ProjectState MODIFICATIONSET_STATE =
+            new ProjectState(3, "checking for modifications");
+    public static final ProjectState BUILDING_STATE =
+            new ProjectState(4, "now building");
+    public static final ProjectState MERGING_LOGS_STATE =
+            new ProjectState(5, "merging accumulated log files");
+    public static final ProjectState PUBLISHING_STATE =
+            new ProjectState(6, "publishing build results");
+    public static final ProjectState PAUSED_STATE =
+            new ProjectState(7, "paused");
+    public static final ProjectState STOPPED_STATE =
+            new ProjectState(8, "stopped");
+    /*public static final String[] STATE_DESCRIPTIONS =
+        {
+            "idle",
+            "in build queue",
+            "bootstrapping",
+            "checking for modifications",
+            "now building",
+            "merging accumulated log files",
+            "publishing build results",
+            "paused",
+            "stopped" };*/
+
+    private String description;
+    private int code;
+
+    private ProjectState (int code, String desc) {
+        this.code = code;
+        this.description = desc;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCode() {
+        return code;
+    }
+}

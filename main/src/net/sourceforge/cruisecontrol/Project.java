@@ -72,28 +72,7 @@ public class Project implements Serializable, Runnable {
     static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 
-    public static final int IDLE_STATE = 0;
-    public static final int QUEUED_STATE = 1;
-    public static final int BOOTSTRAPPING_STATE = 2;
-    public static final int MODIFICATIONSET_STATE = 3;
-    public static final int BUILDING_STATE = 4;
-    public static final int MERGING_LOGS_STATE = 5;
-    public static final int PUBLISHING_STATE = 6;
-    public static final int PAUSED_STATE = 7;
-    public static final int STOPPED_STATE = 8;
-    public static final String[] STATE_DESCRIPTIONS =
-        {
-            "idle",
-            "in build queue",
-            "bootstrapping",
-            "checking for modifications",
-            "now building",
-            "merging accumulated log files",
-            "publishing build results",
-            "paused",
-            "stopped" };
-
-    private transient int state = STOPPED_STATE;
+    private transient ProjectState state = ProjectState.STOPPED_STATE;
     private transient Schedule schedule;
     private transient List bootstrappers = new ArrayList();
     private transient ModificationSet modificationSet;
@@ -177,7 +156,7 @@ public class Project implements Serializable, Runnable {
 
         Element modifications = getModifications();
         if (modifications == null) {
-            setState(IDLE_STATE);
+            setState(ProjectState.IDLE_STATE);
             return;
         }
 
@@ -192,7 +171,7 @@ public class Project implements Serializable, Runnable {
         // collect project information
         cruisecontrolElement.addContent(getProjectPropertiesElement(now));
 
-        setState(BUILDING_STATE);
+        setState(ProjectState.BUILDING_STATE);
         cruisecontrolElement.addContent(
             schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
 
@@ -202,7 +181,7 @@ public class Project implements Serializable, Runnable {
             label = labelIncrementer.incrementLabel(label, cruisecontrolElement);
         }
 
-        setState(MERGING_LOGS_STATE);
+        setState(ProjectState.MERGING_LOGS_STATE);
         Iterator auxLogIterator = getAuxLogElements().iterator();
         while (auxLogIterator.hasNext()) {
             cruisecontrolElement.addContent((Element) auxLogIterator.next());
@@ -236,11 +215,11 @@ public class Project implements Serializable, Runnable {
 
         serializeProject();
 
-        setState(PUBLISHING_STATE);
+        setState(ProjectState.PUBLISHING_STATE);
         publish(cruisecontrolElement);
         cruisecontrolElement = null;
 
-        setState(IDLE_STATE);
+        setState(ProjectState.IDLE_STATE);
     }
 
     public void run() {
@@ -251,7 +230,7 @@ public class Project implements Serializable, Runnable {
                 try {
                     waitIfPaused();
                     waitForNextBuild();
-                    setState(QUEUED_STATE);
+                    setState(ProjectState.QUEUED_STATE);
                     synchronized (scheduleMutex) {
                         queue.requestBuild(this);
                         waitForBuildToFinish();
@@ -271,7 +250,7 @@ public class Project implements Serializable, Runnable {
     void waitIfPaused() throws InterruptedException {
         synchronized (pausedMutex) {
             while (isPaused) {
-                setState(PAUSED_STATE);
+                setState(ProjectState.PAUSED_STATE);
                 pausedMutex.wait(10 * ONE_MINUTE);
             }
         }
@@ -340,7 +319,7 @@ public class Project implements Serializable, Runnable {
      * @return Element
      */
     Element getModifications() {
-        setState(MODIFICATIONSET_STATE);
+        setState(ProjectState.MODIFICATIONSET_STATE);
         Element modifications = null;
 
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
@@ -551,14 +530,14 @@ public class Project implements Serializable, Runnable {
     }
 
     public String getStatus() {
-        return STATE_DESCRIPTIONS[state];
+        return getState().getDescription();
     }
 
-    public int getState() {
+    public ProjectState getState() {
         return state;
     }
 
-    private void setState(int newState) {
+    private void setState(ProjectState newState) {
         state = newState;
         log(getStatus());
     }
@@ -751,7 +730,7 @@ public class Project implements Serializable, Runnable {
      * their respective <code>bootstrap</code> methods.
      */
     protected void bootstrap() throws CruiseControlException {
-        setState(BOOTSTRAPPING_STATE);
+        setState(ProjectState.BOOTSTRAPPING_STATE);
         Iterator bootstrapperIterator = bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
@@ -916,13 +895,13 @@ public class Project implements Serializable, Runnable {
         projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
         projectSchedulingThread.start();
         LOG.info("Project " + name + " starting");
-        setState(IDLE_STATE);
+        setState(ProjectState.IDLE_STATE);
     }
 
     public void stop() {
         LOG.info("Project " + name + " stopping");
         stopped = true;
-        setState(STOPPED_STATE);
+        setState(ProjectState.STOPPED_STATE);
     }
 
     public String toString() {
