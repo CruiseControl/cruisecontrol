@@ -123,7 +123,7 @@ public class AntBuilder extends Builder {
 
         Process p;
         try {
-            String[] commandLine = getCommandLineArgs(buildProperties, useLogger, antScript != null, isWindows());
+            String[] commandLine = getCommandLineArgs(buildProperties, useLogger, antScript != null, Util.isWindows());
 
             File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
@@ -313,19 +313,6 @@ public class AntBuilder extends Builder {
         return property;
     }
 
-    protected boolean isWindows() {
-        String osName = getOsName();
-        boolean isWindows = osName.indexOf("Windows") > -1;
-        LOG.debug("os.name = " + osName);
-        LOG.debug("isWindows = " + isWindows);
-        return isWindows;
-    }
-
-    protected String getOsName() {
-        String osName = System.getProperty("os.name");
-        return osName;
-    }
-
     /**
      * construct the command that we're going to execute.
      *
@@ -342,7 +329,7 @@ public class AntBuilder extends Builder {
         if (useScript) {
             cmdLine.setExecutable(antScript);
         } else {
-            if (isWindows()) {
+            if (isWindows) {
                 cmdLine.setExecutable("java.exe");
             } else {
                 cmdLine.setExecutable("java");
@@ -354,9 +341,9 @@ public class AntBuilder extends Builder {
                     cmdLine.createArgument().setValue(arg);
                 }
             }
-            String systemClassPath = System.getProperty("java.class.path");
+            String systemClassPath = getSystemClassPath();
             cmdLine.createArgument().setValue("-classpath");
-            cmdLine.createArgument().setValue(getAntLauncherJarLocation(systemClassPath));
+            cmdLine.createArgument().setValue(getAntLauncherJarLocation(systemClassPath, isWindows));
             cmdLine.createArgument().setValue("org.apache.tools.ant.launch.Launcher");
             cmdLine.createArgument().setValue("-lib");
             cmdLine.createArgument().setValue(systemClassPath);
@@ -403,11 +390,15 @@ public class AntBuilder extends Builder {
         return cmdLine.getCommandline();
     }
 
+    protected String getSystemClassPath() {
+      return System.getProperty("java.class.path");
+    }
+
     /**
      * @return the path to ant-launcher.jar taken from the given path
      */
-    String getAntLauncherJarLocation(String path) throws CruiseControlException {
-        String separator = isWindows() ? ";" : ":";
+    String getAntLauncherJarLocation(String path, boolean isWindows) throws CruiseControlException {
+        String separator = isWindows ? ";" : ":";
         StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
         while (pathTokenizer.hasMoreTokens()) {
             String pathElement = pathTokenizer.nextToken();

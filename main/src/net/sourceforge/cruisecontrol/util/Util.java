@@ -36,16 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 public final class Util {
 
@@ -54,7 +55,6 @@ public final class Util {
     static final long ONE_HOUR = 60 * ONE_MINUTE;
 
     private Util() {
-
     }
 
     /**
@@ -176,6 +176,17 @@ public final class Util {
             }
         }
         file.delete();
+    }
+
+    public static boolean isWindows() {
+        String osName = Util.getOsName();
+        boolean isWindows = osName.indexOf("Windows") > -1;
+        return isWindows;
+    }
+
+    public static String getOsName() {
+        String osName = System.getProperty("os.name");
+        return osName;
     }
 
 }

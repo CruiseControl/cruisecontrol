@@ -40,12 +40,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -58,23 +57,76 @@ import org.jdom.Element;
 public class AntBuilderTest extends TestCase {
     private final List filesToClear = new ArrayList();
     private AntBuilder builder;
-    private String classpath;
-    private String antLauncherPath;
+    private AntBuilder unixBuilder;
+    private AntBuilder windowsBuilder;
     private Hashtable properties;
-    private String javaCmd = "java";
+    private static final boolean USE_LOGGER = true;
+    private static final boolean USE_SCRIPT = true;
+    private static final boolean IS_WINDOWS = true;
+    private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/log4j.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/jdom.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/ant:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/xerces.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/xalan.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/jakarta-oro-2.0.3.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/mail.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/junit.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/activation.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/commons-net-1.1.0.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/starteam-sdk.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-tools.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-remote.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/smack.jar:.";
+    private static final String WINDOWS_PATH = "C:\\Progra~1\\IBM\\WSAD\\tools.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\dist\\cruisecontrol.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\log4j.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\jdom.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\xerces.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\xalan.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\jakarta-oro-2.0.3.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mail.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\junit.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\activation.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\commons-net-1.1.0.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\starteam-sdk.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-tools.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-remote.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\smack.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\comm.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\x10.jar;.";
 
     protected void setUp() throws Exception {
         builder = new AntBuilder();
         builder.setTarget("target");
         builder.setBuildFile("buildfile");
-        classpath = System.getProperty("java.class.path");
-        antLauncherPath = builder.getAntLauncherJarLocation(classpath);
-        if (builder.isWindows()) {
-            javaCmd = "java.exe";
-        }
         
         properties = new Hashtable();
         properties.put("label", "200.1.23");
+        
+        unixBuilder = new AntBuilder() {
+            protected String getSystemClassPath() {
+                return UNIX_PATH;
+            }
+        };
+        unixBuilder.setTarget("target");
+        unixBuilder.setBuildFile("buildfile");
+        
+        windowsBuilder = new AntBuilder() {
+            protected String getSystemClassPath() {
+                return WINDOWS_PATH;
+            }
+        };
+        windowsBuilder.setTarget("target");
+        windowsBuilder.setBuildFile("buildfile");
 
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
     }
@@ -88,7 +140,8 @@ public class AntBuilderTest extends TestCase {
         }
         
         builder = null;
-        classpath = null;
+        unixBuilder = null;
+        windowsBuilder = null;
         properties = null;
     }
 
@@ -131,12 +184,12 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
             {
-                javaCmd,
+                "java",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -144,19 +197,18 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        assertTrue(
-            Arrays.equals(
+        assertEquals(
                 resultInfo,
-                builder.getCommandLineArgs(properties, false, false, false)));
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
 
         String[] resultLogger =
             {
-                javaCmd,
+                "java",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -165,21 +217,20 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        assertTrue(
-            Arrays.equals(
+        assertEquals(
                 resultLogger,
-                builder.getCommandLineArgs(properties, true, false, false)));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
         String[] resultInfo =
             {
-                javaCmd,
+                "java.exe",
                 "-classpath",
-                antLauncherPath,
+                windowsBuilder.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                WINDOWS_PATH,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -187,19 +238,18 @@ public class AntBuilderTest extends TestCase {
                 "buildfile",
                 "target" };
         properties.put("label", "");
-        assertTrue(
-            Arrays.equals(
+        assertEquals(
                 resultInfo,
-                builder.getCommandLineArgs(properties, false, false, false)));
+                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, IS_WINDOWS));
 
         String[] resultLogger =
             {
-                javaCmd,
+                "java",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -207,21 +257,20 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        assertTrue(
-            Arrays.equals(
+        assertEquals(
                 resultLogger,
-                builder.getCommandLineArgs(properties, true, false, false)));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
         String[] resultDebug =
             {
-                javaCmd,
+                "java",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -231,22 +280,21 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setUseDebug(true);
-        assertTrue(
-            Arrays.equals(
+        unixBuilder.setUseDebug(true);
+        assertEquals(
                 resultDebug,
-                builder.getCommandLineArgs(properties, true, false, false)));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
         String[] resultQuiet =
             {
-                javaCmd,
+                "java",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -256,11 +304,10 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setUseQuiet(true);
-        assertTrue(
-            Arrays.equals(
+        unixBuilder.setUseQuiet(true);
+        assertEquals(
                 resultQuiet,
-                builder.getCommandLineArgs(properties, true, false, false)));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_DebugAndQuiet() {
@@ -276,13 +323,13 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_MaxMemory() throws CruiseControlException {
         String[] resultWithMaxMemory =
             {
-                javaCmd,
+                "java",
                 "-Xmx256m",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -290,24 +337,23 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
+        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
-        assertTrue(
-            Arrays.equals(
+        assertEquals(
                     resultWithMaxMemory,
-                builder.getCommandLineArgs(properties, false, false, false)));
+                    unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
     
     public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
         String[] resultWithMaxMemoryAndProperty =
             {
-                javaCmd,
+                "java",
                 "-Xmx256m",
                 "-classpath",
-                antLauncherPath,
+                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                UNIX_PATH,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -316,15 +362,14 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
+        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
-        AntBuilder.Property prop = builder.createProperty();
+        AntBuilder.Property prop = unixBuilder.createProperty();
         prop.setName("foo");
         prop.setValue("bar");
-        assertTrue(
-            Arrays.equals(
+        assertEquals(
                 resultWithMaxMemoryAndProperty,
-                builder.getCommandLineArgs(properties, false, false, false)));
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
@@ -338,11 +383,10 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setAntScript("ant.bat");
-        assertTrue(
-            Arrays.equals(
+        windowsBuilder.setAntScript("ant.bat");
+        assertEquals(
                 resultBatchFile,
-                builder.getCommandLineArgs(properties, false, true, true)));
+                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, USE_SCRIPT, IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
@@ -356,22 +400,21 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setAntScript("ant.sh");
-        assertTrue(
-            Arrays.equals(
+        unixBuilder.setAntScript("ant.sh");
+        assertEquals(
                 resultShellScript,
-                builder.getCommandLineArgs(properties, false, true, false)));
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, USE_SCRIPT, !IS_WINDOWS));
     }
     
     public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
         String[] args =
             {
-                javaCmd,
+                "java.exe",
                 "-classpath",
-                antLauncherPath,
+                windowsBuilder.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                classpath,
+                WINDOWS_PATH,
                 "-listener",
                 "com.canoo.Logger",
                 "-DXmlLogger.file=log.xml",
@@ -379,11 +422,10 @@ public class AntBuilderTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        builder.setLoggerClassName("com.canoo.Logger");
-        assertTrue(
-            Arrays.equals(
+        windowsBuilder.setLoggerClassName("com.canoo.Logger");
+        assertEquals(
                 args,
-                builder.getCommandLineArgs(properties, false, false, false)));
+                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, IS_WINDOWS));
     }
 
     public void testGetAntLogAsElement() throws IOException, CruiseControlException {
@@ -426,16 +468,6 @@ public class AntBuilderTest extends TestCase {
         initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
     }
-    
-    public void testIsWindows() {
-        builder = new AntBuilder() {
-            protected String getOsName() {
-                return "Windows 2000";
-            }
-        };
-        
-        assertTrue(builder.isWindows());
-    }
 
     public int getInitCount(Element buildElement) {
         int initFoundCount = 0;
@@ -473,63 +505,13 @@ public class AntBuilderTest extends TestCase {
     }
     
     public void testGetAntLauncherJarLocationForWindows() throws Exception {
-        AntBuilder windowsBuilder = new AntBuilder() {
-            protected boolean isWindows() {
-                return true;
-            }
-        };
-        String windowsPath = "C:\\Progra~1\\IBM\\WSAD\\v5.1.2\\runtimes\\base_v51\\Java\\lib\\tools.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\dist\\cruisecontrol.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\log4j.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\jdom.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\xerces.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\xalan.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\jakarta-oro-2.0.3.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mail.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\junit.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\activation.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\commons-net-1.1.0.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\starteam-sdk.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-tools.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-remote.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\smack.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\comm.jar;"
-            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\x10.jar;.";
         assertEquals("C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar",
-                     windowsBuilder.getAntLauncherJarLocation(windowsPath));
+                     windowsBuilder.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS));
     }
 
     public void testGetAntLauncherJarLocationForUnix() throws Exception {
-        AntBuilder unixBuilder = new AntBuilder() {
-            protected boolean isWindows() {
-                return false;
-            }
-        };
-        String unixPath = "/usr/java/jdk1.5.0/lib/tools.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/log4j.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/jdom.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/ant:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/xerces.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/xalan.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/jakarta-oro-2.0.3.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/mail.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/junit.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/activation.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/commons-net-1.1.0.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/starteam-sdk.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-tools.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-remote.jar:"
-            + "/home/joris/java/cruisecontrol-2.2/main/lib/smack.jar:.";
         assertEquals("/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar",
-                     unixBuilder.getAntLauncherJarLocation(unixPath));
+                     unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS));
     }
 
     public void testSaveAntLog() throws IOException {
@@ -562,5 +544,20 @@ public class AntBuilderTest extends TestCase {
         builder.setSaveLogDir(null);
         builder.saveAntLog(originalLog);
         assertFalse(savedLog.exists());
+    }
+    
+    private void assertEquals(String[] expected, String[] actual) {
+        StringBuffer expectedBuffer = new StringBuffer();
+        StringBuffer actualBuffer = new StringBuffer();
+        fillBuffer(expectedBuffer, expected);
+        fillBuffer(actualBuffer, actual);
+        assertEquals(expectedBuffer.toString(), actualBuffer.toString());
+    }
+
+    private void fillBuffer(StringBuffer stringBuffer, String[] stringArray) {
+        for (int i = 0; i < stringArray.length; i++) {
+            stringBuffer.append(stringArray[i]);
+            stringBuffer.append(" ");
+        }
     }
 }
