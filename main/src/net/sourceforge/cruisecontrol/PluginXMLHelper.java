@@ -102,7 +102,7 @@ public class PluginXMLHelper {
                         method.invoke(object, new Object[]{ new Integer(attribute.getIntValue()) });
                     }
                 } catch (Exception e) {
-                    throw new CruiseControlException(e.getMessage());
+                    log.fatal("Error configuring plugin.", e);
                 }
             } else {
                 throw new CruiseControlException("Attribute: '" + attribute.getName() + "' is not supported for class: '" + object.getClass().getName() + "'.");
