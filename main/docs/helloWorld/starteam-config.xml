@@ -4,7 +4,7 @@
          <currentbuildstatusbootstrapper file="currentbuild.txt" />
       </bootstrappers>
       <modificationset quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
-         <starteamelement username="${starteam.user}" password="${starteam.passwd}" folder="${starteam.folder}" starteamurl="${starteam.url}" />
+         <starteam username="${starteam.user}" password="${starteam.passwd}" folder="${starteam.folder}" starteamurl="${starteam.url}" />
       </modificationset>
       <schedule interval="30" intervaltype="relative">
          <ant buildfile="build.xml" target="cleanbuild" multiple="5" />
@@ -27,6 +27,7 @@
             <failure address="ADDRESS" />
          </email>
       </publishers>
+      <plugin name="starteam" classname="net.sourceforge.cruisecontrol.sourcecontrols.StarTeam" />
       <plugin name="currentbuildstatusbootstrapper" classname="net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper" />
       <plugin name="ant" classname="net.sourceforge.cruisecontrol.builders.AntBuilder" />
       <plugin name="email" classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher" />
