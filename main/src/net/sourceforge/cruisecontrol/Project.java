@@ -152,8 +152,6 @@ public class Project implements Serializable, Runnable {
         try {
             init();
             build();
-            LOG.info("Sleeping for " + formatTime(getSleepMilliseconds())
-                    + "(at " + new Date() + ")");
         } catch (CruiseControlException e) {
             LOG.error("exception attempting build in project " + name, e);
         }
