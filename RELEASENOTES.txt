@@ -5,6 +5,10 @@ PVCS
 * Configurable date formats - Patch by Kalpesh Parmar
 * Modification type support - Patch by Steven E. Newton
 
+ClearCase
+----------------------
+* Tests pass on Solaris - Patch by Alden Almagro
+
 CVS
 ----------------------
 * Correct modifications when HEAD is specified as the branch - Patch by McClain Looney
