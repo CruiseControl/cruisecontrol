@@ -1458,7 +1458,23 @@
 
         <h3>Attributes</h3>
 
-		This tag has no attributes.
+        <table class="documentation">
+            <thead>
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+               <td>username</td>
+               <td>No (defaults to "User")</td>
+               <td>The username to use for the single reported (fake) Modification.</td>
+            </tr>
+            </tbody>
+        </table>
+
         </div>
 
         <div class="elementdocumentation">
@@ -1980,6 +1996,11 @@
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
+            <tr class="oddrow">
+               <td>username</td>
+               <td>No (defaults to "User")</td>
+               <td>The username to use for the reported Modifications.</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -2040,6 +2061,11 @@
                 <td>url</td>
                 <td>Yes</td>
                 <td>The HTTP URL of a file to check the modification date of</td>
+            </tr>
+            <tr>
+               <td>username</td>
+               <td>No (defaults to "User")</td>
+               <td>The username to use for the reported Modification.</td>
             </tr>
             </tbody>
         </table>
