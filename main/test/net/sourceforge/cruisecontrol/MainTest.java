@@ -207,30 +207,60 @@ public class MainTest extends TestCase {
 //        }
 //    }
 //
-    public void testParsePort() throws Exception {
+    public void testParseHttpPort() throws Exception {
         String[] correctArgs = new String[] {"-port", "123"};
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-port"};
         String[] invalidArgs = new String[] {"-port", "ABC"};
 
-        assertEquals(Main.parsePort(correctArgs), 123);
+        assertEquals(Main.parseHttpPort(correctArgs), 123);
 
         try {
-            Main.parsePort(missingArgs);
+            Main.parseHttpPort(missingArgs);
             fail("Expected exception");
         } catch (IllegalStateException e) {
             // expected
         }
 
         try {
-            Main.parsePort(incorrectArgs);
+            Main.parseHttpPort(incorrectArgs);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
         }
 
         try {
-            Main.parsePort(invalidArgs);
+            Main.parseHttpPort(invalidArgs);
+            fail("Expected exception");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    public void testParseRmiPort() throws Exception {
+        String[] correctArgs = new String[] {"-rmiport", "123"};
+        String[] missingArgs = new String[] {""};
+        String[] incorrectArgs = new String[] {"-rmiport"};
+        String[] invalidArgs = new String[] {"-rmiport", "ABC"};
+
+        assertEquals(Main.parseRmiPort(correctArgs), 123);
+
+        try {
+            Main.parseRmiPort(missingArgs);
+            fail("Expected exception");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+
+        try {
+            Main.parseRmiPort(incorrectArgs);
+            fail("Expected exception");
+        } catch (CruiseControlException e) {
+            // expected
+        }
+
+        try {
+            Main.parseRmiPort(invalidArgs);
             fail("Expected exception");
         } catch (IllegalArgumentException e) {
             // expected

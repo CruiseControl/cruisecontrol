@@ -39,27 +39,64 @@ package net.sourceforge.cruisecontrol.jmx;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import org.apache.log4j.Logger;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.NotificationBroadcasterSupport;
+import javax.management.Notification;
+import javax.management.MBeanRegistrationException;
+import javax.management.InstanceNotFoundException;
 import java.io.File;
 
 /**
  * @author Niclas Olofsson
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
-public class ProjectController implements ProjectControllerMBean {
+public class ProjectController extends NotificationBroadcasterSupport
+                               implements ProjectControllerMBean, BuildProgressListener, BuildResultListener {
 
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
     private Project project;
     private MBeanServer server;
+    private static int sequence = 0;
+    private static Object sequenceLock = new Object();
 
     public ProjectController(Project project) {
         this.project = project;
+        project.addBuildProgressListener(this);
+        project.addBuildResultListener(this);
+    }
+
+    private int nextSequence() {
+        synchronized (sequenceLock) {
+            return ++sequence;
+        }
+    }
+
+    public void handleBuildProgress(BuildProgressEvent event) {
+        log("build progress event: " + event.getState().getDescription());
+        if (event.getProject() == project) {
+            Notification notification = new Notification("cruisecontrol.progress.event", this, nextSequence());
+            notification.setUserData(event.getState().getName());
+            sendNotification(notification);
+        }
+    }
+
+    public void handleBuildResult(BuildResultEvent event) {
+        log("build result event: build " + String.valueOf(event.isBuildSuccessful() ? "successful" : "failed"));
+        if (event.getProject() == project) {
+            Notification notification = new Notification("cruisecontrol.result.event", this, nextSequence());
+            notification.setUserData(new Boolean(event.isBuildSuccessful()));
+            sendNotification(notification);
+        }
     }
 
     public void pause() {
@@ -81,16 +118,6 @@ public class ProjectController implements ProjectControllerMBean {
         log("serializing");
         project.serializeProject();
     }
-
-//    // TODO
-//    public long getUpTime() {
-//        return 0;
-//    }
-//
-//    // TODO
-//    public long getSuccessfulBuildCount() {
-//        return 0;
-//    }
 
     public boolean isPaused() {
         return project.isPaused();
@@ -192,6 +219,16 @@ public class ProjectController implements ProjectControllerMBean {
     public void register(MBeanServer server) throws JMException {
         this.server = server;
         ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
+
+        // Need to attempt to unregister the old mbean with the same name since
+        // CruiseControlControllerJMXAdaptor keeps calling every time a change
+        // is made to the config.xml file via JMX.
+        try {
+            server.unregisterMBean(projectName);
+        } catch (InstanceNotFoundException noProblem) {
+        } catch (MBeanRegistrationException noProblem) {
+        }
+
         this.server.registerMBean(this, projectName);
     }
 
