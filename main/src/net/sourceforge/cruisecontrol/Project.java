@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -146,37 +145,35 @@ public class Project implements Serializable, Runnable {
 
         bootstrap();
 
-        Element buildLog = new Element("cruisecontrol");
-
         Element modifications = getModifications();
         if (modifications == null) {
             setState(ProjectState.IDLE);
             return;
         }
 
-        buildLog.addContent(modifications);
+        log.addContent(modifications);
 
         Date now = modificationSet.getTimeOfCheck();
 
         if (labelIncrementer.isPreBuildIncrementer()) {
-            label = labelIncrementer.incrementLabel(label, buildLog);
+            label = labelIncrementer.incrementLabel(label, log.getContent());
         }
 
         // collect project information
-        buildLog.addContent(getProjectPropertiesElement(now));
+        log.addContent(getProjectPropertiesElement(now));
 
         setState(ProjectState.BUILDING);
-        buildLog.addContent(
+        log.addContent(
                 schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
 
-        boolean buildSuccessful = new XMLLogHelper(buildLog).isBuildSuccessful();
+        boolean buildSuccessful = log.wasBuildSuccessful();
 
         if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-            label = labelIncrementer.incrementLabel(label, buildLog);
+            label = labelIncrementer.incrementLabel(label, log.getContent());
         }
 
         setState(ProjectState.MERGING_LOGS);
-        log.writeLogFile(buildLog, now);
+        log.writeLogFile(now);
 
         // If we only want to build after a check in, even when broken, set the last build to now,
         // regardless of success or failure (buildAfterFailed = false in config.xml)
@@ -196,8 +193,8 @@ public class Project implements Serializable, Runnable {
         serializeProject();
 
         setState(ProjectState.PUBLISHING);
-        publish(buildLog);
-        buildLog = null;
+        publish();
+        log.reset();
 
         setState(ProjectState.IDLE);
     }
@@ -653,15 +650,14 @@ public class Project implements Serializable, Runnable {
      * Iterate over all of the registered <code>Publisher</code>s and call
      * their respective <code>publish</code> methods.
      *
-     *  @param logElement JDOM Element representing the build log.
      */
-    protected void publish(Element logElement) throws CruiseControlException {
+    protected void publish() throws CruiseControlException {
         Iterator publisherIterator = publishers.iterator();
         Publisher publisher = null;
         while (publisherIterator.hasNext()) {
             try {
                 publisher = (Publisher) publisherIterator.next();
-                publisher.publish(logElement);
+                publisher.publish(getLog().getContent());
             } catch (CruiseControlException e) {
                 StringBuffer message = new StringBuffer("exception publishing results");
                 if (publisher != null) {

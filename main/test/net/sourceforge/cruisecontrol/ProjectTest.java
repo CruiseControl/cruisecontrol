@@ -74,6 +74,7 @@ public class ProjectTest extends TestCase {
 
     protected void setUp() {
         project = new Project();
+        project.setName("TestProject");
     }
 
     public void tearDown() {
@@ -188,7 +189,7 @@ public class ProjectTest extends TestCase {
         project.setName("projectName");
         project.setLabel("label");
         Element element = project.getProjectPropertiesElement(new Date());
-        project.publish(element);
+        project.publish();
         
         assertEquals(2, publisher.getPublishCount());
     }

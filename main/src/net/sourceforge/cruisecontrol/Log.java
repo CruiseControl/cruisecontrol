@@ -56,7 +56,7 @@ import java.util.List;
 
 /**
  * Handles the Log element, and subelements, of the CruiseControl configuration
- * file.
+ * file. Also represents the Build Log used by the CruiseControl build process.
  */
 public class Log {
     private static final Logger LOG = Logger.getLogger(Project.class);
@@ -64,6 +64,7 @@ public class Log {
     private transient String logDir;
     private transient String logXmlEncoding;
     private transient File lastLogFile;
+    private transient Element buildLog;
     private transient List otherLogFilenames = new ArrayList();
     private final transient String projectName;
 
@@ -73,6 +74,7 @@ public class Log {
                     + " with a null Project name.");
         }
         this.projectName = projectName;
+        reset();
     }
 
     /**
@@ -141,10 +143,9 @@ public class Log {
     }
 
     /**
-     * Creates a File instance appropriate for a build log based on
-     * this Log instance.
+     * Writes the current build log to the appropriate directory and filename.
      */
-    public void writeLogFile(Element buildLog, Date now)
+    public void writeLogFile(Date now)
             throws CruiseControlException {
 
         //Merge the other logs into the build log.
@@ -249,5 +250,25 @@ public class Log {
         }
 
         return null;
+    }
+
+    public void addContent(Element newContent) {
+        buildLog.addContent(newContent);
+    }
+
+    public Element getContent() {
+        return (Element) buildLog.clone();
+    }
+
+    public boolean wasBuildSuccessful() {
+        return new XMLLogHelper(buildLog).isBuildSuccessful();
+    }
+
+    /**
+     * Resets the build log. After calling this method a fresh build log
+     * will exist, ready for adding new content.
+     */
+    public void reset() {
+        this.buildLog = new Element("cruisecontrol");
     }
 }
