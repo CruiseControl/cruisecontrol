@@ -208,8 +208,20 @@ public class Schedule {
         LOG.debug("getTimeToNextBuild: initial timeToNextBuild = " + timeToNextBuild);
         timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
         LOG.debug("getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
-        timeToNextBuild = checkPauseBuilders(now, timeToNextBuild);
+        long timeTillNotPaused = checkPauseBuilders(now, timeToNextBuild);
         LOG.debug("getTimeToNextBuild: after checkPauseBuilders = " + timeToNextBuild);
+        
+        if (timeToNextBuild != timeTillNotPaused) {
+            boolean atMaxTime = timeTillNotPaused >= MAX_INTERVAL_MILLISECONDS;
+            if (hasOnlyTimeBuilders() && !atMaxTime) {
+                Date dateAfterPause = getFutureDate(now, timeTillNotPaused);
+                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause, 0);
+                timeToNextBuild = timeTillNotPaused + adjustmentFromEndOfPause;
+            } else {
+                timeToNextBuild = timeTillNotPaused;                
+            }
+        }
+        
         return timeToNextBuild;
     }
 
@@ -276,7 +288,7 @@ public class Schedule {
             oldTime = newTime;
             newTime = checkForPauseAtProposedTime(now, oldTime);
         }
-
+        
         return newTime;
     }
 

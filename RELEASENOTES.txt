@@ -23,6 +23,7 @@ Schedule
 * Changed schedule to ignore the value of interval when there are only time based builds. This should get rid of most of the "No Builder selected" messages.
 * Fixed a bug where no builder was selected on a forced build if all the builders were time based.
 * Fixed a bug where time builders set for midnight would build later in the day
+* Fixed a bug where a schedule with only time builds would not select a builder on a forced build if the next scheduled build time was during a pause.
 
 Subversion
 ----------------------
