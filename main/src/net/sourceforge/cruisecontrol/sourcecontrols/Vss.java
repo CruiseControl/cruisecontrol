@@ -515,7 +515,7 @@ public class Vss implements SourceControl {
 	 * @see #setDateFormat
 	 */
 	private void constructVssDateTimeFormat() {
-		vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: 'hh:mma");
+		vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: '" + this.timeFormat);
 	}
 }
 
