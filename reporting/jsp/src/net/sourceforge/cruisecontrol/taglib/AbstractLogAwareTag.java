@@ -41,8 +41,8 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspException;
 
 /**
- *
- * @author <a href="mailto:robert.watkins@suncorp.com.au">Robert Watkins</a>
+ * An abstract class to consolidate tags that deal with log files.
+ * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class AbstractLogAwareTag {
     private PageContext pageContext;

@@ -51,7 +51,7 @@ import javax.servlet.jsp.PageContext;
 
 /**
  *
- * @author <a href="mailto:robert.watkins@suncorp.com.au">Robert Watkins</a>
+ * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class MockPageContext extends PageContext {
     private MockServletRequest request = new MockServletRequest();
