@@ -174,7 +174,7 @@ public class StarTeamBootstrapper implements Bootstrapper {
         return buildCheckoutCommand().toString();
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         StarTeamBootstrapper bootstrapper = new StarTeamBootstrapper();
         bootstrapper.setUsername("ccuser");
         bootstrapper.setPassword("ccuser");

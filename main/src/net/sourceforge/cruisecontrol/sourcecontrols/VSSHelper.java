@@ -43,7 +43,11 @@ import java.util.Properties;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @version $Id$ 
  */
-public class VSSHelper {
+public final class VSSHelper {
+
+    private VSSHelper() {
+        
+    }
 
     public static String[] loadVSSEnvironment(String serverPath) {
         Properties systemProps = System.getProperties();

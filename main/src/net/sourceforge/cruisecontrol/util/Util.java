@@ -45,10 +45,14 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-public class Util {
+public final class Util {
 
     static final long ONE_MINUTE = 60 * 1000;
     static final long ONE_HOUR = 60 * ONE_MINUTE;
+
+    private Util() {
+        
+    }
 
     /**
      *  Create an integer time from a <code>Date</code> object.

@@ -398,7 +398,7 @@ public class Upgrader {
     }
 
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         LOG.info("started upgrader...");
         final String usageInfo =
             "Usage: java -jar cruisecontrol.jar -upgrade <build file> <properties file> <config file> <projectname>";

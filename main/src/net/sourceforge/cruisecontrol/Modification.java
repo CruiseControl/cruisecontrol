@@ -186,7 +186,7 @@ public class Modification implements Comparable {
     }
 
     //for brief testing only
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         Date now = new Date();
         Modification mod = new Modification();
         mod.fileName = "File\"Name&";

@@ -55,11 +55,6 @@ public class CruiseControlTagSupportTest extends TestCase {
     private File log1;
     private File log2;
     private File log3;
-    private File log4;
-
-    public CruiseControlTagSupportTest(String name) {
-        super(name);
-    }
 
     public void setUp() {
         tag = new CruiseControlTagSupport();
