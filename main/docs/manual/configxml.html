@@ -85,6 +85,7 @@
                      <li><a class="small" href="#defaultlabelincrementer">DefaultLabelIncrementer</a>
                      <li><a class="small" href="#cvslabelincrementer">CVSLabelIncrementer</a>
                   </ul>
+               <li><a class="small" href="#dateformat">DateFormat</a>
                <li><a class="small" href="#plugin">Plugin</a>
             </ul>
          </ul>
@@ -97,9 +98,9 @@
 &lt;cruisecontrol&gt;
    &lt;project name="sampleproject"&gt;
       &lt;bootstrappers&gt;
-         &lt;currentbuildstatusbootstrapper file="logs/currentbuildstatus.txt" dateformat=""/&gt;
+         &lt;currentbuildstatusbootstrapper file="logs/currentbuildstatus.txt"/&gt;
       &lt;/bootstrappers&gt;
-      &lt;modificationset  quietperiod="" dateformat=""&gt;
+      &lt;modificationset  quietperiod=""&gt;
          &lt;cvs cvsroot="" defaultbranchonly="" localworkingcopy=""
                  tag="" property="" propertyondelete=""/&gt;
       &lt;/modificationset&gt;
@@ -113,7 +114,7 @@
          &lt;merge dir=""/&gt;
       &lt;/log&gt;
       &lt;publishers&gt;
-         &lt;currentbuildstatuspublisher file="logs/currentbuildstatus.txt" dateformat=""/&gt;
+         &lt;currentbuildstatuspublisher file="logs/currentbuildstatus.txt"/&gt;
          &lt;email mailhost="" returnaddress="" defaultsuffix=""
                    reportsuccess="" spamwhilebroken="" buildresultsurl=""&gt;
             &lt;always address=""/&gt;
@@ -121,18 +122,8 @@
             &lt;map alias="" address=""/&gt;
          &lt;/email&gt;
       &lt;/publishers&gt;
-      &lt;plugin name="ant"
-                 classname="net.sourceforge.cruisecontrol.builders.AntBuilder"/&gt;
-      &lt;plugin name="currentbuildstatusbootstrapper"
-                 classname="...bootstrappers.CurrentBuildStatusBootstrapper"/&gt;
-      &lt;plugin name="cvs"
-                 classname="net.sourceforge.cruisecontrol.sourcecontrols.CVS"/&gt;
-      &lt;plugin name="currentbuildstatuspublisher"
-                 classname="...publishers.CurrentBuildStatusPublisher"/&gt;
-      &lt;plugin name="email"
-                 classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher"/&gt;
-      &lt;plugin name="labelincrementer"
-                 classname="...labelincrementers.DefaultLabelIncrementer"/&gt;
+      &lt;dateformat format=""/&gt;
+      &lt;plugin name="" classname=""/&gt;
    &lt;/project&gt;
 &lt;/cruisecontrol&gt;
 </pre>
@@ -528,11 +519,6 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">Full path to journal file.  Example: <i>c:/vssdata/journal/journal.txt</i></td>
             </tr>
             <tr>
-               <td class="tabledata">lastbuilddate</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The last build date</td>
-            </tr>
-            <tr>
                <td class="tabledata">ssdir</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">The VSS project to get history from</td>
@@ -846,6 +832,23 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
          <hr>
 
 
+         <p><a name="dateformat"><span class="small">Date Format</span><br>
+         An optional <code>&lt;dateformat&gt;</code> element overrides the default date format for presentation.
+         <p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">format</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">A DateFormat String that specifies the date format for presentation.  Defaults to MM/dd/yyyy HH:mm:ss</td>
+            </tr>
+         </table>
+
+         <hr>
 
          <p><a name="plugin"><span class="small">Plugin</span><br>
          A <code>&lt;plugin&gt;</code> element registers a classname with an alias for use within this project.
