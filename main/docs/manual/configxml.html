@@ -721,7 +721,21 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">No</td>
                <td class="tabledata">If specified, both xsldir and css are ignored.  Must handle the entire document.</td>
             </tr>
+         </table>
 
+         <p><span class="small">always/failure</span><br/>
+	 All forms of the EmailPublisher allow both always and failure sub-elements.  These identify e-mail addresses that should always be sent mail or sent mail only on failed builds.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">address</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">e-mail address</td>
+            </tr>
          </table>
 
          <hr>
