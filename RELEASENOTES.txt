@@ -71,6 +71,10 @@ PVCS
 * Added back up date format to try in case output date includes seconds. Patch by David Cole
 * Added additional parsing when project files includes project path. Patch by David Cole
 
+SVN
+----------------------
+* Revert to using date instead of guessing at revision. Patch by Etienne Studer
+
 testdetails.xsl
 ----------------------
 * Support testsuite elements that have been nested, such as in the output from junitreport. Patch by Joris Kuipers
