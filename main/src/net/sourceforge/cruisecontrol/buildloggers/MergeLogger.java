@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.buildloggers;
 
 import net.sourceforge.cruisecontrol.BuildLogger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.PruneElementFilter;
+
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -119,13 +121,12 @@ public class MergeLogger implements BuildLogger {
      */
     Element getElement(File xmlFile) {
         try {
-            Element element = getElementFromFile(xmlFile);
-            if (element.getName().equals("testsuite") && removeProperties) {
-                if (element.getChild("properties") != null) {
-                    element.getChild("properties").detach();
-                }
+            SAXBuilder builder =
+                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            if (removeProperties) {
+                builder.setXMLFilter(new PruneElementFilter("properties"));
             }
-            return element;
+            return builder.build(xmlFile).getRootElement();
         } catch (JDOMException e) {
             LOG4J.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
         } catch (IOException e) {
@@ -133,18 +134,6 @@ public class MergeLogger implements BuildLogger {
         }
 
         return null;
-    }
-
-    /*
-      TODO:
-      IOException is in signature for jdom b9 compatability. This method can be inlined
-      when CruiseControl version of jdom is updated.
-    */
-    private static Element getElementFromFile(File xmlFile) throws JDOMException, IOException {
-        SAXBuilder builder =
-                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        Element element = builder.build(xmlFile).getRootElement();
-        return element;
     }
 
     public void setRemoveProperties(boolean b) {
