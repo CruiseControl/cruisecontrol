@@ -147,11 +147,11 @@ public final class PluginRegistry {
             }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("setting default property " + name + " to '" + attr.getValue()
-                    + "' for " + pluginClassName);
+                    + "' for " + pluginName);
             }
             properties.put(name, attr.getValue());
         }
-        defaultProperties.put(pluginClassName, Collections.unmodifiableMap(properties));
+        defaultProperties.put(pluginName, Collections.unmodifiableMap(properties));
     }
 
     /**
@@ -256,17 +256,17 @@ public final class PluginRegistry {
     
     /**
      * Returns a Map containing the default properties for the plugin 
-     * with the given className. If there's no such plugin, an empty
+     * with the given name. If there's no such plugin, an empty
      * Map will be returned. The default properties can be inherited 
      * from a parent registry.
      */
-    public Map getDefaultProperties(String className) {
+    public Map getDefaultProperties(String pluginName) {
         Map properties = new HashMap();
         if (parentRegistry != null) {
-            properties.putAll(parentRegistry.getDefaultProperties(className));
+            properties.putAll(parentRegistry.getDefaultProperties(pluginName));
         }
-        if (defaultProperties.containsKey(className)) {
-            properties.putAll((Map) defaultProperties.get(className));
+        if (defaultProperties.containsKey(pluginName)) {
+            properties.putAll((Map) defaultProperties.get(pluginName));
         }
         return properties;
     }

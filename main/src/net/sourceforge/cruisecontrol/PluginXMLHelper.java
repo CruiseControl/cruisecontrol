@@ -83,8 +83,7 @@ public class PluginXMLHelper {
      * given a JDOM Element and an object, this method will call all setters that correspond to attributes
      * on the Element.
      */
-    protected void configureObject(Element objectElement, Object object,
-                                   boolean skipChildElements)
+    protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
             throws CruiseControlException {
         Map setters = new HashMap();
         Map creators = new HashMap();
@@ -103,7 +102,7 @@ public class PluginXMLHelper {
             }
         }
         
-        setFromPluginDef(setters, object);
+        setFromPluginDef(objectElement.getName(), setters, object);
 
         setFromAttributes(objectElement, setters, object);
 
@@ -156,9 +155,8 @@ public class PluginXMLHelper {
         }
     }
     
-    private void setFromPluginDef(Map setters, Object pluginInstance) throws CruiseControlException {
-        String className = pluginInstance.getClass().getName();
-        Map defaultProperties = projectHelper.getPlugins().getDefaultProperties(className);
+    private void setFromPluginDef(String pluginName, Map setters, Object pluginInstance) throws CruiseControlException {
+        Map defaultProperties = projectHelper.getPlugins().getDefaultProperties(pluginName);
         for (Iterator iter = defaultProperties.entrySet().iterator(); iter.hasNext(); ) {
             Map.Entry entry = (Map.Entry) iter.next();
             callSetter((String) entry.getKey(), (String) entry.getValue(), setters, pluginInstance);
