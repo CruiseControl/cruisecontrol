@@ -62,6 +62,7 @@ public class ModificationSet extends Task {
     
     private boolean _useServerTime = false;
 
+    public final static String MODIFICATIONSET_INVOKED = "modificationset.invoked";
     public final static String BUILDUNNECESSARY = "modificationset.buildunnecessary";
     public final static String SNAPSHOTTIMESTAMP = "modificationset.snapshottimestamp";
     public final static String USERS = "modificationset.users";
@@ -112,6 +113,7 @@ public class ModificationSet extends Task {
      * @throws BuildException
      */
     public void execute() throws BuildException {
+        getProject().setProperty(MODIFICATIONSET_INVOKED, "true");
         List modifications = new ArrayList();
         long currentTime = 0;
         try {
