@@ -199,7 +199,10 @@ public class XSLTag implements Tag, BodyTag {
         _xslFileName = xslFile;
     }
 
-    public int doAfterBody() throws JspException {
+    /**
+     *  Write the transformed log content to page writer given.
+     */
+    protected void writeContent(Writer out) throws JspException {
         File logDir = new File(_pageContext.getServletConfig().getInitParameter("logDir"));
         System.out.println("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
 
@@ -223,12 +226,16 @@ public class XSLTag implements Tag, BodyTag {
             System.out.println("Using cached copy: " + cacheFile.getAbsolutePath());
         }
 
-        serveCachedCopy(cacheFile, _bodyOut.getEnclosingWriter());
+        serveCachedCopy(cacheFile, out);
+    }
 
+    public int doAfterBody() throws JspException {
+        //writeContent(_bodyOut.getEnclosingWriter());
         return SKIP_BODY;
     }
 
     public int doEndTag() throws JspException {
+        writeContent(_pageContext.getOut());
         return EVAL_PAGE;
     }
 
