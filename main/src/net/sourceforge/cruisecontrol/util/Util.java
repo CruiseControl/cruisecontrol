@@ -36,8 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 public class Util {
 
@@ -82,6 +88,17 @@ public class Util {
         int hours = (hhmm - minutes) / 100;
         long milliseconds = hours * ONE_HOUR + minutes * ONE_MINUTE;
         return milliseconds;
+    }
+
+    public static Element loadConfigFile(File configFile) throws CruiseControlException {
+        Element cruisecontrolElement = null;
+        try {
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            cruisecontrolElement = builder.build(configFile).getRootElement();
+        } catch (Exception e) {
+            throw new CruiseControlException("failed to load config file ["+configFile!=null?configFile.getName():""+"]", e);
+        }
+        return cruisecontrolElement;
     }
 
 }
