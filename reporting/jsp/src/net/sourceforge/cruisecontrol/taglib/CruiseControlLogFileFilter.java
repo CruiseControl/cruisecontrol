@@ -42,12 +42,13 @@ import java.io.File;
 /**
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class CruiseControlLogFileFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
         if (!name.startsWith("log")) {
             return false;
-        } else if (!name.endsWith(".xml")) {
+        } else if (!name.endsWith(".xml") && !name.endsWith(".xml.gz")) {
             return false;
         } else if (new File(dir, name).isDirectory()) {
             return false;

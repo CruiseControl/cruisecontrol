@@ -51,12 +51,14 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
 /**
  * TODO: TYpe comment.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class BuildInfo implements Comparable, Serializable {
     private static final String LOG_PREFIX = "log";
     private static final String LOG_SUFFIX = ".xml";
+    private static final String LOG_COMPRESSED_SUFFIX = ".gz";
     private static final String LABEL_SEPARATOR = "L";
-    private static final String LOG_DATE_PATTERN = "yyyyMMddHHmmSS";
+    private static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
     private static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat(LOG_DATE_PATTERN);
     private final Date buildDate;
     private final String label;
@@ -75,11 +77,17 @@ public class BuildInfo implements Comparable, Serializable {
      * @return
      */
     private String deriveLabel(String infoText) {
-        boolean buildSuccessful = (infoText.length() > 21);
+        boolean logfileCompressed = infoText.endsWith(LOG_COMPRESSED_SUFFIX);
+        boolean buildSuccessful = (infoText.length() > (LOG_PREFIX
+                + LOG_DATE_PATTERN + LABEL_SEPARATOR + LOG_SUFFIX).length()
+                + (logfileCompressed ? LOG_COMPRESSED_SUFFIX.length() : 0));
         String theLabel;
         if (buildSuccessful) {
             int labelStartIndex = (LOG_PREFIX + LOG_DATE_PATTERN + LABEL_SEPARATOR).length();
             int labelEndIndex = infoText.length() - LOG_SUFFIX.length();
+            if (logfileCompressed) {
+                labelEndIndex -= LOG_COMPRESSED_SUFFIX.length();
+            }
             theLabel = infoText.substring(labelStartIndex, labelEndIndex);
         } else {
             theLabel = null;

@@ -51,6 +51,7 @@ import javax.servlet.jsp.tagext.Tag;
 
 /**
  * @author jfredrick
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class ArtifactsLinkTagTest extends TestCase {
 
@@ -95,7 +96,7 @@ public class ArtifactsLinkTagTest extends TestCase {
     }
 
     public void testGetTimeFromLatestLogFile() throws Exception {
-        assertEquals("20020225120000", tag.getTimeFromLatestLogFile());
+        assertEquals("20041018170000", tag.getTimeFromLatestLogFile());
     }
 
     public void testDoStartTag() throws JspException {

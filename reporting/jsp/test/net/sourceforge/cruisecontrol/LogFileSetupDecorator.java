@@ -45,6 +45,7 @@ import junit.framework.Test;
 /**
  * A test decorator that can be used to set up log files for testing.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class LogFileSetupDecorator extends TestSetup {
     public static final File LOG_DIR = new File("tempLogDir");
@@ -56,7 +57,7 @@ public class LogFileSetupDecorator extends TestSetup {
     public LogFileSetupDecorator(Test decoratedTest) {
         super(decoratedTest);
     }
-    
+
     protected void setUp() throws IOException {
         if (!LOG_DIR.exists()) {
             assertTrue("Failed to create test result dir", LOG_DIR.mkdir());
@@ -64,18 +65,19 @@ public class LogFileSetupDecorator extends TestSetup {
         logFiles = new File[] { new File(LOG_DIR, "log20020222120000.xml"), 
                                 new File(LOG_DIR, "log20020223120000LBuild.1.xml"),
                                 new File(LOG_DIR, "log20020224120000.xml"),
-                                new File(LOG_DIR, "log20020225120000LBuild.2.xml") };
+                                new File(LOG_DIR, "log20020225120000LBuild.2.xml"),
+                                new File(LOG_DIR, "log20041018160000.xml.gz"),
+                                new File(LOG_DIR, "log20041018170000LBuild.3.xml.gz")};
         for (int i = 0; i < logFiles.length; i++) {
             File logFile = logFiles[i];
             logFile.createNewFile();
         }        
     }
-    
+
     protected void tearDown() throws Exception {
         for (int i = 0; i < logFiles.length; i++) {
             logFiles[i].delete();
         }
         LOG_DIR.delete();
     }
-    
 }

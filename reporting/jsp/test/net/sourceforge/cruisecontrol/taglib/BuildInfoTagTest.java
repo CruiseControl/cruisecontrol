@@ -50,11 +50,12 @@ import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 /**
  * Test case for the BuildInfoTagTest.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class BuildInfoTagTest extends TestCase {
     private MockPageContext pageContext;
     private BuildInfoTag tag;
-    
+
     public static Test suite() {
         return new LogFileSetupDecorator(new TestSuite(BuildInfoTagTest.class));
     }
@@ -67,17 +68,17 @@ public class BuildInfoTagTest extends TestCase {
         final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
         servletConfig.setInitParameter("logDir", LogFileSetupDecorator.LOG_DIR.getAbsolutePath());
     }
-    
+
     protected void tearDown() {
         tag.release();
     }
-    
+
     /** Verify that after the tag executes, an instance of BuildInfo is available and configured. */
     public void testTagCreatesBuildInfo() throws JspException {
         assertEquals(Tag.SKIP_BODY, tag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, tag.doEndTag());
         BuildInfoSummary buildInfoSummary = (BuildInfoSummary) pageContext.getAttribute(BuildInfoTag.INFO_ATTRIBUTE);
         assertNotNull(buildInfoSummary);
-        assertEquals(4, buildInfoSummary.size());
+        assertEquals(6, buildInfoSummary.size());
     }
 }

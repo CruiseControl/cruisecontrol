@@ -48,6 +48,7 @@ import junit.framework.TestSuite;
 /**
  * Test that we can determine build information correctly.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class BuildInfoTest extends TestCase {
     public static Test suite() {
@@ -55,8 +56,16 @@ public class BuildInfoTest extends TestCase {
     }
     
     public void testCreationFailedBuild() throws ParseException {
-        Date buildDate = new GregorianCalendar(2002, Calendar.FEBRUARY, 22, 12, 0, 0).getTime();
-        BuildInfo buildInfo = new BuildInfo("log20020222120000.xml");
+        Date buildDate = new GregorianCalendar(2002, Calendar.FEBRUARY, 22, 12, 15, 30).getTime();
+        BuildInfo buildInfo = new BuildInfo("log20020222121530.xml");
+        assertEquals(buildDate, buildInfo.getBuildDate());
+        assertFalse(buildInfo.isSuccessful());
+        assertNull(buildInfo.getLabel());
+    }
+
+    public void testCreationCompressedFailedBuild() throws ParseException {
+        Date buildDate = new GregorianCalendar(2004, Calendar.OCTOBER, 28, 15, 24, 19).getTime();
+        BuildInfo buildInfo = new BuildInfo("log20041028152419.xml.gz");
         assertEquals(buildDate, buildInfo.getBuildDate());
         assertFalse(buildInfo.isSuccessful());
         assertNull(buildInfo.getLabel());
@@ -70,6 +79,14 @@ public class BuildInfoTest extends TestCase {
         assertEquals("Build.1", buildInfo.getLabel());
     }
 
+    public void testCreationCompressedGoodBuild() throws ParseException {
+        Date buildDate = new GregorianCalendar(2004, Calendar.OCTOBER, 28, 15, 56, 4).getTime();
+        BuildInfo buildInfo = new BuildInfo("log20041028155604LBuild.2.xml.gz");
+        assertEquals(buildDate, buildInfo.getBuildDate());
+        assertTrue(buildInfo.isSuccessful());
+        assertEquals("Build.2", buildInfo.getLabel());
+    }
+
     public void testLoadBuildInfo() throws ParseException {
         // use the BuildInfoHelper to load up the list of BuildInfo objects
         // verify the build date for each.
@@ -78,11 +95,13 @@ public class BuildInfoTest extends TestCase {
         BuildInfo[] expected = { new BuildInfo("log20020222120000.xml"),
                                  new BuildInfo("log20020223120000LBuild.1.xml"),
                                  new BuildInfo("log20020224120000.xml"),
-                                 new BuildInfo("log20020225120000LBuild.2.xml") };
+                                 new BuildInfo("log20020225120000LBuild.2.xml"),
+                                 new BuildInfo("log20041018160000.xml.gz"),
+                                 new BuildInfo("log20041018170000LBuild.3.xml.gz")};
         
         BuildInfoSummary results = BuildInfo.loadFromDir(LogFileSetupDecorator.LOG_DIR);
-        assertEquals(2, results.getNumBrokenBuilds());
-        assertEquals(2, results.getNumSuccessfulBuilds());
+        assertEquals(3, results.getNumBrokenBuilds());
+        assertEquals(3, results.getNumSuccessfulBuilds());
         BuildInfo[] resultsArray = results.asArray();
         for (int i = 0; i < expected.length; i++) {
             BuildInfo expectedResult = expected[i];

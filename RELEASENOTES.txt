@@ -92,6 +92,10 @@ PVCS:
 ----------------------
 * add versionLabel attribute. Patch by Jeremy Whitlock
 
+Reporting application:
+----------------------
+* Now supports GZipped logged files with names ending in .gz (CC-139). Patch by Hack Kampbjørn
+
 XSLTag:
 ----------------------
 * now extends CruiseControlTagSupport instead of CruiseControlBodyTagSupport (CC-109). Patch by Mark Doliner

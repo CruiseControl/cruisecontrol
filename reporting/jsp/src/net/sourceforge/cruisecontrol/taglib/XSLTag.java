@@ -38,16 +38,20 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -59,6 +63,7 @@ import javax.xml.transform.stream.StreamSource;
  *  number of transforms necessary.
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
+ *  @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class XSLTag extends CruiseControlTagSupport {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
@@ -70,10 +75,10 @@ public class XSLTag extends CruiseControlTagSupport {
      *  Perform an xsl transform.  This body of this method is based upon the xalan sample code.
      *
      *  @param xmlFile the xml file to be transformed
-     *  @param in stream containing the xsl stylesheet
-     *  @param out writer to output the results of the transform
+     *  @param style stream containing the xsl stylesheet
+     *  @param out stream to output the results of the transformation
      */
-    protected void transform(File xmlFile, InputStream in, Writer out) {
+    protected void transform(File xmlFile, InputStream style, OutputStream out) {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
@@ -90,8 +95,18 @@ public class XSLTag extends CruiseControlTagSupport {
                 }
             };
             tFactory.setURIResolver(resolver);
-            Transformer transformer = tFactory.newTransformer(new StreamSource(in));
-            transformer.transform(new StreamSource(xmlFile), new StreamResult(out));
+            Transformer transformer = tFactory.newTransformer(new StreamSource(style));
+            Source in = null;
+            if (xmlFile.getName().endsWith(".gz")) {
+                try {
+                    in = new StreamSource(new GZIPInputStream(new FileInputStream(xmlFile)));
+                } catch (IOException ioe) {
+                    err(ioe);
+                }
+            } else {
+                in = new StreamSource(xmlFile);
+            }
+            transformer.transform(in, new StreamResult(out));
         } catch (TransformerException e) {
             err(e);
         }
@@ -107,6 +122,7 @@ public class XSLTag extends CruiseControlTagSupport {
         if (!cacheFile.exists()) {
             return false;
         }
+        boolean isCurrent = false;
         long xmlLastModified = xmlFile.lastModified();
         long xslLastModified = xmlLastModified;
         long cacheLastModified = cacheFile.lastModified();
@@ -114,10 +130,11 @@ public class XSLTag extends CruiseControlTagSupport {
             URL url = getPageContext().getServletContext().getResource(xslFileName);
             URLConnection con = url.openConnection();
             xslLastModified = con.getLastModified();
+            isCurrent = (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
         } catch (Exception e) {
             err("Failed to retrieve lastModified of xsl file " + xslFileName);
         }
-        return (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
+        return isCurrent;
     }
 
     /**
@@ -171,6 +188,9 @@ public class XSLTag extends CruiseControlTagSupport {
             info("Using latest log file: " + xmlFile.getAbsolutePath());
         } else {
             xmlFile = new File(logDir, logName + ".xml");
+            if (!xmlFile.exists()) {
+                xmlFile = new File(logDir, logName + ".xml.gz");
+            }
             info("Using specified log file: " + xmlFile.getAbsolutePath());
         }
         return xmlFile;
@@ -217,7 +237,7 @@ public class XSLTag extends CruiseControlTagSupport {
     private void updateCacheFile(File xmlFile, File cacheFile) {
         try {
             final InputStream styleSheetStream = getPageContext().getServletContext().getResourceAsStream(xslFileName);
-            final FileWriter out = new FileWriter(cacheFile);
+            final FileOutputStream out = new FileOutputStream(cacheFile);
             transform(xmlFile, styleSheetStream, out);
             out.close();
             styleSheetStream.close();
