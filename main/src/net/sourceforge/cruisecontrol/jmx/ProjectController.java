@@ -129,23 +129,65 @@ public class ProjectController implements ProjectControllerMBean {
         return _project.isPaused();
     }
 
-    public static void main(String[] args) {
-        String[] correctArgs = new String[]{"-lastbuild", "20020310120000", "-label", "1.2.2", "-projectname", "myproject", "-configfile", "config.xml"};
-
-        File myProjFile = new File("myproject");
-        if (myProjFile.exists()) {
-            myProjFile.delete();
+    /**
+     * Parse port number from arguments.  port should always be specified
+     * in arguments for ProjectController.
+     *
+     * @return port number;
+     * @throws CruiseControlException if port is not specified
+     */
+    protected static int parsePort(String args[])
+            throws CruiseControlException {
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-port")) {
+                try {
+                    return Integer.parseInt( args[i + 1] );
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                            "'port' argument was not specified.");
+                }
+            }
         }
+        throw new CruiseControlException(
+                "'port' is a required argument to ProjectController.");
+    }
+
+    public static void main(String[] args) {
         Main main = new Main();
 
         Project project = null;
+        int port;
         try {
-            project = main.configureProject(correctArgs);
+            project = main.configureProject(args);
+            port = parsePort(args);
         } catch (CruiseControlException e) {
-            e.printStackTrace();
+            log.fatal(e.getMessage());
+            usage();
+            return;
         }
 
-        ProjectController controller = new ProjectController(project, 1010);
+        ProjectController controller = new ProjectController(project, port);
         controller.start();
+
+        project.execute();
+    }
+
+    /**
+     *  Displays the standard usage message for ProjectController, and exit.
+     */
+    public static void usage() {
+        log.info("Usage:");
+        log.info("");
+        log.info("Starts an http build controller");
+        log.info("");
+        log.info("java CruiseControl [options]");
+        log.info("where options are:");
+        log.info("");
+        log.info("   -port number           where number is the port of the Controller web site");
+        log.info("   -projectname name      where name is the name of the project");
+        log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+        log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
+        log.info("   -configfile file       where file is the configuration file");
+        System.exit(1);
     }
 }
