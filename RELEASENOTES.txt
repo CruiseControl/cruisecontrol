@@ -8,6 +8,10 @@ contrib:
 ----------------------
 * Add support for distributed building (CC-137). Submitted by Jeff Ramsdale
 
+CMSynergy:
+----------------------
+* Added options reconfigure, ignoreWorkarea, language, and country attributes (CC-179). Patch by Robert J. Smith
+
 CVSBootstrapper:
 ----------------------
 * Add overwriteChanges attribute.

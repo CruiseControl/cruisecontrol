@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -60,7 +62,16 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
 public class CMSynergy implements SourceControl {
+    
+    /**
+     * The environment variable used by CM Synergy to determine
+     * which backend ccmSession to use when issuing commands.
+     */
+    public static final String CCM_SESSION_VAR = "CCM_ADDR";
 
+    /**
+     * An instance of the logging class
+     */
     private static final Logger LOG = Logger.getLogger(CMSynergy.class);
 
     /**
@@ -123,30 +134,9 @@ public class CMSynergy implements SourceControl {
     private String ccmSession = null;
     
     /**
-     * The date format as returned by your installation of CM Synergy
+     * The date format as returned by your installation of CM Synergy.
      */
     private String ccmDateFormat = "EEE MMM dd HH:mm:ss yyyy"; // Fri Dec  3 17:51:56 2004
-    
-    /**
-     * The number of modified tasks found
-     */
-    private int numTasks = 0;
-    
-    /**
-     * The number of modified objects found
-     */
-    private int numObjects = 0;
-    
-    /**
-     * Date format used to create CM Synergy queries 
-     */
-    public static final SimpleDateFormat TO_CCM_DATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); 
-    
-    /**
-     * The environment variable used by CM Synergy to determine
-     * which backend ccmSession to use when issuing commands.
-     */
-    public static final String CCM_SESSION_VAR = "CCM_ADDR";
     
     /**
      * A delimiter used for data values returned from a CM Synergy query
@@ -157,6 +147,49 @@ public class CMSynergy implements SourceControl {
      * A delimiter used to mark the end of a multi-lined result from a query
      */
     private static final String CCM_END_OBJECT = "<<<#@#@#>>>";
+    
+    /**
+     * If set to true, the project will be reconfigured when changes are
+     * detected.
+     */
+    private boolean reconfigure = false;
+    
+    /**
+     * Used in conjunction with reconfigure. If set to true, all subprojects
+     * will be reconfigured when changes are detected.
+     */
+    private boolean recurse = true;
+    
+    /**
+     * If set to true, the work area location will not be queried and passed
+     * to the builder.
+     */
+    private boolean ignoreWorkarea = false;
+    
+    /**
+     * The locale used for parsing dates.
+     */
+    private Locale locale = null;
+    
+    /**
+     * The language used to set the locale for parsing CM Synergy dates. 
+     */
+    private String language = "en";
+    
+    /**
+     * The country used to set the locale for parsing CM Synergy dates.
+     */
+    private String country = "US";
+    
+    /**
+     * The number of modified tasks found
+     */
+    private int numTasks = 0;
+    
+    /**
+     * The number of modified objects found
+     */
+    private int numObjects = 0;
     
     /**
      * Sets the name of the CM Synergy executable to use when issuing
@@ -220,7 +253,7 @@ public class CMSynergy implements SourceControl {
     }
     
     /**
-     * Sets the CM Synergy ccmSession ID to use while executing ccm commands. If
+     * Sets the CM Synergy session ID to use while executing ccm commands. If
      * this value is not set, we will defer the decision to the client. The
      * value set here can be accessed from within the build as the property
      * "cc.ccm.session".
@@ -243,6 +276,62 @@ public class CMSynergy implements SourceControl {
      */
     public void setCcmDateFormat(String format) {
         this.ccmDateFormat = format;
+    }
+    
+    /**
+     * Sets the value of the reconfigure attribute. If set to true, the project
+     * will be reconfigured when changes are detected. Default value is false.
+     * 
+     * @param reconfigure
+     */
+    public void setReconfigure (boolean reconfigure) {
+        this.reconfigure = reconfigure;
+    }
+    
+    /**
+     * Sets the value of the recurse attribute. Used in conjuction with the 
+     * reconfigure attribute. If set to true, all subprojects will also be
+     * reconfigured when changes are detected. Default is true.
+     * 
+     * @param recurse
+     */
+    public void setRecurse (boolean recurse) {
+        this.recurse = recurse;
+    }
+    
+    /**
+     * Sets the value of the ignoreWorkarea attribute. If set to true, we will
+     * not attempt to determine the location of the project's workarea, nor
+     * will we pass the cc.ccm.workarea attribute to the builders. Default
+     * is false.
+     * 
+     * @param ignoreWorkarea
+     */
+    public void setIgnoreWorkarea (boolean ignoreWorkarea) {
+        this.ignoreWorkarea = ignoreWorkarea;
+    }
+
+    /**
+     * Sets the language used to create the locale for parsing CM Synergy dates.
+     * The format should follow the ISO standard as specified by
+     * <code>java.util.Locale</code>. The default is "en" (English).
+     * 
+     * @param language
+     *            The language to use when creating the <code>Locale</code>
+     */
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+    
+    /**
+     * Sets the country used to create the locale for parsing CM Synergy dates.
+     * The format should follow the ISO standard as specified by
+     * <code>java.util.Locale</code>. The default is "US" (United States).
+     * 
+     * @param country The ISO country code to use
+     */
+    public void setCountry (String country) {
+        this.country = country;
     }
     
     /* (non-Javadoc)
@@ -274,6 +363,12 @@ public class CMSynergy implements SourceControl {
             throw new CruiseControlException("The 'project' attribute is required for CMSynergy.");
         }
         
+        // Create a Locale appropriate for this installation
+        locale = new Locale(language, country);
+        if (!locale.equals(Locale.US)) {
+            LOG.info("Locale has been set to " + locale.toString());
+        }
+        
         // Attempt to get the database delimiter
         ManagedCommandline getDelimiter = createCcmCommand();
         getDelimiter.createArgument().setValue("delimiter");
@@ -283,7 +378,7 @@ public class CMSynergy implements SourceControl {
             this.ccmDelimiter = getDelimiter.getStdoutAsString().trim();
         } catch (Exception e) {
             StringBuffer buff = new StringBuffer(
-                    "Could not connect to provided CM Synergy ccmSession");
+                    "Could not connect to provided CM Synergy session");
             if (ccmSession != null) {
                 buff.append(" \"" + ccmSession + "\".");
             }
@@ -305,11 +400,18 @@ public class CMSynergy implements SourceControl {
 
         // Create a list of modifications based upon tasks completed
         // since the last build.
+        numObjects = 0;
+        numTasks = 0;
         List modifications = getModifiedTasks(lastBuild);
         
         LOG.info("Found " + numObjects + " modified object(s) in " + numTasks
                 + " new task(s).");
                
+        // If we were asked to reconfigure the project, do so
+        if (reconfigure && (numObjects > 0)) {
+            reconfigureProject();
+        }
+
         // Pass to the build any relevent properties 
         properties.put("cc.ccm.project", projectSpec);
         properties.put("cc.ccm.dateformat", ccmDateFormat);
@@ -318,6 +420,9 @@ public class CMSynergy implements SourceControl {
         }
         if (numObjects > 0) {
             properties.put(property, "true");
+        }
+        if (!ignoreWorkarea) {
+            properties.put("cc.ccm.workarea", getWorkarea());
         }
         
         return modifications; 
@@ -340,7 +445,7 @@ public class CMSynergy implements SourceControl {
                     + projectSpec + "\".", e);
         }
     }
-
+    
     /**
      * Get a list of all tasks which are contained in all folders in the
      * reconfigure properties of the specified project and were completed after
@@ -350,6 +455,14 @@ public class CMSynergy implements SourceControl {
      *         the new tasks
      */
     private List getModifiedTasks(Date lastBuild) {
+                
+        // The format used for converting Java dates into CM Synergy dates
+        // Note that the format used to submit commands differs from the 
+        // format used in the results of that command!?!
+        SimpleDateFormat toCcmDate = new SimpleDateFormat(
+                "yyyy/MM/dd HH:mm:ss", locale); 
+
+        // Construct the CM Synergy command
         ManagedCommandline cmd = createCcmCommand();
         cmd.createArgument().setValue("query");
         cmd.createArgument().setValue("-u");
@@ -368,7 +481,7 @@ public class CMSynergy implements SourceControl {
                 "is_task_in_folder_of(is_folder_in_rp_of('" 
                 + projectSpec 
                 + ":project:1')) and completion_date>time('"
-                + TO_CCM_DATE.format(lastBuild)
+                + toCcmDate.format(lastBuild)
                 + "')");
         
         // Execute the command
@@ -410,15 +523,25 @@ public class CMSynergy implements SourceControl {
         return modificationList;
     }
 
+    /**
+     * Split the results of a CM Synergy query into individual tokens. This
+     * method was added for compatibility with the 1.3 JRE.
+     * 
+     * @param line
+     *            The line to be tokenised.
+     * @param maxTokens
+     *            The maximum number of tokens in the line
+     * 
+     * @return The tokens found
+     */
     private String[] tokeniseEntry(String line, int maxTokens) {
         int minTokens = maxTokens - 1; // comment may be absent.
-        String[] tokens  = new String[maxTokens];
+        String[] tokens = new String[maxTokens];
         Arrays.fill(tokens, "");
         int tokenIndex = 0;
-        for (int oldIndex = 0, index = line.indexOf(CCM_ATTR_DELIMITER, 0); 
-             true; 
-             oldIndex = index + CCM_ATTR_DELIMITER.length(), 
-                 index = line.indexOf(CCM_ATTR_DELIMITER, oldIndex), tokenIndex++) {
+        for (int oldIndex = 0, index = line.indexOf(CCM_ATTR_DELIMITER, 0); true; oldIndex = index
+                + CCM_ATTR_DELIMITER.length(), index = line.indexOf(
+                CCM_ATTR_DELIMITER, oldIndex), tokenIndex++) {
             if (tokenIndex > maxTokens) {
                 LOG.debug("Too many tokens; skipping entry");
                 return null;
@@ -543,6 +666,72 @@ public class CMSynergy implements SourceControl {
     }
     
     /**
+     * Determine the work area location for the specified project.
+     * 
+     * @return The work area location
+     */
+    private String getWorkarea() {
+        String defaultWorkarea = ".";
+        
+        // Get the literal workarea from Synergy
+        ManagedCommandline getWorkareaCommand = createCcmCommand();
+        getWorkareaCommand.createArgument().setValue("attribute");
+        getWorkareaCommand.createArgument().setValue("-show");
+        getWorkareaCommand.createArgument().setValue("wa_path");
+        getWorkareaCommand.createArgument().setValue("-project");
+        getWorkareaCommand.createArgument().setValue(projectSpec);
+        try {
+            getWorkareaCommand.execute();
+            getWorkareaCommand.assertExitCode(0);
+        } catch (Exception e) {
+            LOG.warn("Could not determine the workarea location for project \""
+                    + projectSpec + "\".", e);
+            return defaultWorkarea;
+        }
+        
+        // The command will return the literal work area, but what we are 
+        // really interested in is the top level directory within that work area.
+        File workareaPath = new File(getWorkareaCommand.getStdoutAsString()
+                .trim());
+        if (!workareaPath.isDirectory()) {
+            LOG.warn("The workarea reported by Synergy does not exist or is not accessible by this session - \""
+                            + workareaPath.toString() + "\".");
+            return defaultWorkarea;
+        }
+        String[] dirs = workareaPath.list();
+        if (dirs.length != 1) {
+            LOG.warn("The workarea reported by Synergy is invalid - \""
+                            + workareaPath.toString() + "\".");
+            return defaultWorkarea;
+        }
+        
+        // Found it!
+        return workareaPath.getAbsolutePath() + File.separator + dirs[0];
+    }
+    
+    /**
+     * Reconfigure the project
+     */
+    private void reconfigureProject() {
+        LOG.info("Reconfiguring project " + projectSpec + ".");
+        
+        ManagedCommandline reconfigureCommand = createCcmCommand();
+        reconfigureCommand.createArgument().setValue("reconfigure");
+        if (recurse) {
+            reconfigureCommand.createArgument().setValue("-recurse");
+        }
+        reconfigureCommand.createArgument().setValue("-project");
+        reconfigureCommand.createArgument().setValue(projectSpec);
+        try {
+            reconfigureCommand.execute();
+            reconfigureCommand.assertExitCode(0);
+        } catch (Exception e) {
+            LOG.warn("Could not reconfigure project \""
+                    + projectSpec + "\".", e);
+        }
+    }
+    
+    /**
      * Format the output of a CM Synergy query by removing
      * newlines introduced by comments.
      * 
@@ -579,7 +768,8 @@ public class CMSynergy implements SourceControl {
      * @see #setCcmDateFormat(String)
      */
     private Date getDateFromSynergy(String dateString) {
-        SimpleDateFormat fromCcmDate = new SimpleDateFormat(ccmDateFormat);
+        SimpleDateFormat fromCcmDate = new SimpleDateFormat(ccmDateFormat,
+                locale);
         Date date = null;
         try {
             date = fromCcmDate.parse(dateString);
