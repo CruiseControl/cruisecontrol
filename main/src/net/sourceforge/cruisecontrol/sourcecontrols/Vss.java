@@ -62,9 +62,10 @@ public class Vss implements SourceControl {
 
     private final String VSS_TEMP_FILE = "vsstempfile.txt";
     protected SimpleDateFormat vssDateTimeFormat;
-    
+
 	private String ssdir;
     private String vsspath;
+    private String serverPath;
 	private String login;
     private String dateFormat;
 
@@ -74,7 +75,7 @@ public class Vss implements SourceControl {
 
 	private ArrayList modifications = new ArrayList();
 
-    /** 
+    /**
      * Sets default values.
      */
     public Vss() {
@@ -100,6 +101,15 @@ public class Vss implements SourceControl {
 		this.ssdir = ssdir;
 	}
 
+    /**
+      *  Set the path to the directory containing the srcsafe.ini file.
+      *
+      *  @param serverPath
+      */
+     public void setServerPath(String serverPath) {
+         this.serverPath = serverPath;
+     }
+
 	/**
 	 *  Login for vss
 	 *
@@ -108,7 +118,7 @@ public class Vss implements SourceControl {
 	public void setLogin(String login) {
 		this.login = login;
 	}
-    
+
 	/**
 	 *  Choose a property to be set if the project has modifications if we have a
 	 *  change that only requires repackaging, i.e. jsp, we don't need to recompile
@@ -155,9 +165,9 @@ public class Vss implements SourceControl {
     }
 
 	/**
-	 * Calls 
+	 * Calls
      * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
-     * Results written to a file since VSS will start wrapping lines if read 
+     * Results written to a file since VSS will start wrapping lines if read
      * directly from the stream.
 	 *
 	 *@param  lastBuild
@@ -169,7 +179,20 @@ public class Vss implements SourceControl {
         // See CVSElement
 
 		try {
-			Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now));
+            Properties systemProps = System.getProperties();
+            if(serverPath != null) {
+                systemProps.put("SSDIR", serverPath);
+            }
+            String[] env = new String[systemProps.size()];
+            int index = 0;
+            Iterator systemPropIterator = systemProps.keySet().iterator();
+            while(systemPropIterator.hasNext()) {
+                String propName = (String) systemPropIterator.next();
+                env[index] = propName + "=" + systemProps.get(propName);
+                index++;
+            }
+
+			Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
 			p.waitFor();
 
 			BufferedReader reader = new BufferedReader(new FileReader(
@@ -221,7 +244,7 @@ public class Vss implements SourceControl {
 
 	/**
 	 *  Format a date for vss in the format specified by the dateFormat.
-     *  By default, this is in the form <code>12/21/2000;8:14A</code> (vss doesn't 
+     *  By default, this is in the form <code>12/21/2000;8:14A</code> (vss doesn't
      *  like the m in am or pm).  This format can be changed with <code>setDateFormat()</code>
 	 *
 	 *  @param d Date to format.
@@ -243,7 +266,7 @@ public class Vss implements SourceControl {
 	 *@param  historyEntry
 	 */
 	protected Modification handleEntry(List historyEntry) {
-        // Ignore unusual labels of directories which cause parsing errors that 
+        // Ignore unusual labels of directories which cause parsing errors that
         // look like this:
         //
         // *****  built  *****
@@ -251,7 +274,7 @@ public class Vss implements SourceControl {
         // Label: "autobuild_test"
         // User: Etucker      Date:  6/26/01   Time: 11:53a
         // Labeled
-        if ((historyEntry.size() > 4) && 
+        if ((historyEntry.size() > 4) &&
             (((String) historyEntry.get(4)).startsWith("Labeled"))) {
            return null;
         }
@@ -331,7 +354,7 @@ public class Vss implements SourceControl {
      *@see #setDateFormat
 	 */
     public Date parseDate(String nameAndDateLine) {
-        String dateAndTime = 
+        String dateAndTime =
          nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
 
         int indexOfColon = dateAndTime.indexOf("/:");
@@ -340,7 +363,7 @@ public class Vss implements SourceControl {
             + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
             + dateAndTime.substring(indexOfColon + 2);
         }
-        
+
         try {
             Date lastModifiedDate = this.vssDateTimeFormat.parse(
              dateAndTime.trim() + "m");
@@ -371,6 +394,6 @@ public class Vss implements SourceControl {
      * @see #setDateFormat
      */
     private void constructVssDateTimeFormat() {
-        vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: 'hh:mma");        
+        vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: 'hh:mma");
     }
 }
