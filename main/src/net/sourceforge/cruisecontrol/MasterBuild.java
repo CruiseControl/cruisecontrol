@@ -49,6 +49,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _buildmaster;
     private String _notifyOnFailure;
     private static String _projectName;
+    private boolean _useEmailmap;
+    private String _emailmapFilename;
 
     //ant specific stuff
     private String _antFile;
@@ -195,6 +197,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             if (_labelIncrementerClassName == null) {
                 _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
             }
+
+            _useEmailmap = props.getProperty("useemailmap").equals("true");
+            _emailmapFilename = props.getProperty("emailmap");
 
             if (_debug || _verbose)
                 props.list(System.out);
@@ -456,7 +461,37 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     }
 
+
     private void emailReport(String list, String subject) {
+
+        File emailmapFile = new File(_emailmapFilename);
+        Properties emailmap = new Properties();
+
+        //if we're using the email map, we should figure out what emails the source control usernames map to.
+		if(_useEmailMap) {
+		   try {
+		      props.load(new FileInputStream(emailmapFile));
+	       } catch(Exception e) {
+		      log("error reading email map file: " + _emailmapFilename);
+		      e.printStackTrace();
+		   }
+
+		   StringTokenizer st = new StringTokenizer(list, ",");
+		   StringBuffer newemails = new StringBuffer();
+		   while(st.hasMoreTokens()) {
+			  String mapped = emailmap.getProperty(st.nextToken().trim());
+			  if(mapped != null) {
+		         newemails.append(emailmap.getProperty(st.nextToken().trim()));
+		         if(st.hasMoreTokens())
+		            newemails.append(",");
+			  }
+	       }
+
+		   list = newemails.toString();
+		   if(list.endsWith(","))
+		      list = list.substring(0, list.length() - 1);
+		}
+
         String mailToNames = null;
         if (_debug) {
             mailToNames = _buildmaster;
