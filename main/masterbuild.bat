@@ -62,7 +62,7 @@ set LIBDIR=%CCDIR%\lib
 
 set CRUISE_PATH=%CRUISE_PATH%;cruisecontrol.jar;%LIBDIR%\ant.jar;%LIBDIR%\xerces.jar;%LIBDIR%\mail.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;.
 
-set EXEC=java -cp %CRUISE_PATH% -Dlocalcopy="%LOCALCOPY%" net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
+set EXEC=java -cp %CRUISE_PATH% -DlocalCopy="%LOCALCOPY%" net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
 echo %EXEC%
 %EXEC%
 
