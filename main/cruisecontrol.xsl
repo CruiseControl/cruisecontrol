@@ -26,7 +26,23 @@
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
+    <xsl:variable name="tasklist" select="//target/task"/>
+    <xsl:variable name="javac.tasklist" select="$tasklist[@name='Javac']"/>
+    <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='EjbJar']"/>
+    <xsl:variable name="get.tasklist" select="$tasklist[@name!='get']"/>
+    
+    <xsl:variable name="testsuite.list" select="build//testsuite"/>
+    <xsl:variable name="testsuite.error.count" select="count($testsuite.list/error)"/>
+    <xsl:variable name="testcase.list" select="$testsuite.list/testcase"/>
+    <xsl:variable name="testcase.error.list" select="$testcase.list/error"/>
+    <xsl:variable name="testcase.failure.list" select="$testcase.list/failure"/>
+    <xsl:variable name="errors.count" select="count($testcase.error.list) + count($testcase.failure.list)"/>
 
+    <xsl:variable name="modification.list" select="build/modifications/modification"/>
+    <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']"/>
+    <xsl:variable name="war.tasklist" select="$tasklist[@name='War']"/>
+    <xsl:variable name="dist.count" select="count($jar.tasklist) + count($war.tasklist)"/>
+    
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%"> 
 
@@ -47,11 +63,15 @@
             <tr><td colspan="5"><font face="arial" size="2"><b>Description:&#160;</b><xsl:value-of select="build/modifications/modification/comment"/></font><br/><br/></td></tr>
 
             <!-- Compilation Messages -->
-            <xsl:if test="(count(//target/task[@name='Javac']/message[@priority='warn']) + count(//target/task[@name='EjbJar']/message[@priority='warn'])) > 0">
-                <tr><td bgcolor="#000066" colspan="5"><b><font face="arial" size="2" color="#FFFFFF">&#160;Errors/Warnings:&#160;(<xsl:value-of select="count(//target/task[@name!='get']/message[@priority='warn'])"/>)</font></b></td></tr>
 
-                <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="//target/task[@name='Javac']/message[@priority='warn']"/></font></td></tr>
-                <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="//target/task[@name='EjbJar']/message[@priority='warn']"/></font></td></tr>
+            <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn']"/>
+            <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn']"/>
+
+            <xsl:if test="(count($javac.warn.messages) + count($ejbjar.warn.messages)) > 0">
+                <tr><td bgcolor="#000066" colspan="5"><b><font face="arial" size="2" color="#FFFFFF">&#160;Errors/Warnings:&#160;(<xsl:value-of select="count($get.tasklist/message[@priority='warn'])"/>)</font></b></td></tr>
+
+                <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="$javac.warn.messages"/></font></td></tr>
+                <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="$ejbjar.warn.messages"/></font></td></tr>
 
                 <tr><td colspan="5">&#160;</td></tr>
             </xsl:if>
@@ -60,57 +80,55 @@
 
             <!-- Unit Tests -->
             <tr>
-                <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Tests: (<xsl:value-of select="count(build//testsuite/testcase)"/>)</font></td>
+                <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Tests: (<xsl:value-of select="count($testcase.list)"/>)</font></td>
             </tr>
-
+                    
             <xsl:choose>
-                <xsl:when test="count(build//testsuite) = 0">
+                <xsl:when test="count($testsuite.list) = 0">
                     <tr><td colspan="5"><i><font face="arial" size="2">No Tests Run</font></i></td></tr>
                     <tr><td colspan="5"><i><font color="red" face="arial" size="2">This project doesn't have any tests</font></i></td></tr>
                 </xsl:when>
 
-                <xsl:when test="(count(build//testsuite/testcase/error) + count(build//testsuite/testcase/failure)) = 0">
+                <xsl:when test="$errors.count = 0">
                     <tr><td colspan="5"><i><font face="arial" size="2">All Tests Passed</font></i></td></tr>      
                 </xsl:when>      
             </xsl:choose>
 
 
-            <xsl:apply-templates select="build//testsuite/testcase//error"/>
-            <xsl:apply-templates select="build//testsuite/testcase//failure"/>
+            <xsl:apply-templates select="$testcase.error.list"/>
+            <xsl:apply-templates select="$testcase.failure.list"/>
             <tr/>
             <tr><td colspan="4">&#160;</td></tr>
 
-            <xsl:if test="count(build//testsuite/testcase[error]) + count(build//testsuite/testcase[failure]) > 0">
+            <xsl:if test="$errors.count > 0">
 
-              <tr><td bgcolor="#000066" colspan="4"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Test Error Details:&#160;(<xsl:value-of select="count(build//testsuite/testcase[error]) + count(build//testsuite/testcase[failure])"/>)</font></td></tr>
+              <tr><td bgcolor="#000066" colspan="4"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Test Error Details:&#160;(<xsl:value-of select="$errors.count"/>)</font></td></tr>
 
               <xsl:call-template name="testdetail">
-                <xsl:with-param name="detailnodes" select="build//testsuite/testcase[.//error]"/>
+                <xsl:with-param name="detailnodes" select="$testcase.error.list"/>
               </xsl:call-template>
 
               <xsl:call-template name="testdetail">
-                <xsl:with-param name="detailnodes" select="build//testsuite/testcase[.//failure]"/>
+                <xsl:with-param name="detailnodes" select="$testcase.failure.list"/>
               </xsl:call-template>
 
               <tr><td colspan="4">&#160;</td></tr>
             </xsl:if>
 
-
             <!-- Modifications -->
             <tr>
                 <tr><td colspan="5">&#160;</td></tr>
-                <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Modifications since last build:&#160;(<xsl:value-of select="count(build/modifications/modification)"/>)</font></td>
+                <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Modifications since last build:&#160;(<xsl:value-of select="count($modification.list)"/>)</font></td>
             </tr>
-            <xsl:apply-templates select="build/modifications/modification"/>
+            <xsl:apply-templates select="$modification.list"/>
 
-            <xsl:if test="count(//task[@name='Jar']) + count(//task[@name='War']) > 0">
+            <xsl:if test="$dist.count > 0">
                 <tr>
                     <tr><td colspan="5">&#160;</td></tr>
-                    <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Deployments by this build:&#160;(<xsl:value-of select="count(//task[@name='Jar']) + count(//task[@name='War'])"/>)</font></td>
+                    <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Deployments by this build:&#160;(<xsl:value-of select="$dist.count"/>)</font></td>
                 </tr>
-                <xsl:apply-templates select="//task[@name='Jar'] | //task[@name='War']" />
+                <xsl:apply-templates select="$jar.tasklist | $war.tasklist" />
             </xsl:if>   
-
 
         </table>
     </xsl:template>
@@ -158,7 +176,7 @@
     <!-- UnitTest Failures -->
     <xsl:template match="failure">
         <tr>
-            <xsl:if test="(count(build//testsuite/error) + position()) mod 2 = 0">
+            <xsl:if test="($testsuite.error.count + position()) mod 2 = 0">
                 <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
             </xsl:if>   
 
