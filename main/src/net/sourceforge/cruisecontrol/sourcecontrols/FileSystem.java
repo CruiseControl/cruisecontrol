@@ -40,6 +40,7 @@ import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 import org.apache.log4j.Category;
 
 /**
@@ -47,7 +48,11 @@ import org.apache.log4j.Category;
  *
  * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
  */
-public class FileSystem extends SourceControlElement {
+public class FileSystem implements SourceControl {
+
+    private Hashtable _properties = new Hashtable();
+    private String _property;
+    private String _propertyOnDelete;
 
 	private List _modifications;
 	private File _folder;
@@ -60,12 +65,17 @@ public class FileSystem extends SourceControlElement {
 	   _folder = new File(s);
 	}
 
-	/** 
-     * Return the timestamp of the last modified file 
-     */
-	public long getLastModified() {
-		return _mostRecent;
-	}
+    public void setProperty(String property) {
+        _property = property;
+    }
+
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
+    }
+
+    public Hashtable getProperties() {
+        return _properties;
+    }
 
 	/**
 	 * For this case, we don't care about the quietperiod, only that
@@ -75,20 +85,11 @@ public class FileSystem extends SourceControlElement {
      * @param now IGNORED
      * @param quietPeriod IGNORED
 	 */
-	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
 		_modifications = new ArrayList();
 		visit(_folder, lastBuild.getTime());
 
 		return _modifications;
-	}
-
-	/**
-	 * Return list of email ids for users that have modified source.  Since
-	 * we're hard coding this to "User", we really have no use for this and are
-	 * implementing this only to adhere to the existing interface.
-	 */
-	public Set getEmails() {
-	   return new HashSet();
 	}
 
 	/**
@@ -108,9 +109,8 @@ public class FileSystem extends SourceControlElement {
 		mod.comment = "";
 		_modifications.add(mod);
 
-		if (revision.lastModified() > _mostRecent) {
-			_mostRecent = revision.lastModified();
-		}
+        if(_property != null)
+            _properties.put(_property, "true");
 	}
 
     /**
