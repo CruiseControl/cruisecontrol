@@ -200,7 +200,7 @@
     <!-- Updates local code with cvs changes                    -->
     <!-- ****************************************************** -->
     <target name="cvs-update" depends="init" if="localCopy">
-        <cvs cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol"
+        <cvs command="update -d -P" cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol"
              package="cruisecontrol" dest="${localCopy}" />
     </target>
 
