@@ -51,7 +51,7 @@ import java.io.File;
  * @author Niclas Olofsson
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
-public class ProjectController implements ProjectMBean {
+public class ProjectController implements ProjectControllerMBean {
 
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
