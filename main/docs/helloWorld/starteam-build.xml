@@ -57,14 +57,7 @@
     
     <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
 
-    <path id="classpath">
-        <fileset dir="${ccdir}/lib">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
-    
     <target name="init" description="Prepare for build">
-        <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${logdir}"/>
@@ -78,17 +71,15 @@
     </target>
     
     <target name="compile" depends="init" description="Compile application without cleaning">
-        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" includes="**/*.java" debug="true" deprecation="true"/>
+        <javac srcdir="${source.dir}" destdir="${build.dir}" includes="**/*.java" debug="true" deprecation="true"/>
     </target>
     
     <target name="test" depends="init" description="Run unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}"/>
-        <echo message="Running unit tests..."/>
         <junit fork="yes" haltonfailure="yes">
             <classpath>
-                <path refid="classpath"/>
-                <pathelement location="${build.dir}"/>
+               <pathelement location="${build.dir}"/>
             </classpath>
             <formatter type="plain" usefile="false"/>
             <formatter type="xml"/>
@@ -104,9 +95,7 @@
         </jar>
     </target>
     
-    <target name="all" depends="init,clean,compile,test,jar" description="Build application">
-        <echo message="Application built!"/>
-    </target>
+    <target name="all" depends="init,clean,compile,test,jar" description="Build application"/>
 
         <target name="cleansrc">
             <delete dir="${source.dir}"/>

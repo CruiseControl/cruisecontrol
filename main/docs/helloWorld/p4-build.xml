@@ -61,15 +61,7 @@
     -->
     <property name="p4.base" value=""/>
 
-    
-    <path id="classpath">
-        <fileset dir="${ccdir}/lib">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
-
     <target name="init" description="Prepare for build">
-        <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${logdir}"/>
@@ -83,17 +75,15 @@
     </target>
 
     <target name="compile" depends="init" description="Compile application without cleaning">
-        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" 
+        <javac srcdir="${source.dir}" destdir="${build.dir}"
          includes="**/*.java" debug="true" deprecation="true"/>
     </target>
 
     <target name="test" depends="init" description="Run unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}"/>
-        <echo message="Running unit tests..."/>
         <junit fork="yes" haltonfailure="yes">
             <classpath>
-                <path refid="classpath"/>
                 <pathelement location="${build.dir}"/>
             </classpath>
             <formatter type="plain" usefile="false"/>
@@ -110,9 +100,7 @@
         </jar>
     </target>
 
-    <target name="all" depends="init,clean,compile,test,jar" description="Build application">
-        <echo message="Application built!"/>
-    </target>
+    <target name="all" depends="init,clean,compile,test,jar" description="Build application"/>
 
     <!-- P4 sync to get the source out of the repository (uses sync -force) -->
     <taskdef name="sync" classname="org.apache.tools.ant.taskdefs.optional.perforce.P4Sync" />

@@ -52,15 +52,8 @@
     <property name="vss.executable.dir" value="REPLACE with VSS executable directory"/>
     <property name="vss.src.changed" value="false"/>
     <property name="vss.src.delete" value="false"/>
-    
-    <path id="classpath">
-        <fileset dir="${ccdir}/lib">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
-    
+
     <target name="init" description="Prepare for build">
-        <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${masterbuild.logdir}"/>
@@ -74,16 +67,14 @@
     </target>
     
     <target name="compile" depends="init" description="Compile application without cleaning">
-        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" includes="**/*.java" debug="true" deprecation="true"/>
+        <javac srcdir="${source.dir}" destdir="${build.dir}" includes="**/*.java" debug="true" deprecation="true"/>
     </target>
     
     <target name="test" depends="init" description="Run unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}"/>
-        <echo message="Running unit tests..."/>
         <junit fork="yes" haltonfailure="yes">
             <classpath>
-                <path refid="classpath"/>
                 <pathelement location="${build.dir}"/>
             </classpath>
             <formatter type="plain" usefile="false"/>
@@ -100,9 +91,7 @@
         </jar>
     </target>
     
-    <target name="all" depends="init,clean,compile,test,jar" description="Build application">
-        <echo message="Application built!"/>
-    </target>
+    <target name="all" depends="init,clean,compile,test,jar" description="Build application"/>
 
     <target name="vssget" description="gets the latest source from vss" if="vss.src.changed" 
      depends="init">
