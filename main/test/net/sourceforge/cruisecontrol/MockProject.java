@@ -55,8 +55,7 @@ public class MockProject extends Project {
         try {
             Thread.sleep(ONE_SECOND);
         } catch (InterruptedException e) {
-            String message = "MockProject.execute() interrupted";
-            throw new RuntimeException(message);
+            System.out.println("MockProject.execute() interrupted");
         }
     }
     
