@@ -15,16 +15,20 @@
   <li>Niclas Olofsson</li>
 </ul>
 
-<p>Version 1.15 - 06/08/2001</p>
+<p>Version 1.16 - 06/08/2001</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
   <li><a href="#modificationset">ModificationSet</a></li>
-  <li><a href="#clearcaseelement">ClearCaseElement</a></li>
-  <li><a href="#cvselement">CvsElement</a></li>
-  <li><a href="#p4element">P4Element</a></li>
-  <li><a href="#starteamelement">StarTeamElement</a></li>
-  <li><a href="#vsselement">VssElement</a></li>
+  <ul>
+	  <li><a href="#clearcaseelement">ClearCaseElement</a></li>
+	  <li><a href="#cvselement">CvsElement</a></li>
+	  <li><a href="#p4element">P4Element</a></li>
+	  <li><a href="#starteamelement">StarTeamElement</a></li>
+	  <li><a href="#vsselement">VssElement</a></li>
+  </ul>
+  <li><a href="#starteamcheckout">StarTeamCheckout</a></li>
+  <li><a href="#starteamlabel">StarTeamLabel</a></li>
 </ul>
 
 
@@ -138,6 +142,19 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
   </tr>
 </table>
 
+<h4>Example</h4>
+<PRE>
+&lt;target name=&quot;modificationset&quot;&gt;
+    &lt;modificationset lastbuild=&quot;${lastGoodBuildTime}&quot;
+        quietperiod=&quot;30&quot;
+        dateformat=&quot;yyyy-MMM-dd HH:mm:ss&quot;&gt;
+
+        &lt;cvselement cvsroot=&quot;:pserver:anoncvs@jakarta.apache.org:/home/cvspublic&quot;
+            localworkingcopy=&quot;src\mymodule&quot;/&gt;
+    &lt;/modificationset&gt;
+&lt;/target&gt;
+</PRE>
+
 <a name="p4element"></a>
 <h3>P4Element</h3>
 
@@ -207,6 +224,42 @@ Because of this, the P4Element is distributed in it's own package.
 </ul>
 </p>
 
+<a name="starteamelement"></a>
+<h3>StarTeamElement</h3>
+
+<p>Returns a list of modifications found in the repository between two dates. This element
+is meant to be used in conjuction with a ModificationSet to control a build process.  NOTE: this
+task requires a proprietary 3rd party library that is not currently distributed with Cruise Control.
+</p>
+<h4>Parameters</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">folder</td>
+    <td valign="top">The StarTeam folder to recursively scan for modifications.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">starteamurl</td>
+        <td valign="top">The url to the StarTeam server in the form "servername:portnum/project/view"</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">username</td>
+    <td valign="top">The username to connect as.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">password</td>
+    <td valign="top">The password to connect as.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+</table>
+
 <a name="vsselement"></a>
 <h3>VssElement</h3>
 
@@ -252,56 +305,7 @@ local drive.  That's the rationale behind having the propertyondelete attribute.
 
 </table>
 
-<a name="starteamelement"></a>
-<h3>StarTeamElement</h3>
-
-<p>Returns a list of modifications found in the repository between two dates. This element
-is meant to be used in conjuction with a ModificationSet to control a build process.  NOTE: this
-class is not currently distributed with cruisecontrol.jar as it requires a proprietary 3rd party
-library.
-</p>
-<h4>Parameters</h4>
-<table border="1" cellpadding="2" cellspacing="0">
-  <tr>
-    <td valign="top"><b>Attribute</b></td>
-    <td valign="top"><b>Description</b></td>
-    <td align="center" valign="top"><b>Required</b></td>
-  </tr>
-  <tr>
-    <td valign="top">folder</td>
-    <td valign="top">The StarTeam folder to recursively scan for modifications.</td>
-    <td valign="top" align="center">Yes</td>
-  </tr>
-  <tr>
-    <td valign="top">starteamurl</td>
-        <td valign="top">The url to the StarTeam server</td>
-    <td valign="top" align="center">Yes</td>
-  </tr>
-  <tr>
-    <td valign="top">username</td>
-    <td valign="top">The username to connect as.</td>
-    <td valign="top" align="center">Yes</td>
-  </tr>
-  <tr>
-    <td valign="top">password</td>
-    <td valign="top">The password to connect as.</td>
-    <td valign="top" align="center">Yes</td>
-  </tr>
-</table>
-
-<h3>Examples</h3>
-<PRE>
-&lt;target name=&quot;modificationset&quot;&gt;
-    &lt;modificationset lastbuild=&quot;${lastGoodBuildTime}&quot;
-        quietperiod=&quot;30&quot;
-        dateformat=&quot;yyyy-MMM-dd HH:mm:ss&quot;&gt;
-
-        &lt;cvselement cvsroot=&quot;:pserver:anoncvs@jakarta.apache.org:/home/cvspublic&quot;
-            localworkingcopy=&quot;src\mymodule&quot;/&gt;
-    &lt;/modificationset&gt;
-&lt;/target&gt;
-</PRE>
-
+<h4>Example</h4>
 
 <PRE>
 &lt;target name=&quot;modificationset&quot;&gt;
@@ -331,5 +335,79 @@ using the "depends" attribute, determine whether I need to clean.  The same appl
 get the latest source.  If no modifications have occurred within my src directory, but we've modified
 a JSP file, we really don't need to compile all our source again, just repackage our distributable.
 </body>
+
+<h2><a name="starteamcheckout">StarTeamCheckout</a></h2>
+<p>This task logs into StarTeam checks out any changes that have occurred since the last successful build. It also creates all working directories on the local directory if appropriate.</p>
+
+<h4>Parameters</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">folder</td>
+    <td valign="top">The StarTeam folder</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">starteamurl</td>
+        <td valign="top">The url to the StarTeam server in the form "servername:portnum/project/view"</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">username</td>
+    <td valign="top">The username to connect as.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">password</td>
+    <td valign="top">The password to connect as.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">createworkingdirectories</td>
+    <td valign="top">"yes" or "true" will create working copy folders that don't already exist</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+</table>
+
+<h2><a name="starteamlabel">StarTeamLabel</a></h2>
+<p>This task logs into StarTeam and creates a label for the repository at the time of the last successful build.</p>
+
+<h4>Parameters</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">lastbuild</td>
+    <td valign="top">Should be ${lastGoodBuildTime}</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">description</td>
+        <td valign="top">Description of successful builds</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">username</td>
+    <td valign="top">The username to connect as.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">password</td>
+    <td valign="top">The password to connect as.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">starteamurl</td>
+        <td valign="top">The url to the StarTeam server in the form "servername:portnum/project/view"</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+</table>
 
 </html>
