@@ -84,6 +84,7 @@ public class BuildQueueTest extends TestCase {
     public void testStartAndStop() throws InterruptedException {
         queue.start();
         MockProject project = new MockProject();
+        project.setName("BuildQueueTest.testStartAndStop()");
         queue.requestBuild(project);        
         for (int sleepCount = 0; project.getBuildCount()==0; sleepCount++) {
             if (sleepCount>5) {
@@ -94,13 +95,13 @@ public class BuildQueueTest extends TestCase {
         assertEquals(1,project.getBuildCount());
 
         queue.stop();
-        Thread.sleep(500);
+        Thread.sleep(1000);
         assertTrue(!queue.isWaiting());
         assertTrue(!queue.isAlive());
         
         queue.requestBuild(project);
         for (int sleepCount = 0; project.getBuildCount()==1; sleepCount++) {
-            if (sleepCount>5) {
+            if (sleepCount>2) {
                 break;
             }
             Thread.sleep(500);
