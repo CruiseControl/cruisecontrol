@@ -481,7 +481,12 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">interval</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Interval period in milliseconds</td>
+            </tr>
+            <tr>
+               <td class="tabledata">intervaltype</td>
+               <td class="tabledata"></td>
+               <td class="tabledata"></td>
             </tr>
          </table>
 
@@ -501,29 +506,28 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">buildfile</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Path to Ant build file</td>
             </tr>
             <tr>
                <td class="tabledata">target</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Ant target to run</td>
             </tr>
             <tr>
                <td class="tabledata">multiple</td>
                <td class="tabledata" rowspan="2">One of These</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds.</td>
             </tr>
             <tr>
                <td class="tabledata">time</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Time in the form HHmm</td>
             </tr>
             <tr>
                <td class="tabledata">day</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Integer value of day when builds should take place.  Sunday = 1.  Does not support multiple days except for the default of every day.</td>
             </tr>
          </table>
-
 
          <p><a name="pausebuilder"><span class="small">PauseBuilder</span><br>
          It may be necessary for CruiseControl to halt executing in some circumstances.  A disk backup could lock the
@@ -538,24 +542,21 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">day</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Integer value of day when the pause should take place.  Sunday = 1.  Does not support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                <td class="tabledata">starttime</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Start of the pause in HHmm format</td>
             </tr>
             <tr>
                <td class="tabledata">endtime</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">End of the pause in HHmm format</td>
             </tr>
          </table>
 
-
-
-         <hr>
-
+         <hr/>
 
          <p><a name="log"><span class="small">Log</span><br>
          [about log]
@@ -569,6 +570,11 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">dir</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">The cruisecontrol log directory</td>
+            </tr>
+            <tr>
+               <td class="tabledata">encoding</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Encoding for XML log files</td>
             </tr>
          </table>
 
