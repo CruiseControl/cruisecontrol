@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Arrays;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -82,9 +83,9 @@ public abstract class EmailPublisher implements Publisher {
     private String password;
     private String mailPort;
     private String buildResultsURL;
-    private List alwaysAddresses = new ArrayList();
-    private List failureAddresses = new ArrayList();
-    private List emailMap = new ArrayList();
+    private Always[] alwaysAddresses = new Always[0];
+    private Failure[] failureAddresses = new Failure[0];
+    private EmailMapping[] emailMap = new EmailMapping[0];
     private String returnAddress;
     private String returnName;
     private String defaultSuffix = "";
@@ -207,26 +208,22 @@ public abstract class EmailPublisher implements Publisher {
         }
 
         //add always addresses
-        Iterator alwaysAddressIterator = alwaysAddresses.iterator();
-        while (alwaysAddressIterator.hasNext()) {
-            users.add(((Always) alwaysAddressIterator.next()).getAddress());
+        for (int i = 0; i < alwaysAddresses.length; i++) {
+            users.add(alwaysAddresses[i].getAddress());
         }
 
         //if build failed, add failure addresses
         if (!logHelper.isBuildSuccessful()) {
-            Iterator failureAddressIterator = failureAddresses.iterator();
-            while (failureAddressIterator.hasNext()) {
-                users.add(
-                        ((Failure) failureAddressIterator.next()).getAddress());
+            for (int i = 0; i < failureAddresses.length; i++) {
+                users.add(failureAddresses[i].getAddress());
             }
         }
 
         //move map to hashtable
         Set emails = new TreeSet();
         Hashtable emailMappings = new Hashtable();
-        Iterator emailMapIterator = emailMap.iterator();
-        while (emailMapIterator.hasNext()) {
-            EmailMapping mapping = (EmailMapping) emailMapIterator.next();
+        for (int i = 0; i < emailMap.length; i++) {
+            EmailMapping mapping = emailMap[i];
             LOG.debug("Mapping alias: " + mapping.getAlias() + " to address: "
                     + mapping.getAddress());
             emailMappings.put(mapping.getAlias(), mapping.getAddress());
@@ -401,14 +398,6 @@ public abstract class EmailPublisher implements Publisher {
         buildResultsURL = url;
     }
 
-    public void addAlwaysAddress(String emailAddress) {
-        alwaysAddresses.add(emailAddress);
-    }
-
-    public void addFailureAddress(String emailAddress) {
-        failureAddresses.add(emailAddress);
-    }
-
     public String getReturnAddress() {
         return returnAddress;
     }
@@ -441,21 +430,40 @@ public abstract class EmailPublisher implements Publisher {
         spamWhileBroken = spam;
     }
 
-    public Object createAlways() {
+    public Always createAlways() {
+        List alwaysList = new ArrayList();
+        alwaysList.addAll(Arrays.asList(alwaysAddresses));
+
+
         Always always = new Always();
-        alwaysAddresses.add(always);
+        alwaysList.add(always);
+
+        alwaysAddresses = (Always[]) alwaysList.toArray(new Always[0]);
+
         return always;
     }
 
-    public Object createFailure() {
+    public Failure createFailure() {
+        List failureList = new ArrayList();
+        failureList.addAll(Arrays.asList(failureAddresses));
+
         Failure failure = new Failure();
-        failureAddresses.add(failure);
+        failureList.add(failure);
+
+        failureAddresses = (Failure[]) failureList.toArray(new Failure[0]);
+
         return failure;
     }
 
-    public Object createMap() {
+    public EmailMapping createMap() {
+        List emailList = new ArrayList();
+        emailList.addAll(Arrays.asList(emailMap));
+
         EmailMapping map = new EmailMapping();
-        emailMap.add(map);
+        emailList.add(map);
+
+        emailMap = (EmailMapping[]) emailList.toArray(new EmailMapping[0]);
+
         return map;
     }
 
