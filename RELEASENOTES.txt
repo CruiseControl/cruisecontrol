@@ -5,6 +5,10 @@ AntBuilderTest:
 * Removed test for Ant 1.4 logfile containing invalid processing instruction, since it could fail the build with some XML Parsers.
   Changed it to test a valid xml log file as produced by Ant versions later than 1.4.x
 
+JabberPublisher:
+----------------------
+* Add 1 second sleep so multiple jabber publishers work. (CC-119) Patch by Fleur Kelpin
+
 manifest.mf:
 ----------------------
 * Corrected Class-Path to refer to the correct jars (includes CC-99)

@@ -61,6 +61,7 @@ import org.jivesoftware.smack.XMPPException;
 public abstract class JabberPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(JabberPublisher.class);
+    private static final int ONE_SECOND = 1000;
 
     private String host;
     private int port = 5222;
@@ -196,6 +197,11 @@ public abstract class JabberPublisher implements Publisher {
             }
         } catch (XMPPException e) {
             LOG.error("Unable to send message via Jabber", e);
+        }
+
+        try {
+            Thread.sleep(ONE_SECOND);
+        } catch (InterruptedException ignore) {
         }
     }
 
