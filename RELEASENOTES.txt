@@ -8,6 +8,10 @@ build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
 
+MavenBuilder
+----------------------
+* Fix for CC-40 where download failures were treated as success. Patch by Tim Shadel
+
 CruiseControl Release Notes - 2.1.6
 
 AlwaysBuild

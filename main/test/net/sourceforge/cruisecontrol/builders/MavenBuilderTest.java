@@ -55,6 +55,10 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 
 public class MavenBuilderTest extends TestCase {
 
+    private static final String MOCK_SUCCESS = "successful build";
+    private static final String MOCK_BUILD_FAILURE = "failed build";
+    private static final String MOCK_DOWNLOAD_FAILURE = "download failure";
+
     /**
      * void validate()
      */
@@ -156,17 +160,21 @@ public class MavenBuilderTest extends TestCase {
      * Element build(Map). Mock a success.
      */
     public void testBuild() {
-        internalTestBuild(false); // mocking the success
-        internalTestBuild(true); // mocking the failure
+      internalTestBuild(MOCK_SUCCESS);
+      internalTestBuild(MOCK_BUILD_FAILURE);
+      internalTestBuild(MOCK_DOWNLOAD_FAILURE);
     }
 
     /**
      * Element build(Map). mockFailure == (Mock a failure?).
+     *
+     * @param statusType The exit status to be tested
      */
-    private void internalTestBuild(boolean mockFailure) {
+    private void internalTestBuild(String statusType) {
         MavenBuilder mb = new MavenBuilder();
         String testScriptName = null;
-        String msgHead = mockFailure ? "MockFailure" : "MockSuccess";
+        boolean buildSuccessful = statusType.equals(MOCK_SUCCESS);
+        String statusText = getStatusText(statusType);
         try {
             // Prepare mock files.
             if (mb.isWindows()) {
@@ -178,7 +186,7 @@ public class MavenBuilderTest extends TestCase {
                         + "@echo Bla-bla-compile\n"
                         + "@echo test:test:\n"
                         + "@echo "
-                        + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
+                        + statusText
                         + "\n",
                     true);
             } else {
@@ -192,7 +200,7 @@ public class MavenBuilderTest extends TestCase {
                         + "echo Bla-bla-compile\n"
                         + "echo test:test:\n"
                         + "echo "
-                        + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
+                        + statusText
                         + "\n",
                     false);
             }
@@ -207,40 +215,40 @@ public class MavenBuilderTest extends TestCase {
                 mb.setGoal("fakegoal");
                 // this should "succeed"
                 Element logElement = mb.build(new Hashtable());
-                assertNotNull(msgHead, logElement);
+                assertNotNull(statusType, logElement);
                 goalTags = logElement.getChildren("mavengoal");
-                assertNotNull(msgHead, goalTags);
-                assertEquals(msgHead, 2, goalTags.size());
+                assertNotNull(statusType, goalTags);
+                assertEquals(statusType, 2, goalTags.size());
                 we = (Element) goalTags.get(0);
-                assertEquals(msgHead, "java:compile", we.getAttribute("name").getValue());
+                assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
                 we = (Element) goalTags.get(1);
-                assertEquals(msgHead, "test:test", we.getAttribute("name").getValue());
-                if (mockFailure) {
-                    assertNotNull(msgHead, logElement.getAttribute("error"));
+                assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
+                if (!buildSuccessful) {
+                    assertNotNull("error attribute not found when " + statusType, logElement.getAttribute("error"));
                 } else {
-                    assertNull(msgHead, logElement.getAttribute("error"));
+                    assertNull(statusType, logElement.getAttribute("error"));
                 }
 
                 // this time let's test multiple runs
                 mb.setGoal("fakegoal|otherfakegoal");
                 // this should "double succeed"
                 logElement = mb.build(new Hashtable());
-                assertNotNull(msgHead, logElement);
+                assertNotNull(statusType, logElement);
                 goalTags = logElement.getChildren("mavengoal");
-                assertNotNull(msgHead, goalTags);
+                assertNotNull(statusType, goalTags);
                 // if we mocked a failure, the second run should never happen
-                assertEquals(msgHead, mockFailure ? 2 : 4, goalTags.size());
+                assertEquals(statusType, !buildSuccessful ? 2 : 4, goalTags.size());
                 we = (Element) goalTags.get(0);
-                assertEquals(msgHead, "java:compile", we.getAttribute("name").getValue());
+                assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
                 we = (Element) goalTags.get(1);
-                assertEquals(msgHead, "test:test", we.getAttribute("name").getValue());
-                if (mockFailure) {
-                    assertNotNull(msgHead, logElement.getAttribute("error"));
+                assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
+                if (!buildSuccessful) {
+                    assertNotNull(statusType, logElement.getAttribute("error"));
                 } else {
                     we = (Element) goalTags.get(2);
-                    assertEquals(msgHead, "java:compile", we.getAttribute("name").getValue());
+                    assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
                     we = (Element) goalTags.get(3);
-                    assertEquals(msgHead, "test:test", we.getAttribute("name").getValue());
+                    assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
                     assertNull(logElement.getAttribute("error"));
                 }
 
@@ -335,5 +343,21 @@ public class MavenBuilderTest extends TestCase {
             assertEquals(msg + " Element " + i + " mismatch.", refarr[i], testarr[i]);
         }
         return true;
+    }
+
+    /**
+     * Text for build status
+     *
+     * @param statusCode The exit status to be tested
+     */
+    private String getStatusText(String statusCode) {
+        if (statusCode.equals(MOCK_SUCCESS)) {
+            return "BUILD SUCCESSFUL";
+        } else if (statusCode.equals(MOCK_BUILD_FAILURE)) {
+            return "BUILD FAILED";
+        } else if (statusCode.equals(MOCK_DOWNLOAD_FAILURE)) {
+            return "The build cannot continue because of the following unsatisfied dependency";
+        }
+        throw new IllegalArgumentException("please use one of the constants");
     }
 }
