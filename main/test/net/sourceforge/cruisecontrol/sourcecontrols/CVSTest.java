@@ -455,13 +455,10 @@ public class CVSTest extends TestCase {
         }
     }
 
-    public void testFormatLogDate() {
-        Date may18SixPM2001 =
-            new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();        
-        assertEquals(
-            "2001/05/18 18:00:00 "
-                + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT),
-            CVS.LOGDATE.format(may18SixPM2001));
+    public void testParseLogDate() throws ParseException {
+        Date may18SixPM2001 = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();        
+        assertEquals(may18SixPM2001, CVS.LOGDATE.parse("2001/05/18 18:00:00 "
+                     + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT)));            
     }
 
     public void testFormatCVSDateGMTPlusZero() {
