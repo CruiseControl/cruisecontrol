@@ -31,7 +31,7 @@ public class MockSourceControl implements SourceControl {
         _version = version;
     }
 
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
         ArrayList result = new ArrayList();
 
         if (_version == 1) {

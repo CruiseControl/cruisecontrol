@@ -169,11 +169,9 @@ public class MKS implements SourceControl {
      *
      * @param lastBuild Last build time.
      * @param now       Time now, or time to check.
-     * @param quietPeriod
-     *                  NOT USED.
      * @return maybe empty, never null.
      */
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
         List mods = null;
 
         String dateRange = "\""+MKSDATE.format(lastBuild) +"<" + MKSDATE.format(now)+"\"";

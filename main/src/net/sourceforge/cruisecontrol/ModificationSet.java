@@ -84,7 +84,7 @@ public class ModificationSet {
         Iterator sourceControlIterator = _sourceControls.iterator();
         while (sourceControlIterator.hasNext()) {
             SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
-            _modifications.addAll(sourceControl.getModifications(lastBuild, now, _quietPeriod));
+            _modifications.addAll(sourceControl.getModifications(lastBuild, now));
         }
 
         //(REFACT) I took this out, and it is now handled by stylesheets instead.

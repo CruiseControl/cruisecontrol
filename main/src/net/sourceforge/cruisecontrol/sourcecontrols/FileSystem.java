@@ -83,9 +83,8 @@ public class FileSystem implements SourceControl {
      *
      * @param lastBuild date of last build
      * @param now IGNORED
-     * @param quietPeriod IGNORED
 	 */
-	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+	public List getModifications(Date lastBuild, Date now) {
 		_modifications = new ArrayList();
 		visit(_folder, lastBuild.getTime());
 

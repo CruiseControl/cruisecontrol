@@ -113,13 +113,12 @@ public class PVCS implements SourceControl {
 	 *
 	 *@param  lastBuild the last build time
 	 *@param  now time now, or time to check
-	 *@param  quietPeriod number of seconds to allow for developers checking in files 
 	 *@return  the list of modifications, an empty (not null) list if no
 	 *      modifications or if developer had checked in files since quietPeriod seconds ago.
          *
          *  Note:  Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
 	 */
-	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+	public List getModifications(Date lastBuild, Date now) {
                 // build file of PVCS command line instructions
                 String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
                 String nowDate = IN_DATE_FORMAT.format(now);
