@@ -101,6 +101,17 @@
         <servlet-class>net.sourceforge.cruisecontrol.servlet.FileServlet</servlet-class>
     </servlet>
 
+    <!-- Used for charting... -->
+    <servlet>
+        <servlet-name>CewolfServlet</servlet-name>
+        <servlet-class>de.laures.cewolf.CewolfRenderer</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CewolfServlet</servlet-name>
+        <url-pattern>/cewolf/*</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>LogServlet</servlet-name>
         <url-pattern>/logs/*</url-pattern>

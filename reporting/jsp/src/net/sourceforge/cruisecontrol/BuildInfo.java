@@ -37,13 +37,13 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
@@ -52,7 +52,7 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
  * TODO: TYpe comment.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class BuildInfo implements Comparable {
+public class BuildInfo implements Comparable, Serializable {
     private static final String LOG_PREFIX = "log";
     private static final String LOG_SUFFIX = ".xml";
     private static final String LABEL_SEPARATOR = "L";
@@ -132,7 +132,7 @@ public class BuildInfo implements Comparable {
      * @param file
      * @return
      */
-    public static Summary loadFromDir(File logDir) throws CruiseControlWebAppException {
+    public static BuildInfoSummary loadFromDir(File logDir) throws CruiseControlWebAppException {
         String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
             throw new CruiseControlWebAppException("Could not access the directory " + logDir.getAbsolutePath());
@@ -146,13 +146,12 @@ public class BuildInfo implements Comparable {
             try {
                 buildInfoList.add(new BuildInfo(logFileName));
             } catch (ParseException e) {
-                throw new CruiseControlWebAppException(
-                        "Could not parse log file name " + logFileName
-                        + ". Is the filter broken?", e);
+                throw new CruiseControlWebAppException("Could not parse log file name " + logFileName
+                                           + ". Is the filter broken?", e);
             }
         }
         Collections.sort(buildInfoList);
-        return new Summary(buildInfoList);
+        return new BuildInfoSummary(buildInfoList);
     }
 
     /**
@@ -162,71 +161,5 @@ public class BuildInfo implements Comparable {
     public int compareTo(Object arg0) {
         BuildInfo other = (BuildInfo) arg0;
         return this.buildDate.compareTo(other.buildDate);
-    }
-    
-    public static final class Summary {
-        private final List buildInfoList;
-        private final int numBrokenBuilds;
-        private final int numSuccessfulBuilds;
-
-        private Summary(List buildInfoList) {
-            this.buildInfoList = Collections.unmodifiableList(buildInfoList);
-            int brokenBuildsCounter = 0;
-            int successfulBuildsCounter = 0;
-            for (Iterator i = buildInfoList.iterator(); i.hasNext();) {
-                BuildInfo buildInfo = (BuildInfo) i.next();
-                if (buildInfo.isSuccessful()) {
-                    successfulBuildsCounter++;
-                } else {
-                    brokenBuildsCounter++;
-                }
-            }
-            numBrokenBuilds = brokenBuildsCounter;
-            numSuccessfulBuilds = successfulBuildsCounter;
-        }
-        
-        
-        
-        /**
-         * @return Returns the buildInfoList.
-         */
-        public List getBuildInfoList() {
-            return buildInfoList;
-        }
-        /**
-         * @return Returns the numBrokenBuilds.
-         */
-        public int getNumBrokenBuilds() {
-            return numBrokenBuilds;
-        }
-        /**
-         * @return Returns the numSuccessfulBuilds.
-         */
-        public int getNumSuccessfulBuilds() {
-            return numSuccessfulBuilds;
-        }
-        
-        /**
-         * @return
-         */
-        public Iterator iterator() {
-            return buildInfoList.iterator();
-        }
-        
-        /**
-         * @return
-         */
-        public int size() {
-            return buildInfoList.size();
-        }
-
-
-
-        /**
-         * @return
-         */
-        public BuildInfo[] asArray() {
-            return (BuildInfo[]) buildInfoList.toArray(new BuildInfo[buildInfoList.size()]);
-        }
     }
 }

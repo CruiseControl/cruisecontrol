@@ -34,39 +34,76 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.taglib;
+package net.sourceforge.cruisecontrol;
 
-import java.io.File;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
 
-import net.sourceforge.cruisecontrol.BuildInfo;
-import net.sourceforge.cruisecontrol.BuildInfoSummary;
+public final class BuildInfoSummary implements Serializable {
+    private final List buildInfoList;
+    private final int numBrokenBuilds;
+    private final int numSuccessfulBuilds;
 
-/**
- * TODO: TYpe comment.
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
- */
-public class BuildInfoTag extends CruiseControlTagSupport {
-
-    public static final String INFO_ATTRIBUTE = "build_info";
-    
-    
-    /*
-     * @see javax.servlet.jsp.tagext.Tag#doEndTag()
-     */
-    public int doEndTag() throws JspException {
-        File logDir = findLogDir();
-        BuildInfoSummary buildInfoSummary = BuildInfo.loadFromDir(logDir);
-        getPageContext().setAttribute(INFO_ATTRIBUTE, buildInfoSummary);
-        return Tag.EVAL_PAGE;
+    BuildInfoSummary(List buildInfoList) {
+        this.buildInfoList = Collections.unmodifiableList(buildInfoList);
+        int brokenBuildsCounter = 0;
+        int successfulBuildsCounter = 0;
+        for (Iterator i = buildInfoList.iterator(); i.hasNext();) {
+            BuildInfo buildInfo = (BuildInfo) i.next();
+            if (buildInfo.isSuccessful()) {
+                successfulBuildsCounter++;
+            } else {
+                brokenBuildsCounter++;
+            }
+        }
+        numBrokenBuilds = brokenBuildsCounter;
+        numSuccessfulBuilds = successfulBuildsCounter;
     }
     
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.Tag#doStartTag()
+    
+    
+    /**
+     * @return Returns the buildInfoList.
      */
-    public int doStartTag() throws JspException {
-        return Tag.SKIP_BODY;
+    public List getBuildInfoList() {
+        return buildInfoList;
+    }
+    /**
+     * @return Returns the numBrokenBuilds.
+     */
+    public int getNumBrokenBuilds() {
+        return numBrokenBuilds;
+    }
+    /**
+     * @return Returns the numSuccessfulBuilds.
+     */
+    public int getNumSuccessfulBuilds() {
+        return numSuccessfulBuilds;
+    }
+    
+    /**
+     * @return
+     */
+    public Iterator iterator() {
+        return buildInfoList.iterator();
+    }
+    
+    /**
+     * @return
+     */
+    public int size() {
+        return buildInfoList.size();
+    }
+
+
+
+    /**
+     * @return
+     */
+    public BuildInfo[] asArray() {
+        return (BuildInfo[]) buildInfoList.toArray(new BuildInfo[buildInfoList.size()]);
     }
 }

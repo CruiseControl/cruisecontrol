@@ -5,3 +5,4 @@ checkstyle.cache
 checkstyleResults.txt
 tmp
 testresults
+override.properties

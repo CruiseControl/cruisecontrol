@@ -164,6 +164,14 @@
                 <exclude name="*.properties"/>
            </fileset>
             <classes dir="${classes}"/>
+            <lib dir="${lib}">
+                <include name="cewolf.jar"/>
+                <include name="jfreechart-0.9.8.jar"/>
+                <include name="jcommon-0.8.0.jar"/>
+                <include name="batik-svggen.jar"/>
+                <include name="batik-awt-util.jar"/>
+                <include name="batik-util.jar"/>
+            </lib>
         </war>
     </target>
 

@@ -112,7 +112,7 @@ public class CruiseControlTagSupportTest extends TestCase {
         writeFile(log2, "");
         writeFile(log3, "");
 
-        File result = tag.getLatestLogFile(logDir);
+        File result = CruiseControlTagSupport.getLatestLogFile(logDir);
         assertEquals("log3.xml", result.getName());
     }
 

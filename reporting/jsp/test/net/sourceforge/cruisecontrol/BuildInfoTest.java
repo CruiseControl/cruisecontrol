@@ -80,7 +80,7 @@ public class BuildInfoTest extends TestCase {
                                  new BuildInfo("log20020224120000.xml"),
                                  new BuildInfo("log20020225120000LBuild.2.xml") };
         
-        BuildInfo.Summary results = BuildInfo.loadFromDir(LogFileSetupDecorator.LOG_DIR);
+        BuildInfoSummary results = BuildInfo.loadFromDir(LogFileSetupDecorator.LOG_DIR);
         assertEquals(2, results.getNumBrokenBuilds());
         assertEquals(2, results.getNumSuccessfulBuilds());
         BuildInfo[] resultsArray = results.asArray();

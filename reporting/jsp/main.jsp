@@ -65,6 +65,10 @@
                 <%@ include file="xmllog.jsp" %>
               </cruisecontrol:tab>
 
+              <cruisecontrol:tab name="metrics" label="Metrics" >
+                <%@ include file="metrics.jsp" %>
+              </cruisecontrol:tab>
+
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
                 <%@ include file="controlpanel.jsp" %>
               </cruisecontrol:tab>
