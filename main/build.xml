@@ -4,34 +4,34 @@
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
+ *
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
- *     + Redistributions of source code must retain the above copyright 
- *       notice, this list of conditions and the following disclaimer. 
- *       
- *     + Redistributions in binary form must reproduce the above 
- *       copyright notice, this list of conditions and the following 
- *       disclaimer in the documentation and/or other materials provided 
- *       with the distribution. 
- *       
- *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the 
- *       names of its contributors may be used to endorse or promote 
- *       products derived from this software without specific prior 
- *       written permission. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 
@@ -39,14 +39,14 @@
 
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
-    <property name="classes" value="classes"/>    
+    <property name="classes" value="classes"/>
     <property name="dist" value="dist"/>
-    <property name="release" value="release"/> 
+    <property name="release" value="release"/>
     <property name="images" value="images"/>
     <property name="junit.results" value="test-results" />
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
-    <property name="test" value="test"/>   
+    <property name="test" value="test"/>
 
     <!-- ********************************************************* -->
     <!-- Give user a chance to override without editing this file  -->
@@ -57,7 +57,7 @@
 
     <!-- ****************************************************
     Define the project classpath references.  Any jar found
-    in lib directory will be included in CLASSPATH 
+    in lib directory will be included in CLASSPATH
     **************************************************** -->
     <path id="project.classpath" >
         <fileset dir="lib">
@@ -70,9 +70,7 @@
     <!-- **************************************************** -->
     <path id="project.runtime.classpath" >
         <path refid="project.classpath" />
-        <fileset dir="lib">
-            <include name="**/activation*.jar"/>
-        </fileset>
+        <fileset dir="lib"/>
         <pathelement location="${classes}" />
         <pathelement path="${java.class.path}"/>
     </path>
@@ -80,10 +78,10 @@
     <!-- **************************************************** -->
     <!-- Init target for setting up the build system          -->
     <!-- **************************************************** -->
-    <target name="init" description="Setup build system">     
+    <target name="init" description="Setup build system">
         <mkdir dir="${classes}"/>
         <mkdir dir="${apidocs}"/>
-        <mkdir dir="${release}"/> 
+        <mkdir dir="${release}"/>
     </target>
 
     <!-- **************************************************** -->
@@ -93,25 +91,41 @@
        <delete quiet="yes">
             <fileset dir="dist" includes="*.jar, *.war, *.zip"/>
        </delete>
+       <delete dir="${classes}" quiet="yes"/>
+       <delete dir="${apidocs}" quiet="yes"/>
+       <delete dir="${junit.results}" quiet="yes"/>
+       <delete dir="${release}" quiet="yes"/>
+    </target>
+
+    <!-- **************************************************** -->
+    <!-- Clean up test result files                           -->
+    <!-- **************************************************** -->
+    <target name="clean-testresults" description="Cleans up after the tests">
        <delete file="final.xml" quiet="yes"/>
        <delete file="log.xml" quiet="yes"/>
        <delete file="logFileOne.xml" quiet="yes"/>
-       <delete file="logFileTwo.xml" quiet="yes"/> 
-       <delete dir="${classes}" quiet="yes"/>
-       <delete dir="${apidocs}" quiet="yes"/>
-       <delete dir="${junit.results}" quiet="yes"/> 
-       <delete dir="${release}" quiet="yes"/>
-
+       <delete file="logFileTwo.xml" quiet="yes"/>
+       <delete dir="_auxLogs" quiet="yes"/>
+       <delete file="myproject" quiet="yes"/>
+       <delete file="_" quiet="yes">
+          <fileset dir=".">
+             <include name="log*.xml"/>
+             <include name="_*"/>
+          </fileset>
+       </delete>
     </target>
 
     <!-- **************************************************** -->
     <!-- Compiles the source code                             -->
     <!-- **************************************************** -->
     <target name="compile" depends="init" description="Compiles source code">
-        <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath" debug="true" 
+        <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath" debug="true"
          deprecation="true"/>
         <copy todir="${classes}">
             <fileset dir="${src}" includes="**/*.properties"/>
+        </copy>
+        <copy todir="${classes}">
+            <fileset dir="." includes="log4j.properties"/>
         </copy>
     </target>
 
@@ -137,10 +151,10 @@
             </batchtest>
         </junit>
     </target>
-    
+
     <!-- **************************************************** -->
     <!-- Builds the jar                                       -->
-    <!-- **************************************************** -->    
+    <!-- **************************************************** -->
     <target name="jar" depends="compile">
         <jar jarfile="${dist}\cruisecontrol.jar">
             <fileset dir="${classes}"/>
@@ -149,7 +163,7 @@
             <fileset dir="." includes="${src}/**/*.java" />
         </jar>
     </target>
-    
+
     <!-- **************************************************** -->
     <!-- Generates the javadocs                               -->
     <!-- **************************************************** -->
@@ -171,15 +185,15 @@
         <delete file="${release}\${release.zip}"/>
         <zip zipfile="${release}\${release.zip}">
             <fileset dir="${dist}" includes="*.*"/>
-            <fileset dir="." 
+            <fileset dir="."
              includes="${docs}/**, ${lib}/*.jar, *.txt" />
         </zip>
     </target>
-                  
+
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,compile,test,jar" description="Performs a clean build, runs tests, and builds jar" />
+    <target name="all" depends="clean,init,compile,test,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- CRUISE EXAMPLES                                        -->
@@ -202,7 +216,7 @@
         <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet" />
 
         <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="60">
-            <cvselement cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol" 
+            <cvselement cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol"
                         localworkingcopy="${localCopy}/cruisecontrol" />
         </modificationset>
     </target>
@@ -223,4 +237,4 @@
         <ant antfile="${localCopy}/cruisecontrol/build.xml" target="clean" />
         <ant antfile="${localCopy}/cruisecontrol/build.xml" target="all" />
     </target>
-</project>                                                                       
+</project>
