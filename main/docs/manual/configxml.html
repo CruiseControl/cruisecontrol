@@ -1,0 +1,422 @@
+<html>
+<head>
+   <title>CruiseControl Installation Instructions</title>
+   <style type="text/css">
+      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
+      .header { font-size:12pt; font-weight:bold; }
+      pre { font-family:courier,serif; background-color:#CCCCCC; border:1; }
+      code { font-family:courier,serif; }
+      .small { font-size:8pt; font-weight:bold; }
+      .tabledata { font-size:8pt; }
+      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
+      .tableheader { font-size:8pt; font-weight:bold; color:#FFFFFF; background-color:#000033; }
+      .table { border-width:thin; border-color:#000033; }
+   </style>
+</head>
+
+
+<body class="body" leftmargin="0" topmargin="0">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+   <tr>
+      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
+      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
+   <tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+   <tr>
+      <td valign="top" width="80">
+         <img src="menutop.gif" border="0"><br>
+         <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
+         <a href="news.html"><img src="menunews.gif" border="0"></a><br>
+         <a href="download.html"><img src="menudownload.gif" border="0"></a><br>
+         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
+         <a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
+         <a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
+         <a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
+         <img src="menubottom.gif" border="0">
+      </td>
+      <td valign="top" align="left" width="650">
+         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <!-- content begins here -->
+
+         <span class="header">CruiseControl Configuration Guide</span>
+         <p>
+
+         <ul>
+            <li><a class="small" href="#project">Project</a>
+            <ul>
+               <li><a class="small" href="#bootstrappers">Bootstrappers</a>
+                  <ul>
+                     <li><a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>
+                  </ul>
+               <li><a class="small" href="#schedule">Schedule</a>
+                  <ul>
+                     <li><a class="small" href="#antbuilder">AntBuilder</a>
+                     <li><a class="small" href="#pausebuilder">PauseBuilder</a>
+                  </ul>
+               <li><a class="small" href="#modificationset">ModificationSet</a>
+                  <ul>
+                     <li><a class="small" href="#cvs">CVS</a>
+                     <li><a class="small" href="#vss">Visual SourceSafe</a>
+                     <li><a class="small" href="#vssjournal">Visual SourceSafe, Journal File Implementation</a>
+                     <li><a class="small" href="#p4">Perforce</a>
+                     <li><a class="small" href="#pvcs">PVCS</a>
+                     <li><a class="small" href="#mks">MKS</a>
+                  </ul>
+               <li><a class="small" href="#log">Log</a>
+                  <ul>
+                     <li><a class="small" href="#merge">Merge</a>
+                  </ul>
+               <li><a class="small" href="#publishers">Publishers</a>
+                  <ul>
+                     <li><a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>
+                     <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
+                  </ul>
+               <li><a class="small" href="#labelincrementers">LabelIncrementers</a>
+                  <ul>
+                     <li><a class="small" href="#defaultlabelincrementer">DefaultLabelIncrementer</a>
+                     <li><a class="small" href="#cvslabelincrementer">CVSLabelIncrementer</a>
+                  </ul>
+               <li><a class="small" href="#plugin">Plugin</a>
+            </ul>
+         </ul>
+
+
+<p>
+<span class="small">Sample config.xml file:</span>
+<table border="1" width="100%"><tr><td>
+<pre>
+&lt;cruisecontrol&gt;
+   &lt;project name="sampleproject"&gt;
+      &lt;bootstrappers&gt;
+         &lt;currentbuildstatusbootstrapper file="logs/currentbuildstatus.txt" dateformat=""/&gt;
+      &lt;/bootstrappers&gt;
+      &lt;modificationset &gt;
+         &lt;cvs cvsroot="" defaultbranchonly="" localworkingcopy=""
+                 tag="" property="" propertyondelete=""/&gt;
+      &lt;/modificationset quietperiod="" dateformat=""&gt;
+      &lt;schedule<&gt;
+         &lt;ant file="" target=""/&gt;
+      &lt;log dir=""&gt;
+         &lt;merge file=""/&gt;
+         &lt;merge dir=""/&gt;
+      &lt;/log&gt;
+      &lt;publishers&gt;
+         &lt;currentbuildstatuspublisher file="logs/currentbuildstatus.txt" dateformat=""/&gt;
+         &lt;email mailhost="" returnaddress="" defaultsuffix=""
+                   reportsuccess="" spamwhilebroken="" buildresultsurl=""&gt;
+            &lt;always address=""/&gt;
+            &lt;failure address=""/&gt;
+            &lt;map alias="" address=""/&gt;
+         &lt;/email&gt;
+      &lt;/publishers&gt;
+      &lt;plugin name="currentbuildstatusbootstrapper"
+                 classname="...bootstrappers.CurrentBuildStatusBootstrapper"/&gt;
+      &lt;plugin name="cvs"
+                 classname="net.sourceforge.cruisecontrol.sourcecontrols.CVS"/&gt;
+      &lt;plugin name="currentbuildstatuspublisher"
+                 classname="...publishers.CurrentBuildStatusPublisher"/&gt;
+      &lt;plugin name="email"
+                 classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher"/&gt;
+      &lt;plugin name="labelincrementer"
+                 classname="...labelincrementers.DefaultLabelIncrementer"/&gt;
+   &lt;/project&gt;
+&lt;/cruisecontrol&gt;
+</pre>
+</td></tr>
+</table>
+
+         <p><a name="project"><span class="small">Project</span><br>
+         A <code>Project</code> is the basic unit of work -- it will handle checking for modifications, building, and
+         publishing the results of your project.
+
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">name</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Unique identifier for this project</td>
+            </tr>
+         </table>
+
+
+         <hr>
+
+
+         <p><a name="bootstrappers"><span class="small">Bootstrappers</span><br>
+         <code>Bootstrapper</code>s are run before a build takes place, regardless of whether a build is necessary or
+         not. [double-check this behavior]
+
+         <p><a name="currentbuildstatusbootstrapper"><span class="small">CurrentBuildStatusBootstrapper</span><br>
+         The CruiseControl Build Results JSP will indicate whether or not CruiseControl is currently building a project.
+         To get this information to the JSP, we write an HTML snippet to disk in a location where the JSP can read it.
+         This file will consist of the time the build was started, so there is an optional attribute to customize the
+         dateformat.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The filename to write</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dateformat</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Optionally customize the dateformat used in this file</td>
+            </tr>
+         </table>
+
+         <hr>
+
+         <p><a name="modificationset"><span class="small">ModificationSet</span><br>
+         [about modset]<p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">quietperiod</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dateformat</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+
+         <hr>
+
+
+         <p><a name="schedule"><span class="small">Schedule</span><br>
+         CruiseControl allows the user to schedule <i>n</i> different builds, either on interval or triggered to
+         run at a given date/time.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">interval</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+         <p><a name="antbuilder"><span class="small">AntBuilder</span><br>
+         Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
+         every 5 builds, or run more comprehensive (and time intensive) system tests every 10 builds.  We can also
+         schedule an official build to run every night at midnight, if we so desire.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">buildfile</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">target</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">multiple</td>
+               <td class="tabledata" rowspan="2">One of These</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">time</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">day</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+
+         <p><a name="pausebuilder"><span class="small">PauseBuilder</span><br>
+         It may be necessary for CruiseControl to halt executing in some circumstances.  A disk backup could lock the
+         source control repository, causing CruiseControl to return errors.  Rather than deal with these errors all the
+         time, we can specify a time period for CruiseControl to not attempt any builds.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">day</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">starttime</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">endtime</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+
+
+         <hr>
+
+
+         <p><a name="log"><span class="small">Log</span><br>
+         [about log]
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The cruisecontrol log directory</td>
+            </tr>
+         </table>
+
+
+         <p><a name="merge"><span class="small">Merge</span><br>
+         After the build is complete, there may be other xml artifacts to merge into the cruisecontrol log.  The most
+         common of these is the junit test results that the Ant &lt;junit&gt; task creates.  We can add a merge entry for
+         these files so that we have one comprehensive log at the end of a cruisecontrol build.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td rowspan="2" class="tabledata">One of These</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dir</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+         <hr>
+
+         <p><a name="publishers"><span class="small">Publishers</span><br>
+         <code>Publisher</code>s are run after a build has completed.  They will be run regardless of whether the build
+         was successful or not.
+
+         <p><a name="currentbuildstatuspublisher"><span class="small">CurrentBuildStatusPublisher</span><br>
+         The CruiseControl Build Results JSP will indicate whether or not CruiseControl is currently building a project.
+         To get this information to the JSP, we write an HTML snippet to disk in a location where the JSP can read it.
+         This file will consist of the time the next build attempt will take place, so there is an optional attribute to
+         customize the dateformat.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The filename to write</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dateformat</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Optionally customize the dateformat used in this file</td>
+            </tr>
+         </table>
+
+         <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br>
+         [about link email publisher]
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">name</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">classname</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+         <hr>
+
+         <p><a name="labelincrementers"><span class="small">Label Incrementers</span><br>
+         [stuff] - no configuration necessary, just register plugin
+
+         <p><a name="defaultlabelincrementer"><span class="small">DefaultLabelIncrementer</span><br>
+         [example of plugin code]<p>
+
+         <p><a name="cvslabelincrementer"><span class="small">CVSLabelIncrementer</span><br>
+         [example of plugin code]<p>
+
+         <hr>
+
+
+
+         <p><a name="plugin"><span class="small">Plugin</span><br>
+         A <code>&lt;plugin&gt;</code> element registers a classname with an alias for use within this project.
+         <p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">name</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">classname</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+         </table>
+
+
+
+
+         <!-- content ends here -->
+         </td></tr></table>
+      </td>
+   </tr>
+</table>
+</body>
+</html>
+
