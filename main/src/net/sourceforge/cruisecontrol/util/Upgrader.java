@@ -176,13 +176,6 @@ public class Upgrader {
         return outputter.outputString(modificationSetElement);
     }
 
-    public boolean isMapEnabled(Properties properties) {
-        if (properties.getProperty("mapSourceControlUsersToEmail") != null && properties.getProperty("mapSourceControlUsersToEmail").equalsIgnoreCase("true")) {
-            return new File(properties.getProperty("emailmap")).exists();
-        }
-        return false;
-    }
-
     public String createEmailMap(Properties emailmap) {
         StringBuffer map = new StringBuffer();
         if (emailmap.size() == 0) {
@@ -222,8 +215,10 @@ public class Upgrader {
         while (failureTokenizer.hasMoreTokens()) {
             publishers.append("<failure address=\"" + failureTokenizer.nextToken() + "\"/>");
         }
-        if (isMapEnabled(properties)) {
-            Properties emailmap = loadProperties(new File(properties.getProperty("emailmap")));
+
+        File emailMap = new File(properties.getProperty("emailmap"));
+        if (emailMap.exists()) {
+            Properties emailmap = loadProperties(emailMap);
             Iterator emailmapIterator = emailmap.keySet().iterator();
             while (emailmapIterator.hasNext()) {
                 String key = (String) emailmapIterator.next();
