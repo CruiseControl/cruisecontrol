@@ -77,17 +77,8 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
     }
     
     
-    public void setDeleteArtifacts(String val) {
-        if (val == null) {
-            return;
-        }
-        val = val.toLowerCase();
-        if ("true".equals(val) || "yes".equals(val)
-                || "on".equals(val)) {
-            this.deleteArtifacts = true;
-        } else {
-            this.deleteArtifacts = false;
-        }
+    public void setDeleteArtifacts(boolean shouldDelete) {
+        deleteArtifacts = shouldDelete;
     }
     
     
