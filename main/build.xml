@@ -105,7 +105,7 @@
         <war warfile="${dist}\buildservlet.war" webxml="web.xml">
            <lib dir="${lib}">
               <include name="servlet.jar"/>
-              <include name="crimson.jar"/>
+              <include name="xerces.jar"/>
               <include name="xalan.jar"/>
            </lib>
            <classes dir="${classes}">
