@@ -35,33 +35,33 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
+
 <xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
     <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="modification.list" select="build/modifications/modification"/>
+    <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']"/>
+    <xsl:variable name="war.tasklist" select="$tasklist[@name='War']"/>
+    <xsl:variable name="dist.count" select="count($jar.tasklist) + count($war.tasklist)"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
-            <!-- Modifications -->
-            <tr>
-                <td class="modifications-sectionheader" colspan="4">
-                    &#160;Modifications since last build:&#160;
-                    (<xsl:value-of select="count($modification.list)"/>)
-                </td>
-            </tr>
 
-            <xsl:apply-templates select="$modification.list">
-                <xsl:sort select="date" order="descending" data-type="text" />
-            </xsl:apply-templates>
-            
+            <xsl:if test="$dist.count > 0">
+                <tr>
+                    <td class="distributables-sectionheader">
+                        &#160;Deployments by this build:&#160;(<xsl:value-of select="$dist.count"/>)
+                    </td>
+                </tr>
+                <xsl:apply-templates select="$jar.tasklist | $war.tasklist" />
+            </xsl:if>
+
         </table>
     </xsl:template>
 
-    <!-- Modifications template -->
-    <xsl:template match="modification">
+    <xsl:template match="task[@name='Jar'] | task[@name='War']">
         <tr>
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
@@ -69,13 +69,10 @@
             <xsl:if test="position() mod 2!=0">
                 <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
             </xsl:if>
-
-            <td class="modifications-data"><xsl:value-of select="@type"/></td>
-            <td class="modifications-data"><xsl:value-of select="user"/></td>
-            <td class="modifications-data"><xsl:value-of select="project"/><xsl:value-of select="filename"/></td>
-            <td class="modifications-data"><xsl:value-of select="comment"/></td>
+            <td class="distributables-data">
+                <xsl:value-of select="message[@priority='info']"/>
+            </td>
         </tr>
     </xsl:template>
-
 
 </xsl:stylesheet>

@@ -40,42 +40,57 @@
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
-    <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="modification.list" select="build/modifications/modification"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
-            <!-- Modifications -->
+
+            <xsl:if test="build/@error">
+                <tr>
+                    <td class="header-title">BUILD FAILED</td>
+                </tr>
+                <tr>
+                    <td class="header-data">
+                        <span class="header-label">Ant Error Message:&#160;</span>
+                        <xsl:value-of select="build/@error"/>
+                    </td>
+                </tr>
+            </xsl:if>
+
+            <xsl:if test="not (build/@error)">
+                <tr>
+                    <td class="header-title">
+                        BUILD COMPLETE&#160;-&#160;                        
+                            
+                            <xsl:value-of select="build/label"/>
+                    </td>
+                </tr>
+            </xsl:if>
+
             <tr>
-                <td class="modifications-sectionheader" colspan="4">
-                    &#160;Modifications since last build:&#160;
-                    (<xsl:value-of select="count($modification.list)"/>)
+                <td class="header-data">
+                    <span class="header-label">Date of build:&#160;</span>
+                    <xsl:value-of select="build/today"/>
                 </td>
             </tr>
-
-            <xsl:apply-templates select="$modification.list">
-                <xsl:sort select="date" order="descending" data-type="text" />
-            </xsl:apply-templates>
-            
+            <tr>
+                <td class="header-data">
+                    <span class="header-label">Time to build:&#160;</span>
+                    <xsl:value-of select="build/@time"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="header-data">
+                    <span class="header-label">Last changed:&#160;</span>
+                    <xsl:value-of select="build/modifications/changelist/@dateOfSubmission"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="header-data">
+                    <span class="header-label">Last log entry:&#160;</span>
+                    <xsl:value-of select="build/modifications/changelist/description"/>
+                </td>
+            </tr>
         </table>
     </xsl:template>
-
-    <!-- Modifications template -->
-    <xsl:template match="modification">
-        <tr>
-            <xsl:if test="position() mod 2=0">
-                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
-            </xsl:if>
-            <xsl:if test="position() mod 2!=0">
-                <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
-            </xsl:if>
-
-            <td class="modifications-data"><xsl:value-of select="@type"/></td>
-            <td class="modifications-data"><xsl:value-of select="user"/></td>
-            <td class="modifications-data"><xsl:value-of select="project"/><xsl:value-of select="filename"/></td>
-            <td class="modifications-data"><xsl:value-of select="comment"/></td>
-        </tr>
-    </xsl:template>
-
 
 </xsl:stylesheet>
