@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.io.File;
-import java.text.SimpleDateFormat;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
