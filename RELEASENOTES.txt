@@ -6,11 +6,15 @@ AntBuilder
 
 ArtifactsPublisher
 ----------------------
-* Added to the default plugin registry
+* Added to the default plugin registrya
 
 build.sh
 ----------------------
 * Fixed problem with eol characters preventing files from executing on unix systems
+
+build.xml
+----------------------
+* Added ability to specify tests to run from command-line, such as "build test -Dtests=ProjectTest" - Patch by Michael Beauregard
 
 CVSBootstrapper
 ----------------------

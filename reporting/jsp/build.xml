@@ -45,6 +45,7 @@
     <property name="docs" value="docs"/>
     <property name="test" value="test"/>
     <property name="test.results" value="testresults"/>
+    <property name="tests" value="*Test"/>
 
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
 
@@ -101,7 +102,7 @@
             <formatter type="brief" usefile="false" />
             <formatter type="xml"/>
             <batchtest todir="${test.results}" >
-                <fileset dir="${classes}" includes="**/*Test.class" />
+                <fileset dir="${classes}" includes="**/${tests}.class" />
             </batchtest>
         </junit>
     </target>
