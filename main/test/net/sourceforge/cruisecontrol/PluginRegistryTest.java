@@ -152,6 +152,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
         verifyPluginClass("schedule", "net.sourceforge.cruisecontrol.Schedule");
         verifyPluginClass("buildstatus", "net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus");
+        verifyPluginClass("clearcasebootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper");
     }
 
     private void verifyPluginClass(String pluginName, String expectedName)
