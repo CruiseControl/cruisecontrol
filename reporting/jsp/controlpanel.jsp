@@ -1,4 +1,4 @@
-<!--********************************************************************************
+<%--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************-->
+ ********************************************************************************--%>
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <html>
@@ -43,29 +43,7 @@
 </head>
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
-    <tr>
-      <td rowspan="5" valign="top">
-        <img src="images/blank8.gif" border="0"><br>
-        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
-        <table border="0" align="center" width="98%">
-            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
-            <tr><td>&nbsp;</td></tr>
-            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
-                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
-            </cruisecontrol:nav>
-            <tr><td>
-              <form method="GET" action="<%=request.getContextPath() + request.getServletPath()%>" >
-                <select name="log" onchange="form.submit()">
-                  <cruisecontrol:nav startingBuildNumber="10">
-                    <option value="<%=logfile%>"><%= linktext %></option>
-                  </cruisecontrol:nav>
-                </select>
-              </form>
-            </td></tr>
-        </table>
-      </td>
-      <td>&nbsp;</td>
-    </tr>
+    <jsp:include page="navigation.jsp" />
     <tr>
       <% String queryString = (request.getQueryString() != null) ? request.getQueryString() : ""; %>
       <td><img src="images/blank35.gif"><a href="/cruisecontrol/buildresults?<%= queryString %>" border="0"><img src="images/buildResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/xmllog?<%= queryString %>" border="0"><img src="images/xmlLogFileTab-off.gif" border="0"></a><img src="images/controlPanelTab-on.gif" border="0"></td>

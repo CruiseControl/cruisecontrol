@@ -36,39 +36,26 @@
  ********************************************************************************--%>
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<html>
-<head>
-  <title>CruiseControl Build Results</title>
-  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-</head>
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
-  <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
-    <jsp:include page="navigation.jsp" />
     <tr>
-      <% String queryString = (request.getQueryString() != null) ? request.getQueryString() : ""; %>
-      <td><img src="images/blank35.gif"><img src="images/buildResultsTab-on.gif" border="0"><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/xmllog?<%= queryString %>" border="0"><img src="images/xmlLogFileTab-off.gif" border="0"></a><a href="/cruisecontrol/controlpanel?<%= queryString %>" border="0"><img src="images/controlPanelTab-off.gif" border="0"></a></td>
-    </tr>
-    <tr>
-      <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>
-    </tr>
-    <tr>
-      <td valign="top" bgcolor="#FFFFFF">
-         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
+      <td rowspan="5" valign="top">
+        <img src="images/blank8.gif" border="0"><br>
+        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
+        <table border="0" align="center" width="98%">
+            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
+            <tr><td>&nbsp;</td></tr>
+            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
+                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
+            </cruisecontrol:nav>
+            <tr><td>
+              <form method="GET" action="<%=request.getContextPath() + request.getServletPath()%>" >
+                <select name="log" onchange="form.submit()">
+                  <cruisecontrol:nav startingBuildNumber="10">
+                    <option value="<%=logfile%>"><%= linktext %></option>
+                  </cruisecontrol:nav>
+                </select>
+              </form>
+            </td></tr>
+        </table>
       </td>
+      <td>&nbsp;</td>
     </tr>
-    <tr>
-      <td background="images/bluestripesbottom.gif"><img src="images/blank8.gif" border="0"></td>
-    </tr>
-  </table>
-</body>
-</html>
