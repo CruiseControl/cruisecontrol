@@ -166,11 +166,12 @@ public class ProjectTest extends TestCase {
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
-        assertEquals("Should be 6 build properties.", 6, props.size());
+        assertEquals("Should be 7 build properties.", 7, props.size());
         assertTrue("filemodified not found.", props.containsKey("filemodified"));
         assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
         assertEquals(project.getLastSuccessfulBuild(), props.get("cclastgoodbuildtimestamp"));
         assertEquals(project.getLastBuild(), props.get("cclastbuildtimestamp"));
+        assertTrue("cvstimestamp not passed.", props.containsKey("cvstimestamp"));
 
         // check that the proper events were fired
         assertEquals("Should be exactly one build result event", 1, resultEvents.size());

@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
@@ -660,6 +661,7 @@ public class Project implements Serializable, Runnable {
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
         buildProperties.put("label", label);
+        buildProperties.put("cvstimestamp", CVS.formatCVSDate(now));
         buildProperties.put("cctimestamp", getFormatedTime(now));
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
