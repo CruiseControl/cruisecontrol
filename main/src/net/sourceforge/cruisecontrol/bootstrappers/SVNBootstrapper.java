@@ -165,10 +165,10 @@ public class SVNBootstrapper implements Bootstrapper {
         return command;
     }
 
-    private void execUpdateCommand(Commandline commandLine)
+    private void execUpdateCommand(Commandline command)
         throws IOException, InterruptedException {
-
-        Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
+            
+        Process p = command.execute();
 
         logErrorStream(p);
         logOutStream(p);
