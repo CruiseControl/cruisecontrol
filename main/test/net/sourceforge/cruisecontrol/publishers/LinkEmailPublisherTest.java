@@ -44,12 +44,18 @@ import org.jdom.Element;
 public class LinkEmailPublisherTest extends TestCase {
 
     private XMLLogHelper successLogHelper;
+    private EmailPublisher publisher;
+    private String baseURLString =
+        "http://mybuildserver.com:8080/buildservlet/BuildServlet";
 
-    public LinkEmailPublisherTest(String name) {
-        super(name);
+    protected void setUp() throws Exception {
+        successLogHelper = createLogHelper(true, true);
+        publisher = new LinkEmailPublisher();
     }
 
-    protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
+    protected XMLLogHelper createLogHelper(
+        boolean success,
+        boolean lastBuildSuccess) {
         Element cruisecontrolElement = new Element("cruisecontrol");
         Element infoElement = new Element("info");
         Element logFileElement = new Element("property");
@@ -61,21 +67,24 @@ public class LinkEmailPublisherTest extends TestCase {
         return new XMLLogHelper(cruisecontrolElement);
     }
 
-    public void setUp() throws Exception {
-        successLogHelper = createLogHelper(true, true);
+    public void testCreateMessage() {
+        publisher.setBuildResultsURL(baseURLString);
+        assertEquals(
+            "View results here -> " + baseURLString + "?log=log20020206120000",
+            publisher.createMessage(successLogHelper));
     }
 
-    public void testCreateMessage() {
-        EmailPublisher publisher = new LinkEmailPublisher();
-        publisher.setBuildResultsURL(
-            "http://mybuildserver.com:8080/buildservlet/BuildServlet");
+    public void testQuestionMarkInBuildResultsURL() {
+        publisher.setBuildResultsURL(baseURLString + "?key=value");
+
         assertEquals(
-            "View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000",
+            "View results here -> "
+                + baseURLString
+                + "?key=value&log=log20020206120000",
             publisher.createMessage(successLogHelper));
     }
 
     public void testValidate() {
-        EmailPublisher publisher = new LinkEmailPublisher();
         publisher.setMailHost("mailhost");
         publisher.setReturnAddress("returnaddress");
         try {
@@ -90,5 +99,5 @@ public class LinkEmailPublisherTest extends TestCase {
             fail("should NOT throw exception if BuildResultURL not set");
         }
     }
-    
+
 }

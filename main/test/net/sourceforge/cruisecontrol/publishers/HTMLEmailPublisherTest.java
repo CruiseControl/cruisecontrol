@@ -107,6 +107,22 @@ public class HTMLEmailPublisherTest extends TestCase {
         assertEquals(failLink, publisher.createLinkLine(failLogFileName));
     }
 
+    public void testQuestionMarkInBuildResultsURL() {
+        String serverURL = "http://myserver/context/servlet?key=value";
+        publisher.setBuildResultsURL(serverURL);
+        String path = "logs" + File.separator;
+        String date = "20020607115519";
+        String label = "mylabel.100";
+
+        String successFilePrefix = "log" + date + "L" + label;
+        String successURL = serverURL + "&log=" + successFilePrefix;
+        String successLink = "View results here -> <a href=\"" + successURL + "\">" + successURL + "</a>";
+        String successFile = successFilePrefix + ".xml";
+        String successLogFileName = path + successFile;
+
+        assertEquals(successLink, publisher.createLinkLine(successLogFileName));
+    }
+
     public void testValidate() {
         setEmailPublisherVariables(publisher);
 
