@@ -7,7 +7,6 @@ screenshot to get an idea.
 Configuration example:
   <ant ...
        loggerClassName="net.sourceforge.cruisecontrol.util.XmlLoggerWithStatus">
-    <property name="XmlLogger.file" value="logs/proj1/log.xml"/>
     <property name="XmlLoggerWithStatus.file" value="logs/proj1/buildstatus.txt"/>
   </ant>
 
