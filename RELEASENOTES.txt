@@ -3,6 +3,7 @@ CruiseControl Release Notes - Latest CVS
 build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
+* Removed references to "**/element/" (CC-57). Patch by Jerome Lacoste
 
 BuildQueue
 ----------------------
@@ -10,7 +11,7 @@ BuildQueue
 
 CruiseControl
 ----------------------
-* Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass. Patch by Jerome Lacoste
+* Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass (CC-56). Patch by Jerome Lacoste
 
 cruisecontrol-jsp12.tld
 ----------------------
