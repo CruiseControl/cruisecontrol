@@ -38,6 +38,7 @@ Contrib
 CruiseControl
 ----------------------
 * Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass (CC-56). Patch by Jerome Lacoste
+* Removed support for -upgrade parameter to update CruiseControl 1.x config files.
 
 CruiseControlControllerAgent
 ----------------------
@@ -71,6 +72,13 @@ LoggerController
 ----------------------
 * new JMX MBean to control a Logger's logging level. A controller for the root logger is registered at startup.
 
+Main
+----------------------
+* Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass
+* Added -debug to startup parameters to use DEBUG Level internally
+* Parameters can now have default values when none are specified. This is used for -port (8000) and -rmiport (1099)
+* Added note about starting JXM Server to usage and documented the new default values for parameters -port and -rmiport
+
 MavenBuilder
 ----------------------
 * Fix for CC-40 where download failures were treated as success. Patch by Tim Shadel
@@ -95,6 +103,10 @@ SSCM & SSCMBootstrapper
 testdetails.xsl
 ----------------------
 * patch for JS-escape template so whole string is escaped and line feeds are dealt with properly. Patch by Han Wang and Roy O. Wright
+
+Upgrader
+----------------------
+* Removed this class, since noone needs support for upgrading 1.x config files anymore
 
 X10Publisher
 ----------------------
