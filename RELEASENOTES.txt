@@ -54,6 +54,7 @@ LoggerController
 MavenBuilder
 ----------------------
 * Fix for CC-40 where download failures were treated as success. Patch by Tim Shadel
+* Fix for CC-75 to report an error when a MavenException occurs. Patch by Tim Shadel
 
 MavenSnapshotDependency
 ----------------------
