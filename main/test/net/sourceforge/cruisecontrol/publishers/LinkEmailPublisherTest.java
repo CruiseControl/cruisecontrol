@@ -38,13 +38,17 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.apache.log4j.PropertyConfigurator;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.PluginXMLHelper;
 
 import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Properties;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -112,30 +116,34 @@ public class LinkEmailPublisherTest extends TestCase {
     }
 
     public void setUp() {
-        //write out emailmap.properties
-        FileOutputStream fos = null;
-        Properties props = new Properties();
-        props.setProperty("user3", "user3@host2.com");
+        //pass in some xml and create the publisher
+        StringBuffer xml = new StringBuffer();
+        xml.append("<email defaultsuffix=\"@host.com\">");
+        xml.append("<always address=\"always1\"/>");
+        xml.append("<always address=\"always2@host.com\"/>");
+        xml.append("<failure address=\"failure1\"/>");
+        xml.append("<failure address=\"failure2@host.com\"/>");
+        xml.append("<map alias=\"user3\" address=\"user3@host2.com\"/>");
+        xml.append("</email>");
+
+        Element emailPublisherElement = null;
         try {
-            fos = new FileOutputStream("_emailmap.properties");
-            props.store(fos, "");
-            fos.close();
-        } catch (IOException e) {
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
+        } catch (JDOMException e) {
             e.printStackTrace();
-        } finally {
-            fos = null;
+        }
+
+        PluginXMLHelper xmlHelper = new PluginXMLHelper();
+        try {
+            _emailPublisher = (LinkEmailPublisher) xmlHelper.configure(emailPublisherElement, "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
+        } catch (CruiseControlException e) {
+            e.printStackTrace();
         }
 
         _successLogHelper = createLogHelper(true, true);
         _failureLogHelper = createLogHelper(false, false);
         _fixedLogHelper = createLogHelper(true, true);
-        _emailPublisher = new LinkEmailPublisher();
-        _emailPublisher.setDefaultSuffix("@host.com");
-        _emailPublisher.setEmailMap("_emailmap.properties");
-        _emailPublisher.addAlwaysAddress("always1");
-        _emailPublisher.addAlwaysAddress("always2@host.com");
-        _emailPublisher.addFailureAddress("failure1");
-        _emailPublisher.addFailureAddress("failure2@host.com");
     }
 
     public void testShouldSend() {

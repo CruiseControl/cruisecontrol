@@ -149,7 +149,6 @@ public class CruiseControlProperties {
         pub.setReturnAddress(returnAddress);
         pub.setServletUrl(servletURL);
         pub.setSpamWhileBroken(spamWhileBroken);
-        pub.setEmailMap(emailmapFilename);
 
         Iterator alwaysEmailIterator = buildmaster.iterator();
         while(alwaysEmailIterator.hasNext()) {
