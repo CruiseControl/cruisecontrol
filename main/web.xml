@@ -29,37 +29,39 @@
       <servlet-class>net.sourceforge.cruisecontrol.BuildServlet</servlet-class>
 
       <init-param>
-        <!-- directory where log files are stored.  the servlet will look at these files to build the links on the left-side nav -->
+        <!-- Absolute path to log directory.  The servlet will look at the log files in this 
+         directory to build the navigation links -->
         <param-name>logDir</param-name>
         <param-value>d:/projects/cruisecontroltest/logs</param-value>
       </init-param>
       <init-param>
-        <!-- absolute path to cruisecontrol.xsl stylesheet for the servlet.  should be modified in the future to just check classpath, so we won't need this anymore -->
+        <!-- Absolute path to XSL file used by servlet (i.e., cruisecontrol.xsl).-->
+        <!--(PENDING) Just check classpath, so we won't need this anymore -->
         <param-name>xslFile</param-name>
         <param-value>d:/jakarta-tomcat-3.2.2/webapps/buildservlet/cruisecontrol.xsl</param-value>
       </init-param>
       <init-param>
-        <!-- html title for the servlet -->
+        <!-- HTML title for the servlet -->
         <param-name>pageTitle</param-name>
         <param-value>Test title</param-value>
       </init-param>
       <init-param>
-        <!-- configurable logo for the build servlet.  -->
+        <!-- Configurable logo for the build servlet.  Expected to be in imageDir -->
         <param-name>logo</param-name>
         <param-value>continuousintegration.gif</param-value>
       </init-param>
       <init-param>
-        <!-- cruisecontrol will write a snippet of html to be included in the servlet, signifying whether the build is running or when it will start again -->
+        <!-- File used by CruiseControl to signify whether the build is running or when it will 
+         start again.  Expected to be in logDir -->
         <param-name>currentBuildStatusFile</param-name>
         <param-value>currentbuild.txt</param-value>
       </init-param>
       <init-param>
-        <!-- used for creating links on left-side nav -->
         <param-name>servletURL</param-name>
         <param-value>/buildservlet/BuildServlet</param-value>
       </init-param>
       <init-param>
-        <!-- url for image directory -->
+        <!-- URL to image directory -->
         <param-name>imageDir</param-name>
         <param-value>/buildservlet/images</param-value>
       </init-param>
