@@ -11,7 +11,7 @@
 </table>
 
 <hr />
-<jsp:useBean id="pieData" class="PieChartData" />
+<jsp:useBean id="pieData" class="net.sourceforge.cruisecontrol.chart.PieChartData" />
 <cewolf:chart id="pie" title="Breakdown of build types" type="pie" >
     <cewolf:data>
         <cewolf:producer id="pieData">
@@ -22,7 +22,7 @@
 <cewolf:img chartid="pie" renderer="cewolf" width="400" height="300"/>
 
 <hr />
-<jsp:useBean id="chartData" class="TimeChartData" />
+<jsp:useBean id="chartData" class="net.sourceforge.cruisecontrol.chart.TimeChartData" />
 <cewolf:chart id="chart" title="Breakdown of build types" type="timeseries"  xaxislabel="date" yaxislabel="time">
     <cewolf:data>
         <cewolf:producer id="chartData">
