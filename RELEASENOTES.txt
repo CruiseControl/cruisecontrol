@@ -49,6 +49,10 @@ Email Publishers (LinkEmailPublisher and HTMLEmailPublisher)
 * failure subelements now contain an optional attribute "reportWhenFixed" to specify if the email address should be sent mail when the build is fixed.
 * added emailaddressmapper attribute. Patch by Esa Laine
 
+FileServlet
+----------------------
+* Use text/plain as default mime type instead of null. Fixes hang with Mozillia. Patch by Spencer Smith
+
 FileSystem Sourcecontrol
 ----------------------
 * Fixed bug where FS was reporting the wrong path for modifications. Patch by Randy Coulman.
