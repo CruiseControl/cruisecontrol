@@ -48,12 +48,13 @@ import javax.servlet.ServletContext;
  */
 public class MockServletConfig implements ServletConfig {
     private Map initParams = new HashMap();
+    private ServletContext context;
 
     public MockServletConfig() {
     }
 
     public ServletContext getServletContext() {
-        return null;
+        return context;
     }
 
     public String getInitParameter(String name) {
@@ -70,5 +71,9 @@ public class MockServletConfig implements ServletConfig {
 
     public void setInitParameter(String name, String value) {
         initParams.put(name, value);
+    }
+    
+    public void setServletContext(ServletContext mockContext) {
+        context = mockContext;
     }
 }

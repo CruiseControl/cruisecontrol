@@ -43,6 +43,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
@@ -54,8 +57,17 @@ import javax.servlet.ServletException;
  */
 public class MockServletContext implements ServletContext {
     private File baseResourceDir;
+    private Map initParams = new HashMap();
 
     public MockServletContext() {
+    }
+
+    public String getInitParameter(String name) {
+        return (String) initParams.get(name);
+    }
+
+    public void setInitParameter(String name, String value) {
+        initParams.put(name, value);
     }
 
     public ServletContext getContext(String s) {
@@ -120,10 +132,6 @@ public class MockServletContext implements ServletContext {
     }
 
     public String getServerInfo() {
-        return null;
-    }
-
-    public String getInitParameter(String s) {
         return null;
     }
 
