@@ -39,6 +39,7 @@
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="classes" value="classes"/>
+    <property name="temp.dir" value="tmp"/>
     <property name="docs" value="docs"/>
     <property name="test" value="test"/>
     <property name="test.results" value="testresults"/>
@@ -46,18 +47,20 @@
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
 
     <target name="clean">
-        <mkdir dir="${dist}"/>
-        <mkdir dir="${classes}"/>
-        <mkdir dir="${test.results}"/>
+<!--        <mkdir dir="${dist}"/>-->
+<!--        <mkdir dir="${classes}"/>-->
+<!--        <mkdir dir="${test.results}"/>-->
         <delete dir="${dist}"/>
         <delete dir="${classes}"/>
         <delete dir="${test.results}"/>
+        <delete dir="${temp.dir}"/>
     </target>
 
     <target name="init" depends="clean">
         <mkdir dir="${dist}"/>
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.results}"/>
+        <mkdir dir="${temp.dir}"/>
     </target>
 
     <!-- **************************************************** -->
@@ -102,8 +105,17 @@
         </junit>
     </target>
 
-    <target name="war" depends="test">
-        <war warfile="${dist}/cruisecontrol.war" webxml="WEB-INF/web.xml">
+    <target name="create-web-xml" >
+        <!-- Do not change these properties, but override them on the command line to Ant! -->
+        <property name="user.log.dir" value="YOUR CRUISECONTROL LOG DIRECTORY" />
+        <property name="user.build.status.file" value="CURRENT BUILD STATUS FILE" />
+        <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
+        <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
+        <copy filtering="true" todir="${temp.dir}" file="WEB-INF/web.xml" />
+    </target>
+
+    <target name="war" depends="test,create-web-xml">
+        <war warfile="${dist}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir=".">
                 <exclude name="samplelogs/_cache/"/>
                 <exclude name="${dist}/"/>
@@ -112,6 +124,7 @@
                 <exclude name="test/"/>
                 <exclude name="${lib}/"/>
                 <exclude name="${classes}/"/>
+                <exclude name="${temp.dir}/"/>
             </fileset>
             <lib dir="${lib}">
                 <include name="xalan.jar"/>

@@ -45,11 +45,13 @@
       <jsp-file>/buildresults.jsp</jsp-file>
       <init-param>
         <param-name>logDir</param-name>
-        <param-value>YOUR CRUISECONTROL LOG DIRECTORY</param-value>
+        <!-- You can set this value via the user.log.dir property in Ant, when building the WAR file. -->
+        <param-value>@YOUR CRUISECONTROL LOG DIRECTORY@</param-value>
       </init-param>
       <init-param>
+          <!-- You can set this value via the user.build.status.file property in Ant, when building the WAR file. -->
         <param-name>currentBuildStatusFile</param-name>
-        <param-value>CURRENT BUILD STATUS FILE</param-value>
+        <param-value>@CURRENT BUILD STATUS FILE@</param-value>
       </init-param>
     </servlet>
     <servlet-mapping>
