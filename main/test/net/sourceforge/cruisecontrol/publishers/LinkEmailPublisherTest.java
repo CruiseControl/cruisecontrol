@@ -37,15 +37,9 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.PluginXMLHelper;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.PropertyConfigurator;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-
-import java.io.StringReader;
-import java.util.Hashtable;
-import java.util.Iterator;
 
 public class LinkEmailPublisherTest extends TestCase {
 
@@ -75,5 +69,22 @@ public class LinkEmailPublisherTest extends TestCase {
         EmailPublisher publisher = new LinkEmailPublisher();
         publisher.setBuildResultsUrl("http://mybuildserver.com:8080/buildservlet/BuildServlet");
         assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000", publisher.createMessage(_successLogHelper));
+    }
+    
+    public void testValidate() {
+    	EmailPublisher publisher = new LinkEmailPublisher();
+		publisher.setMailHost("mailhost");
+		publisher.setReturnAddress("returnaddress");
+    	try {
+			publisher.validate();
+			fail("should throw exception if BuildResultURL not set");
+		} catch (CruiseControlException e) {
+		}
+		publisher.setBuildResultsUrl("buildResultsURL");
+		try {
+			publisher.validate();
+		} catch (CruiseControlException e) {
+			fail("should NOT throw exception if BuildResultURL not set");
+		}
     }
 }
