@@ -157,4 +157,8 @@ public class BuildInfoTest extends TestCase {
         assertNull(info.getUserList());
         assertNull(info.getLogfile());
     }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(BuildInfoTest.class);
+    }
 }
