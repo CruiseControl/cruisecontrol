@@ -41,6 +41,7 @@
     <link href="../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
 </head>
 <body>
+<a name="top"/>
 <div class="header">
     <div class="hostedby">
         Hosted By:<br/>
@@ -132,6 +133,7 @@
 <a href="#vss">&lt;vss&gt;</a>
 <a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
 <a href="#vssjournal">&lt;vssjournal&gt;</a>
+<a href="#x10">&lt;x10&gt;</a>
 <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
 &nbsp;
 &nbsp;
@@ -201,6 +203,7 @@
          <a href="#jabber">&lt;jabber/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
+         <a href="#x10">&lt;x10&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
       &lt;/publishers&gt;
    &lt;/project&gt;
@@ -2324,6 +2327,11 @@
                 <td></td>
             </tr>
             <tr>
+                <td><a href="#x10"><code>&lt;x10&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Controls an x10 electronic device</td>
+            </tr>
+            <tr>
                 <td><a href="#xsltlogpublisher"><code>&lt;xsltlogpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td></td>
@@ -3037,6 +3045,124 @@
                     <dt>ignore:</dt>
                     <dd>ignore the failure</dd>
                 </dl></td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="x10">&lt;x10&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;x10&gt;</pre>
+        </div>
+
+        <p>
+        This Publisher implementation sends a on/off signal to a X10 capable device
+         via the X10 Activehome computer interface, model CM11A. This allows you to
+         control an electronic device when the build breaks. For example, use a
+         flashing red light to indicate a broken build.
+         <p>
+         NOTE: THIS PUBLISHER HAS ONLY BEEN TESTED WITH WINDOWS
+         <p>
+         Quick Start:
+         <ol>
+          <li>Buy the home automation kit found at <a href="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a></li>
+          <li>Plug the computer interface to your serial port, e.g. COM1, and your powerline</li>
+          <li>Set the lamp module's house and device code, e.g. A3, and plug it into your powerline</li>
+          <li>Plug in an electronic device to the lamp module, e.g. a flashing red light like <a href="http://www.bwild.com/redsiren.html">http://www.bwild.com/redsiren.html</a></li>
+          <li>Install the Java Communications API on your CruiseControl machine by copying the win32com.dll from the CruiseControl lib directory to your <code>JAVA_HOME/bin</code> directory</li>
+          <li>Add the x10 publisher to CruiseControl's config.xml, e.g. <pre><code>&lt;x10 houseCode="A" deviceCode="3" port="COM1"/&gt;</code></pre></li>
+         </ol>
+         <p>
+         For more information about the controller, see
+         <a href="http://www.smarthome.com/1140.html">http://www.smarthome.com/1140.html</a>
+         or
+         <a href="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a>
+         The controller connects to the computer via a serial port, e.g. COM1, and
+         allows the computer to send (and receive) X10 signals on the power line. For
+         more information on X10 in general, see
+         <a href="http://www.x10.com/support/basicx10.htm">http://www.x10.com/support/basicx10.htm</a>.
+         <p>
+         This module uses a pure Java implementation of the CM11A communication
+         protocol as implemented by Jesse Peterson,
+         <a href="http://www.jpeterson.com/">http://www.jpeterson.com/</a>. To read
+         more about his library, see
+         <a href="http://www.jpeterson.com/rnd/x101.0.1/Readme.html">http://www.jpeterson.com/rnd/x101.0.1/Readme.html</a>.
+         <p>
+         The jpeterson library requires that the Java Communications API be installed.
+         For more information on the COMM API, see
+         <a href="http://java.sun.com/products/javacomm/index.jsp">http://java.sun.com/products/javacomm/index.jsp</a>.
+         For convenience, the Java COMM API is included with the CruiseControl
+         distribution. On windows, copy the win32com.dll from CruiseControl's lib directory to
+         your <code>JAVA_HOME/bin</code> directory.
+         <p>
+         NOTE: If you receive the following error:
+         <p>
+         <CODE>Error loading win32com: java.lang.UnsatisfiedLinkError: no win32com in java.library.path</CODE><br>
+         <br>
+         it probably means that the Windows DLL named win32com.dll needs to be copied
+         from CruiseControl's lib directory into your JDK (or JRE) bin directory, i.e.
+         the same directory that java.exe is found.
+         <p>
+         The standard behavior for this publisher is to send the device the "on"
+         signal when the build breaks and then the "off" signal when the build is
+         successful. If you want the opposite, i.e. on when successful and off when
+         broken, set the onWhenBroken attribute to false.
+         <p>
+         <b>Examples:</b><br>
+         <pre><code>&lt;!--Turn on X10 device(s) A3 using a CM11A computer interface on COM2
+    whenever the build breaks.--&gt;
+&lt;x10 houseCode="A" deviceCode="3"/&gt;</code></pre>
+
+         <pre><code>&lt;!--Turn on X10 device(s) P12 using a CM11A computer interface on COM2
+    whenever the build breaks.--&gt;
+&lt;x10 houseCode="P" deviceCode="12"/&gt;</code></pre>
+
+         <pre><code>&lt;!--Turn on X10 device(s) A3 using a CM11A computer interface on COM1
+    whenever the build breaks.--&gt;
+&lt;x10 houseCode="A" deviceCode="3" port="COM1"/&gt;</code></pre>
+
+         <pre><code>&lt;!--Turn on X10 device(s) A3 using a CM11A computer interface on COM1
+    whenever the build is successful.--&gt;
+&lt;x10 houseCode="A" deviceCode="3" port="COM1" onWhenBroken="false"/&gt;</code></pre>
+
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>houseCode</td>
+                <td>Yes</td>
+                <td>The house code for the device to control, A through P case insensitive</td>
+            </tr>
+            <tr>
+                <td>deviceCode</td>
+                <td>Yes</td>
+                <td>The device code the device to control, 1 -> 16</td>
+            </tr>
+            <tr class="oddrow">
+                <td>port</td>
+                <td>No (defaults to COM2)</td>
+                <td>Serial port to which the CM11A computer interface controller is connected, e.g. COM1</td>
+            </tr>
+            <tr>
+                <td>onWhenBroken</td>
+                <td>No (defaults to true)</td>
+                <td>Set to false if the device should turn on when the build is successful and off when failed</td>
             </tr>
             </tbody>
         </table>
