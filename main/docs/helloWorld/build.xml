@@ -41,11 +41,11 @@
     <property name="build.compiler.emacs" value="true"/>
     <property name="build.dir" value="classes"/>
     <property name="dist.dir" value="dist"/>
-    <property name="masterbuild.logdir" value="logs"/>
+    <property name="logdir" value="logs"/>
     <property name="source.dir" value="src"/>
     <property name="junit.results" value="test-results"/>
-    <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
-    <property name="cvs.package" value="CruiseControlTest/src"/>
+    <property name="cvs.repository" value="REPLACE WITH CVSROOT"/>
+    <property name="cvs.package" value="REPLACE WITH CVS PACKAGE"/>
     <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
     
     <path id="classpath">
@@ -58,7 +58,7 @@
         <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
-        <mkdir dir="${masterbuild.logdir}"/>
+        <mkdir dir="${logdir}"/>
     </target>
 
     <target name="clean" description="Clean all build products">
