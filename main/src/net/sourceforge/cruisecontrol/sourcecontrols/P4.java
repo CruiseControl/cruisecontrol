@@ -39,15 +39,14 @@ import java.io.*;
 
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 
 import org.apache.oro.text.perl.*;
 
-import org.apache.tools.ant.*;
-import org.apache.tools.ant.taskdefs.*;
-
 import org.apache.tools.ant.taskdefs.optional.perforce.*;
-import org.apache.tools.ant.types.*;
+import org.apache.tools.ant.taskdefs.Execute;
+import org.apache.tools.ant.BuildException;
 import org.apache.log4j.Category;
 
 /**
@@ -67,13 +66,10 @@ import org.apache.log4j.Category;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
  */
-public class P4 extends SourceControlElement {
+public class P4 implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(P4.class.getName());
-
-	private Set _emailNames = new HashSet();
-	private Date _lastModified;
 
 	//P4 runtime directives
 
@@ -83,6 +79,10 @@ public class P4 extends SourceControlElement {
 	private String _P4View;
 	private int _P4lastChange;
 	private final static java.text.SimpleDateFormat p4Date = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+    private Hashtable _properties;
+    private String _property;
+    private String _propertyOnDelete;
 
 	/**
 	 *  Constructor for P4Element. Doesn't do much.
@@ -107,41 +107,22 @@ public class P4 extends SourceControlElement {
 		this._P4View = P4View;
 	}
 
-	/**
-	 *  Returns a Set of email addresses. P4 doesn't track actual email addresses,
-	 *  so we'll just return the usernames here, which may correspond to email ids.
-	 *  We'll tack on the suffix, i.e.
-	 *
-	 *@return  Set of author names; maybe empty, never null.
-	 *@apache.org,  in MasterBuild.java before mailing results of the build.
-	 */
-	public Set getEmails() {
-		if (_emailNames == null) {
-			_emailNames = new HashSet();
-		}
-		return _emailNames;
-	}
+    public void setProperty(String property) {
+        _property = property;
+    }
 
-	/**
-	 *  Gets the last modified time for this set of files queried in the
-	 *  getHistory() method.
-	 *
-	 *@return  Latest revision time.
-	 */
-	public long getLastModified() {
-		if (_lastModified == null) {
-			return 0;
-		}
-		return _lastModified.getTime();
-	}
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
+    }
 
-	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+    public Hashtable getProperties() {
+        return _properties;
+    }
+
+	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
 
 		ArrayList mods = new ArrayList();
 		final Perl5Util util = new Perl5Util();
-
-		//Init last modified to last build date.
-		_lastModified = lastBuild;
 
 		// next line is a trick to get the variable usable within the adhoc handler.
 		final List changeNumbers = new ArrayList();
@@ -188,18 +169,17 @@ public class P4 extends SourceControlElement {
 		String comment = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*/$4/s", sbDescription.toString());
 		comment = util.substitute("s/\\t//g", comment);
 
-		Date modifiedTime;
+		Date modifiedTime = null;
 		try {
 			modifiedTime = p4Date.parse(sModifiedTime);
 		} catch (Exception ex) {
 			log.error("Wrong date format exception caught. Using lastModified date from project instead.", ex);
-			modifiedTime = _lastModified;
 		}
 
 		if (modifiedTime.compareTo(lastBuild) > 0) {
 			// if it differs, we build,
 			_P4lastChange = Integer.parseInt(changeNumber);
-			getAntTask().getProject().setProperty("p4element.change", changeNumber);
+            _properties.put("p4element.change", changeNumber);
 
 			// the rest should be a list of the files affected and the resp action
 			String affectedFiles = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*?\\n\\n(.*)\\n\\n/$5/s", sbDescription.toString());
@@ -290,10 +270,11 @@ public class P4 extends SourceControlElement {
 
 			Execute exe = new Execute(handler);
 
-			if (getAntTask() != null) {
+			/*
+            if (getAntTask() != null) {
 				exe.setAntRun(getAntTask().getProject());
 			}
-
+            */
 			exe.setCommandline(commandline.getCommandline());
 
 			try {
