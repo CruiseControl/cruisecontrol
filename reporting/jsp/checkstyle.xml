@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.0//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_0.dtd">
+
+<module name="Checker">
+    <module name="Translation"/>
+    <module name="TreeWalker">
+        <property name="cacheFile" value="checkstyle.cache"/>
+        <property name="tabWidth" value="4"/>
+
+        <!-- Naming conventions -->
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+
+        <!-- Header -->
+        <module name="Header">
+            <property name="headerFile" value="cruisecontrol.header"/>
+            <property name="ignoreLines" value="3"/>
+        </module>
+
+        <!-- Imports -->
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Size violations -->
+        <module name="LineLength">
+            <property name="max" value="120"/>
+        </module>
+
+        <!-- Whitespace -->
+        <module name="NoWhitespaceAfter">
+            <property name="tokens"
+                value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
+        </module>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad"/>
+        <module name="TabCharacter"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
+
+        <!-- Modifiers -->
+        <module name="ModifierOrder"/>
+        <module name="VisibilityModifier">
+            <property name="publicMemberPattern" value="^[a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Blocks -->
+        <module name="EmptyBlock">
+            <property name="tokens"
+                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_IF, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly"/>
+
+        <!-- Miscellaneous -->
+        <module name="HiddenField">
+            <property name="tokens" value="VARIABLE_DEF"/>
+        </module>
+        <module name="InnerAssignment"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <!-- <module name="Translation"/> -->
+        <module name="UpperEll"/>
+    </module>
+</module>
