@@ -41,18 +41,8 @@ feature requests should be directed to the cruisecontrol-devel@lists.sourceforge
 
 <span class="small">To Do List:</span>
 
-<p><span class="small">Multiple projects</span><br/>
-<ol>
-	<li>Support multiple projects from a single CruiseControl instance; no project dependencies</li>
-	<li>Handle project dependencies</li>
-	<li>Reporting supports displaying build results from multiple projects using one webapp</li>
-</ol>
-</p>
-
 <p><span class="small">Runtime management</span><br/>
 <ul>
-	<li>Force a build at any time without having to bounce CruiseControl</li>
-	<li>Stop a currently running build without having to kill CruiseControl</li>
 	<li>Define build process in a more user friendly environment</li>
 	<li>See the state of CC.  Example: "Is it in the test phase now? or in the check repos phase?"</li>
 	<li>Pull config.xml changes from version control before a build</li>
@@ -66,22 +56,10 @@ a bit under developed.  Most of our source control wrappers just parse the outpu
 capturing that output to a text file gives us input that we can use for our unit tests.  Building our unit tests
 around this will help us to manage changes between versions, locales, etc.
 <p>
-<span class="small">JMX Control Panel JSP</span><br>
-CruiseControl has the ability to be started/stopped remotely via JMX extensions.  Since
-the beginning, people have suggested that there be an option to start/stop builds from
-the jsp.  Ideally, we'd have a controlpanel.jsp that would enable this.
-<p>
 <span class="small">TextEmailPublisher</span><br>
 Currently, CruiseControl has the feature of sending an email notification.  Currently this
 email message is limited to a link to the build results JSP.  Having a brief text summary in
 the body of the email has been suggested.  See publishers.EmailPublisher and publishers.LinkEmailPublisher.
-<p>
-<span class="small">SCM Bootstrappers</span><br>
-A Bootstrapper is an action that is run before a build.  Since the build.xml file is
-responsible for checking out code, there will be issues if the build.xml file itself
-has been modified.  What we'd like to see is a collection of Bootstrappers for each
-supported source control tool.  Each would be responsible for checking out/updating
-a single file.
 <p>
 <span class="small">Documentation</span><br>
 A project is only as good as it's documentation.  If any inconsistencies/inaccuracies
