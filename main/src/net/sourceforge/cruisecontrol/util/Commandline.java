@@ -146,6 +146,10 @@ public class Commandline implements Cloneable {
     public Commandline() {
         super();
     }
+    
+    protected File getWorkingDir() {
+      return workingDir;
+    }
 
     /**
      * Used for nested xml command line definitions.

@@ -93,6 +93,8 @@
 <a href="#buildstatus">&lt;buildstatus&gt;</a>
 <a href="#clearcase">&lt;clearcase&gt;</a>
 <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
+<a href="#cmsynergy">&lt;cmsynergy&gt;</a>
+<a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
 <a href="#compound">&lt;compound&gt;</a>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
 <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
@@ -181,6 +183,7 @@
       <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
+         <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
@@ -195,6 +198,7 @@
          <a href="#alwaysbuild">&lt;alwaysbuild/&gt;</a>
          <a href="#buildstatus">&lt;buildstatus/&gt;</a>
          <a href="#clearcase">&lt;clearcase/&gt;</a>
+         <a href="#cmsynergy">&lt;cmsynergy/&gt;</a>
          <a href="#compound">&lt;compound&gt;</a>
             <a href="#compound">&lt;targets/&gt;</a>
             <a href="#compound">&lt;triggers/&gt;</a>
@@ -544,46 +548,51 @@
                 <td>Bootstraps resources from ClearCase</td>
             </tr>
             <tr>
+                <td><a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from CM Synergy</td>
+            </tr>
+            <tr class="oddrow">
                 <td><a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Transfers a build status snippet via FTP</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CVS</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Perforce</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from SnapshotCM</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Star Team</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Surround SCM</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Visual Source Safe</td>
@@ -628,6 +637,56 @@
                 <td>No</td>
                 <td>local path to the file</td>
             </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;cmsynergybootstrapper&gt;</pre>
+        </div>
+
+        <p>Used to reconfigure a CM Synergy project or project heirarchy</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>ccmexe</td>
+                <td>No</td>
+                <td>The name of the CM Synergy command line client.</td>
+            </tr>
+            <tr>
+                <td>ccmsession</td>
+                <td>No</td>
+                <td>The ID string of the CM Synergy session to use. If not 
+                    provided, the decision will be deffered to the client.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>project</td>
+                <td>Yes</td>
+                <td>The project spec (two part name) of the project you wish to reconfigure.</td>
+            </tr>
+            <tr>
+                <td>recurse</td>
+                <td>No (Defaults to true).</td>
+                <td>If set to true, all subprojects will also be reconfigured.</td>
+            </tr>            
             </tbody>
         </table>
         </div>
@@ -1243,73 +1302,78 @@
                 <td>Checks for changes in a ClearCase repository.</td>
             </tr>
             <tr class="oddrow">
+                <td><a href="#cmsynergy">&lt;cmsynergy&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a CM Synergy repository.</td>
+            </tr>
+            <tr>
                 <td><a href="#compound">&lt;compound&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes from a list of trigger source controls,
                 and if modification are detected, returns changes from a list
                 of target source controls.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#cvs">&lt;cvs&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a CVS repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#filesystem">&lt;filesystem&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a file system.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#forceonly">&lt;forceonly&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#httpfile">&lt;httpfile&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a remote file via http.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#mks">&lt;mks&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a MKS repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#p4">&lt;p4&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Perforce repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#pvcs">&lt;pvcs&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a PVCS repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#snapshotcm">&lt;snapshotcm&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a SnapshotCM repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#starteam">&lt;starteam&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Star Team repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                  <td><a href="#surround">&lt;surround&gt;</a></td>
                  <td>0 .. *</td>
                  <td>Checks for changes in a Surround SCM repository.</td>
              </tr>
-             <tr>
+             <tr class="oddrow">
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vss">&lt;vss&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe, Journal File
@@ -1492,6 +1556,110 @@
                 <td>clearcasenow</td>
                 <td>Timestamp representing the time the current build
                 started, using the format <code>dd-MMMM-yyyy.HH:mm:ss</code></td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cmsynergy">&lt;cmsynergy&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;clearcase&gt;</pre>
+        </div>
+
+        <p>Triggers a build if tasks have been added to any folder within a 
+           CM Synergy project's reconfigure properties since the last build.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+               <td>ccmexe</td>
+               <td>No</td>
+               <td>The name of the CM Synergy command line client.</td>
+            </tr>
+            <tr>
+                <td>ccmsession</td>
+                <td>No</td>
+                <td>The ID string of the CM Synergy session to use. If not 
+                    provided, the decision will be deffered to the client.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>project</td>
+                <td>Yes</td>
+                <td>The project spec (two part name) of the project you wish 
+                    to use as a template for discovering new tasks.</td>
+            </tr>			
+            <tr>
+               <td>updatefolders</td>
+               <td>No. (Defaults to true)</td>
+               <td>If set to true, the project's reconfigure properties will 
+                   be refreshed before searching for new tasks.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>ccmdateformat</td>
+               <td>No. (Defaults to "EEE MMM dd HH:mm:ss yyyy")</td>
+               <td>The date format (as returned by a query) used by 
+                   your installation of CM Synergy.</td>
+            </tr>
+            <tr>
+               <td>changesynergyurl</td>
+               <td>No</td>
+               <td>If provided, an active link will be created from 
+                   the build results web page to any change requests 
+                   associated with any new tasks. The format should be 
+                   "http://server:port". If you wish to use this option,
+                   you must also set the ccmdb attribute.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>ccmdb</td>
+               <td>No</td>
+               <td>Used in conjunction with changesynergyurl. This
+                   should be set to the location of the database on
+                   the CM Synergy server. (e.g. "/ccmdb/mydb")</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3>Properties Passed to the Builders</h3>
+        
+        <p>In addition to the standard CruiseControl <a href="#buildproperties">
+        properties passed to builders</a>, &lt;cmsynergy&gt; sets the
+        following properties:</p>
+        
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>cc.ccm.session</td>
+                <td>The CM Synergy session ID (as provided in the ccmsession attribute).</td>
+            </tr>
+            <tr>
+                <td>cc.ccm.dateformat</td>
+                <td>The date format string used by this plugin.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>cc.ccm.project</td>
+                <td>The project name (as provided in the project attribute).</td>
             </tr>
             </tbody>
         </table>
