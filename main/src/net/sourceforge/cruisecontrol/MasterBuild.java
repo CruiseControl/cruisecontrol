@@ -71,6 +71,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static String _today;
 
     //email stuff
+    private String _defaultEmailSuffix;
     private String _mailhost;
     private String _returnAddress;
     private Set _buildmaster;
@@ -260,6 +261,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _mapSourceControlUsersToEmail = getBooleanProperty(props, 
          "mapSourceControlUsersToEmail");
         
+        _defaultEmailSuffix = props.getProperty("defaultEmailSuffix");
         _mailhost = props.getProperty("mailhost");
         _servletURL = props.getProperty("servletURL");
         _returnAddress = props.getProperty("returnAddress");
@@ -652,9 +654,16 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     private void emailReport(Set emails, String subject) {
+        StringBuffer logMessage = new StringBuffer("Sending mail to:");
+        for(Iterator iter = emails.iterator(); iter.hasNext();) {
+            logMessage.append(" " + iter.next());
+        }
+        log(logMessage.toString());
 
         String message = "View results here -> " + _servletURL + "?"
-                         + _logFile.substring(_logFile.lastIndexOf(File.separator)+1,_logFile.lastIndexOf("."));
+         + _logFile.substring(_logFile.lastIndexOf(File.separator) + 1, 
+         _logFile.lastIndexOf("."));
+
         try {
             Mailer mailer = new Mailer(_mailhost, emails, _returnAddress);
             mailer.sendMessage(subject, message);
@@ -688,18 +697,14 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     private Set translateAliases(Set possibleAliases) {
-        if (!_useEmailMap) {
-            return possibleAliases;
-        }
-
         Set returnAddresses = new HashSet();
         boolean aliasPossible = false;
-        for (Iterator iter=possibleAliases.iterator(); iter.hasNext();) {
-            String nextName = (String)iter.next();
+        for (Iterator iter = possibleAliases.iterator(); iter.hasNext();) {
+            String nextName = (String) iter.next();
             if (nextName.indexOf("@") > -1) {
                 //The address is already fully qualified.
                 returnAddresses.add(nextName);
-            } else {
+            } else if (_useEmailMap) {
                 File emailmapFile = new File(_emailmapFilename);
                 Properties emailmap = new Properties();
                 try {
@@ -711,13 +716,22 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
                 String mappedNames = emailmap.getProperty(nextName);
                 if (mappedNames == null) {
+                    if (_defaultEmailSuffix != null) {
+                        nextName += _defaultEmailSuffix;
+                    }
                     returnAddresses.add(nextName);
                 } else {
                     returnAddresses.addAll(getSetFromString(mappedNames));
                     aliasPossible = true;
                 }
+            } else {
+                if (_defaultEmailSuffix != null) {
+                    nextName += _defaultEmailSuffix;
+                }
+                returnAddresses.add(nextName);
             }
         }
+        
         if (aliasPossible) {
             returnAddresses = translateAliases(returnAddresses);
         }
