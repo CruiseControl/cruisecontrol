@@ -55,6 +55,8 @@ import java.util.*;
  */
 public class Project implements Serializable {
 
+    static final long serialVersionUID = 2656877748476842326L;
+
     /** enable logging for this class */
     private static Category log = Category.getInstance(Project.class.getName());
 
