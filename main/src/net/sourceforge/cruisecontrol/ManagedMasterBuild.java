@@ -1,5 +1,7 @@
 package net.sourceforge.cruisecontrol;
 
+import org.apache.log4j.Category;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -13,6 +15,9 @@ import java.util.Date;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class ManagedMasterBuild extends MasterBuild implements Runnable {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(ManagedMasterBuild.class.getName());
 
     /**
      * Number of times CruiseControl has checked the repository. Each time
@@ -88,7 +93,7 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
             }
 
         } catch (InterruptedException e) {
-            log("Exception trying to sleep");
+            log.error("Exception trying to sleep");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();

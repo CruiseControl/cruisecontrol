@@ -41,6 +41,7 @@ import java.text.*;
 import java.util.*;
 import javax.mail.*;
 import org.apache.tools.ant.*;
+import org.apache.log4j.Category;
 import org.jdom.*;
 import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
 
@@ -58,6 +59,9 @@ import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
  * @author <a href="mailto:davidl@iis.com">David Le Strat</a>
  */
 public class MasterBuild {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(MasterBuild.class.getName());
 
     private static String BUILDINFO_FILENAME = "buildcycleinfo";
     private final String DEFAULT_EMAILMAP = "emailmap.properties";
@@ -98,7 +102,7 @@ public class MasterBuild {
      * @param args   User specified arguments to MasterBuild.
      */
     public MasterBuild(String[] args) {
-        log("***** Starting automated build process *****\n");
+        log.info("***** Starting automated build process *****\n");
 
         readBuildInfo();
         overwriteWithUserArguments(args);
@@ -170,7 +174,7 @@ public class MasterBuild {
             }
 
         } catch (InterruptedException e) {
-            log("Exception trying to sleep");
+            log.error("Exception trying to sleep");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -193,16 +197,16 @@ public class MasterBuild {
                                     (props.isVerbose() ? Project.MSG_VERBOSE : Project.MSG_INFO);
         CruiseLogger logger = new CruiseLogger(messageLevel);
         
-        log("Opening build file: " + props.getAntFile());
+        log.debug("Opening build file: " + props.getAntFile());
         String target = null; // remember: Null target means default target.
         if (((_buildCounter % props.getCleanBuildEvery()) == 0) 
             && props.getCleanAntTarget() != "") {
 
-            log("Using clean target: " + props.getCleanAntTarget());
+            log.debug("Using clean target: " + props.getCleanAntTarget());
             target = props.getCleanAntTarget();
 
         } else if (props.getAntTarget() != "") {
-            log("Using normal target: " + props.getAntTarget());
+            log.debug("Using normal target: " + props.getAntTarget());
             target = props.getAntTarget();
         }
         BuildRunner runner = new BuildRunner(props.getAntFile(), target, 
@@ -244,10 +248,10 @@ public class MasterBuild {
                         sendBuildEmail(_projectName + " Build Fixed, " + 
                         info.getLabel() + " Successful");
                     } else {
-                        log("Skipping email notifications for successful builds");
+                        log.info("Skipping email notifications for successful builds");
                     }
                 } else {
-                    log("Skipping email notifications for fixed and " +
+                    log.info("Skipping email notifications for fixed and " +
                     "successful builds");
                 }
                 
@@ -269,8 +273,8 @@ public class MasterBuild {
         // should always be set by the ModificationSet (even if there are no changes).
         if (project.getProperty(ModificationSet.MODIFICATIONSET_INVOKED) == null) {
             // This means that there was never a modification set task called.
-            log("The specified Ant target did not result in a ModificationSet task being called.");
-            log("Without a ModificationSet task, CruiseControl can not work correctly");
+            log.error("The specified Ant target did not result in a ModificationSet task being called.");
+            log.error("Without a ModificationSet task, CruiseControl can not work correctly");
             throw new BuildException("No ModificationSet task invoked");
         }
     }
@@ -296,38 +300,24 @@ public class MasterBuild {
     }
     
     /**
-     *  convenience method for logging
-     */
-    public void log(String s) {
-        log(s, System.out);
-    }
-
-    /**
-     *  divert logging to any printstream
-     */
-    public void log(String s, PrintStream out) {
-        out.println("[masterbuild] " + s);
-    }
-
-    /**
      *  Print header for each build attempt.
      */
     protected void startLog() {
-        log("***** Starting Build Cycle");
-        log("***** Label: " + info.getLabel());
-        log("***** Last Good Build: " + info.getLastGoodBuild());
-        log("\n");
+        log.info("***** Starting Build Cycle");
+        log.info("***** Label: " + info.getLabel());
+        log.info("***** Last Good Build: " + info.getLastGoodBuild());
+        log.info("\n");
     }
 
     /**
      *  Print footer for each build attempt.
      */
     protected void endLog(long sleepTime) {
-        log("\n");
-        log("***** Ending Build Cycle, sleeping " + (sleepTime/1000.0) + " seconds until next build.\n\n\n");
-        log("***** Label: " + info.getLabel());
-        log("***** Last Good Build: " + info.getLastGoodBuild());
-        log("\n");
+        log.info("\n");
+        log.info("***** Ending Build Cycle, sleeping " + (sleepTime/1000.0) + " seconds until next build.\n\n\n");
+        log.info("***** Label: " + info.getLabel());
+        log.info("***** Last Good Build: " + info.getLastGoodBuild());
+        log.info("\n");
     }
 
     /**
@@ -358,43 +348,6 @@ public class MasterBuild {
         out.println(indent + "-properties file       where file is the masterbuild properties file, and is available in the classpath");
     }
 
-    /**
-     * Writes a file with a snippet of html regarding
-     * whether the build is currently running or
-     * when it will start again.  The build servlet
-     * will then look for this file to report the
-     * current build status ("build started at x" or
-     * "next build at x").
-     *
-     * @param isRunning true if the build is currently
-     *                  running, otherwise false.
-     */
-    /*
-    private void logCurrentBuildStatus(boolean isRunning, Date startTime) {
-        String currentlyRunning = "<br>&nbsp;<br><b>Current Build Started At:</b><br>";
-        String notRunning = "<br>&nbsp;<br><b>Next Build Starts At:</b><br>";
-        SimpleDateFormat numericDateFormatter 
-         = new SimpleDateFormat("dd/MMM/yyyy HH:mm");
-        Date buildTime;
-        if (isRunning) {
-            buildTime = startTime;
-        }
-        else {
-            buildTime = new Date(new Date().getTime() + getSleepTime(startTime));
-        }
-
-        try {        
-            FileWriter currentBuildWriter = new FileWriter(props.getCurrentBuildStatusFile());
-            currentBuildWriter.write((isRunning ? currentlyRunning : notRunning) 
-             + numericDateFormatter.format(buildTime) + "<br>");
-            currentBuildWriter.close();
-            currentBuildWriter = null;
-        } catch (IOException ioe) {
-            log("Problem writing current build status");
-            ioe.printStackTrace();
-        }
-    }
-    */
 
     /**
      * Overrides method in XmlLogger.  Gets us the timestamp that we performed 
@@ -427,7 +380,7 @@ public class MasterBuild {
             String propertyName = (String)e.next();
             String fileName = proj.getProperty(propertyName);
             if (fileName == null) {
-                log("Auxillary Log File Property '" + propertyName + "' not set.");
+                log.error("Auxillary Log File Property '" + propertyName + "' not set.");
             } else {
                 _auxLogFiles.add(fileName);
             }            
