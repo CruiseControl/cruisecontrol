@@ -27,6 +27,9 @@ import java.util.*;
 
 import net.sourceforge.cruisecontrol.util.*;
 
+import org.apache.tools.ant.taskdefs.*;
+import org.apache.tools.ant.types.*;
+
 /**
  * This class implements the SourceControlElement methods
  * for a CVS repository. The call to CVS is assumed to work without
@@ -140,6 +143,10 @@ public class CVSElement extends SourceControlElement {
         return "[cvselement]";
     }
     
+    public static String formatCVSDate(Date date) {
+        return CVSDATE.format(date);
+    }
+    
     /**
      * Sets the CVSROOT for all calls to CVS.
      *
@@ -158,6 +165,7 @@ public class CVSElement extends SourceControlElement {
      *               to find the log history.
      */
     public void setLocalWorkingCopy(String local) {
+        //(PENDING) stick with the string, throw exception if File does not exist
         if (local == null) {
             this.local = new NullFile();
             return;
@@ -213,13 +221,12 @@ public class CVSElement extends SourceControlElement {
     public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
         setLastModified(lastBuild);
 
-        String[] commandArray = buildLogCommand(lastBuild, now);
-        log(prepareCommandForDisplay(commandArray));
-        
         ArrayList mods = null;
         try {
-            mods = new ArrayList(execLogCommand(commandArray));
+            mods = execHistoryCommand(
+             buildHistoryCommand(lastBuild, now).getCommandline());
         } catch (Exception e) {
+            log("Log command failed to execute succesfully");
             e.printStackTrace();
         }
         
@@ -230,38 +237,35 @@ public class CVSElement extends SourceControlElement {
     }
 
     /**
-     * Build command "cvs -d CVSROOT log -d lastbuildtime<currtime "
+     * @return CommandLine for "cvs -d CVSROOT log -N -d "lastbuildtime<currtime" "
      */
-    String[] buildLogCommand(Date lastBuildTime, Date currentTime) {
-        //(PENDING) get rid of this duplication somehow
-        if (cvsroot == null) {
-	    // omit -d CVSROOT
-	    return new String[] {"cvs", "log", "-d", 
-                CVSDATE.format(lastBuildTime) + "<" 
-                + CVSDATE.format(currentTime), 
-                getLocalPath() };
-	} else {
-	    return new String[] {"cvs", "-d", cvsroot, "log", "-d", 
-                CVSDATE.format(lastBuildTime) + "<" 
-                + CVSDATE.format(currentTime), 
-                getLocalPath() };
-	}
-    }
+    public Commandline buildHistoryCommand(Date lastBuildTime, Date currentTime) {
+        Commandline commandLine = new Commandline();
+        commandLine.setExecutable("cvs");
+    
+        if (cvsroot != null) {
+            commandLine.createArgument().setValue("-d");
+            commandLine.createArgument().setValue(cvsroot);
+        }
+        
+        commandLine.createArgument().setValue("log");
+        commandLine.createArgument().setValue("-N");
+        commandLine.createArgument().setValue("-d");
+        String dateRange = 
+         formatCVSDate(lastBuildTime) + "<" + formatCVSDate(currentTime);
+        commandLine.createArgument().setValue(Commandline.quoteArgument(dateRange));
 
+        if (local != null) {
+            commandLine.createArgument().setValue(getLocalPath());
+        }
+        
+        return commandLine;
+    }
+ 
     String prepareCommandForDisplay(String[] commandArray) {
-        // Quote element if necessary.  Since we've programatically made that
-        // array above, we can keep it simple : look for ' ', '<' or '>'.
-        // These 3 are command-line separator characters in command interpreters.
         String logCommand = "";
         for (int i = 0; i < commandArray.length; i++) {
- 	    if (commandArray[i].indexOf(" ") >= 0
- 		|| commandArray[i].indexOf("<") >= 0
- 		|| commandArray[i].indexOf(">") >= 0) {
- 		logCommand += "\"" + commandArray[i] + "\"" + " ";
- 	    } else {
- 		// no need to quote
- 		logCommand += commandArray[i] + " ";
- 	    }                
+            logCommand += commandArray[i] + " "; 
         }
         
         return logCommand;
@@ -276,12 +280,13 @@ public class CVSElement extends SourceControlElement {
         this.lastModified = lastModified;
     }    
     
-    private List execLogCommand(String[] commandArray) throws Exception {
+    private ArrayList execHistoryCommand(String[] commandArray) throws Exception {
+        log("Executing: " + prepareCommandForDisplay(commandArray));
         Process p = Runtime.getRuntime().exec(commandArray);            
  
         logErrorStream(p);
         InputStream cvsLogStream = p.getInputStream();
-        List mods = parseStream(cvsLogStream);
+        ArrayList mods = parseStream(cvsLogStream);
 
         getRidOfLeftoverData(cvsLogStream);
         p.waitFor();
@@ -323,7 +328,7 @@ public class CVSElement extends SourceControlElement {
      * @param input  InputStream to get log data from.
      * @return List of Modification elements, maybe empty never null.
      */
-    private List parseStream(InputStream input) throws IOException {
+    private ArrayList parseStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         
         // Read to the first RCS file name. The first entry in the log
@@ -539,4 +544,39 @@ public class CVSElement extends SourceControlElement {
             } catch (IOException ignoredIOException) {}
         }
     }
+    
+    private class CVSStreamHandler implements ExecuteStreamHandler {
+        private StreamPumper _errorPumper;
+        private InputStream _inputStream;
+        private List _modifications;
+        
+        public List getModifications() {
+            return _modifications;
+        }
+        
+        public void start() throws IOException {
+            _errorPumper.start();        
+            _modifications = parseStream(_inputStream);
+        }
+        
+        public void stop() {
+        }
+        
+        public void setProcessErrorStream(InputStream errorStream) 
+         throws IOException {
+            _errorPumper = new StreamPumper(errorStream, null, 
+             new PrintWriter(System.err, true));
+        }
+        
+        public void setProcessInputStream(OutputStream outputStream) 
+         throws IOException {
+        }
+        
+        public void setProcessOutputStream(InputStream inputStream) 
+         throws IOException {
+             _inputStream = inputStream;
+        }
+        
+    }
+    
 }
