@@ -36,21 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.File;
-import java.io.FileWriter;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.Tag;
-
-import junit.framework.TestCase;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sourceforge.cruisecontrol.LogFileSetupDecorator;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletRequest;
-import net.sourceforge.cruisecontrol.LogFileSetupDecorator;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.Tag;
 
 /**
  * @author jfredrick
@@ -96,7 +93,7 @@ public class ArtifactsLinkTagTest extends TestCase {
         assertEquals("20020223120000", tag.getTimeFromLogParam());
         request.removeParameter("log");
     }
-    
+
     public void testGetTimeFromLatestLogFile() throws Exception {
         assertEquals("20020225120000", tag.getTimeFromLatestLogFile());
     }
