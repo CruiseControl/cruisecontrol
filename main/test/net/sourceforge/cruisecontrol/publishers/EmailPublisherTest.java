@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
+import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.testutil.Util;
 
 import java.io.StringReader;
@@ -87,7 +88,7 @@ public class EmailPublisherTest extends TestCase {
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
 
-        PluginXMLHelper xmlHelper = new PluginXMLHelper();
+        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper());
         emailPublisher =
             (MockEmailPublisher) xmlHelper.configure(
                 emailPublisherElement,
