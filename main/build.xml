@@ -23,7 +23,8 @@
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
 
-    <property name="build.compiler" value="jikes" />
+    <property name="build.compiler" value="jikes" /> 
+    
     <property name="classes" value="classes"/>        
     <property file="cruise-build.properties" />   
     <property name="dist" value="dist"/>

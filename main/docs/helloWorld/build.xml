@@ -27,6 +27,7 @@
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
     
     <property name="build.compiler" value="jikes"/>
+    <property name="build.compiler.emacs" value="true"/>    
 
     <property name="build.dir" value="classes"/>
     <property name="dist.dir" value="dist"/>

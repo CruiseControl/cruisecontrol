@@ -110,12 +110,12 @@
             
             <xsl:if test="$total.errorMessage.count > 0">
                 <tr>
-                <!-- NOTE: Cannot use total.errorMessage.count as a count of total errors because
-                  javac is only returning error messages as straight character data.
-                  total.errorMessage.count is actually the number of lines of error messages. -->
+                <!-- NOTE: total.errorMessage.count is actually the number of lines of error 
+                 messages. This accurately represents the number of errors ONLY if the Ant property
+                 build.compiler.emacs is set to "true" -->
                     <td bgcolor="#000066" colspan="5">
                         <b><font face="arial" size="2" color="#FFFFFF">
-                            &#160;Errors/Warnings:
+                            &#160;Errors/Warnings: (<xsl:value-of select="$total.errorMessage.count"/>)
                         </font></b>
                     </td>
                 </tr>
