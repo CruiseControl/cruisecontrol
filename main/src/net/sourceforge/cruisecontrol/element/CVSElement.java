@@ -42,14 +42,14 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
-import net.sourceforge.cruisecontrol.util.*;
+import net.sourceforge.cruisecontrol.util.NullDate;
 
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
 
 /**
- * This class implements the SourceControlElement methods for a CVS repository.
+ * This class implements the SourceControlElemenst methods for a CVS repository.
  * The call to CVS is assumed to work without any setup. This implies that if
  * the authentication type is pserver the call to cvs login should be done
  * prior to calling this class.
