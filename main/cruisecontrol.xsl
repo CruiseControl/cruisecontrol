@@ -48,9 +48,9 @@
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%"> 
 
             <xsl:if test="build/@error">
-                <tr><td colspan="5"><font face="arial" size="3"><b>BUILD FAILED</b></font></td></tr>
+                <tr><td colspan="6"><font face="arial" size="3"><b>BUILD FAILED</b></font></td></tr>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <font face="arial" size="2">
                             <b>Ant Error Message:&#160;</b>
                             <xsl:value-of select="build/@error"/>
@@ -60,13 +60,13 @@
             </xsl:if>   
 
             <xsl:if test="not (build/@error)">
-                <tr><td colspan="5"><font face="arial" size="3"><b>BUILD COMPLETE&#160;-&#160;
+                <tr><td colspan="6"><font face="arial" size="3"><b>BUILD COMPLETE&#160;-&#160;
                     <xsl:value-of select="build/label"/></b>      
                 </font></td></tr>
             </xsl:if>
 
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <font face="arial" size="2">
                         <b>Date of build:&#160;</b>
                         <xsl:value-of select="build/today"/>
@@ -74,7 +74,7 @@
                 </td>
             </tr>   
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <font face="arial" size="2">
                         <b>Time to build:&#160;</b>
                         <xsl:value-of select="build/@time"/>
@@ -82,7 +82,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <font face="arial" size="2">
                         <b>Last changed:&#160;</b>
                         <xsl:value-of select="build/modifications/modification/date"/>
@@ -90,9 +90,9 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <font face="arial" size="2">
-                        <b>Description:&#160;</b>
+                        <b>Last log entry:&#160;</b>
                         <xsl:value-of select="build/modifications/modification/comment"/>
                     </font>
                     <br/>
@@ -113,7 +113,7 @@
                 <!-- NOTE: total.errorMessage.count is actually the number of lines of error 
                  messages. This accurately represents the number of errors ONLY if the Ant property
                  build.compiler.emacs is set to "true" -->
-                    <td bgcolor="#000066" colspan="5">
+                    <td bgcolor="#000066" colspan="6">
                         <b><font face="arial" size="2" color="#FFFFFF">
                             &#160;Errors/Warnings: (<xsl:value-of select="$total.errorMessage.count"/>)
                         </font></b>
@@ -121,26 +121,26 @@
                 </tr>
 
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <font color="red" face="arial" size="1">
                             <xsl:apply-templates select="$javac.warn.messages"/>
                         </font>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <font color="red" face="arial" size="1">
                             <xsl:apply-templates select="$ejbjar.warn.messages"/>
                         </font>
                     </td>
                 </tr>
 
-                <tr><td colspan="5">&#160;</td></tr>
+                <tr><td colspan="6">&#160;</td></tr>
             </xsl:if>
 
             <!-- Unit Tests -->
             <tr>
-                <td bgcolor="#000066" colspan="5">
+                <td bgcolor="#000066" colspan="6">
                     <font face="arial" size="2" color="#FFFFFF">
                         &#160;Unit Tests: (<xsl:value-of select="count($testcase.list)"/>)
                     </font>
@@ -150,12 +150,12 @@
             <xsl:choose>
                 <xsl:when test="count($testsuite.list) = 0">
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <i><font face="arial" size="2">No Tests Run</font></i>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <i><font color="red" face="arial" size="2">
                                 This project doesn't have any tests
                             </font></i>
@@ -165,7 +165,7 @@
 
                 <xsl:when test="$totalErrorsAndFailures = 0">
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <i><font face="arial" size="2">All Tests Passed</font></i>
                         </td>
                     </tr>      
@@ -203,8 +203,8 @@
 
             <!-- Modifications -->
             <tr>
-                <tr><td colspan="5">&#160;</td></tr>
-                <td bgcolor="#000066" colspan="5">
+                <tr><td colspan="6">&#160;</td></tr>
+                <td bgcolor="#000066" colspan="6">
                     <font face="arial" size="2" color="#FFFFFF">
                         &#160;Modifications since last build:&#160;(
                             <xsl:value-of select="count($modification.list)"/>)
@@ -216,8 +216,8 @@
 
             <xsl:if test="$dist.count > 0">
                 <tr>
-                    <tr><td colspan="5">&#160;</td></tr>
-                    <td bgcolor="#000066" colspan="5">
+                    <tr><td colspan="6">&#160;</td></tr>
+                    <td bgcolor="#000066" colspan="6">
                         <font face="arial" size="2" color="#FFFFFF">
                             &#160;Deployments by this build:&#160;(
                              <xsl:value-of select="$dist.count"/>)
@@ -348,10 +348,10 @@
             <td><font size="1" face="arial"><xsl:value-of select="user"/></font></td>
             <td><font size="1" face="arial"><xsl:value-of select="project"/></font></td>
             <td><font size="1" face="arial"><xsl:value-of select="filename"/></font></td>
+            <td><font size="1" face="arial"><xsl:value-of select="comment"/></font></td>
         </tr>
         
-        <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>
-        <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>
+        <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>        
     </xsl:template>
 
     <!-- jar and war template -->
@@ -360,7 +360,7 @@
             <xsl:if test="position() mod 2 = 0">
                 <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
             </xsl:if>
-            <td colspan="5">
+            <td colspan="6">
                 <nobr>
                     <font face="arial" size="1"><xsl:value-of select="message"/></font>
                 </nobr>
