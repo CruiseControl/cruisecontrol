@@ -249,7 +249,27 @@ public class CVSTest extends TestCase {
         element.setLocalWorkingCopy(".");
 
         String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime)};
+                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
+
+        String[] actualCommand = element.buildHistoryCommand(lastBuildTime).getCommandline();
+
+        assertEquals("Mismatched lengths!", expectedCommand.length,
+                     actualCommand.length);
+        for (int i = 0; i < expectedCommand.length; i++) {
+            assertEquals(expectedCommand[i], actualCommand[i]);
+        }
+    }
+
+    public void testBuildHistoryCommandWithTag() throws CruiseControlException {
+        Date lastBuildTime = new Date();
+
+        CVS element = new CVS();
+        element.setCvsRoot("cvsroot");
+        element.setLocalWorkingCopy(".");
+        element.setTag("sometag");
+
+        String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
+                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-rsometag"};
 
         String[] actualCommand = element.buildHistoryCommand(lastBuildTime).getCommandline();
 
@@ -268,7 +288,7 @@ public class CVSTest extends TestCase {
         element.setLocalWorkingCopy(null);
 
         String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime)};
+                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime).getCommandline();
@@ -288,13 +308,14 @@ public class CVSTest extends TestCase {
         element.setLocalWorkingCopy(".");
 
         String[] expectedCommand = new String[]{"cvs", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime)};
+                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime).getCommandline();
         assertEquals("Mismatched lengths!", expectedCommand.length,
                      actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
+            System.out.println(actualCommand[i]);
             assertEquals(expectedCommand[i], actualCommand[i]);
         }
     }

@@ -85,11 +85,6 @@ public class CVS implements SourceControl {
      */
     private String tag;
 
-    /**
-     * Should we look only on the default branch?
-     */
-    private boolean _defaultBranchOnly = false;
-
     /** enable logging for this class */
     private static Logger log = Logger.getLogger(CVS.class);
 
@@ -137,6 +132,18 @@ public class CVS implements SourceControl {
     private final static String CVS_REVISION_STATE = "state:";
 
     /**
+     * This is the keyword that precedes the revision as found in the
+     * CVS log information.
+     */
+    private final static String CVS_REVISION_REVISION = "revision";
+
+    /**
+     * This is the keyword that tells us when we have reaced the ned of the
+     * header as found in the CVS log information.
+     */
+    private final static String CVS_DESCRIPTION = "description:";
+
+    /**
      * This is a state keyword which indicates that a revision to a file was not
      * relevant to the current branch, or the revision consisted of a deletion
      * of the file (removal from branch..).
@@ -180,13 +187,6 @@ public class CVS implements SourceControl {
      */
     public void setCvsRoot(String cvsroot) {
         this.cvsroot = cvsroot;
-    }
-
-    /**
-     * Set whether or not we check only the default branch.
-     */
-    public void setDefaultBranchOnly(boolean defaultOnly) {
-        _defaultBranchOnly = defaultOnly;
     }
 
     /**
@@ -265,9 +265,6 @@ public class CVS implements SourceControl {
         commandLine.createArgument().setValue("-q");
 
         commandLine.createArgument().setValue("log");
-        if (_defaultBranchOnly) {
-            commandLine.createArgument().setValue("-b");
-        }
         commandLine.createArgument().setValue("-N");
         String dateRange = ">" + formatCVSDate(lastBuildTime);
         commandLine.createArgument().setValue("-d" + dateRange);
@@ -278,6 +275,8 @@ public class CVS implements SourceControl {
 
             // note: -r cannot have a space between itself and the tag spec.
             commandLine.createArgument().setValue("-r" + tag);
+        } else {
+            // This is used to include the head only if a Tag is not specified.
             commandLine.createArgument().setValue("-b");
         }
 
@@ -417,9 +416,41 @@ public class CVS implements SourceControl {
         // that a line will exist with the working file name on it.
         String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
         String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
+        String branchRevisionName = null;
 
-        while (nextLine != null
-                && !nextLine.startsWith(CVS_FILE_DELIM)) {
+        if (tag != null) {
+            // Look for the revision of the form "tag: *.(0.)y "
+            // get line with branch revision on it.
+
+            String branchRevisionLine = readToNotPast(reader, "\t"+tag+": ", CVS_DESCRIPTION);
+
+            if(branchRevisionLine!=null) {
+                // Look for the revision of the form "tag: *.(0.)y "
+                branchRevisionName = branchRevisionLine.substring(tag.length()+3);
+                if(branchRevisionName.charAt(branchRevisionName.lastIndexOf(".")-1)=='0') {
+                    branchRevisionName= branchRevisionName.substring(0,branchRevisionName.lastIndexOf(".")-2)+
+                    branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
+                }
+            }
+        }
+
+        while (reader.ready() && nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
+            nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
+            if (nextLine == null) {
+                //No more revisions for this file.
+                break;
+            }
+
+            nextLine.length();
+            StringTokenizer tokens = new StringTokenizer(nextLine, " ");
+            tokens.nextToken();
+            String revision = tokens.nextToken();
+            if(tag!=null) {
+                String itsBranchRevisionName = revision.substring(0,revision.lastIndexOf('.'));
+                if(!itsBranchRevisionName.equals(branchRevisionName)) {
+                    break;
+                }
+            }
 
             // Read to the revision date. It is ASSUMED that each revision
             // section will include this date information line.
@@ -429,7 +460,7 @@ public class CVS implements SourceControl {
                 break;
             }
 
-            StringTokenizer tokens = new StringTokenizer(nextLine, " \t\n\r\f;");
+            tokens = new StringTokenizer(nextLine, " \t\n\r\f;");
             // First token is the keyword for date, then the next two should be
             // the date and time stamps.
             tokens.nextToken();
