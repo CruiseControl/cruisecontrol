@@ -55,6 +55,24 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
     private List tabs = new ArrayList();
     private Tab selectedTab;
     private static final Tab NONE_SELECTED = null;
+    private static final String EOL = "\r\n";
+    private static final String START_SHEET = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
+            + "<tbody>"
+            + EOL
+            + "  <tr>"
+            + EOL
+            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripestop.gif\"></td>"
+            + EOL
+            + "  </tr>"
+            + EOL;
+    private static final String END_SHEET = "  <tr>"
+            + EOL
+            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripesbottom.gif\"></td>"
+            + EOL
+            + "  </tr>"
+            + EOL
+            + "</tbody></table>"
+            + EOL;
 
     /**
      * On starting the tag, we clear out the per-instance state (should be clear already, but hey).
@@ -101,11 +119,11 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
     }
 
     private void endTable(final JspWriter out) throws IOException {
-        out.write("</table>");
+        out.write(END_SHEET);
     }
 
     private void startTable(final JspWriter out) throws IOException {
-        out.write("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">");
+        out.write(START_SHEET);
     }
 
     private void clearTabs() {
@@ -119,28 +137,27 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
      */
     private void printTabHeaders(JspWriter out) throws IOException {
         out.write("<tr>");
-        out.write("<td>");
-        out.write("<img border=\"0\" src=\"images/blank35.gif\" />");
+        out.write("<td bgcolor=\"#FFFFFF\">");
+        out.write("<div align=\"center\">");
+        out.write("<table class=\"tab-table\" align=\"center\" valign=\"middle\" cellspacing=\"0\"");
+        out.write(" cellpadding=\"0\" border=\"1\"><tbody><tr>");
         for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
             Tab tab = (Tab) iterator.next();
             if (tab == selectedTab) {
-                out.write("<img border=\"0\" alt=\"");
+                out.write("<td class=\"tabs-selected\">");
                 out.write(tab.getLabel());
-                out.write("\" src=\"images/");
-                out.write(tab.getName());
-                out.write("Tab-on.gif\" />");
+                out.write("</td>");
             } else {
-                out.write("<a href=\"");
+                out.write("<td class=\"tabs\">");
+                out.write("<a class=\"tabs-link\" href=\"");
                 out.write(createUrl("tab", tab.getName()));
                 out.write("\">");
-                out.write("<img border=\"0\" alt=\"");
                 out.write(tab.getLabel());
-                out.write("\" src=\"images/");
-                out.write(tab.getName());
-                out.write("Tab-off.gif\" />");
                 out.write("</a>");
+                out.write("</td>");
             }
         }
+        out.write("</tr></tbody></table></div>");
         out.write("</td>");
         out.write("</tr>");
     }

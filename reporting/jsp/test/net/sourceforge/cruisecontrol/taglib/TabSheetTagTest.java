@@ -69,6 +69,19 @@ public class TabSheetTagTest extends TestCase {
     private MockBodyContent content;
     private MockServletRequest request;
     private MockPageContext pageContext;
+    private static final String START_SHEET = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
+            + "<tbody>\r\n"
+            + "  <tr>\r\n"
+            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripestop.gif\"></td>\r\n"
+            + "  </tr>\r\n";
+    private static final String END_OF_TABLE = "  <tr>\r\n"
+            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripesbottom.gif\"></td>\r\n"
+            + "  </tr>\r\n"
+            + "</tbody></table>\r\n";
+    private static final String START_OF_HEADERS = "<tr><td bgcolor=\"#FFFFFF\"><div align=\"center\"><table"
+            + " class=\"tab-table\" align=\"center\" valign=\"middle\" cellspacing=\"0\""
+            + " cellpadding=\"0\" border=\"1\"><tbody><tr>";
+    private static final String END_OF_HEADERS = "</tr></tbody></table></div></td></tr>";
 
     public TabSheetTagTest(String name) {
         super(name);
@@ -88,8 +101,10 @@ public class TabSheetTagTest extends TestCase {
         tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag()); // side effect of this should clear
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
-        final String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
-                                + "<tr><td><img border=\"0\" src=\"images/blank35.gif\" /></td></tr></table>";
+        final String expected = START_SHEET
+                + START_OF_HEADERS
+                + END_OF_HEADERS
+                + END_OF_TABLE;
         assertEquals(expected, pageContext.getOut().toString());
     }
 
@@ -98,8 +113,8 @@ public class TabSheetTagTest extends TestCase {
         tabSheet.release();
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag()); // wouldn't normally call this after a release
                                                           // but good enough way to test.
-        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
-                          + "<tr><td><img border=\"0\" src=\"images/blank35.gif\" /></td></tr></table>";
+        String expected = START_SHEET
+                          + START_OF_HEADERS + END_OF_HEADERS + END_OF_TABLE;
 
         assertEquals(expected, pageContext.getOut().toString());
     }
@@ -119,12 +134,14 @@ public class TabSheetTagTest extends TestCase {
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
-        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr><td>"
-                          + "<img border=\"0\" src=\"images/blank35.gif\" /><img border=\"0\" alt=\"Tab Name 1\" "
-                          + "src=\"images/tabname1Tab-on.gif\" />"
-                          + "<a href=\"/context/servlet?tab=tabname2\">"
-                          + "<img border=\"0\" alt=\"Tab Name 2\" src=\"images/tabname2Tab-off.gif\" /></a>"
-                          + "</td></tr>This is Tab 1</table>";
+        String expected = START_SHEET
+                          + START_OF_HEADERS
+                          + "<td class=\"tabs-selected\">"
+                          + "Tab Name 1</td>"
+                          + "<td class=\"tabs\"><a class=\"tabs-link\" href=\"/context/servlet?tab=tabname2\">"
+                          + "Tab Name 2</a></td>"
+                          + END_OF_HEADERS
+                          + "This is Tab 1" + END_OF_TABLE;
 
         assertEquals(expected, pageContext.getOut().toString());
     }
@@ -143,12 +160,13 @@ public class TabSheetTagTest extends TestCase {
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
-        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
-                          + "<tr><td><img border=\"0\" src=\"images/blank35.gif\" />"
-                          + "<a href=\"/context/servlet?tab=tabname1\">"
-                          + "<img border=\"0\" alt=\"Tab Name 1\" src=\"images/tabname1Tab-off.gif\" /></a>"
-                          + "<img border=\"0\" alt=\"Tab Name 2\" src=\"images/tabname2Tab-on.gif\" /></td></tr>"
-                          + "This is Tab 2</table>";
+        String expected = START_SHEET
+                          + START_OF_HEADERS
+                          + "<td class=\"tabs\"><a class=\"tabs-link\" href=\"/context/servlet?tab=tabname1\">"
+                          + "Tab Name 1</a></td>"
+                          + "<td class=\"tabs-selected\">Tab Name 2</td>"
+                          + END_OF_HEADERS
+                          + "This is Tab 2" + END_OF_TABLE;
         assertEquals(expected, pageContext.getOut().toString());
     }
 
@@ -158,8 +176,7 @@ public class TabSheetTagTest extends TestCase {
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
-        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
-                          + "<tr><td><img border=\"0\" src=\"images/blank35.gif\" /></td></tr></table>";
+        String expected = START_SHEET + START_OF_HEADERS + END_OF_HEADERS + END_OF_TABLE;
         assertEquals(expected, pageContext.getOut().toString());
     }
 

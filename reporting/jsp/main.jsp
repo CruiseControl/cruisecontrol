@@ -52,49 +52,45 @@
         &nbsp;<br>
         <cruisecontrol:tabsheet>
           <tr>
-            <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>
-          </tr>
-          <tr>
             <td bgcolor="white" >
+
               <cruisecontrol:tab name="buildResults" label="Build Results" >
-         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
+                <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
 
-         <cruisecontrol:artifactsLink>
-           <table width="98%" border="0" cellspacing="0" cellpadding="2" align="center">
-           <tr><td class="header-label">
-             <a href="<%= artifacts_url %>">Build Artifacts</a>
-           </td></tr>
-           </table>
-         </cruisecontrol:artifactsLink>
+                <cruisecontrol:artifactsLink>
+                  <table width="98%" border="0" cellspacing="0" cellpadding="2" align="center">
+                    <tr><td class="header-label"><a href="<%= artifacts_url %>">Build Artifacts</a></td></tr>
+                  </table>
+                </cruisecontrol:artifactsLink>
 
-         <cruisecontrol:xsl xslFile="/xsl/maven.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
+                <cruisecontrol:xsl xslFile="/xsl/maven.xsl"/>
+                <p>
+                <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
+                <p>
+                <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
+                <p>
+                <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
+                <p>
+                <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
+                <p>
+                <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
+                <p>
+                <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
               </cruisecontrol:tab>
+
               <cruisecontrol:tab name="testResults" label="Test Results" >
-         <cruisecontrol:xsl xslFile="/xsl/testdetails.xsl"/>
+                <cruisecontrol:xsl xslFile="/xsl/testdetails.xsl"/>
               </cruisecontrol:tab>
+
               <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
-        <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
+                <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
               </cruisecontrol:tab>
+
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
-        Control Panel
-        &nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>
+                <p><a href="http://localhost:8000/">JMX Control Panel</a></p>
+                <p>(todo: need a way to map project to correct url)</p>
               </cruisecontrol:tab>
             </td>
-          </tr>
-          <tr>
-            <td background="images/bluestripesbottom.gif"><img src="images/blank8.gif" border="0"></td>
           </tr>
         </cruisecontrol:tabsheet>
       </td>
