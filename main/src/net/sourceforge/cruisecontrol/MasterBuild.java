@@ -49,7 +49,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _buildmaster;
     private String _notifyOnFailure;
     private static String _projectName;
-    private boolean _useEmailmap;
+    private boolean _useEmailMap;
     private String _emailmapFilename;
 
     //ant specific stuff
@@ -198,7 +198,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                 _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
             }
 
-            _useEmailmap = props.getProperty("useemailmap").equals("true");
+            _useEmailMap = props.getProperty("useemailmap").equals("true");
             _emailmapFilename = props.getProperty("emailmap");
 
             if (_debug || _verbose)
@@ -470,7 +470,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         //if we're using the email map, we should figure out what emails the source control usernames map to.
 		if(_useEmailMap) {
 		   try {
-		      props.load(new FileInputStream(emailmapFile));
+		      emailmap.load(new FileInputStream(emailmapFile));
 	       } catch(Exception e) {
 		      log("error reading email map file: " + _emailmapFilename);
 		      e.printStackTrace();
