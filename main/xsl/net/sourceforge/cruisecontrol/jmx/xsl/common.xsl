@@ -402,7 +402,7 @@
 				<xsl:with-param name="text" select="$str" />
 				<xsl:with-param name="paramText">{0}</xsl:with-param>
 				<xsl:with-param name="paramValue">
-					<xsl:copy-of select="$p0" />
+					<xsl:text/><xsl:value-of select="$p0"/>
 				</xsl:with-param>
 			</xsl:call-template>
 		</xsl:variable>
