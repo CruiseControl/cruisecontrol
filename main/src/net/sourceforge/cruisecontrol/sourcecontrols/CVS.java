@@ -225,6 +225,8 @@ public class CVS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(cvsroot == null)
+            throw new CruiseControlException("'cvsroot' is a required attribute on CVS");
     }
 
     /**

@@ -63,6 +63,26 @@ public class CVSTest extends TestCase {
         return formatter.parse(dateString);
     }
 
+    public void testValidate() {
+        CVS cvs = new CVS();
+
+        try {
+            cvs.validate();
+            fail("CVS should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        cvs.setCvsRoot("cvsroot");
+
+        try {
+            cvs.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("CVS should not throw exceptions when required fields are set.");
+        }
+    }
+
     public void testParseStream() throws IOException, ParseException {
         CVS cvs = new CVS();
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
