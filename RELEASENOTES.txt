@@ -42,6 +42,10 @@ Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
 
+OnSuccessPublisher:
+----------------------
+* Add new publisher that simply wraps other publishers and invokes them only if the build was successful.
+
 P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.

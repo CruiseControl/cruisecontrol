@@ -176,6 +176,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
         verifyPluginClass("currentbuildstatuslistener",
                 "net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener");
+        verifyPluginClass("onsuccess", "net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher");
     }
 
     static void verifyPluginClass(String pluginName, String expectedName)
