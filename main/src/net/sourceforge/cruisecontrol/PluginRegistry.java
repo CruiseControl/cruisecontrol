@@ -180,6 +180,7 @@ public final class PluginRegistry {
         registry.register("compound", "net.sourceforge.cruisecontrol.sourcecontrols.Compound");
         registry.register("triggers", "net.sourceforge.cruisecontrol.sourcecontrols.Triggers");
         registry.register("targets", "net.sourceforge.cruisecontrol.sourcecontrols.Targets");
+        registry.register("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
         // builders
         registry.register("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
         registry.register("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");

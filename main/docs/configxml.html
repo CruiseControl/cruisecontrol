@@ -64,9 +64,10 @@
                      <li><a class="small" href="#p4">Perforce</a>
                      <li><a class="small" href="#pvcs">PVCS</a>
                      <li><a class="small" href="#starteam">StarTeam</a>
-                     <li><a class="small" href="#vss">Subversion</a>
+                     <li><a class="small" href="#svn">Subversion</a>
                      <li><a class="small" href="#vss">Visual SourceSafe</a>
                      <li><a class="small" href="#vssjournal">Visual SourceSafe, Journal File Implementation</a>
+                     <li><a class="small" href="#httpfile">HTTP File</a>
                   </ul>
                <li><a class="small" href="#schedule">Schedule</a>
                   <ul>
@@ -686,7 +687,7 @@
             </tr>
          </table>
 
-         <p><a name="vss"><span class="small">Subversion</span>
+         <p><a name="svn"><span class="small">Subversion</span>
          Uses the svn program to detect changes.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
@@ -803,6 +804,21 @@
                   Set this property if a file has been deleted.  For use in conditionally
                   controlling the build later.
                </td>
+            </tr>
+         </table>
+         
+         <p><a name="httpfile"><span class="small">HTTP File</span><br/>
+         Checks a single file on a web server supporting modification dates (such as Apache). Intended to be used in a Compound mofication set as a Trigger.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">url</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The HTTP URL of a file to check the modification date of</i></td>
             </tr>
          </table>
 
