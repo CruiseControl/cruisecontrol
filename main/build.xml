@@ -147,7 +147,7 @@
     <target name="test" depends="init" description="Executes the unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}" />
-        <javac debug="on" srcdir="${test}" destdir="${classes}" excludes="**/element/" classpathref="project.classpath" />
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}" excludes="**/element/,**/*StarTeam*" classpathref="project.classpath" />
         <copy todir="${classes}">
             <fileset dir="${test}" includes="**/*.xml"/>
         </copy>
@@ -162,6 +162,25 @@
                 <fileset dir="${classes}" includes="**/*Test.class" excludes="**/element/" />
             </batchtest>
         </junit>
+    </target>
+
+    <target name="test-starteam" depends="init" if="starteam-sdk-present">
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}" classpathref="project.classpath">
+            <classpath refid="project.classpath"/>
+            <src path="${test}"/>
+            <include name="**/StarTeam*"/>
+        </javac>
+        <junit fork="yes" haltonfailure="yes" printsummary="on" >
+            <classpath >
+                <path refid="project.runtime.classpath" />
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <batchtest todir="${junit.results}" >
+                <fileset dir="${classes}" includes="**/StarTeamTest.class" />
+            </batchtest>
+        </junit>
+
     </target>
 
     <!-- **************************************************** -->
@@ -214,7 +233,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,compile,compile-starteam,test,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
+    <target name="all" depends="clean,init,compile,compile-starteam,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- Updates local code with cvs changes                    -->
