@@ -37,7 +37,7 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-  <xsl:output omit-xml-declaration="yes"/>
+  <xsl:output omit-xml-declaration="yes" method="html"/>
 
   <xsl:param name="use-empty-syntax" select="true()"/>
   <xsl:param name="exclude-unused-prefixes" select="true()"/>
