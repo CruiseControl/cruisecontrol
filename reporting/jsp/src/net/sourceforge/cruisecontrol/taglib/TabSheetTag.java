@@ -127,7 +127,7 @@ public class TabSheetTag extends CruiseControlTagSupport {
                 out.write(tab.getLabel());
                 out.write("\" src=\"images/");
                 out.write(tab.getName());
-                out.write("Tab-off.gif\" />");
+                out.write("Tab-on.gif\" />");
             } else {
                 out.write("<a href=\"");
                 out.write(createUrl("tab", tab.getName()));
@@ -136,7 +136,7 @@ public class TabSheetTag extends CruiseControlTagSupport {
                 out.write(tab.getLabel());
                 out.write("\" src=\"images/");
                 out.write(tab.getName());
-                out.write("Tab-on.gif\" />");
+                out.write("Tab-off.gif\" />");
                 out.write("</a>");
             }
         }
