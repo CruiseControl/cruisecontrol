@@ -18,6 +18,10 @@ ModificationSet
 * Fixed bogus "A modification was detected in the future" message
 * Now properly checks time of modficiations that are added as elements
 
+Project
+----------------------
+* Now fires BuildProgressEvents and BuildResultEvents. Patch by Michael Beauregard
+
 PVCS
 ----------------------
 * Added loginId attribute. Patch by David Cole
