@@ -90,6 +90,12 @@ public interface ProjectMBean {
     public boolean isPaused();
 
     /**
+     *
+     * @return start time of the last build, using the format 'yyyyMMddHHmmss'
+     */
+    public String getBuildStartTime();
+
+    /**
      * Change the name of the config file that the Project should read
      * configuration information from
      *
