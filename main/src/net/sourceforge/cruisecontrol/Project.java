@@ -111,7 +111,7 @@ public class Project implements Serializable {
             return; //we've paused
         }
 
-        bootstrapTheBuild();
+        bootstrap();
 
         Element cruisecontrolElement = new Element("cruisecontrol");
 
@@ -360,7 +360,7 @@ public class Project implements Serializable {
      * Iterate over all of the registered <code>Bootstrapper</code>s and call
      * their respective <code>bootstrap</code> methods.
      */
-    protected void bootstrapTheBuild() throws CruiseControlException {
+    protected void bootstrap() throws CruiseControlException {
         Iterator bootstrapperIterator = _bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
