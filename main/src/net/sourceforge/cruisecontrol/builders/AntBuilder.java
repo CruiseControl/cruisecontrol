@@ -40,13 +40,14 @@ package net.sourceforge.cruisecontrol.builders;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Category;
-import org.apache.log4j.PropertyConfigurator;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  we often see builds that fail because the previous build is still holding on to some resource.
@@ -62,22 +63,35 @@ public class AntBuilder extends Builder {
     private String _target;
 
     /**
-     *  build and return the results via xml.  debug status can be determined from log4j category once we
-     *  get all the logging in place.
+     * build and return the results via xml.  debug status can be determined
+     * from log4j category once we get all the logging in place.
      */
     public Element build(Map buildProperties) {
 
+        Process p = null;
         try {
-            Process p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties));
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-            StreamPumper outPumper = new StreamPumper(p.getInputStream());
-            new Thread(errorPumper).start();
-            new Thread(outPumper).start();
-            InputStream input = p.getInputStream();
-            p.waitFor();
-        } catch (Exception e) {
-            e.printStackTrace();
+            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties));
+        } catch (IOException e) {
+            log.error(
+                    "Encountered an IO exception will attempting to execute Ant."
+                    + " CruiseControl cannot continue.",
+                    e);
         }
+
+        StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
+        StreamPumper outPumper = new StreamPumper(p.getInputStream());
+        new Thread(errorPumper).start();
+        new Thread(outPumper).start();
+
+        try {
+            p.waitFor();
+        } catch (InterruptedException e) {
+            log.info("Was interrupted while waiting for Ant to finish."
+                    + " CruiseControl will continue, assuming that it completed");
+        }
+
+        outPumper.flush();
+        errorPumper.flush();
 
         //read in log file as element, return it
         File log = new File("log.xml");
@@ -160,7 +174,7 @@ public class AntBuilder extends Builder {
         try {
             FileReader fr = new FileReader(f);
             StringBuffer sb = new StringBuffer();
-            for(int i=0; i<150; i++) {
+            for (int i = 0; i < 150; i++) {
                 sb.append((char) fr.read());
             }
             String beginning = sb.toString();
