@@ -4,6 +4,10 @@ AntBuilder
 ----------------------
 * Added loggerClassName attribute to allow alternative ant listener/logger - Patch by Patrick Lisser
 
+ArtifactsPublisher
+----------------------
+* Fixed a bug where a non-existant directory would result in a non-CruiseControl exception.
+
 build.xml
 ----------------------
 * Constrain checkstyle to only run against cruisecontrol code; ignore other packages.
