@@ -34,10 +34,10 @@
         <fileset dir="${jsp}/docs"/>
     </copy>
 
-    <replace dir="${website}" token="main/docs/index.html" value="main/index.html">
+    <replace dir="${website}" token="../main/docs/index.html" value="main/index.html">
         <include name="**/*.html"/>
     </replace>
-    <replace dir="${website}" token="reporting/jsp/docs/index.html" value="reporting/jsp/index.html">
+    <replace dir="${website}" token="../reporting/jsp/docs/index.html" value="reporting/jsp/index.html">
         <include name="**/*.html"/>
     </replace>
 
