@@ -55,11 +55,10 @@
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
 
     <property name="clover.home" value="${env.CLOVER_HOME}"/>
-    <!-- **************************************************** -->
-    <!-- Clover classpath.  Assumes that CLOVER_HOME has been set. -->
-    <!-- **************************************************** -->
+    <property name="clover.jar" value="${clover.home}/lib/clover.jar"/>
+
     <path id="clover.classpath">
-        <fileset dir="${clover.home}/lib" includes="*.jar"/>
+        <pathelement location="${clover.jar}"/>
     </path>
     
     <!-- ****************************************************
@@ -200,7 +199,7 @@
         <clover-report>
             <current outfile="clover-results" title="CruiseControl test coverage">
                 <format type="html"/> 
-            </current>	 
+            </current>   
         </clover-report>
     </target>
 
