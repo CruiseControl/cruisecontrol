@@ -39,6 +39,7 @@
     <property file="override.properties"/>
 
     <property name="dist" value="dist"/>
+    <property name="deploy.dir" value="${dist}"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="classes" value="classes"/>
@@ -70,7 +71,7 @@
     <!-- **************************************************** -->
     <target name="check-duplication" if="env.SIMIAN_HOME" description="Check for duplicated code">
         <taskdef resource="simiantask.properties" classpath="${env.SIMIAN_HOME}/simian.jar"/>
-		<!-- Simian is failing even if no duplicated lines? -->
+        <!-- Simian is failing even if no duplicated lines? -->
         <simian failOnDuplication="false">
             <fileset dir="${src}" includes="**/*.java"/>
         </simian>        
@@ -144,7 +145,7 @@
     </target>
     
     <target name="war" depends="test,create-web-xml">
-        <war warfile="${dist}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
+        <war warfile="${deploy.dir}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir=".">
                 <exclude name="samplelogs/_cache/"/>
                 <exclude name="${dist}/"/>

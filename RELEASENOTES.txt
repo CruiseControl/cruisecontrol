@@ -11,6 +11,8 @@ ArtifactsPublisher
 build.xml
 ----------------------
 * Constrain checkstyle to only run against cruisecontrol code; ignore other packages.
+* Build webapp by explicitly calling war target.  No longer default target.
+* Can now override deploy.dir property to control where cruisecontrol.war ends up
 
 main.jsp
 ----------------------
