@@ -16,6 +16,12 @@ Email Publishers (LinkEmailPublisher and HTMLEmailPublisher)
 ----------------------
 * failure subelements now contain an optional attribute "reportWhenFixed" to specify if the email address should be sent mail when the build is fixed.
 
+JMX Interface
+----------------------
+* Added a halt operation on the CruiseControl process JMX interface. Patch from Matt Albrecht
+* Renamed start operation to resume.
+* Renamed stop operation to pause.
+
 Project
 ----------------------
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
