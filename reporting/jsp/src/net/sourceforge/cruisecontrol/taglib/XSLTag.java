@@ -233,7 +233,10 @@ public class XSLTag extends CruiseControlTagSupport implements Tag, BodyTag {
     private void updateCacheFile(File xmlFile, File cacheFile) {
         try {
             final InputStream styleSheetStream = getPageContext().getServletContext().getResourceAsStream(xslFileName);
-            transform(xmlFile, styleSheetStream, new FileWriter(cacheFile));
+            final FileWriter out = new FileWriter(cacheFile);
+            transform(xmlFile, styleSheetStream, out);
+            out.close();
+            styleSheetStream.close();
         } catch (IOException e) {
             err(e);
         }
