@@ -157,7 +157,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(getReturnAddress()));
+            msg.setFrom(getFromAddress());
             msg.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(toList, false));
             msg.setSubject(subject);

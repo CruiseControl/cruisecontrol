@@ -46,8 +46,11 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
@@ -75,6 +78,7 @@ public abstract class EmailPublisher implements Publisher {
     private List _failureAddresses = new ArrayList();
     private List _emailMap = new ArrayList();
     private String _returnAddress;
+    private String returnName;
     private String _defaultSuffix = "";
     private String _reportSuccess = "always";
     private boolean _spamWhileBroken = true;
@@ -315,7 +319,7 @@ public abstract class EmailPublisher implements Publisher {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(_returnAddress));
+			msg.setFrom(getFromAddress());
             msg.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(toList, false));
             msg.setSubject(subject);
@@ -334,6 +338,19 @@ public abstract class EmailPublisher implements Publisher {
             throw new CruiseControlException(e.getMessage());
         }
     }
+    
+	protected InternetAddress getFromAddress() throws AddressException {
+		InternetAddress fromAddress = new InternetAddress(_returnAddress);
+		if (returnName!=null) {
+			try {
+				fromAddress = new InternetAddress(_returnAddress, returnName);
+			} catch (UnsupportedEncodingException e) {
+				log.error("error setting returnName ["+returnName+"]: " + e.getMessage());
+				fromAddress = new InternetAddress(_returnAddress);
+			}
+		}
+		return fromAddress;
+	}
 
     public void setMailHost(String mailHost) {
         _mailHost = mailHost;
@@ -394,6 +411,14 @@ public abstract class EmailPublisher implements Publisher {
     public void setReturnAddress(String emailAddress) {
         _returnAddress = emailAddress;
     }
+
+	public String getReturnName() {
+		return returnName;
+	}
+
+	public void setReturnName(String emailReturnName) {
+		returnName = emailReturnName;
+	}
 
     public void setDefaultSuffix(String defaultEmailSuffix) {
         _defaultSuffix = defaultEmailSuffix;
