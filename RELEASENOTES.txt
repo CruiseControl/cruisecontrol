@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+AlwaysBuild
+----------------------
+* New SourceControl that always returns a modification. Submitted by Eric Pugh
+
 AntBuilder
 ----------------------
 * Added more infomative exception when log file doesn't contain a build tag. Patch by Dave Glowacki
