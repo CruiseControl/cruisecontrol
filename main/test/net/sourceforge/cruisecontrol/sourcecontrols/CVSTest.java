@@ -41,6 +41,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -134,10 +135,13 @@ public class CVSTest extends TestCase {
     public void testValidate() throws IOException {
         CVS cvs = new CVS();
 
-        try {
-            cvs.validate();
-            fail("CVS should throw exceptions when required fields are not set.");
-        } catch (CruiseControlException e) {
+        OSEnvironment env = new OSEnvironment();
+        if (env.getVariable("CVSROOT") == null) {
+            try {
+                cvs.validate();
+                fail("CVS should throw exceptions when required fields are not set.");
+            } catch (CruiseControlException e) {
+            }
         }
 
         cvs.setCvsRoot("cvsroot");
@@ -536,7 +540,7 @@ public class CVSTest extends TestCase {
                     "-d",
                     "cvsroot",
                     "-q",
-                    "log",
+                    "rlog",
                     "-N",
                     "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-b"};

@@ -36,13 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +49,15 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods for a CVS repository.
@@ -389,6 +391,10 @@ public class CVS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if (cvsroot == null) {
+            OSEnvironment env = new OSEnvironment();
+            cvsroot = env.getVariable("CVSROOT");
+        }
         if (cvsroot == null && local == null) {
             throw new CruiseControlException("at least one of 'localWorkingCopy'"
                     + " or 'cvsroot' is a required attribute on CVS");
@@ -501,16 +507,18 @@ public class CVS implements SourceControl {
         Commandline commandLine = getCommandline();
         commandLine.setExecutable("cvs");
 
-        if (local != null) {
-            commandLine.setWorkingDirectory(local);
-        }
         if (cvsroot != null) {
             commandLine.createArgument().setValue("-d");
             commandLine.createArgument().setValue(cvsroot);
         }
         commandLine.createArgument().setValue("-q");
 
-        commandLine.createArgument().setValue("log");
+        if (local != null) {
+            commandLine.setWorkingDirectory(local);
+            commandLine.createArgument().setValue("log");
+        } else {
+            commandLine.createArgument().setValue("rlog");
+        }
         
         boolean useHead = tag == null || tag.equals("HEAD") || tag.equals("");
         if (useHead) {
