@@ -55,9 +55,17 @@ import java.util.TimeZone;
  * @author <a href="etienne.studer@canoo.com">Etienne Studer</a>
  */
 public class SVNTest extends TestCase {
+    private SVN svn;
+
+    protected void setUp() throws Exception {
+        svn = new SVN();
+    }
+
+    protected void tearDown() throws Exception {
+        svn = null;
+    }
 
     public void testValidate() throws CruiseControlException, IOException {
-        SVN svn = new SVN();
         try {
             svn.validate();
             fail("should throw an exception when no attributes are set");
@@ -65,7 +73,6 @@ public class SVNTest extends TestCase {
             // expected
         }
 
-        svn = new SVN();
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
         try {
             svn.validate();
@@ -107,7 +114,6 @@ public class SVNTest extends TestCase {
     }
 
     public void testBuildHistoryCommand() throws IOException, CruiseControlException {
-        SVN svn = new SVN();
         svn.setLocalWorkingCopy(".");
 
         Date lastBuild = new Date();
@@ -120,8 +126,20 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.SVN_DATE_FORMAT_IN.format(lastBuild) + "}:HEAD" };
-        String[] actualCmd = svn.buildHistoryCommand(lastBuild).getCommandline();
+                "{" + SVN.SVN_DATE_FORMAT_IN.format(lastBuild) + "}:25" };
+        String[] actualCmd = svn.buildHistoryCommand(lastBuild, "25").getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+
+        expectedCmd =
+            new String[] {
+                "svn",
+                "log",
+                "--non-interactive",
+                "--xml",
+                "-v",
+                "-r",
+                "HEAD:COMMITTED" };
+        actualCmd = svn.buildHistoryCommand(null, null).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
@@ -136,7 +154,7 @@ public class SVNTest extends TestCase {
                 "-r",
                 "{" + SVN.SVN_DATE_FORMAT_IN.format(lastBuild) + "}:HEAD",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild).getCommandline();
+        actualCmd = svn.buildHistoryCommand(lastBuild, "HEAD").getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setUsername("lee");
@@ -156,7 +174,7 @@ public class SVNTest extends TestCase {
                 "--password",
                 "secret",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild).getCommandline();
+        actualCmd = svn.buildHistoryCommand(lastBuild, "HEAD").getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
     }
 
@@ -317,6 +335,9 @@ public class SVNTest extends TestCase {
                 "/trunk/playground/ccc",
                 "deleted");
         assertEquals(modification, modifications.get(1));
+
+        modifications = SVN.SVNLogXMLParser.parseAndFilter(svnLog, null);
+        assertEquals(3, modifications.size());
     }
 
     public void testFormatDatesForSvnLog() {
@@ -346,6 +367,25 @@ public class SVNTest extends TestCase {
             new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
         assertEquals("2003-03-12T20:00:00Z", SVN.SVN_DATE_FORMAT_IN.format(marchTwelfTenAM2003));
     }
+
+    public void testSetProperty() {
+        try {
+            svn.setProperty("blowup");
+            fail();
+        } catch (UnsupportedOperationException expected) {
+            assertEquals("attribute 'property' is not supported", expected.getMessage());
+        }
+    }
+
+    public void testSetPropertyOnDelete() {
+        try {
+            svn.setPropertyOnDelete("blowup");
+            fail();
+        } catch (UnsupportedOperationException expected) {
+            assertEquals("attribute 'propertyOnDelete' is not supported", expected.getMessage());
+        }
+    }
+
 
     private static Modification createModification(
         Date date,
