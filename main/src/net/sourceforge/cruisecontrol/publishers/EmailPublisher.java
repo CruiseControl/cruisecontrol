@@ -77,21 +77,21 @@ public abstract class EmailPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(EmailPublisher.class);
 
-    private String _mailHost;
-    private String _username;
-    private String _password;
-    private String _mailPort;
-    private String _buildResultsURL;
-    private List _alwaysAddresses = new ArrayList();
-    private List _failureAddresses = new ArrayList();
-    private List _emailMap = new ArrayList();
-    private String _returnAddress;
-    private String _returnName;
-    private String _defaultSuffix = "";
-    private String _reportSuccess = "always";
-    private boolean _spamWhileBroken = true;
-    private boolean _skipUsers = false;
-    private String _subjectPrefix;
+    private String mailHost;
+    private String userName;
+    private String password;
+    private String mailPort;
+    private String buildResultsURL;
+    private List alwaysAddresses = new ArrayList();
+    private List failureAddresses = new ArrayList();
+    private List emailMap = new ArrayList();
+    private String returnAddress;
+    private String returnName;
+    private String defaultSuffix = "";
+    private String reportSuccess = "always";
+    private boolean spamWhileBroken = true;
+    private boolean skipUsers = false;
+    private String subjectPrefix;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -130,15 +130,15 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
         StringBuffer subjectLine = new StringBuffer();
-        if (_subjectPrefix != null) {
-            subjectLine.append(_subjectPrefix);
+        if (subjectPrefix != null) {
+            subjectLine.append(subjectPrefix);
             subjectLine.append(" ");
         }
         subjectLine.append(logHelper.getProjectName());
         if (logHelper.isBuildSuccessful()) {
             subjectLine.append(" ");
             subjectLine.append(logHelper.getLabel());
-            if (_reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
+            if (reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
                 subjectLine.append(" Build Fixed");
                 return subjectLine.toString();
             } else {
@@ -160,22 +160,22 @@ public abstract class EmailPublisher implements Publisher {
     protected boolean shouldSend(XMLLogHelper logHelper)
             throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
-            if (_reportSuccess.equalsIgnoreCase("always")) {
+            if (reportSuccess.equalsIgnoreCase("always")) {
                 return true;
-            } else if (_reportSuccess.equalsIgnoreCase("fixes")) {
+            } else if (reportSuccess.equalsIgnoreCase("fixes")) {
                 if (logHelper.wasPreviousBuildSuccessful()) {
                     LOG.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
                     return false;
                 } else {
                     return true;
                 }
-            } else if (_reportSuccess.equalsIgnoreCase("never")) {
+            } else if (reportSuccess.equalsIgnoreCase("never")) {
                 LOG.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
                 return false;
             }
         } else { //build wasn't successful
             if (!logHelper.wasPreviousBuildSuccessful()
-                    && logHelper.isBuildNecessary() && !_spamWhileBroken) {
+                    && logHelper.isBuildNecessary() && !spamWhileBroken) {
                 LOG.debug("spamWhileBroken is set to false, not sending email");
                 return false;
             }
@@ -199,62 +199,46 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected String createUserList(XMLLogHelper logHelper) {
         Set users = logHelper.getBuildParticipants();
-        if (_skipUsers) {
+        if (skipUsers) {
             users = new HashSet();
         }
 
         //add always addresses
-        Iterator alwaysAddressIterator = _alwaysAddresses.iterator();
+        Iterator alwaysAddressIterator = alwaysAddresses.iterator();
         while (alwaysAddressIterator.hasNext()) {
             users.add(((Always) alwaysAddressIterator.next()).getAddress());
         }
 
         //if build failed, add failure addresses
         if (!logHelper.isBuildSuccessful()) {
-            Iterator failureAddressIterator = _failureAddresses.iterator();
+            Iterator failureAddressIterator = failureAddresses.iterator();
             while (failureAddressIterator.hasNext()) {
                 users.add(
                         ((Failure) failureAddressIterator.next()).getAddress());
             }
         }
 
-/*
-        Set emails = new TreeSet();
-        Properties emailMap = new Properties();
-        FileInputStream fis = null;
-        if (_emailMapFile != null) {
-            try {
-                fis = new FileInputStream(_emailMapFile);
-                emailMap.load(fis);
-                fis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                fis = null;
-            }
-        }
-*/
         //move map to hashtable
         Set emails = new TreeSet();
-        Hashtable emailMap = new Hashtable();
-        Iterator emailMapIterator = _emailMap.iterator();
+        Hashtable emailMappings = new Hashtable();
+        Iterator emailMapIterator = emailMap.iterator();
         while (emailMapIterator.hasNext()) {
-            Map map = (Map) emailMapIterator.next();
-            LOG.debug("Mapping alias: " + map.getAlias() + " to address: "
-                    + map.getAddress());
-            emailMap.put(map.getAlias(), map.getAddress());
+            EmailMapping mapping = (EmailMapping) emailMapIterator.next();
+            LOG.debug("Mapping alias: " + mapping.getAlias() + " to address: "
+                    + mapping.getAddress());
+            emailMappings.put(mapping.getAlias(), mapping.getAddress());
         }
 
         Iterator userIterator = users.iterator();
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
-            if (emailMap.containsKey(user)) {
+            if (emailMappings.containsKey(user)) {
                 LOG.debug("User found in email map.  Mailing to: "
-                        + emailMap.get(user));
-                emails.add(emailMap.get(user));
+                        + emailMappings.get(user));
+                emails.add(emailMappings.get(user));
             } else {
                 if (user.indexOf("@") < 0) {
-                    user = user + _defaultSuffix;
+                    user = user + defaultSuffix;
                 }
                 LOG.debug("User not found in email map.  Mailing to: " + user);
                 emails.add(user);
@@ -299,15 +283,15 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected Properties getMailProperties() {
         Properties props = System.getProperties();
-        props.put("mail.smtp.host", _mailHost);
-        if (_mailPort != null) {
-            props.put("mail.smtp.port", _mailPort);
+        props.put("mail.smtp.host", mailHost);
+        if (mailPort != null) {
+            props.put("mail.smtp.port", mailPort);
         }
         LOG.debug(
-            "mailHost is " + _mailHost + ", mailPort is " + _mailPort == null
+            "mailHost is " + mailHost + ", mailPort is " + mailPort == null
                 ? "default"
-                : _mailPort);
-        if (_username != null && _password != null) {
+                : mailPort);
+        if (userName != null && password != null) {
             props.put("mail.smtp.auth", "true");
         }
         return props;
@@ -335,10 +319,10 @@ public abstract class EmailPublisher implements Publisher {
             msg.setSubject(subject);
             msg.setText(message);
             msg.setSentDate(new Date());
-            if (_username != null && _password != null) {
+            if (userName != null && password != null) {
                 msg.saveChanges(); // implicit with send()
                 Transport transport = session.getTransport("smtp");
-                transport.connect(_mailHost, _username, _password);
+                transport.connect(mailHost, userName, password);
                 transport.sendMessage(msg, msg.getAllRecipients());
                 transport.close();
             } else {
@@ -350,170 +334,170 @@ public abstract class EmailPublisher implements Publisher {
     }
     
     protected InternetAddress getFromAddress() throws AddressException {
-        InternetAddress fromAddress = new InternetAddress(_returnAddress);
-        if (_returnName != null) {
+        InternetAddress fromAddress = new InternetAddress(returnAddress);
+        if (returnName != null) {
             try {
-                fromAddress = new InternetAddress(_returnAddress, _returnName);
+                fromAddress = new InternetAddress(returnAddress, returnName);
             } catch (UnsupportedEncodingException e) {
                 LOG.error(
                     "error setting returnName ["
-                        + _returnName
+                        + returnName
                         + "]: "
                         + e.getMessage());
-                fromAddress = new InternetAddress(_returnAddress);
+                fromAddress = new InternetAddress(returnAddress);
             }
         }
         return fromAddress;
     }
 
     public void setMailHost(String mailHost) {
-        _mailHost = mailHost;
+        this.mailHost = mailHost;
     }
 
     public String getMailHost() {
-        return _mailHost;
+        return mailHost;
     }
 
     public void setUsername(String username) {
-        _username = username;
+        this.userName = username;
     }
 
     public String getUsername() {
-        return _username;
+        return userName;
     }
 
     public void setPassword(String password) {
-        _password = password;
+        this.password = password;
     }
 
     public String getPassword() {
-        return _password;
+        return password;
     }
 
     public void setMailPort(String mailPort) {
-        _mailPort = mailPort;
+        this.mailPort = mailPort;
     }
 
     public String getMailPort() {
-        return _mailPort;
+        return mailPort;
     }
 
     public void setSubjectPrefix(String prefix) {
-        _subjectPrefix = prefix;
+        subjectPrefix = prefix;
     }
 
     public String getSubjectPrefix() {
-        return _subjectPrefix;
+        return subjectPrefix;
     }
 
     public String getBuildResultsURL() {
-        return _buildResultsURL;
+        return buildResultsURL;
     }
 
     public void setBuildResultsURL(String url) {
-        _buildResultsURL = url;
+        buildResultsURL = url;
     }
 
     public void addAlwaysAddress(String emailAddress) {
-        _alwaysAddresses.add(emailAddress);
+        alwaysAddresses.add(emailAddress);
     }
 
     public void addFailureAddress(String emailAddress) {
-        _failureAddresses.add(emailAddress);
+        failureAddresses.add(emailAddress);
     }
 
     public String getReturnAddress() {
-        return _returnAddress;
+        return returnAddress;
     }
 
     public void setReturnAddress(String emailAddress) {
-        _returnAddress = emailAddress;
+        returnAddress = emailAddress;
     }
 
     public String getReturnName() {
-        return _returnName;
+        return returnName;
     }
 
     public void setReturnName(String emailReturnName) {
-        _returnName = emailReturnName;
+        returnName = emailReturnName;
     }
 
     public void setDefaultSuffix(String defaultEmailSuffix) {
-        _defaultSuffix = defaultEmailSuffix;
+        defaultSuffix = defaultEmailSuffix;
     }
 
     public void setReportSuccess(String reportSuccess) {
-        _reportSuccess = reportSuccess;
+        this.reportSuccess = reportSuccess;
     }
 
     public void setSkipUsers(boolean skip) {
-        _skipUsers = skip;
+        skipUsers = skip;
     }
 
     public void setSpamWhileBroken(boolean spam) {
-        _spamWhileBroken = spam;
+        spamWhileBroken = spam;
     }
 
     public Object createAlways() {
         Always always = new Always();
-        _alwaysAddresses.add(always);
+        alwaysAddresses.add(always);
         return always;
     }
 
     public Object createFailure() {
         Failure failure = new Failure();
-        _failureAddresses.add(failure);
+        failureAddresses.add(failure);
         return failure;
     }
 
     public Object createMap() {
-        Map map = new Map();
-        _emailMap.add(map);
+        EmailMapping map = new EmailMapping();
+        emailMap.add(map);
         return map;
     }
 
     public class Always {
-        private String _address;
+        private String address;
 
         public String getAddress() {
-            return _address;
+            return address;
         }
 
         public void setAddress(String address) {
-            _address = address;
+            this.address = address;
         }
     }
 
     public class Failure {
-        private String _address;
+        private String address;
 
         public String getAddress() {
-            return _address;
+            return address;
         }
 
         public void setAddress(String address) {
-            _address = address;
+            this.address = address;
         }
     }
 
-    public class Map {
-        private String _alias;
-        private String _address;
+    public class EmailMapping {
+        private String alias;
+        private String address;
 
         public String getAlias() {
-            return _alias;
+            return alias;
         }
 
         public void setAlias(String alias) {
-            _alias = alias;
+            this.alias = alias;
         }
 
         public String getAddress() {
-            return _address;
+            return address;
         }
 
         public void setAddress(String address) {
-            _address = address;
+            this.address = address;
         }
     }
 

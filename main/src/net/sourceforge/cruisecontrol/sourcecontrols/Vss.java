@@ -70,22 +70,22 @@ public class Vss implements SourceControl {
     private static final Logger LOG = Logger.getLogger(Vss.class);
 
     private static final String VSS_TEMP_FILE = "vsstempfile.txt";
-    private SimpleDateFormat _vssDateTimeFormat;
+    private SimpleDateFormat vssDateTimeFormat;
 
-    private String _ssdir;
-    private String _vsspath;
-    private String _serverPath;
-    private String _login;
-    private String _dateFormat;
-    private String _timeFormat;
+    private String ssDir;
+    private String vssPath;
+    private String serverPath;
+    private String login;
+    private String dateFormat;
+    private String timeFormat;
 
-    private Hashtable _properties = new Hashtable();
-    private String _property;
-    private String _propertyOnDelete;
+    private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
     public Vss() {
-        _dateFormat = "MM/dd/yy";
-        _timeFormat = "hh:mma";
+        dateFormat = "MM/dd/yy";
+        timeFormat = "hh:mma";
         constructVssDateTimeFormat();
     }
 
@@ -95,7 +95,7 @@ public class Vss implements SourceControl {
      *@param  vsspath
      */
     public void setVsspath(String vsspath) {
-        _vsspath = "$" + vsspath;
+        this.vssPath = "$" + vsspath;
     }
 
     /**
@@ -104,7 +104,7 @@ public class Vss implements SourceControl {
      *@param  ssdir
      */
     public void setSsDir(String ssdir) {
-        _ssdir = ssdir;
+        this.ssDir = ssdir;
     }
 
     /**
@@ -113,7 +113,7 @@ public class Vss implements SourceControl {
      *  @param serverPath
      */
     public void setServerPath(String serverPath) {
-        _serverPath = serverPath;
+        this.serverPath = serverPath;
     }
 
     /**
@@ -122,7 +122,7 @@ public class Vss implements SourceControl {
      *@param  login
      */
     public void setLogin(String login) {
-        _login = login;
+        this.login = login;
     }
 
     /**
@@ -133,7 +133,7 @@ public class Vss implements SourceControl {
      *@param  property
      */
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     /**
@@ -142,7 +142,7 @@ public class Vss implements SourceControl {
      *  @param  propertyOnDelete
      */
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     /**
@@ -155,7 +155,7 @@ public class Vss implements SourceControl {
      * @see java.text.SimpleDateFormat
      */
     public void setDateFormat(String format) {
-        _dateFormat = format;
+        dateFormat = format;
         constructVssDateTimeFormat();
     }
 
@@ -169,19 +169,19 @@ public class Vss implements SourceControl {
      * @see java.text.SimpleDateFormat
      */
     public void setTimeFormat(String format) {
-        _timeFormat = format;
+        timeFormat = format;
         constructVssDateTimeFormat();
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void validate() throws CruiseControlException {
-        if (_vsspath == null) {
+        if (vssPath == null) {
             throw new CruiseControlException("'vsspath' is a required attribute on Vss");
         }
-        if (_login == null) {
+        if (login == null) {
             throw new CruiseControlException("'login' is a required attribute on Vss");
         }
     }
@@ -202,8 +202,8 @@ public class Vss implements SourceControl {
         ArrayList modifications = new ArrayList();
         try {
             Properties systemProps = System.getProperties();
-            if (_serverPath != null) {
-                systemProps.put("SSDIR", _serverPath);
+            if (serverPath != null) {
+                systemProps.put("SSDIR", serverPath);
             }
             String[] env = new String[systemProps.size()];
             int index = 0;
@@ -214,7 +214,7 @@ public class Vss implements SourceControl {
                 index++;
             }
 
-            LOG.info("Vss: getting modifications for " + _vsspath);
+            LOG.info("Vss: getting modifications for " + vssPath);
             Process p =
                 Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
             p.waitFor();
@@ -228,8 +228,8 @@ public class Vss implements SourceControl {
             e.printStackTrace();
         }
 
-        if (_property != null && modifications.size() > 0) {
-            _properties.put(_property, "true");
+        if (property != null && modifications.size() > 0) {
+            properties.put(property, "true");
         }
 
         return modifications;
@@ -290,8 +290,8 @@ public class Vss implements SourceControl {
         String execCommand = null;
         try {
             execCommand =
-                (_ssdir != null)
-                    ? new File(_ssdir, "ss.exe").getCanonicalPath()
+                (ssDir != null)
+                    ? new File(ssDir, "ss.exe").getCanonicalPath()
                     : "ss.exe";
         } catch (IOException e) {
             throw new CruiseControlException(e);
@@ -301,13 +301,13 @@ public class Vss implements SourceControl {
             new String[] {
                 execCommand,
                 "history",
-                _vsspath,
+                vssPath,
                 "-R",
                 "-Vd"
                     + formatDateForVSS(now)
                     + "~"
                     + formatDateForVSS(lastBuild),
-                "-Y" + _login,
+                "-Y" + login,
                 "-I-N",
                 "-O" + VSS_TEMP_FILE };
 
@@ -331,9 +331,9 @@ public class Vss implements SourceControl {
      */
     private String formatDateForVSS(Date d) {
         SimpleDateFormat sdf =
-            new SimpleDateFormat(_dateFormat + ";" + _timeFormat);
+            new SimpleDateFormat(dateFormat + ";" + timeFormat);
         String vssFormattedDate = sdf.format(d);
-        if (_timeFormat.endsWith("a")) {
+        if (timeFormat.endsWith("a")) {
             return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
         } else {
             return vssFormattedDate;
@@ -446,9 +446,9 @@ public class Vss implements SourceControl {
                 }
             }
 
-            if (_property != null) {
-                _properties.put(_property, "true");
-                LOG.debug("setting property " + _property + " to be true");
+            if (property != null) {
+                properties.put(property, "true");
+                LOG.debug("setting property " + property + " to be true");
             }
 
             LOG.debug(" ");
@@ -465,9 +465,9 @@ public class Vss implements SourceControl {
     }
 
     private void addPropertyOnDelete() {
-        if (_propertyOnDelete != null) {
-            _properties.put(_propertyOnDelete, "true");
-            LOG.debug("setting property " + _propertyOnDelete + " to be true");
+        if (propertyOnDelete != null) {
+            properties.put(propertyOnDelete, "true");
+            LOG.debug("setting property " + propertyOnDelete + " to be true");
         }
     }
 
@@ -518,12 +518,12 @@ public class Vss implements SourceControl {
 
         try {
             Date lastModifiedDate = null;
-            if (_timeFormat.endsWith("a")) {
+            if (timeFormat.endsWith("a")) {
                 lastModifiedDate =
-                    _vssDateTimeFormat.parse(dateAndTime.trim() + "m");
+                    vssDateTimeFormat.parse(dateAndTime.trim() + "m");
             } else {
                 lastModifiedDate =
-                    _vssDateTimeFormat.parse(dateAndTime.trim());
+                    vssDateTimeFormat.parse(dateAndTime.trim());
             }
 
             return lastModifiedDate;
@@ -555,13 +555,13 @@ public class Vss implements SourceControl {
      * @see #setDateFormat
      */
     private void constructVssDateTimeFormat() {
-        _vssDateTimeFormat =
+        vssDateTimeFormat =
             new SimpleDateFormat(
-                "'Date: '" + _dateFormat + "   'Time: '" + _timeFormat);
+                "'Date: '" + dateFormat + "   'Time: '" + timeFormat);
     }
     
     protected SimpleDateFormat getVssDateTimeFormat() {
-        return _vssDateTimeFormat;
+        return vssDateTimeFormat;
     }
 
 }

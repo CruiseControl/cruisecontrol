@@ -43,42 +43,42 @@ import org.jdom.Element;
 
 public class MockPublisher implements Publisher {
 
-    private int _someInt;
-    private String _someString;
-    private MockPublisherChild _mpc;
-    private boolean _someBoolean;
+    private int someInt;
+    private String someString;
+    private MockPublisherChild mpc;
+    private boolean someBoolean;
 
     public void setSomeBoolean(boolean someBoolean) {
-        _someBoolean = someBoolean;
+        this.someBoolean = someBoolean;
     }
 
     public boolean getSomeBoolean() {
-        return _someBoolean;
+        return someBoolean;
     }
 
     public void setSomeString(String someString) {
-        _someString = someString;
+        this.someString = someString;
     }
 
     public void setSomeInt(int someInt) {
-        _someInt = someInt;
+        this.someInt = someInt;
     }
 
     public int getSomeInt() {
-        return _someInt;
+        return someInt;
     }
 
     public String getSomeString() {
-        return _someString;
+        return someString;
     }
 
     public Object createMockPluginChild() {
-        _mpc = new MockPublisherChild();
-        return _mpc;
+        mpc = new MockPublisherChild();
+        return mpc;
     }
 
     public MockPublisherChild getMockPluginChild() {
-        return _mpc;
+        return mpc;
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
@@ -88,24 +88,27 @@ public class MockPublisher implements Publisher {
     }
 
     public class MockPublisherChild {
-        private int _someInt;
-        private String _someString;
+        
+        private int someInt;
+        private String someString;
 
         public void setSomeString(String someString) {
-            _someString = someString;
+            this.someString = someString;
         }
 
         public void setSomeInt(int someInt) {
-            _someInt = someInt;
+            this.someInt = someInt;
         }
 
         public int getSomeInt() {
-            return _someInt;
+            return someInt;
         }
 
         public String getSomeString() {
-            return _someString;
+            return someString;
         }
+        
     }
+    
 }
 

@@ -52,10 +52,10 @@ public class ExecutePublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(ExecutePublisher.class);
 
-    private String _commandString;
+    private String commandString;
 
     public void setCommand(String commandString) {
-        _commandString = commandString;
+        this.commandString = commandString;
     }
 
     /**
@@ -65,7 +65,7 @@ public class ExecutePublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (_commandString == null) {
+        if (commandString == null) {
             throw new CruiseControlException("'command' not specified in configuration file");
         }
     }
@@ -73,7 +73,7 @@ public class ExecutePublisher implements Publisher {
     public void publish(Element cruisecontrolLog)
         throws CruiseControlException {
 
-        Commandline command = new Commandline(_commandString);
+        Commandline command = new Commandline(commandString);
         LOG.info("executing command: " + command);
 
         try {

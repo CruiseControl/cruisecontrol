@@ -42,10 +42,10 @@ import java.io.File;
 
 public class MainTest extends TestCase {
 
-    private Main _main;
+    private Main main;
 
     protected void setUp() {
-        _main = new Main();
+        main = new Main();
     }
 
     public void testConfigureProject() throws Exception {
@@ -67,7 +67,7 @@ public class MainTest extends TestCase {
         }
 
         
-        Project project = _main.configureProject(correctArgs);
+        Project project = main.configureProject(correctArgs);
         assertEquals(project.getConfigFileName(), "config.xml");
         assertEquals(project.getLabel(), "1.2.2");
         assertEquals(project.getLastBuild(), "20020310120000");
@@ -81,7 +81,7 @@ public class MainTest extends TestCase {
         project.serializeProject();
 
         Project newProject =
-            _main.configureProject(
+            main.configureProject(
                 new String[] {"-projectname", "myproject"});
         assertEquals(newProject.getConfigFileName(), "config.xml");
         assertEquals(newProject.getLabel(), "1.2.2");
@@ -101,7 +101,7 @@ public class MainTest extends TestCase {
             project.setName("myproject");
             project.serializeProject();
 
-            _main.configureProject(
+            main.configureProject(
                 new String[] {"-projectname", "myproject"});
             fail("Expected exception");
         } catch (CruiseControlException e) {
@@ -115,21 +115,21 @@ public class MainTest extends TestCase {
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-lastbuild"};
 
-        assertEquals(_main.parseLastBuild(correctArgs, null), "20020310120000");
+        assertEquals(main.parseLastBuild(correctArgs, null), "20020310120000");
 
         assertEquals(
-            _main.parseLastBuild(missingArgs, "20020310000000"),
+            main.parseLastBuild(missingArgs, "20020310000000"),
             "20020310000000");
 
         try {
-            _main.parseLastBuild(incorrectArgs, null);
+            main.parseLastBuild(incorrectArgs, null);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
         }
 
         try {
-            _main.parseLastBuild(missingArgs, null);
+            main.parseLastBuild(missingArgs, null);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
@@ -140,21 +140,21 @@ public class MainTest extends TestCase {
         String correctLabel = "1.2.3";
         String[] correctArgs = new String[] {"-label", correctLabel};
 
-        assertEquals(_main.parseLabel(correctArgs, null), correctLabel);
+        assertEquals(main.parseLabel(correctArgs, null), correctLabel);
     }
 
     public void testParseLabelNoArgs() throws CruiseControlException {
         String[] noArgs = new String[] {""};
         String previousLabel = "1.2.2";
 
-        assertEquals(_main.parseLabel(noArgs, previousLabel), previousLabel);
+        assertEquals(main.parseLabel(noArgs, previousLabel), previousLabel);
     }
 
     public void testParseLabelMissingLabelValue() {
         String[] incorrectArgs = new String[] {"-label"};
 
         try {
-            _main.parseLabel(incorrectArgs, null);
+            main.parseLabel(incorrectArgs, null);
             fail("Expected exception due to missing label value");
         } catch (CruiseControlException expected) {
         }
@@ -164,7 +164,7 @@ public class MainTest extends TestCase {
         String[] noArgs = new String[] {""};
 
         try {
-            _main.parseLabel(noArgs, null);
+            main.parseLabel(noArgs, null);
             fail("Expected exception due to label not being set");
         } catch (CruiseControlException expected) {
         }
@@ -175,21 +175,21 @@ public class MainTest extends TestCase {
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-configfile"};
 
-        assertEquals(_main.parseConfigFileName(correctArgs, null), "config.xml");
+        assertEquals(main.parseConfigFileName(correctArgs, null), "config.xml");
 
         assertEquals(
-            _main.parseConfigFileName(missingArgs, "config.xml"),
+            main.parseConfigFileName(missingArgs, "config.xml"),
             "config.xml");
 
         try {
-            _main.parseConfigFileName(incorrectArgs, null);
+            main.parseConfigFileName(incorrectArgs, null);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
         }
 
         try {
-            _main.parseConfigFileName(missingArgs, null);
+            main.parseConfigFileName(missingArgs, null);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
@@ -201,17 +201,17 @@ public class MainTest extends TestCase {
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-projectname"};
 
-        assertEquals(_main.parseProjectName(correctArgs), "myproject");
+        assertEquals(main.parseProjectName(correctArgs), "myproject");
 
         try {
-            _main.parseProjectName(missingArgs);
+            main.parseProjectName(missingArgs);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
         }
 
         try {
-            _main.parseProjectName(incorrectArgs);
+            main.parseProjectName(incorrectArgs);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected

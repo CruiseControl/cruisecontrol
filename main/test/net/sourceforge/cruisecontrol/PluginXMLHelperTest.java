@@ -45,7 +45,7 @@ import org.jdom.Element;
 
 public class PluginXMLHelperTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
-    private PluginXMLHelper _helper;
+    private PluginXMLHelper helper;
 
     private static final int SOME_INT = 15;
     private static final int SOME_OTHER_INT = 16;
@@ -59,7 +59,7 @@ public class PluginXMLHelperTest extends TestCase {
     }
 
     protected void setUp() {
-        _helper = new PluginXMLHelper();
+        helper = new PluginXMLHelper();
     }
 
     public void testConfigure() throws CruiseControlException {
@@ -72,7 +72,7 @@ public class PluginXMLHelperTest extends TestCase {
         childElement.setAttribute("someint", Integer.toString(SOME_OTHER_INT));
         testElement.addContent(childElement);
 
-        MockPublisher plugin = (MockPublisher) _helper.configure(testElement,
+        MockPublisher plugin = (MockPublisher) helper.configure(testElement,
                 "net.sourceforge.cruisecontrol.publishers.MockPublisher");
 
         assertEquals("expectedString", plugin.getSomeString());
@@ -84,7 +84,7 @@ public class PluginXMLHelperTest extends TestCase {
 
     public void testConfigureNoClass() {
         try {
-            _helper.configure(new Element("irrelevant"), "noclass");
+            helper.configure(new Element("irrelevant"), "noclass");
             fail("Expected an exception because noclass shouldn't exist");
         } catch (CruiseControlException expected) {
         }

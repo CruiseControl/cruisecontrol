@@ -52,8 +52,8 @@ import net.sourceforge.cruisecontrol.Modification;
  */
 public class ClearCaseTest extends TestCase {
 
-    private ClearCase _clearCase;
-    private String _clearCaseStream;
+    private ClearCase clearCase;
+    private String clearCaseStream;
 
     private static final String USERID = "userid";
     private static final String DATE = "20010808.023456";
@@ -70,15 +70,15 @@ public class ClearCaseTest extends TestCase {
 
     protected void setUp() {
         // Set up so that this element will match all tests.
-        _clearCase = new ClearCase();
+        clearCase = new ClearCase();
         String delimiter = ClearCase.DELIMITER;
-        _clearCaseStream = "";
-        _clearCaseStream += USERID + delimiter + DATE + delimiter;
-        _clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
-        _clearCaseStream += COMMENT + ClearCase.END_OF_STRING_DELIMITER + "\n";
-        _clearCaseStream += USERID + delimiter + DATE2 + delimiter;
-        _clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
-        _clearCaseStream += COMMENT2 + ClearCase.END_OF_STRING_DELIMITER + "\n";
+        clearCaseStream = "";
+        clearCaseStream += USERID + delimiter + DATE + delimiter;
+        clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
+        clearCaseStream += COMMENT + ClearCase.END_OF_STRING_DELIMITER + "\n";
+        clearCaseStream += USERID + delimiter + DATE2 + delimiter;
+        clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
+        clearCaseStream += COMMENT2 + ClearCase.END_OF_STRING_DELIMITER + "\n";
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2001, 7, 8, 2, 34, 56);
@@ -92,8 +92,8 @@ public class ClearCaseTest extends TestCase {
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
     public void testClearCaseStream() throws IOException {
-        StringBufferInputStream stream = new StringBufferInputStream(_clearCaseStream);
-        List list = _clearCase.parseStream(stream);
+        StringBufferInputStream stream = new StringBufferInputStream(clearCaseStream);
+        List list = clearCase.parseStream(stream);
         Modification mod = (Modification) list.get(0);
         assertEquals(CHECKIN, mod.type);
         assertEquals(File.separator + "filename", mod.fileName);

@@ -43,13 +43,13 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  * @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
  */
 public class P4BootstrapperTest extends TestCase {
-    private P4Bootstrapper _p4Bootstrapper;
+    private P4Bootstrapper p4Bootstrapper;
     public void setUp() throws Exception {
-        _p4Bootstrapper = new P4Bootstrapper();
+        p4Bootstrapper = new P4Bootstrapper();
     }
     public void testPathNotSet() {
         try {
-            _p4Bootstrapper.validate();
+            p4Bootstrapper.validate();
             fail("Should be Exception if path is not set.");
         } catch (CruiseControlException e) {
             //expected
@@ -57,68 +57,68 @@ public class P4BootstrapperTest extends TestCase {
     }
 
     public void testInvalidPath() {
-        _p4Bootstrapper.setPath("");
+        p4Bootstrapper.setPath("");
         try {
-            _p4Bootstrapper.validate();
+            p4Bootstrapper.validate();
             fail("Empty path not allowed");
         } catch (CruiseControlException e) {
             //expected
         }
     }
     public void testInvalidPort() {
-        _p4Bootstrapper.setPath("foo");
-        _p4Bootstrapper.setP4Port("");
+        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setP4Port("");
         try {
-            _p4Bootstrapper.validate();
+            p4Bootstrapper.validate();
             fail("Empty port not allowed");
         } catch (CruiseControlException e) {
             //expected
         }
     }
     public void testInvalidClient() {
-        _p4Bootstrapper.setPath("foo");
-        _p4Bootstrapper.setP4Client("");
+        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setP4Client("");
         try {
-            _p4Bootstrapper.validate();
+            p4Bootstrapper.validate();
             fail("Empty client not allowed");
         } catch (CruiseControlException e) {
             //expected
         }
     }
     public void testInvalidUser() {
-        _p4Bootstrapper.setPath("foo");
-        _p4Bootstrapper.setP4User("");
+        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setP4User("");
         try {
-            _p4Bootstrapper.validate();
+            p4Bootstrapper.validate();
             fail("Empty user not allowed");
         } catch (CruiseControlException e) {
             //expected
         }
     }
     public void testCreateCommandlineWithPathSet () throws CruiseControlException {
-        _p4Bootstrapper.setPath("foo");
-        assertEquals("p4 -s sync foo", _p4Bootstrapper.createCommandline());
+        p4Bootstrapper.setPath("foo");
+        assertEquals("p4 -s sync foo", p4Bootstrapper.createCommandline());
     }
     public void testCreateCommandlineWithP4PortSet() throws CruiseControlException {
-        _p4Bootstrapper.setPath("foo");
-        _p4Bootstrapper.setP4Port("testhost:1666");
+        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setP4Port("testhost:1666");
         checkEnvironmentSpecification(" -p testhost:1666 ");
     }
     public void testCreateCommandlineWithP4ClientSet() throws CruiseControlException {
-        _p4Bootstrapper.setPath("foo");
-        _p4Bootstrapper.setP4Client("testclient");
+        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setP4Client("testclient");
         checkEnvironmentSpecification(" -c testclient ");
     }
     public void testCreateCommandlineWithP4UserSet() throws CruiseControlException {
-        _p4Bootstrapper.setPath("foo");
-        _p4Bootstrapper.setP4User("testuser");
+        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setP4User("testuser");
         checkEnvironmentSpecification(" -u testuser ");
     }
     /**
      * Checks that a P4 environment command line option is created correctly in a P4 command line specification
      */
     private void checkEnvironmentSpecification(String expectedSetting) throws CruiseControlException {
-        String commandline = _p4Bootstrapper.createCommandline();
+        String commandline = p4Bootstrapper.createCommandline();
         int specicationPosition = commandline.indexOf(expectedSetting);
         int syncPosition = commandline.indexOf(" sync ");
         assertTrue(specicationPosition != -1);

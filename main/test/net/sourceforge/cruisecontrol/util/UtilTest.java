@@ -44,20 +44,20 @@ import java.util.Calendar;
  */
 public class UtilTest extends TestCase {
 
-    private Calendar _cal;
-    private Calendar _cal2;
+    private Calendar cal;
+    private Calendar cal2;
 
     public void setUp() {
         //create a couple calendars/dates
-        _cal = Calendar.getInstance();
-        _cal.set(2001, Calendar.NOVEMBER, 22, 10, 01, 01);
-        _cal2 = Calendar.getInstance();
-        _cal2.set(2001, Calendar.NOVEMBER, 22, 11, 01, 01);
+        cal = Calendar.getInstance();
+        cal.set(2001, Calendar.NOVEMBER, 22, 10, 01, 01);
+        cal2 = Calendar.getInstance();
+        cal2.set(2001, Calendar.NOVEMBER, 22, 11, 01, 01);
     }
 
     public void testGetTimeFromDate() {
-        assertEquals(Util.getTimeFromDate(_cal.getTime()), 1001);
-        assertEquals(Util.getTimeFromDate(_cal2.getTime()), 1101);
+        assertEquals(Util.getTimeFromDate(cal.getTime()), 1001);
+        assertEquals(Util.getTimeFromDate(cal2.getTime()), 1101);
     }
 
     public void testMilliTimeDifference() {

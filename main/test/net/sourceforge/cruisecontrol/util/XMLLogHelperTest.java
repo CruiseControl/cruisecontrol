@@ -46,8 +46,8 @@ import java.util.Set;
 
 public class XMLLogHelperTest extends TestCase {
 
-    private Element _successfulLogElement;
-    private Element _failedLogElement;
+    private Element successfulLogElement;
+    private Element failedLogElement;
 
     public XMLLogHelperTest(String name) {
         super(name);
@@ -112,20 +112,20 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     public void setUp() {
-        _successfulLogElement = new Element("cruisecontrol");
-        _successfulLogElement.addContent(createInfoElement("1.0", false));
-        _successfulLogElement.addContent(createBuildElement(true));
-        _successfulLogElement.addContent(createModificationsElement("username1", "username2"));
+        successfulLogElement = new Element("cruisecontrol");
+        successfulLogElement.addContent(createInfoElement("1.0", false));
+        successfulLogElement.addContent(createBuildElement(true));
+        successfulLogElement.addContent(createModificationsElement("username1", "username2"));
 
-        _failedLogElement = new Element("cruisecontrol");
-        _failedLogElement.addContent(createInfoElement("1.1", true));
-        _failedLogElement.addContent(createBuildElement(false));
-        _failedLogElement.addContent(createModificationsElement("username3", "username4"));
+        failedLogElement = new Element("cruisecontrol");
+        failedLogElement.addContent(createInfoElement("1.1", true));
+        failedLogElement.addContent(createBuildElement(false));
+        failedLogElement.addContent(createModificationsElement("username3", "username4"));
     }
 
     public void testGetLabel() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
-        XMLLogHelper failureHelper = new XMLLogHelper(_failedLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        XMLLogHelper failureHelper = new XMLLogHelper(failedLogElement);
         try {
             assertEquals("1.0", successHelper.getLabel());
             assertEquals("1.1", failureHelper.getLabel());
@@ -135,7 +135,7 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     public void testGetLogFileName() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         try {
             assertEquals("log20020313120000.xml", successHelper.getLogFileName());
         } catch (CruiseControlException e) {
@@ -145,8 +145,8 @@ public class XMLLogHelperTest extends TestCase {
 
 
     public void testWasPreviousBuildSuccessful() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
-        XMLLogHelper failureHelper = new XMLLogHelper(_failedLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        XMLLogHelper failureHelper = new XMLLogHelper(failedLogElement);
         try {
             assertEquals(false, successHelper.wasPreviousBuildSuccessful());
             assertEquals(true, failureHelper.wasPreviousBuildSuccessful());
@@ -156,7 +156,7 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     public void testGetCruiseControlInfoProperty() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         try {
             assertEquals("1.0", successHelper.getCruiseControlInfoProperty("label"));
         } catch (CruiseControlException e) {
@@ -170,14 +170,14 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     public void testIsBuildNecessary() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
-        XMLLogHelper failureHelper = new XMLLogHelper(_failedLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        XMLLogHelper failureHelper = new XMLLogHelper(failedLogElement);
         assertEquals(true, successHelper.isBuildNecessary());
         assertEquals(false, failureHelper.isBuildNecessary());
     }
 
     public void testGetProjectName() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
 
         try {
             assertEquals("someproject", successHelper.getProjectName());
@@ -187,14 +187,14 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     public void testIsBuildSuccessful() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
-        XMLLogHelper failureHelper = new XMLLogHelper(_failedLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        XMLLogHelper failureHelper = new XMLLogHelper(failedLogElement);
         assertEquals(true, successHelper.isBuildSuccessful());
         assertEquals(false, failureHelper.isBuildSuccessful());
     }
 
     public void testGetBuildParticipants() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         Set successHelperParticipants = successHelper.getBuildParticipants();
         assertEquals(true, successHelperParticipants.contains("username1"));
         assertEquals(true, successHelperParticipants.contains("username2"));

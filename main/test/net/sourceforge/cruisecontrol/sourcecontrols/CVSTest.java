@@ -466,6 +466,7 @@ public class CVSTest extends TestCase {
 
     public void testFormatCVSDateGMTPlusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
+
         Date may18_2001_6pm =
             new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals(

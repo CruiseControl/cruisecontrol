@@ -47,30 +47,30 @@ import java.util.Hashtable;
 
 public class MockSourceControl implements SourceControl {
 
-    private int _version;
-    private Hashtable _properties = new Hashtable();
-    private String _property = null;
-    private String _propertyOnDelete = null;
+    private int version;
+    private Hashtable properties = new Hashtable();
+    private String property = null;
+    private String propertyOnDelete = null;
 
     // added this because otherwise the unit-tests doesn't work
     // if the machine is slow. I promise, this was hard to catch :-)
-    private Date _modifiedDate = new Date();
+    private Date modifiedDate = new Date();
 
     
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void setType(int version) {
-        _version = version;
+        this.version = version;
     }
 
     public void validate() throws CruiseControlException {
@@ -79,14 +79,14 @@ public class MockSourceControl implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         ArrayList result = new ArrayList();
 
-        if (_version == 1) {
+        if (version == 1) {
             //build up a couple Modification objects
             Modification mod1 = new Modification();
             mod1.type = "Checkin";
             mod1.fileName = "file1";
             mod1.folderName = "dir1";
             mod1.userName = "user1";
-            mod1.modifiedTime = _modifiedDate;
+            mod1.modifiedTime = modifiedDate;
             mod1.comment = "comment1";
             result.add(mod1);
 
@@ -95,22 +95,22 @@ public class MockSourceControl implements SourceControl {
             mod2.fileName = "file2";
             mod2.folderName = "dir2";
             mod2.userName = "user2";
-            mod2.modifiedTime = _modifiedDate;
+            mod2.modifiedTime = modifiedDate;
             mod2.comment = "comment2";
             result.add(mod2);
 
-            if (_property != null) {
-                _properties.put(_property, "true");
+            if (property != null) {
+                properties.put(property, "true");
             }
         }
 
-        if (_version == 2) {
+        if (version == 2) {
             Modification mod3 = new Modification();
             mod3.type = "Checkin";
             mod3.fileName  = "file3";
             mod3.folderName = "dir3";
             mod3.userName = "user3";
-            mod3.modifiedTime = _modifiedDate;
+            mod3.modifiedTime = modifiedDate;
             mod3.comment = "comment3";
             result.add(mod3);
 
@@ -119,12 +119,12 @@ public class MockSourceControl implements SourceControl {
             mod4.fileName = "file4";
             mod4.folderName = "dir4";
             mod4.userName = "user4";
-            mod4.modifiedTime = _modifiedDate;
+            mod4.modifiedTime = modifiedDate;
             mod4.comment = "comment4";
             result.add(mod4);
 
-            if (_propertyOnDelete != null) {
-                _properties.put(_propertyOnDelete, "true");
+            if (propertyOnDelete != null) {
+                properties.put(propertyOnDelete, "true");
             }
         }
 

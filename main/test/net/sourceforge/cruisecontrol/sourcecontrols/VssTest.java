@@ -54,18 +54,16 @@ import net.sourceforge.cruisecontrol.Modification;
  */
 public class VssTest extends TestCase {
 
-    private Vss _vss;
+    private Vss vss;
 
     private static final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
     private static final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36";
 
     protected void setUp() {
-        _vss = new Vss();
+        vss = new Vss();
     }
 
     public void testValidate() {
-        Vss vss = new Vss();
-
         try {
             vss.validate();
             fail("Vss should throw exceptions when required fields are not set.");
@@ -86,15 +84,15 @@ public class VssTest extends TestCase {
 
     public void testParseUserSingleCharName() {
         String testName = "1";
-        assertEquals(testName, _vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
+        assertEquals(testName, vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
 
     public void testParseDateSingleCharName() {
         String testName = "1";
         try {
             assertEquals(
-             _vss.getVssDateTimeFormat().parse(DATE_TIME_STRING.trim() + "m"),
-             _vss.parseDate(createVSSLine(testName, DATE_TIME_STRING)));
+             vss.getVssDateTimeFormat().parse(DATE_TIME_STRING.trim() + "m"),
+             vss.parseDate(createVSSLine(testName, DATE_TIME_STRING)));
 
         } catch (ParseException e) {
             fail("Could not parse date string: " + e.getMessage());
@@ -106,7 +104,6 @@ public class VssTest extends TestCase {
      */
     public void testParseDateAlternate() {
         String testName = "1";
-        Vss vss = new Vss();
         vss.setDateFormat("dd/MM/yy");
         vss.setTimeFormat("HH:mm");
         try {
@@ -128,8 +125,8 @@ public class VssTest extends TestCase {
         String strangeDateLine = "User: Aaggarwa     Date:  6/20/:1   Time: 10:36a";
         try {
             assertEquals(
-             _vss.getVssDateTimeFormat().parse(DATE_TIME_STRING.trim() + "m"),
-             _vss.parseDate(strangeDateLine));
+             vss.getVssDateTimeFormat().parse(DATE_TIME_STRING.trim() + "m"),
+             vss.parseDate(strangeDateLine));
         } catch (ParseException e) {
             fail("Could not parse strange date string: " + e.getMessage());
         }
@@ -137,12 +134,12 @@ public class VssTest extends TestCase {
 
     public void testParseUser10CharName() {
         String testName = "1234567890";
-        assertEquals(testName, _vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
+        assertEquals(testName, vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
 
     public void testParseUser20CharName() {
         String testName = "12345678900987654321";
-        assertEquals(testName, _vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
+        assertEquals(testName, vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
 
     public void testHandleEntryUnusualLabel() {
@@ -163,7 +160,7 @@ public class VssTest extends TestCase {
         expected.modifiedTime = new Date();
 
         assertEquals("Unusual label entry added. Labels shouldn't be added.",
-                     null, _vss.handleEntry(entry));
+                     null, vss.handleEntry(entry));
 
         // need to adjust for cases where Label: line exists
         // and there is also an action.
@@ -176,7 +173,7 @@ public class VssTest extends TestCase {
         entry.add("Checked in $/code/development/src/org/ets/cbtidg/common/gui");
         entry.add("Comment: This is where I add a completely new, but alot nicer version of the date chooser.");
 
-        Modification modification = _vss.handleEntry(entry);
+        Modification modification = vss.handleEntry(entry);
         assertEquals("DateChooser.java", modification.fileName);
 
         assertEquals("/code/development/src/org/ets/cbtidg/common/gui", modification.folderName);
@@ -195,7 +192,7 @@ public class VssTest extends TestCase {
         entry.add("Checked in $/Eclipse/src/main/com/itxc/eclipse/some/path/here");
         entry.add("Comment: updated country codes for Colombia and Slovokia");
 
-        Modification mod = _vss.handleEntry(entry);
+        Modification mod = vss.handleEntry(entry);
         assertEquals(mod.fileName, "ttyp_direct.properties");
         assertEquals(mod.folderName, "/Eclipse/src/main/com/itxc/eclipse/some/path/here");
         assertEquals(mod.comment, "Comment: updated country codes for Colombia and Slovokia");
@@ -210,50 +207,49 @@ public class VssTest extends TestCase {
         entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
         entry.add("SessionIdGenerator.java added");
 
-        Modification mod = _vss.handleEntry(entry);
+        Modification mod = vss.handleEntry(entry);
         assertEquals(mod.fileName, "SessionIdGenerator.java");
         assertEquals(mod.userName, "Etucker");
         assertEquals(mod.type, "add");
     }
 
         public void testHandleEntryRename() {
-            _vss.setPropertyOnDelete("setThis");
+            vss.setPropertyOnDelete("setThis");
             List entry = new ArrayList();
             entry.add("*****  core  *****");
             entry.add("Version 19");
             entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
             entry.add("SessionIdGenerator.java renamed to SessionId.java");
 
-            Modification modification = _vss.handleEntry(entry);
+            Modification modification = vss.handleEntry(entry);
             assertEquals(
                 "SessionIdGenerator.java renamed to SessionId.java",
                 modification.fileName);
             assertEquals("Etucker", modification.userName);
             assertEquals("rename", modification.type);
-            Hashtable properties = _vss.getProperties();
+            Hashtable properties = vss.getProperties();
             String setThisValue = (String) properties.get("setThis");
             assertEquals("true", setThisValue);
         }
 
     public void testHandleEntryDestroyed() {
-        _vss.setPropertyOnDelete("setThis");
+        vss.setPropertyOnDelete("setThis");
         List entry = new ArrayList();
         entry.add("*****  installer_vms  *****");
         entry.add("Version 42");
         entry.add("User: Sfrolich      Date:  11/19/02   Time: 1:40p");
         entry.add("IBMJDK130AIX_with_xerces.jar.vm destroyed");
 
-        Modification modification = _vss.handleEntry(entry);
+        Modification modification = vss.handleEntry(entry);
         assertEquals("IBMJDK130AIX_with_xerces.jar.vm", modification.fileName);
         assertEquals("Sfrolich", modification.userName);
         assertEquals("destroy", modification.type);
-        Hashtable properties = _vss.getProperties();
+        Hashtable properties = vss.getProperties();
         String setThisValue = (String) properties.get("setThis");
         assertEquals("true", setThisValue);
     }
 
     public void testGetCommandLine() throws Exception {
-        Vss vss = new Vss();
         vss.setVsspath("vsspath");
         vss.setLogin("login,password");
 

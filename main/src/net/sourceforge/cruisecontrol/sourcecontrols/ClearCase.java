@@ -69,18 +69,18 @@ public class ClearCase implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(ClearCase.class);
 
-    private Hashtable _properties = new Hashtable();
+    private Hashtable properties = new Hashtable();
 
-    private String _property;
+    private String property;
 
-    private String _propertyOnDelete;
+    private String propertyOnDelete;
 
     /**  The path of the clear case view */
-    private String _viewPath;
+    private String viewPath;
 
     /**  The branch to check for modifications */
-    private String _branch;
-    private boolean _recursive = true;
+    private String branch;
+    private boolean recursive = true;
 
     /**  Date format required by commands passed to Clear Case */
     static final SimpleDateFormat IN_DATE_FORMAT =
@@ -108,7 +108,7 @@ public class ClearCase implements SourceControl {
      */
     public void setViewpath(String path) {
         //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
-        _viewPath = new File(path).getAbsolutePath();
+        viewPath = new File(path).getAbsolutePath();
     }
 
     /**
@@ -117,33 +117,33 @@ public class ClearCase implements SourceControl {
      *@param  branch
      */
     public void setBranch(String branch) {
-        _branch = branch;
+        this.branch = branch;
     }
 
     /**
      * Set whether to check against sub-folders in the view path
      */
-    public void setRecursive(boolean b) {
-        _recursive = b;
+    public void setRecursive(boolean recursive) {
+        this.recursive = recursive;
     }
 
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void validate() throws CruiseControlException {
-        if (_branch == null) {
+        if (branch == null) {
            throw new CruiseControlException("'branch' is a required attribute for ClearCase.");
         }
-        if (_viewPath == null) {
+        if (viewPath == null) {
            throw new CruiseControlException("'viewpath' is a required attribute for ClearCase.");
         }
     }
@@ -160,8 +160,8 @@ public class ClearCase implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
         String nowDate = IN_DATE_FORMAT.format(now);
-        _properties.put("clearcaselastbuild", lastBuildDate);
-        _properties.put("clearcasenow", nowDate);
+        properties.put("clearcaselastbuild", lastBuildDate);
+        properties.put("clearcasenow", nowDate);
 
         /*
          * let's try a different clearcase command--this one just takes
@@ -176,11 +176,11 @@ public class ClearCase implements SourceControl {
          */
         String command = "cleartool lshistory";
 
-        if (_branch != null) {
-            command += " -branch " + _branch;
+        if (branch != null) {
+            command += " -branch " + branch;
         }
 
-        if (_recursive) {
+        if (recursive) {
             command += " -r ";
         }
 
@@ -196,9 +196,9 @@ public class ClearCase implements SourceControl {
             + "%Nc"
             + END_OF_STRING_DELIMITER
             + "\\n\" "
-            + _viewPath;
+            + viewPath;
 
-        LOG.info("ClearCase: getting modifications for " + _viewPath);
+        LOG.info("ClearCase: getting modifications for " + viewPath);
 
         LOG.debug("Command to execute : " + command);
         List modifications = null;
@@ -315,8 +315,8 @@ public class ClearCase implements SourceControl {
 
         mod.comment = comment;
 
-        if (_property != null) {
-            _properties.put(_property, "true");
+        if (property != null) {
+            properties.put(property, "true");
         }
 
         // TODO: check if operation type is a delete

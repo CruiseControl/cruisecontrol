@@ -53,7 +53,11 @@
  */
 package net.sourceforge.cruisecontrol.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 /**
  * Class to pump the error stream during Process's runtime. Copied from
@@ -63,29 +67,29 @@ import java.io.*;
  */
 public class StreamPumper implements Runnable {
 
-    private BufferedReader _in;
-    private PrintWriter _out = new PrintWriter(System.out);
-    private final static int SIZE = 128;
-    private final static int SLEEP = 0;
+    private BufferedReader in;
+    private PrintWriter out = new PrintWriter(System.out);
+    private static final int SIZE = 128;
+    private static final int SLEEP = 0;
 
     public StreamPumper(InputStream in, PrintWriter writer) {
-        _in = new BufferedReader(new InputStreamReader(in), SIZE);
-        _out = writer;
+        this.in = new BufferedReader(new InputStreamReader(in), SIZE);
+        out = writer;
     }
 
     public StreamPumper(InputStream in) {
-        _in = new BufferedReader(new InputStreamReader(in), SIZE);
+        this.in = new BufferedReader(new InputStreamReader(in), SIZE);
     }
 
     public void run() {
         try {
-            String s = _in.readLine();
+            String s = in.readLine();
             while (s != null) {
 
-                _out.println(s);
-                _out.flush();
+                out.println(s);
+                out.flush();
 
-                s = _in.readLine();
+                s = in.readLine();
                 if (s == null) {
                     try {
                         Thread.sleep(SLEEP);
@@ -99,12 +103,12 @@ public class StreamPumper implements Runnable {
     }
 
     public void flush() {
-        _out.flush();
+        out.flush();
     }
 
     public void close() {
         flush();
-        _out.close();
+        out.close();
     }
     
 }

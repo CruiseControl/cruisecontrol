@@ -59,55 +59,55 @@ public class SCPPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(SCPPublisher.class);
 
-    private String _sourceuser;
-    private String _sourcehost;
-    private String _sourcedir = ".";
-    private String _targetuser;
-    private String _targethost;
-    private String _targetdir = ".";
-    private String _ssh = "ssh";
-    private String _options;
-    private String _file;
-    private String _targetseparator = File.separator;
+    private String sourceUser;
+    private String sourceHost;
+    private String sourceDir = ".";
+    private String targetUser;
+    private String targetHost;
+    private String targetDir = ".";
+    private String ssh = "ssh";
+    private String options;
+    private String file;
+    private String targetSeparator = File.separator;
 
-    public void setSourceUser(String sourceuser) {
-        _sourceuser = sourceuser;
+    public void setSourceUser(String sourceUser) {
+        this.sourceUser = sourceUser;
     }
 
-    public void setSourceHost(String sourcehost) {
-        _sourcehost = sourcehost;
+    public void setSourceHost(String sourceHost) {
+        this.sourceHost = sourceHost;
     }
 
-    public void setSourceDir(String sourcedir) {
-        _sourcedir = sourcedir;
+    public void setSourceDir(String sourceDir) {
+        this.sourceDir = sourceDir;
     }
 
-    public void setTargetUser(String targetuser) {
-        _targetuser = targetuser;
+    public void setTargetUser(String targetUser) {
+        this.targetUser = targetUser;
     }
 
-    public void setTargetHost(String targethost) {
-        _targethost = targethost;
+    public void setTargetHost(String targetHost) {
+        this.targetHost = targetHost;
     }
 
-    public void setTargetDir(String targetdir) {
-        _targetdir = targetdir;
+    public void setTargetDir(String targetDir) {
+        this.targetDir = targetDir;
     }
 
     public void setSSH(String ssh) {
-        _ssh = ssh;
+        this.ssh = ssh;
     }
 
     public void setOptions(String options) {
-        _options = options;
+        this.options = options;
     }
 
     public void setFile(String file) {
-        _file = file;
+        this.file = file;
     }
 
-    public void setTargetSeparator(String targetseparator) {
-        _targetseparator = targetseparator;
+    public void setTargetSeparator(String targetSeparator) {
+        this.targetSeparator = targetSeparator;
     }
 
     /**
@@ -117,26 +117,26 @@ public class SCPPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (_sourceuser == null) {
-            if (_sourcehost != null) {
+        if (sourceUser == null) {
+            if (sourceHost != null) {
                 throw new CruiseControlException("'sourceuser' not specified in configuration file");
             }
         }
 
-        if (_sourcehost == null) {
-            if (_sourceuser != null) {
+        if (sourceHost == null) {
+            if (sourceUser != null) {
                 throw new CruiseControlException("'sourcehost' not specified in configuration file");
             }
         }
 
-        if (_targetuser == null) {
-            if (_targethost != null) {
+        if (targetUser == null) {
+            if (targetHost != null) {
                 throw new CruiseControlException("'targetuser' not specified in configuration file");
             }
         }
 
-        if (_targethost == null) {
-            if (_targetuser != null) {
+        if (targetHost == null) {
+            if (targetUser != null) {
                 throw new CruiseControlException("'targethost' not specified in configuration file");
             }
         }
@@ -145,12 +145,12 @@ public class SCPPublisher implements Publisher {
     public void publish(Element cruisecontrolLog)
         throws CruiseControlException {
 
-        if (_file == null) {
+        if (file == null) {
             XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-            _file = helper.getLogFileName().substring(1);
+            file = helper.getLogFileName().substring(1);
         }
 
-        Commandline command = createCommandline(_file);
+        Commandline command = createCommandline(file);
         LOG.info("executing command: " + command);
         try {
             Runtime.getRuntime().exec(command.getCommandline());
@@ -161,26 +161,26 @@ public class SCPPublisher implements Publisher {
 
     public Commandline createCommandline(String file) {
         String sourcefile = File.separator + file;
-        String targetfile = _targetseparator + file;
+        String targetfile = targetSeparator + file;
 
         Commandline command = new Commandline();
         command.setExecutable("scp");
-        command.createArgument().setLine(_options);
+        command.createArgument().setLine(options);
         command.createArgument().setValue("-S");
-        command.createArgument().setValue(_ssh);
+        command.createArgument().setValue(ssh);
 
         createFileArgument(
             command.createArgument(),
-            _sourceuser,
-            _sourcehost,
-            _sourcedir,
+            sourceUser,
+            sourceHost,
+            sourceDir,
             sourcefile);
 
         createFileArgument(
             command.createArgument(),
-            _targetuser,
-            _targethost,
-            _targetdir,
+            targetUser,
+            targetHost,
+            targetDir,
             targetfile);
 
         return command;

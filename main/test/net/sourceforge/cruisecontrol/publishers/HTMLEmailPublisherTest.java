@@ -45,17 +45,17 @@ import java.io.File;
 
 public class HTMLEmailPublisherTest extends TestCase {
 
-    private HTMLEmailPublisher _publisher;
+    private HTMLEmailPublisher publisher;
 
     public void setUp() {
-        _publisher = new HTMLEmailPublisher();
+        publisher = new HTMLEmailPublisher();
     }
 
     private class BrokenTestPublisher extends HTMLEmailPublisher {
-        private String[] _newXslFileNames = null;
+        private String[] newXslFileNames = null;
 
         BrokenTestPublisher() {
-            setXSLFileNames(_newXslFileNames);
+            setXSLFileNames(newXslFileNames);
         }
     }
 
@@ -74,7 +74,7 @@ public class HTMLEmailPublisherTest extends TestCase {
 
     public void testSetLogDir() {
         try {
-            _publisher.setLogDir(null);
+            publisher.setLogDir(null);
             fail("setLogDir should fail when called with null");
         } catch (IllegalArgumentException e) {
             // should fail
@@ -83,7 +83,7 @@ public class HTMLEmailPublisherTest extends TestCase {
 
     public void testCreateLinkLine() {
         String serverURL = "http://myserver/context/servlet";
-        _publisher.setBuildResultsURL(serverURL);
+        publisher.setBuildResultsURL(serverURL);
         String path = "logs" + File.separator;
         String date = "20020607115519";
         String label = "mylabel.100";
@@ -93,49 +93,49 @@ public class HTMLEmailPublisherTest extends TestCase {
         String successLink = "View results here -> <a href=\"" + successURL + "\">" + successURL + "</a>";
         String successFile = successFilePrefix + ".xml";
         String successLogFileName = path + successFile;
-        assertEquals(successLink, _publisher.createLinkLine(successLogFileName));
+        assertEquals(successLink, publisher.createLinkLine(successLogFileName));
 
-        _publisher.setBuildResultsURL(null);
-        assertEquals("", _publisher.createLinkLine(successLogFileName));
+        publisher.setBuildResultsURL(null);
+        assertEquals("", publisher.createLinkLine(successLogFileName));
 
-        _publisher.setBuildResultsURL(serverURL);
+        publisher.setBuildResultsURL(serverURL);
         String failFilePrefix = "log" + date;
         String failURL = serverURL + "?log=" + failFilePrefix;
         String failLink = "View results here -> <a href=\"" + failURL + "\">" + failURL + "</a>";
         String failFile = failFilePrefix + ".xml";
         String failLogFileName = path + failFile;
-        assertEquals(failLink, _publisher.createLinkLine(failLogFileName));
+        assertEquals(failLink, publisher.createLinkLine(failLogFileName));
     }
 
     public void testValidate() {
-        setEmailPublisherVariables(_publisher);
+        setEmailPublisherVariables(publisher);
 
         try {
-            _publisher.validate();
+            publisher.validate();
             fail("should fail if log dir is not set");
         } catch (CruiseControlException ex) {
             // should fail
         }
-        _publisher.setLogDir(".");
+        publisher.setLogDir(".");
 
         try {
-            _publisher.validate();
+            publisher.validate();
             fail("should fail if xslDir is not set");
         } catch (CruiseControlException ex) {
             // should fail
         }
-        _publisher.setXSLDir(".");
+        publisher.setXSLDir(".");
 
         try {
-            _publisher.validate();
+            publisher.validate();
             fail("should fail if xslFileNames is null");
         } catch (CruiseControlException ex) {
             // should fail
         }
 
-        _publisher.setXSLFile("this file doesn't exist");
+        publisher.setXSLFile("this file doesn't exist");
         try {
-            _publisher.validate();
+            publisher.validate();
             fail("should fail if the specified xslFile doesn't exist");
         } catch (CruiseControlException ex) {
             // should fail
@@ -154,13 +154,13 @@ public class HTMLEmailPublisherTest extends TestCase {
      * (after editing paths)
      */
     private void generateMessage() {
-        HTMLEmailPublisher publisher = new HTMLEmailPublisher();
-        publisher.setLogDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\main");
-        publisher.setXSLDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\xsl\\");
-        publisher.setCSS(
+        HTMLEmailPublisher testPublisher = new HTMLEmailPublisher();
+        testPublisher.setLogDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\main");
+        testPublisher.setXSLDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\xsl\\");
+        testPublisher.setCSS(
             "c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\css\\cruisecontrol.css");
         XMLLogHelper helper = new TestHelper();
-        String message = publisher.createMessage(helper);
+        String message = testPublisher.createMessage(helper);
         System.out.print(message);
     }
 

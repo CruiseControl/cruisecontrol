@@ -64,61 +64,61 @@ public class Upgrader {
 
     private static final Logger LOG = Logger.getLogger(Upgrader.class);
 
-    private File _buildFile;
-    private File _configFile;
-    private File _propertiesFile;
-    private String _projectName;
+    private File buildFile;
+    private File configFile;
+    private File propertiesFile;
+    private String projectName;
 
     public void setBuildFile(File buildFile) {
-        _buildFile = buildFile;
+        this.buildFile = buildFile;
         LOG.info("Build file: " + buildFile);
     }
 
     public void setConfigFile(File configFile) {
-        _configFile = configFile;
+        this.configFile = configFile;
         LOG.info("Config file: " + configFile);
     }
 
     public void setPropertiesFile(File propertiesFile) {
-        _propertiesFile = propertiesFile;
+        this.propertiesFile = propertiesFile;
         LOG.info("Properties file: " + propertiesFile);
     }
 
     public void setProjectName(String projectName) {
-        _projectName = projectName;
+        this.projectName = projectName;
         LOG.info("Project name: " + projectName);
     }
 
     protected void validate() throws CruiseControlException {
-        if (_buildFile == null) {
+        if (buildFile == null) {
             throw new CruiseControlException("No build file specified.");
         }
-        if (_propertiesFile == null) {
+        if (propertiesFile == null) {
             throw new CruiseControlException("No properties file specified.");
         }
-        if (_configFile == null) {
+        if (configFile == null) {
             throw new CruiseControlException("No configuration file specified.");
         }
-        if (_projectName == null) {
+        if (projectName == null) {
             throw new CruiseControlException("No project name specified.");
         }
 
-        if (!_buildFile.exists()) {
+        if (!buildFile.exists()) {
             throw new CruiseControlException(
                 "The specified build file: '"
-                    + _buildFile.getAbsolutePath()
+                    + buildFile.getAbsolutePath()
                     + "' does not exist.");
         }
-        if (!_propertiesFile.exists()) {
+        if (!propertiesFile.exists()) {
             throw new CruiseControlException(
                 "The specified properties file: '"
-                    + _propertiesFile.getAbsolutePath()
+                    + propertiesFile.getAbsolutePath()
                     + "' does not exist.");
         }
-        if (_configFile.exists()) {
+        if (configFile.exists()) {
             throw new CruiseControlException(
                 "The specified configuration file: '"
-                    + _configFile.getAbsolutePath()
+                    + configFile.getAbsolutePath()
                     + "' exists.  Delete and try again.");
         }
 
@@ -128,8 +128,8 @@ public class Upgrader {
         // test for valid members. A controlable NPE.
         validate();
 
-        Properties properties = loadProperties(_propertiesFile);
-        Element buildFileElement = readFileToElement(_buildFile);
+        Properties properties = loadProperties(propertiesFile);
+        Element buildFileElement = readFileToElement(buildFile);
         try {
             writeXMLFile(createXML(properties, findModificationSet(buildFileElement)));
         } catch (JDOMException e) {
@@ -341,7 +341,7 @@ public class Upgrader {
 
     public Element createXML(Properties properties, Element modificationsetElement) throws JDOMException {
         StringBuffer config = new StringBuffer();
-        config.append("<cruisecontrol><project name=\"" + _projectName + "\">");
+        config.append("<cruisecontrol><project name=\"" + projectName + "\">");
         config.append(createBootstrappers(properties));
         config.append(createModificationSet(modificationsetElement));
         config.append(createSchedule(properties));
@@ -369,7 +369,7 @@ public class Upgrader {
         XMLOutputter outputter = new XMLOutputter("   ", true);
         FileWriter fw = null;
         try {
-            fw = new FileWriter(_configFile);
+            fw = new FileWriter(configFile);
             outputter.output(element, fw);
             fw.close();
         } catch (IOException e) {

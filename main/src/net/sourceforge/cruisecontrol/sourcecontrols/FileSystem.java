@@ -53,34 +53,34 @@ import java.util.List;
  */
 public class FileSystem implements SourceControl {
 
-    private Hashtable _properties = new Hashtable();
-    private String _property;
-    private String _propertyOnDelete;
+    private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
-    private List _modifications;
-    private File _folder;
+    private List modifications;
+    private File folder;
 
     /**
      * Set the root folder of the directories that we are going to scan
      */
     public void setFolder(String s) {
-        _folder = new File(s);
+        folder = new File(s);
     }
 
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void validate() throws CruiseControlException {
-        if (_folder == null) {
+        if (folder == null) {
            throw new CruiseControlException("'folder' is a required attribute for FileSystem");
         }
     }
@@ -93,10 +93,10 @@ public class FileSystem implements SourceControl {
      * @param now IGNORED
      */
     public List getModifications(Date lastBuild, Date now) {
-        _modifications = new ArrayList();
-        visit(_folder, lastBuild.getTime());
+        modifications = new ArrayList();
+        visit(folder, lastBuild.getTime());
 
-        return _modifications;
+        return modifications;
     }
 
     /**
@@ -114,10 +114,10 @@ public class FileSystem implements SourceControl {
         mod.folderName = revision.getPath();
         mod.modifiedTime = new Date(revision.lastModified());
         mod.comment = "";
-        _modifications.add(mod);
+        modifications.add(mod);
 
-        if (_property != null) {
-            _properties.put(_property, "true");
+        if (property != null) {
+            properties.put(property, "true");
         }
     }
 

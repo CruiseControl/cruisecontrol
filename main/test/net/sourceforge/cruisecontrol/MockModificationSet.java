@@ -42,22 +42,22 @@ import java.util.Date;
 
 public class MockModificationSet extends ModificationSet {
 
-    private int _modCheckCount = 0;
-    private Element _modifications = new Element("modifications");
-    private boolean _modified = true;
-    private Date _time = null;
+    private int modCheckCount = 0;
+    private Element modifications = new Element("modifications");
+    private boolean modified = true;
+    private Date time = null;
     
     public Element getModifications(Date lastBuild) {
-        _modCheckCount++;
-        return _modifications;
+        modCheckCount++;
+        return modifications;
     }
 
     public boolean isModified() {
-        return _modified;
+        return modified;
     }
     
     public void setModified(boolean isModified) {
-        _modified = isModified;
+        modified = isModified;
     }
 
     public java.util.Hashtable getProperties() {
@@ -68,14 +68,14 @@ public class MockModificationSet extends ModificationSet {
     }
     
     public Date getTimeOfCheck() {
-        return _time;
+        return time;
     }
     
     public void setTimeOfCheck(Date timeOfCheck) {
-        _time = timeOfCheck;
+        time = timeOfCheck;
     }
     
     public int getModCheckCount() {
-        return _modCheckCount;
+        return modCheckCount;
     }
 }

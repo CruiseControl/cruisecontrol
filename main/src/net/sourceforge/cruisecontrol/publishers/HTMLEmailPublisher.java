@@ -73,22 +73,17 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     private static final Logger LOG = Logger.getLogger(HTMLEmailPublisher.class);
 
-    private String _xslFile;
-    private String _xslDir;
-    private String _css;
-    private String _logDir;
-    private String _messageMimeType = "text/html";
+    private String xslFile;
+    private String xslDir;
+    private String css;
+    private String logDir;
+    private String messageMimeType = "text/html";
 
-    private String[] _xslFileNames = {"header.xsl",
-
+    private String[] xslFileNames = {"header.xsl",
                                      "compile.xsl",
-
                                      "javadoc.xsl",
-
                                      "unittests.xsl",
-
                                      "modifications.xsl",
-
                                      "distributables.xsl"};
 
     /*
@@ -100,22 +95,22 @@ public class HTMLEmailPublisher extends EmailPublisher {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        verifyDirectory("HTMLEmailPublisher.logDir", this._logDir);
+        verifyDirectory("HTMLEmailPublisher.logDir", this.logDir);
 
-        if (this._xslFile == null) {
-            verifyDirectory("HTMLEmailPublisher.xslDir", this._xslDir);
-            verifyFile("HTMLEmailPublisher.css", this._css);
+        if (this.xslFile == null) {
+            verifyDirectory("HTMLEmailPublisher.xslDir", this.xslDir);
+            verifyFile("HTMLEmailPublisher.css", this.css);
 
-            if (_xslFileNames == null) {
+            if (xslFileNames == null) {
                 throw new CruiseControlException("HTMLEmailPublisher.xslFileNames can't be null");
             }
 
-            for (int i = 0; i < this._xslFileNames.length; i++) {
-                String fileName = this._xslFileNames[i];
-                verifyFile("HTMLEmailPublisher.xslDir/" + fileName, new File(this._xslDir, fileName));
+            for (int i = 0; i < this.xslFileNames.length; i++) {
+                String fileName = this.xslFileNames[i];
+                verifyFile("HTMLEmailPublisher.xslDir/" + fileName, new File(this.xslDir, fileName));
             }
         } else {
-            verifyFile("HTMLEmailPublisher.xslFile", this._xslFile);
+            verifyFile("HTMLEmailPublisher.xslFile", this.xslFile);
         }
     }
 
@@ -170,7 +165,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
             MimeMultipart attachments = new MimeMultipart();
             MimeBodyPart textbody = new MimeBodyPart();
-            textbody.setContent(message, _messageMimeType);
+            textbody.setContent(message, messageMimeType);
             attachments.addBodyPart(textbody);
 
             msg.setContent(attachments);
@@ -188,7 +183,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @param xslFile
      */
     public void setXSLFile(String xslFile) {
-        this._xslFile = xslFile;
+        this.xslFile = xslFile;
     }
 
     /**
@@ -196,7 +191,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @param xslDir
      */
     public void setXSLDir(String xslDir) {
-        this._xslDir = xslDir;
+        this.xslDir = xslDir;
     }
 
     /**
@@ -219,7 +214,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         if (fileNames == null) {
             throw new IllegalArgumentException("xslFileNames can't be null (but can be empty)");
         }
-        this._xslFileNames = fileNames;
+        this.xslFileNames = fileNames;
     }
 
     /**
@@ -227,7 +222,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @param css
      */
     public void setCSS(String css) {
-        this._css = css;
+        this.css = css;
     }
 
     /**
@@ -240,7 +235,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             throw new IllegalArgumentException("logDir cannot be null!");
         }
 
-        this._logDir = logDir;
+        this.logDir = logDir;
     }
 
     /**
@@ -256,8 +251,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
         String message = "";
 
         try {
-            File logDir = new File(this._logDir);
-            File inFile = new File(logDir, logHelper.getLogFileName());
+            File logDirectory = new File(logDir);
+            File inFile = new File(logDirectory, logHelper.getLogFileName());
             message = transform(inFile);
         } catch (Exception ex) {
             LOG.error("", ex);
@@ -278,17 +273,17 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         TransformerFactory tFactory = TransformerFactory.newInstance();
 
-        if (_xslFile != null) {
-            File xslFile = new File(this._xslFile);
-            appendTransform(inFile, messageBuffer, tFactory, xslFile);
+        if (xslFile != null) {
+            File xslFileAsFile = new File(xslFile);
+            appendTransform(inFile, messageBuffer, tFactory, xslFileAsFile);
         } else {
             appendHeader(messageBuffer);
             messageBuffer.append(createLinkLine(inFile.getName()));
 
-            File xslDir = new File(this._xslDir);
-            for (int i = 0; i < _xslFileNames.length; i++) {
-                String fileName = _xslFileNames[i];
-                File xsl = new File(xslDir, fileName);
+            File xslDirectory = new File(xslDir);
+            for (int i = 0; i < xslFileNames.length; i++) {
+                String fileName = xslFileNames[i];
+                File xsl = new File(xslDirectory, fileName);
                 appendTransform(inFile, messageBuffer, tFactory, xsl);
             }
 
@@ -341,7 +336,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
         messageBuffer.append("<html><head>\n<style>\n");
 
-        File cssFile = new File(_css);
+        File cssFile = new File(css);
         FileReader cssFileReader = new FileReader(cssFile);
         BufferedReader reader = new BufferedReader(cssFileReader);
         String line = reader.readLine();

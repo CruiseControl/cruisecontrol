@@ -49,7 +49,7 @@ import net.sourceforge.cruisecontrol.Modification;
  */
 public class VssJournalTest extends TestCase {
 
-    private VssJournal _element;
+    private VssJournal element;
     
     public VssJournalTest(String name) {
         super(name);
@@ -57,9 +57,9 @@ public class VssJournalTest extends TestCase {
 
     protected void setUp() {
         // Set up so that this element will match all tests.
-        _element = new VssJournal();
-        _element.setSsDir("/");
-        _element.setLastBuildDate(new Date(0));
+        element = new VssJournal();
+        element.setSsDir("/");
+        element.setLastBuildDate(new Date(0));
     }
 
     public void testValidate() {
@@ -85,12 +85,12 @@ public class VssJournalTest extends TestCase {
 
     public void testSubstringToLastSlash() {
         assertTrue("$/Eclipse/src/main/com/itxc".equals(
-         _element.substringToLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
+         element.substringToLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
     }
     
     public void testSubstringFromLastSlash() {        
         assertTrue("eclipse".equals(
-         _element.substringFromLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
+         element.substringFromLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
     }
 
     public void testIsInSsDir() {
@@ -121,7 +121,7 @@ public class VssJournalTest extends TestCase {
         entry.add("Checked in");
         entry.add("Comment: Making cc email users when build failed");
         
-        Modification mod = _element.handleEntry(entry);
+        Modification mod = element.handleEntry(entry);
         assertEquals(mod.fileName, "cruisecontrol.properties");
         assertEquals(mod.folderName, "$/AutoBuild/conf");
         assertEquals(mod.comment, "Comment: Making cc email users when build failed");
@@ -136,7 +136,7 @@ public class VssJournalTest extends TestCase {
         entry.add("User: Ddavis          Date:  7/10/01  Time: 10:41a");
         entry.add("body3.htm renamed to step3.htm ");
         
-        Modification mod = _element.handleEntry(entry);
+        Modification mod = element.handleEntry(entry);
         assertEquals(mod.fileName, "body3.htm");
         assertEquals(mod.folderName, "$/WILD/Client/English");
         assertEquals(mod.comment, "");
@@ -152,7 +152,7 @@ public class VssJournalTest extends TestCase {
         entry.add("Labeled test_label");
         entry.add("Comment: Just testing to see what all gets put in the log file");
         
-        Modification mod = _element.handleEntry(entry);
+        Modification mod = element.handleEntry(entry);
         
         assertEquals("Label entry added. Labels shouldn't be added.",
                      null, mod);
