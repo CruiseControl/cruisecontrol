@@ -285,6 +285,29 @@ public class AntBuilderTest extends TestCase {
                 resultDebug,
                 unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
     }
+    
+    public void testGetCommandLineArgs_DebugWithListener() throws CruiseControlException {
+        String[] resultDebug =
+        {
+            "java",
+            "-classpath",
+            unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
+            "org.apache.tools.ant.launch.Launcher",
+            "-lib",
+            UNIX_PATH,
+            "-listener",
+            "org.apache.tools.ant.XmlLogger",
+            "-DXmlLogger.file=log.xml",
+            "-debug",
+            "-Dlabel=200.1.23",
+            "-buildfile",
+            "buildfile",
+            "target" };
+        unixBuilder.setUseDebug(true);
+        assertEquals(
+            resultDebug,
+            unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+    }
 
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
         String[] resultQuiet =
