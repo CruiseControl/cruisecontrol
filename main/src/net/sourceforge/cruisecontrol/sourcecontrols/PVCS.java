@@ -79,12 +79,15 @@ public class PVCS implements SourceControl {
     // i.e. "esa";
     // i.e. "esa/uihub2";
     private String pvcsSubProject;
+    private String loginId;
 
     /**
      * Date format required by commands passed to PVCS
      */
     private SimpleDateFormat inDateFormat =
         new SimpleDateFormat("MM/dd/yyyy/HH:mm");
+    private SimpleDateFormat outDateFormatSub =
+        new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
 
     /**
      * Date format returned in the output of PVCS commands.
@@ -219,7 +222,7 @@ public class PVCS implements SourceControl {
         List theList;
         File inputFile = new File(PVCS_RESULTS_FILE);
         BufferedReader brIn;
-        ModificationBuilder modificationBuilder = new ModificationBuilder();
+        ModificationBuilder modificationBuilder = new ModificationBuilder(pvcsProject, pvcsSubProject);
         try {
             brIn = new BufferedReader(new FileReader(inputFile));
             String line;
@@ -259,8 +262,14 @@ public class PVCS implements SourceControl {
                 + DOUBLE_QUOTE;
         String line2 =
             "set -vSubProject " + DOUBLE_QUOTE + pvcsSubProject + DOUBLE_QUOTE;
+
+        String loginString = "";
+        if (getLoginid() != null) {
+             loginString = "-id" + getLoginid();
+        }
+
         String line3 =
-            "run ->files.tmp listversionedfiles -z -aw $Project $SubProject";
+            "run ->files.tmp listversionedfiles -z -aw " + loginString + " $Project $SubProject";
 
         LOG.debug("#### PVCSElement about to write this line:\n " + line3);
 
@@ -410,7 +419,8 @@ public class PVCS implements SourceControl {
      * used to build them.
      */
     class ModificationBuilder {
-
+        private String proj;
+        private String subProj;
         private Modification modification;
         private ArrayList modificationList;
         private String lastLine;
@@ -418,6 +428,11 @@ public class PVCS implements SourceControl {
         private boolean firstUserName = true;
         private boolean nextLineIsComment = false;
         private boolean waitingForNextValidStart = false;
+
+        public ModificationBuilder(String proj, String subProj) {
+            this.proj = proj;
+            this.subProj = subProj;
+        }
 
         public ArrayList getList() {
             return modificationList;
@@ -437,6 +452,13 @@ public class PVCS implements SourceControl {
         public void addLine(String line) {
             if (line.startsWith("Archive:")) {
                 initializeModification();
+                modification.fileName = line.substring((line.indexOf(proj) + proj.length()),  line.indexOf("-arc"));
+                if (modification.fileName.startsWith("/") || modification.fileName.startsWith("\\")) {
+                     modification.fileName = modification.fileName.substring(1);
+                }
+                if (modification.fileName.startsWith("archives")) {
+                     modification.fileName = modification.fileName.substring("archives".length());
+                }
             } else if (waitingForNextValidStart) {
                 // we're in this state after we've got the last useful line
                 // from the previous item, but haven't yet started a new one
@@ -447,7 +469,12 @@ public class PVCS implements SourceControl {
             } else if (line.startsWith("Archive created:")) {
                 try {
                     String createdDate = line.substring(18);
-                    Date createTime = outDateFormat.parse(createdDate);
+                    Date createTime = null;
+                    try {
+                        createTime = outDateFormat.parse(createdDate);
+                    } catch (ParseException e) {
+                        createTime = outDateFormatSub.parse(createdDate);
+                    }
                     if (createTime.after(lastBuild)) {
                         modification.type = "added";
                     } else {
@@ -461,13 +488,17 @@ public class PVCS implements SourceControl {
                 // if this is the newest revision...
                 if (firstModifiedTime) {
                     firstModifiedTime = false;
+                    String lastMod = null;
                     try {
-                        String lastMod = line.substring(16);
-                        modification.modifiedTime =
-                            outDateFormat.parse(lastMod);
+                        lastMod = line.substring(16);
+                        modification.modifiedTime = outDateFormat.parse(lastMod);
                     } catch (ParseException e) {
-                        modification.modifiedTime = null;
-                        LOG.error("Error parsing modification time : ", e);
+                        try {
+                            modification.modifiedTime = outDateFormatSub.parse(lastMod);
+                        } catch (ParseException pe) {
+                            modification.modifiedTime = null;
+                            LOG.error("Error parsing modification time : ", e);
+                          }
                     }
                 }
             } else if (nextLineIsComment) {
@@ -492,5 +523,19 @@ public class PVCS implements SourceControl {
         } // end of addLine
 
     } // end of class ModificationBuilder
+
+   /**
+    * @return loginId
+    */
+   public String getLoginid() {
+      return loginId;
+   }
+
+   /**
+    * @param loginId
+    */
+   public void setLoginid(String loginId) {
+      this.loginId = loginId;
+   }
 
 } // end class PVCSElement
