@@ -64,15 +64,15 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     /** enable logging for this class */
     private static Logger log = Logger.getLogger(ClearCaseBootstrapper.class);
 
-    private String _filename;
-    private String _viewpath;
+    private String filename;
+    private String viewpath;
 
-    public void setViewpath(String viewpath) {
-        _viewpath = viewpath;
+    public void setViewpath(String path) {
+        viewpath = path;
     }
 
-    public void setFile(String filename) {
-        _filename = filename;
+    public void setFile(String name) {
+        filename = name;
     }
 
     /**
@@ -85,8 +85,8 @@ public class ClearCaseBootstrapper implements Bootstrapper {
         log.debug("Executing: " + commandLine.toString());
         try {
             p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(),
-                    new PrintWriter(System.err, true));
+            StreamPumper errorPumper =
+                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             p.waitFor();
             p.getInputStream().close();
@@ -98,7 +98,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if(_filename == null) {
+        if (filename == null) {
             throw new CruiseControlException("'file' is required for ClearCaseBootstrapper");
         }
     }
@@ -117,8 +117,9 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     }
 
     private String getFullPathFileName() {
-        return _viewpath == null ? _filename :
-                new StringBuffer(_viewpath).append("/").append(_filename).toString();
+        return viewpath == null
+            ? filename
+            : new StringBuffer(viewpath).append("/").append(filename).toString();
     }
 
     protected boolean isWindows() {
