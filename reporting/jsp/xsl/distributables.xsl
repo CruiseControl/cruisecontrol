@@ -61,7 +61,7 @@
         </table>
     </xsl:template>
 
-    <xsl:template match="task[@name='Jar']/message[@priority='info'] | task[@name='War']/message[@priority='info']">
+    <xsl:template match="task[@name='Jar']/message[@priority='info'] | task[@name='War']/message[@priority='info'] | task[@name='jar']/message[@priority='info'] | task[@name='war']/message[@priority='info']">
         <tr>
             <xsl:if test="position() mod 2 = 0">
                 <xsl:attribute name="class">distributables-oddrow</xsl:attribute>
