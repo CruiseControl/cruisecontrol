@@ -276,11 +276,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                     System.setSecurityManager(oldSecMgr);
                 }
 
-                if (_buildNotNecessary) {
-                    log("Sleeping for " + (_buildInterval/1000.0)
-                        + " seconds.");
-                    Thread.sleep(_buildInterval);
-                } else {
+                if (!_buildNotNecessary) {
                     buildcounter++;
                     Set emails = getEmails(_userList);
                     if (_lastBuildSuccessful) {
@@ -289,13 +285,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                         writeBuildInfo();
                     } else {
                         emailReport(emails, _projectName + " Build Failed");
-                        log("Sleeping for " + (_buildInterval/1000.0)
-                            + " seconds.");
-                        Thread.sleep(_buildInterval);
                     }
                 }
-
                 endLog();
+                Thread.sleep(_buildInterval);
             }
 
         } catch (InterruptedException e) {
