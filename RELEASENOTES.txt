@@ -9,6 +9,10 @@ ModificationSet
 * Fixed bogus "A modification was detected in the future" message
 * Now properly checks time of modficiations that are added as elements
 
+VssBootstrapper
+----------------------
+* Fixed a bug where bootstrapper would hang if SS.exe put up a prompt.
+
 CruiseControl Release Notes - 2.1.5
 
 ArtifactsPublisher
