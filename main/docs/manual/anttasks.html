@@ -133,7 +133,7 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
   </tr>
   <tr>
     <td valign="top">localworkingcopy</td>
-        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy).  Defaults to current directory.  Under Linux, Java does not execute cvs log with no local working copy correctly.  This despite the command working fine in a command shell.  Therefore, you must specify the localworkingcopy under Linux (e.g., "." for the current directory)</td>
+        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy).  Defaults to current directory.  Under Linux, Java does not execute cvs log with no local working copy correctly.  This despite the command working fine in a command shell.  Therefore, you must specify the localworkingcopy under Linux (e.g., "." for the current directory) <b>NOTE:</b> CVS under Unix does not support absolute file paths</td>
     <td valign="top" align="center">No (Win32), Yes (Linux)</td>
   </tr>
 </table>
