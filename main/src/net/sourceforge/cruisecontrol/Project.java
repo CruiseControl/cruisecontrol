@@ -49,7 +49,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- *
+ * Represents a single logical project consisting of source code that needs to
+ * be built.  Project is associated with bootstrappers that run before builds
+ * and a Schedule that determines when builds occur.
  */
 public class Project implements Serializable {
 
@@ -101,27 +103,26 @@ public class Project implements Serializable {
     }
 
     /**
-     *  Run one entire build.
+     *  Unless paused, runs any bootstrappers and then the entire build.
      */
     public void build() throws CruiseControlException {
-        Element cruisecontrolElement = new Element("cruisecontrol");
         _now = new Date();
         if (_schedule.isPaused(_now)) {
             return; //we've paused
         }
 
-        // bootstrap the build
-        bootstrap();
+        bootstrapTheBuild();
+
+        Element cruisecontrolElement = new Element("cruisecontrol");
 
         // check for modifications
         cruisecontrolElement.addContent(_modificationSet.getModifications(
                 _lastBuild));
         if (!_modificationSet.isModified()) {
             log.info("No modifications found, build not necessary.");
-            return; //no need to build
+            return;
         }
 
-        // increment label if nesseccary
         if (_labelIncrementer.isPreBuildIncrementer()) {
             _label = _labelIncrementer.incrementLabel(_label,
                     cruisecontrolElement);
@@ -137,7 +138,6 @@ public class Project implements Serializable {
         boolean buildSuccessful =
                 new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
 
-        // increment label if necessary
         if (!_labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
             _label = _labelIncrementer.incrementLabel(_label,
                     cruisecontrolElement);
@@ -159,16 +159,15 @@ public class Project implements Serializable {
 
         if (buildSuccessful) _lastBuild = _now;
         _buildCounter++;
-        write();
+        serializeProject();
         publish(cruisecontrolElement);
         cruisecontrolElement = null;
     }
 
     /**
-     * Serialize the project so that if we restart the process, we can resume
-     * where we were.
+     * Serialize the project to allow resumption after a process bounce
      */
-    public void write() {
+    public void serializeProject() {
         try {
             ObjectOutputStream s = new ObjectOutputStream(
                     new FileOutputStream(_name));
@@ -259,8 +258,12 @@ public class Project implements Serializable {
         _isPaused = paused;
     }
 
-    protected String formatTime(long milliseconds) {
-        long seconds = milliseconds / 1000;
+    /**
+     * @param time time in milliseconds
+     * @return Time formatted as X hours Y minutes Z seconds
+     */
+    protected String formatTime(long time) {
+        long seconds = time / 1000;
         long hours = seconds / 3600;
         long minutes = (seconds % 3600) / 60;
         seconds = seconds % 60;
@@ -274,7 +277,6 @@ public class Project implements Serializable {
             sb.append(seconds + " seconds ");
 
         return sb.toString();
-
     }
 
     /**
@@ -342,7 +344,7 @@ public class Project implements Serializable {
     }
 
     /**
-     *  Iterate over all of the registered <code>Publisher</code>s and call
+     * Iterate over all of the registered <code>Publisher</code>s and call
      * their respective <code>publish</code> methods.
      *
      *  @param logElement JDOM Element representing the build log.
@@ -355,10 +357,10 @@ public class Project implements Serializable {
     }
 
     /**
-     *  Iterate over all of the registered <code>Bootstrapper</code>s and call their respective
-     *  <code>bootstrap</code> methods.
+     * Iterate over all of the registered <code>Bootstrapper</code>s and call
+     * their respective <code>bootstrap</code> methods.
      */
-    protected void bootstrap() throws CruiseControlException {
+    protected void bootstrapTheBuild() throws CruiseControlException {
         Iterator bootstrapperIterator = _bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
@@ -444,6 +446,13 @@ public class Project implements Serializable {
         return null;
     }
 
+    /**
+     * Ensure that label is valid for the specified LabelIncrementer
+     *
+     * @param label target label
+     * @param labelIncrementer target LabelIncrementer
+     * @throws CruiseControlException if label is not valid
+     */
     protected void validateLabel(String label,
                                LabelIncrementer labelIncrementer)
             throws CruiseControlException {

@@ -78,7 +78,7 @@ public class MainTest extends TestCase {
             project.setLabel("1.2.2");
             project.setLastBuild("20020310120000");
             project.setName("myproject");
-            project.write();
+            project.serializeProject();
 
             Project newProject = main.configureProject(
                     new String[]{"-projectname", "myproject"});
@@ -93,7 +93,7 @@ public class MainTest extends TestCase {
             project.setConfigFileName("config.xml");
             project.setLastBuild("20020310120000");
             project.setName("myproject");
-            project.write();
+            project.serializeProject();
 
             Project newProject = main.configureProject(
                     new String[]{"-projectname", "myproject"});
