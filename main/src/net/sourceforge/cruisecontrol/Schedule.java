@@ -114,10 +114,10 @@ public class Schedule {
                     return builder;
                 }
             } else {
-                throw new CruiseControlException(""); //builder not appropriately configured
+                throw new CruiseControlException("The selected Builder is not properly configured");
             }
         }
-        throw new CruiseControlException(""); //no builder matches
+        throw new CruiseControlException("No Builder selected.");
     }
 
     /**
