@@ -12,8 +12,11 @@ public class MockSourceControl implements SourceControl {
 
     private int _version;
     private Hashtable _properties;
+    // added this because otherwise the unit-tests doesn't work 
+    // if the machine is slow. I promise, this was hard to catch :-)
+    private Date _modifiedDate = new Date();
 
-
+    
     public void setProperty(String property) {
     }
 
@@ -38,7 +41,7 @@ public class MockSourceControl implements SourceControl {
             mod1.fileName = "file1";
             mod1.folderName = "dir1";
             mod1.userName = "user1";
-            mod1.modifiedTime = new Date();
+            mod1.modifiedTime = _modifiedDate;
             mod1.comment ="comment1";
             result.add(mod1);
 
@@ -47,7 +50,7 @@ public class MockSourceControl implements SourceControl {
             mod2.fileName = "file2";
             mod2.folderName = "dir2";
             mod2.userName = "user2";
-            mod2.modifiedTime = new Date();
+            mod2.modifiedTime = _modifiedDate;
             mod2.comment = "comment2";
             result.add(mod2);
         }
@@ -58,7 +61,7 @@ public class MockSourceControl implements SourceControl {
             mod3.fileName  = "file3";
             mod3.folderName = "dir3";
             mod3.userName = "user3";
-            mod3.modifiedTime = new Date();
+            mod3.modifiedTime = _modifiedDate;
             mod3.comment = "comment3";
             result.add(mod3);
 
@@ -67,7 +70,7 @@ public class MockSourceControl implements SourceControl {
             mod4.fileName = "file4";
             mod4.folderName = "dir4";
             mod4.userName = "user4";
-            mod4.modifiedTime = new Date();
+            mod4.modifiedTime = _modifiedDate;
             mod4.comment = "comment4";
             result.add(mod4);
         }

@@ -38,29 +38,33 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 
+import java.io.File;
+
 public class MainTest extends TestCase {
 
     public MainTest(String name) {
         super(name);
     }
 
-    public void testConfigureProject() {
-
-        String[] correctArgs = new String[] {"-lastbuild", "20020310120000", "-label", "1.2.2", "-projectname", "myproject", "-configfile", "config.xml"};
-
+    public void testConfigureProject() throws Exception {
+        
+        String[] correctArgs = new String[]{"-lastbuild", "20020310120000", "-label", "1.2.2", "-projectname", "myproject", "-configfile", "config.xml"};
+        
+        File myProjFile = new File("myproject");
+        if(myProjFile.exists()) {
+            myProjFile.delete();
+        }
         Main main = new Main();
 
-        try {
+        {
             Project project = main.configureProject(correctArgs);
             assertEquals(project.getConfigFileName(), "config.xml");
             assertEquals(project.getLabel(), "1.2.2");
             assertEquals(project.getLastBuild(), "20020310120000");
             assertEquals(project.getName(), "myproject");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
         }
 
-        try {
+        {
             Project project = new Project();
             project.setConfigFileName("config.xml");
             project.setLabel("1.2.2");
@@ -73,8 +77,6 @@ public class MainTest extends TestCase {
             assertEquals(newProject.getLabel(), "1.2.2");
             assertEquals(newProject.getLastBuild(), "20020310120000");
             assertEquals(newProject.getName(), "myproject");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
         }
 
         try {
@@ -85,136 +87,109 @@ public class MainTest extends TestCase {
             project.write();
 
             Project newProject = main.configureProject(new String[]{"-projectname", "myproject"});
-            assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
 
     }
 
-    public void testParseLastBuild() {
-        String[] correctArgs = new String[] {"-lastbuild", "20020310120000"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-lastbuild"};
+    public void testParseLastBuild() throws Exception {
+        String[] correctArgs = new String[]{"-lastbuild", "20020310120000"};
+        String[] missingArgs = new String[]{""};
+        String[] incorrectArgs = new String[]{"-lastbuild"};
         Main main = new Main();
 
-        try {
-            assertEquals(main.parseLastBuild(correctArgs, null), "20020310120000");
-        } catch(CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseLastBuild(correctArgs, null), "20020310120000");
 
-        try {
-            assertEquals(main.parseLastBuild(missingArgs, "20020310000000"), "20020310000000");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseLastBuild(missingArgs, "20020310000000"), "20020310000000");
 
         try {
             main.parseLastBuild(incorrectArgs, null);
-            assertTrue(false);
-        } catch(CruiseControlException e) {
-            assertTrue(true);
+            fail("Expected exception");
+        } catch (CruiseControlException e) {
+            // expected
         }
 
         try {
             main.parseLastBuild(missingArgs, null);
-            assertTrue(false);
-        } catch(CruiseControlException e) {
-            assertTrue(true);
+            fail("Expected exception");
+        } catch (CruiseControlException e) {
+            // expected
         }
     }
 
-    public void testParseLabel() {
-        String[] correctArgs = new String[] {"-label", "1.2.3"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-label"};
+    public void testParseLabel() throws Exception {
+        String[] correctArgs = new String[]{"-label", "1.2.3"};
+        String[] missingArgs = new String[]{""};
+        String[] incorrectArgs = new String[]{"-label"};
         Main main = new Main();
 
-        try {
-            assertEquals(main.parseLabel(correctArgs, null), "1.2.3");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseLabel(correctArgs, null), "1.2.3");
 
-        try {
-            assertEquals(main.parseLabel(missingArgs, "1.2.2"), "1.2.2");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseLabel(missingArgs, "1.2.2"), "1.2.2");
 
         try {
             main.parseLabel(incorrectArgs, null);
-            assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
 
         try {
             main.parseLabel(missingArgs, null);
             assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
     }
 
-    public void testParseConfigurationFileName() {
-        String[] correctArgs = new String[] {"-configfile", "config.xml"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-configfile"};
+    public void testParseConfigurationFileName() throws Exception {
+        String[] correctArgs = new String[]{"-configfile", "config.xml"};
+        String[] missingArgs = new String[]{""};
+        String[] incorrectArgs = new String[]{"-configfile"};
         Main main = new Main();
 
-        try {
-            assertEquals(main.parseConfigFileName(correctArgs, null), "config.xml");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseConfigFileName(correctArgs, null), "config.xml");
 
-        try {
-            assertEquals(main.parseConfigFileName(missingArgs, "config.xml"), "config.xml");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseConfigFileName(missingArgs, "config.xml"), "config.xml");
 
         try {
             main.parseConfigFileName(incorrectArgs, null);
-            assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
 
         try {
             main.parseConfigFileName(missingArgs, null);
-            assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
     }
 
-    public void testParseProjectName() {
-        String[] correctArgs = new String[] {"-projectname", "myproject"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-projectname"};
+    public void testParseProjectName() throws Exception {
+        String[] correctArgs = new String[]{"-projectname", "myproject"};
+        String[] missingArgs = new String[]{""};
+        String[] incorrectArgs = new String[]{"-projectname"};
         Main main = new Main();
 
-        try {
-            assertEquals(main.parseProjectName(correctArgs), "myproject");
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals(main.parseProjectName(correctArgs), "myproject");
 
         try {
             main.parseProjectName(missingArgs);
-            assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
 
         try {
             main.parseProjectName(incorrectArgs);
-            assertTrue(false);
+            fail("Expected exception");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            // expected
         }
     }
 }

@@ -69,7 +69,7 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
         String suffix = oldLabel.substring(oldLabel.lastIndexOf(".") + 1, oldLabel.length());
         int i = Integer.parseInt(suffix);
         String newLabel = prefix + ++i;
-        log.info("Incrementing label: " + oldLabel + " -> " + newLabel);
+        log.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
         return newLabel;
     }
 

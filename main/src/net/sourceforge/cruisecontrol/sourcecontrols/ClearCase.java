@@ -36,15 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.*;
-
-import java.text.*;
-import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-
 import org.apache.log4j.Category;
+
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  *  This class implements the SourceControlElement methods for a Clear Case
@@ -57,229 +57,227 @@ import org.apache.log4j.Category;
  */
 public class ClearCase implements SourceControl {
 
-  /** enable logging for this class */
-  private static Category log = Category.getInstance(ClearCase.class.getName());
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(ClearCase.class.getName());
 
-  private Hashtable _properties = new Hashtable();
+    private Hashtable _properties = new Hashtable();
 
-  private String _property;
+    private String _property;
 
-  private String _propertyOnDelete;
+    private String _propertyOnDelete;
 
-  /**  The path of the clear case view */
-  private String _viewPath;
+    /**  The path of the clear case view */
+    private String _viewPath;
 
-  /**  The branch to check for modifications */
-  private String _branch = null;
-  private boolean _recursive = true;
+    /**  The branch to check for modifications */
+    private String _branch = null;
+    private boolean _recursive = true;
 
-  /**  Date format required by commands passed to Clear Case */
-  final static SimpleDateFormat IN_DATE_FORMAT =
-     new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+    /**  Date format required by commands passed to Clear Case */
+    final static SimpleDateFormat IN_DATE_FORMAT =
+            new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
-  /**  Date format returned in the output of Clear Case commands. */
-  final static SimpleDateFormat OUT_DATE_FORMAT =
-     new SimpleDateFormat("yyyyMMdd.HHmmss");
+    /**  Date format returned in the output of Clear Case commands. */
+    final static SimpleDateFormat OUT_DATE_FORMAT =
+            new SimpleDateFormat("yyyyMMdd.HHmmss");
 
-  /**
-   *  Unlikely combinaison of characters to separate fields in a ClearCase query
-   */
-  final static String DELIMITER = "£~£";
-
-  /**
-   *  Even more unlikely combinaison of characters to indicate end of one line in query.
-   * Carriage return (\n) can be used in comments and so is not available to us.
-   */
-  final static String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
-
-  /**
-   *  Sets the local working copy to use when making queries.
-   *
-   *@param  path
-   */
-  public void setViewpath(String path) {
-    //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
-    _viewPath = new File(path).getAbsolutePath();
-  }
-
-  /**
-   *  Sets the branch that we're concerned about checking files into.
-   *
-   *@param  branch
-   */
-  public void setBranch(String branch) {
-    _branch = branch;
-  }
-
-  public void setRecursive(boolean b) {
-    _recursive = b;
-  }
-
-  public void setProperty(String property) {
-    _property = property;
-  }
-
-  public void setPropertyOnDelete(String propertyOnDelete) {
-    _propertyOnDelete = propertyOnDelete;
-  }
-
-  public Hashtable getProperties() {
-    return _properties;
-  }
-
-  /**
-   *  Returns an {@link java.util.List List} of {@link Modification}
-   *  detailing all the changes between now and the last build.
-   *
-   *@param  lastBuild the last build time
-   *@param  now time now, or time to check, NOT USED
-   *@param  quietPeriod NOT USED
-   *@return  the list of modifications, an empty (not null) list if no
-   *      modifications.
-   */
-  public List getModifications(Date lastBuild, Date now, long quietPeriod) {
-    String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
-    /*
-     * let's try a different clearcase command--this one just takes
-         * waaaaaaaay too long.
-     * String command = "cleartool find " + _viewPath +
-     * " -type f -exec \"cleartool lshistory" +
-     * " -since " + lastBuildDate;
-     * if(_branch != null)
-     * command += " -branch " + _branch;
-     * command += " -nco" + // exclude check out events
-     * " -fmt \\\" %u;%Nd;%n;%o \\n \\\" \\\"%CLEARCASE_XPN%\\\" \"";
+    /**
+     *  Unlikely combinaison of characters to separate fields in a ClearCase query
      */
-    String command = "cleartool lshistory";
+    final static String DELIMITER = "£~£";
+
+    /**
+     *  Even more unlikely combinaison of characters to indicate end of one line in query.
+     * Carriage return (\n) can be used in comments and so is not available to us.
+     */
+    final static String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
+
+    /**
+     *  Sets the local working copy to use when making queries.
+     *
+     *@param  path
+     */
+    public void setViewpath(String path) {
+        //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
+        _viewPath = new File(path).getAbsolutePath();
+    }
+
+    /**
+     *  Sets the branch that we're concerned about checking files into.
+     *
+     *@param  branch
+     */
+    public void setBranch(String branch) {
+        _branch = branch;
+    }
+
+    public void setRecursive(boolean b) {
+        _recursive = b;
+    }
+
+    public void setProperty(String property) {
+        _property = property;
+    }
+
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
+    }
+
+    public Hashtable getProperties() {
+        return _properties;
+    }
+
+    /**
+     *  Returns an {@link java.util.List List} of {@link Modification}
+     *  detailing all the changes between now and the last build.
+     *
+     *@param  lastBuild the last build time
+     *@param  now time now, or time to check, NOT USED
+     *@param  quietPeriod NOT USED
+     *@return  the list of modifications, an empty (not null) list if no
+     *      modifications.
+     */
+    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+        String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
+        /*
+         * let's try a different clearcase command--this one just takes
+             * waaaaaaaay too long.
+         * String command = "cleartool find " + _viewPath +
+         * " -type f -exec \"cleartool lshistory" +
+         * " -since " + lastBuildDate;
+         * if(_branch != null)
+         * command += " -branch " + _branch;
+         * command += " -nco" + // exclude check out events
+         * " -fmt \\\" %u;%Nd;%n;%o \\n \\\" \\\"%CLEARCASE_XPN%\\\" \"";
+         */
+        String command = "cleartool lshistory";
 
         if (_branch != null) {
-      command += " -branch " + _branch;
-    }
+            command += " -branch " + _branch;
+        }
 
         if (_recursive == true) {
-      command += " -r ";
-    }
+            command += " -r ";
+        }
 
         command += " -nco -since " + lastBuildDate;
-    command += " -fmt \"%u"+DELIMITER+"%Nd"+DELIMITER+"%n"+DELIMITER+"%o"+DELIMITER+"%Nc"+END_OF_STRING_DELIMITER+"\\n\" " + _viewPath;
+        command += " -fmt \"%u" + DELIMITER + "%Nd" + DELIMITER + "%n" + DELIMITER + "%o" + DELIMITER + "%Nc" + END_OF_STRING_DELIMITER + "\\n\" " + _viewPath;
 
-    log.debug("Command to execute : " + command);
+        log.debug("Command to execute : " + command);
         List modifications = null;
-    try {
-      Process p = Runtime.getRuntime().exec(command);
+        try {
+            Process p = Runtime.getRuntime().exec(command);
 
-      StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-      new Thread(errorPumper).start();
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
+            new Thread(errorPumper).start();
 
-      InputStream input = p.getInputStream();
-      modifications = parseStream(input);
+            InputStream input = p.getInputStream();
+            modifications = parseStream(input);
 
-      p.waitFor();
-    } catch (Exception e) {
-      log.error("Error in executing the Clear Case command : ", e);
+            p.waitFor();
+        } catch (Exception e) {
+            log.error("Error in executing the Clear Case command : ", e);
+        }
+
+        if (modifications == null) {
+            modifications = new ArrayList();
+        }
+
+        return modifications;
     }
 
-    if (modifications == null) {
-      modifications = new ArrayList();
-    }
-
-    return modifications;
-  }
-
-  /**
-   *  Parses the input stream to construct the modifications list.
-   * Package-private to make it available to the unit test.
-   *
-   *@param  input the stream to parse
-   *@return  a list of modification elements
-   *@exception  IOException
-   */
-  List parseStream(InputStream input) throws IOException {
-    ArrayList modifications = new ArrayList();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-    String line;
-    String lines = "";
-
-    while ((line = reader.readLine()) != null) {
-      if ( !lines.equals("") && !lines.endsWith(" ") && !line.startsWith(" ")) {
-        lines += " ";
-      }
-      lines += line;
-      Modification mod = null;
-      if ( lines.indexOf(END_OF_STRING_DELIMITER)>-1 )
-      {
-        mod = parseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
-        lines = "";
-      }
-      if (mod != null) {
-        modifications.add(mod);
-      }
-    }
-    return modifications;
-  }
-
-  /**
-   *  Parses a single line from the reader. Each line contains a signe revision
-   *  with the format : <br>
-   *  username££date_of_revision££element_name££operation_type££comments <br>
-   *
-   *
-   *@param  line the line to parse
-   *@return  a modification element corresponding to the given line
-   */
-  private Modification parseEntry(String line) {
-    System.out.println("parsing entry: " + line);
-    StringTokenizer st = new StringTokenizer(line, DELIMITER);
-
-    // we should get either 4 (w/o comments) or 5 tokens (w/ comments)
-    if ( (st.countTokens()<4) || (st.countTokens()>5) ) {
-      return null;
-    }
-    String username = st.nextToken().trim();
-    String timeStamp = st.nextToken().trim();
-    String elementName = st.nextToken().trim();
-    String operationType = st.nextToken().trim();
-
-    String comment;
-    if ( st.countTokens() > 0 ) {
-      comment = st.nextToken().trim();
-    }
-    else {
-      comment = "";
-    }
-    /*
-     *  a branch event shouldn't trigger a build
+    /**
+     *  Parses the input stream to construct the modifications list.
+     * Package-private to make it available to the unit test.
+     *
+     *@param  input the stream to parse
+     *@return  a list of modification elements
+     *@exception  IOException
      */
-    if (operationType.equals("mkbranch")) {
-      return null;
+    List parseStream(InputStream input) throws IOException {
+        ArrayList modifications = new ArrayList();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+        String line;
+        String lines = "";
+
+        while ((line = reader.readLine()) != null) {
+            if (!lines.equals("") && !lines.endsWith(" ") && !line.startsWith(" ")) {
+                lines += " ";
+            }
+            lines += line;
+            Modification mod = null;
+            if (lines.indexOf(END_OF_STRING_DELIMITER) > -1) {
+                mod = parseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
+                lines = "";
+            }
+            if (mod != null) {
+                modifications.add(mod);
+            }
+        }
+        return modifications;
     }
 
-    Modification mod = new Modification();
+    /**
+     *  Parses a single line from the reader. Each line contains a signe revision
+     *  with the format : <br>
+     *  username££date_of_revision££element_name££operation_type££comments <br>
+     *
+     *
+     *@param  line the line to parse
+     *@return  a modification element corresponding to the given line
+     */
+    private Modification parseEntry(String line) {
+        log.debug("parsing entry: " + line);
+        StringTokenizer st = new StringTokenizer(line, DELIMITER);
 
-    mod.userName = username;
+        // we should get either 4 (w/o comments) or 5 tokens (w/ comments)
+        if ((st.countTokens() < 4) || (st.countTokens() > 5)) {
+            return null;
+        }
+        String username = st.nextToken().trim();
+        String timeStamp = st.nextToken().trim();
+        String elementName = st.nextToken().trim();
+        String operationType = st.nextToken().trim();
 
-    elementName = elementName.substring(elementName.indexOf(File.separator));
-    String fileName = elementName.substring(0, elementName.indexOf("@@"));
+        String comment;
+        if (st.countTokens() > 0) {
+            comment = st.nextToken().trim();
+        } else {
+            comment = "";
+        }
+        /*
+         *  a branch event shouldn't trigger a build
+         */
+        if (operationType.equals("mkbranch")) {
+            return null;
+        }
 
-    mod.fileName = fileName.substring(fileName.lastIndexOf(File.separator));
-    mod.folderName = fileName.substring(0, fileName.lastIndexOf(File.separator));
+        Modification mod = new Modification();
 
-    try {
-      mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
-    } catch (ParseException e) {
-      mod.modifiedTime = null;
+        mod.userName = username;
+
+        elementName = elementName.substring(elementName.indexOf(File.separator));
+        String fileName = elementName.substring(0, elementName.indexOf("@@"));
+
+        mod.fileName = fileName.substring(fileName.lastIndexOf(File.separator));
+        mod.folderName = fileName.substring(0, fileName.lastIndexOf(File.separator));
+
+        try {
+            mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
+        } catch (ParseException e) {
+            mod.modifiedTime = null;
+        }
+
+        mod.type = operationType;
+
+        mod.comment = comment;
+
+        if (_property != null)
+            _properties.put(_property, "true");
+
+        //TO DO: check if operation type is a delete
+
+        return mod;
     }
-
-    mod.type = operationType;
-
-    mod.comment = comment;
-
-    if(_property != null)
-        _properties.put(_property, "true");
-
-    //TO DO: check if operation type is a delete
-
-    return mod;
-  }
 }

@@ -51,7 +51,7 @@ public class ModificationSetTest extends TestCase {
         super(name);
     }
 
-    public void testGetModifications() {
+    public void testGetModifications() throws Exception {
         ModificationSet modSet = new ModificationSet();
         MockSourceControl mock1 = new MockSourceControl();
         mock1.setType(1);

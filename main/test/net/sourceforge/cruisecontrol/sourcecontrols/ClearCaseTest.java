@@ -36,11 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.*;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.Modification;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import junit.framework.*;
-import net.sourceforge.cruisecontrol.Modification;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Eric Lefevre
@@ -53,8 +57,8 @@ public class ClearCaseTest extends TestCase {
     private final static String USERID = "userid";
     private final static String DATE = "20010808.023456";
     private final static String FILENAME =
-            "c:"+File.separator+"path"+File.separator+"filename@@"
-            +File.separator+"main"+File.separator+"vob";
+            "c:" + File.separator + "path" + File.separator + "filename@@"
+            + File.separator + "main" + File.separator + "vob";
     private final static String CHECKIN = "checkin";
     private final static String COMMENT = "This is a \nsample\n\ncomment";
     private static Date date1;
@@ -82,7 +86,7 @@ public class ClearCaseTest extends TestCase {
         clearCaseStream = stream.getBytes();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2001,  7,  8,  2, 34, 56);
+        calendar.set(2001, 7, 8, 2, 34, 56);
         calendar.set(Calendar.MILLISECOND, 0);
         date1 = calendar.getTime();
         calendar.set(2022, 11, 18, 14, 34, 56);
@@ -92,33 +96,28 @@ public class ClearCaseTest extends TestCase {
     /**
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
-    public void testClearCaseStream() {
-        try {
-            ByteArrayInputStream stream = new ByteArrayInputStream(clearCaseStream);
-            List list = _clearCase.parseStream(stream);
-            Modification mod = (Modification)list.get(0);
-            assertEquals(CHECKIN, mod.type);
-            assertEquals(File.separator+"filename", mod.fileName);
-            assertEquals(File.separator+"path", mod.folderName);
-            assertEquals(date1, mod.modifiedTime);
-            assertEquals(USERID, mod.userName);
-            assertEquals("This is a sample comment", mod.comment);
+    public void testClearCaseStream() throws IOException {
+        ByteArrayInputStream stream = new ByteArrayInputStream(clearCaseStream);
+        List list = _clearCase.parseStream(stream);
+        Modification mod = (Modification) list.get(0);
+        assertEquals(CHECKIN, mod.type);
+        assertEquals(File.separator + "filename", mod.fileName);
+        assertEquals(File.separator + "path", mod.folderName);
+        assertEquals(date1, mod.modifiedTime);
+        assertEquals(USERID, mod.userName);
+        assertEquals("This is a sample comment", mod.comment);
 
-            mod = (Modification)list.get(1);
-            assertEquals(CHECKIN, mod.type);
-            assertEquals(File.separator+"filename", mod.fileName);
-            assertEquals(File.separator+"path", mod.folderName);
-            assertEquals(date2, mod.modifiedTime);
-            assertEquals(USERID, mod.userName);
-            assertEquals("", mod.comment);
-        }
-        catch (java.io.IOException e) {
-            assertTrue("An exception occured while passing the stream", true);
-        }
+        mod = (Modification) list.get(1);
+        assertEquals(CHECKIN, mod.type);
+        assertEquals(File.separator + "filename", mod.fileName);
+        assertEquals(File.separator + "path", mod.folderName);
+        assertEquals(date2, mod.modifiedTime);
+        assertEquals(USERID, mod.userName);
+        assertEquals("", mod.comment);
     }
 
-  public static void main(java.lang.String[] args) {
-      junit.textui.TestRunner.run(ClearCaseTest.class);
-  }
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(ClearCaseTest.class);
+    }
 
 }

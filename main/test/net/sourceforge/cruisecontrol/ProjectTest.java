@@ -38,12 +38,8 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 
 public class ProjectTest extends TestCase {
 
@@ -51,7 +47,7 @@ public class ProjectTest extends TestCase {
         super(name);
     }
 
-    public void testBuild() {
+    public void testBuild() throws Exception {
         Project project = new Project();
         project.setLabel("1.2.2");
         project.setName("myproject");
@@ -67,47 +63,33 @@ public class ProjectTest extends TestCase {
         writeFile("_auxLogs/_auxLog2.xml", "<two/>");
         writeFile("_auxLogs/_auxLog3.xml", "<three/>");
 
-        try {
-            project.build();
-        } catch (CruiseControlException e) {
-            e.printStackTrace();
-        }
+        project.build();
 
         String expected = "<cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /></info><build /><one /><two /><three /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
+        assertEquals("Didn't increment the label", "1.2.3", project.getLabel());
     }
 
-    private String readFileToString(String filename) {
+    private String readFileToString(String filename) throws IOException {
         BufferedReader br = null;
         StringBuffer result = null;
-        try {
-            br = new BufferedReader(new FileReader(filename));
-            result = new StringBuffer();
-            String s = br.readLine();
-            while(s != null) {
-                result.append(s.trim());
-                s = br.readLine();
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            br = null;
+        br = new BufferedReader(new FileReader(filename));
+        result = new StringBuffer();
+        String s = br.readLine();
+        while (s != null) {
+            result.append(s.trim());
+            s = br.readLine();
         }
-
+        br.close();
         return result.toString();
     }
 
-    private void writeFile(String fileName, String contents) {
+    private void writeFile(String fileName, String contents) throws IOException {
         FileWriter fw = null;
-        try {
-            fw = new FileWriter(fileName);
-            fw.write(contents);
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            fw = null;
-        }
+
+        fw = new FileWriter(fileName);
+        fw.write(contents);
+        fw.close();
+
     }
 }
