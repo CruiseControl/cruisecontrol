@@ -703,7 +703,7 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    protected boolean isLastBuildSuccessful() {
+    public boolean isLastBuildSuccessful() {
         return wasLastBuildSuccessful;
     }
 
