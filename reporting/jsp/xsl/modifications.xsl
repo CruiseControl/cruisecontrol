@@ -41,18 +41,15 @@
 
     <xsl:output method="html"/>
     <xsl:variable name="tasklist" select="//target/task"/>
-
     <xsl:variable name="modification.list" select="build/modifications/modification"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
             <!-- Modifications -->
             <tr>
-                <td bgcolor="#000066" colspan="5">
-                    <font face="arial" size="2" color="#FFFFFF">
-                        &#160;Modifications since last build:&#160;(
-                            <xsl:value-of select="count($modification.list)"/>)
-                    </font>
+                <td class="modifications-sectionheader" colspan="4">
+                    &#160;Modifications since last build:&#160;
+                    (<xsl:value-of select="count($modification.list)"/>)
                 </td>
             </tr>
 
@@ -65,17 +62,14 @@
     <xsl:template match="modification">
         <tr>
             <xsl:if test="position() mod 2 = 0">
-                <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>
+                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
             </xsl:if>
 
-            <td colspan="2"><font size="1" face="arial"><xsl:value-of select="@type"/></font></td>
-            <td colspan="2"><font size="1" face="arial"><xsl:value-of select="user"/></font></td>
-            <td colspan="2"><font size="1" face="arial"><xsl:value-of select="project"/></font></td>
-            <td colspan="2"><font size="1" face="arial"><xsl:value-of select="filename"/></font></td>
-            <td colspan="2"><font size="1" face="arial"><xsl:value-of select="comment"/></font></td>
+            <td class="modifications-data"><xsl:value-of select="@type"/></td>
+            <td class="modifications-data"><xsl:value-of select="user"/></td>
+            <td class="modifications-data"><xsl:value-of select="project"/><xsl:value-of select="filename"/></td>
+            <td class="modifications-data"><xsl:value-of select="comment"/></td>
         </tr>
-
-        <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>
     </xsl:template>
 
 </xsl:stylesheet>

@@ -51,12 +51,8 @@
 
             <xsl:if test="$dist.count > 0">
                 <tr>
-                    <tr><td colspan="10">&#160;</td></tr>
-                    <td bgcolor="#000066" colspan="10">
-                        <font face="arial" size="2" color="#FFFFFF">
-                            &#160;Deployments by this build:&#160;(
-                             <xsl:value-of select="$dist.count"/>)
-                        </font>
+                    <td class="distributables-sectionheader">
+                        &#160;Deployments by this build:&#160;(<xsl:value-of select="$dist.count"/>)
                     </td>
                 </tr>
                 <xsl:apply-templates select="$jar.tasklist | $war.tasklist" />
@@ -65,17 +61,13 @@
         </table>
     </xsl:template>
 
-
-    <!-- jar and war template -->
     <xsl:template match="task[@name='Jar'] | task[@name='War']">
         <tr>
             <xsl:if test="position() mod 2 = 0">
-                <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>
+                <xsl:attribute name="class">distributables-oddrow</xsl:attribute>
             </xsl:if>
-            <td colspan="10">
-                <nobr>
-                    <font face="arial" size="1"><xsl:value-of select="message"/></font>
-                </nobr>
+            <td class="distributables-data">
+                <xsl:value-of select="message[@priority='info']"/>
             </td>
         </tr>
     </xsl:template>
