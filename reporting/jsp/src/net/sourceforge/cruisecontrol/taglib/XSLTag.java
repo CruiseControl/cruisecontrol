@@ -49,17 +49,15 @@ import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.ServletContext;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -69,11 +67,10 @@ import javax.xml.transform.stream.StreamSource;
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
-public class XSLTag implements Tag, BodyTag {
+public class XSLTag extends AbstractLogAwareTag implements Tag, BodyTag {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
     private BodyContent bodyOut;
     private Tag parent;
-    private PageContext pageContext;
     private String xslFileName;
     private String xslRootContext = DEFAULT_XSL_ROOT;
     private static final String CACHE_DIR = "_cache";
@@ -90,7 +87,7 @@ public class XSLTag implements Tag, BodyTag {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
                 public javax.xml.transform.Source resolve(String href, String base) {
-                    final ServletContext servletContext = pageContext.getServletContext();
+                    final ServletContext servletContext = getPageContext().getServletContext();
                     InputStream styleStream = servletContext.getResourceAsStream(xslRootContext + href);
                     if (styleStream != null) {
                         info("Using nested stylesheet for " + href);
@@ -109,18 +106,6 @@ public class XSLTag implements Tag, BodyTag {
         }
     }
 
-    private void info(String message) {
-        System.out.println(message);
-    }
-
-    private void err(String message) {
-        System.err.println(message);
-    }
-
-    private void err(Throwable exception) {
-        exception.printStackTrace();
-    }
-
     /**
      *  Determine whether the cache file is current or not.  The file will be current if it is newer than both the
      *  xml log file and the xsl file used to create it.
@@ -135,7 +120,7 @@ public class XSLTag implements Tag, BodyTag {
         long xslLastModified = xmlLastModified;
         long cacheLastModified = cacheFile.lastModified();
         try {
-            URL url = pageContext.getServletContext().getResource(xslFileName);
+            URL url = getPageContext().getServletContext().getResource(xslFileName);
             URLConnection con = url.openConnection();
             xslLastModified = con.getLastModified();
         } catch (Exception e) {
@@ -260,7 +245,7 @@ public class XSLTag implements Tag, BodyTag {
         File logDir = findLogDir();
         File xmlFile = findLogFile(logDir);
         File cacheFile = findCacheFile(logDir, xmlFile);
-        if (isCacheFileCurrent(xmlFile, cacheFile) == false) {
+        if (!isCacheFileCurrent(xmlFile, cacheFile)) {
             updateCacheFile(xmlFile, cacheFile);
         } else {
             info("Using cached copy: " + cacheFile.getAbsolutePath());
@@ -270,7 +255,7 @@ public class XSLTag implements Tag, BodyTag {
 
     private void updateCacheFile(File xmlFile, File cacheFile) {
         try {
-            final InputStream styleSheetStream = pageContext.getServletContext().getResourceAsStream(xslFileName);
+            final InputStream styleSheetStream = getPageContext().getServletContext().getResourceAsStream(xslFileName);
             transform(xmlFile, styleSheetStream, new FileWriter(cacheFile));
         } catch (IOException e) {
             err(e);
@@ -288,18 +273,9 @@ public class XSLTag implements Tag, BodyTag {
 
     private File findLogFile(File logDir) {
         info("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
-        String queryString = ((HttpServletRequest) pageContext.getRequest()).getQueryString();
+        String queryString = ((HttpServletRequest) getPageContext().getRequest()).getQueryString();
         File xmlFile = getXMLFile(queryString, logDir);
         return xmlFile;
-    }
-
-    private File findLogDir() {
-        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
-        if (logDirName == null) {
-            logDirName = pageContext.getServletContext().getInitParameter("logDir");
-        }
-        File logDir = new File(logDirName);
-        return logDir;
     }
 
     public int doAfterBody() throws JspException {
@@ -307,7 +283,7 @@ public class XSLTag implements Tag, BodyTag {
     }
 
     public int doEndTag() throws JspException {
-        writeContent(pageContext.getOut());
+        writeContent(getPageContext().getOut());
         return EVAL_PAGE;
     }
 
@@ -320,10 +296,6 @@ public class XSLTag implements Tag, BodyTag {
     }
 
     public void release() {
-    }
-
-    public void setPageContext(PageContext pageContext) {
-        this.pageContext = pageContext;
     }
 
     public void setParent(Tag parent) {

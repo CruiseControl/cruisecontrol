@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,24 +34,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.taglib;
+package net.sourceforge.cruisecontrol.mock;
 
-import javax.servlet.jsp.tagext.TagData;
-import javax.servlet.jsp.tagext.TagExtraInfo;
-import javax.servlet.jsp.tagext.VariableInfo;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 
-public class NavigationTagExtraInfo extends TagExtraInfo {
+/**
+ *
+ * @author <a href="mailto:robert.watkins@suncorp.com.au">Robert Watkins</a>
+ */
+public class MockServletConfig implements ServletConfig {
+    private Map initParams = new HashMap();
 
-    public VariableInfo[] getVariableInfo(TagData data) {
-        return new VariableInfo[] {
-            new VariableInfo("url",
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-            new VariableInfo("linktext",
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-        };
+    public MockServletConfig() {
+    }
+
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    public String getInitParameter(String name) {
+        return (String) initParams.get(name);
+    }
+
+    public Enumeration getInitParameterNames() {
+        return null;
+    }
+
+    public String getServletName() {
+        return null;
+    }
+
+    public void setInitParameter(String name, String value) {
+        initParams.put(name, value);
     }
 }

@@ -37,18 +37,17 @@
 package net.sourceforge.cruisecontrol.mock;
 
 import java.io.IOException;
-import java.io.File;
 import java.util.Enumeration;
 import java.util.HashMap;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.JspWriter;
 import javax.servlet.Servlet;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.PageContext;
 
 /**
  *
@@ -59,6 +58,7 @@ public class MockPageContext extends PageContext {
 
     private HashMap[] scopes = { new HashMap(), new HashMap(), new HashMap(), new HashMap() };
     private MockServletContext servletContext;
+    private MockServletConfig servletConfig;
 
     public void initialize(Servlet servlet, ServletRequest servletRequest, ServletResponse servletResponse,
                            String errorPageURL, boolean needsSession, int bufferSize, boolean autoFlush)
@@ -132,7 +132,8 @@ public class MockPageContext extends PageContext {
     }
 
     public ServletConfig getServletConfig() {
-        return null;
+        System.out.println("returning " + servletConfig);
+        return servletConfig;
     }
 
     public ServletContext getServletContext() {
@@ -150,5 +151,9 @@ public class MockPageContext extends PageContext {
 
     public void setServletContext(MockServletContext context) {
         servletContext = context;
+    }
+
+    public void setServletConfig(MockServletConfig config) {
+        servletConfig = config;
     }
 }
