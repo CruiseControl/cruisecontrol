@@ -88,6 +88,10 @@ NavigationTag
 ----------------------
 * Dates for navigation links now formatted according to the locale of the user's browser.a
 
+P4
+----------------------
+* Close Process-streams in collectChangelistSinceLastBuild to avoid "too many open files"-errors
+
 PluginXMLHelper
 ----------------------
 * add support for nested elements via add(<Type>)
