@@ -64,6 +64,7 @@ public class Vss implements SourceControl {
     protected SimpleDateFormat vssDateTimeFormat;
     
 	private String ssdir;
+    private String vsspath;
 	private String login;
     private String dateFormat;
 
@@ -77,17 +78,27 @@ public class Vss implements SourceControl {
      * Sets default values.
      */
     public Vss() {
+        ssdir = "";
         dateFormat = "MM/dd/yy";
         constructVssDateTimeFormat();
     }
-    
-	/**
+
+    /**
 	 *  Set the project to get history from
+	 *
+	 *@param  vsspath
+	 */
+    public void setVsspath(String vsspath) {
+        this.vsspath = "$" + vsspath;
+    }
+
+	/**
+	 *  Set the path to the ss executable
 	 *
 	 *@param  ssdir
 	 */
 	public void setSsDir(String ssdir) {
-		this.ssdir = "$" + ssdir;
+		this.ssdir = ssdir;
 	}
 
 	/**
@@ -157,9 +168,11 @@ public class Vss implements SourceControl {
 	public List getModifications(Date lastBuild, Date now) {
         //(PENDING) extract buildHistoryCommand, execHistoryCommand
         // See CVSElement
-        
+
+        File execFile = new File(ssdir, "ss.exe");
+
 		//call vss, write output to intermediate file
-        String[] cmdArray = {"ss.exe", "history", ssdir, "-R", "-Vd" +
+        String[] cmdArray = {execFile.getAbsolutePath(), "history", ssdir, "-R", "-Vd" +
                 formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
                 "-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
 		try {
