@@ -53,8 +53,6 @@ public abstract class Builder implements Comparable {
     private boolean multipleSet = false;
     private String group = "default";
 
-    private boolean buildAfterFailed = false;
-
     //should return log from build
     public abstract Element build(Map properties)
         throws CruiseControlException;
@@ -108,10 +106,6 @@ public abstract class Builder implements Comparable {
         this.multiple = multiple;
     }
 
-    public void setBuildAfterFailed(boolean buildAfterFailed) {
-        this.buildAfterFailed = buildAfterFailed;
-    }
-
     public int getMultiple() {
         boolean timeSet = time != NOT_SET;
         if (timeSet && !multipleSet) {
@@ -126,10 +120,6 @@ public abstract class Builder implements Comparable {
 
     public int getDay() {
         return day;
-    }
-
-    public boolean getBuildAfterFailed() {
-        return buildAfterFailed;
     }
 
     public String getGroup() {
