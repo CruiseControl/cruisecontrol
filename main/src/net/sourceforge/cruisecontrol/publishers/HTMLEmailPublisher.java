@@ -78,6 +78,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private String css;
     private String logDir;
     private String messageMimeType = "text/html";
+    private String charset;
 
     private String[] xslFileNames = {"header.xsl",
                                      "compile.xsl",
@@ -165,7 +166,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
             MimeMultipart attachments = new MimeMultipart();
             MimeBodyPart textbody = new MimeBodyPart();
-            textbody.setContent(message, messageMimeType);
+            String contentType = getContentType();
+            textbody.setContent(message, contentType);
             attachments.addBodyPart(textbody);
 
             msg.setContent(attachments);
@@ -175,6 +177,15 @@ public class HTMLEmailPublisher extends EmailPublisher {
             throw new CruiseControlException(e.getMessage());
         }
     }
+    
+    String getContentType() {
+        if (charset!=null) {
+            return messageMimeType+"; charset=\""+charset+"\"";
+        }
+        else {
+            return messageMimeType;
+        }
+    }    
 
     /**
      * If xslFile is set then both xslDir and css are ignored. Specified xslFile
@@ -236,6 +247,10 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
 
         this.logDir = logDir;
+    }
+    
+    public void setCharset(String characterSet) {
+        charset = characterSet;
     }
 
     /**

@@ -141,6 +141,14 @@ public class HTMLEmailPublisherTest extends TestCase {
             // should fail
         }
     }
+    
+    public void testGetContentType() {
+        String defaultType = "text/html";
+        assertEquals(defaultType, publisher.getContentType());
+        publisher.setCharset("ISO-8859-1");
+        String withCharset = "text/html; charset=\"ISO-8859-1\"";
+        assertEquals(withCharset, publisher.getContentType());
+    }
 
     private void setEmailPublisherVariables(HTMLEmailPublisher publisher) {
         publisher.setBuildResultsURL("url");
