@@ -44,12 +44,7 @@
 
 
 <span class="header">Installing CruiseControl</span>
-
-<ul>
-<li><a class="small" href="">Install main loop</a></li>
-<li><a class="small" href="">Install build results JSP</a></li>
-</ul>
-
+<p>
 <span class="small">Installing the main build loop.</span>
 
 <ul>
@@ -82,11 +77,7 @@ old setup to a config.xml file.</p>
 
 <p>New users should read the <a href="configxml.html">explanation</a> of the config.xml file format</p>
 
-<p>To run the upgrader, do the following:</p>
-<ul>
-<li>Copy dist/cruisecontrol.jar to the top-level CruiseControl directory.  This is necessary because cruisecontrol.jar assumes this location for its classpath.</li>
-<li> Execute the following command:</li>
-</ul>
+<p>To run the upgrader, execute the following command:</p>
 
 <p><code>
 java -jar cruisecontrol.jar -upgrade <i>buildfile propertiesfile configfile projectname</i>
@@ -125,17 +116,15 @@ Where the command line attributes are as follows:
 
 <p>A config file should be written to disk, and we can proceed to the next installation step.</p>
 
-<p><i><b>Note:</b> An alternative approach that would not require moving the cruisecontrol.jar would be to use the cruisecontrol.bat or cruisecontrol.sh scripts, also located in the dist directory.</i></p>
-
 <a name="startupcruisecontrol"/>
 <span class="small">3. Startup CruiseControl</span>
 
 <p>CruiseControl can be started using two approaches:</p>
 <ul>
-<li><b>Scripts.</b> cruisecontrol.bat or cruisecontrol.sh.  Modify value of CCDIR as appropriate</li>
-<li><b>Executable jar.</b>  Copy jar to <i>&lt;cruisecontrol&gt;</i> directory first and type:</li>
+<li><b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.</li>
+<li><b>Executable jar.</b>   Type the following command:</li>
 <p><code>
-java -jar cruisecontrol.jar
+java -jar dist/cruisecontrol.jar
 </code></p>
 </ul>
 
