@@ -290,7 +290,7 @@ public class CVSElement extends SourceControlElement {
                 // Call this using reflection
                 
                 Method execMethod = Runtime.class.getMethod(
-                 "exec", new Class[] { String.class, String[].class, File.class } );
+                 "exec", new Class[] { String[].class, String[].class, File.class } );
                 
                 Object[] args = new Object[] { command.getCommandline(), 
                  new String[0], new File(getLocalPath()) };
