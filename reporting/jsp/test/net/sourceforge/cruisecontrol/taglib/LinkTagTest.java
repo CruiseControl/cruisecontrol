@@ -36,9 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.Tag;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
