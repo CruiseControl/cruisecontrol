@@ -47,7 +47,8 @@ import org.jdom.input.SAXBuilder;
 
 public final class Util {
 
-    static final long ONE_MINUTE = 60 * 1000;
+    public static final transient long ONE_SECOND = 1000;
+    public static final long ONE_MINUTE = 60 * ONE_SECOND;
     static final long ONE_HOUR = 60 * ONE_MINUTE;
 
     private Util() {
@@ -109,6 +110,30 @@ public final class Util {
                 e);
         }
         return cruisecontrolElement;
+    }
+
+    /**
+     * @param time time in milliseconds
+     * @return Time formatted as X hours Y minutes Z seconds
+     */
+    public static String formatTime(long time) {
+        long seconds = time / 1000;
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        seconds = seconds % 60;
+
+        StringBuffer sb = new StringBuffer();
+        if (hours != 0) {
+            sb.append(hours + " hours ");
+        }
+        if (minutes != 0) {
+            sb.append(minutes + " minutes ");
+        }
+        if (seconds != 0) {
+            sb.append(seconds + " seconds");
+        }
+
+        return sb.toString();
     }
 
 }
