@@ -62,6 +62,7 @@ public class Modification implements Comparable {
     public String folderName;
     public Date modifiedTime;
     public String userName;
+    public String emailAddress;
     public String comment = "";
 
     public Element toElement(DateFormat formatter) {
@@ -75,6 +76,8 @@ public class Modification implements Comparable {
         dateElement.addContent(formatter.format(modifiedTime));
         Element userElement = new Element("user");
         userElement.addContent(userName);
+        Element emailAddressElement = new Element("email");
+        emailAddressElement.addContent(emailAddress);
         Element commentElement = new Element("comment");
         commentElement.addContent(new CDATA(comment));
 
@@ -82,6 +85,7 @@ public class Modification implements Comparable {
         modificationElement.addContent(projectElement);
         modificationElement.addContent(dateElement);
         modificationElement.addContent(userElement);
+        modificationElement.addContent(emailAddressElement);
         modificationElement.addContent(commentElement);
 
         return modificationElement;
@@ -99,6 +103,7 @@ public class Modification implements Comparable {
         sb.append("FolderName: " + folderName + "\n");
         sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
         sb.append("UserName: " + userName + "\n");
+        sb.append("EmailAddress: " + emailAddress + "\n");
         sb.append("Comment: " + comment + "\n");
         return sb.toString();
     }
@@ -108,6 +113,7 @@ public class Modification implements Comparable {
         log.info("FolderName: " + folderName);
         log.info("Last Modified: " + formatter.format(modifiedTime));
         log.info("UserName: " + userName);
+        log.info("EmailAddress: " + emailAddress);
         log.info("Comment: " + comment);
         log.info("");
     }
@@ -126,11 +132,14 @@ public class Modification implements Comparable {
 
         Modification mod = (Modification) o;
 
+        boolean emailsAreEqual = ((emailAddress == null && mod.emailAddress == null) || emailAddress.equals(mod.emailAddress));
+
         return (type.equals(mod.type) &&
             fileName.equals(mod.fileName) &&
             folderName.equals(mod.folderName) &&
             modifiedTime.equals(mod.modifiedTime) &&
             userName.equals(mod.userName) &&
+            emailsAreEqual &&
             comment.equals(mod.comment));
     }
 
