@@ -67,6 +67,7 @@ public class CVSBootstrapper implements Bootstrapper {
     private String localWorkingCopy;
     private String filename;
     private String cvsroot;
+    private boolean resetStickyTags = false;
 
     public void setCvsroot(String cvsroot) {
         this.cvsroot = cvsroot;
@@ -149,7 +150,12 @@ public class CVSBootstrapper implements Bootstrapper {
             commandLine.createArgument().setValue(cvsroot);
         }
         commandLine.createArgument().setValue("update");
-        commandLine.createArgument().setValue("-dP");
+        
+        if (resetStickyTags) {
+            commandLine.createArgument().setValue("-dPA");
+        } else {
+            commandLine.createArgument().setValue("-dP");
+        }
 
         if (filename != null) {
             commandLine.createArgument().setValue(filename);
@@ -158,13 +164,8 @@ public class CVSBootstrapper implements Bootstrapper {
         return commandLine;
     }
 
-    /** for testing */
-    public static void main(String[] args) {
-        CVSBootstrapper bootstrapper = new CVSBootstrapper();
-        bootstrapper.setCvsroot(
-            ":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol");
-        bootstrapper.setFile("build.xml");
-        bootstrapper.bootstrap();
+    public void setResetStickyTags(boolean reset) {
+        resetStickyTags = reset;
     }
 
 }

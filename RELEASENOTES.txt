@@ -20,6 +20,10 @@ cruisecontrol.sh:
 ----------------------
 * handle path conversion under cygwin. Patch by John Woodward
 
+CVSBootstrapper:
+----------------------
+* add resetStickyTags attribute
+
 errors.xsl:
 ----------------------
 * Added errors.xsl to replace compile.xsl. Similar logic, but shows errors and warnings from all tasks.
