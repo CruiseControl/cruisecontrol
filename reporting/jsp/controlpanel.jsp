@@ -35,5 +35,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<p><a href="http://localhost:8000/">JMX Control Panel</a></p>
-<p>(todo: need a way to map project to correct url)</p>
+<%@page import="java.net.*,java.io.*"%>
+<%
+    String hostname = "";
+    try
+    {
+        hostname = InetAddress.getLocalHost().getHostName();
+    }
+    catch(IOException e)
+    {
+        hostname = "localhost";
+    }
+%>
+<p>
+<table width="600" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center">
+            <h2>JMX Control Panel</h2>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <iframe name="controlPanelFrame" id="controlPanelFrame" height="520" marginheight="0" frameborder="1" marginwidth="0" src="http://<%= hostname%>:8000" width="605"></iframe>
+        </td>
+    </tr>
+</table>
+</p>
