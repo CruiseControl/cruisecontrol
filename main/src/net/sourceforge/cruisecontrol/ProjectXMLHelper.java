@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.io.File;
+import java.text.SimpleDateFormat;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
@@ -69,6 +70,8 @@ public class ProjectXMLHelper {
             throw new CruiseControlException("Project not found in config file: " + projectName);
         }
 
+        setDateFormat(_projectElement);
+
         initDefaultPluginRegistry();
         Iterator pluginIterator = _projectElement.getChildren("plugin").iterator();
         while (pluginIterator.hasNext()) {
@@ -82,6 +85,13 @@ public class ProjectXMLHelper {
             log.debug("to classname: " + pluginClassName);
             log.debug("");
             _plugins.put(pluginName.toLowerCase(), pluginClassName);
+        }
+    }
+
+    protected void setDateFormat(Element projectElement) {
+        if(projectElement.getChild("dateformat") != null &&
+           projectElement.getChild("dateformat").getAttributeValue("format") != null) {
+            DateFormatFactory.setFormat(projectElement.getChild("dateformat").getAttributeValue("format"));
         }
     }
 
