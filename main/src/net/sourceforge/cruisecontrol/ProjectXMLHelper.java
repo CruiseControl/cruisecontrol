@@ -266,36 +266,28 @@ public class ProjectXMLHelper {
      */
     public Log getLog() throws CruiseControlException {
         Log log = new Log(this.projectName);
-
-        //Init the log dir to the default.
-        String defaultLogDir = "logs" + File.separatorChar + projectName;
-        log.setLogDir(defaultLogDir);
+        String logDir = "logs" + File.separatorChar + projectName;
 
         Element logElement = projectElement.getChild("log");
         if (logElement != null) {
-            String logDirValue = logElement.getAttributeValue("dir");
-            //The user has specified a different log dir, so set
-            //  that one instead.
-            if (logDirValue != null) {
-                log.setLogDir(logDirValue);
+            String dirValue = logElement.getAttributeValue("dir");
+            if (dirValue != null) {
+                logDir = dirValue;
             }
             log.setLogXmlEncoding(logElement.getAttributeValue("encoding"));
-
 
             //Get the BuildLoggers...all the children of the Log element should be
             //  BuildLogger implementations
             Iterator loggerIter = logElement.getChildren().iterator();
             while (loggerIter.hasNext()) {
                 Element nextLoggerElement = (Element) loggerIter.next();
-
-                BuildLogger nextLogger =
-                        (BuildLogger) configurePlugin(nextLoggerElement, false);
+                BuildLogger nextLogger = (BuildLogger) configurePlugin(nextLoggerElement, false);
                 nextLogger.validate();
-
                 log.addLogger(nextLogger);
             }
         }
 
+        log.setLogDir(logDir);
         return log;
     }
 
