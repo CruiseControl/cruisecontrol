@@ -47,6 +47,10 @@ Project
 ----------------------
 * Reset ProjectState to IDLE in case of an exception while building. Patch by Will Gwaltney
 
+SSCM & SSCMBootstrapper
+----------------------
+* New SourceControl and Bootstrapper for SSCM-support. Contribution by Matt Harp
+
 website / documentation
 ----------------------
 * Rework navigation for feedback, completeness and consistency. Convert navigation from images to text. Convert to semantic markup. Address inconsistency of configxml.html. Patch by Joe Schmetzer
