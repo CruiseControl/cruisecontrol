@@ -157,7 +157,12 @@
                 <exclude name="${lib}/"/>
                 <exclude name="${classes}/"/>
                 <exclude name="${temp.dir}/"/>
-            </fileset>
+                <exclude name="*.bat"/>
+                <exclude name="*.sh"/>
+                <exclude name="build.xml"/>
+                <exclude name="checkstyle*"/>
+                <exclude name="*.properties"/>
+           </fileset>
             <classes dir="${classes}"/>
         </war>
     </target>
