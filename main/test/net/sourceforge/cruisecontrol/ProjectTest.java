@@ -41,12 +41,21 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
 import java.io.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+
 public class ProjectTest extends TestCase {
+    private static Logger log = Logger.getLogger(ProjectTest.class);
 
     private Project project;
 
     public ProjectTest(String name) {
         super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        log.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void setUp() {
