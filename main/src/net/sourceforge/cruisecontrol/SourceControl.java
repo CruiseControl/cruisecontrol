@@ -65,11 +65,26 @@ public interface SourceControl {
     public void validate() throws CruiseControlException;
 
     /**
-     *  Any properties that have been set in this sourcecontrol.  Formerly set on the Ant Project.
+     * Any properties that have been set in this sourcecontrol.
+     * Will be passed onto the Builder, which may then pass the properties to the underlying
+     * build implementation. For example, the Ant builder will define these properties so that
+     * the underlying Ant script can use them.
      */
     public Hashtable getProperties();
 
+    /**
+     * Name of property to define if a modification is detected.
+     * The property should be added to the set of properties returned by the getProperties() call.
+     * Allows the underlying build script to do conditional actions if the files watch by this 
+     * SourceControl have benn modified.
+     * @param property name of property to define
+     */
     public void setProperty(String property);
 
+    /**
+     * Name of property to define if a deletion is detected.
+     * The property should be added to the set of properties returned by the getProperties() call.
+     * @param property name of property to define
+     */
     public void setPropertyOnDelete(String property);
 }
