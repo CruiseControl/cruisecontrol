@@ -42,6 +42,10 @@ logfile.xsl
 ----------------------
 * Changed the logfile.xsl to have an output method (some Xalan versions gave an error on this). Patch from Matt Albrecht
 
+main.jsp & navigation.jsp
+----------------------
+* Fix for compatability with Tomcat 5.0. Patch from Robert Pearse
+
 Modification Set
 ----------------------
 * Changed to instruct CC to do a build if a modification occurs in the future. Patch by Geoff Krapf
