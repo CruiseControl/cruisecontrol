@@ -52,6 +52,10 @@ public class NavigationTagExtraInfo extends TagExtraInfo {
                              "java.lang.String",
                              true,
                              VariableInfo.NESTED),
+            new VariableInfo("logfile",
+                             "java.lang.String",
+                             true,
+                             VariableInfo.NESTED),
         };
     }
 }

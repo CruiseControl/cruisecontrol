@@ -59,6 +59,7 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
     public static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String URL_ATTR = "url";
+    public static final String LOG_FILE_ATTR = "logfile";
 
     private Tag parent;
     private BodyContent bodyOut;
@@ -70,10 +71,15 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
     private int startingBuildNumber = 0;
     private int finalBuildNumber = Integer.MAX_VALUE;
     private int endPoint;
+    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
-    protected String getUrl(String fileName, String servletPath) {
-        String queryString = fileName.substring(0, fileName.lastIndexOf(".xml"));
-        return servletPath + "?log=" + queryString;
+    protected String getUrl(String logName, String servletPath) {
+        return servletPath + "?log=" + logName;
+    }
+
+    private String extractLogNameFromFileName(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf(".xml"));
     }
 
     protected String getLinkText(String fileName) {
@@ -81,16 +87,16 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
         String label = "";
         if (fileName.lastIndexOf(LABEL_SEPARATOR) > -1) {
             dateString = fileName.substring(3, fileName.indexOf(LABEL_SEPARATOR));
-            label = " (" + fileName.substring(fileName.indexOf(LABEL_SEPARATOR) + 1, fileName.lastIndexOf(".xml"))
+            label = " (" + fileName.substring(fileName.indexOf(LABEL_SEPARATOR) + 1, fileName.length())
                     + ")";
         } else {
-            dateString = fileName.substring(3, fileName.lastIndexOf(".xml"));
+            dateString = fileName.substring(3, fileName.length());
         }
         DateFormat inputDate = null;
         if (dateString.length() == 14) {
-            inputDate = new SimpleDateFormat("yyyyMMddHHmmss");
+            inputDate = LOG_TIME_FORMAT_SECONDS;
         } else {
-            inputDate = new SimpleDateFormat("yyyyMMddHHmm");
+            inputDate = LOG_TIME_FORMAT;
         }
 
         Date date = null;
@@ -151,8 +157,10 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
 
     private void setupLinkVariables() {
         final String fileName = fileNames[count];
-        getPageContext().setAttribute(URL_ATTR, getUrl(fileName, getServletPath()));
-        getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(fileName));
+        String logName = extractLogNameFromFileName(fileName);
+        getPageContext().setAttribute(URL_ATTR, getUrl(logName, getServletPath()));
+        getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(logName));
+        getPageContext().setAttribute(LOG_FILE_ATTR, logName);
         count++;
     }
 

@@ -90,26 +90,28 @@ public class NavigationTagTest extends TestCase {
 
     public void testGetUrl() {
         final String expectedValue = "cruisecontrol/buildresults?log=log20020222120000";
-        assertEquals(expectedValue, tag.getUrl("log20020222120000.xml", "cruisecontrol/buildresults"));
+        assertEquals(expectedValue, tag.getUrl("log20020222120000", "cruisecontrol/buildresults"));
     }
 
     public void testGetLinkText() {
-        assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
-        assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200.xml"));
-        assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
-        assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0.xml"));
+        assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000"));
+        assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200"));
+        assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11"));
+        assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0"));
     }
 
     public void testGetFormattedLinkText() {
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
-        assertEquals("22-Feb-2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
-        assertEquals("22-Feb-2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
+        assertEquals("22-Feb-2002 12:00:00", tag.getLinkText("log20020222120000"));
+        assertEquals("22-Feb-2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11"));
     }
 
     public void testGetLinks() throws JspException {
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
         tag.doInitBody();
+        assertEquals("02/25/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals("log20020225120000", pageContext.getAttribute(NavigationTag.LOG_FILE_ATTR));
         assertEquals("02/25/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
         assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
