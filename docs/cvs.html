@@ -46,7 +46,7 @@
         When prompted for a password for <i>anonymous</i>, simply press the
         Enter key.</p>
         <pre>
-export CVS_ROOT=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol
+export CVSROOT=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol
 cvs login
 cvs -z3 co cruisecontrol</pre>
 
@@ -57,7 +57,7 @@ cvs -z3 co cruisecontrol</pre>
         Enter your site password when prompted.
         <pre>
 export CVS_RSH=ssh
-export CVS_ROOT=:ext:developername@cvs.sourceforge.net:/cvsroot/cruisecontrol
+export CVSROOT=:ext:developername@cvs.sourceforge.net:/cvsroot/cruisecontrol
 cvs -z3 co cruisecontrol</pre>
     </div>
 </div>
