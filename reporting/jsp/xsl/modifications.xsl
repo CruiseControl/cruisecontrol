@@ -153,16 +153,33 @@
             </xsl:if>
 
             <td class="modifications-data">
-                <xsl:value-of select="file/type"/>
+                <xsl:choose>
+                  <xsl:when test="file">
+                    <xsl:value-of select="file/action"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="@type"/>
+                  </xsl:otherwise>
+                </xsl:choose>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="user"/>
             </td>
             <td class="modifications-data">
-                <xsl:if test="file/project">
-                    <xsl:value-of select="file/project"/>/
-                </xsl:if>
-                <xsl:value-of select="file/filename"/>
+                <xsl:choose>
+                  <xsl:when test="file">
+                    <xsl:if test="file/project">
+                      <xsl:value-of select="file/project"/>/
+                    </xsl:if>
+                    <xsl:value-of select="file/filename"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:if test="project">
+                      <xsl:value-of select="project"/>/
+                    </xsl:if>
+                    <xsl:value-of select="filename"/>
+                  </xsl:otherwise>
+                </xsl:choose>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="comment"/>
