@@ -41,6 +41,7 @@ import java.text.*;
 
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 import org.apache.log4j.Category;
 
 /**
@@ -60,7 +61,7 @@ import org.apache.log4j.Category;
  *  @author Arun Aggarwal
  *  @author Jonny Boman
  */
-public class VssJournal extends SourceControlElement {
+public class VssJournal implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(VssJournal.class.getName());
@@ -70,14 +71,14 @@ public class VssJournal extends SourceControlElement {
 
     private String _ssDir = "$/";
     private String _journalFile;
+
+    private Hashtable _properties = new Hashtable();
     private String _property;
     private String _propertyOnDelete;
 
-    private long _lastModified;
     private Date _lastBuild;
 
     private ArrayList _modifications = new ArrayList();
-    private Set _emails = new HashSet();
     private List moListVssJournalDateFormat = new ArrayList();
 
     public VssJournal() {
@@ -122,12 +123,12 @@ public class VssJournal extends SourceControlElement {
      *
      *@param  s
      */
-    public void setProperty(String s) {
-        _property = s;
+    public void setProperty(String property) {
+        _property = property;
     }
 
-    public void setPropertyOnDelete(String s) {
-        _propertyOnDelete = s;
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
     }
 
     /**
@@ -137,34 +138,8 @@ public class VssJournal extends SourceControlElement {
         _lastBuild = lastBuild;
     }
 
-    /**
-     *  For parent modificationset to find out the time of last modification for
-     *  this project
-     *
-     *  @return
-     */
-    public long getLastModified() {
-        return _lastModified;
-    }
-
-    /**
-     *  Returns a Set of usernames that made any modification since the last good
-     *  build.
-     *
-     *  @return
-     */
-    public Set getEmails() {
-        return _emails;
-    }
-
-    /**
-     *  Returns a List of modifications to this project since the last good
-     *  build.
-     *
-     *  @return
-     */
-    public List getModifications() {
-        return _modifications;
+    public Hashtable getProperties() {
+        return _properties;
     }
 
     /**
@@ -176,10 +151,9 @@ public class VssJournal extends SourceControlElement {
      *@param  quietPeriod
      *@return
      */
-    public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
         _lastBuild = lastBuild;
         _modifications.clear();
-        _emails.clear();
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(_journalFile));
@@ -206,7 +180,7 @@ public class VssJournal extends SourceControlElement {
         }
 
         if (_property != null && _modifications.size() > 0) {
-            //TO DO: set properties getAntTask().getProject().setProperty(_property, "true");
+            _properties.put(_property, "true");
         }
 
         log.info("Found "+_modifications.size()+" modified files");
@@ -275,16 +249,15 @@ public class VssJournal extends SourceControlElement {
         }
 
         if (_propertyOnDelete != null && "delete".equals(mod.type)) {
-            //TO DO: set properties getAntTask().getProject().setProperty(_propertyOnDelete, "true");
+            _properties.put(_propertyOnDelete, "true");
         }
 
         if (_property != null) {
-            //TO DO: set properties getAntTask().getProject().setProperty(_property, "true");
+            _properties.put(_property, "true");
         }
 
         // Add the modification and the user's email
         _modifications.add(mod);
-        _emails.add(mod.userName);
     }
 
     /**
@@ -330,11 +303,6 @@ public class VssJournal extends SourceControlElement {
         }
         try {
             Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime + "m");
-
-            //(PENDING) This seems out of place
-            if (lastModifiedDate.getTime() < _lastModified) {
-                _lastModified = lastModifiedDate.getTime();
-            }
 
             return lastModifiedDate;
         } catch (ParseException pe) {
