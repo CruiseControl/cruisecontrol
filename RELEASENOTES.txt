@@ -62,6 +62,10 @@ SelfConfiguringPlugin:
 ----------------------
 * Add new SelfConfiguringPlugin interface. Submitted by Jeff Ramsdale
 
+testdetails.xsl:
+----------------------
+* Escape '<' and '>' in popup window (CC-22). Patch by Jerome Lacoste
+
 TimeBuild:
 ----------------------
 * Add new source control that will trigger a build at a specified time. Submitted by Eric Pugh

@@ -303,6 +303,22 @@
                 <xsl:with-param name="string" select="substring-after($string,'\')"/>
             </xsl:call-template>
         </xsl:when>
+        <!-- lt -->
+        <xsl:when test="contains($string,&quot;&lt;&quot;)">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,&quot;&lt;&quot;)"/>
+            </xsl:call-template>&amp;lt;<xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,&quot;&lt;&quot;)"/>
+            </xsl:call-template>
+        </xsl:when>
+        <!-- gt -->
+        <xsl:when test="contains($string,&quot;&gt;&quot;)">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,&quot;&gt;&quot;)"/>
+            </xsl:call-template>&amp;gt;<xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,&quot;&gt;&quot;)"/>
+            </xsl:call-template>
+        </xsl:when>
         <xsl:otherwise>
             <xsl:value-of select="$string"/>
         </xsl:otherwise>
