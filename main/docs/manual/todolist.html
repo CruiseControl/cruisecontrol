@@ -42,8 +42,17 @@
 The CruiseControl Project can use your help.  Following are suggestions for features.  Submissions and additional
 feature requests should be directed to the cruisecontrol-devel@lists.sourceforge.net mailing list.<p>
 
-<span class="small">To Do List:</span><p>
+<span class="small">To Do List:</span>
 
+<p><span class="small">Multiple projects</span><br/>
+<ol>
+	<li>Support multiple projects from a single CruiseControl instance; no project dependencies</li>
+	<li>Handle project dependencies</li>
+	<li>Reporting supports displaying build results from multiple projects using one webapp</li>
+</ol>
+</p>
+
+<p>
 <span class="small">SourceControl Unit Tests</span><br>
 CruiseControl supports interactions with multiple source control tools.  Unfortunately, our unit tests are
 a bit under developed.  Most of our source control wrappers just parse the output from the command line, so
@@ -58,11 +67,6 @@ the jsp.  Ideally, we'd have a controlpanel.jsp that would enable this.
 <span class="small">TextEmailPublisher</span><br>
 Currently, CruiseControl has the feature of sending an email notification.  Currently this
 email message is limited to a link to the build results JSP.  Having a brief text summary in
-the body of the email has been suggested.  See publishers.EmailPublisher and publishers.LinkEmailPublisher.
-<p>
-<span class="small">HTMLEmailPublisher</span><br>
-Currently, CruiseControl has the feature of sending an email notification.  Currently this
-email message is limited to a link to the build results JSP.  Having an HTML summary in
 the body of the email has been suggested.  See publishers.EmailPublisher and publishers.LinkEmailPublisher.
 <p>
 <span class="small">SCM Bootstrappers</span><br>
