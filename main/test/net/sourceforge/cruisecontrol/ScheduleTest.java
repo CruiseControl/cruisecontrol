@@ -144,18 +144,4 @@ public class ScheduleTest extends TestCase {
         // next build would be in a pause interval on the next day
         assertEquals(2*oneHour, _schedule.getTimeToNextBuild(_cal4.getTime(),oneHour));
 	}
-    
-    public void testFormatTime() {
-        long fiveSeconds = 5 * 1000;
-        long oneHour = 60 * ONE_MINUTE;
-        long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
-        
-        String seconds = "5 seconds";
-        String hoursMinutesSeconds = "1 hours 59 minutes 5 seconds";
-        String negativeTime = "-1 hours -59 minutes -5 seconds";
-        
-        assertEquals(seconds, Schedule.formatTime(fiveSeconds));
-        assertEquals(hoursMinutesSeconds, Schedule.formatTime(oneHourFiftyNineMinutes+fiveSeconds));
-        assertEquals(negativeTime, Schedule.formatTime(-1*(oneHourFiftyNineMinutes+fiveSeconds)));
-    }
 }
