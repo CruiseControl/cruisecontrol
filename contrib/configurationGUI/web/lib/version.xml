@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp-versions>
+
+  <resource>
+     <pattern>
+         <name>cruisecontrol-gui.jar</name>
+            <version-id>0.9</version-id>
+         </pattern>
+         <file>cruisecontrol-gui.jar</file>
+  </resource>
+  
+</jnlp-versions>

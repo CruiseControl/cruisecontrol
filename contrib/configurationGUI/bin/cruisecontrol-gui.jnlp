@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" 
+      version="0.0.1" 
+      codebase="$$codebase"
+      href="cruisecontrol-gui.jnlp">
+  <information>
+    <title>Cruisecontrol Configuration UI</title>
+    <vendor>CruiseControl</vendor>
+    <homepage href="$$codebase"/>
+    <description>User interface for configuring cruisecontrol</description>
+    <icon href="icons/logo.gif" />
+    <offline-allowed />
+  </information>
+
+  <security>
+    <all-permissions />
+  </security>
+  <resources>
+    <j2se version="1.4+"/>
+
+    <!-- Cruisecontrol Jars -->
+    <jar href="lib/cruisecontrol-gui.jar" main="true" version="0.9" />
+
+	<!-- 3rdparth jars -->
+	<jar href="3rdparty/ant.jar" version="1"/>
+    <jar href="3rdparty/arch4j.jar" version="1"/>
+    <jar href="3rdparty/arch4j-ui.jar" version="1" />
+    <jar href="3rdparty/cruisecontrol.jar" version="1" />
+    <jar href="3rdparty/jakarta-oro-2.0.3.jar" version="1" />
+    <jar href="3rdparty/jdom.jar" version="1" />
+    <jar href="3rdparty/kunststoff.jar" version="1" />
+    <jar href="3rdparty/log4j.jar" version="1" />
+    <jar href="3rdparty/mail.jar" version="1" />
+    <jar href="3rdparty/Piccolo.jar" version="1" />
+    <jar href="3rdparty/xercesImpl.jar" version="1" />
+    <jar href="3rdparty/xml-apis.jar" version="1" />
+  </resources>
+  
+  <application-desc main-class="net.sourceforge.cruisecontrol.gui.MainWindow" />
+</jnlp>
