@@ -59,6 +59,7 @@ public class Schedule {
     
     private final Object mutex = new Object();
     static final long ONE_MINUTE = 60 * 1000;
+    static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
 
     public void addBuilder(Builder builder) {
         _builders.add(builder);
@@ -183,11 +184,10 @@ public class Schedule {
 					timeToThisBuild = Util.milliTimeDiffernce(nowTime, thisBuildTime);
 				}
 				else {
-					long oneDay = 24 * 60 * ONE_MINUTE;
-					Date tomorrow = new Date(now.getTime()+oneDay);
+					Date tomorrow = new Date(now.getTime()+ONE_DAY);
 					boolean tomorrowIsValid = builder.isValidDay(tomorrow);
 					if (tomorrowIsValid) {
-						long remainingTimeToday = oneDay - Util.convertToMillis(nowTime);
+						long remainingTimeToday = ONE_DAY - Util.convertToMillis(nowTime);
 						long timeTomorrow = Util.convertToMillis(thisBuildTime);
 						timeToThisBuild = remainingTimeToday + timeTomorrow;
 					}
@@ -205,9 +205,17 @@ public class Schedule {
 		Date futureDate = new Date(futureMillis);
 		PauseBuilder pause = findPause(futureDate);
 		if (pause == null) return proposedTime;
-		int endPause = pause.getEndTime();
-		int currentTime = Util.getTimeFromDate(now);
-		long timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
+        
+        long timeToEndOfPause = proposedTime;
+        int endPause = pause.getEndTime();
+        int currentTime = Util.getTimeFromDate(now);
+        boolean pauseIsTomorrow = currentTime > endPause;
+        if (pauseIsTomorrow) {
+            timeToEndOfPause = ONE_DAY - Util.milliTimeDiffernce(endPause, currentTime);
+        }
+        else {
+            timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
+        }
 		return timeToEndOfPause + ONE_MINUTE;
 	}
 

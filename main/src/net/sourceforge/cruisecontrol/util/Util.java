@@ -41,6 +41,9 @@ import java.util.Date;
 
 public class Util {
 
+    static final long ONE_MINUTE = 60 * 1000;
+    static final long ONE_HOUR   = 60 * ONE_MINUTE;
+
 	/**
 	 *  Create an integer time from a <code>Date</code> object.
 	 *
@@ -58,20 +61,20 @@ public class Util {
 	/**
 	 * finds the difference in milliseconds between two integer time
 	 * values of the format "HHmm".
-	 * @param a integer time value of format "HHmm"
-	 * @param b integer time value of format "HHmm"
+	 * @param earlier integer time value of format "HHmm"
+	 * @param later integer time value of format "HHmm"
 	 * @return long millisecond time difference
 	 */
-	public static long milliTimeDiffernce(int a, int b) {
-		long aMillis = convertToMillis(a);
-		long bMillis = convertToMillis(b);
-		return bMillis-aMillis;
+	public static long milliTimeDiffernce(int earlier, int later) {
+		long earlierMillis = convertToMillis(earlier);
+		long laterMillis = convertToMillis(later);
+		return laterMillis-earlierMillis;
 	}
 
 	public static long convertToMillis(int HHmm) {
 		int minutes = HHmm % 100;
 		int hours = (HHmm - minutes)/100;
-		long milliseconds = (hours*60 + minutes) * 60 * 1000;
+		long milliseconds = hours * ONE_HOUR + minutes * ONE_MINUTE;
 		return milliseconds;
 	}
 
