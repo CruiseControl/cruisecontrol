@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.builders;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Category;
+import org.apache.log4j.PropertyConfigurator;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -80,6 +81,17 @@ public class AntBuilder extends Builder {
         File log = new File("log.xml");
         Element buildLogElement = getAntLogAsElement(log);
         log.delete();
+
+        //also read in this file, which has all of the ant properties defined.
+        Element propertiesElement = null;
+        try {
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            propertiesElement = builder.build("propertylogger.xml").getRootElement();
+        } catch (Exception ee) {
+            ee.printStackTrace();
+        }
+
+        buildLogElement.addContent(propertiesElement.detach());
         return buildLogElement;
     }
 
@@ -102,6 +114,8 @@ public class AntBuilder extends Builder {
         al.add("org.apache.tools.ant.Main");
         al.add("-listener");
         al.add("org.apache.tools.ant.XmlLogger");
+        al.add("-listener");
+        al.add("net.sourceforge.cruisecontrol.builders.PropertyLogger");
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
@@ -151,16 +165,22 @@ public class AntBuilder extends Builder {
      *  temporarily for testing
      */
     public static void main(String[] args) {
+        PropertyConfigurator.configure("log4j.properties");
+
         AntBuilder ab = new AntBuilder();
         ab.setTarget("init");
         ab.setBuildFile("build.xml");
 
-        Element log = null;//ab.build();
+        Element log = ab.build(new HashMap());
+        BufferedWriter bw = null;
         try {
+            bw = new BufferedWriter(new FileWriter("log.xml"));
             XMLOutputter output = new XMLOutputter();
-            output.output(log, System.out);
+            output.output(log, bw);
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        } finally {
+            bw = null;
         }
     }
 }
