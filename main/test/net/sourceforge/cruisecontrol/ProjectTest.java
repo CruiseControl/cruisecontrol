@@ -49,9 +49,10 @@ public class ProjectTest extends TestCase {
 
     public void testBuild() throws Exception {
         Project project = new Project();
+        MockSchedule sched = new MockSchedule();
         project.setLabel("1.2.2");
         project.setName("myproject");
-        project.setSchedule(new MockSchedule());
+        project.setSchedule(sched);
         project.setLogDir("test-results");
         project.addAuxiliaryLogFile("_auxLog1.xml");
         project.addAuxiliaryLogFile("_auxLogs");
@@ -67,7 +68,14 @@ public class ProjectTest extends TestCase {
 
         String expected = "<cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /></info><build /><one /><two /><three /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
-        assertEquals("Didn't increment the label", new String("1.2.3"), project.getLabel());
+        assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
+
+        //look for sourcecontrol properties
+        java.util.Map props = sched.getBuildProperties();
+        assertNotNull("Build properties were null.", props);
+        assertEquals("Should be 4 build properties.",4, props.size());
+        assertTrue("filemodified not found.", props.containsKey("filemodified"));
+        assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
     }
 
     private String readFileToString(String filename) throws IOException {

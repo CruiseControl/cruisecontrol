@@ -483,10 +483,16 @@ public class CVS implements SourceControl {
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)) {
                 nextModification.type = "deleted";
+                 if( _propertyOnDelete != null ) {
+                     _properties.put(_propertyOnDelete, "true");
+                 }
             } else if (isAdded) {
                 nextModification.type = "added";
             } else {
                 nextModification.type = "modified";
+            }
+            if( _property != null ) {
+                _properties.put(_property, "true");
             }
             mods.add(nextModification);
         }

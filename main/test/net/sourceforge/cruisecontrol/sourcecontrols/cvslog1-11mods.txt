@@ -152,33 +152,3 @@ keyword substitution: kv
 total revisions: 3;	selected revisions: 0
 description:
 =============================================================================
-
-RCS file: /cvsroot/cruisecontrol/cruisecontrol/main/Attic/kungfu.xml,v
-Working file: main/kungfu.xml
-head: 1.2
-branch:
-locks: strict
-access list:
-keyword substitution: kv
-total revisions: 2;     selected revisions: 1
-description:
-----------------------------
-revision 1.2
-date: 2002/03/13 19:45:42;  author: alden;  state: dead;  lines: +0 -0
-Hey, look, a deleted file.
-=============================================================================
-
-RCS file: /cvsroot/cruisecontrol/cruisecontrol/main/Attic/stuff.xml,v
-Working file: main/stuff.xml
-head: 1.4
-branch:
-locks: strict
-access list:
-keyword substitution: kv
-total revisions: 4;     selected revisions: 1
-description:
-----------------------------
-revision 1.4
-date: 2002/03/13 19:38:42;  author: alden;  state: dead;  lines: +0 -0
-Hey, look, another deleted file.
-=============================================================================
