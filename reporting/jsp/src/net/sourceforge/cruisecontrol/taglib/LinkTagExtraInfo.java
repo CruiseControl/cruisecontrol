@@ -1,4 +1,4 @@
-<%--********************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,26 +33,21 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************--%>
-<%@page contentType="text/html"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-        <img src="images/blank8.gif" border="0"><br>
-        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
-        <table border="0" align="center" width="98%">
-            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
-            <tr><td>&nbsp;</td></tr>
-            <cruisecontrol:link id="baseUrl" />
-            <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
-            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
-                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
-            </cruisecontrol:nav>
-            <tr><td>
-              <form method="GET" action="<%=baseUrl%>" >
-                <select name="log" onchange="form.submit()">
-                  <cruisecontrol:nav startingBuildNumber="10">
-                    <option value="<%=logfile%>"><%= linktext %></option>
-                  </cruisecontrol:nav>
-                </select>
-              </form>
-            </td></tr>
-        </table>
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol.taglib;
+
+import javax.servlet.jsp.tagext.TagData;
+import javax.servlet.jsp.tagext.TagExtraInfo;
+import javax.servlet.jsp.tagext.VariableInfo;
+
+public class LinkTagExtraInfo extends TagExtraInfo {
+
+    public VariableInfo[] getVariableInfo(TagData data) {
+        return new VariableInfo[] {
+            new VariableInfo(data.getId(),
+                             "java.lang.String",
+                             true,
+                             VariableInfo.AT_BEGIN),
+        };
+    }
+}

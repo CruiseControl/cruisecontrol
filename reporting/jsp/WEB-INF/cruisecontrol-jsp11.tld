@@ -66,7 +66,7 @@
     <tag>
         <name>currentbuildstatus</name>
         <tagclass>net.sourceforge.cruisecontrol.taglib.CurrentBuildStatusTag</tagclass>
-        <bodycontent>JSP</bodycontent>
+        <bodycontent>empty</bodycontent>
         <info>
             Report when the build started, or when it will start again.
         </info>
@@ -112,6 +112,21 @@
         <attribute>
             <name>label</name>
             <required>true</required>
+        </attribute>
+    </tag>
+    <tag>
+        <name>link</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.LinkTag</tagclass>
+        <teiclass>net.sourceforge.cruisecontrol.taglib.LinkTagExtraInfo</teiclass>
+        <bodycontent>empty</bodycontent>
+        <info>Builds up a link URL</info>
+        <attribute>
+            <name>id</name>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>exclude</name>
+            <required>false</required>
         </attribute>
     </tag>
 </taglib>

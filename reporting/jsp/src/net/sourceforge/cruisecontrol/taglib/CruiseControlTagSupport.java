@@ -94,7 +94,7 @@ public class CruiseControlTagSupport extends BodyTagSupport {
      */
     protected String createUrl(String paramName, String paramValue) {
         StringBuffer url = new StringBuffer(getServletPath());
-        url.append("?");
+        StringBuffer queryString = new StringBuffer("?");
         final ServletRequest request = getPageContext().getRequest();
         Enumeration requestParams = request.getParameterNames();
         while (requestParams.hasMoreElements()) {
@@ -102,16 +102,27 @@ public class CruiseControlTagSupport extends BodyTagSupport {
             if (!requestParamName.equals(paramName)) {
                 String[] requestParamValues = request.getParameterValues(requestParamName);
                 for (int i = 0; i < requestParamValues.length; i++) {
-                    url.append(requestParamName);
-                    url.append("=");
-                    url.append(requestParamValues[i]);
-                    url.append("&");
+                    final String requestParamValue = requestParamValues[i];
+                    appendParam(queryString, requestParamName, requestParamValue);
                 }
             }
         }
-        url.append(paramName);
-        url.append("=");
-        url.append(paramValue);
+        url.append(queryString);
+        if (paramName != null && paramValue != null) {
+            appendParam(url, paramName, paramValue);
+        }
+        url.setLength(url.length() - 1);
         return url.toString();
+    }
+
+    private void appendParam(StringBuffer queryString, String name, final String value) {
+        queryString.append(name);
+        queryString.append("=");
+        queryString.append(value);
+        queryString.append("&");
+    }
+
+    protected String createUrl(String paramToExclude) {
+        return createUrl(paramToExclude, null);
     }
 }

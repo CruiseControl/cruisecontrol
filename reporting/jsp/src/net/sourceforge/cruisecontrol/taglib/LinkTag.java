@@ -1,6 +1,6 @@
-<%--********************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,26 +33,29 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************--%>
-<%@page contentType="text/html"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-        <img src="images/blank8.gif" border="0"><br>
-        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
-        <table border="0" align="center" width="98%">
-            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
-            <tr><td>&nbsp;</td></tr>
-            <cruisecontrol:link id="baseUrl" />
-            <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
-            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
-                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
-            </cruisecontrol:nav>
-            <tr><td>
-              <form method="GET" action="<%=baseUrl%>" >
-                <select name="log" onchange="form.submit()">
-                  <cruisecontrol:nav startingBuildNumber="10">
-                    <option value="<%=logfile%>"><%= linktext %></option>
-                  </cruisecontrol:nav>
-                </select>
-              </form>
-            </td></tr>
-        </table>
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol.taglib;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.Tag;
+
+/**
+ *
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ */
+public class LinkTag extends CruiseControlTagSupport {
+    private String exclude = "log";
+
+    public int doStartTag() throws JspException {
+        getPageContext().setAttribute(getId(), createUrl(exclude));
+        return Tag.SKIP_BODY;
+    }
+
+    public String getExclude() {
+        return exclude;
+    }
+
+    public void setExclude(String exclude) {
+        this.exclude = exclude;
+    }
+}
