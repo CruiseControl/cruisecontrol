@@ -131,4 +131,20 @@ public class ArtifactsPublisherTest extends TestCase {
             assertNotNull(expected);
         }        
     }
+
+    public void testGetDestinationDirectory() {
+        String tempDir = tempFile.getParent();
+        publisher.setDest(tempDir);
+        String timestamp = "20040102030405";
+        File destinationDir = publisher.getDestinationDirectory(timestamp);
+        String expected = tempDir + File.separatorChar + timestamp;
+        assertEquals(expected, destinationDir.getPath());
+
+        final String subdir = "subdir";
+        publisher.setSubdirectory(subdir);
+        destinationDir = publisher.getDestinationDirectory(timestamp);
+        expected = tempDir + File.separatorChar + subdir + File.separatorChar + timestamp;
+        assertEquals(expected, destinationDir.getPath());
+
+    }
 }

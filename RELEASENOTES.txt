@@ -1,5 +1,10 @@
 CruiseControl Release Notes - Latest CVS
 
+ArtifactsPublisher
+----------------------
+* Add attribute 'subdirectory'. Patch by Garrick Olson
+* Change copying of individual files to no longer use the path to the file before copying as part of the path after copying. Patch by Garrick Olson
+
 BuildLogger
 ----------------------
 * New interface to handle the Log subelements from the CruiseControl config. Implementers have the opportunity to manipulate the CruiseControl build log just before it gets written to disk.

@@ -55,6 +55,7 @@ public class ArtifactsPublisher implements Publisher {
     private String destDir;
     private String targetDirectory;
     private String targetFile;
+    private String subdirectory;
 
     public void setDest(String dir) {
         destDir = dir;
@@ -72,16 +73,25 @@ public class ArtifactsPublisher implements Publisher {
         throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
         Project project = new Project();
-        String uniqueDir = helper.getBuildTimestamp();
-        File uniqueDest = new File(destDir, uniqueDir);
-        
+        String timestamp = helper.getBuildTimestamp();
+        File destinationDirectory = getDestinationDirectory(timestamp);
+
         if (targetDirectory != null) {
-            publishDirectory(project, uniqueDest);
+            publishDirectory(project, destinationDirectory);
         }
         if (targetFile != null) {
-            publishFile(uniqueDest);
+            publishFile(destinationDirectory);
         }
 
+    }
+
+    File getDestinationDirectory(String timestamp) {
+        String targetDir = timestamp;
+        if (subdirectory != null) {
+            targetDir = subdirectory + File.separatorChar + timestamp;
+        }
+        File destinationDirectory = new File(destDir, targetDir);
+        return destinationDirectory;
     }
 
     void publishFile(File uniqueDest) throws CruiseControlException {
@@ -91,7 +101,7 @@ public class ArtifactsPublisher implements Publisher {
         }
         FileUtils utils = FileUtils.newFileUtils();
         try {
-            utils.copyFile(file, new File(uniqueDest, targetFile));
+            utils.copyFile(file, new File(uniqueDest, file.getName()));
         } catch (IOException e) {
             throw new CruiseControlException(e);
         }
@@ -129,5 +139,9 @@ public class ArtifactsPublisher implements Publisher {
         if (targetDirectory != null && targetFile != null) {
             throw new CruiseControlException("only one of 'dir' or 'file' may be specified.");
         }
+    }
+
+    public void setSubdirectory(String subdir) {
+        subdirectory = subdir;
     }
 }
