@@ -104,6 +104,9 @@ public final class PluginRegistry {
      */
     public Class getPluginClass(String pluginName)
             throws CruiseControlException {
+        if (!isPluginRegistered(pluginName)) {
+            return null;
+        }
 
         String pluginClassname = getPluginClassname(pluginName);
 
@@ -186,6 +189,7 @@ public final class PluginRegistry {
         // other
         registry.register("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
         registry.register("schedule", "net.sourceforge.cruisecontrol.Schedule");
+        registry.register("log", "net.sourceforge.cruisecontrol.Log");
 
         return registry;
     }
