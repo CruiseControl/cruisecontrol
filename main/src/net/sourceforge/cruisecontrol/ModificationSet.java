@@ -59,6 +59,7 @@ public class ModificationSet extends Task {
      *	do stuff, namely get all modifications since the last build time, and
      *	make sure that the appropriate quiet period is enforced so that we aren't
      *   building with 1/2 of someone's checkins.
+     * @throws BuildException
      */
     public void execute() throws BuildException {
         try {

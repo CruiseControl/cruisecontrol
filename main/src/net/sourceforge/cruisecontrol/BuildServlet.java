@@ -48,7 +48,8 @@ public class BuildServlet extends HttpServlet {
     private FileReader _xsl;
 
     /**
-     *	load properties file
+     * Load properties file
+     * @throws ServletException
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
