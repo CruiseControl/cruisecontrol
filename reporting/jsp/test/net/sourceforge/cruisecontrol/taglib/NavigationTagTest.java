@@ -40,6 +40,17 @@ import junit.framework.TestCase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.io.IOException;
+import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.Servlet;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 
 public class NavigationTagTest extends TestCase {
 
@@ -62,12 +73,48 @@ public class NavigationTagTest extends TestCase {
 
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
-        SimpleDateFormat sdf = new SimpleDateFormat(formatString);
-        Calendar cal = Calendar.getInstance();
-        cal.set(2002, Calendar.FEBRUARY, 22, 12, 0, 0);  //22-Feb-2002 12:00:00
-        String dateString = sdf.format(cal.getTime());
 
-        assertEquals(dateString, tag.getLinkText("log20020222120000.xml"));
-        assertEquals(dateString + " (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
+        assertEquals("22-Feb-2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
+        assertEquals("22-Feb-2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
+    }
+
+    public void testGetLinksWithSubRange() throws Exception {
+        NavigationTag tag = new NavigationTag();
+        final MockPageContext pageContext = new MockPageContext();
+        tag.setPageContext(pageContext);
+        tag.setBodyContent(new MockBodyContent());
+
+        String[] logFiles = { "log20020222120000.xml", "log20020223120000.xml", "log20020224120000.xml",
+                              "log20020225120000.xml" };
+        tag.setFileNames(logFiles);
+        tag.setStartingBuildNumber(1);
+        tag.setFinalBuildNumber(2);
+
+        assertEquals(0, tag.getCount());
+        tag.doInitBody();
+        assertEquals(2, tag.getCount());
+        assertEquals("02/23/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
+        assertEquals(3, tag.getCount());
+        assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
+        assertEquals(3, tag.getCount());
+    }
+
+    public void testGetLinksWithBadRange() throws Exception {
+        NavigationTag tag = new NavigationTag();
+        final MockPageContext pageContext = new MockPageContext();
+        tag.setPageContext(pageContext);
+        tag.setBodyContent(new MockBodyContent());
+
+        String[] logFiles = { "log20020222120000.xml", "log20020223120000.xml", "log20020224120000.xml",
+                              "log20020225120000.xml" };
+        tag.setFileNames(logFiles);
+        tag.setStartingBuildNumber(10);
+
+        assertEquals(0, tag.getCount());
+        tag.doInitBody();
+        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
+        assertEquals(10, tag.getCount());
     }
 }

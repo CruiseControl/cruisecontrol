@@ -56,6 +56,10 @@ import java.util.Comparator;
  *
  */
 public class NavigationTag implements Tag, BodyTag {
+    public static final String LABEL_SEPARATOR = "L";
+    public static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    public static final String LINK_TEXT_ATTR = "linktext";
+    public static final String URL_ATTR = "url";
 
     private Tag parent;
     private BodyContent bodyOut;
@@ -63,26 +67,23 @@ public class NavigationTag implements Tag, BodyTag {
     private File logDir;
     private String[] fileNames;
     private int count;
-    private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-    private String labelSeparator = "L";
+    private DateFormat dateFormat = US_DATE_FORMAT;
 
-    /**
-     *
-     */
+    private int startingBuildNumber = 0;
+    private int finalBuildNumber = Integer.MAX_VALUE;
+    private int endPoint;
+
     protected String getUrl(String fileName, String servletPath) {
         String queryString = fileName.substring(0, fileName.lastIndexOf(".xml"));
         return servletPath + "?log=" + queryString;
     }
 
-    /**
-     *
-     */
     protected String getLinkText(String fileName) {
         String dateString = "";
         String label = "";
-        if (fileName.lastIndexOf(labelSeparator) > -1) {
-            dateString = fileName.substring(3, fileName.indexOf(labelSeparator));
-            label = " (" + fileName.substring(fileName.indexOf(labelSeparator) + 1, fileName.lastIndexOf(".xml")) + ")";
+        if (fileName.lastIndexOf(LABEL_SEPARATOR) > -1) {
+            dateString = fileName.substring(3, fileName.indexOf(LABEL_SEPARATOR));
+            label = " (" + fileName.substring(fileName.indexOf(LABEL_SEPARATOR) + 1, fileName.lastIndexOf(".xml")) + ")";
         } else {
             dateString = fileName.substring(3, fileName.lastIndexOf(".xml"));
         }
@@ -109,15 +110,8 @@ public class NavigationTag implements Tag, BodyTag {
         return contextPath + servletPath;
     }
 
-    /**
-     *
-     */
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = new SimpleDateFormat(dateFormat);
-    }
 
     public int doStartTag() throws JspException {
-        count = 0;
         String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
         if (logDirName == null) {
             logDirName = pageContext.getServletContext().getInitParameter("logDir");
@@ -128,41 +122,51 @@ public class NavigationTag implements Tag, BodyTag {
 
         System.out.println("Scanning directory: " + logDirPath + " for log files.");
 
-        fileNames = logDir.list(new FilenameFilter() {
+        String [] logFileNames = logDir.list(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.startsWith("log") && name.endsWith(".xml") && !(new File(dir, name).isDirectory());
             }
         });
 
-        if (fileNames == null) {
+        if (logFileNames == null) {
             throw new JspException(
                     "Configuration problem? No logs found in logDir: "
                     + logDirPath);
         }
 
         //sort links...
-        Arrays.sort(fileNames, new Comparator() {
+        Arrays.sort(logFileNames, new Comparator() {
             public int compare(Object o1, Object o2) {
                 return ((String) o2).compareTo((String) o1);
             }
         });
 
+        setFileNames(logFileNames);
         return EVAL_BODY_TAG;
     }
 
+    void setFileNames(String [] logFileNames) {
+        fileNames = logFileNames;
+    }
+
     public void doInitBody() throws JspException {
-        if (count < fileNames.length) {
-            pageContext.setAttribute("url", getUrl(fileNames[count], getServletPath()));
-            pageContext.setAttribute("linktext", getLinkText(fileNames[count]));
-            count++;
+        count = Math.max(0, startingBuildNumber);
+        endPoint = Math.min(finalBuildNumber + 1, fileNames.length);
+        if (count < endPoint) {
+            setupLinkVariables();
         }
     }
 
+    private void setupLinkVariables() {
+        final String fileName = fileNames[count];
+        pageContext.setAttribute(URL_ATTR, getUrl(fileName, getServletPath()));
+        pageContext.setAttribute(LINK_TEXT_ATTR, getLinkText(fileName));
+        count++;
+    }
+
     public int doAfterBody() throws JspException {
-        if (count < fileNames.length) {
-            pageContext.setAttribute("url", getUrl(fileNames[count], getServletPath()));
-            pageContext.setAttribute("linktext", getLinkText(fileNames[count]));
-            count++;
+        if (count < endPoint) {
+            setupLinkVariables();
             return EVAL_BODY_TAG;
         } else {
             try {
@@ -195,5 +199,38 @@ public class NavigationTag implements Tag, BodyTag {
 
     public void setBodyContent(BodyContent bodyOut) {
         this.bodyOut = bodyOut;
+    }
+
+    public int getStartingBuildNumber() {
+        return startingBuildNumber;
+    }
+
+    public void setStartingBuildNumber(int startingBuildNumber) {
+        this.startingBuildNumber = startingBuildNumber;
+    }
+
+    public int getFinalBuildNumber() {
+        return finalBuildNumber;
+    }
+
+    public void setFinalBuildNumber(int finalBuildNumber) {
+        this.finalBuildNumber = finalBuildNumber;
+    }
+
+    /**
+     * Set the DateFormat to use. The default is for US-Style (MM/dd/yyyy HH:mm:ss).
+     * @param dateFormatString  the date format to use. Any format appropriate for the java.text.SimpleDataFormat is
+     *                          okay to use.
+     */
+    public void setDateFormat(String dateFormatString) {
+        dateFormat = new SimpleDateFormat(dateFormatString);
+    }
+
+    /**
+     * Return the count through the list of files.
+     * @return  the current count.
+     */
+    public int getCount() {
+        return count;
     }
 }
