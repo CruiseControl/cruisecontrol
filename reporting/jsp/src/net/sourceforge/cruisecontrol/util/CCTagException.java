@@ -52,6 +52,9 @@ public class CCTagException extends JspTagException {
      */
     public CCTagException(String msg, Throwable cause) {
         super(msg);
-        initCause(cause);
+
+        // jdk 1.3 incompatible
+        // initCause(cause);
+        setStackTrace(cause.getStackTrace());
     }
 }
