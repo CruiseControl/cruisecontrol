@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.element;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
@@ -277,16 +278,28 @@ public class CVSElement extends SourceControlElement {
 	private List execHistoryCommand(Commandline command) throws Exception {
         Process p = null;
         
-        if (
-         System.getProperty("os.name").equalsIgnoreCase("Linux") && local != null) {
-            log("Executing: " + command + " in directory: " + getLocalPath());
-            p = Runtime.getRuntime().exec(command.getCommandline(), 
-             new String[0], new File(getLocalPath()));
-        } else {
-            if (local != null) {
+        if (local != null) {
+            if (System.getProperty("os.name").equalsIgnoreCase("Linux") 
+             && System.getProperty("java.version").startsWith("1.3")) {
+                log("Executing: " + command + " in directory: " + getLocalPath());
+                // Call this using reflection
+                
+                Method execMethod = Runtime.class.getMethod(
+                 "exec", new Class[] { String.class, String[].class, File.class } );
+                
+                Object[] args = new Object[] { command.getCommandline(), 
+                 new String[0], new File(getLocalPath()) };
+                p = (Process) execMethod.invoke(Runtime.getRuntime(), args);
+                 
+                // Above reflection trick used to call this JDK 1.3 method
+                /*p = Runtime.getRuntime().exec(command.getCommandline(), 
+                 new String[0], new File(getLocalPath()));*/
+            } else {
                 command.createArgument().setValue(getLocalPath());
             }
-
+        }
+        
+        if (p == null) {
             log("Executing: " + command);
             p = Runtime.getRuntime().exec(command.getCommandline());
         }
