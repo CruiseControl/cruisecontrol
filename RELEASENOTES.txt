@@ -88,6 +88,7 @@ EmailPublisher & friends
 HTMLEmailPublisher
 ----------------------
 * Now uses default logdir "logs/<projectname>" if none is specified (CC-64)
+* Don't add <p> tag with single XSL file (CC-68). Patch by Gunnar Wagenknecht
 
 index.jsp
 ----------------------
