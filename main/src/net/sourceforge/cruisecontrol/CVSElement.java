@@ -42,7 +42,13 @@ public class CVSElement implements SourceControlElement {
      * This is the date format required by commands passed
      * to CVS.
      */
-    private static final SimpleDateFormat CVSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+    static final SimpleDateFormat CVSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
+    {
+        // The timezone is hard coded to GMT to prevent problems with it being formatted
+        // as GMT+00:00. However, we still need to set the time zone of the formatter
+        // so that it knows it's in GMT.
+        CVSDATE.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
+    }
     /**
      * This is the date format returned in the log information
      * from CVS.
@@ -216,6 +222,7 @@ public class CVSElement implements SourceControlElement {
                                  "log",
                                  "-d" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "",
                                  getLocalPath()};
+
         String logCommand = "";
         for (int i=0; i<commandArray.length; i++) {
             logCommand += commandArray[i] + " ";
@@ -251,7 +258,7 @@ public class CVSElement implements SourceControlElement {
 
         return mods;
     }
-
+    
     /**
      * This method encapsulates the strange behavior that
      * the windows CVS client wants relative paths to use
