@@ -1,17 +1,20 @@
-<project name="continuous integration" default="all">
+<project name="CruiseControl" default="all">
 
     <property name="build.compiler" value="jikes"/>
     <property name="classes" value="classes"/>        
-    <property name="classpath" value="lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar"/>
+    <property name="classpath" value="lib\ant.jar;lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar"/>
     <property name="webinfclasses" value="web-inf\classes"/>
     <property name="dist" value="dist"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
+    <property name="docs" value="docs"/>
+    <property name="apidocs" value="${docs}/api"/>
     <property name="images" value="images"/>
 
     <target name="init">        
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
+        <mkdir dir="${apidocs}"/>
     </target>
     
     <target name="clean">
@@ -24,12 +27,15 @@
     <target name="compile">
         <javac srcdir="${src}" destdir="${classes}" classpath="${classpath}"/>
         <copy todir="${classes}">
-            <fileset dir="${src}" includes="**/*.java, **/*.properties"/>
+            <fileset dir="${src}" includes="**/*.properties"/>
         </copy>
     </target>
     
     <target name="jar">
-        <jar jarfile="${dist}\cruisecontrol.jar" basedir="${classes}"/>
+        <jar jarfile="${dist}\cruisecontrol.jar">
+            <fileset dir="${classes}"/>
+            <fileset dir="." includes="${docs}/**, ${src}/**" excludes="${src}/**/*.properties"/>
+        </jar>
     </target>
     
     <target name="buildwar">
@@ -45,9 +51,18 @@
            </classes>
            <fileset dir=".">
               <include name="${images}/**"/>
+              <include name="cruisecontrol.xsl"/>
            </fileset>
         </war>
     </target>
     
-    <target name="all" depends="init,clean,compile,jar,buildwar" />
+                                                          
+<!-- ***** JAVADOC ***** -->
+
+    <target name="javadoc" depends="init">
+       <javadoc sourcepath="${src}" destdir="${apidocs}" classpath="${classpath};${src}" packagenames="net.sourceforge.cruisecontrol.*">
+       </javadoc>
+    </target>
+                                                          
+    <target name="all" depends="init,clean,compile,javadoc,jar,buildwar" />
 </project>                                                                       
