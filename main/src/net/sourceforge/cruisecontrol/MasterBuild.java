@@ -78,8 +78,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _antFile;
     private String _antTarget;
     private String _cleanAntTarget;
-    private boolean _debug = false;
-    private boolean _verbose = false;
+    
+    //(PENDING) Extract class to handle logging
+    // static because a new instance is used to do logging
+    private static boolean _debug;
+    private static boolean _verbose;
 
     //build servlet info
     private String _servletURL;
@@ -251,6 +254,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         
         if (_debug || _verbose)
             props.list(System.out);
+        
+System.out.println("Load properties called");
+System.out.println("Debug: " + _debug + ", Verbose: " + _verbose);
     }
 
     /**
@@ -287,7 +293,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             while (true) {
                 Date startTime = new Date();
                 startLog();
-
                 loadProperties();
 
                 //Set the security manager to one which will prevent 
@@ -824,12 +829,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      */
     public void messageLogged(BuildEvent event) {
         int logLevel = event.getPriority();
-        
-        if (_debug == false && logLevel == Project.MSG_DEBUG) {
+        if (false == _debug && Project.MSG_DEBUG == logLevel) {
             return;
         }
         
-        if (_verbose == false && logLevel == Project.MSG_VERBOSE) {
+        if (false == _verbose && Project.MSG_VERBOSE == logLevel) {
             return;
         }
         
