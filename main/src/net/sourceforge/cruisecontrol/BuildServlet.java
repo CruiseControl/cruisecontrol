@@ -110,10 +110,7 @@ public class BuildServlet extends HttpServlet {
             out.println("      <td valign=\"top\" bgcolor=\"#FFFFFF\" width=\"640\">");
             out.println("      &nbsp;<br>");
 
-
-            // ***** transform build xml to html *****
             transformBuildLogToHTML(out);
-
 
             out.println("      &nbsp;<br>");
             out.println("   </td>");
@@ -226,4 +223,5 @@ public class BuildServlet extends HttpServlet {
             }
         }
     }
+    
 }

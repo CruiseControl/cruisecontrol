@@ -216,7 +216,7 @@ public class CVSElement extends SourceControlElement {
 
 	/**
 	 *@param  lastBuildTime
-	 *@return  CommandLine for "cvs -d CVSROOT log -N -d "lastbuildtime<currtime" "
+	 *@return  CommandLine for "cvs -d CVSROOT log -N -d ">lastbuildtime" "
 	 */
 	public Commandline buildHistoryCommand(Date lastBuildTime) {
 		Commandline commandLine = new Commandline();
@@ -374,8 +374,7 @@ public class CVSElement extends SourceControlElement {
 
 				if (multiLine) {
 					message += NEW_LINE;
-				}
-				else {
+				} else {
 					multiLine = true;
 				}
 				message += nextLine;
@@ -409,8 +408,7 @@ public class CVSElement extends SourceControlElement {
 
 			if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DELETED)) {
 				nextModification.type = "deleted";
-			}
-			else {
+			} else {
 				nextModification.type = "modified";
 			}
 

@@ -14,25 +14,16 @@
  */
 
 package net.sourceforge.cruisecontrol;
+
 import java.io.*;
 import java.text.*;
-
 import java.util.*;
-import net.sourceforge.cruisecontrol.element.CVSElement;
-import net.sourceforge.cruisecontrol.element.ClearCaseElement;
-import net.sourceforge.cruisecontrol.element.P4Element;
-import net.sourceforge.cruisecontrol.element.SourceControlElement;
-import net.sourceforge.cruisecontrol.element.StarTeamElement;
-import net.sourceforge.cruisecontrol.element.VssElement;
-
+import net.sourceforge.cruisecontrol.element.*;
 import org.apache.tools.ant.*;
 
 /**
  *  This class is designed to record the modifications made to the source
  *  control management system since the last build
- *
- *@author  jcyip
- *@created  June 11, 2001
  */
 public class ModificationSet extends Task {
 
@@ -56,13 +47,12 @@ public class ModificationSet extends Task {
 	 *  set the timestamp of the last build time. String should be formatted as
 	 *  "yyyyMMddHHmmss"
 	 *
-	 *@param  s
+	 *@param  lastBuild
 	 */
-	public void setLastbuild(String s) {
+	public void setLastBuild(String lastBuild) {
 		try {
-			_lastBuild = _simpleDateFormat.parse(s);
-		}
-		catch (Exception e) {
+			_lastBuild = _simpleDateFormat.parse(lastBuild);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -73,11 +63,11 @@ public class ModificationSet extends Task {
 	 *
 	 *@param  seconds
 	 */
-	public void setQuietperiod(long seconds) {
+	public void setQuietPeriod(long seconds) {
 		_quietPeriod = seconds * 1000;
 	}
 
-	public void setDateformat(String format) {
+	public void setDateFormat(String format) {
 		if (format != null && format.length() > 0) {
 			_formatter = new SimpleDateFormat(format);
 		}
@@ -122,11 +112,9 @@ public class ModificationSet extends Task {
 			getProject().setProperty(USERS, emailsAsCommaDelimitedList());
 
 			writeFile(modifications);
-		}
-		catch (InterruptedException ie) {
+		} catch (InterruptedException ie) {
 			throw new BuildException(ie);
-		}
-		catch (IOException ioe) {
+		} catch (IOException ioe) {
 			throw new BuildException(ioe);
 		}
 	}
