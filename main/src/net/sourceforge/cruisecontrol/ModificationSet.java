@@ -36,11 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
 import net.sourceforge.cruisecontrol.element.*;
-import org.apache.tools.ant.*;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * This class is designed to record the modifications made to the source control
