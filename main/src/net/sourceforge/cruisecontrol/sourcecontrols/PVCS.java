@@ -71,12 +71,12 @@ public class PVCS implements SourceControl {
 	/**
 	 *  Date format required by commands passed to PVCS
          */
-     	final static SimpleDateFormat IN_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy/HH:mm");
+     	private SimpleDateFormat _inDateFormat = new SimpleDateFormat("MM/dd/yyyy/HH:mm");
         
       	/**
 	 *  Date format returned in the output of PVCS commands.
 	 */
-	final static SimpleDateFormat OUT_DATE_FORMAT = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
+        private SimpleDateFormat _outDateFormat = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
         
 
 
@@ -96,6 +96,14 @@ public class PVCS implements SourceControl {
 	public void setPvcssubproject(String subproject) {
 		_pvcsSubProject = subproject;
 	}
+
+    public void setInDateFormat(String inDateFormat) {
+        _inDateFormat = new SimpleDateFormat(inDateFormat);
+    }
+
+    public void setOutDateFormat(String outDateFormat) {
+        _outDateFormat = new SimpleDateFormat(outDateFormat);
+    }
 
     public void setProperty(String property) {
         _property = property;
@@ -130,8 +138,8 @@ public class PVCS implements SourceControl {
 	public List getModifications(Date lastBuild, Date now) {
                 this.lastBuild = lastBuild;
                 // build file of PVCS command line instructions
-                String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
-                String nowDate = IN_DATE_FORMAT.format(now);
+                String lastBuildDate = _inDateFormat.format(lastBuild);
+                String nowDate = _inDateFormat.format(now);
                 buildExecFile(lastBuildDate, nowDate);
                 String command = "pcli run -sCruiseControlPVCS.pcli";
 		List modifications = null;
@@ -273,7 +281,7 @@ public class PVCS implements SourceControl {
                 else if (line.startsWith("Archive created:")) {
                     try {
                         String createdDate = line.substring(18);
-                        Date createTime = OUT_DATE_FORMAT.parse(createdDate);
+                        Date createTime = _outDateFormat.parse(createdDate);
                         if (createTime.after(lastBuild)) {
                             modification.type = "added";
                         } else {
@@ -290,7 +298,7 @@ public class PVCS implements SourceControl {
                         firstModifiedTime = false;
               		try {
                                 String lastMod = line.substring(16);
-                        	modification.modifiedTime = OUT_DATE_FORMAT.parse(lastMod);
+                        	modification.modifiedTime = _outDateFormat.parse(lastMod);
                         }
                         catch (ParseException e) {
                             modification.modifiedTime = null;
