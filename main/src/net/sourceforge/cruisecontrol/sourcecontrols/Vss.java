@@ -57,23 +57,21 @@ import org.apache.log4j.Logger;
  */
 public class Vss implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(Vss.class);
+	/** enable logging for this class */
+	private static Logger log = Logger.getLogger(Vss.class);
 
-    private final String VSS_TEMP_FILE = "vsstempfile.txt";
-    protected SimpleDateFormat vssDateTimeFormat;
+	private final String VSS_TEMP_FILE = "vsstempfile.txt";
+	protected SimpleDateFormat vssDateTimeFormat;
 
 	private String ssdir;
-    private String vsspath;
-    private String serverPath;
+	private String vsspath;
+	private String serverPath;
 	private String login;
-    private String dateFormat;
+	private String dateFormat;
 
-    private Hashtable _properties = new Hashtable();
+	private Hashtable _properties = new Hashtable();
 	private String _property;
 	private String _propertyOnDelete;
-
-	private ArrayList modifications = new ArrayList();
 
     /**
      * Sets default values.
@@ -130,14 +128,14 @@ public class Vss implements SourceControl {
 		_property = property;
 	}
 
-  	/**
+	/**
 	 *  Choose a property to be set if the project has deletions
 	 *
-	 *@param  propertyOnDelete
+	 *  @param  propertyOnDelete
 	 */
-     public void setPropertyOnDelete(String propertyOnDelete) {
-		propertyOnDelete = propertyOnDelete;
-     }
+	public void setPropertyOnDelete(String propertyOnDelete) {
+		_propertyOnDelete = propertyOnDelete;
+	}
 
      /**
       * Sets the date format to use for querying VSS and processing reports.
@@ -164,43 +162,64 @@ public class Vss implements SourceControl {
             throw new CruiseControlException("'login' is a required attribute on Vss");
     }
 
-	/**
-	 * Calls
-     * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
-     * Results written to a file since VSS will start wrapping lines if read
-     * directly from the stream.
-	 *
-	 *@param  lastBuild
-	 *@param  now
-	 *@return List of modifications
-	 */
-	public List getModifications(Date lastBuild, Date now) {
-        //(PENDING) extract buildHistoryCommand, execHistoryCommand
-        // See CVSElement
+		/**
+		 * Calls
+		 * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
+		 * Results written to a file since VSS will start wrapping lines if read
+		 * directly from the stream.
+		 *
+		 *@param  lastBuild
+		 *@param  now
+		 *@return List of modifications
+		 */
+		public List getModifications(Date lastBuild, Date now) {
+			//(PENDING) extract buildHistoryCommand, execHistoryCommand
+			// See CVSElement
+			ArrayList modifications = new ArrayList();
+			try {
+				Properties systemProps = System.getProperties();
+				if(serverPath != null) {
+					systemProps.put("SSDIR", serverPath);
+				}
+				String[] env = new String[systemProps.size()];
+				int index = 0;
+				Iterator systemPropIterator = systemProps.keySet().iterator();
+				while(systemPropIterator.hasNext()) {
+					String propName = (String) systemPropIterator.next();
+					env[index] = propName + "=" + systemProps.get(propName);
+					index++;
+				}
 
-		try {
-            Properties systemProps = System.getProperties();
-            if(serverPath != null) {
-                systemProps.put("SSDIR", serverPath);
-            }
-            String[] env = new String[systemProps.size()];
-            int index = 0;
-            Iterator systemPropIterator = systemProps.keySet().iterator();
-            while(systemPropIterator.hasNext()) {
-                String propName = (String) systemPropIterator.next();
-                env[index] = propName + "=" + systemProps.get(propName);
-                index++;
-            }
+				Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
+				p.waitFor();
+				p.getInputStream().close();
+				p.getOutputStream().close();
+				p.getErrorStream().close();
 
-			Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
-			p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+				parseTempFile(modifications);
 
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			if (_property != null && modifications.size() > 0) {
+				_properties.put(_property, "true");
+			}
+
+			return modifications;
+		}
+
+		private void parseTempFile(ArrayList modifications) throws IOException {
 			BufferedReader reader = new BufferedReader(new FileReader(
-             new File(VSS_TEMP_FILE)));
+															new File(VSS_TEMP_FILE)));
 
+			parseHistoryEntries(modifications, reader);
+
+			reader.close();
+			new File(VSS_TEMP_FILE).delete();
+		}
+
+		private void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
 			String currLine = reader.readLine();
 			while (currLine != null) {
 				if (currLine.startsWith("***** ")) {
@@ -211,26 +230,13 @@ public class Vss implements SourceControl {
 						vssEntry.add(currLine);
 						currLine = reader.readLine();
 					}
-                    Modification mod = handleEntry(vssEntry);
-                    if(mod != null)
-                        modifications.add(mod);
+					Modification mod = handleEntry(vssEntry);
+					if(mod != null) modifications.add(mod);
 				} else {
 					currLine = reader.readLine();
 				}
 			}
-
-			reader.close();
-			new File(VSS_TEMP_FILE).delete();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
-		if (_property != null && modifications.size() > 0) {
-            _properties.put(_property, "true");
-		}
-
-		return modifications;
-	}
 
     protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
         String execCommand = null;
@@ -262,69 +268,76 @@ public class Vss implements SourceControl {
 
 	// ***** the rest of this is just parsing the vss output *****
 
-    //(PENDING) Extract class VSSEntryParser
+	//(PENDING) Extract class VSSEntryParser
 	/**
 	 *  Parse individual VSS history entry
 	 *
 	 *@param  historyEntry
 	 */
 	protected Modification handleEntry(List historyEntry) {
-        // Ignore unusual labels of directories which cause parsing errors that
-        // look like this:
-        //
-        // *****  built  *****
-        // Version 4
-        // Label: "autobuild_test"
-        // User: Etucker      Date:  6/26/01   Time: 11:53a
-        // Labeled
-        if ((historyEntry.size() > 4) &&
-            (((String) historyEntry.get(4)).startsWith("Labeled"))) {
-           return null;
-        }
+		// Ignore unusual labels of directories which cause parsing errors that
+		// look like this:
+		//
+		// *****  built  *****
+		// Version 4
+		// Label: "autobuild_test"
+		// User: Etucker      Date:  6/26/01   Time: 11:53a
+		// Labeled
+		if ((historyEntry.size() > 4) &&
+		   (((String) historyEntry.get(4)).startsWith("Labeled"))) {
+			return null;
+		}
 
-		Modification mod = new Modification();
-        String nameAndDateLine = (String) historyEntry.get(2);
-		mod.userName = parseUser(nameAndDateLine);
-		mod.modifiedTime = parseDate(nameAndDateLine);
+		Modification modification = new Modification();
+		String nameAndDateLine = (String) historyEntry.get(2);
+		modification.userName = parseUser(nameAndDateLine);
+		modification.modifiedTime = parseDate(nameAndDateLine);
 
-        String folderLine = (String) historyEntry.get(0);
-        String fileLine = (String) historyEntry.get(3);
+		String folderLine = (String) historyEntry.get(0);
+		String fileLine = (String) historyEntry.get(3);
 		if (fileLine.startsWith("Checked in")) {
-			mod.type = "checkin";
-			mod.comment = parseComment(historyEntry);
-			mod.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
-			mod.folderName = fileLine.substring(12);
+			modification.type = "checkin";
+			modification.comment = parseComment(historyEntry);
+			modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+			modification.folderName = fileLine.substring(12);
 		} else if (fileLine.endsWith("Created")) {
-            mod.type = "create";
-        } else {
-			mod.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
-            int lastSpace = fileLine.lastIndexOf(" ");
-            if ( lastSpace != -1 ) {
-              mod.fileName = fileLine.substring(0, lastSpace);
-            } else {
-              mod.fileName = fileLine;
-            }
+			modification.type = "create";
+		} else {
+			modification.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
+			int lastSpace = fileLine.lastIndexOf(" ");
+			if ( lastSpace != -1 ) {
+				modification.fileName = fileLine.substring(0, lastSpace);
+			} else {
+				modification.fileName = fileLine;
+			}
 
-            if (fileLine.endsWith("added")) {
-				mod.type = "add";
+			if (fileLine.endsWith("added")) {
+				modification.type = "add";
 			} else if (fileLine.endsWith("deleted")) {
-				mod.type = "delete";
+				modification.type = "delete";
+				addPropertyOnDelete();
 			} else if (fileLine.endsWith("recovered")) {
-				mod.type = "recover";
+				modification.type = "recover";
 			} else if (fileLine.endsWith("shared")) {
-                mod.type = "branch";
-            }
+				modification.type = "branch";
+			} else if (fileLine.indexOf(" renamed to ") != -1){
+				modification.fileName = fileLine;
+				modification.type = "rename";
+				addPropertyOnDelete();
+			}
 		}
 
-		if (_propertyOnDelete != null && "delete".equals(mod.type)) {
-            _properties.put(_propertyOnDelete, "true");
+		if (_property != null) {
+			_properties.put(_property,  "true");
 		}
 
-        if (_property != null) {
-    		_properties.put(_property,  "true");
-        }
+		return modification;
+	}
 
-        return mod;
+	private void addPropertyOnDelete() {
+		if (_propertyOnDelete != null) {
+			_properties.put(_propertyOnDelete, "true");
+		}
 	}
 
 	/**
