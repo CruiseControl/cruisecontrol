@@ -40,7 +40,7 @@
     <property environment="env"/>
     <property file="override.properties"/>
 
-    <property name="version" value="2.1.7-dev"/>
+    <property name="version" value="2.2-dev"/>
 
     <property name="docs" value="${basedir}/docs"/>
     <property name="apidocs" value="${docs}/api"/>
