@@ -185,7 +185,7 @@ public class ClearCase implements SourceControl {
         }
 
         command += " -nco -since " + lastBuildDate;
-        command += " -fmt \"%u"
+        command += " -fmt %u"
                 + DELIMITER
                 + "%Nd"
                 + DELIMITER
@@ -201,7 +201,7 @@ public class ClearCase implements SourceControl {
                 + DELIMITER
                 + "%Nc"
                 + END_OF_STRING_DELIMITER
-                + "\\n\"";
+                + "\\n";
 
         File root = new File(viewPath);
 
