@@ -198,20 +198,17 @@ public class MainTest extends TestCase {
         }
     }
 
-    public void testParseProjectName() throws Exception {
+    public void testParseProjectName() throws CruiseControlException {
         String[] correctArgs = new String[] {"-projectname", "myproject"};
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-projectname"};
 
-        assertEquals(main.parseProjectName(correctArgs), "myproject");
+        String projectName = main.parseProjectName(correctArgs);
+        assertEquals("myproject", projectName);
 
-        try {
-            main.parseProjectName(missingArgs);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
-        }
-
+        projectName = main.parseProjectName(missingArgs);
+        assertNull(projectName);
+ 
         try {
             main.parseProjectName(incorrectArgs);
             fail("Expected exception");
