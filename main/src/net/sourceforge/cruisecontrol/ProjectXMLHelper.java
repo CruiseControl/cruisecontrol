@@ -313,6 +313,7 @@ public class ProjectXMLHelper {
 
     protected void initDefaultPluginRegistry() {
         plugins = new HashMap();
+        // bootstrappers
         plugins.put(
             "currentbuildstatusbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
@@ -323,7 +324,7 @@ public class ProjectXMLHelper {
         plugins.put(
             "vssbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
-
+        // sourcecontrols
         plugins.put("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
         plugins.put("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
         plugins.put("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
@@ -333,15 +334,18 @@ public class ProjectXMLHelper {
         plugins.put("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         plugins.put("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
         plugins.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
-
+        // builders
         plugins.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
         plugins.put("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
         plugins.put("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
-
+        // label incrementer -- only one!
         plugins.put(
             "labelincrementer",
             "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
-
+        // publishers
+        plugins.put(
+            "artifactspublisher",
+            "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
         plugins.put(
             "currentbuildstatuspublisher",
             "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
@@ -349,6 +353,7 @@ public class ProjectXMLHelper {
         plugins.put("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
         plugins.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
         plugins.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
+        // other
         plugins.put("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
         plugins.put("schedule", "net.sourceforge.cruisecontrol.Schedule");
     }

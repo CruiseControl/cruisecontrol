@@ -165,6 +165,9 @@ public class ProjectXMLHelperTest extends TestCase {
             "labelincrementer",
             "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
         verifyPluginClass(
+            "artifactspublisher",
+            "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
+        verifyPluginClass(
             "currentbuildstatuspublisher",
             "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
         verifyPluginClass("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
