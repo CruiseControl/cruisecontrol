@@ -39,10 +39,12 @@ package net.sourceforge.cruisecontrol.builders;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.XMLFilter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -364,6 +366,11 @@ public class AntBuilder extends Builder {
                     new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
             bufferedReader.skip(skip);
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            // get rid of empty <task>- and <message>-elements created by Ant's XmlLogger
+            XMLFilter emptyTaskFilter = new EmptyElementFilter("task");
+            XMLFilter emptyMessageFilter = new EmptyElementFilter("message");
+            emptyMessageFilter.setParent(emptyTaskFilter);
+            builder.setXMLFilter(emptyMessageFilter);
             return builder.build(bufferedReader).getRootElement();
         } catch (Exception ee) {
             if (ee instanceof CruiseControlException) {
