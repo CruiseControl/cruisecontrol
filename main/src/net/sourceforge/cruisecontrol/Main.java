@@ -53,44 +53,70 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public final class Main {
+    
+    /**
+    * Parse password from arguments and override any existing password value
+    * from reading serialized Project info.
+    *
+    * @return final value of password.         
+    */
+    static String parsePassword(String[] args) {
+        String password = parseArgument(args, "password", null, null);
+        return password;
+    }
+    /**
+    * Parse user from arguments and override any existing user value
+    * from reading serialized Project info.
+    *
+    * @return final value of user.
+    */
+    static String parseUser(String[] args) {
+        String user = parseArgument(args, "user", null, null);
+        return user;
+    }
     private static final Logger LOG = Logger.getLogger(Main.class);
     public static final int NOT_FOUND = -1;
 
-    private Main() { }
-    
+    private Main() { }  
     /**
-     * Print the version, configure the project with serialized build info
-     * and/or arguments and start the project build process.
-     */
-    public static void main(String[] args) {
-        printVersion();
-        if (printUsage(args)) {
-            usage();
-        }
-        try {
-            if (findIndex(args, "debug") != NOT_FOUND) {
-                Logger.getRootLogger().setLevel(Level.DEBUG);
-            }
-            CruiseControlController controller = new CruiseControlController();
-            File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
-            controller.setConfigFile(configFile);
-            ServerXMLHelper helper = new ServerXMLHelper(configFile);
-            ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
-
-            if (shouldStartController(args)) {
-                CruiseControlControllerAgent agent
-                        = new CruiseControlControllerAgent(controller,
-                                                           parseHttpPort(args),
-                                                           parseRmiPort(args),
-                                                           parseXslPath(args));
-                agent.start();
-            }
-            controller.resume();
-        } catch (CruiseControlException e) {
-            LOG.fatal(e.getMessage());
-            usage();
-        }
-    }
+      * Print the version, configure the project with serialized build info
+      * and/or arguments and start the project build process.
+      */
+     public static void main(String[] args) {
+         printVersion();
+         if (printUsage(args)) {
+             usage();
+         }
+         try {
+             if (findIndex(args, "debug") != NOT_FOUND) {
+                 Logger.getRootLogger().setLevel(Level.DEBUG);
+             }
+             CruiseControlController controller = new CruiseControlController();
+             File configFile =
+                 new File(
+                     parseConfigFileName(
+                         args,
+                         CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
+             controller.setConfigFile(configFile);
+             ServerXMLHelper helper = new ServerXMLHelper(configFile);
+             ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
+             if (shouldStartController(args)) {
+                 CruiseControlControllerAgent agent =
+                     new CruiseControlControllerAgent(
+                         controller,
+                         parseHttpPort(args),
+                         parseRmiPort(args),
+                         parseUser(args),
+                         parsePassword(args),
+                         parseXslPath(args));
+                 agent.start();
+             }
+             controller.resume();
+         } catch (CruiseControlException e) {
+             LOG.fatal(e.getMessage());
+             usage();
+         }
+     }
 
     /**
      *  Displays the standard usage message and exit.
