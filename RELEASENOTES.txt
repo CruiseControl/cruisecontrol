@@ -75,6 +75,10 @@ ModificationSet
 * Fixed bogus "A modification was detected in the future" message
 * Now properly checks time of modficiations that are added as elements
 
+NavigationTag
+----------------------
+* Dates for navigation links now formatted according to the locale of the user's browser.a
+
 PluginXMLHelper
 ----------------------
 * add support for nested elements via add(<Type>)
@@ -91,6 +95,9 @@ PVCS
 * Added back up date format to try in case output date includes seconds. Patch by David Cole
 * Added additional parsing when project files includes project path. Patch by David Cole
 
+StatusHelper
+----------------------
+* Build dates now formatted according to the locale of the user's browser.a
 SVN
 ----------------------
 * Revert to using date instead of guessing at revision. Patch by Etienne Studer
