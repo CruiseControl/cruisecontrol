@@ -46,6 +46,8 @@ import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrappe
 import java.io.*;
 import java.util.*;
 
+import org.jdom.Element;
+
 /**
  * @author <a href="mailto:pdjulius@thoughtworks.com">Paul Julius</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -56,8 +58,7 @@ public class CruiseControlProperties {
 
     public static final String PROPS_NAME_JVM_ARG = "cc.props";
 
-    public static final String DEFAULT_PROPERTIES_FILENAME =
-        "cruisecontrol.properties";
+    public static final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
 
     private  List auxLogProperties = new ArrayList();
     private  Set buildmaster;
@@ -85,6 +86,30 @@ public class CruiseControlProperties {
     private  String cleanAntTarget;
     private  String labelIncrementerClassName;
     private  String reportSuccess;
+
+
+    /**
+     *  Since we'll be storing everything in the build log, we need the build info in an XML representation.  The
+     *  XML format is as follows:<br>
+     *
+     *  <pre>
+     *  <properties>
+     *     <reportsuccess value=""/>
+     *     <debug value=""/>
+     *     <verbose value=""/>
+     *     ...
+     *  </properties>
+     *  </pre>
+     *
+     *  @return JDOM <code>Element</code> of all of the build info.
+     */
+    public Element toElement() {
+        Element propertiesElement = new Element("properties");
+        Element intervalElement = new Element("interval");
+        intervalElement.setAttribute("seconds", "" + buildInterval/1000);
+        propertiesElement.addContent(intervalElement);
+        return propertiesElement;
+    }
 
     /**
      *  Factory method for creating an <code>LabelIncrementer</code> from the properties file, rather than making repeated calls
@@ -180,15 +205,17 @@ public class CruiseControlProperties {
 
 
     public CruiseControlProperties(String propertiesFile) throws IOException {
-
         if (propertiesFile == null
             || propertiesFile.trim().length() <= 0) {
             propertiesFile = DEFAULT_PROPERTIES_FILENAME;
         }
-
         //Try to load the actual properties file.
         loadProperties(propertiesFile);
     }
+
+    public CruiseControlProperties() {
+    }
+
 
     /**
      * Load properties file, see cruisecontrol.properties for descriptions of
@@ -198,8 +225,7 @@ public class CruiseControlProperties {
         File propFile = new File(propsFileName);
 
         if (!propFile.exists()) {
-            throw new FileNotFoundException("Properties file \"" + propFile.getAbsolutePath()
-                                            + "\" not found");
+            throw new FileNotFoundException("Properties file \"" + propFile.getAbsolutePath() + "\" not found");
         }
 
         Properties props = new Properties();
