@@ -160,11 +160,11 @@ public class Project implements Serializable {
         logFileElement.setAttribute("value", _logFileName.substring(_logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
 
+        _lastBuild = _now;
+        _buildCounter++;
         write();
         publish(cruisecontrolElement);
         cruisecontrolElement = null;
-        _lastBuild = _now;
-        _buildCounter++;
     }
 
     /**
