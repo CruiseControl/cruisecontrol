@@ -95,4 +95,7 @@
         <xsl:value-of select="text()"/><br class="none" />
     </xsl:template>
 
+    <xsl:template match="/">
+       <xsl:apply-templates select="." mode="javadoc"/>
+    </xsl:template>
 </xsl:stylesheet>

@@ -98,4 +98,7 @@
         </span>
     </xsl:template>
 
+    <xsl:template match="/">
+       <xsl:apply-templates select="." mode="nant"/>
+    </xsl:template>
 </xsl:stylesheet>
