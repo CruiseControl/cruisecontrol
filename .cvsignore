@@ -5,9 +5,12 @@ vssver.scc
 .project
 CruiseControl.iws
 CruiseControl.ipr
+CruiseControl.iml
 test-results
 _auxLogs
 logs
 myproject.ser
+cruisecontrol.zip
+intellij-out
 
 
