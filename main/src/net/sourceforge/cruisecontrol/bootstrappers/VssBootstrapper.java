@@ -36,151 +36,138 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.sourcecontrols.VSSHelper;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Properties;
-
 
 public class VssBootstrapper implements Bootstrapper {
 
-  private static final Logger LOG = Logger.getLogger(VssBootstrapper.class);
+    private static final Logger LOG = Logger.getLogger(VssBootstrapper.class);
 
-  private String ssDir;
-  private String serverPath;
+    private String ssDir;
+    private String serverPath;
 
-  private String vssPath;
-  private String localDirectory;
-  private String login;
+    private String vssPath;
+    private String localDirectory;
+    private String login;
 
-  public void bootstrap() throws CruiseControlException {
-    String commandLine = generateCommandLine();
+    public void bootstrap() throws CruiseControlException {
+        String commandLine = generateCommandLine();
 
-    try {
-      Properties systemProps = System.getProperties();
-      if (serverPath != null) {
-        systemProps.put("SSDIR", serverPath);
-      }
-      String[] env = new String[systemProps.size()];
-      int index = 0;
-      Iterator systemPropIterator = systemProps.keySet().iterator();
-      while (systemPropIterator.hasNext()) {
-        String propName = (String) systemPropIterator.next();
-        env[index] = propName + "=" + systemProps.get(propName);
-        index++;
-      }
+        try {
+            String[] env = VSSHelper.loadVSSEnvironment(serverPath);
 
-      Process p = Runtime.getRuntime().exec(commandLine, env);
-      InputStream errorIn = p.getErrorStream();
-      PrintWriter errorOut = new PrintWriter(System.err, true);
-      StreamPumper errorPumper = new StreamPumper(errorIn, errorOut);
-      new Thread(errorPumper).start();
-      p.waitFor();
-      p.getInputStream().close();
-      p.getOutputStream().close();
-      p.getErrorStream().close();
-    } catch (IOException ex) {
-      LOG.debug("exception trying to exec ss.exe", ex);
-      throw new CruiseControlException(ex);
-    } catch (InterruptedException ex) {
-      LOG.debug("interrupted during get", ex);
-      throw new CruiseControlException(ex);
+            Process p = Runtime.getRuntime().exec(commandLine, env);
+            InputStream errorIn = p.getErrorStream();
+            PrintWriter errorOut = new PrintWriter(System.err, true);
+            StreamPumper errorPumper = new StreamPumper(errorIn, errorOut);
+            new Thread(errorPumper).start();
+            p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
+        } catch (IOException ex) {
+            LOG.debug("exception trying to exec ss.exe", ex);
+            throw new CruiseControlException(ex);
+        } catch (InterruptedException ex) {
+            LOG.debug("interrupted during get", ex);
+            throw new CruiseControlException(ex);
+        }
     }
-  }
 
-  public void validate() throws CruiseControlException {
-    if (vssPath == null || localDirectory == null) {
-        throw new CruiseControlException("VssBootstrapper has required attributes vssPath and localDirectory");
+    public void validate() throws CruiseControlException {
+        if (vssPath == null || localDirectory == null) {
+            throw new CruiseControlException("VssBootstrapper has required attributes vssPath and localDirectory");
+        }
+        File localDirForFile = new File(localDirectory);
+        boolean dirExists = localDirForFile.exists();
+        if (!dirExists) {
+            LOG.debug("local directory [" + localDirectory + "] does not exist");
+            throw new CruiseControlException(
+                "file path attribute value "
+                    + localDirectory
+                    + " must specify an existing directory.");
+        }
+        boolean isDir = localDirForFile.isDirectory();
+        if (!isDir) {
+            LOG.debug("local directory [" + localDirectory + "] is not a directory");
+            throw new CruiseControlException(
+                "file path attribute value "
+                    + localDirectory
+                    + " must specify an existing directory, not a file.");
+        }
+        setLocalDirectory(localDirForFile.getAbsolutePath());
     }
-    File localDirForFile = new File(localDirectory);
-    boolean dirExists = localDirForFile.exists();
-    if (!dirExists) {
-        LOG.debug("local directory [" + localDirectory + "] does not exist");
-        throw new CruiseControlException(
-            "file path attribute value "
-                + localDirectory
-                + " must specify an existing directory.");
+
+    String generateCommandLine() {
+        StringBuffer commandLine = new StringBuffer();
+        final String backslash = "\\";
+        // optionally prefix the executable
+        if (ssDir != null) {
+            commandLine.append(ssDir).append(ssDir.endsWith(backslash) ? "" : backslash);
+        }
+        final String quote = "\"";
+        commandLine.append("ss.exe get ");
+        // check for leading "$", to be argument-compatible with other tasks
+        if (vssPath != null) {
+            String pathPrefix = vssPath.startsWith("$") ? "" : "$";
+            commandLine.append(quote + pathPrefix + vssPath + quote);
+        }
+        commandLine.append(" -GL");
+        commandLine.append(quote + localDirectory + quote);
+        commandLine.append(" -I-N");
+        if (login != null) {
+            commandLine.append(" -Y" + login);
+        }
+
+        return commandLine.toString();
     }
-    boolean isDir = localDirForFile.isDirectory();
-    if (!isDir) {
-        LOG.debug(
-            "local directory [" + localDirectory + "] is not a directory");
-        throw new CruiseControlException(
-            "file path attribute value "
-                + localDirectory
-                + " must specify an existing directory, not a file.");
+
+    /**
+     * Required.
+     * @param vssPath fully qualified VSS path to the file ($/Project/subproject/filename.ext)
+     */
+    public void setVssPath(String vssPath) {
+        this.vssPath = vssPath;
     }
-    setLocalDirectory(localDirForFile.getAbsolutePath());
-  }
 
-  String generateCommandLine() {
-    StringBuffer commandLine = new StringBuffer();
-    final String backslash = "\\";
-    // optionally prefix the executable
-    if (ssDir != null) {
-        commandLine.append(ssDir).append(ssDir.endsWith(backslash) ? "" : backslash);
+    /***
+     * Optional.
+     * @param ssDir Path to the directory containing ss.exe. Assumes that ss.exe is in the path by default.
+     */
+    public void setSsDir(String ssDir) {
+        this.ssDir = ssDir;
     }
-    final String quote = "\"";
-    commandLine.append("ss.exe get ");
-    // check for leading "$", to be argument-compatible with other tasks
-    if (vssPath != null) {
-        String pathPrefix = vssPath.startsWith("$") ? "" : "$";
-        commandLine.append(quote + pathPrefix + vssPath + quote);
+
+    /**
+     * Optional.
+     * @param serverPath The path to the directory containing the srcsafe.ini file.
+     */
+    public void setServerPath(String serverPath) {
+        this.serverPath = serverPath;
     }
-    commandLine.append(" -GL");
-    commandLine.append(quote + localDirectory + quote);
-    commandLine.append(" -I-N");
-    if (login != null) { 
-        commandLine.append(" -Y" + login);
+
+    /**
+     * Required.
+     * @param localDirectory fully qualified path for the destination directory (c:\directory\subdirectory\)
+     */
+    public void setLocalDirectory(String localDirectory) {
+        this.localDirectory = localDirectory;
     }
-    
-    return commandLine.toString();
-  }
 
-  /**
-   * Required.
-   * @param vssPath fully qualified VSS path to the file ($/Project/subproject/filename.ext)
-   */
-  public void setVssPath(String vssPath) {
-    this.vssPath = vssPath;
-  }
-
-  /***
-   * Optional.
-   * @param ssDir Path to the directory containing ss.exe. Assumes that ss.exe is in the path by default.
-   */
-   public void setSsDir(String ssDir) {
-     this.ssDir = ssDir;
-   }
-
-  /**
-   * Optional.
-   * @param serverPath The path to the directory containing the srcsafe.ini file.
-   */
-  public void setServerPath(String serverPath) {
-    this.serverPath = serverPath;
-  }
-
-  /**
-   * Required.
-   * @param localDirectory fully qualified path for the destination directory (c:\directory\subdirectory\)
-   */
-  public void setLocalDirectory(String localDirectory) {
-    this.localDirectory = localDirectory;
-  }
-
-  /**
-   * Optional.
-   * @param login vss login information in the form username,password\
-   */
-  public void setLogin(String login) {
-    this.login = login;
-  }
+    /**
+     * Optional.
+     * @param login vss login information in the form username,password\
+     */
+    public void setLogin(String login) {
+        this.login = login;
+    }
 }

@@ -85,8 +85,8 @@ public class P4 implements SourceControl {
     private String p4Client;
     private String p4User;
     private String p4View;
-    private static final SimpleDateFormat P4_DATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private static final SimpleDateFormat P4_REVISION_DATE = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+    private static final SimpleDateFormat P4_REVISION_DATE =
+        new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
     private Hashtable properties = new Hashtable();
 
@@ -106,16 +106,12 @@ public class P4 implements SourceControl {
         this.p4View = p4View;
     }
 
-    /** 
-     * Unsupported by P4. 
-     */
     public void setProperty(String property) {
+        throw new UnsupportedOperationException("Set property not supported by P4");
     }
 
-    /** 
-     * Unsupported by P4. 
-     */
     public void setPropertyOnDelete(String propertyOnDelete) {
+        throw new UnsupportedOperationException("Set property on delete not supported by P4");
     }
 
     public Hashtable getProperties() {
@@ -284,7 +280,10 @@ public class P4 implements SourceControl {
                 try {
                     previousLine = line.substring(5).trim();
                 } catch (Exception e) {
-                    LOG.error("Error parsing Perforce description, line that caused problem was: [" + line + "]");
+                    LOG.error(
+                        "Error parsing Perforce description, line that caused problem was: ["
+                            + line
+                            + "]");
                 }
 
             }
@@ -293,11 +292,13 @@ public class P4 implements SourceControl {
             // Ok, read affected files if there are any.
             if (line != null) {
                 reader.readLine(); // read past next 'text:'
-                while ((line = readToNotPast(reader, "info1:", "text:")) != null && line.startsWith("info1:")) {
+                while ((line = readToNotPast(reader, "info1:", "text:")) != null
+                    && line.startsWith("info1:")) {
                     AffectedFile affectedFile = new AffectedFile();
                     affectedFile.filename = line.substring(7, line.lastIndexOf(" ") - 2);
                     affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
-                    affectedFile.revision = line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
+                    affectedFile.revision =
+                        line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
                     changelist.affectedFiles.add(affectedFile);
                 }
             }
@@ -307,40 +308,18 @@ public class P4 implements SourceControl {
         return changelists;
     }
 
-    private boolean preJava13() {
-        String javaVersion = System.getProperty("java.version");
-        return javaVersion.startsWith("1.1") || javaVersion.startsWith("1.2");
-    }
-
     private void logErrorStream(InputStream is) {
         StreamPumper errorPumper = new StreamPumper(is, new PrintWriter(System.err, true));
         new Thread(errorPumper).start();
     }
 
     /**
-     *@param lastBuildTime
+     * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      */
     public Commandline buildChangesCommand(Date lastBuildTime, Date now) {
-        Commandline commandLine = new Commandline();
-        commandLine.setExecutable("p4");
-        commandLine.createArgument().setValue("-s");
+        Commandline commandLine = buildBaseP4Command();
 
-        if (p4Client != null) {
-            commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(p4Client);
-        }
-
-        if (p4Port != null) {
-            commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(p4Port);
-        }
-
-        if (p4User != null) {
-            commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(p4User);
-        }
-
-//        execP4Command("changes -m 1 -s submitted " + _P4View,
+        //        execP4Command("changes -m 1 -s submitted " + _P4View,
 
         commandLine.createArgument().setValue("changes");
         commandLine.createArgument().setValue("-s");
@@ -355,8 +334,25 @@ public class P4 implements SourceControl {
         return commandLine;
     }
 
+    /**
+     * p4 -s [-c client] [-p port] [-u user] describe -s [change number]
+     */
     public Commandline buildDescribeCommand(String[] changelistNumbers) {
+        Commandline commandLine = buildBaseP4Command();
 
+        //        execP4Command("describe -s " + changeNumber.toString(),
+
+        commandLine.createArgument().setValue("describe");
+        commandLine.createArgument().setValue("-s");
+
+        for (int i = 0; i < changelistNumbers.length; i++) {
+            commandLine.createArgument().setValue(changelistNumbers[i]);
+        }
+
+        return commandLine;
+    }
+
+    private Commandline buildBaseP4Command() {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
         commandLine.createArgument().setValue("-s");
@@ -375,16 +371,6 @@ public class P4 implements SourceControl {
             commandLine.createArgument().setValue("-u");
             commandLine.createArgument().setValue(p4User);
         }
-
-//        execP4Command("describe -s " + changeNumber.toString(),
-
-        commandLine.createArgument().setValue("describe");
-        commandLine.createArgument().setValue("-s");
-
-        for (int i = 0; i < changelistNumbers.length; i++) {
-            commandLine.createArgument().setValue(changelistNumbers[i]);
-        }
-
         return commandLine;
     }
 
@@ -394,15 +380,16 @@ public class P4 implements SourceControl {
      * be darn hard to use in places where I acctually need the notPast line.
      * Or did I missunderatnd something?
      */
-    private String readToNotPast(BufferedReader reader, String beginsWith,
-                                 String notPast) throws IOException {
-        boolean checkingNotPast = notPast != null;
+    private String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
+        throws IOException {
 
         String nextLine = reader.readLine();
 
         // (!A && !B) || (!A && !C) || (!B && !C)
         // !A || !B || !C
-        while (!(nextLine == null || nextLine.startsWith(beginsWith) || nextLine.startsWith(notPast))) {
+        while (!(nextLine == null
+            || nextLine.startsWith(beginsWith)
+            || nextLine.startsWith(notPast))) {
             nextLine = reader.readLine();
         }
         return nextLine;
@@ -437,7 +424,7 @@ public class P4 implements SourceControl {
             }
             return changelistElement;
         }
-        
+
     }
 
     class AffectedFile {

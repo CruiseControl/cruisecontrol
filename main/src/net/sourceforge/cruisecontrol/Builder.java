@@ -44,9 +44,10 @@ import java.util.Date;
 import java.util.Map;
 
 public abstract class Builder implements Comparable {
-    
+
     public static final int NOT_SET = -1;
-    
+    protected static final int INVALID_NAME_OF_DAY = -2;
+
     private int day = NOT_SET;
     private int time = NOT_SET;
     private int multiple = 1;
@@ -82,6 +83,8 @@ public abstract class Builder implements Comparable {
             day = Calendar.FRIDAY;
         } else if (dayString.equalsIgnoreCase("saturday")) {
             day = Calendar.SATURDAY;
+        } else {
+            day = INVALID_NAME_OF_DAY;
         }
     }
 

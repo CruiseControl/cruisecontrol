@@ -36,18 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.List;
-import java.text.SimpleDateFormat;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
     private final List filesToClear = new ArrayList();
@@ -65,7 +65,6 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         }
     }
 
-
     public void testValidate() {
         CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
         try {
@@ -81,16 +80,21 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         }
     }
 
-    public void testWriteFile() {
+    public void testBootstrap() {
         CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
         cbsb.setFile("_testCurrentBuildStatus.txt");
         filesToClear.add(new File("_testCurrentBuildStatus.txt"));
-        Date date = new Date();
 
         try {
-            cbsb.writeFile(date);
+            cbsb.bootstrap();
+            // This should be equivalent to the date used in bootstrap at seconds precision
+            Date date = new Date();
+
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            String expected = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
+            String expected =
+                "<span class=\"link\">Current Build Started At:<br>"
+                    + formatter.format(date)
+                    + "</span>";
             assertEquals(expected, readFileToString("_testCurrentBuildStatus.txt"));
         } catch (CruiseControlException cce2) {
             cce2.printStackTrace();

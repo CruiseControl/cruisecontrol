@@ -36,14 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
+import java.util.Date;
+
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
 
@@ -54,7 +51,10 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     }
 
     public void bootstrap() throws CruiseControlException {
-        writeFile(new Date());
+        CurrentBuildFileWriter.writefile(
+            "<span class=\"link\">Current Build Started At:<br>",
+            new Date(),
+            fileName);
     }
 
     public void validate() throws CruiseControlException {
@@ -63,21 +63,4 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
         }
     }
 
-    protected void writeFile(Date date) throws CruiseControlException {
-        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
-        StringBuffer sb = new StringBuffer();
-        sb.append("<span class=\"link\">Current Build Started At:<br>");
-        sb.append(formatter.format(date));
-        sb.append("</span>");
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(fileName);
-            fw.write(sb.toString());
-            fw.close();
-        } catch (IOException ioe) {
-            throw new CruiseControlException("Error Writing File: " + fileName);
-        } finally {
-            fw = null;
-        }
-    }
 }

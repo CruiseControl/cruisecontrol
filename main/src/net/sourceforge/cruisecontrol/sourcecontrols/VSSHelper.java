@@ -34,49 +34,33 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.publishers;
+package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.Date;
+import java.util.Iterator;
+import java.util.Properties;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
-import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+/**
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @version $Id$ 
+ */
+public class VSSHelper {
 
-import org.jdom.Element;
-
-public class CurrentBuildStatusPublisher implements Publisher {
-
-    private String fileName;
-
-    public void setFile(String fileName) {
-        this.fileName = fileName;
-    }
-
-    /**
-     *  Called after the configuration is read to make sure that all the mandatory parameters
-     *  were specified..
-     *
-     *  @throws CruiseControlException if there was a configuration error.
-     */
-    public void validate() throws CruiseControlException {
-        if (fileName == null) {
-            throw new CruiseControlException("'filename' is required for CurrentBuildStatusPublisher");
+    public static String[] loadVSSEnvironment(String serverPath) {
+        Properties systemProps = System.getProperties();
+        if (serverPath != null) {
+            systemProps.put("SSDIR", serverPath);
         }
+        String[] env = new String[systemProps.size()];
+        
+        int index = 0;
+        Iterator systemPropIterator = systemProps.keySet().iterator();
+        while (systemPropIterator.hasNext()) {
+            String propName = (String) systemPropIterator.next();
+            env[index] = propName + "=" + systemProps.get(propName);
+            index++;
+        }
+        
+        return env;
     }
 
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        long interval = Long.parseLong(helper.getCruiseControlInfoProperty("interval"));
-        writeFile(new Date(), interval);
-    }
-
-    protected void writeFile(Date date, long interval) throws CruiseControlException {
-        Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
-
-        CurrentBuildFileWriter.writefile(
-            "<span class=\"link\">Next Build Starts At:<br>",
-            datePlusInterval,
-            fileName);
-    }
 }

@@ -40,6 +40,9 @@ import net.sourceforge.cruisecontrol.util.Util;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+
+import org.jdom.Element;
 
 /**
  *  Used by <code>Schedule</code> to define periods of time when CruiseControl
@@ -48,12 +51,10 @@ import java.util.Date;
  *
  *  @author Alden Almagro
  */
-public class PauseBuilder {
+public class PauseBuilder extends Builder {
 
-    private int day = -1;
     private int startTime = -1;
     private int endTime = -1;
-    private static final int INVALID_NAME_OF_DAY = -2;
 
     public void validate() throws CruiseControlException {
         if (startTime < 0) {
@@ -62,31 +63,10 @@ public class PauseBuilder {
         if (endTime < 0) {
             throw new CruiseControlException("'endtime' is a required attribute on PauseBuilder");
         }
-        if (day == INVALID_NAME_OF_DAY) {
+        if (getDay() == INVALID_NAME_OF_DAY) {
             throw new CruiseControlException(
                 "setDay attribute on PauseBuilder requires english name for "
                     + " day of week (case insensitive)");
-        }
-    }
-
-
-    public void setDay(String dayString) {
-        if (dayString.equalsIgnoreCase("sunday")) {
-            day = Calendar.SUNDAY;
-        } else if (dayString.equalsIgnoreCase("monday")) {
-            day = Calendar.MONDAY;
-        } else if (dayString.equalsIgnoreCase("tuesday")) {
-            day = Calendar.TUESDAY;
-        } else if (dayString.equalsIgnoreCase("wednesday")) {
-            day = Calendar.WEDNESDAY;
-        } else if (dayString.equalsIgnoreCase("thursday")) {
-            day = Calendar.THURSDAY;
-        } else if (dayString.equalsIgnoreCase("friday")) {
-            day = Calendar.FRIDAY;
-        } else if (dayString.equalsIgnoreCase("saturday")) {
-            day = Calendar.SATURDAY;
-        } else {
-            day = INVALID_NAME_OF_DAY;
         }
     }
 
@@ -119,7 +99,8 @@ public class PauseBuilder {
         int currentDay = now.get(Calendar.DAY_OF_WEEK);
         int currentTime = Util.getTimeFromDate(date);
 
-        boolean isValidDay = ((day < 0) || (day == currentDay));
+        int builderDay = getDay();
+        boolean isValidDay = ((builderDay < 0) || (builderDay == currentDay));
 
         if (startTime < endTime) {
             return (
@@ -129,9 +110,16 @@ public class PauseBuilder {
         }
 
         return (
-            (startTime <= currentTime && (day < 0 || day == currentDay))
+            (startTime <= currentTime && (builderDay < 0 || builderDay == currentDay))
                 || (currentTime <= endTime
-                    && (day < 0 || day == (currentDay - 1))));
+                    && (builderDay < 0 || builderDay == (currentDay - 1))));
     }
-    
+
+    /**
+     * @see net.sourceforge.cruisecontrol.Builder#build(java.util.Map)
+     */
+    public Element build(Map properties) throws CruiseControlException {
+        throw new UnsupportedOperationException("Should not call build on a PauseBuilder");
+    }
+
 }

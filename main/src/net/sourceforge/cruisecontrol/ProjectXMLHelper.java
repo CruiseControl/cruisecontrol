@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- *  class to instantiate a project from a JDOM Element
+ *  Instantiates a project from a JDOM Element
  */
 public class ProjectXMLHelper {
 
@@ -62,7 +62,7 @@ public class ProjectXMLHelper {
 
     public ProjectXMLHelper() {
         initDefaultPluginRegistry();
-    };
+    }
 
     public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
         this();
@@ -79,7 +79,7 @@ public class ProjectXMLHelper {
             throw new CruiseControlException("Project not found in config file: " + projName);
         }
 
-        this.projectName = projName;
+        projectName = projName;
         setDateFormat(projectElement);
 
         Iterator pluginIterator = projectElement.getChildren("plugin").iterator();
@@ -123,7 +123,7 @@ public class ProjectXMLHelper {
         if (logElement != null) {
             String logDirValue = logElement.getAttributeValue("dir");
             if (logDirValue != null) {
-              logDir = logDirValue;
+                logDir = logDirValue;
             }
         }
 
@@ -193,6 +193,8 @@ public class ProjectXMLHelper {
         Iterator builderIterator = scheduleElement.getChildren().iterator();
         while (builderIterator.hasNext()) {
             Element builderElement = (Element) builderIterator.next();
+            // TODO: PauseBuilder should be able to be handled like any other
+            // Builder
             if (builderElement.getName().equalsIgnoreCase("pause")) {
                 PauseBuilder pauseBuilder = (PauseBuilder) configurePlugin(builderElement, false);
                 pauseBuilder.validate();
@@ -204,6 +206,7 @@ public class ProjectXMLHelper {
             }
         }
         schedule.validate();
+        
         return schedule;
     }
 
@@ -296,7 +299,7 @@ public class ProjectXMLHelper {
     }
 
     /**
-     *  TO DO: also check that instantiated class implements/extends correct interface/class
+     *  TODO: also check that instantiated class implements/extends correct interface/class
      */
     protected Object configurePlugin(Element pluginElement, boolean skipChildElements)
         throws CruiseControlException {

@@ -34,49 +34,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.publishers;
+package net.sourceforge.cruisecontrol.util;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
-import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
 
-import org.jdom.Element;
+/**
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @version $Id$
+ */
+public class CurrentBuildFileWriter {
 
-public class CurrentBuildStatusPublisher implements Publisher {
-
-    private String fileName;
-
-    public void setFile(String fileName) {
-        this.fileName = fileName;
-    }
-
-    /**
-     *  Called after the configuration is read to make sure that all the mandatory parameters
-     *  were specified..
-     *
-     *  @throws CruiseControlException if there was a configuration error.
-     */
-    public void validate() throws CruiseControlException {
-        if (fileName == null) {
-            throw new CruiseControlException("'filename' is required for CurrentBuildStatusPublisher");
+    public static void writefile(String info, Date date, String fileName)
+        throws CruiseControlException {
+            
+        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+        StringBuffer sb = new StringBuffer();
+        sb.append(info);
+        sb.append(formatter.format(date));
+        sb.append("</span>");
+        
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(fileName);
+            fw.write(sb.toString());
+            fw.close();
+        } catch (IOException ioe) {
+            throw new CruiseControlException("Error Writing File: " + fileName);
+        } finally {
+            fw = null;
         }
     }
 
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        long interval = Long.parseLong(helper.getCruiseControlInfoProperty("interval"));
-        writeFile(new Date(), interval);
-    }
-
-    protected void writeFile(Date date, long interval) throws CruiseControlException {
-        Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
-
-        CurrentBuildFileWriter.writefile(
-            "<span class=\"link\">Next Build Starts At:<br>",
-            datePlusInterval,
-            fileName);
-    }
 }
