@@ -36,72 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-
-import net.sourceforge.cruisecontrol.Project;
-
-import org.apache.log4j.Logger;
-
-import com.sun.jdmk.comm.HtmlAdaptorServer;
+import java.util.List;
+import javax.management.InvalidAttributeValueException;
 
 /**
- * JMX agent for a ProjectController
  *
- * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
- * @see ProjectController
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class ProjectControllerAgent {
+public interface CruiseControlControllerJMXAdaptorMBean {
 
-    private static final Logger LOG = Logger.getLogger(ProjectControllerAgent.class);
+    String getConfigFileName();
+    void setConfigFileName(String fileName) throws InvalidAttributeValueException;
 
-    private HtmlAdaptorServer adaptor = new HtmlAdaptorServer();
-    private int port;
-    private Project project;
+    List getProjects();
 
-    public ProjectControllerAgent(Project project, int port) {
-        this.port = port;
-        this.project = project;
-
-        MBeanServer server = MBeanServerFactory.createMBeanServer();
-
-        try {
-            createAndRegisterController(server);
-        } catch (Exception e) {
-            LOG.error("Problem registering ProjectController", e);
-        }
-
-        try {
-            registerHTMLAdaptor(server);
-        } catch (Exception e) {
-            LOG.error("Problem registering HTML adaptor", e);
-        }
-    }
-
-    public void start() {
-        adaptor.start();
-    }
-
-    public void stop() {
-        adaptor.stop();
-    }
-
-    private void createAndRegisterController(MBeanServer server)
-            throws Exception {
-
-        ProjectController controller = new ProjectController(project);
-        ObjectName controllerName = new ObjectName(
-                "CruiseControl Manager:adminPort=" + port);
-        server.registerMBean(controller, controllerName);
-    }
-
-    private void registerHTMLAdaptor(MBeanServer server) throws Exception {
-        adaptor.setPort(port);
-
-        ObjectName adaptorName = new ObjectName("Adaptor:name=html,port="
-                + port);
-        server.registerMBean(adaptor, adaptorName);
-    }
-
+    void start();
+    void stop();
 }
