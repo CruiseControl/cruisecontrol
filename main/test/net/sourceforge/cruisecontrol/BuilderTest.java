@@ -50,8 +50,8 @@ import junit.framework.TestCase;
  */
 public class BuilderTest extends TestCase {
 
-    Builder builder;
-    Calendar nov22nd2001;
+    private Builder builder;
+    private Calendar nov22nd2001;
 
     public BuilderTest(String name) {
         super(name);
