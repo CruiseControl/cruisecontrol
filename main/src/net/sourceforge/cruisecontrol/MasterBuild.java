@@ -211,12 +211,14 @@ public class MasterBuild {
             log.debug("Using normal target: " + props.getAntTarget());
             target = props.getAntTarget();
         }
+/*
         BuildRunner runner = new BuildRunner(props.getAntFile(), target,
                                              info.getLastGoodBuild(),
                                              info.getLastBuild (),
                                              info.getLabel(), logger);
 
         boolean successful = runner.runBuild();
+*/
 
         //doing this temporarily to simulate a build log for CurrentBuildStatusPublisher.
         Element buildLog = new Element("build");
@@ -230,9 +232,11 @@ public class MasterBuild {
         currentBuildStatusPublisher.publish(buildLog);
 
 
+/*
         checkModificationSetInvoked(runner.getProject());
         
         buildFinished(runner.getProject(), successful);
+*/
 
         //(PENDING) do this in buildFinished?
         if (info.isBuildNotNecessary()) {
@@ -266,7 +270,7 @@ public class MasterBuild {
             }            
             info.write(); 
         }
-        runner.reset();
+        //runner.reset();
     }
 
     /**
