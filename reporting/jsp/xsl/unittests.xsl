@@ -53,10 +53,8 @@
 
             <!-- Unit Tests -->
             <tr>
-                <td bgcolor="#000066" colspan="10">
-                    <font face="arial" size="2" color="#FFFFFF">
-                        &#160;Unit Tests: (<xsl:value-of select="count($testcase.list)"/>)
-                    </font>
+                <td class="unittests-sectionheader" colspan="10">
+                   &#160;Unit Tests: (<xsl:value-of select="count($testcase.list)"/>)
                 </td>
             </tr>
 
@@ -93,11 +91,8 @@
             <xsl:if test="$totalErrorsAndFailures > 0">
 
               <tr>
-                <td bgcolor="#000066" colspan="10">
-                    <font face="arial" size="2" color="#FFFFFF">
-                        &#160;Unit Test Error Details:&#160;(
-                         <xsl:value-of select="$totalErrorsAndFailures"/>)
-                    </font>
+                <td class="unittests-sectionheader" colspan="10">
+                    &#160;Unit Test Error Details:&#160;(<xsl:value-of select="$totalErrorsAndFailures"/>)
                 </td>
               </tr>
 
