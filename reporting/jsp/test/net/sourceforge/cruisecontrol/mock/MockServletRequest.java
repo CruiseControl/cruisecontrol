@@ -59,6 +59,7 @@ public class MockServletRequest implements HttpServletRequest {
     private String contextPath = "";
     private String servletPath;
     private Map params = new HashMap();
+    private String pathInfo;
 
     public MockServletRequest() {
     }
@@ -199,7 +200,7 @@ public class MockServletRequest implements HttpServletRequest {
     }
 
     public String getPathInfo() {
-        return null;
+        return pathInfo;
     }
 
     public String getPathTranslated() {
@@ -274,5 +275,9 @@ public class MockServletRequest implements HttpServletRequest {
     public ArrayList removeParameter(String paramName) {
         ArrayList values = (ArrayList) params.remove(paramName);
         return values;
+    }
+
+    public void setPathInfo(String info) {
+        pathInfo = info;
     }
 }
