@@ -38,7 +38,7 @@
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <html>
 <head>
-  <title></title>
+  <title>CruiseControl Build Results</title>
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
 </head>
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
@@ -49,7 +49,7 @@
     </tr>
     <tr>
       <td width="180" valign="top">
-        <img src="images/continuousintegration.gif" border="0"><br>
+        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
         <table border="0" align="center" width="98%">
             <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
             <tr><td>&nbsp;</td></tr>
