@@ -36,353 +36,64 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.element.*;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.Task;
+import org.jdom.Element;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 /**
- * This class is designed to record the modifications made to the source control
- * management system since the last build.
  *
- * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
- * @author Suresh K Bathala
  */
-public class ModificationSet extends Task {
+public class ModificationSet {
 
-    private Date _lastBuild;
-    private long _quietPeriod;
-    private ArrayList sourceControlElements = new ArrayList();
-
-    private long _lastModified;
-    private DateFormat _formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
-
-    private Set _emails = new HashSet();
-
-    private boolean _useServerTime = false;
-
-    public final static String MODIFICATIONSET_INVOKED = "modificationset.invoked";
-    public final static String BUILDUNNECESSARY = "modificationset.buildunnecessary";
-    public final static String SNAPSHOTTIMESTAMP = "modificationset.snapshottimestamp";
-    public final static String USERS = "modificationset.users";
-
-    private final static SimpleDateFormat _simpleDateFormat =
-            new SimpleDateFormat("yyyyMMddHHmmss");
-
-    public void setDateFormat(String format) {
-        if (format != null && format.length() > 0) {
-            _formatter = new SimpleDateFormat(format);
-        }
-    }
-
-    public void setUseservertime(boolean useServerTime) {
-        _useServerTime = useServerTime;
-    }
+    private List _modifications = new ArrayList();
+    private List _sourceControls = new ArrayList();
+    private SimpleDateFormat _formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private int _quietPeriod;
 
     /**
-     * set the timestamp of the last build time. String should be formatted as
-     * "yyyyMMddHHmmss"
      *
-     * @param lastBuild
      */
-    public void setLastBuild(String lastBuild) {
-        try {
-            _lastBuild = _simpleDateFormat.parse(lastBuild);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Set the number of seconds that the repository has to be quiet before
-     * building to avoid building while checkins are in progress
-     *
-     * @param seconds
-     */
-    public void setQuietPeriod(long seconds) {
+    public void setQuietPeriod(int seconds) {
         _quietPeriod = seconds * 1000;
     }
 
     /**
-     * do stuff, namely get all modifications since the last build time, and
-     * make sure that the appropriate quiet period is enforced so that we aren't
-     * building with 1/2 of someone's checkins.
      *
-     * @throws BuildException
      */
-    public void execute() throws BuildException {
-        getProject().setProperty(MODIFICATIONSET_INVOKED, "true");
+    public void setDateFormat(String dateFormat) {
+        _formatter = new SimpleDateFormat(dateFormat);
+    }
 
-        Date currentDate = new Date();
-        List modifications = new ArrayList();
+    public void addSourceControl(SourceControl sourceControl) {
+        _sourceControls.add(sourceControl);
+    }
 
-        long currentTime = 0;
-        try {
-
-            if (_lastBuild != null) {
-                _lastModified = _lastBuild.getTime();
-            }  else {
-                _lastModified = currentDate.getTime();
-            }
-
-            modifications = processSourceControlElements(currentDate, _lastBuild);
-
-            currentTime = currentDate.getTime();
-            while (tooMuchRepositoryActivity(currentTime)) {
-                long sleepTime = calculateSleepTime(currentTime);
-
-                log("[modificationset] Too much repository activity...sleeping for: "
-                + (sleepTime / 1000.0) + " seconds.");
-                Thread.sleep(sleepTime);
-
-                modifications =
-                processSourceControlElements(currentDate, _lastBuild);
-
-                currentDate = new Date();
-                currentTime = currentDate.getTime();
-            }
-
-            //If there aren't any modifications, then a build is not necessary, so
-            //  we will terminate this build by throwing a BuildException. That will
-            //  kill the Ant process and return control to MasterBuild.
-            if (modifications.isEmpty()) {
-                getProject().setProperty(BUILDUNNECESSARY, "true");
-                throw new BuildException("No Build Necessary");
-            }
-
-            getProject().setProperty(USERS, emailsAsCommaDelimitedList());
-
-        } catch (InterruptedException ie) {
-            throw new BuildException(ie);
-        } finally {
-            if (_useServerTime) {
-                getProject().setProperty(SNAPSHOTTIMESTAMP,
-                _simpleDateFormat.format(new Date(_lastModified)));
-            } else {
-                getProject().setProperty(SNAPSHOTTIMESTAMP,
-                _simpleDateFormat.format(currentDate));
-            }
-
-            try {
-                writeFile(modifications);
-            } catch (IOException e) {
-                throw new BuildException(e);
-            }
+    /**
+     *
+     */
+    public Element getModifications(Date lastBuild) {
+        Date now = new Date();
+        Iterator sourceControlIterator = _sourceControls.iterator();
+        while (sourceControlIterator.hasNext()) {
+            SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
+            _modifications.addAll(sourceControl.getModifications(lastBuild, now, _quietPeriod));
         }
+
+        Collections.sort(_modifications);
+        Element modificationsElement = new Element("modifications");
+        Iterator modificationIterator = _modifications.iterator();
+        while (modificationIterator.hasNext()) {
+            Modification modification = (Modification) modificationIterator.next();
+            Element modificationElement = (modification).toElement(_formatter);
+            modificationsElement.addContent(modificationElement);
+            modification.log(_formatter);
+        }
+
+        return modificationsElement;
     }
 
-    /**
-     * add a nested element for clearcase specific code.
-     *
-     * @return
-     */
-    public ClearCaseElement createClearcaseelement() {
-        ClearCaseElement cce = new ClearCaseElement();
-        cce.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(cce);
-
-        return cce;
+    public int size() {
+        return _modifications.size();
     }
-
-    /**
-     * add a nested element for cvs specific code.
-     *
-     * @return
-     */
-    public CVSElement createCvselement() {
-        CVSElement ce = new CVSElement();
-        ce.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(ce);
-
-        return ce;
-    }
-
-    public FileSystemElement createFileSystemElement() {
-        FileSystemElement fse = new FileSystemElement();
-        fse.setAntTask(this);
-        sourceControlElements.add(fse);
-
-        return fse;
-    }
-
-    /**
-     * Add a nested element for MKS specific code.
-     *
-     * @return
-     */
-    public MKSElement createMKSelement() {
-        MKSElement me = new MKSElement();
-        me.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(me);
-        
-        return me;
-    }
-    
-    /**
-     * Add a nested element for PVCS
-     */
-    public PVCSElement createPVCSelement() {
-        PVCSElement pvcse = new PVCSElement();
-        pvcse.setAntTask(this);
-        sourceControlElements.add(pvcse);
-        
-        return pvcse;
-    }
-    
-    /**
-     * add a nested element for p4 specific code.
-     *
-     * @return
-     */
-    public P4Element createP4element() {
-        P4Element p4e = new P4Element();
-        p4e.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(p4e);
-        
-        return p4e;
-    }
-    
-    /**
-     * add a nested element for star team specific code.
-     *
-     * @return
-     */
-    public StarTeamElement createStarteamelement() {
-        StarTeamElement ste = new StarTeamElement();
-        ste.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(ste);
-        
-        return ste;
-    }
-    
-    /**
-     * add a nested element for sourcesafe specific code.
-     *
-     * @return
-     */
-    public VssElement createVsselement() {
-        VssElement ve = new VssElement();
-        ve.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(ve);
-        
-        return ve;
-    }
-    
-    /**
-     * add a nested element for sourcesafe specific code that uses journal files.
-     *
-     * @return
-     */
-    public VssJournalElement createVssjournalelement() {
-        VssJournalElement vje = new VssJournalElement();
-        vje.setAntTask(this);
-        //for logging in the sub elements
-        sourceControlElements.add(vje);
-        
-        return vje;
-    }
-    
-    private boolean tooMuchRepositoryActivity(long currentTime) {
-        if (_lastModified > currentTime) {
-            return true;
-        }
-        return (_lastModified > (currentTime - _quietPeriod));
-    }
-    
-    private long calculateSleepTime(long currentTime) {
-        if (_lastModified > currentTime) {
-            return _lastModified - currentTime + _quietPeriod;
-        }
-        else {
-            return _quietPeriod - (currentTime - _lastModified);
-        }
-    }
-    
-    /**
-     * Loop over all nested source control elements and get modifications and
-     * users that made modifications
-     *
-     * @param currentDate
-     * @param lastBuild
-     * @return
-     */
-    private List processSourceControlElements(Date currentDate, Date lastBuild) {
-        ArrayList mods = new ArrayList();
-        
-        for (int i = 0; i < sourceControlElements.size(); i++) {
-            SourceControlElement sce =
-            (SourceControlElement) sourceControlElements.get(i);
-            mods.addAll(sce.getHistory(lastBuild, currentDate, _quietPeriod));
-            
-            if (!mods.isEmpty()) {
-                if (sce.getLastModified() > lastBuild.getTime()) {
-                    _lastModified = sce.getLastModified();
-                }
-                
-                _emails.addAll(sce.getEmails());
-            }
-        }
-        
-        return mods;
-    }
-    
-    /**
-     * Write out file with all modifications. Filename is specified in the ant
-     * property modificationset.file
-     *
-     * @param modifications
-     * @exception IOException
-     */
-    private void writeFile(List modifications) throws IOException {
-        Project p = getProject();
-        String modFileName = getProject().getProperty("modificationset.file");
-        if (modFileName == null) {
-            modFileName = "modificationset.xml";
-            getProject().setProperty("modificationset.file", modFileName);
-        }
-        
-        BufferedWriter writer = new BufferedWriter(new FileWriter(modFileName));
-        writer.write("<modifications>");
-        writer.newLine();
-        for (int i = 0; i < modifications.size(); i++) {
-            writer.write(((Modification) modifications.get(i)).toXml(_formatter));
-        }
-        writer.write("</modifications>");
-        writer.newLine();
-        
-        writer.flush();
-        writer.close();
-    }
-    
-    /**
-     * build up a string of emails of users to be notified about this build
-     *
-     * @return
-     */
-    private String emailsAsCommaDelimitedList() {
-        StringBuffer sb = new StringBuffer();
-        Iterator i = _emails.iterator();
-        while (i.hasNext()) {
-            sb.append(((String) i.next()));
-            if (i.hasNext()) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
-    }
-    
 }
