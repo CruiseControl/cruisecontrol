@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,18 +127,20 @@ public class XSLTag extends CruiseControlBodyTagSupport {
      *  @param out The writer to write to
      */
     protected void serveCachedCopy(File cacheFile, Writer out) {
-        InputStream is = null;
+        BufferedReader in = null;
         try {
-            is = new BufferedInputStream(new FileInputStream(cacheFile));
-            int c = 0;
-            while ((c = is.read()) != -1) {
-                out.write(c);
+            in = new BufferedReader(new FileReader(cacheFile));
+            char[] cbuf = new char[8192];
+            while (true) {
+                int charsRead = in.read(cbuf);
+                if (charsRead == -1) {
+                    break;
+                }
+                out.write(cbuf, 0, charsRead);
             }
-            is.close();
+            in.close();
         } catch (IOException e) {
             err(e);
-        } finally {
-            is = null;
         }
     }
 
