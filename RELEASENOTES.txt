@@ -21,6 +21,10 @@ Compound
 ----------------------
 * New SourceControl implementation uses nested Trigger and Target sourcecontrols. The targets are only checked for changes if there is a change detected by a trigger. Submitted by Will Gwaltney
 
+cruisecontrol.sh
+----------------------
+* Support relative sym links. Patch by Jerome Lacoste
+
 CVS
 ----------------------
 * Fixed a bug with not returning modfications when the tag attribute is used.
