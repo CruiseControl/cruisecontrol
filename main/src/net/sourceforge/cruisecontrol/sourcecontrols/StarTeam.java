@@ -36,8 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import com.starbase.starteam.*;
+import com.starbase.starteam.File;
+import com.starbase.starteam.Folder;
+import com.starbase.starteam.Item;
+import com.starbase.starteam.PropertyNames;
+import com.starbase.starteam.Server;
+import com.starbase.starteam.ServerException;
+import com.starbase.starteam.StarTeamFinder;
+import com.starbase.starteam.User;
+import com.starbase.starteam.View;
+import com.starbase.starteam.ViewConfiguration;
 import com.starbase.util.OLEDate;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,13 +60,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
-
-import org.apache.log4j.Logger;
 
 /**
  * This class logs into StarTeam and collects information on any modifications
