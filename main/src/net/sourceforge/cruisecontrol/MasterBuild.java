@@ -34,7 +34,10 @@ import org.w3c.dom.*;
  * be automatically run.  Extends XmlLogger so
  * this is the only listener that needs to be declared.
  *
- * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001, robertdw, jchyip
+ * @author Alden Almagro (alden@thoughtworks.com)
+ * @author Paul Julius (pdjulius@thoughtworks.com)
+ * @author Robert Watkins
+ * @author Jason Yip, jcyip@thoughtworks.com
  */
 public class MasterBuild extends XmlLogger implements BuildListener {
 
@@ -432,8 +435,12 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                 String nextFileName = (String) logFiles.nextElement();
                 
                 //Read in the entire aux log file, stripping any xml version tags.
-                String text = stripXMLVersionTags(readFile(nextFileName));
-                aggregatedXMLLog.append(text);
+                try {
+                    String text = stripXMLVersionTags(readFile(nextFileName));
+                    aggregatedXMLLog.append(text);
+                } catch (FileNotFoundException fnfe) {
+                    log(nextFileName + " not found. Skipping...");
+                }
             }
             
             //close aggregated build log
@@ -796,6 +803,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             currentBuildWriter.close();
             currentBuildWriter = null;
         } catch (IOException ioe) {
+            log("Problem writing current build status");
             ioe.printStackTrace();
         }
     }
@@ -844,8 +852,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         if (prop == null || prop.trim().length() == 0) {
             proj.setProperty("XmlLogger.file", "log.xml");
         }
-        super.buildFinished(buildevent);
 
+        super.buildFinished(buildevent);
         mergeAuxXmlFiles(proj);
     }
 
