@@ -39,6 +39,9 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -74,11 +77,12 @@ public class P4Test extends TestCase {
         }
     }
     
-    public void testBuildChangesCommand() {
+    public void testBuildChangesCommand() throws ParseException {
         P4 p4 = new P4();
         p4.setView("foo");
 
-        Date date = new Date("12/30/2004");
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Date date = dateFormat.parse("12/30/2004");
         Commandline cmdLine = p4.buildChangesCommand(date, date);
         
         String[] args = cmdLine.getCommandline();
