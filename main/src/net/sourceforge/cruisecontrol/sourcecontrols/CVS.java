@@ -40,15 +40,14 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.text.*;
 import java.util.*;
+
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
-
-import net.sourceforge.cruisecontrol.util.*;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Category;
-import org.apache.tools.ant.BuildException;
 
 /**
  * This class implements the SourceControlElement methods for a CVS repository.
@@ -462,10 +461,6 @@ public class CVS implements SourceControl {
             }
             
             Modification nextModification = new Modification();
-            //File workingFile = new File(workingFileName);
-            //File localFile = new File(local);
-            //nextModification.fileName = workingFile.getAbsolutePath().substring(localFile.getAbsolutePath().length());
-            //CVS doesn't provide specific project or "folder" information.
 
             nextModification.fileName = workingFileName.substring(workingFileName.lastIndexOf("/")+1);
             nextModification.folderName = workingFileName.substring(0, workingFileName.lastIndexOf("/"));
