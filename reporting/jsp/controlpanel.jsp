@@ -59,24 +59,15 @@
     </tr>
     <tr>
       <% String queryString = (request.getQueryString() != null) ? request.getQueryString() : ""; %>
-      <td><img src="images/blank35.gif"><img src="images/buildResultsTab-on.gif" border="0"><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/xmllog?<%= queryString %>" border="0"><img src="images/xmlLogFileTab-off.gif" border="0"></a><a href="/cruisecontrol/controlpanel?<%= queryString %>" border="0"><img src="images/controlPanelTab-off.gif" border="0"></a></td>
+      <td><img src="images/blank35.gif"><a href="/cruisecontrol/buildresults?<%= queryString %>" border="0"><img src="images/buildResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/xmllog?<%= queryString %>" border="0"><img src="images/xmlLogFileTab-off.gif" border="0"></a><img src="images/controlPanelTab-on.gif" border="0"></td>
     </tr>
     <tr>
       <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>
     </tr>
     <tr>
       <td valign="top" bgcolor="#FFFFFF">
-         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
+        Control Panel
+        &nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>
       </td>
     </tr>
     <tr>
