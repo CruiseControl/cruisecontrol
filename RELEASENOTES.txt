@@ -161,6 +161,10 @@ Project
 ----------------------
 * Reset ProjectState to IDLE in case of an exception while building. Patch by Will Gwaltney
 
+release.xml
+----------------------
+* Build and include binaries as part of release process.
+
 SSCM & SSCMBootstrapper
 ----------------------
 * New SourceControl and Bootstrapper for SSCM-support. Contribution by Matt Harp

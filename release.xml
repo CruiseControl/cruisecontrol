@@ -1,7 +1,9 @@
 <!-- build the release -->
 <project name="release" default="release">
 
-<target name="release">
+<target name="release" depends="build, website, zip" />
+
+<target name="init">
     <property name="website" value="website"/>
     <property name="docs" value="docs"/>
     <property name="main" value="main"/>
@@ -12,7 +14,18 @@
     <mkdir dir="${website}"/>
     <mkdir dir="${website}/main"/>
     <mkdir dir="${website}/reporting/jsp"/>
+</target>
 
+<target name="build" depends="init">
+    <ant inheritAll="false" dir="${main}" />
+    <ant inheritAll="false" dir="${jsp}">
+        <property name="user.log.dir" value="logs" />
+        <property name="user.build.status.file" value="status.txt" />
+        <property name="cruise.build.artifacts.dir" value="" />
+    </ant>
+</target>
+
+<target name="website" depends="init">
     <fixcrlf srcdir="."
         eol="lf" 
         eof="remove"
@@ -48,16 +61,16 @@
     <replace dir="${website}/reporting/jsp" token="../../../docs/" value="../../">
         <include name="**/*.html"/>
     </replace>
+</target>
 
+<target name="zip">
     <zip zipfile="../cruisecontrol-${label}.zip">
         <zipfileset dir="../cruisecontrol" prefix="cruisecontrol-${label}">
             <exclude name="website/**"/>
             <exclude name="main/lib/starteam-sdk.jar"/>
-            <exclude name="main/dist/**"/>
             <exclude name="main/target/**"/>
             <exclude name="reporting/jsp/samplelogs/_cache/**"/>
             <exclude name="reporting/jsp/target/**"/>
-            <exclude name="reporting/jsp/dist/**"/>
             <exclude name="reporting/jsp/testresults.xml"/>
             <exclude name="../cruisecontrol-${label}.zip"/>
             <exclude name="release*"/>
