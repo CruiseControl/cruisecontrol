@@ -40,22 +40,50 @@
  ********************************************************************************-->
 
 <web-app>
+
+    <context-param>
+      <!-- You can set this value via the user.log.dir property in Ant, when building the WAR file. -->
+      <param-name>logDir</param-name>
+      <param-value>@YOUR CRUISECONTROL LOG DIRECTORY@ </param-value>
+    </context-param>
+    <context-param>
+      <!-- You can set this value via the user.build.status.file property in Ant, when building the WAR file. -->
+      <param-name>currentBuildStatusFile</param-name>
+      <param-value>@CURRENT BUILD STATUS FILE@ </param-value>
+    </context-param>
+
     <servlet>
-      <servlet-name>cruisecontrol</servlet-name>
+      <servlet-name>buildresults</servlet-name>
       <jsp-file>/buildresults.jsp</jsp-file>
-      <init-param>
-        <param-name>logDir</param-name>
-        <!-- You can set this value via the user.log.dir property in Ant, when building the WAR file. -->
-        <param-value>@YOUR CRUISECONTROL LOG DIRECTORY@</param-value>
-      </init-param>
-      <init-param>
-          <!-- You can set this value via the user.build.status.file property in Ant, when building the WAR file. -->
-        <param-name>currentBuildStatusFile</param-name>
-        <param-value>@CURRENT BUILD STATUS FILE@</param-value>
-      </init-param>
     </servlet>
+    <servlet>
+      <servlet-name>controlpanel</servlet-name>
+      <jsp-file>/controlpanel.jsp</jsp-file>
+    </servlet>
+    <servlet>
+      <servlet-name>testdetails</servlet-name>
+      <jsp-file>/testdetails.jsp</jsp-file>
+    </servlet>
+    <servlet>
+      <servlet-name>xmllog</servlet-name>
+      <jsp-file>/xmllog.jsp</jsp-file>
+    </servlet>
+
     <servlet-mapping>
-      <servlet-name>cruisecontrol</servlet-name>
+      <servlet-name>buildresults</servlet-name>
       <url-pattern>/buildresults</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>controlpanel</servlet-name>
+      <url-pattern>/controlpanel</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>testdetails</servlet-name>
+      <url-pattern>/testdetails</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>xmllog</servlet-name>
+      <url-pattern>/xmllog</url-pattern>
+    </servlet-mapping>
+
 </web-app>
