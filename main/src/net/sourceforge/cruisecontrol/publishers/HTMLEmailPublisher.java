@@ -276,8 +276,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return message;
     }
 
-    protected String transform(File inFile)
-        throws TransformerException, FileNotFoundException, IOException {
+    protected String transform(File inFile) throws TransformerException, FileNotFoundException, IOException {
         StringBuffer messageBuffer = new StringBuffer();
 
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -294,6 +293,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             for (int i = 0; i < fileNames.length; i++) {
                 String fileName = fileNames[i];
                 File xsl = new File(xslDirectory, fileName);
+                messageBuffer.append("<p>\n"); 
                 appendTransform(inFile, messageBuffer, tFactory, xsl);
             }
 
@@ -332,13 +332,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return linkLine.toString();
     }
 
-    protected void appendTransform(
-        File inFile,
-        StringBuffer messageBuffer,
-        TransformerFactory tFactory,
-        File xsl)
+    protected void appendTransform(File inFile, StringBuffer messageBuffer, TransformerFactory tFactory, File xsl)
         throws IOException, TransformerException {
-        messageBuffer.append("<p>\n");
+
         Transformer transformer = tFactory.newTransformer(new StreamSource(xsl));
         File outFile = File.createTempFile("mail", ".html");
         try {
@@ -347,8 +343,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             LOG.error("error transforming with xslFile " + xsl.getName(), e);
             return;
         }
-        FileReader outfileReader = new FileReader(outFile);
-        BufferedReader reader = new BufferedReader(outfileReader);
+        BufferedReader reader = new BufferedReader(new FileReader(outFile));
         String line = reader.readLine();
         while (line != null) {
             messageBuffer.append(line);
@@ -361,9 +356,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
         messageBuffer.append("<html><head>\n<style>\n");
 
-        File cssFile = new File(css);
-        FileReader cssFileReader = new FileReader(cssFile);
-        BufferedReader reader = new BufferedReader(cssFileReader);
+        BufferedReader reader = new BufferedReader(new FileReader(css));
         String line = reader.readLine();
         while (line != null) {
             messageBuffer.append(line);
