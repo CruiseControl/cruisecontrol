@@ -47,7 +47,7 @@ echo Warning: You have not set the JAVA_HOME environment variable. Any tasks rel
  
 set LIBDIR=%CCDIR%\lib
 
-set CRUISE_PATH=%CRUISE_PATH%;%CCDIR%\dist\cruisecontrol.jar;%LIBDIR%\activation.jar;%LIBDIR%\mail.jar;%LIBDIR%\ant.jar;%LIBDIR%\jaxp.jar;%LIBDIR%\parser.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;.
+set CRUISE_PATH=%CRUISE_PATH%;%CCDIR%\dist\cruisecontrol.jar;%LIBDIR%\ant.jar;%LIBDIR%\xerces.jar;%LIBDIR%\mail.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;.
 
 set EXEC=java -cp %CRUISE_PATH% net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
 echo %EXEC%
