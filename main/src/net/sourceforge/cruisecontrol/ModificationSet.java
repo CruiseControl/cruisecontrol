@@ -159,6 +159,10 @@ public class ModificationSet {
         return modificationsElement;
     }
 
+    public Date getNow() {
+        return _now;
+    }
+
     public boolean isModified() {
         return _modifications.size() > 0;
     }

@@ -55,4 +55,8 @@ public class MockModificationSet extends ModificationSet {
         table.put("fileremoved", "true");
         return table;
     }
+
+    public Date getNow() {
+        return new Date();
+    }
 }
