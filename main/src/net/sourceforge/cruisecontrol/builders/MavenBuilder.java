@@ -297,6 +297,8 @@ public class MavenBuilder extends Builder implements StreamConsumer {
             // The BAT never returns errors, so I'll catch it like this. Brrr.
             if (line.startsWith("BUILD FAILED")) {
                 buildLogElement.setAttribute("error", "BUILD FAILED detected");
+            } else if (line.startsWith("org.apache.maven.MavenException")) {
+                buildLogElement.setAttribute("error", "You have encountered an unknown error running Maven: " + line);
             } else if (line.startsWith("The build cannot continue")) {
                 buildLogElement.setAttribute("error", "The build cannot continue: Unsatisfied Dependency");
             } else if (
