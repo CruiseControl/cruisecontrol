@@ -115,20 +115,17 @@ public class ProjectXMLHelperTest extends TestCase {
         assertFalse(incrementer.isValidLabel("build#9"));
     }
 
-    public void testGetLogDir() throws CruiseControlException {
+    public void testGetLog() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
-        assertEquals("logs" + File.separatorChar + "project1", helper.getLogDir());
+        assertEquals("logs" + File.separatorChar + "project1", helper.getLog().getLogDir());
         helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals("c:/foo", helper.getLogDir());
+        assertEquals("c:/foo", helper.getLog().getLogDir());
         helper = new ProjectXMLHelper(configFile, "project3");
-        assertEquals("logs" + File.separatorChar + "project3", helper.getLogDir());
-    }
+        assertEquals("logs" + File.separatorChar + "project3", helper.getLog().getLogDir());
 
-    public void testLogXmlEncoding() throws CruiseControlException {
-        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
-        assertNull(helper.getLogXmlEncoding());
+        assertNull(helper.getLog().getLogXmlEncoding());
         helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals("utf-8", helper.getLogXmlEncoding());
+        assertEquals("utf-8", helper.getLog().getLogXmlEncoding());
     }
 
     public void testGetAuxLogs() throws CruiseControlException {

@@ -50,6 +50,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -365,13 +366,13 @@ public class ProjectTest extends TestCase {
         String hoursMinutesSeconds = "1 hours 59 minutes 5 seconds";
         String negativeTime = "-1 hours -59 minutes -5 seconds";
 
-        assertEquals(seconds, Project.formatTime(fiveSeconds));
+        assertEquals(seconds, Util.formatTime(fiveSeconds));
         assertEquals(
             hoursMinutesSeconds,
-            Project.formatTime(oneHourFiftyNineMinutes + fiveSeconds));
+            Util.formatTime(oneHourFiftyNineMinutes + fiveSeconds));
         assertEquals(
             negativeTime,
-            Project.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
+            Util.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
     }
     
     public void testNeedToWait() {
