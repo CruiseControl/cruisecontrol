@@ -99,7 +99,8 @@ website / documentation
 ----------------------
 * Rework navigation for feedback, completeness and consistency. Convert navigation from images to text. Convert to semantic markup. Address inconsistency of configxml.html. Patch by Joe Schmetzer
 * More documentation enhancements contributed by Joe Schmetzer. For more details, see http://sourceforge.net/mailarchive/forum.php?thread_id=5363380&forum_id=2202
-*  Expanded and clearer documentation for <cvs> contributed by Joe Schmetzer.
+* Expanded and clearer documentation for <cvs> contributed by Joe Schmetzer.
+* An important note about multiple build loop required and some missing description for the jabber protocol contributed by Jerome Lacoste.
 
 CruiseControl Release Notes - 2.1.6
 
