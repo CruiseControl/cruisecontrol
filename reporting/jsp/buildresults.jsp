@@ -38,6 +38,8 @@
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
          <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
          <p>
+         <cruisecontrol:xsl xslFile="/xsl/maven.xsl"/>
+         <p>
          <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
          <p>
          <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
