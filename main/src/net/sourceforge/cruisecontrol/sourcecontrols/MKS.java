@@ -288,8 +288,7 @@ public class MKS implements SourceControl {
         String workingFilename = workingFileLine.substring(workingFileLine.indexOf(MKS_WORKINGFILE_LINE)+MKS_WORKINGFILE_LINE.length());
        // System.err.println("WorkingFilename :" + workingFilename);
 
-        while (reader.ready() && nextLine != null
-               && !nextLine.startsWith(MKS_FILE_DELIM)) {
+        while (nextLine != null && !nextLine.startsWith(MKS_FILE_DELIM)) {
 
             //Read to the revision date. It is ASSUMED that each revision section will
             //  include this date information line.
