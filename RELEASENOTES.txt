@@ -45,6 +45,7 @@ log4j.properties
 Project
 ----------------------
 * Fixed a bug causing NPE when using a serialized project file from releases prior to 2.1
+* Added labelIncrementer classname to message when isValidLabel fails - Patch by Richard Lewis-Shell
 
 ProjectXMLHelper
 ----------------------

@@ -475,7 +475,8 @@ public class Project implements Serializable, Runnable {
      * @throws CruiseControlException if the date cannot be extracted from the
      * input string
      */
-    public void setLastSuccessfulBuild(String newLastSuccessfulBuild) throws CruiseControlException {
+    public void setLastSuccessfulBuild(String newLastSuccessfulBuild)
+        throws CruiseControlException {
         lastSuccessfulBuild = parseFormatedTime(newLastSuccessfulBuild, "lastSuccessfulBuild");
     }
 
@@ -591,15 +592,15 @@ public class Project implements Serializable, Runnable {
         publishers = helper.getPublishers();
 
         buildAfterFailed = helper.getBuildAfterFailed();
-        
+
         if (lastBuild == null) {
             lastBuild = getMidnight();
         }
-        
+
         if (lastSuccessfulBuild == null) {
             lastSuccessfulBuild = lastBuild;
         }
-        
+
         debug("buildInterval          = [" + buildInterval + "]");
         debug("buildForced            = [" + buildForced + "]");
         debug("buildAfterFailed       = [" + buildAfterFailed + "]");
@@ -847,7 +848,10 @@ public class Project implements Serializable, Runnable {
     protected void validateLabel(String oldLabel, LabelIncrementer incrementer)
         throws CruiseControlException {
         if (!incrementer.isValidLabel(oldLabel)) {
-            throw new CruiseControlException(oldLabel + " is not a valid label");
+            throw new CruiseControlException(
+                oldLabel
+                    + " is not a valid label for labelIncrementer "
+                    + incrementer.getClass().getName());
         }
     }
 
@@ -862,7 +866,8 @@ public class Project implements Serializable, Runnable {
         return formatter.format(date);
     }
 
-    public Date parseFormatedTime(String timeString, String description) throws CruiseControlException {
+    public Date parseFormatedTime(String timeString, String description)
+        throws CruiseControlException {
 
         Date date = null;
         if (timeString == null) {
@@ -872,7 +877,8 @@ public class Project implements Serializable, Runnable {
             date = formatter.parse(timeString);
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + description + "]", e);
-            throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
+            throw new CruiseControlException(
+                "Cannot parse string for " + description + ":" + timeString);
         }
 
         return date;
