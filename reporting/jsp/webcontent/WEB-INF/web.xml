@@ -51,7 +51,18 @@
             If it is, then you should set this to true.
         </description>
     </context-param>
-
+    
+    <!--
+    <context-param>
+        <param-name>cacheRoot</param-name>
+        <param-value>/var/cache/tomcat4/cruisecontrol</param-value>
+        <description>Full path to a directory where caches of XSL transformations are written.
+            The web context must have permission to write to this directory. If not
+            specified, caches will be written in a subdir called _cache of the logDir.
+        </description>
+    </context-param>
+    -->
+    
     <context-param>
       <!-- You can set this value via the user.log.dir property in Ant, when building the WAR file. -->
       <param-name>logDir</param-name>
