@@ -48,10 +48,10 @@
 
     <xsl:template match="/">
 
-        <xsl:variable name="javac.error.messages" select="$javac.tasklist/message[@priority='error']"/>
-        <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn']"/>
-        <xsl:variable name="ejbjar.error.messages" select="$ejbjar.tasklist/message[@priority='error']"/>
-        <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn']"/>
+        <xsl:variable name="javac.error.messages" select="$javac.tasklist/message[@priority='error'][text() != '']"/>
+        <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn'][text() != '']"/>
+        <xsl:variable name="ejbjar.error.messages" select="$ejbjar.tasklist/message[@priority='error'][text() != '']"/>
+        <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn'][text() != '']"/>
         <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages) + count($javac.error.messages) + count($ejbjar.error.messages)"/>
 
         <xsl:if test="$total.errorMessage.count > 0">
