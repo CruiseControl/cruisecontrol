@@ -93,6 +93,13 @@ public class CruiseControlControllerAgent {
         } catch (Exception e) {
             LOG.error("Problem registering RmiAdaptor", e);
         }
+        try {
+            ObjectName name = new ObjectName("Logger:name=root");
+            server.registerMBean(new LoggerController(Logger.getRootLogger()), name);
+        } catch (Exception e) {
+            LOG.error("Problem registering LoggerController for root-Logger", e);
+        }
+        
     }
 
     public void start() {
