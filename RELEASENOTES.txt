@@ -21,6 +21,10 @@ Email Publishers (LinkEmailPublisher and HTMLEmailPublisher)
 ----------------------
 * failure subelements now contain an optional attribute "reportWhenFixed" to specify if the email address should be sent mail when the build is fixed.
 
+FileSystem Sourcecontrol
+----------------------
+* Fixed bug where FS was reporting the wrong path for modifications. Patch by Randy Coulman.
+
 JMX Interface
 ----------------------
 * Added a halt operation on the CruiseControl process JMX interface. Patch from Matt Albrecht
