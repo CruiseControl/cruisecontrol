@@ -36,7 +36,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <project name="HelloWorld" basedir="." default="all">
-    <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
 
     <property name="build.compiler" value="jikes"/>
     <property name="build.compiler.emacs" value="true"/>
@@ -109,15 +108,7 @@
 
     </target>
 
-    <target name="modificationset" depends="init" description="Check modifications since last build">
-        <echo message="Checking for modifications..."/>
-        <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" 
-         dateformat="yyyy-MMM-dd HH:mm:ss">
-    		<clearcaseelement viewpath="${clearcase.viewpath}"  recursive="true"/>
-        </modificationset>
-    </target>
-
-    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" 
+    <target name="masterbuild" depends="checkout,compile,test,jar"
      description="Cruise control master build"/> 
 
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
