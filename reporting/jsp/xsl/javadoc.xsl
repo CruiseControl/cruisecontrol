@@ -43,7 +43,7 @@
     <xsl:output method="html"/>
 
     <xsl:variable name="tasklist" select="/cruisecontrol/build//target/task"/>
-    <xsl:variable name="javadoc.tasklist" select="$tasklist[@name='Javadoc']"/>
+    <xsl:variable name="javadoc.tasklist" select="$tasklist[@name='Javadoc'] | $tasklist[@name='javadoc']"/>
 
     <xsl:template match="/">
 

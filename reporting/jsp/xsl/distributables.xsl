@@ -42,8 +42,8 @@
 
     <xsl:output method="html"/>
     <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']/message[@priority='info']"/>
-    <xsl:variable name="war.tasklist" select="$tasklist[@name='War']/message[@priority='info']"/>
+    <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']/message[@priority='info'] | $tasklist[@name='jar']/message[@priority='info']"/>
+    <xsl:variable name="war.tasklist" select="$tasklist[@name='War']/message[@priority='info'] | $tasklist[@name='war']/message[@priority='info']"/>
     <xsl:variable name="dist.count" select="count($jar.tasklist) + count($war.tasklist)"/>
 
     <xsl:template match="/">
