@@ -52,7 +52,8 @@ public final class PluginRegistry {
 
     /**
      * Map of plugins where the key is the plugin name (e.g. ant) and the value is
-     * the class (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
+     * the fully qualified classname
+     * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
     private final Map plugins;
 
@@ -72,23 +73,10 @@ public final class PluginRegistry {
      *
      * @param pluginClassname The fully qualified classname for the
      * plugin class, e.g. net.sourceforge.cruisecontrol.builders.AntBuilder.
-     *
-     * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    public void register(String pluginName, String pluginClassname)
-            throws CruiseControlException {
+    public void register(String pluginName, String pluginClassname) {
 
-        Class pluginClass = null;
-        try {
-            pluginClass = Class.forName(pluginClassname);
-        } catch (ClassNotFoundException e) {
-            throw new CruiseControlException(
-                    "Attemping to register plugin named [" + pluginName
-                    + "], but couldn't load corresponding class ["
-                    + pluginClassname + "].");
-        }
-
-        plugins.put(pluginName.toLowerCase(), pluginClass);
+        plugins.put(pluginName.toLowerCase(), pluginClassname);
     }
 
     /**
@@ -103,7 +91,7 @@ public final class PluginRegistry {
             return null;
         }
 
-        return getPluginClass(pluginName).getName();
+        return (String) plugins.get(pluginName.toLowerCase());
     }
 
     /**
@@ -111,9 +99,24 @@ public final class PluginRegistry {
      * name, otherwise the Class representing the the plugin class. Note that
      * plugin names are always treated as case insensitive, so Ant, ant,
      * and AnT are all treated as the same plugin.
+     *
+     * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    public Class getPluginClass(String pluginName) {
-        return (Class) plugins.get(pluginName.toLowerCase());
+    public Class getPluginClass(String pluginName)
+            throws CruiseControlException {
+
+        String pluginClassname = getPluginClassname(pluginName);
+
+        Class pluginClass = null;
+        try {
+            pluginClass = Class.forName(pluginClassname);
+        } catch (ClassNotFoundException e) {
+            throw new CruiseControlException(
+                    "Attemping to load plugin named [" + pluginName
+                    + "], but couldn't load corresponding class ["
+                    + pluginClassname + "].");
+        }
+        return pluginClass;
     }
 
     /**

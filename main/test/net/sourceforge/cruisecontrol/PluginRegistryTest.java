@@ -62,9 +62,11 @@ public class PluginRegistryTest extends TestCase {
 
         final String nonExistentClassname =
                 "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
+        registry.register("foo", nonExistentClassname);
         try {
-            registry.register("foo", nonExistentClassname);
-            fail("Expected an exception when registering a plugin"
+
+            registry.getPluginClass("foo");
+            fail("Expected an exception when getting a plugin"
                     + " class that isn't loadable.");
         } catch (CruiseControlException e) {
             //Good, expected this exception
