@@ -42,31 +42,22 @@ public class StarTeamElement implements SourceControlElement {
     private Folder folder;
     private String folderName;
     private String targetFolderPath = "";
-    private org.apache.tools.ant.Task task;
+    private org.apache.tools.ant.Task _task;
     private String url;
     private String username;
     private String password;
 
-
-
     /**
-     *	set the parent task for logging purposes
+     *	Set the parent task for logging purposes
      */
-    public void setTask(org.apache.tools.ant.Task t) {
-        this.task = t;
+    public void setTask(org.apache.tools.ant.Task task) {
+        _task = task;
     }
 
-
-    /**
-     *
-     */
     public long getLastModified() {
         return mostRecent;
     }
 
-    /**
-     *
-     */
     public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
 
         View view = StarTeamFinder.openView(this.username + ":" + this.password + "@" + this.url);
@@ -87,7 +78,7 @@ public class StarTeamElement implements SourceControlElement {
 
         //need to check the mostRecent and make sure it's within the quiet period...
 
-        this.task.getProject().log(modifications.size() + " modifications in " + folderName);
+        log(modifications.size() + " modifications in " + folderName);
         return (ArrayList) modifications;
     }
 
@@ -133,7 +124,6 @@ public class StarTeamElement implements SourceControlElement {
         return mostRecent;
     }
 
-
     private void addRevision(File revision) {
 
 		User user = revision.getServer().getUser(revision.getModifiedBy());
@@ -175,9 +165,9 @@ public class StarTeamElement implements SourceControlElement {
 
         modifications.add(mod);
 
-        this.task.getProject().log("File: " + mod.fileName);
+        log("File: " + mod.fileName);
 
-        this.task.getProject().log("userName: " + mod.userName + " Date: " + mod.modifiedTime);
+        log("userName: " + mod.userName + " Date: " + mod.modifiedTime);
         if (revision.getModifiedTime().getLongValue() > mostRecent) {
             mostRecent = revision.getModifiedTime().getLongValue();
         }
@@ -186,8 +176,7 @@ public class StarTeamElement implements SourceControlElement {
     private void visit(Folder folder, OLEDate snapshotDate) {
         try {
             Thread.sleep(1000);
-        } catch(InterruptedException exc)
-        {}
+        } catch(InterruptedException ignoredInterruptedException) {}
         folder.populateNow(folder.getServer().getTypeNames().FILE, new String[] {}, 0);
         Item[] files = folder.getItems("File");
         for (int i = 0; i < files.length; i++) {
@@ -210,6 +199,9 @@ public class StarTeamElement implements SourceControlElement {
 
     }
 
+    /*
+     * @return Empty string on IOException
+     */
     private String getModificationType(File file) {
 
         try{
@@ -241,4 +233,14 @@ public class StarTeamElement implements SourceControlElement {
             }
         } catch (java.io.IOException e) { return "";}
     }
+    
+    /**
+     * Use Ant task to send a log message
+     */
+    public void log(String message) {
+        if (_task != null) {
+            _task.log("[starteamelement]" + message);
+        }
+    }
+    
 }

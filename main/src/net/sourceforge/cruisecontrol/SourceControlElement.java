@@ -37,7 +37,7 @@ public interface SourceControlElement {
 
    /** get the task from the parent element for logging purposes */
    public void setTask(Task t);
-
+   
    /** get the last modified time for this set of files */
    public long getLastModified();
 
@@ -54,4 +54,10 @@ public interface SourceControlElement {
     * results of the build.
     */
    public Set getEmails();
+   
+   /**
+    * Use Ant task to send a log message
+    */
+   public void log(String message);
+   
 }

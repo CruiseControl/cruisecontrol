@@ -236,9 +236,18 @@ public class VssElement implements SourceControlElement {
      *	pretty logging
      */
     private void logModification(Modification mod) {
-        _task.log("Type: " + mod.type + " " + mod.fileName);
-        _task.log("User: " + mod.userName + " Date: " + mod.modifiedTime);
-        _task.log("");
+        log("Type: " + mod.type + " " + mod.fileName);
+        log("User: " + mod.userName + " Date: " + mod.modifiedTime);
+        log("");
+    }
+    
+    /**
+     * Use Ant task to send a log message
+     */
+    public void log(String message) {
+        if (_task != null) {
+            _task.log("[vsselement]" + message);
+        }        
     }
     
 }
