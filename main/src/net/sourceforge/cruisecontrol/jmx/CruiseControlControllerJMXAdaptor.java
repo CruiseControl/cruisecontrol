@@ -53,7 +53,7 @@ import java.util.List;
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class CruiseControlControllerJMXAdaptor implements CruiseControlMBean,
+public class CruiseControlControllerJMXAdaptor implements CruiseControlControllerJMXAdaptorMBean,
         CruiseControlController.Listener {
     private static final Category LOG = Category.getInstance(CruiseControlControllerJMXAdaptor.class);
     private final CruiseControlController controller;
