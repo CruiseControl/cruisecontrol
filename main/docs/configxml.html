@@ -4203,9 +4203,12 @@ endlocal</pre>
             </tr>
             <tr>
                 <td>css</td>
-                <td>unless xslfile specified</td>
+                <td>versions up to 2.2.2: unless xslfile specified<br/>
+                    versions 2.2.2 and greater: no</td>
                 <td>Path to cruisecontrol.css.  Used only if xsldir set and
-                not xslfile.</td>
+                not xslfile. Starting with version 2.2.2, the HTMLEmailPublisher
+                will try to determine the correct value itself when it's not
+                specified and xslfile isn't used.</td>
             </tr>
             <tr class="oddrow">
                 <td>logdir</td>
@@ -4216,9 +4219,12 @@ endlocal</pre>
             </tr>
             <tr>
                 <td>xsldir</td>
-                <td>unless xslfile specified</td>
+                <td>versions up to 2.2.2: unless xslfile specified<br />
+                    versions 2.2.2 and greater: no</td>
                 <td>Directory where standard CruiseControl xsl files are
-                located.</td>
+                located. Starting with version 2.2.2, the HTMLEmailPublisher
+                will try to determine the correct value itself when it's not
+                specified and xslfile isn't used.</td>
             </tr>
             <tr class="oddrow">
                 <td>xslfile</td>
