@@ -64,22 +64,22 @@ public class ProjectXMLHelper {
         initDefaultPluginRegistry();
     };
 
-    public ProjectXMLHelper(File configFile, String projectName) throws CruiseControlException {
+    public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
         this();
         Iterator projectIterator =
             Util.loadConfigFile(configFile).getChildren("project").iterator();
         while (projectIterator.hasNext()) {
             Element currentProjectElement = (Element) projectIterator.next();
             if (currentProjectElement.getAttributeValue("name") != null
-                && currentProjectElement.getAttributeValue("name").equals(projectName)) {
+                && currentProjectElement.getAttributeValue("name").equals(projName)) {
                 projectElement = currentProjectElement;
             }
         }
         if (projectElement == null) {
-            throw new CruiseControlException("Project not found in config file: " + projectName);
+            throw new CruiseControlException("Project not found in config file: " + projName);
         }
 
-        this.projectName = projectName;
+        this.projectName = projName;
         setDateFormat(projectElement);
 
         Iterator pluginIterator = projectElement.getChildren("plugin").iterator();
@@ -97,11 +97,11 @@ public class ProjectXMLHelper {
         }
     }
 
-    protected void setDateFormat(Element projectElement) {
-        if (projectElement.getChild("dateformat") != null
-            && projectElement.getChild("dateformat").getAttributeValue("format") != null) {
+    protected void setDateFormat(Element projElement) {
+        if (projElement.getChild("dateformat") != null
+            && projElement.getChild("dateformat").getAttributeValue("format") != null) {
             DateFormatFactory.setFormat(
-                projectElement.getChild("dateformat").getAttributeValue("format"));
+                projElement.getChild("dateformat").getAttributeValue("format"));
         }
     }
 
@@ -121,7 +121,10 @@ public class ProjectXMLHelper {
 
         Element logElement = projectElement.getChild("log");
         if (logElement != null) {
-            logDir = getRequiredAttribute(logElement, "dir");
+            String logDirValue = logElement.getAttributeValue("dir");
+            if (logDirValue != null) {
+              logDir = logDirValue;
+            }
         }
 
         return logDir;

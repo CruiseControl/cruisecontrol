@@ -1,45 +1,49 @@
 CruiseControl Release Notes - Latest CVS
 
 AntBuilder
----------------
+----------------------
 * Fixed a bug in isWindows() that was returning false negatives. This would prevent antScript from working on some Windows systems.
 
 ArtifactsPublisher
----------------
+----------------------
 * Added to the default plugin registry
 
 build.sh
----------------
+----------------------
 * Fixed problem with eol characters preventing files from executing on unix systems
 
 CVSBootstrapper
----------------
+----------------------
 * Add -dP to update command
 
 EmailPublisher
----------------
+----------------------
 * Added nested success element - Patch by Marco Faini
 * Added failAsImportant attribute - Patch by Ian MacDonald
 
 FileServlet
----------------
+----------------------
 * Fixed a bug, brower displaying html source code, by adding the mime-type to the response.
 
 HtmlEmailPublisher
----------------
+----------------------
 * Fixed a bug where username & password were ignored
 
 JMX
----------------
+----------------------
 * Now exposing Project status (read-only) in the jmx interface
 
 log4j.properties
----------------
+----------------------
 * Added more information into the console log including the timestamp - Patch by Mark Richters
 * Added a rotating file log - Patch by Mark Richters
 
+ProjectXMLHelper
+----------------------
+* Fixed a bug where if the log element existed dir was a required attribute
+
 StarTeamBootstrapper
----------------
+----------------------
 * StarTeamBootstrapper submitted by Lee Marlow
 
 CruiseControl Release Notes - 2.1.1
