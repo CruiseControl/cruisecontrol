@@ -39,51 +39,89 @@
 
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
-        
     <property name="classes" value="classes"/>    
-    <property file="cruise-build.properties" />   
     <property name="dist" value="dist"/>
     <property name="images" value="images"/>
     <property name="junit.results" value="test-results" />
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
-    <property name="test" value="test"/>    
-    
+    <property name="test" value="test"/>   
+
+    <!-- ********************************************************* -->
+    <!-- Give user a chance to override without editing this file  -->
+    <!-- (and without typing -D each time they invoke a target)    -->
+    <!-- ********************************************************* -->
+    <property file="cruise-build.properties" />
+    <property file="${user.home}/build.properties" />
+
+    <!-- **************************************************** -->
+    <!-- Define the project classpath references              -->
+    <!-- **************************************************** -->
     <path id="project.classpath" >
         <fileset dir="lib">
-            <include name="**/*.jar"/>
+            <include name="**/jakarta-oro*.jar"/>
+            <include name="**/servlet*.jar"/>
+            <include name="**/xalan*.jar"/>
+            <include name="**/starteam-sdk*.jar"/>
+            <include name="**/mail*.jar"/>
+            <include name="**/activation*.jar"/>
+            <include name="**/xerces*.jar"/>
         </fileset>
     </path>
-    
-    <target name="init">     
+
+    <!-- **************************************************** -->
+    <!-- Define the runtime classpath references              -->
+    <!-- **************************************************** -->
+    <path id="project.runtime.classpath" >
+        <path refid="project.classpath" />
+        <fileset dir="lib">
+            <include name="**/activation*.jar"/>
+        </fileset>
+        <pathelement location="${classes}" />
+   <pathelement path="${java.class.path}"/>
+    </path>
+
+    <!-- **************************************************** -->
+    <!-- Init target for setting up the build system          -->
+    <!-- **************************************************** -->
+    <target name="init" description="Setup build system">     
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${apidocs}"/>
     </target>
-    
-    <target name="clean">
+
+    <!-- **************************************************** -->
+    <!-- Cleans out the build directories                     -->
+    <!-- **************************************************** -->
+    <target name="clean" description="Cleans out the build directories" >
        <delete dir="${dist}"/>
        <mkdir dir="${dist}"/>
        <delete dir="${classes}"/>
        <mkdir dir="${classes}"/>
     </target>
-    
-    <target name="compile" depends="init">
-        <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath" debug="true" deprecation="true"/>
+
+    <!-- **************************************************** -->
+    <!-- Compiles the source code                             -->
+    <!-- **************************************************** -->
+    <target name="compile" depends="init" description="Compiles source code">
+        <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath" debug="true" 
+         deprecation="true"/>
         <copy todir="${classes}">
             <fileset dir="${src}" includes="**/*.properties"/>
         </copy>
     </target>
-  
-    <target name="test" depends="init">
+
+    <!-- **************************************************** -->
+    <!-- Executes the unit tests                              -->
+    <!-- **************************************************** -->
+    <target name="test" depends="init" description="Executes the unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}" />
         <javac srcdir="${test}" destdir="${classes}" classpathref="project.classpath" />
 
         <junit fork="yes" haltonfailure="yes" >
             <classpath >
-                <path refid="project.classpath" />
-                <pathelement location="${classes}" />
+                <path refid="project.runtime.classpath" />
             </classpath>
             <formatter type="plain" usefile="false" />
             <formatter type="xml" />
@@ -93,17 +131,9 @@
         </junit>
     </target>
     
-    <target name="release" depends="jar, war">
-        <property name="release.zip" value="cruisecontrol.zip"/>
-        <delete file="${dist}\${release.zip}"/>
-        <zip zipfile="${dist}\${release.zip}">
-            <fileset dir="${dist}" includes="*.jar, *.war"/>
-            <fileset dir="." 
-             includes="${docs}/**, ${lib}/**, *.txt, cruiseControl.bat, cruiseControl.sh"/>
-            <fileset dir="${src}" includes="*.properties" />
-        </zip>
-    </target>
-    
+    <!-- **************************************************** -->
+    <!-- Builds the jar                                       -->
+    <!-- **************************************************** -->    
     <target name="jar" depends="compile">
         <jar jarfile="${dist}\cruisecontrol.jar">
             <fileset dir="${classes}"/>
@@ -111,6 +141,9 @@
         </jar>
     </target>
     
+    <!-- **************************************************** -->
+    <!-- Builds the war                                       -->
+    <!-- **************************************************** -->    
     <target name="war" depends="jar">
         <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath"/>
         <war warfile="${dist}\buildservlet.war" webxml="web.xml">
@@ -131,10 +164,10 @@
         </war>
     </target>
     
-                                                          
-    <!-- ***** JAVADOC ***** -->
-
-    <target name="javadoc" depends="init,compile">
+    <!-- **************************************************** -->
+    <!-- Generates the javadocs                               -->
+    <!-- **************************************************** -->
+    <target name="javadoc" depends="init,compile" description="Generate the javadocs">
        <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*">
            <classpath>
                <path refid="project.classpath" />
@@ -142,16 +175,41 @@
            </classpath>
        </javadoc>
     </target>
-                                                          
-    <target name="all" depends="init,clean,compile,test,jar,war" />
 
-    <!-- ***** CRUISE EXAMPLES ***** -->
+    <!-- **************************************************** -->
+    <!-- Builds the release zip                               -->
+    <!-- **************************************************** -->
+    <target name="release" depends="jar, war" description="Build release zip">
+        <property name="release.zip" value="cruisecontrol.zip"/>
+        <delete file="${dist}\${release.zip}"/>
+        <zip zipfile="${dist}\${release.zip}">
+            <fileset dir="${dist}" includes="*.jar, *.war"/>
+            <fileset dir="." 
+             includes="${docs}/**, ${lib}/**, *.txt, cruiseControl.bat, cruiseControl.sh"/>
+            <fileset dir="${src}" includes="*.properties" />
+        </zip>
+    </target>
+                  
+    <!-- ****************************************************** -->
+    <!-- Performs a clean build, runs tests, and builds jar/war -->
+    <!-- ****************************************************** -->
+    <target name="all" depends="init,clean,compile,test,jar,war" description="Performs a clean build, runs tests, and builds jar/war" />
 
+    <!-- ****************************************************** -->
+    <!-- CRUISE EXAMPLES                                        -->
+    <!-- ****************************************************** -->
+
+    <!-- ****************************************************** -->
+    <!-- Updates local code with cvs changes                    -->
+    <!-- ****************************************************** -->
     <target name="cvs-update" depends="init" if="localCopy">
         <cvs cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol"
              package="cruisecontrol" dest="${localCopy}" />
     </target>
 
+    <!-- ****************************************************** -->
+    <!-- Check for modifications in cvs                         -->
+    <!-- ****************************************************** -->
     <target name="cruise-check" depends="init" if="localCopy" >
         <tstamp />
         <property name="modificationset.file" value="modifications.xml" />
@@ -163,11 +221,17 @@
         </modificationset>
     </target>
 
+    <!-- ****************************************************** -->
+    <!-- Build for continuous integration                       -->
+    <!-- ****************************************************** -->
     <target name="cruise" depends="init,cruise-check" >
         <antcall target="cvs-update" />
         <ant antfile="${localCopy}/cruisecontrol/build.xml" target="all" />
     </target>
 
+    <!-- ****************************************************** -->
+    <!-- Clean build for continuous integration                 -->
+    <!-- ****************************************************** -->
     <target name="cruise-clean" depends="init,cruise-check" >
         <antcall target="cvs-update" />
         <ant antfile="${localCopy}/cruisecontrol/build.xml" target="clean" />
