@@ -133,7 +133,7 @@ public final class PluginRegistry {
         } else {
             // should be known plugin, then
             if (!isPluginRegistered(pluginName)) {
-                throw new CruiseControlException("Can't set defaults for unknown plugin '"
+                throw new CruiseControlException("Unknown plugin '"
                         + pluginName + "'; maybe you forgot to specify a classname?");
             }
         }
@@ -159,9 +159,8 @@ public final class PluginRegistry {
      * available to all projects.
      *
      */
-    static void registerToRoot(String pluginName, String pluginClassname) {
-        LOG.debug("registering plugin '" + pluginName + "' to root register as " + pluginClassname);
-        ROOTREGISTRY.register(pluginName, pluginClassname);
+    static void registerToRoot(Element pluginElement) throws CruiseControlException {
+        ROOTREGISTRY.register(pluginElement);
     }
 
     /**
