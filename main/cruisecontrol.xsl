@@ -32,6 +32,7 @@
 
         <xsl:if test="build/@error">
         <tr><td colspan="5"><font face="arial" size="3"><b>BUILD FAILED</b></font></td></tr>
+        <tr><td colspan="5"><font face="arial" size="2"><b>Ant Error Message:&#160;</b><xsl:value-of select="build/@error"/></font></td></tr>
         </xsl:if>   
         <xsl:if test="not (build/@error)">
         <tr><td colspan="5"><font face="arial" size="3"><b>BUILD COMPLETE&#160;-&#160;
@@ -48,7 +49,7 @@
         <tr><td colspan="5"><font face="arial" size="2"><b>Description:&#160;</b><xsl:value-of select="build/modifications/modification/comment"/></font><br/><br/></td></tr>
 
         <xsl:if test="(count(//target/task[@name='Javac']/message[@priority='warn']) + count(//target/task[@name='EjbJar']/message[@priority='warn'])) > 0">
-        <tr><td bgcolor="#000066" colspan="5"><b><font face="arial" size="2" color="#FFFFFF">&#160;Errors:&#160;(<xsl:value-of select="count(//target/task[@name!='get']/message[@priority='warn'])"/>)</font></b></td></tr>
+        <tr><td bgcolor="#000066" colspan="5"><b><font face="arial" size="2" color="#FFFFFF">&#160;Errors/Warnings:&#160;(<xsl:value-of select="count(//target/task[@name!='get']/message[@priority='warn'])"/>)</font></b></td></tr>
 
         <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="//target/task[@name='Javac']/message[@priority='warn']"/></font></td></tr>
         <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="//target/task[@name='EjbJar']/message[@priority='warn']"/></font></td></tr>
