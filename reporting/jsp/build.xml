@@ -39,7 +39,6 @@
 	<property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="classes" value="classes"/>
-    <property name="release" value="release"/>
     <property name="docs" value="docs"/>
     <property name="test" value="test"/>
     <property name="test.results" value="testresults"/>
@@ -51,14 +50,12 @@
 		<delete dir="${dist}"/>
         <delete dir="${classes}"/>
         <delete dir="${test.results}"/>
-        <delete dir="${release}"/>
 	</target>
 
     <target name="init" depends="clean">
         <mkdir dir="${dist}"/>
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.results}"/>
-        <mkdir dir="${release}"/>
     </target>
 
     <target name="compile" depends="init">
@@ -109,35 +106,5 @@
             <classes dir="${classes}"/>
 		</war>
 	</target>
-
-    <target name="release" depends="war" description="Build release zip">
-        <zip zipfile="${release}\cruisecontrol-2-jsp-bin.zip">
-            <fileset dir=".">
-               <include name="${dist}/"/>
-               <include name="${docs}/"/>
-               <exclude name="${release}/"/>
-            </fileset>
-        </zip>
-        <zip zipfile="${release}\cruisecontrol-2-jsp-src.zip">
-            <fileset dir=".">
-               <include name="css/"/>
-               <exclude name="${classes}"/>
-               <include name="images/"/>
-               <include name="docs/"/>
-               <exclude name="${dist}"/>
-               <include name="lib/"/>
-               <exclude name="${release}/"/>
-               <include name="samplelogs/"/>
-               <include name="src/"/>
-               <include name="test/"/>
-               <include name="WEB-INF/"/>
-               <include name="xsl/"/>
-               <include name="build.sh"/>
-               <include name="build.bat"/>
-               <include name="build.xml"/>
-               <include name="buildresults.jsp"/>
-            </fileset>
-        </zip>
-    </target>
 
 </project>
