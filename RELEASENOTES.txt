@@ -31,6 +31,10 @@ BuildQueue
 ----------------------
 * Add support for multiple build threads (ThreadQueue). Patch by Jared Richardson
 
+checkstyle (use in CC build)
+----------------------
+* Remove header check as per discussion of copyright.
+
 ClearCaseBootstrapper
 ----------------------
 * fixed /dev/nul to /dev/null (CC-76). Patch by Esa Laine 

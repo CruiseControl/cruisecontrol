@@ -24,12 +24,6 @@
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
 
-        <!-- Header -->
-        <module name="Header">
-            <property name="headerFile" value="cruisecontrol.header"/>
-            <property name="ignoreLines" value="3"/>
-        </module>
-
         <!-- Imports -->
         <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
