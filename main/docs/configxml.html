@@ -1296,9 +1296,39 @@
 
         <p>Triggers a build if there is a change within a CVS repository.</p>
 
+        <p>Changes are detected by running a command similar to the following:</p>
+        
+        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-r<i>TAG</i>]&nbsp;-N&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"</pre>
+        
+        <p>The following changes are made to generate the actual command:</p>
+        
+        <ul>
+            <li><code><i>lastbuildtime</i></code> is replaced with the date of 
+            the last build, using the date format
+            <code>yyyy-MM-dd&nbsp;HH:mm:ss&nbsp;'GMT'</code>.</li>
+            
+            <li><code><i>checktime</i></code> is replaced with the date at which
+            the check takes place.</li>
+        
+            <li>The <code>-d</code> option is only used when the cvsroot 
+            attribute is specified; <code><i>CVSROOT</i></code> is replaced by
+            the value of that attribute.</li>
+        
+            <li>The <code>-r</code> option is only used when the tag attribute
+            is specfied; <code><i>TAG</i></code> is replaced by the value of
+            that attribute.</li>
+        </ul>
+        
+        <p>Refer to the <a class="external"
+        href="http://www.cvsnt.org/manual/log.html">cvs log</a> reference for 
+        further details of the <code>cvs&nbsp;log</code> command.</p>
+        
         <p>A notable feature of the CVS element is that it will look for the
-        file CVSROOT/Users and, if the files exists, use the information in
-        that file to map cvs usernames to email addresses.</p>
+        file CVSROOT/users and, if the files exists, use the information in
+        that file to map cvs usernames to email addresses. More details are on
+        the <a class="external"
+        href="http://confluence.public.thoughtworks.org/display/CC/CvsrootUsers">
+        CVSROOT/users</a> page of the CruiseControl Wiki.</p>
 
         <h3>Attributes</h3>
 
@@ -1313,24 +1343,26 @@
             <tbody>
             <tr class="oddrow">
                 <td>cvsroot</td>
-                <td>No</td>
-                <td>Required if localWorkingCopy isn't specified. cvsroot that
-                would be appropriate for the following command:<br/>
+                <td rowspan="2">One of cvsroot or localworkingcopy</td>
+                <td>Specifies the location of the CVS repository<br/>
                 <i><code>cvs&nbsp;-d&nbsp;CVSROOT&nbsp;-q&nbsp;log&nbsp;-N&nbsp;-d&nbsp;"&gt;lastbuildtime"</code></i>
                 </td>
             </tr>
             <tr>
                 <td>localworkingcopy</td>
-                <td>No</td>
                 <td>Relative or absolute path to the local working copy.
-                Required if cvsroot isn't specified. Directory must exist and
-                should have files from a previous checkout.</td>
+                Directory must exist and should have files from a previous
+                checkout.</td>
             </tr>
             <tr class="oddrow">
                 <td>tag</td>
-                <td>No</td>
-                <td>Set the cvs tag.  Note this should work with names, numbers,
-                and anything else you can put on <i><code>log&nbsp;-rTAG</code></i></td>
+                <td>No (defaults to <code>HEAD</code>)</td>
+                <td>Specify the cvs tag. The value of this attribute is passed 
+                directly to <code>cvs&nbsp;log</code> using the <code>-r</code> 
+                option. Numeric revision numbers, branch tags, or ranges of 
+                revisions are valid. Refer to the <code>-r</code> option in the
+                <a class="external" href="http://www.cvsnt.org/manual/log.html">
+                cvs log</a> reference for futher details.</td>
             </tr>
             <tr>
                 <td>property</td>
