@@ -94,24 +94,26 @@ public class HTMLEmailPublisher extends EmailPublisher {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        verifyDirectory("HTMLEmailPublisher.logDir", this.logDir);
+        verifyDirectory("HTMLEmailPublisher.logDir", logDir);
 
-        if (this.xslFile == null) {
-            verifyDirectory("HTMLEmailPublisher.xslDir", this.xslDir);
-            verifyFile("HTMLEmailPublisher.css", this.css);
+        if (xslFile == null) {
+            verifyDirectory("HTMLEmailPublisher.xslDir", xslDir);
+            verifyFile("HTMLEmailPublisher.css", css);
 
+            String[] xslFileNames = getXslFileNames();
+            
             if (xslFileNames == null) {
                 throw new CruiseControlException("HTMLEmailPublisher.xslFileNames can't be null");
             }
 
-            for (int i = 0; i < this.xslFileNames.length; i++) {
-                String fileName = this.xslFileNames[i];
+            for (int i = 0; i < xslFileNames.length; i++) {
+                String fileName = xslFileNames[i];
                 verifyFile(
                     "HTMLEmailPublisher.xslDir/" + fileName,
-                    new File(this.xslDir, fileName));
+                    new File(xslDir, fileName));
             }
         } else {
-            verifyFile("HTMLEmailPublisher.xslFile", this.xslFile);
+            verifyFile("HTMLEmailPublisher.xslFile", xslFile);
         }
     }
 
@@ -207,7 +209,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         if (fileNames == null) {
             throw new IllegalArgumentException("xslFileNames can't be null (but can be empty)");
         }
-        this.xslFileNames = fileNames;
+        setXslFileNames(fileNames);
     }
 
     /**
@@ -228,7 +230,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             throw new IllegalArgumentException("logDir cannot be null!");
         }
 
-        this.logDir = directory;
+        logDir = directory;
     }
 
     public void setCharset(String characterSet) {
@@ -278,6 +280,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             messageBuffer.append(createLinkLine(inFile.getName()));
 
             File xslDirectory = new File(xslDir);
+            String[] xslFileNames = getXslFileNames();
             for (int i = 0; i < xslFileNames.length; i++) {
                 String fileName = xslFileNames[i];
                 File xsl = new File(xslDirectory, fileName);
@@ -361,4 +364,13 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected void appendFooter(StringBuffer messageBuffer) {
         messageBuffer.append("\n</body></html>");
     }
+
+    private void setXslFileNames(String[] xslFileNames) {
+        this.xslFileNames = xslFileNames;
+    }
+
+    private String[] getXslFileNames() {
+        return xslFileNames;
+    }
+
 }

@@ -46,7 +46,7 @@
     <xsl:variable name="testcase.list" select="$testsuite.list/testcase"/>
     <xsl:variable name="testcase.error.list" select="$testcase.list/error"/>
     <xsl:variable name="testcase.failure.list" select="$testcase.list/failure"/>
-    <xsl:variable name="totalErrorsAndFailures" select="count($testcase.error.list) + count($testcase.failure.list)"/>
+    <xsl:variable name="totalErrorsAndFailures" select="count($testcase.error.list) + count($testcase.failure.list) + $testsuite.error.count"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
@@ -82,9 +82,9 @@
             </xsl:choose>
             <tr>
               <td>
-       	         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
-            	    <xsl:apply-templates select="$testcase.error.list"/>
-            	    <xsl:apply-templates select="$testcase.failure.list"/>
+                 <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+                    <xsl:apply-templates select="$testcase.error.list"/>
+                    <xsl:apply-templates select="$testcase.failure.list"/>
                  </table>
               </td>
             </tr>

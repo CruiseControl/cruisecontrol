@@ -12,7 +12,11 @@ build.xml
 ----------------------
 * Constrain checkstyle to only run against cruisecontrol code; ignore other packages.
 * Build webapp by explicitly calling war target.  No longer default target.
-* Can now override deploy.dir property to control where cruisecontrol.war ends up
+* Can now override deploy.dir property to control where cruisecontrol.war ends up - Patch by Patrick Lisser
+
+HTMLEmailPublisher
+----------------------
+* xslFileNames now encapsulated to allow for easier overriding - Patch by Patrick Lisser
 
 main.jsp
 ----------------------
@@ -39,6 +43,10 @@ Schedule
 Subversion
 ----------------------
 * Added Subversion and SubversionBootstrapper - Submitted by Etienne Studer
+
+unittests.xsl
+----------------------
+* Now includes testsuite errors in total - Patch by Patrick Lisser
 
 Vss
 ----------------------
