@@ -48,9 +48,10 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
+import net.sourceforge.cruisecontrol.ClearCaseModification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
@@ -149,7 +150,7 @@ public class ClearCase implements SourceControl {
     }
 
     /**
-     *  Returns an {@link java.util.List List} of {@link Modification}
+     *  Returns an {@link java.util.List List} of {@link ClearCaseModification}
      *  detailing all the changes between now and the last build.
      *
      *@param  lastBuild the last build time
@@ -189,21 +190,28 @@ public class ClearCase implements SourceControl {
             + DELIMITER
             + "%Nd"
             + DELIMITER
-            + "%n"
+            + "%En"
+            + DELIMITER
+            + "%Vn"
             + DELIMITER
             + "%o"
             + DELIMITER
+            + "!%l"
+            + DELIMITER
+            + "!%a"
+            + DELIMITER
             + "%Nc"
             + END_OF_STRING_DELIMITER
-            + "\\n\" "
-            + viewPath;
+            + "\\n\"";
+
+        File root = new File(viewPath);
 
         LOG.info("ClearCase: getting modifications for " + viewPath);
 
         LOG.debug("Command to execute : " + command);
         List modifications = null;
         try {
-            Process p = Runtime.getRuntime().exec(command);
+            Process p = Runtime.getRuntime().exec(command, null, root);
 
             StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
             new Thread(errorPumper).start();
@@ -237,16 +245,17 @@ public class ClearCase implements SourceControl {
     List parseStream(InputStream input) throws IOException {
         ArrayList modifications = new ArrayList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        String ls = System.getProperty("line.separator");
 
         String line;
         String lines = "";
 
         while ((line = reader.readLine()) != null) {
-            if (!lines.equals("") && !lines.endsWith(" ") && !line.startsWith(" ")) {
-                lines += " ";
+            if (!lines.equals("")) {
+                lines += ls;
             }
             lines += line;
-            Modification mod = null;
+            ClearCaseModification mod = null;
             if (lines.indexOf(END_OF_STRING_DELIMITER) > -1) {
                 mod = parseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
                 lines = "";
@@ -267,18 +276,48 @@ public class ClearCase implements SourceControl {
      *@param  line the line to parse
      *@return  a modification element corresponding to the given line
      */
-    private Modification parseEntry(String line) {
+    private ClearCaseModification parseEntry(String line) {
         LOG.debug("parsing entry: " + line);
         StringTokenizer st = new StringTokenizer(line, DELIMITER);
 
         // we should get either 4 (w/o comments) or 5 tokens (w/ comments)
-        if ((st.countTokens() < 4) || (st.countTokens() > 5)) {
+        if ((st.countTokens() < 7) || (st.countTokens() > 8)) {
             return null;
         }
         String username = st.nextToken().trim();
         String timeStamp = st.nextToken().trim();
         String elementName = st.nextToken().trim();
+        String version = st.nextToken().trim();
         String operationType = st.nextToken().trim();
+
+        String labelList = st.nextToken().substring(1).trim();
+        Vector labels = null;
+        if (labelList.length() > 0) {
+            labels = new Vector();
+            StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
+            while (labelST.hasMoreTokens()) {
+               labels.add(labelST.nextToken().trim());
+            }
+        }
+
+        String attributeList = st.nextToken().substring(1).trim();
+        Hashtable attributes = null;
+        if (attributeList.length() > 0) {
+            attributes = new Hashtable();
+            StringTokenizer attrST = new StringTokenizer(attributeList, "(), ");
+            while (attrST.hasMoreTokens()) {
+                String attr = attrST.nextToken();
+                int idx = attr.indexOf('=');
+                if (idx > 0) {
+                    String attrName = attr.substring(0, idx);
+                    String attrValue = attr.substring(idx + 1);
+                    if (attrValue.startsWith("\"")) {
+                        attrValue = attrValue.substring(1, attrValue.length() - 1);
+                    }
+                    attributes.put(attrName, attrValue);
+                }
+            }
+        }
 
         String comment;
         if (st.countTokens() > 0) {
@@ -292,18 +331,20 @@ public class ClearCase implements SourceControl {
             return null;
         }
 
-        Modification mod = new Modification();
+        ClearCaseModification mod = new ClearCaseModification();
 
         mod.userName = username;
 
-        elementName = elementName.substring(elementName.indexOf(File.separator));
-        int branchIndex = elementName.indexOf("@@");
-        String fileName =
-            branchIndex > 0
-                ? elementName.substring(0, branchIndex)
-                : elementName;
-        mod.fileName = fileName.substring(fileName.lastIndexOf(File.separator));
-        mod.folderName = fileName.substring(0, fileName.lastIndexOf(File.separator));
+        int sep = elementName.lastIndexOf(File.separator);
+        if (sep > -1) {
+            mod.folderName = elementName.substring(0, sep);
+            mod.fileName = elementName.substring(sep + 1);
+        } else {
+            mod.folderName = "";
+            mod.fileName = elementName;
+        }
+
+        mod.revision = version;
 
         try {
             mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
@@ -312,6 +353,9 @@ public class ClearCase implements SourceControl {
         }
 
         mod.type = operationType;
+
+        mod.labels = labels;
+        mod.attributes = attributes;
 
         mod.comment = comment;
 
