@@ -224,6 +224,20 @@ public class EmailPublisherTest extends TestCase {
             "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com",
             emailPublisher.createUserList(failureLogHelper));
 
+        emailPublisher.setSkipUsers(false);
+        emailPublisher.setEmailAddressMapper("this.class.does.not.exist");
+        try {
+            emailPublisher.createUserList(fixedLogHelper);
+            fail("EmailPublisher should throw exceptions when configured emailaddressmapper class does not exist.");
+        } catch (CruiseControlException expected) {
+        }
+
+        emailPublisher.setEmailAddressMapper("net.sourceforge.cruisecontrol.publishers.DropLetterEmailAddressMapper");
+        assertEquals(
+            "ailure2@host.com,lways1@host.com,lways2@host.com,"
+                + "ser1@host.com,ser2@host.com,ser3@host2.com,"
+                + "uccess1@host.com,uccess2@host.com",
+            emailPublisher.createUserList(fixedLogHelper));
     }
 
     public void testGetFromAddress() throws AddressException {
