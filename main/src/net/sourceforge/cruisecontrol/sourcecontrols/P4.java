@@ -174,6 +174,9 @@ public class P4 implements SourceControl {
                 mods = parseChangeDescriptions(p4Stream);
                 getRidOfLeftoverData(p4Stream);
                 p.waitFor();
+                p.getInputStream().close();
+                p.getOutputStream().close();
+                p.getErrorStream().close();
             }
 
         } catch (Exception e) {

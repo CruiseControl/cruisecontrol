@@ -202,6 +202,9 @@ public class MKS implements SourceControl {
             new Thread(outPumper).start();
 
             p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
         } catch (Exception ioe) {
             ioe.printStackTrace();
         }

@@ -139,6 +139,9 @@ public class PVCS implements SourceControl {
 			new Thread(errorPumper).start();
                         InputStream input = p.getInputStream();
                         p.waitFor();
+                p.getOutputStream();
+                p.getInputStream();
+                p.getErrorStream();
 		}
 		catch (Exception e) {
 			log.error("Error in executing the PVCS command : ", e);

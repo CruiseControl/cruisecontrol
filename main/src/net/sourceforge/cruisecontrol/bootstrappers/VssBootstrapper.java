@@ -48,6 +48,9 @@ public class VssBootstrapper implements Bootstrapper {
       StreamPumper errorPumper = new StreamPumper(errorIn, errorOut);
       new Thread(errorPumper).start();
       p.waitFor();
+      p.getInputStream().close();
+      p.getOutputStream().close();
+      p.getErrorStream().close();
     }
     catch (IOException ex) {
       log.debug("exception trying to exec ss.exe", ex);

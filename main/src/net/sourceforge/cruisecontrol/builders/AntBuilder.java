@@ -99,9 +99,14 @@ public class AntBuilder extends Builder {
 
         try {
             p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
         } catch (InterruptedException e) {
             log.info("Was interrupted while waiting for Ant to finish."
                     + " CruiseControl will continue, assuming that it completed");
+        } catch (IOException ie) {
+            log.info("Exception trying to close Process streams.", ie);
         }
 
         outPumper.flush();

@@ -185,6 +185,9 @@ public class ClearCase implements SourceControl {
             modifications = parseStream(input);
 
             p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
         } catch (Exception e) {
             log.error("Error in executing the Clear Case command : ", e);
         }

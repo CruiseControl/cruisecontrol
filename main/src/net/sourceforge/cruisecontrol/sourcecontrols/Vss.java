@@ -194,6 +194,9 @@ public class Vss implements SourceControl {
 
 			Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
 			p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
 
 			BufferedReader reader = new BufferedReader(new FileReader(
              new File(VSS_TEMP_FILE)));
