@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.text.*;
 import java.util.*;
+import java.io.File;
+
 import junit.framework.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -82,8 +84,6 @@ public class VssTest extends TestCase {
             fail("Vss should not throw exceptions when required fields are set.");
         }
     }
-
-    //(PENDING) test the form of the history command used
 
     public void testParseUserSingleCharName() {
         String testName = "1";
@@ -193,8 +193,46 @@ public class VssTest extends TestCase {
         assertEquals(mod.fileName, "SessionIdGenerator.java");
         assertEquals(mod.userName, "Etucker");
         assertEquals(mod.type, "add");
-    }    
-    
+    }
+
+    public void testGetCommandLine() throws Exception {
+        Vss vss = new Vss();
+        vss.setVsspath("vsspath");
+        vss.setLogin("login,password");
+
+        Date lastBuild = createDate("2002/08/03 09:30:00"); //Set date to Aug 3, 2002 9:30am
+        Date now = createDate("2002/08/04 13:15:00"); //Set date to Aug 4, 2002 1:15pm
+        String[] expectedCommand = {"ss.exe", "history", "$vsspath", "-R", "-Vd08/04/02;01:15P~08/03/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt"};
+        String[] actualCommand = vss.getCommandLine(lastBuild, now);
+        for (int i = 0; i < expectedCommand.length; i++) {
+            assertEquals(expectedCommand[i], actualCommand[i]);
+        }
+
+        vss.setDateFormat("dd/MM/yy");
+        String[] expectedCommandWithDate = {"ss.exe", "history", "$vsspath", "-R", "-Vd04/08/02;01:15P~03/08/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt"};
+        String[] actualCommandWithDate = vss.getCommandLine(lastBuild, now);
+        for (int i = 0; i < expectedCommandWithDate.length; i++) {
+            assertEquals(expectedCommandWithDate[i], actualCommandWithDate[i]);
+        }
+
+        File execFile = new File("..", "ss.exe");
+        vss.setSsDir("..");
+        System.out.println(execFile.getCanonicalPath());
+        String[] expectedCommandWithSsdir = {execFile.getCanonicalPath(), "history", "$vsspath", "-R", "-Vd04/08/02;01:15P~03/08/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt"};
+        String[] actualCommandWithSsdir = vss.getCommandLine(lastBuild, now);
+        for (int i = 0; i < expectedCommandWithSsdir.length; i++) {
+            assertEquals(expectedCommandWithSsdir[i], actualCommandWithSsdir[i]);
+        }
+    }
+
+    /**
+     *  Utility method to easily create a given date.
+     */
+    private Date createDate(String dateString) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return formatter.parse(dateString);
+    }
+
     /**
      * Produces a VSS line that looks something like this:
      * User: Username     Date:  6/14/01   Time:  6:39p
