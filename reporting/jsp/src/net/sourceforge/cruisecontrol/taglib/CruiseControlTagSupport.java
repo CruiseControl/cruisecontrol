@@ -104,7 +104,9 @@ public class CruiseControlTagSupport extends TagSupport {
         if (!logDir.isDirectory()) {
             throw new JspException(logDirName + " either does not exist, or is not a directory");
         }
-        return logDir.list(DIR_FILTER);
+        String[] projects = logDir.list(DIR_FILTER);
+        Arrays.sort(projects);
+        return projects;
     }
 
     protected String getContextParam(final String name) {
