@@ -385,6 +385,9 @@ public class CVS implements SourceControl {
 
         getRidOfLeftoverData(cvsLogStream);
         p.waitFor();
+        p.getInputStream().close();
+        p.getOutputStream().close();
+        p.getErrorStream().close();
 
         return mods;
     }

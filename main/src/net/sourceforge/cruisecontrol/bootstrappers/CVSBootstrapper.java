@@ -53,6 +53,9 @@ public class CVSBootstrapper implements Bootstrapper {
                     new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
         } catch (Exception e) {
             log.error("Error executing CVS update command", e);
         }
