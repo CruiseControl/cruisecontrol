@@ -49,6 +49,11 @@ HTMLEmailPublisher
 ----------------------
 * Added charset attribute.
 
+JMX interface
+----------------------
+* Added support for multiple projects in one instance of CruiseControl
+* Added ability to serialize the project via JMX, allowing the JMX interface to act as a serialized project editor. - Patch by Richard Lewis-Shell
+
 LabelIncrementer
 ----------------------
 * Added getDefaultLabel()
