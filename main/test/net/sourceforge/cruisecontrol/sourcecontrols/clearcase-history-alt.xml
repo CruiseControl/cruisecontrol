@@ -37,5 +37,16 @@ comment]]></comment>
          <attribute name="ATTR1">123</attribute>
          <attribute name="ATTR2">asdf</attribute>
       </modification>
+      <modification type="checkin">
+         <filename>file2.txt</filename>
+         <project>dir1/dir11/dir111</project>
+         <date>2003/04/07 08:35:00</date>
+         <user>userid2</user>
+         <comment><![CDATA[one line comment, no cr/lf but includes # character]]></comment>
+         <revision>\main\dev\1</revision>
+         <label>label1</label>
+         <label>label2</label>
+         <attribute name="ATTR1">123</attribute>
+         <attribute name="ATTR2">asdf</attribute>
+      </modification>
    </modifications>
-
