@@ -112,7 +112,7 @@ public class CruiseControlController {
         return Collections.unmodifiableList(projects);
     }
 
-    List getAllProjects() throws CruiseControlException {
+    private List getAllProjects() throws CruiseControlException {
         Element configRoot = Util.loadConfigFile(configFile);
         String[] projectNames = getProjectNames(configRoot);
         ArrayList allProjects = new ArrayList(projectNames.length);
@@ -120,17 +120,16 @@ public class CruiseControlController {
             String projectName = projectNames[i];
             LOG.info("projectName = [" + projectName + "]");
             Project project = configureProject(projectName);
-            project.init();
             allProjects.add(project);
         }
         return allProjects;
     }
 
-    Project configureProject(String projectName)
-        throws CruiseControlException {
+    protected Project configureProject(String projectName) throws CruiseControlException {
         Project project = readProject(projectName);
         project.setName(projectName);
         project.setConfigFile(configFile);
+        project.init();
         return project;
     }
 
@@ -161,7 +160,7 @@ public class CruiseControlController {
         }
     }
 
-    String[] getProjectNames(Element rootElement) {
+    private String[] getProjectNames(Element rootElement) {
         ArrayList projectNames = new ArrayList();
         Iterator projectIterator = rootElement.getChildren("project").iterator();
         while (projectIterator.hasNext()) {
@@ -173,9 +172,7 @@ public class CruiseControlController {
                 projectNames.add(projectName);
             }
         }
-
-        return (String[]) projectNames.toArray(new String[] {
-        });
+        return (String[]) projectNames.toArray(new String[] {});
     }
 
     public void addListener(Listener listener) {
