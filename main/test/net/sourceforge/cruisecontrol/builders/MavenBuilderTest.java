@@ -70,10 +70,10 @@ public class MavenBuilderTest extends TestCase {
 
         try {
             // these files must also exist for MavenBuilder to be happy.
-            makeTestFile(testScriptName, "@echo This is a fake maven.bat\n");
+            makeTestFile(testScriptName, "@echo This is a fake maven.bat\n", true);
             makeTestFile(
                 testProjectName,
-                "<project><!-- This is a fake Maven project file --></project>\n");
+                "<project><!-- This is a fake Maven project file --></project>\n", true);
             mb.setMultiple(1);
             mb.setMavenScript(testScriptName);
             mb.setProjectFile(testProjectName);
@@ -105,7 +105,6 @@ public class MavenBuilderTest extends TestCase {
         compareArrays(
             "NoDebug:",
             new String[] {
-                "sh",
                 "testmaven.sh",
                 "-Dlabel=200.1.23",
                 "-b",
@@ -117,7 +116,6 @@ public class MavenBuilderTest extends TestCase {
         compareArrays(
             "WithDebug:",
             new String[] {
-                "sh",
                 "testmaven.sh",
                 "-Dlabel=200.1.23",
                 "-X",
@@ -142,7 +140,6 @@ public class MavenBuilderTest extends TestCase {
         compareArrays(
             "WithTarget:",
             new String[] {
-                "sh",
                 "testmaven.sh",
                 "-Dlabel=200.1.23",
                 "-b",
@@ -181,18 +178,22 @@ public class MavenBuilderTest extends TestCase {
                         + "@echo test:test:\n"
                         + "@echo "
                         + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
-                        + "\n");
+                        + "\n",
+                    true);
             } else {
-                testScriptName = "_testmaven.sh";
+                testScriptName = "./_testmaven.sh";
                 makeTestFile(
                     testScriptName,
-                    "# This is a fake maven.sh\n"
+                    "#!/bin/sh\n"
+                        + "\n"
+                        + "# This is a fake maven.sh\n"
                         + "echo java:compile:\n"
                         + "echo Bla-bla-compile\n"
                         + "echo test:test:\n"
                         + "echo "
                         + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
-                        + "\n");
+                        + "\n",
+                    false);
             }
             mb.setMavenScript(testScriptName);
             mb.setProjectFile("don-t-care.xml");
@@ -243,6 +244,7 @@ public class MavenBuilderTest extends TestCase {
                 }
 
             } catch (CruiseControlException e) {
+                e.printStackTrace();
                 fail("MavenBuilder should not throw exceptions when build()-ing.");
             }
         } finally {
@@ -291,7 +293,7 @@ public class MavenBuilderTest extends TestCase {
     /**
      * Make a test file with specified content. Assumes the file does not exist.
      */
-    private void makeTestFile(String fname, String content) {
+    private void makeTestFile(String fname, String content, boolean onWindows) {
         File tFile = new File(fname);
         try {
             BufferedWriter bwr = new BufferedWriter(new FileWriter(tFile));
@@ -300,6 +302,15 @@ public class MavenBuilderTest extends TestCase {
             bwr.close();
         } catch (IOException ioex) {
             fail("Unexpected IOException while preparing " + fname + " test file");
+        }
+        if (!onWindows) {
+            String[] commandLineArgs = new String[] {"chmod", "755", tFile.getAbsolutePath() };
+            try {
+                Runtime.getRuntime().exec(commandLineArgs, null, tFile.getParentFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+                fail("exception changing permissions on test file");
+            }
         }
     }
 
