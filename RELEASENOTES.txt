@@ -95,6 +95,10 @@ SametimeAnnouncementPublisher
 ----------------------
 * New publisher implementation to publish build results to IBM/Lotus Sametime server. Contributed by Richard Lewis-Shell.
 
+StarTeam
+----------------------
+* remove use of NoExitSecurityManager. Makes StarTeam source control compatible with Halt command. Patch by Lee Marlow
+
 SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
