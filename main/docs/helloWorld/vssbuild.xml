@@ -105,14 +105,14 @@
     </target>
 
     <target name="vssget" description="gets the latest source from vss" if="vss.src.changed" 
-     depends="init, modificationset">
+     depends="init, modificationcheck">
         <vssget login="${vss.login},${vss.password}" ssdir="${vss.executable.dir}" 
          vsspath="${vss.src.path}" localPath="${source.dir}" recursive="true" writable="false"/>
     </target>
     
     <target name="labelbuild">
-        <vsslabel login="${vss.login},${vss.password}" ssdir="${vss.executable.path}" 
-         vsspath="{vss.src.path}" label="${label}"/>
+        <vsslabel login="${vss.login},${vss.password}" ssdir="${vss.executable.dir}" 
+         vsspath="${vss.src.path}" label="${label}"/>
     </target>
     
     <target name="modificationcheck" depends="init" description="Check modifications since last build">
