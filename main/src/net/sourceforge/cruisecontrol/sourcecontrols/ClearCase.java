@@ -91,12 +91,12 @@ public class ClearCase implements SourceControl {
             new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     /**
-     *  Unlikely combinaison of characters to separate fields in a ClearCase query
+     *  Unlikely combination of characters to separate fields in a ClearCase query
      */
-    static final String DELIMITER = "£~£";
+    static final String DELIMITER = "#~#";
 
     /**
-     *  Even more unlikely combinaison of characters to indicate end of one line in query.
+     *  Even more unlikely combination of characters to indicate end of one line in query.
      * Carriage return (\n) can be used in comments and so is not available to us.
      */
     static final String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
