@@ -146,30 +146,12 @@ public class VssTest extends TestCase {
         assertEquals(testName, vss.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
 
-    public void testHandleEntryUnusualLabel() {
-
-        List entry = new ArrayList();
-        entry.add("*****  built  *****");
-        entry.add("Version 4");
-        entry.add("Label: \"autobuild_test\"");
-        entry.add("User: Etucker      Date:  6/26/01   Time: 11:53a");
-        entry.add("Labeled");
-
-        Modification expected = new Modification();
-        expected.fileName = "";
-        expected.folderName = "";
-        expected.userName = "";
-        expected.emailAddress = "";
-        expected.comment = "";
-        expected.modifiedTime = new Date();
-
-        assertEquals("Unusual label entry added. Labels shouldn't be added.",
-                     null, vss.handleEntry(entry));
+    public void testHandleEntryWithLabel() {
 
         // need to adjust for cases where Label: line exists
         // and there is also an action.
 
-        entry = new ArrayList();
+        List entry = new ArrayList();
         entry.add("*****  DateChooser.java  *****");
         entry.add("Version 8");
         entry.add("Label: \"Completely new version!\"");
@@ -329,9 +311,30 @@ public class VssTest extends TestCase {
         entry.add("Labeled");
         entry.add("Label comment: AutoBuild KonaBuild_452");
 
-
         Modification modification = vss.handleEntry(entry);
         assertNull(modification);
+        
+        // Labeled root directory
+        entry = new ArrayList();
+        entry.add("*****************  Version 222  *****************");
+        entry.add("Label: \"build.83\"");
+        entry.add("User: Fabricator     Date:  7/16/03   Time: 10:29a");
+        entry.add("Labeled");
+        entry.add(" ");
+
+        modification = vss.handleEntry(entry);
+        assertNull(modification);        
+
+        // Labled subdirectory
+        entry = new ArrayList();
+        entry.add("*****  built  *****");
+        entry.add("Version 4");
+        entry.add("Label: \"autobuild_test\"");
+        entry.add("User: Etucker      Date:  6/26/01   Time: 11:53a");
+        entry.add("Labeled");
+
+        modification = vss.handleEntry(entry);
+        assertNull(modification);        
     }
 
     public void testGetCommandLine() throws Exception {
