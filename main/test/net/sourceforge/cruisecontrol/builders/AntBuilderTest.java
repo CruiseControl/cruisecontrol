@@ -291,6 +291,16 @@ public class AntBuilderTest extends TestCase {
         initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
     }
+    
+    public void testIsWindows() {
+        AntBuilder builder = new AntBuilder() {
+            protected String getOsName() {
+                return "Windows 2000";
+            }
+        };
+        
+        assertTrue(builder.isWindows());
+    }
 
     public int getInitCount(Element buildElement) {
         int initFoundCount = 0;

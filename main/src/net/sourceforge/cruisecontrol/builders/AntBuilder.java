@@ -106,6 +106,20 @@ public class AntBuilder extends Builder {
             File workingDir =
                 (antWorkingDir != null) ? (new File(antWorkingDir)) : null;
 
+            StringBuffer sb = new StringBuffer();
+            sb.append("Executing Command: ");
+            for (int i = 0; i < commandLine.length; i++) {
+                String arg = commandLine[i];
+                sb.append(arg);
+                sb.append(" ");
+            }
+            if (antWorkingDir != null) {
+                sb.append("in directory " + workingDir.getCanonicalPath());
+            }
+            LOG.debug(sb.toString());
+
+
+
             p = Runtime.getRuntime().exec(commandLine, null, workingDir);
         } catch (IOException e) {
             throw new CruiseControlException(
@@ -218,7 +232,16 @@ public class AntBuilder extends Builder {
     }
 
     protected boolean isWindows() {
-        return System.getProperty("os.name").indexOf("Windows") > 0;
+        String osName = getOsName();
+        boolean isWindows = osName.indexOf("Windows") > -1;
+        LOG.debug("os.name = " + osName);
+        LOG.debug("isWindows = " + isWindows);
+        return isWindows;
+    }
+
+    protected String getOsName() {
+        String osName = System.getProperty("os.name");
+        return osName;
     }
 
     /**
@@ -291,16 +314,6 @@ public class AntBuilder extends Builder {
         while (targets.hasMoreTokens()) {
             al.add(targets.nextToken());
         }
-
-        StringBuffer sb = new StringBuffer();
-        sb.append("Executing Command: ");
-        Iterator argIterator = al.iterator();
-        while (argIterator.hasNext()) {
-            String arg = (String) argIterator.next();
-            sb.append(arg);
-            sb.append(" ");
-        }
-        LOG.debug(sb.toString());
 
         return (String[]) al.toArray(new String[al.size()]);
     }
