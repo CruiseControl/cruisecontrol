@@ -47,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -205,8 +206,20 @@ public class Vss implements SourceControl {
             p.waitFor();
             p.getInputStream().close();
             p.getOutputStream().close();
+            // we want to log output to stderr as warings, since it might inform us
+            // on why ss.exe has problems to run properly.
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuffer err = new StringBuffer();
+            String line;
+            while ((line = in.readLine()) != null) {
+                err.append(line).append('\n');
+            }
             p.getErrorStream().close();
 
+            if (err.length() > 0) {
+                LOG.warn("Vss: ss.exe reported the following problems:\n" + err);
+            }
+            
             parseTempFile(modifications);
 
         } catch (Exception e) {
