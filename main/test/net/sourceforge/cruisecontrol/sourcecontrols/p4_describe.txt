@@ -40,7 +40,7 @@ info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/util/IndexPlanTest.java#2 
 text:
 text: Change 11 by non@non:all on 2002/04/30 06:09:05
 text:
-text:	ok, tests running smooth. Checking in mostly for backup. Not finished yet. CIMD is comming on great and I'm starting to see a framework developing.
+text: 	ok, tests running smooth. Checking in mostly for backup. Not finished yet. CIMD is comming on great and I'm starting to see a framework developing.
 text:
 text: Affected files ...
 text:
