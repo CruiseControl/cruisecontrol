@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -136,7 +137,7 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(1, helper.getAuxLogs().size());
     }
 
-    public void testPluginRegistry() {
+    public void testPluginRegistry() throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         verifyPluginClass(
             "currentbuildstatusbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
@@ -155,7 +156,8 @@ public class ProjectXMLHelperTest extends TestCase {
         verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
         verifyPluginClass("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
         verifyPluginClass("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
-        verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
+        // skipped because not everyone has starteam api jar
+        // verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         verifyPluginClass("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
         verifyPluginClass("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
         verifyPluginClass("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
@@ -180,10 +182,13 @@ public class ProjectXMLHelperTest extends TestCase {
         verifyPluginClass("schedule", "net.sourceforge.cruisecontrol.Schedule");
     }
 
-    private void verifyPluginClass(String pluginName, String expectedName) {
+    private void verifyPluginClass(String pluginName, String expectedName) throws ClassNotFoundException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         ProjectXMLHelper helper = new ProjectXMLHelper();
         String className = helper.getClassNameForPlugin(pluginName);
         assertEquals(expectedName, className);
+        Class pluginClass = Class.forName(className);
+        Object pluginInstance = pluginClass.getConstructor(null).newInstance(null);
+  
     }
 
     protected void setUp() throws Exception {
