@@ -50,10 +50,8 @@ import org.apache.tools.ant.types.*;
 
 /**
  *  This class implements the SourceControlElement methods for a P4 depot. The
- *  call to CVS is assumed to work without any setup. This implies that if the
- *  authentication type is pserver the call to cvs login should be done prior to
- *  calling this class. <p>
- * 
+ *  call to P4 is assumed to work without any setup.
+ *  
  *  P4Element depends on the optional P4 package delivered with Ant v1.3. But
  *  since it probably doesn't make much sense using the P4Element without other
  *  P4 support it shouldn't be a problem. <p>
@@ -61,7 +59,7 @@ import org.apache.tools.ant.types.*;
  *  P4Element sets the property ${p4element.change} with the current changelist
  *  number. This should then be passed into p4sync or other p4 commands.
  * 
- * @author niclas.olofsson@ismobile.com
+ * @author <a href="mailto:niclas.olofsson@ismobile.com">niclas.olofsson@ismobile.com</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
  */
