@@ -105,13 +105,17 @@
              select="$javac.tasklist/message[@priority='warn']"/>
             <xsl:variable name="ejbjar.warn.messages" 
              select="$ejbjar.tasklist/message[@priority='warn']"/>
-
-            <xsl:if test="(count($javac.warn.messages) + count($ejbjar.warn.messages)) > 0">
+            <xsl:variable name="total.errorMessage.count" 
+             select="count($javac.warn.messages) + count($ejbjar.warn.messages)"/>
+            
+            <xsl:if test="$total.errorMessage.count > 0">
                 <tr>
+                <!-- NOTE: Cannot use total.errorMessage.count as a count of total errors because
+                  javac is only returning error messages as straight character data.
+                  total.errorMessage.count is actually the number of lines of error messages. -->
                     <td bgcolor="#000066" colspan="5">
                         <b><font face="arial" size="2" color="#FFFFFF">
-                            &#160;Errors/Warnings:&#160;(
-                             <xsl:value-of select="count($get.tasklist/message[@priority='warn'])"/>)
+                            &#160;Errors/Warnings:
                         </font></b>
                     </td>
                 </tr>
