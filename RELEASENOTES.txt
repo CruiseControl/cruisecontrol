@@ -92,6 +92,10 @@ P4
 ----------------------
 * Close Process-streams in collectChangelistSinceLastBuild to avoid "too many open files"-errors
 
+PluginRegistry
+----------------------
+getDefaultPluginRegistry() now reads default plugins from a properties-file.
+
 PluginXMLHelper
 ----------------------
 * add support for nested elements via add(<Type>)
