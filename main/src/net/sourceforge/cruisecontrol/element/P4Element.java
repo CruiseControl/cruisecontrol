@@ -173,9 +173,6 @@ public class P4Element extends SourceControlElement {
 		execP4Command("describe -s " + changeNumber.toString(),
 			new P4HandlerAdapter() {
 				public void process(String line) {
-					if (util.match("/error/", line)) {
-						throw new BuildException("Perforce Error, check client settings and/or server");
-					}
 					sbDescription.append(line);
 					sbDescription.append("\n");
 				}
