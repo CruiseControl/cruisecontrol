@@ -4,34 +4,34 @@
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
+ *
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
- *     + Redistributions of source code must retain the above copyright 
- *       notice, this list of conditions and the following disclaimer. 
- *       
- *     + Redistributions in binary form must reproduce the above 
- *       copyright notice, this list of conditions and the following 
- *       disclaimer in the documentation and/or other materials provided 
- *       with the distribution. 
- *       
- *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the 
- *       names of its contributors may be used to endorse or promote 
- *       products derived from this software without specific prior 
- *       written permission. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
@@ -45,14 +45,16 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.apache.xalan.xslt.*;
+import javax.xml.transform.*;
+import javax.xml.transform.stream.*;
 
 /**
  * Servlet designed to use an XSL transform to display the information
  * from the log files output by CruiseControl in a convenient manner
  * for viewing.
- * 
+ *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author Sam Ruby
  */
 public class BuildServlet extends HttpServlet {
 
@@ -72,31 +74,31 @@ public class BuildServlet extends HttpServlet {
     protected String getLogDir() {
         return _logDir;
     }
-    
+
     protected String getXSLFile() {
         return _xslFile;
     }
-    
+
     protected String getPageTitle() {
         return _title;
     }
-    
+
     protected String getLogo() {
         return _logo;
     }
-    
+
     protected String getCurrentBuildStatusFile() {
         return _currentBuildStatusFile;
     }
-    
+
     protected String getServletURL() {
         return _servletURL;
     }
-    
+
     protected String getImageDir() {
         return _imageDir;
     }
-    
+
     /**
      * Load properties file
      * @throws ServletException
@@ -180,22 +182,23 @@ public class BuildServlet extends HttpServlet {
         }
     }
 
-    private void transformBuildLogToHTML(PrintWriter out) throws FileNotFoundException, org.xml.sax.SAXException {
+    private void transformBuildLogToHTML(PrintWriter out) throws FileNotFoundException, org.xml.sax.SAXException, TransformerException {
         File xmlFile = new File(_logFile);
         if (xmlFile.exists()) {
             FileReader xml = new FileReader(xmlFile);
             FileReader xsl = new FileReader(_xslFile);
 
             // Instantiate an XSLTProcessor.
-            org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
+            TransformerFactory tFactory = TransformerFactory.newInstance();
 
             // Create the 3 objects the XSLTProcessor needs to perform the transformation.
-            XSLTInputSource xmlSource = new XSLTInputSource(xml);
-            XSLTInputSource xslSheet = new XSLTInputSource(xsl);
-            XSLTResultTarget xmlResult = new XSLTResultTarget(out);
+            StreamSource xmlSource = new StreamSource(xml);
+            StreamSource xslSheet  = new StreamSource(xsl);
+            StreamResult xmlResult = new StreamResult(out);
 
             // Perform the transformation.
-            processor.process(xmlSource, xslSheet, xmlResult);
+            Transformer transformer = tFactory.newTransformer(xslSheet);
+            transformer.transform(xmlSource, xmlResult);
         }
     }
 
@@ -242,40 +245,40 @@ public class BuildServlet extends HttpServlet {
     private void printLogsAsLinks(PrintWriter out) throws ParseException{
         final int START_TSTAMP = 3;
         final int END_TSTAMP = 15;
-        
+
         File logDirFile = new File(_logDir);
-        
+
         String[] prevBuildLogs = logDirFile.list();
-        
+
         Arrays.sort(prevBuildLogs);
-        
+
         //(PENDING) print first N logs as links, place remaining in a drop down
-        
+
         for (int i = prevBuildLogs.length - 1; i >= 0; i--) {
             String currFileName = prevBuildLogs[i];
-            
+
             if (currFileName.startsWith("log") && currFileName.endsWith(".xml")) {
                 String label = "";
                 if (currFileName.indexOf("L") != -1) {
-                    label = "&nbsp;(" 
-                     + currFileName.substring(currFileName.indexOf("L") + 1, 
+                    label = "&nbsp;("
+                     + currFileName.substring(currFileName.indexOf("L") + 1,
                      currFileName.length() - 4) + ")";
                 } else {
                     label = "";
                 }
                 String timestamp = currFileName.substring(START_TSTAMP, END_TSTAMP);
                 SimpleDateFormat currFormat = new SimpleDateFormat("yyyyMMddHHmm");
-                SimpleDateFormat targetFormat = 
+                SimpleDateFormat targetFormat =
                  new SimpleDateFormat ("MM/dd/yyyy HH:mm");
-                
+
                 String dateString = targetFormat.format(
                  new Date(currFormat.parse(timestamp).getTime()));
-                String fileNameWithoutExt = 
+                String fileNameWithoutExt =
                  currFileName.substring(0, currFileName.lastIndexOf("."));
-                out.println("<a href=\"" + _servletURL + "?" + fileNameWithoutExt 
+                out.println("<a href=\"" + _servletURL + "?" + fileNameWithoutExt
                  + "\">" + dateString + label + "</a><br>");
             }
         }
     }
-    
+
 }
