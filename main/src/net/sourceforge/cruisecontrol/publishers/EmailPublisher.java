@@ -133,7 +133,7 @@ public abstract class EmailPublisher implements Publisher {
     protected boolean shouldSend(XMLLogHelper logHelper)
             throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
-            if (_reportSuccess.equalsIgnoreCase("success")) {
+            if (_reportSuccess.equalsIgnoreCase("always")) {
                 return true;
             } else if (_reportSuccess.equalsIgnoreCase("fixes")) {
                 if (logHelper.wasPreviousBuildSuccessful()) {
