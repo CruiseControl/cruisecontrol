@@ -1,4 +1,4 @@
-Building list for $/Users/jfredrick/test1/a..
+Building list for $/Users/jfredrick/test1...
 
 *****  branch.file.1  *****
 Version 2
@@ -6,7 +6,8 @@ User: Jfredrick     Date:  7/09/02   Time:  1:54p
 Checked in $/Users/jfredrick/test1/a
 Comment:
 
-*****************  Version 18  *****************
+*****  a  *****
+Version 18
 User: Jfredrick     Date:  7/09/02   Time: 12:58p
 add.file added
 
@@ -16,71 +17,163 @@ User: Jfredrick     Date:  7/09/02   Time: 12:57p
 Checked in $/Users/jfredrick/test1/b
 Comment:
 
-*****************  Version 17  *****************
+*****  a  *****
+Version 17
 User: Jfredrick     Date:  7/09/02   Time: 12:57p
-$/Users/jfredrick/test1/a/branch.file.2 pinned to version 1
+$/Users/jfredrick/test1/a/branch.file.2;1 shared
 
-*****************  Version 16  *****************
+*****  b  *****
+Version 11
+User: Jfredrick     Date:  7/09/02   Time: 12:57p
+$/Users/jfredrick/test1/a/branch.file.2 shared
+
+*****  branch.file.1  *****
+Version 2
+User: Jfredrick     Date:  7/09/02   Time: 12:57p
+Branched
+Comment:
+
+*****  b  *****
+Version 10
+User: Jfredrick     Date:  7/09/02   Time: 12:57p
+branch.file.1 branched
+
+*****  b  *****
+Version 9
+User: Jfredrick     Date:  7/09/02   Time: 12:57p
+$/Users/jfredrick/test1/a/branch.file.1 shared
+
+*****  a  *****
+Version 16
 User: Jfredrick     Date:  7/09/02   Time: 12:56p
 $/Users/jfredrick/test1/b/move.file.2 shared
 
-*****************  Version 15  *****************
+*****  b  *****
+Version 8
+User: Jfredrick     Date:  7/09/02   Time: 12:56p
+move.file.2 deleted
+
+*****  a  *****
+Version 15
 User: Jfredrick     Date:  7/09/02   Time: 12:56p
 move.file.1 deleted
 
-*****************  Version 14  *****************
+*****  b  *****
+Version 7
+User: Jfredrick     Date:  7/09/02   Time: 12:56p
+$/Users/jfredrick/test1/a/move.file.1 shared
+
+*****  a  *****
+Version 14
 User: Jfredrick     Date:  7/09/02   Time: 12:56p
 rename.file renamed to rename.file.new
 
-*****************  Version 13  *****************
+*****  a  *****
+Version 13
 User: Jfredrick     Date:  7/09/02   Time: 12:56p
 delete.file deleted
 
-*****************  Version 12  *****************
+*****  b  *****
+Version 6
+User: Jfredrick     Date:  7/09/02   Time: 12:55p
+move.file.2 added
+
+*****  a  *****
+Version 12
 User: Jfredrick     Date:  7/09/02   Time: 12:55p
 rename.file added
 
-*****************  Version 11  *****************
+*****  a  *****
+Version 11
 User: Jfredrick     Date:  7/09/02   Time: 12:55p
 move.file.1 added
 
-*****************  Version 10  *****************
+*****  a  *****
+Version 10
 User: Jfredrick     Date:  7/09/02   Time: 12:55p
 delete.file added
 
-*****************  Version 9   *****************
+*****  a  *****
+Version 9
 User: Jfredrick     Date:  7/09/02   Time: 12:55p
 branch.file.2 added
 
-*****************  Version 8   *****************
+*****  a  *****
+Version 8
 User: Jfredrick     Date:  7/09/02   Time: 12:55p
 branch.file.1 added
 
-*****************  Version 7   *****************
+*****  b  *****
+Version 5
+User: Jfredrick     Date:  7/09/02   Time: 12:51p
+makefile.mvc deleted
+
+*****  a  *****
+Version 7
 User: Jfredrick     Date:  7/09/02   Time: 12:51p
 index.html deleted
 
-*****************  Version 6   *****************
+*****  a  *****
+Version 6
 User: Jfredrick     Date:  7/09/02   Time: 12:51p
 makefile deleted
 
-*****************  Version 5   *****************
+*****  a  *****
+Version 5
 User: Jfredrick     Date:  4/16/02   Time:  1:30p
 makefile.mvc deleted
 
-*****************  Version 4   *****************
+*****  b  *****
+Version 4
+User: Jfredrick     Date:  4/16/02   Time:  1:30p
+$/Users/MStave/test1/a/makefile.mvc shared
+
+*****  b  *****
+Version 3
+User: Jfredrick     Date:  4/16/02   Time:  1:30p
+index.html deleted
+
+*****  a  *****
+Version 4
 User: Jfredrick     Date:  4/16/02   Time:  1:30p
 $/Users/MStave/test1/b/index.html shared
 
 *****************  Version 3   *****************
 User: Jfredrick     Date:  4/16/02   Time:  1:29p
-$/Users/jfredrick/test1/a/makefile.mvc unpinned
+$b added
 
 *****************  Version 2   *****************
 User: Jfredrick     Date:  4/16/02   Time:  1:29p
-$/Users/jfredrick/test1/a/makefile unpinned
+$a added
 
 *****************  Version 1   *****************
+User: Jfredrick     Date:  4/16/02   Time:  1:29p
+Created
+Comment:
+
+*****  a  *****
+Version 3
+User: Jfredrick     Date:  4/16/02   Time:  1:29p
+$/Users/jfredrick/test1/a/makefile.mvc shared
+
+*****  a  *****
+Version 2
+User: Jfredrick     Date:  4/16/02   Time:  1:29p
+$/Users/jfredrick/test1/a/makefile shared
+
+*****  a  *****
+Version 1
+User: Jfredrick     Date:  4/16/02   Time:  1:29p
+Created
+Comment:
+
+*****  b  *****
+Version 2
+User: Jfredrick     Date:  4/16/02   Time:  1:29p
+$/Users/jfredrick/test1/b/index.html shared
+
+*****  b  *****
+Version 1
 User: Jfredrick     Date:  4/16/02   Time:  1:29p
 Created
 Comment:
