@@ -42,6 +42,8 @@
     <xsl:output method="html"/>
 
     <xsl:template match="/">
+        <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
+
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
             <xsl:if test="cruisecontrol/build/@error">
@@ -66,15 +68,22 @@
                 <span class="header-label">Time to build:&#160;</span>
                 <xsl:value-of select="cruisecontrol/build/@time"/>
             </td></tr>
-            <tr><td class="header-data">
-                <span class="header-label">Last changed:&#160;</span>
-                <xsl:value-of select="cruisecontrol/modifications/modification/date"/>
-            </td></tr>
-            <tr><td class="header-data">
-                <span class="header-label">Last log entry:&#160;</span>
-                <xsl:value-of select="cruisecontrol/modifications/modification/comment"/>
-            </td></tr>
+            <xsl:apply-templates select="$modification.list">
+                <xsl:sort select="date" order="descending" data-type="text" />
+            </xsl:apply-templates>
         </table>
     </xsl:template>
 
+    <!-- Last Modification template -->
+    <xsl:template match="modification">
+        <xsl:if test="position() = 1">
+            <tr><td class="header-data">
+                <span class="header-label">Last changed:&#160;</span>
+                <xsl:value-of select="date"/>
+            </td></tr>
+            <tr><td class="header-data">
+                <span class="header-label">Last log entry:&#160;</span>
+                <xsl:value-of select="comment"/>
+            </td></tr>
+        </xsl:if>
 </xsl:stylesheet>
