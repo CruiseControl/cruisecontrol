@@ -69,6 +69,7 @@ goto end
 
 :noJavaFound
 echo Java not found!
+echo set JAVA_HOME
 goto end
 
 :end
