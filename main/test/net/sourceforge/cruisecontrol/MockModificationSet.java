@@ -41,12 +41,20 @@ import org.jdom.Element;
 import java.util.Date;
 
 public class MockModificationSet extends ModificationSet {
+
+    Element modifications = new Element("modifications");
+
     public Element getModifications(Date lastBuild) {
-        return new Element("modifications");
+        return modifications;
     }
 
+    boolean modified = true;
     public boolean isModified() {
-        return true;
+        return modified;
+    }
+    
+    public void setModified(boolean isModified) {
+        modified = isModified;
     }
 
     public java.util.Hashtable getProperties(){
@@ -56,7 +64,13 @@ public class MockModificationSet extends ModificationSet {
         return table;
     }
 
-    public Date getNow() {
-        return new Date();
+    Date time = null;
+    
+    public Date getTimeOfCheck() {
+        return time;
+    }
+    
+    public void setTimeOfCheck(Date timeOfCheck) {
+        time = timeOfCheck;
     }
 }
