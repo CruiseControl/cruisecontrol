@@ -54,19 +54,19 @@ public class ArtifactsPublisher implements Publisher {
     private Copy copier = new Copy();
 
     private String destDir;
-    private String dir;
-    private String file;
+    private String targetDirectory;
+    private String targetFile;
 
     public void setDest(String dir) {
         destDir = dir;
     }
 
     public void setDir(String pDir) {
-        this.dir = pDir;
+        targetDirectory = pDir;
     }
 
     public void setFile(String file) {
-        this.file = file;
+        targetFile = file;
     }
 
     public void publish(Element cruisecontrolLog)
@@ -75,23 +75,47 @@ public class ArtifactsPublisher implements Publisher {
         Project project = new Project();
         String uniqueDir = helper.getBuildTimestamp();
         File uniqueDest = new File(destDir, uniqueDir);
-        if (dir != null) {
-            FileSet set = new FileSet();
-            set.setDir(new File(dir));
-            copier.addFileset(set);
-            copier.setTodir(uniqueDest);
-            copier.setProject(project);
-            copier.execute();
+        
+        if (targetDirectory != null) {
+            publishDirectory(project, uniqueDest);
         }
-        if (file != null) {
-            FileUtils utils = FileUtils.newFileUtils();
-            try {
-                utils.copyFile(new File(file), new File(uniqueDest, file));
-            } catch (IOException e) {
-                throw new CruiseControlException(e);
-            }
+        if (targetFile != null) {
+            publishFile(uniqueDest);
         }
 
+    }
+
+    void publishFile(File uniqueDest) throws CruiseControlException {
+        File file = new File(targetFile);
+        if (!file.exists()) {
+            throw new CruiseControlException("target file " + file.getAbsolutePath() + " does not exist");
+        }
+        FileUtils utils = FileUtils.newFileUtils();
+        try {
+            utils.copyFile(file, new File(uniqueDest, targetFile));
+        } catch (IOException e) {
+            throw new CruiseControlException(e);
+        }
+    }
+
+    void publishDirectory(Project project, File uniqueDest) throws CruiseControlException {
+        File directory = new File(targetDirectory);
+        if (!directory.exists()) {
+            throw new CruiseControlException("target directory " + directory.getAbsolutePath() + " does not exist");
+        }
+        if (!directory.isDirectory()) {
+            throw new CruiseControlException("target directory " + directory.getAbsolutePath() + " is not a directory");
+        }
+        FileSet set = new FileSet();
+        set.setDir(directory);
+        copier.addFileset(set);
+        copier.setTodir(uniqueDest);
+        copier.setProject(project);
+        try {
+            copier.execute();
+        } catch (Exception e) {
+            throw new CruiseControlException(e);
+        }
     }
 
     public void validate() throws CruiseControlException {
@@ -99,8 +123,12 @@ public class ArtifactsPublisher implements Publisher {
             throw new CruiseControlException("'destdir' not specified in configuration file.");
         }
 
-        if (dir == null && file == null) {
+        if (targetDirectory == null && targetFile == null) {
             throw new CruiseControlException("'dir' or 'file' must be specified in configuration file.");
+        }
+        
+        if (targetDirectory != null && targetFile != null) {
+            throw new CruiseControlException("only one of 'dir' or 'file' may be specified.");
         }
     }
 }
