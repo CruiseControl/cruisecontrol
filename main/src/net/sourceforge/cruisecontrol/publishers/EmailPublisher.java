@@ -96,9 +96,6 @@ public abstract class EmailPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if(_servletUrl == null) {
-            throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
-        }
         if(getMailHost() == null) {
             throw new CruiseControlException("'mailhost' not specified in configuration file.");
         }
