@@ -40,6 +40,8 @@ import junit.framework.TestCase;
 
 import java.io.File;
 
+import org.jdom.Element;
+
 public class MainTest extends TestCase {
 
     private Main main;
@@ -289,4 +291,16 @@ public class MainTest extends TestCase {
         }
     }
     
+    public void testGetProjectNames() {
+        Element rootElement = new Element("cruisecontrol");
+        Element project1 = new Element("project");
+        project1.setAttribute("name", "project1");
+        rootElement.addContent(project1);
+        Element project2 = new Element("project");
+        project2.setAttribute("name", "project2");
+        rootElement.addContent(project2);
+        String[] projectNames = main.getProjectNames(rootElement);
+        assertEquals("project1", projectNames[0]);
+        assertEquals("project2", projectNames[1]);
+    }
 }

@@ -40,11 +40,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Vector;
 
 import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * Command line entry point.
@@ -65,26 +69,59 @@ public class Main {
         main.printVersion();
 
         Project project = null;
-        boolean startQueue = true;
+        boolean startQueue = false;
         BuildQueue buildQueue = new BuildQueue(startQueue);
+        Project[] projects = null;
         try {
             project = main.configureProject(args);
             // Init the project once, to check the current config file is ok
             project.init();
-            project.setBuildQueue(buildQueue);
 
             if (shouldStartProjectController(args)) {
                 ProjectControllerAgent agent =
                     new ProjectControllerAgent(project, parsePort(args));
                 agent.start();
             }
+
+            projects = main.getAllProjects(args, project);
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             usage();
         }
 
-        Thread projectSchedulingThread = new Thread(project, "Project " + project.getName() + " thread");
-        projectSchedulingThread.start();
+        buildQueue.start();
+
+        for (int i = 0; i < projects.length; i++) {
+            Project currentProject = projects[i];
+            currentProject.setBuildQueue(buildQueue);
+            Thread projectSchedulingThread =
+                new Thread(
+                    currentProject,
+                    "Project " + currentProject.getName() + " thread");
+            projectSchedulingThread.start();
+        }
+    }
+
+    Project[] getAllProjects(String[] args, Project namedProject)
+        throws CruiseControlException {
+        Vector allProjects = new Vector();
+        String configFileName = namedProject.getConfigFileName();
+        File configFile = new File(configFileName);
+        Element configRoot = Util.loadConfigFile(configFile);
+        String[] projectNames = getProjectNames(configRoot);
+        for (int i = 0; i < projectNames.length; i++) {
+            String projectName = projectNames[i];
+            System.out.println("projectName = ["+projectName+"]");
+            if (projectName.equals(namedProject.getName())) {
+                System.out.println("equals namedProject");
+                allProjects.add(namedProject);
+                continue;
+            }
+            Project project = configureProject(args, projectName);
+            project.init();
+            allProjects.add(project);
+        }
+        return (Project[]) allProjects.toArray(new Project[] {});
     }
 
     /**
@@ -120,7 +157,14 @@ public class Main {
      */
     public Project configureProject(String args[])
         throws CruiseControlException {
-        Project project = readProject(parseProjectName(args));
+        String projectName = parseProjectName(args);
+        Project project = configureProject(args, projectName);
+        return project;
+    }
+
+    Project configureProject(String[] args, String projectName)
+        throws CruiseControlException {
+        Project project = readProject(projectName);
 
         project.setLastBuild(parseLastBuild(args, project.getLastBuild()));
 
@@ -128,10 +172,9 @@ public class Main {
             project.setLastSuccessfulBuild(project.getLastBuild());
         }
         project.setLabel(parseLabel(args, project.getLabel()));
-        project.setName(parseProjectName(args));
+        project.setName(projectName);
         project.setConfigFileName(
             parseConfigFileName(args, project.getConfigFileName()));
-
         return project;
     }
 
@@ -344,5 +387,24 @@ public class Main {
             }
         }
         return returnArgValue;
+    }
+
+    String[] getProjectNames(Element rootElement) {
+        Vector projectNames = new Vector();
+        Iterator projectIterator =
+            rootElement.getChildren("project").iterator();
+        while (projectIterator.hasNext()) {
+            Element projectElement = (Element) projectIterator.next();
+            String projectName = projectElement.getAttributeValue("name");
+            if (projectName == null) {
+                LOG.warn(
+                    "configuration file contains project element with no name");
+            } else {
+                projectNames.add(projectName);
+            }
+        }
+
+        return (String[]) projectNames.toArray(new String[] {
+        });
     }
 }
