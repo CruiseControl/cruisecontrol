@@ -39,6 +39,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Category;
 
@@ -185,17 +186,16 @@ public class MKS implements SourceControl {
             //Logging the error stream.
             StreamPumper errorPumper =
                 new StreamPumper(p.getErrorStream(),
-                                 null,
                                  new PrintWriter(System.err, true));
-            errorPumper.start();
+            new Thread(errorPumper).start();
 
             //The input stream has the log information that we want to parse.
             InputStream input = p.getInputStream();
             mods = parseStream(input);
 
             //Using another stream pumper here will get rid of any leftover data in the stream.
-            StreamPumper outPumper = new StreamPumper(input, null, null);
-            outPumper.start();
+            StreamPumper outPumper = new StreamPumper(input, null);
+            new Thread(outPumper).start();
 
             p.waitFor();
         } catch (Exception ioe) {
@@ -387,61 +387,5 @@ public class MKS implements SourceControl {
 
         }
         return nextLine;
-    }
-
-    /**
-     * Inner class for continually pumping the input stream during
-     * Process's runtime. This was copied/duplicated from the
-     * Ant Exec built-in task.
-     */
-    class StreamPumper extends Thread {
-        private static final int BUFFER_SIZE = 512;
-        private BufferedReader din;
-        private String name;
-        private boolean endOfStream = false;
-        private int SLEEP_TIME = 5;
-        private PrintWriter fos;
-
-        public StreamPumper(InputStream is, String name, PrintWriter fos) {
-            this.din     = new BufferedReader(new InputStreamReader(is));
-
-            this.fos     = fos;
-
-            if (name != null) {
-                this.name = "[mkselement "+name+"] ";
-            } else {
-                this.name = "[mkselement] ";
-            }
-        }
-
-        public void pumpStream()
-        throws IOException
-        {
-            byte[] buf = new byte[BUFFER_SIZE];
-            if (!endOfStream) {
-                String line = din.readLine();
-
-                if (line != null && fos != null) {
-                    /*DO NOTHING, IGNORE*/
-                    fos.println(name + line);
-                } else {
-                    endOfStream = true;
-                }
-            }
-        }
-
-        public void run() {
-            try {
-                try {
-                    while (!endOfStream) {
-                        pumpStream();
-                        sleep(SLEEP_TIME);
-                    }
-                } catch (InterruptedException ie) {
-                }
-                din.close();
-            } catch (IOException ioe) {
-            }
-        }
     }
 }
