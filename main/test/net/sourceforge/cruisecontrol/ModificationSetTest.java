@@ -40,10 +40,10 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
-import java.util.Date;
-import java.util.Iterator;
 import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ModificationSetTest extends TestCase {
 
@@ -67,14 +67,74 @@ public class ModificationSetTest extends TestCase {
         Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date(), 0).iterator();
         while (mock1ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock1ModificationsIterator.next();
-            modificationsElement.addContent(modification.toElement(new SimpleDateFormat("")));
+            modificationsElement.addContent(modification.toElement(modSet._formatter));
         }
         Iterator mock2ModificationsIterator = mock2.getModifications(new Date(), new Date(), 0).iterator();
         while (mock2ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock2ModificationsIterator.next();
-            modificationsElement.addContent(modification.toElement(new SimpleDateFormat("")));
+            modificationsElement.addContent(modification.toElement(modSet._formatter));
         }
 
-        assertEquals(modSetResults.toString(), modificationsElement.toString());
+        XMLOutputter outputter = new XMLOutputter();
+        assertEquals("XML data differ", 
+                outputter.outputString(modificationsElement), 
+                outputter.outputString(modSetResults));
     }
+
+    /**
+     * This test will give modificationset two different types of 
+     * modifications. One regular, based on the object, and one with Element data.
+     * Uses inline sourcecontrol implementation instead of mock.
+     */
+    public void testGetMixedModifications() {
+        ModificationSet modSet = new ModificationSet();
+
+        Modification mod1 = new Modification();
+        mod1.type = "Checkin";
+        mod1.fileName = "file3";
+        mod1.folderName = "dir3";
+        mod1.userName = "user3";
+        mod1.modifiedTime = new Date();
+        mod1.comment = "comment3";
+
+        Modification mod2 = new Modification();
+        mod2.type = "Checkin";
+        mod2.fileName = "file4";
+        mod2.folderName = "dir4";
+        mod2.userName = "user4";
+        mod2.modifiedTime = new Date();
+        mod2.comment = "comment4";
+        final List result = new ArrayList();
+        result.add(mod1.toElement(modSet._formatter));
+        result.add(mod2);
+
+        modSet.addSourceControl(new SourceControl() {
+            public List getModifications(Date lastBuild, Date now, long quietperiod) {
+                return result;
+            }
+
+            // None of the below is used
+            public Hashtable getProperties() {
+                return null;
+            }
+
+            public void setProperty(String property) {
+            }
+
+            public void setPropertyOnDelete(String property) {
+            }
+        });
+
+        Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+
+        Element expectedModificationsElement = new Element("modifications");
+        expectedModificationsElement.addContent(mod1.toElement(modSet._formatter));
+        expectedModificationsElement.addContent(mod2.toElement(modSet._formatter));
+
+        XMLOutputter outputter = new XMLOutputter();
+        assertEquals("XML data differ", 
+                outputter.outputString(expectedModificationsElement), 
+                outputter.outputString(modSetResults));
+    }
+
 }

@@ -38,18 +38,18 @@ package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
 
-import java.util.*;
 import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  *
  */
 public class ModificationSet {
 
-    private List _modifications = new ArrayList();
-    private List _sourceControls = new ArrayList();
-    private SimpleDateFormat _formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-    private int _quietPeriod;
+    protected List _modifications = new ArrayList();
+    protected List _sourceControls = new ArrayList();
+    protected SimpleDateFormat _formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    protected int _quietPeriod;
 
     /**
      *
@@ -79,21 +79,28 @@ public class ModificationSet {
             SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
             _modifications.addAll(sourceControl.getModifications(lastBuild, now, _quietPeriod));
         }
-
-        Collections.sort(_modifications);
+        
+        //(REFACT) I took this out, and it is now handled by stylesheets instead.
+        // The reason is because it is screwed up by the Element node
+        //Collections.sort(_modifications);
         Element modificationsElement = new Element("modifications");
         Iterator modificationIterator = _modifications.iterator();
         while (modificationIterator.hasNext()) {
-            Modification modification = (Modification) modificationIterator.next();
-            Element modificationElement = (modification).toElement(_formatter);
-            modificationsElement.addContent(modificationElement);
-            modification.log(_formatter);
+            Object object = (Object) modificationIterator.next();
+            if (object instanceof org.jdom.Element) {
+                modificationsElement.addContent((Element) object);
+            } else {
+                Modification modification = (Modification) object;
+                Element modificationElement = (modification).toElement(_formatter);
+                modification.log(_formatter);
+                modificationsElement.addContent(modificationElement);
+            }
         }
 
         return modificationsElement;
     }
 
-    public int size() {
-        return _modifications.size();
+    public boolean isModified() {
+        return _modifications.size() > 0;
     }
 }

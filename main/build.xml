@@ -140,11 +140,11 @@
             <fileset dir="${test}" includes="**/*.xml"/>
         </copy>
 
-        <junit fork="yes" haltonfailure="yes" >
+        <junit fork="yes" haltonfailure="yes" printsummary="on" >
             <classpath >
                 <path refid="project.runtime.classpath" />
             </classpath>
-            <formatter type="plain" usefile="false" />
+            <!--<formatter type="brief" usefile="false" />-->
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
                 <fileset dir="${classes}" includes="**/*Test.class" excludes="**/element/" />
