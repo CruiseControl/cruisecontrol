@@ -209,6 +209,7 @@ public class StarTeamElement extends SourceControlElement {
 
     private Hashtable visit(Folder folder, Hashtable fileList, OLEDate snapshotDate) {
         if (folder == null) {
+            log("Specified folder " + folder + " is null!");
             return fileList;
         }
 
