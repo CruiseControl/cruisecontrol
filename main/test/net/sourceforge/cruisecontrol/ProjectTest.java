@@ -53,6 +53,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -393,6 +396,33 @@ public class ProjectTest extends TestCase {
         objects.writeObject(new Project());
         objects.flush();
         objects.close();
+    }
+
+    public void testDeserialization() throws Exception {
+        File f = new File("test.ser");
+        filesToClear.add(f);
+        FileOutputStream outFile = new FileOutputStream(f);
+        ObjectOutputStream objects = new ObjectOutputStream(outFile);
+
+        objects.writeObject(new Project());
+        objects.flush();
+        objects.close();
+
+        FileInputStream inFile = new FileInputStream(f);
+        ObjectInputStream inObjects = new ObjectInputStream(inFile);
+
+        Object p = inObjects.readObject();
+        inObjects.close();
+        assertNotNull("Read object must not be null", p);
+        assertTrue("Object must be instanceof Project class", p instanceof Project);
+        Project deserializedProject = (Project) p;
+        deserializedProject.addBuildProgressListener(
+            new BuildProgressListener() {
+                public void handleBuildProgress(BuildProgressEvent event) {
+
+                }
+            }
+        );
     }
 
     private void writeFile(String fileName, String contents) throws IOException {

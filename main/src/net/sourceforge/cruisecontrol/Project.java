@@ -48,6 +48,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,13 +68,13 @@ public class Project implements Serializable, Runnable {
     static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 
-    private transient ProjectState state = ProjectState.STOPPED;
+    private transient ProjectState state;
 
-    private transient List bootstrappers = new ArrayList();
+    private transient List bootstrappers;
     private transient ModificationSet modificationSet;
     private transient Schedule schedule;
     private transient Log log;
-    private transient List publishers = new ArrayList();
+    private transient List publishers;
     private transient LabelIncrementer labelIncrementer;
 
     /**
@@ -83,12 +85,12 @@ public class Project implements Serializable, Runnable {
     private transient Long overrideBuildInterval;
 
     private transient Date buildStartTime;
-    private transient Object pausedMutex = new Object();
-    private transient Object scheduleMutex = new Object();
-    private transient Object waitMutex = new Object();
+    private transient Object pausedMutex;
+    private transient Object scheduleMutex;
+    private transient Object waitMutex;
     private transient BuildQueue queue;
-    private transient ArrayList progressListeners = new ArrayList();
-    private transient ArrayList resultListeners = new ArrayList();
+    private transient ArrayList progressListeners;
+    private transient ArrayList resultListeners;
 
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -105,12 +107,32 @@ public class Project implements Serializable, Runnable {
     private transient Thread projectSchedulingThread;
     private boolean stopped = true;
 
+    public Project() {
+        initializeTransientFields();
+    }
+
+    private void initializeTransientFields() {
+        state = ProjectState.STOPPED;
+
+        bootstrappers = new ArrayList();
+        publishers = new ArrayList();
+
+        pausedMutex = new Object();
+        scheduleMutex = new Object();
+        waitMutex = new Object();
+        progressListeners = new ArrayList();
+        resultListeners = new ArrayList();
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        initializeTransientFields();
+    }
+
     /**
      * <b>Note:</b> This means that the config file is re-parsed on every cycle.
      */
     public void execute() {
-        checkMutex();
-
         synchronized (pausedMutex) {
             if (isPaused) {
                 buildFinished();
@@ -126,18 +148,6 @@ public class Project implements Serializable, Runnable {
         }
 
         buildFinished();
-    }
-
-    private void checkMutex() {
-        if (pausedMutex == null) {
-            pausedMutex = new Object();
-        }
-        if (scheduleMutex == null) {
-            scheduleMutex = new Object();
-        }
-        if (waitMutex == null) {
-            waitMutex = new Object();
-        }
     }
 
     /**
@@ -218,7 +228,6 @@ public class Project implements Serializable, Runnable {
 
     public void run() {
         LOG.info("Project " + name + " started");
-        checkMutex();
         try {
             while (!stopped) {
                 try {
@@ -485,7 +494,6 @@ public class Project implements Serializable, Runnable {
     }
 
     public void setPaused(boolean paused) {
-        checkMutex();
         synchronized (pausedMutex) {
             if (isPaused && !paused) {
                 pausedMutex.notifyAll();
