@@ -62,6 +62,7 @@ public class Modification implements Comparable {
     private static final String TAGNAME_USER = "user";
     private static final String TAGNAME_COMMENT = "comment";
     private static final String TAGNAME_EMAIL = "email";
+    private static final String TAGNAME_REVISION = "revision";
 
     private static final Logger LOG = Logger.getLogger(Modification.class);
 
@@ -71,6 +72,7 @@ public class Modification implements Comparable {
     public Date modifiedTime;
     public String userName;
     public String emailAddress;
+    public String revision;
     public String comment = "";
 
     public Element toElement(DateFormat formatter) {
@@ -102,6 +104,12 @@ public class Modification implements Comparable {
         modificationElement.addContent(userElement);
         modificationElement.addContent(commentElement);
 
+        if (revision != null) {
+            Element revisionElement = new Element(TAGNAME_REVISION);
+            revisionElement.addContent(revision);
+            modificationElement.addContent(revisionElement);
+        }
+
         // not all sourcecontrols guarantee a non-null email address
         if (emailAddress != null) {
             Element emailAddressElement = new Element(TAGNAME_EMAIL);
@@ -123,6 +131,7 @@ public class Modification implements Comparable {
         StringBuffer sb = new StringBuffer();
         sb.append("FileName: " + fileName + "\n");
         sb.append("FolderName: " + folderName + "\n");
+        sb.append("Revision: " + revision + "\n");
         sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
         sb.append("UserName: " + userName + "\n");
         sb.append("EmailAddress: " + emailAddress + "\n");
@@ -133,6 +142,7 @@ public class Modification implements Comparable {
     public void log(DateFormat formatter) {
         LOG.debug("FileName: " + fileName);
         LOG.debug("FolderName: " + folderName);
+        LOG.debug("Revision: " + revision);
         LOG.debug("Last Modified: " + formatter.format(modifiedTime));
         LOG.debug("UserName: " + userName);
         LOG.debug("EmailAddress: " + emailAddress);
@@ -156,9 +166,13 @@ public class Modification implements Comparable {
 
         Modification mod = (Modification) o;
 
-        boolean emailsAreEqual =
-            ((emailAddress == null && mod.emailAddress == null)
-                || emailAddress.equals(mod.emailAddress));
+        boolean emailsAreEqual = (emailAddress != null)
+            ? emailAddress.equals(mod.emailAddress)
+            : (mod.emailAddress == null);
+
+        boolean revisionsAreEqual = (revision != null)
+            ? revision.equals(mod.revision)
+            : (mod.revision == null);
 
         return (
             type.equals(mod.type)
@@ -167,6 +181,7 @@ public class Modification implements Comparable {
                 && modifiedTime.equals(mod.modifiedTime)
                 && userName.equals(mod.userName)
                 && emailsAreEqual
+                && revisionsAreEqual
                 && comment.equals(mod.comment));
     }
 
@@ -194,6 +209,7 @@ public class Modification implements Comparable {
             //maybe we should do something different
             modifiedTime = new Date();
         }
+        revision = modification.getChildText(TAGNAME_REVISION);
         userName = modification.getChildText(TAGNAME_USER);
         comment = modification.getChildText(TAGNAME_COMMENT);
         emailAddress = modification.getChildText(TAGNAME_EMAIL);
