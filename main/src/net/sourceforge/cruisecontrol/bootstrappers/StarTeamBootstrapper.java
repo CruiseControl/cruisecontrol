@@ -117,11 +117,11 @@ public class StarTeamBootstrapper implements Bootstrapper {
         filenames = files;
     }
 
-    public void bootstrap() {
+    public void bootstrap() throws CruiseControlException {
         Commandline args = buildCheckoutCommand();
         int retVal = StarTeamCmd.run(args.getCommandline());
         if (retVal != 0) {
-            log.error("Error executing StarTeam checkout command");
+            throw new CruiseControlException("Error executing StarTeam checkout command: " + args.toString());
         }
     }
 
@@ -166,6 +166,7 @@ public class StarTeamBootstrapper implements Bootstrapper {
             commandLine.createArgument().setValue(localfoldername);
         }
         commandLine.createArgument().setValue("-o");
+        commandLine.createArgument().setValue("-x");
         commandLine.createArgument().setLine(filenames);
         return commandLine;
     }
@@ -174,7 +175,7 @@ public class StarTeamBootstrapper implements Bootstrapper {
         return buildCheckoutCommand().toString();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CruiseControlException {
         StarTeamBootstrapper bootstrapper = new StarTeamBootstrapper();
         bootstrapper.setUsername("ccuser");
         bootstrapper.setPassword("ccuser");

@@ -62,6 +62,10 @@ SelfConfiguringPlugin:
 ----------------------
 * Add new SelfConfiguringPlugin interface. Submitted by Jeff Ramsdale
 
+StarTeamBootstrapper:
+----------------------
+* Prevent StarTeam from needing user interaction (CC-189). Patch by Lee Marlow
+
 testdetails.xsl:
 ----------------------
 * Escape '<' and '>' in popup window (CC-22). Patch by Jerome Lacoste
