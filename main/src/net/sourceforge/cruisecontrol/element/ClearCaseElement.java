@@ -57,7 +57,7 @@ public class ClearCaseElement extends SourceControlElement {
 
   /**
    * Set of the authors that modified files. With Clear Case, it corresponds
-   * to the user names.
+     * to the user names.
    */
   private Set _emailNames = new HashSet();
 
@@ -90,9 +90,15 @@ public class ClearCaseElement extends SourceControlElement {
      new SimpleDateFormat("yyyyMMdd.HHmmss");
 
   /**
-   *  Unlikely combinaison of 2 characters to create a String delimiter
+   *  Unlikely combinaison of characters to separate fields in a ClearCase query
    */
-  final static String DELIMITER = "££";
+  final static String DELIMITER = "£~£";
+
+  /**
+   *  Even more unlikely combinaison of characters to indicate end of one line in query.
+   * Carriage return (\n) can be used in comments and so is not available to us.
+   */
+  final static String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
 
   /**
    *  Sets the local working copy to use when making queries.
@@ -174,7 +180,7 @@ public class ClearCaseElement extends SourceControlElement {
     }
 
         command += " -nco -since " + lastBuildDate;
-    command += " -fmt \"%u"+DELIMITER+"%Nd"+DELIMITER+"%n"+DELIMITER+"%o"+DELIMITER+"%Nc\\n\" " + _viewPath;
+    command += " -fmt \"%u"+DELIMITER+"%Nd"+DELIMITER+"%n"+DELIMITER+"%o"+DELIMITER+"%Nc"+END_OF_STRING_DELIMITER+"\\n\" " + _viewPath;
 
     log("Command to execute : " + command);
         List modifications = null;
@@ -202,19 +208,30 @@ public class ClearCaseElement extends SourceControlElement {
 
   /**
    *  Parses the input stream to construct the modifications list.
+   * Package-private to make it available to the unit test.
    *
    *@param  input the stream to parse
    *@return  a list of modification elements
    *@exception  IOException
    */
-  private List parseStream(InputStream input) throws IOException {
+  List parseStream(InputStream input) throws IOException {
     ArrayList modifications = new ArrayList();
     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
     String line;
+    String lines = "";
 
     while ((line = reader.readLine()) != null) {
-      Modification mod = parseEntry(line);
+      if ( !lines.equals("") && !lines.endsWith(" ") && !line.startsWith(" ")) {
+        lines += " ";
+      }
+      lines += line;
+      Modification mod = null;
+      if ( lines.indexOf(END_OF_STRING_DELIMITER)>-1 )
+      {
+        mod = parseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
+        lines = "";
+      }
       if (mod != null) {
         modifications.add(mod);
       }
@@ -245,13 +262,12 @@ public class ClearCaseElement extends SourceControlElement {
     String operationType = st.nextToken().trim();
 
     String comment;
-    if ( st.countTokens() > 4 ) {
+    if ( st.countTokens() > 0 ) {
       comment = st.nextToken().trim();
     }
     else {
       comment = "";
     }
-
     /*
      *  a branch event shouldn't trigger a build
      */
