@@ -1,0 +1,10 @@
+
+.link { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#009900; text-decoration:none; }
+.data { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#000000; }
+.errordata { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FF0000; }
+.oddrow { bgcolor:#CCDDCC; }
+.sectionheader { font-family:arial,helvetica,sans-serif; font-size:10pt; font-weight:bold; color:#FFFFFF; bgcolor:#006600; }
+.summary { font-family:arial,helvetica,sans-serif; font-size:14pt; color:#000000; }
+.summarylabel { font-weight:bold; }
+.pageheader { font-family:arial,helvetica,sans-serif; font-size:14pt; color:#000000; font-weight:bold; }
+.info { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#000000; font-style:italic; }
