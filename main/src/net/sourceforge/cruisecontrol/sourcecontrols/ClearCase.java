@@ -141,10 +141,10 @@ public class ClearCase implements SourceControl {
 
     public void validate() throws CruiseControlException {
         if (branch == null) {
-           throw new CruiseControlException("'branch' is a required attribute for ClearCase.");
+            throw new CruiseControlException("'branch' is a required attribute for ClearCase.");
         }
         if (viewPath == null) {
-           throw new CruiseControlException("'viewpath' is a required attribute for ClearCase.");
+            throw new CruiseControlException("'viewpath' is a required attribute for ClearCase.");
         }
     }
 
@@ -186,22 +186,22 @@ public class ClearCase implements SourceControl {
 
         command += " -nco -since " + lastBuildDate;
         command += " -fmt \"%u"
-            + DELIMITER
-            + "%Nd"
-            + DELIMITER
-            + "%En"
-            + DELIMITER
-            + "%Vn"
-            + DELIMITER
-            + "%o"
-            + DELIMITER
-            + "!%l"
-            + DELIMITER
-            + "!%a"
-            + DELIMITER
-            + "%Nc"
-            + END_OF_STRING_DELIMITER
-            + "\\n\"";
+                + DELIMITER
+                + "%Nd"
+                + DELIMITER
+                + "%En"
+                + DELIMITER
+                + "%Vn"
+                + DELIMITER
+                + "%o"
+                + DELIMITER
+                + "!%l"
+                + DELIMITER
+                + "!%a"
+                + DELIMITER
+                + "%Nc"
+                + END_OF_STRING_DELIMITER
+                + "\\n\"";
 
         File root = new File(viewPath);
 
@@ -283,7 +283,9 @@ public class ClearCase implements SourceControl {
         if ((st.countTokens() < 7) || (st.countTokens() > 8)) {
             return null;
         }
-        String username = st.nextToken().trim();
+
+        String username = transformUsername(st.nextToken().trim());
+
         String timeStamp = st.nextToken().trim();
         String elementName = st.nextToken().trim();
         String version = st.nextToken().trim();
@@ -295,7 +297,7 @@ public class ClearCase implements SourceControl {
             labels = new Vector();
             StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
             while (labelST.hasMoreTokens()) {
-               labels.add(labelST.nextToken().trim());
+                labels.add(labelST.nextToken().trim());
             }
         }
 
@@ -324,7 +326,7 @@ public class ClearCase implements SourceControl {
         } else {
             comment = "";
         }
-        
+
         // A branch event shouldn't trigger a build
         if (operationType.equals("mkbranch")) {
             return null;
@@ -365,5 +367,18 @@ public class ClearCase implements SourceControl {
         // TODO: check if operation type is a delete
 
         return mod;
+    }
+
+    private String transformUsername(String username) {
+        String transform = username;
+        if ((username.substring(0, 2)).indexOf("\"\"") == 0) {
+            transform = username.substring(2, username.length());
+        } else {
+            if ((username.substring(0, 1)).indexOf("\"") == 0) {
+                transform = username.substring(1, username.length());
+            }
+        }
+
+        return transform;
     }
 }
