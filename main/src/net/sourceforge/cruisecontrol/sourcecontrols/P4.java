@@ -48,6 +48,7 @@ import org.apache.tools.ant.taskdefs.*;
 
 import org.apache.tools.ant.taskdefs.optional.perforce.*;
 import org.apache.tools.ant.types.*;
+import org.apache.log4j.Category;
 
 /**
  *  This class implements the SourceControlElement methods for a P4 depot. The
@@ -67,6 +68,9 @@ import org.apache.tools.ant.types.*;
  * @author Tim McCune
  */
 public class P4 extends SourceControlElement {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(P4.class.getName());
 
 	private Set _emailNames = new HashSet();
 	private Date _lastModified;
@@ -150,7 +154,7 @@ public class P4 extends SourceControlElement {
 						//Parse out the change number
 						String changeNumber = util.substitute("s/Change\\s([0-9]*?)\\son\\s.*/$1/gx", line);
 						changeNumbers.add(changeNumber);
-						log("Latest change is " + changeNumber, Project.MSG_INFO);
+						log.info("Latest change is " + changeNumber);
                     } else if (util.match("/error/", line)) {
 						throw new BuildException("Perforce Error, check client settings and/or server");
 					}
@@ -188,7 +192,7 @@ public class P4 extends SourceControlElement {
 		try {
 			modifiedTime = p4Date.parse(sModifiedTime);
 		} catch (Exception ex) {
-			log("Wrong date format exception caught. Using lastModified date from project instead.");
+			log.error("Wrong date format exception caught. Using lastModified date from project instead.", ex);
 			modifiedTime = _lastModified;
 		}
 
@@ -264,7 +268,7 @@ public class P4 extends SourceControlElement {
 			commandline.createArgument().setValue(cCmd);
 			commandline.createArgument().setLine(command);
 
-			log("Execing " + commandline);
+			log.debug("Executing: " + commandline);
 
 			// Just a simple handler to record the events in question.
 			//handler = null;
@@ -278,7 +282,7 @@ public class P4 extends SourceControlElement {
 							if (util.match("/error:/", line) && !util.match("/up-to-date/", line)) {
 								throw new BuildException(line);
 							}
-							log(util.substitute("s/^.*: //", line));
+							log.debug(util.substitute("s/^.*: //", line));
 						}
 					};
 
@@ -308,7 +312,7 @@ public class P4 extends SourceControlElement {
 
 		}
 		catch (Exception e) {
-			throw new BuildException("Problem exec'ing P4 command: " + e.getMessage());
+			throw new BuildException("Problem executing P4 command: " + e.getMessage());
 		}
 	}
 

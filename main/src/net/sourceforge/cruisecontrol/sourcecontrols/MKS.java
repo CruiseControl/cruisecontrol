@@ -40,6 +40,7 @@ import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
 import org.apache.tools.ant.Task;
+import org.apache.log4j.Category;
 
 /**
  * This class implements the SourceControlElement methods
@@ -51,6 +52,9 @@ import org.apache.tools.ant.Task;
  * @author Suresh K Bathala Skila, Inc.
  */
 public class MKS extends SourceControlElement {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(MKS.class.getName());
 
     /**
      * This is the date format required by commands passed
@@ -199,17 +203,6 @@ public class MKS extends SourceControlElement {
     }
 
     /**
-     * Logs the message if a task has been set.
-     *
-     * @param message message to log.
-     */
-    public void log(String message) {
-        if (task != null) {
-            this.task.getProject().log(message);
-        }
-    }
-
-    /**
      * Returns an ArrayList of Modifications detailing all
      * the changes between now and the last build.
      *
@@ -226,7 +219,7 @@ public class MKS extends SourceControlElement {
         lastModified = lastBuild;
         String dateRange = "\""+MKSDATE.format(lastBuild) +"<" + MKSDATE.format(now)+"\"";
         String commandArray = "rlog -q -d"+dateRange+ " -P"+mksroot;
-        log("[mkselement] " + commandArray);
+        log.debug("Executing: " + commandArray);
 
         try {
             Process p = Runtime.getRuntime().exec(commandArray);

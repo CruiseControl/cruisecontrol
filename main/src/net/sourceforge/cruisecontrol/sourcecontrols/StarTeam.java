@@ -43,6 +43,8 @@ import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 
 import java.util.*;
 
+import org.apache.log4j.Category;
+
 /**
  * This class logs into StarTeam and collects information on any modifications
  * made since the last successful build.
@@ -60,6 +62,9 @@ import java.util.*;
  * @author Neill
  */
 public class StarTeam extends SourceControlElement {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(StarTeam.class.getName());
 
     private String username;
     private String password;
@@ -159,8 +164,7 @@ public class StarTeam extends SourceControlElement {
                  snapshotAtLastBuild.getRootFolder(),
                  this.folder), lastBuildDate);
             } catch (ServerException se) {
-                log("Server Exception occurred visiting last build view: "
-                + se.getMessage());
+                log.error("Server Exception occurred visiting last build view: ", se);
             }
 
             compareFileLists(nowFiles, lastBuildFiles);
@@ -171,10 +175,10 @@ public class StarTeam extends SourceControlElement {
             try {
                 snapshotAtLastBuild.getRootFolder().discardItems(server.getTypeNames().FILE, -1);
             } catch (ServerException se) {
-                log("Server Exception occurred discarding last build file cache: " + se.getMessage());
+                log.error("Server Exception occurred discarding last build file cache: ", se);
             }
 
-            log(modifications.size() + " modifications in " + this.folder);
+            log.info(modifications.size() + " modifications in " + this.folder);
             return (ArrayList) modifications;
         } finally {
             server.disconnect();
@@ -299,9 +303,6 @@ public class StarTeam extends SourceControlElement {
 
         modifications.add(mod);
 
-        log("File: " + mod.fileName);
-
-        log("userName: " + mod.userName + " Date: " + mod.modifiedTime);
         if (revision.getModifiedTime().getLongValue() > mostRecent.getLongValue()) {
             mostRecent = revision.getModifiedTime();
         }

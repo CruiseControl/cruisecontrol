@@ -43,6 +43,7 @@ import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
 import org.apache.tools.ant.Task;
+import org.apache.log4j.Category;
 
 /**
  *  This class implements the SourceControlElement methods for a PVCS
@@ -51,6 +52,9 @@ import org.apache.tools.ant.Task;
  *  @author <a href="mailto:Richard.Wagner@alltel.com">Richard Wagner</a>
  */
 public class PVCS extends SourceControlElement {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(PVCS.class.getName());
 
 	/**
 	 *  Set of the authors that modified files. With PVCS, it corresponds to the
@@ -152,9 +156,8 @@ public class PVCS extends SourceControlElement {
                         p.waitFor();
 		}
 		catch (Exception e) {
-			log("Error in executing the PVCS command : " + e);
-			e.printStackTrace();
-                        return new ArrayList();
+			log.error("Error in executing the PVCS command : ", e);
+            return new ArrayList();
 		}
                 modifications = makeModificationsList();
                                          
@@ -184,8 +187,7 @@ public class PVCS extends SourceControlElement {
                  brIn.close();
            }
            catch(IOException e){ 
-                log("Error in reading vlog file of PVCS modifications : " + e);
-         	e.printStackTrace();
+                log.error("Error in reading vlog file of PVCS modifications : ", e);
            }
            theList = modificationBuilder.getList();
            return theList;
@@ -218,7 +220,7 @@ public class PVCS extends SourceControlElement {
           String line4Subline3 =  doubleQuotes + atSign + PVCS_TEMP_WORK_FILE + doubleQuotes; 
           String line4 = line4Subline1 + line4Subline2 + line4Subline3;
           
-          log("#### PVCSElement about to write this line:\n " + line4Subline2);
+          log.debug("#### PVCSElement about to write this line:\n " + line4Subline2);
           
           BufferedWriter bwOut;  
           try{
@@ -234,8 +236,7 @@ public class PVCS extends SourceControlElement {
               bwOut.close();
           }
           catch(IOException e){ 
-            log("Error in building PVCS pcli file : " + e);
-	    e.printStackTrace();
+            log.error("Error in building PVCS pcli file : ", e);
           }
         }
         

@@ -103,28 +103,4 @@ public abstract class SourceControlElement {
 	protected Task getAntTask() {
 		return _task;
 	}
-
-	/**
-	 *  Use Ant task to send a log message. Sends nothing if task is null.
-	 *
-	 *@param  message
-	 */
-	protected void log(String message) {
-		log(message, Project.MSG_INFO);
-	}
-
-	/**
-	 *  Use Ant task to send a log message. Sends nothing if task is null. The
-	 *  msgLevel param should be on of the org.apache.tools.ant.Project static
-	 *  variables: MSG_DEBUG, MSG_INFO, MSG_ERR, MSG_VERBOSE, MSG_WARN
-	 *
-	 *@param  message
-	 *@param  msgLevel
-	 */
-	protected void log(String message, int msgLevel) {
-		if (_task != null) {
-			_task.log(message, msgLevel);
-		}
-	}
-
 }
