@@ -110,19 +110,18 @@ public class XSLTag implements Tag, BodyTag {
      *  @param out The writer to write to
      */
     protected void serveCachedCopy(File cacheFile, Writer out) {
-        BufferedReader br = null;
+        InputStream is = null;
         try {
-            br = new BufferedReader(new FileReader(cacheFile));
-            String s = br.readLine();
-            while(s != null) {
-                out.write(s);
-                s = br.readLine();
+            is = new BufferedInputStream(new FileInputStream(cacheFile));
+            int c = 0;
+            while((c=is.read()) != -1) {
+                out.write(c);
             }
-            br.close();
+            is.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            br = null;
+            is = null;
         }
     }
 
