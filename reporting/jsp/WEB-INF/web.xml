@@ -42,7 +42,7 @@
 <web-app>
     <servlet>
       <servlet-name>cruisecontrol</servlet-name>
-      <jsp-file>buildresults.jsp</jsp-file>
+      <jsp-file>/buildresults.jsp</jsp-file>
       <init-param>
         <param-name>logDir</param-name>
         <param-value>YOUR CRUISECONTROL LOG DIRECTORY</param-value>
