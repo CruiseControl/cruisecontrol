@@ -205,7 +205,9 @@ public class VssElement extends SourceControlElement {
 			mod.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
 			mod.fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
 
-			if (fileLine.endsWith("added")) {
+			if (fileLine.endsWith("Created")) {
+                mod.type = "create";
+            } else if (fileLine.endsWith("added")) {
 				mod.type = "add";
 			} else if (fileLine.endsWith("deleted")) {
 				mod.type = "delete";
