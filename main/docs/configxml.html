@@ -83,6 +83,7 @@
                      <li><a class="small" href="#htmlemailpublisher">HTMLEmailPublisher</a></li>
                      <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
                      <li><a class="small" href="#scppublisher">SCPPublisher</a>
+                     <li><a class="small" href="#sametimeannouncementpublisher">SametimeAnnouncementPublisher</a>
                   </ul>
                <li><a class="small" href="#dateformat">DateFormat</a>
                <li><a class="small" href="#plugin">Plugin</a>
@@ -1251,6 +1252,72 @@
                <td class="tabledata">If specified, both xsldir and css are ignored.  Must handle the entire document.</td>
             </tr>
          </table>
+
+
+         <p><a name="sametimeannouncementpublisher"><span class="small">SametimeAnnouncementPublisher</span><br/>
+	 A version of EmailPublisher that sends Sametime announcements (optionally with a URL to the build results JSP) with the overall result of the build. Almost all of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the SametimeAnnouncementPublisher as well.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">buildresultsurl</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">URL to include with the build results.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">host</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Synonym for mailHost.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">username</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">User name to login to the Sametime community.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">password</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Password used to login to the Sametime community. If not specified, an anonymous login (using username) will be attempted.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">community</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Sametime community to login to.  Default is null - appropriate for single community servers.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">resolveusers</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether addresses should be resolved as users. Default is 'true'</td>
+            </tr>
+            <tr>
+               <td class="tabledata">resolvegroups</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether addresses should be resolved as groups. Default is 'true'</td>
+            </tr>
+            <tr>
+               <td class="tabledata">usegroupcontent</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether to send announcements to the content (members) of a group instead of the group directly. Default is 'true'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">handleresolveconflicts</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">How to handle address resolution conflicts.  Valid values are 'error' (abort the announcement), 'warn' (log a warning, ignoring the conflicting addresses), 'ignore' (ignore the conflicting addresses), 'recipient' (treat all conflicting addresses as recipients of the announcement).  Default is 'recipient'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">handleresolvefails</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">How to handle address resolution failures.  Valid values are 'error' (abort the announcement), 'warn' (log a warning and proceed), 'ignore' (ignore the failure).  Default is 'error'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">handlequerygroupcontentfails</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">How to handle group content query failures.  Valid values are 'error' (abort the announcement), 'warn' (log a warning and proceed), 'ignore' (ignore the failure).  Default is 'error'.</td>
+            </tr>
+          </table>
 
          <hr>
 
