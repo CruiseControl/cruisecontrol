@@ -1,5 +1,11 @@
 CruiseControl Release Notes - Latest CVS
 
+AntBuilder & MavenBuilder:
+----------------------
+* When using Windows, "cmd.exe /C" is no longer prepended to the command line to avoid problems with spaces.
+  This means you'll have to use 'ant.bat' or 'maven.bat' instead of just 'ant' or 'maven'!
+* getCommandLineArgs now uses Commandline-class
+
 build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
