@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+AntBuilder
+---------------
+* Fixed a bug in isWindows() that was returning false negatives. This would prevent antScript from working on some Windows systems.
+
 ArtifactsPublisher
 ---------------
 * Added to the default plugin registry
