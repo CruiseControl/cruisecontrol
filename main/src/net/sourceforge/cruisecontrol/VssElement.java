@@ -49,16 +49,6 @@ public class VssElement extends SourceControlElement {
     private SimpleDateFormat _vssOutFormat = new SimpleDateFormat("'Date:'MM/dd/yy   'Time: 'hh:mma");
 
     /**
-     * The String prepended to log messages from the source control element.  For
-     * example, CVSElement should implement this as return "[cvselement]";
-     *
-     * @return prefix for log messages
-     */
-    protected String logPrefix() {
-        return "[vsselement]";
-    }    
-    
-    /**
      *	set the project to get history
      */
     public void setSsDir(String s) {

@@ -67,15 +67,6 @@ public class ClearCaseElement extends SourceControlElement {
   private String _branch = null;
   private boolean _recursive = true;
 
-   /**
-    * The String prepended to log messages from the source control element.
-    *
-    * @return prefix for log messages
-    */    
-  protected String logPrefix() {
-    return "[clearcaseelement]";
-  }
-  
   /**
    * Returns a Set of email addresses. since Clear Case doesn't track actual
    * email addresse, we just return the usernames, which may correspond to emails ids.

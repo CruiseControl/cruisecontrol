@@ -24,10 +24,9 @@ package net.sourceforge.cruisecontrol;
 import java.util.*;
 import junit.framework.*;
 
-import net.sourceforge.cruisecontrol.testutil.MockTask;
-
 /**
- * @author  robertdw, jchyip
+ * @author Robert Watkins
+ * @author Jason Yip, jcyip@thoughtworks.com
  */
 public class CVSElementTest extends TestCase {
     
@@ -63,12 +62,19 @@ public class CVSElementTest extends TestCase {
         CVSElement element = new CVSElement();
         element.setCvsroot("cvsroot");
         element.setLocalWorkingCopy(null);
+
+        String[] expectedCommand = new String[] { "cvs", "-d", "cvsroot", "log", 
+         "-N", "-d", "\"" + CVSElement.formatCVSDate(lastBuildTime) + "<" 
+         + CVSElement.formatCVSDate(currTime) + "\""};
         
-        assertEquals("cvs -d cvsroot log -N -d \"" 
-         + CVSElement.formatCVSDate(lastBuildTime) 
-         + "<" + CVSElement.formatCVSDate(currTime) + "\"", 
-         element.prepareCommandForDisplay(element.buildHistoryCommand(
-          lastBuildTime, currTime).getCommandline()).trim());
+        String[] actualCommand = 
+         element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
+
+        assertEquals("Mismatched lengths!", expectedCommand.length, 
+         actualCommand.length);
+        for (int i = 0; i < expectedCommand.length; i++) {
+            assertEquals(expectedCommand[i], actualCommand[i]);
+        }
     }
     
     public void testHistoryCommandNullCVSROOT() {
@@ -78,21 +84,17 @@ public class CVSElementTest extends TestCase {
         element.setCvsroot(null);
         element.setLocalWorkingCopy("local");
 
-        assertEquals("cvs log -N -d \"" + CVSElement.formatCVSDate(lastBuildTime) 
-         + "<" + CVSElement.formatCVSDate(currTime) + "\" local", 
-         element.prepareCommandForDisplay(element.buildHistoryCommand(lastBuildTime, 
-          currTime).getCommandline()).trim());
-    }
-    
-    public void testLogPrepend() {
-        CVSElement element = new CVSElement();
-        MockTask task = new MockTask();
-        element.setAntTask(task);
-
-        String logMessage = "log message";
-        element.log(logMessage);
+        String[] expectedCommand = new String[] { "cvs", "log", 
+         "-N", "-d", "\"" + CVSElement.formatCVSDate(lastBuildTime) + "<" 
+         + CVSElement.formatCVSDate(currTime) + "\"", "local"};
         
-        assertEquals("[cvselement]" + " " + logMessage, task.getSentLog());
+        String[] actualCommand = 
+         element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
+        assertEquals("Mismatched lengths!", expectedCommand.length, 
+         actualCommand.length);
+        for (int i = 0; i < expectedCommand.length; i++) {
+            assertEquals(expectedCommand[i], actualCommand[i]);
+        }
     }
     
     public void testFormatLogDate() {
