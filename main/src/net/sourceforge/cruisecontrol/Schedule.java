@@ -191,7 +191,7 @@ public class Schedule {
     long getTimeToNextBuild(Date now, long sleepInterval) {
         long timeToNextBuild = sleepInterval;
         LOG.debug(
-            "getTimeToNextBuild: inital timeToNextBuild = " + timeToNextBuild);
+            "getTimeToNextBuild: initial timeToNextBuild = " + timeToNextBuild);
         timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
         LOG.debug(
             "getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
