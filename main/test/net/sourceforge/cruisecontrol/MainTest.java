@@ -86,6 +86,13 @@ public class MainTest extends TestCase {
             assertEquals(newProject.getLabel(), "1.2.2");
             assertEquals(newProject.getLastBuild(), "20020310120000");
             assertEquals(newProject.getName(), "myproject");
+            
+            try {
+                newProject.setPaused(false);
+            }
+            catch (NullPointerException e) {
+                fail("mutex must be initialized after a restore.");
+            }
         }
 
         try {
@@ -219,24 +226,24 @@ public class MainTest extends TestCase {
         String[] incorrectArgs = new String[]{"-port"};
         String[] invalidArgs = new String[]{"-port", "ABC"};
 
-        assertEquals(main.parsePort(correctArgs), 123);
+        assertEquals(Main.parsePort(correctArgs), 123);
 
         try {
-            main.parsePort(missingArgs);
+            Main.parsePort(missingArgs);
             fail("Expected exception");
         } catch (IllegalStateException e) {
             // expected
         }
 
         try {
-            main.parsePort(incorrectArgs);
+            Main.parsePort(incorrectArgs);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
         }
 
         try {
-            main.parsePort(invalidArgs);
+            Main.parsePort(invalidArgs);
             fail("Expected exception");
         } catch (IllegalArgumentException e) {
             // expected
