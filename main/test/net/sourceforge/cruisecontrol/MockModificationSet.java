@@ -48,4 +48,11 @@ public class MockModificationSet extends ModificationSet {
     public boolean isModified() {
         return true;
     }
+
+    public java.util.Hashtable getProperties(){
+        java.util.Hashtable table = new java.util.Hashtable();
+        table.put("filemodified", "true");
+        table.put("fileremoved", "true");
+        return table;
+    }
 }

@@ -47,16 +47,21 @@ import java.util.Hashtable;
 public class MockSourceControl implements SourceControl {
 
     private int _version;
-    private Hashtable _properties;
-    // added this because otherwise the unit-tests doesn't work 
+    private Hashtable _properties = new Hashtable();
+    private String _property = null;
+    private String _propertyOnDelete = null;
+
+    // added this because otherwise the unit-tests doesn't work
     // if the machine is slow. I promise, this was hard to catch :-)
     private Date _modifiedDate = new Date();
 
     
     public void setProperty(String property) {
+        _property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
@@ -89,6 +94,10 @@ public class MockSourceControl implements SourceControl {
             mod2.modifiedTime = _modifiedDate;
             mod2.comment = "comment2";
             result.add(mod2);
+
+            if( _property != null ) {
+                _properties.put(_property, "true");
+            }
         }
 
         if (_version == 2) {
@@ -109,6 +118,10 @@ public class MockSourceControl implements SourceControl {
             mod4.modifiedTime = _modifiedDate;
             mod4.comment = "comment4";
             result.add(mod4);
+
+            if( _propertyOnDelete != null ) {
+                _properties.put(_propertyOnDelete, "true");
+            }
         }
 
 

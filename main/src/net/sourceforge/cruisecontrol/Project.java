@@ -217,6 +217,7 @@ public class Project implements Serializable {
         Map buildProperties = new HashMap();
         buildProperties.put("label", _label);
         buildProperties.put("cctimestamp", _formatter.format(_now));
+        buildProperties.putAll(_modificationSet.getProperties());
         return buildProperties;
     }
 

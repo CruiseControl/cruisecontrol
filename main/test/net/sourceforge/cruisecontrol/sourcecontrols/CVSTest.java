@@ -72,7 +72,7 @@ public class CVSTest extends TestCase {
         input.close();
         Collections.sort(modifications);
 
-        assertEquals("Should have returned 3 modifications.", 3, modifications.size());
+        assertEquals("Should have returned 5 modifications.", 5, modifications.size());
 
 
         Modification mod1 = new Modification();
@@ -99,9 +99,126 @@ public class CVSTest extends TestCase {
         mod3.userName = "alden";
         mod3.comment = "enabled debug info when compiling tests.";
 
-        assertEquals(mod1, (Modification) modifications.get(0));
-        assertEquals(mod2, (Modification) modifications.get(1));
-        assertEquals(mod3, (Modification) modifications.get(2));
+        Modification mod4 = new Modification();
+        mod4.type = "deleted";
+        mod4.fileName = "kungfu.xml";
+        mod4.folderName = "main";
+        mod4.modifiedTime = createDate("2002/03/13 13:45:42 GMT-6:00");
+        mod4.userName = "alden";
+        mod4.comment = "Hey, look, a deleted file.";
+
+        Modification mod5 = new Modification();
+        mod5.type = "deleted";
+        mod5.fileName = "stuff.xml";
+        mod5.folderName = "main";
+        mod5.modifiedTime = createDate("2002/03/13 13:38:42 GMT-6:00");
+        mod5.userName = "alden";
+        mod5.comment = "Hey, look, another deleted file.";
+
+        assertEquals(mod5, (Modification) modifications.get(0));
+        assertEquals(mod4, (Modification) modifications.get(1));
+        assertEquals(mod1, (Modification) modifications.get(2));
+        assertEquals(mod2, (Modification) modifications.get(3));
+        assertEquals(mod3, (Modification) modifications.get(4));
+    }
+
+
+    public void testGetProperties() throws IOException, ParseException {
+        CVS cvs = new CVS();
+        cvs.setProperty("property");
+        cvs.setPropertyOnDelete("propertyOnDelete");
+        File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
+        List modifications = cvs.parseStream(input);
+        input.close();
+
+        Hashtable table = cvs.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Should be two properties.", 2, table.size());
+
+        assertTrue("Property was not set.", table.containsKey("property"));
+        assertTrue("PropertyOnDelete was not set.", table.containsKey("propertyOnDelete"));
+
+        //negative test
+        CVS cvs2 = new CVS();
+        input = new BufferedInputStream(new FileInputStream(testLog));
+        modifications = cvs2.parseStream(input);
+        input.close();
+
+        table = cvs2.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Shouldn't be any properties.", 0, table.size());
+    }
+
+    public void testGetPropertiesNoModifications() throws IOException, ParseException {
+        CVS cvs = new CVS();
+        cvs.setProperty("property");
+        cvs.setPropertyOnDelete("propertyOnDelete");
+        File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11noMods.txt");
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
+        List modifications = cvs.parseStream(input);
+        input.close();
+
+        Hashtable table = cvs.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Shouldn't be any properties.", 0, table.size());
+    }
+
+    public void testGetPropertiesOnlyModifications() throws IOException, ParseException {
+        CVS cvs = new CVS();
+        cvs.setProperty("property");
+        cvs.setPropertyOnDelete("propertyOnDelete");
+        File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11mods.txt");
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
+        List modifications = cvs.parseStream(input);
+        input.close();
+
+        Hashtable table = cvs.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Should be one property.", 1, table.size());
+        assertTrue("Property was not set.", table.containsKey("property"));
+
+        //negative test
+        CVS cvs2 = new CVS();
+        cvs2.setPropertyOnDelete("propertyOnDelete");
+        input = new BufferedInputStream(new FileInputStream(testLog));
+        modifications = cvs2.parseStream(input);
+        input.close();
+
+        table = cvs2.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Shouldn't be any properties.", 0, table.size());
+    }
+
+    public void testGetPropertiesOnlyDeletions() throws IOException, ParseException {
+        CVS cvs = new CVS();
+        cvs.setPropertyOnDelete("propertyOnDelete");
+        File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11del.txt");
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
+        List modifications = cvs.parseStream(input);
+        input.close();
+
+        Hashtable table = cvs.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Should be one property.", 1, table.size());
+        assertTrue("PropertyOnDelete was not set.", table.containsKey("propertyOnDelete"));
+
+        //negative test
+        CVS cvs2 = new CVS();
+        input = new BufferedInputStream(new FileInputStream(testLog));
+        modifications = cvs2.parseStream(input);
+        input.close();
+
+        table = cvs2.getProperties();
+        assertNotNull("Table of properties shouldn't be null.", table);
+
+        assertEquals("Shouldn't be any properties.", 0, table.size());
     }
 
     public void testBuildHistoryCommand() throws CruiseControlException {

@@ -137,4 +137,52 @@ public class ModificationSetTest extends TestCase {
                 outputter.outputString(modSetResults));
     }
 
+    public void testGetProperties() throws Exception {
+        ModificationSet modSet = new ModificationSet();
+        MockSourceControl mock1 = new MockSourceControl();
+        mock1.setType(1);
+        MockSourceControl mock2 = new MockSourceControl();
+        mock2.setType(2);
+
+        modSet.addSourceControl(mock1);
+        modSet.addSourceControl(mock2);
+
+        Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+
+        Hashtable table = modSet.getProperties();
+        assertNotNull("Properties shouldn't be null.", table);
+        assertEquals("Properties should be empty.", 0, table.size());
+
+        modSet = new ModificationSet();
+        mock1 = new MockSourceControl();
+        mock2 = new MockSourceControl();
+        mock1.setType(1);
+        mock2.setType(2);
+        mock1.setProperty("property");
+        mock2.setPropertyOnDelete("propertyOnDelete");
+
+        modSet.addSourceControl(mock1);
+        modSet.addSourceControl(mock2);
+
+        modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+
+        table = modSet.getProperties();
+        assertNotNull("Properties shouldn't be null.", table);
+        assertEquals("Properties should should have 2 entries.", 2, table.size());
+        assertTrue("Property not found.", table.containsKey("property"));
+        assertTrue("PropertyOnDelete not found.", table.containsKey("propertyOnDelete"));
+
+        modSet = new ModificationSet();
+        mock1 = new MockSourceControl();
+        mock1.setType(1);
+        mock1.setProperty("property");
+
+        modSet.addSourceControl(mock1);
+        modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+        table = modSet.getProperties();
+        assertNotNull("Properties shouldn't be null.", table);
+        assertEquals("Properties should should have 1 entry.", 1, table.size());
+        assertTrue("Property not found.", table.containsKey("property"));
+    }
+
 }

@@ -40,10 +40,7 @@ import org.apache.log4j.Category;
 import org.jdom.Element;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -74,6 +71,20 @@ public class ModificationSet {
 
     public void addSourceControl(SourceControl sourceControl) {
         _sourceControls.add(sourceControl);
+    }
+
+    /**
+     * Returns a Hashtable of name-value pairs representing any properties set by the
+     * SourceControl.
+     * @return Hashtable of properties.
+     */
+    public Hashtable getProperties() {
+        Hashtable table = new Hashtable();
+        for( Iterator iter = _sourceControls.iterator(); iter.hasNext(); ){
+            SourceControl control = (SourceControl)iter.next();
+            table.putAll(control.getProperties());
+        }
+        return table;
     }
 
     /**
