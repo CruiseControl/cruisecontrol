@@ -31,6 +31,10 @@ distributables.xsl
 ----------------------
 * Added info for the ejbjar and ear tasks. Patch by Joris Kuipers
 
+EmailPublisher
+----------------------
+* Send build notification emails to all valid recipients and not to fail build even if some of the email addresses were rejected by SMTP rely. Patch Igor Fredorenko
+
 HTMLEmailBuilder
 ----------------------
 * Delete temp files after they've been used. Patch by Joris Kuipers
