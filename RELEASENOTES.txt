@@ -99,6 +99,7 @@ HTMLEmailPublisher
 index.jsp
 ----------------------
 * added option to set auto-refresh on or off. Patch by Jerome Lacoste
+* added columns for last successful build and last build label (CC-83). Patch by Lee Marlow
 
 (Link)JabberPublisher
 ----------------------

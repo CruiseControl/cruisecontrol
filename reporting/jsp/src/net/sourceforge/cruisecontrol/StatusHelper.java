@@ -52,6 +52,7 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
  */
 public class StatusHelper {
     private File newestLogfile;
+    private File newestSuccessfulLogfile;
 
     private static final String PASSED = "passed";
     private static final String FAILED = "failed";
@@ -60,17 +61,15 @@ public class StatusHelper {
 
     public void setProjectDirectory(File directory) {
         newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
+        newestSuccessfulLogfile = CruiseControlTagSupport.getLatestSuccessfulLogFile(directory);
     }
 
     public String getLastBuildResult() {
         if (newestLogfile == null) {
             return null;
         }
-        String filename = newestLogfile.getName();
 
-        // passing log file name is of form log20020102030405L.*.xml
-        // look for L
-        if (filename.length() > 16 && filename.charAt(17) == 'L') {
+        if (newestLogfile.equals(newestSuccessfulLogfile)) {
             return PASSED;
         }
 
@@ -82,6 +81,30 @@ public class StatusHelper {
             return null;
         }
         String filename = newestLogfile.getName();
+        return getBuildTimeString(filename, locale);
+    }
+
+    public String getLastSuccessfulBuildLabel() {
+        if (newestSuccessfulLogfile == null) {
+            return null;
+        }
+
+        String filename = newestSuccessfulLogfile.getName();
+
+        // passing log file name is of form log20020102030405L.*.xml
+        // look for L
+        return filename.substring(18, (filename.length() - 4));
+    }
+
+    public String getLastSuccessfulBuildTimeString(Locale locale) {
+        if (newestSuccessfulLogfile == null) {
+            return null;
+        }
+        String filename = newestSuccessfulLogfile.getName();
+        return getBuildTimeString(filename, locale);
+    }
+
+    private String getBuildTimeString(String filename, Locale locale) {
         String dateFromFilename = filename.substring(3, 17);
         String dateString = "error";
         try {
@@ -91,6 +114,6 @@ public class StatusHelper {
             e.printStackTrace();
         }
         return dateString;
-    }
+    }    
 
 }

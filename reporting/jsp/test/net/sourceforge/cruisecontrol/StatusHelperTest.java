@@ -91,12 +91,36 @@ public class StatusHelperTest extends TestCase {
         assertNull(helper.getLastBuildTimeString(Locale.US));
 
         helper.setProjectDirectory(logDir);
-        assertEquals("failed", helper.getLastBuildResult());
+        assertEquals("01/02/2004 03:04:05", helper.getLastBuildTimeString(Locale.US));
 
         File file = new File(logDir, "log20040203040506Lbuild.2.xml");
         prepareFile(file);
         helper.setProjectDirectory(logDir);
-        assertEquals("passed", helper.getLastBuildResult());
+        assertEquals("02/03/2004 04:05:06", helper.getLastBuildTimeString(Locale.US));
+    }
+
+    public void testGetLastSuccessfulBuildLabel() throws IOException {
+        assertNull(helper.getLastSuccessfulBuildLabel());
+
+        helper.setProjectDirectory(logDir);
+        assertNull(helper.getLastSuccessfulBuildLabel());
+
+        File file = new File(logDir, "log20040203040506Lbuild.2.xml");
+        prepareFile(file);
+        helper.setProjectDirectory(logDir);
+        assertEquals("build.2", helper.getLastSuccessfulBuildLabel());
+    }
+
+    public void testGetLastSuccessfulBuildTimeString() throws IOException {
+        assertNull(helper.getLastSuccessfulBuildTimeString(Locale.US));
+
+        helper.setProjectDirectory(logDir);
+        assertNull(helper.getLastSuccessfulBuildTimeString(Locale.US));
+
+        File file = new File(logDir, "log20040203040506Lbuild.2.xml");
+        prepareFile(file);
+        helper.setProjectDirectory(logDir);
+        assertEquals("02/03/2004 04:05:06", helper.getLastSuccessfulBuildTimeString(Locale.US));
     }
 
     private void prepareFile(File file) throws IOException {

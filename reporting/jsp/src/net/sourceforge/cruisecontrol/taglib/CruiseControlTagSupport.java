@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -54,7 +55,13 @@ import javax.servlet.jsp.tagext.TagSupport;
  */
 public class CruiseControlTagSupport extends TagSupport {
 
-    private static final CruiseControlLogFileFilter FILTER = new CruiseControlLogFileFilter();
+    private static final FilenameFilter FILTER = new CruiseControlLogFileFilter();
+    private static final FilenameFilter SUCCESSFUL_FILTER = new CruiseControlLogFileFilter() {
+        public boolean accept(File dir, String name) {
+            return super.accept(dir, name) && name.length() > 16 && name.charAt(17) == 'L';
+        }
+    };
+
     protected void info(String message) {
         System.out.println(message);
     }
@@ -168,6 +175,22 @@ public class CruiseControlTagSupport extends TagSupport {
      */
     public static File getLatestLogFile(File logDir) {
         File[] logs = logDir.listFiles(FILTER);
+        if (logs != null && logs.length > 0) {
+            return (File) Collections.max(Arrays.asList(logs));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     *  Gets the latest successful log file in a given directory.
+     *  Since all of our logs contain a date/time string, this method
+     *  is actually getting the log file that comes last alphabetically.
+     *
+     *  @return The latest log file.
+     */
+    public static File getLatestSuccessfulLogFile(File logDir) {
+        File[] logs = logDir.listFiles(SUCCESSFUL_FILTER);
         if (logs != null && logs.length > 0) {
             return (File) Collections.max(Arrays.asList(logs));
         } else {
