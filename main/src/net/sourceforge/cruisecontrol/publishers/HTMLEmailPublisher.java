@@ -397,7 +397,12 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
-        messageBuffer.append("<html><head>\n<style>\n");
+        messageBuffer.append("<html><head>\n");
+        String baseUrl = getBuildResultsURL();
+        if (baseUrl != null) {
+            messageBuffer.append("<base href=\"" + baseUrl + "\">\n");
+        }
+        messageBuffer.append("<style>\n");
 
         BufferedReader reader = new BufferedReader(new FileReader(css));
         String line = reader.readLine();
