@@ -237,6 +237,7 @@ public class Modification implements Comparable {
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
         sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
+        sb.append("Revision: " + revision + "\n");
         sb.append("UserName: " + userName + "\n");
         sb.append("EmailAddress: " + emailAddress + "\n");
         sb.append("Comment: " + comment + "\n");

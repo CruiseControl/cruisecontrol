@@ -1,0 +1,2 @@
+Client: Concurrent Versions System (CVS) 1.12.9 (client/server)
+Server: Concurrent Versions System (CVS) 1.11.16 (client/server)

@@ -81,6 +81,10 @@ CurrentBuildStatusListener
 ----------------------
 * Listens for ProjectStateChangedEvents and the updates a file with the state and timestamp. Makes CurrentBuildStatusBootstrapper & Publisher obsolete.
 
+CVS
+----------------------
+* Support the new CVS log format (from CVS 1.12.9) See CC-38 & CC-69. Patch by Tarun Reddy & Jerome Lacoste
+
 EmailPublisher & friends
 ----------------------
 * Uses new EmailMapperHelper to map addresses with EmailMappers (CC-2). Patch by Esa Laine
