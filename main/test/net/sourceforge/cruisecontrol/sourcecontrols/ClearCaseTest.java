@@ -43,7 +43,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -98,7 +97,7 @@ public class ClearCaseTest extends TestCase {
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
     public void testClearCaseStream() throws IOException {
-        StringBufferInputStream stream = new StringBufferInputStream(clearCaseStream);
+        ByteArrayInputStream stream = new ByteArrayInputStream(clearCaseStream.getBytes());
         List list = _clearCase.parseStream(stream);
         Modification mod = (Modification) list.get(0);
         assertEquals(CHECKIN, mod.type);
