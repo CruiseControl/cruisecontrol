@@ -135,7 +135,7 @@ public class Project implements Serializable, Runnable {
     private boolean buildForced = false;
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
-    private Thread projectSchedulingThread;
+    private transient Thread projectSchedulingThread;
     private boolean stopped = true;
 
     /**
@@ -153,6 +153,8 @@ public class Project implements Serializable, Runnable {
         try {
             init();
             build();
+            LOG.info("Sleeping for " + formatTime(getSleepMilliseconds())
+                    + "(at " + new Date() + ")");
         } catch (CruiseControlException e) {
             LOG.error("exception attempting build in project " + name, e);
         }
