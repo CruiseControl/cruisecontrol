@@ -159,8 +159,11 @@ public class Schedule {
 
     long getTimeToNextBuild(Date now, long sleepInterval) {
     	long timeToNextBuild = sleepInterval;
+        log.debug("getTimeToNextBuild: inital timeToNextBuild = " + timeToNextBuild);
 		timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
+        log.debug("getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
 		timeToNextBuild = checkPauseBuilders(now, timeToNextBuild);
+        log.debug("getTimeToNextBuild: after checkPauseBuilders = " + timeToNextBuild);
     	return timeToNextBuild;
     }
 
@@ -232,12 +235,12 @@ public class Schedule {
 	    seconds = seconds % 60;
 	
 	    StringBuffer sb = new StringBuffer();
-	    if (hours > 0)
+	    if (hours != 0)
 	        sb.append(hours + " hours ");
-	    if (minutes > 0)
+	    if (minutes != 0)
 	        sb.append(minutes + " minutes ");
-	    if (seconds > 0)
-	        sb.append(seconds + " seconds ");
+	    if (seconds != 0)
+	        sb.append(seconds + " seconds");
 	
 	    return sb.toString();
 	}
