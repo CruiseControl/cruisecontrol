@@ -160,14 +160,16 @@ public class VssTest extends TestCase {
         entry.add("Comment: This is where I add a completely new, but alot nicer version of the date chooser.");
 
         Modification modification = vss.handleEntry(entry);
-        assertEquals("DateChooser.java", modification.fileName);
+        assertEquals("DateChooser.java", modification.getFileName());
 
-        assertEquals("/code/development/src/org/ets/cbtidg/common/gui", modification.folderName);
+        assertEquals("/code/development/src/org/ets/cbtidg/common/gui", modification.getFolderName());
         assertEquals(
             "Comment: This is where I add a completely new, but alot nicer version of the date chooser.",
             modification.comment);
         assertEquals("Arass", modification.userName);
-        assertEquals("checkin", modification.type);
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
+        assertEquals("checkin", modfile.action);
     }
 
     public void testHandleEntryCheckinWithComment() {
@@ -179,11 +181,13 @@ public class VssTest extends TestCase {
         entry.add("Comment: updated country codes for Colombia and Slovokia");
 
         Modification mod = vss.handleEntry(entry);
-        assertEquals(mod.fileName, "ttyp_direct.properties");
-        assertEquals(mod.folderName, "/Eclipse/src/main/com/itxc/eclipse/some/path/here");
+        assertEquals(mod.getFileName(), "ttyp_direct.properties");
+        assertEquals(mod.getFolderName(), "/Eclipse/src/main/com/itxc/eclipse/some/path/here");
         assertEquals(mod.comment, "Comment: updated country codes for Colombia and Slovokia");
         assertEquals(mod.userName, "Etucker");
-        assertEquals(mod.type, "checkin");
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        assertEquals(modfile.action, "checkin");
     }
 
     public void testHandleEntryShared() {
@@ -195,10 +199,12 @@ public class VssTest extends TestCase {
         entry.add("$/Users/jfredrick/test1/b/move.file.2 shared");
 
         Modification mod = vss.handleEntry(entry);
-        assertEquals(mod.fileName, "$/Users/jfredrick/test1/b/move.file.2");
+        assertEquals(mod.getFileName(), "$/Users/jfredrick/test1/b/move.file.2");
         assertEquals(mod.userName, "Etucker");
-        assertEquals(mod.folderName, "$\\vsspath\\a");
-        assertEquals(mod.type, "share");
+        assertEquals(mod.getFolderName(), "$\\vsspath\\a");
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        assertEquals(modfile.action, "share");
     }
 
     public void testHandleEntryDirBranched() {
@@ -211,10 +217,13 @@ public class VssTest extends TestCase {
         entry.add("SessionIdGenerator.java branched");
 
         Modification mod = vss.handleEntry(entry);
-        assertEquals(mod.fileName, "SessionIdGenerator.java");
+        assertEquals(mod.getFileName(), "SessionIdGenerator.java");
         assertEquals(mod.userName, "Etucker");
-        assertEquals(mod.folderName, "$\\vsspath\\core");
-        assertEquals(mod.type, "branch");
+        assertEquals(mod.getFolderName(), "$\\vsspath\\core");
+        assertEquals(mod.type, "vss");
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        assertEquals(modfile.action, "branch");
     }
 
     public void testHandleEntryFileBranched() {
@@ -241,10 +250,12 @@ public class VssTest extends TestCase {
         entry.add("SessionIdGenerator.java added");
 
         Modification mod = vss.handleEntry(entry);
-        assertEquals(mod.fileName, "SessionIdGenerator.java");
+        assertEquals(mod.getFileName(), "SessionIdGenerator.java");
         assertEquals(mod.userName, "Etucker");
-        assertEquals(mod.folderName, "$\\vsspath\\core");
-        assertEquals(mod.type, "add");
+        assertEquals(mod.getFolderName(), "$\\vsspath\\core");
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        assertEquals(modfile.action, "add");
     }
 
     public void testHandleEntryAddedInRoot() {
@@ -260,10 +271,12 @@ public class VssTest extends TestCase {
            entry.add("SessionIdGenerator.java added");
 
            Modification mod = vss.handleEntry(entry);
-           assertEquals(mod.fileName, "SessionIdGenerator.java");
+           assertEquals(mod.getFileName(), "SessionIdGenerator.java");
            assertEquals(mod.userName, "MStave");
-           assertEquals(mod.folderName, "$\\vsspath");
-           assertEquals(mod.type, "add");
+           assertEquals(mod.getFolderName(), "$\\vsspath");
+
+           Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+           assertEquals(modfile.action, "add");
        }
 
 
@@ -278,9 +291,12 @@ public class VssTest extends TestCase {
             Modification modification = vss.handleEntry(entry);
             assertEquals(
                 "SessionIdGenerator.java renamed to SessionId.java",
-                modification.fileName);
+                modification.getFileName());
             assertEquals("Etucker", modification.userName);
-            assertEquals("rename", modification.type);
+
+            Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
+            assertEquals("rename", modfile.action);
+
             Hashtable properties = vss.getProperties();
             String setThisValue = (String) properties.get("setThis");
             assertEquals("true", setThisValue);
@@ -295,9 +311,12 @@ public class VssTest extends TestCase {
         entry.add("IBMJDK130AIX_with_xerces.jar.vm destroyed");
 
         Modification modification = vss.handleEntry(entry);
-        assertEquals("IBMJDK130AIX_with_xerces.jar.vm", modification.fileName);
+        assertEquals("IBMJDK130AIX_with_xerces.jar.vm", modification.getFileName());
         assertEquals("Sfrolich", modification.userName);
-        assertEquals("destroy", modification.type);
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
+        assertEquals("destroy", modfile.action);
+
         Hashtable properties = vss.getProperties();
         String setThisValue = (String) properties.get("setThis");
         assertEquals("true", setThisValue);

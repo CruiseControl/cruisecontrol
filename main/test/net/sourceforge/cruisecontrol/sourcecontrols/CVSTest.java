@@ -136,10 +136,9 @@ public class CVSTest extends TestCase {
                 5,
                 modifications.size());
 
-        Modification mod1 = new Modification();
-        mod1.type = "modified";
-        mod1.fileName = "log4j.properties";
-        mod1.folderName = "";
+        Modification mod1 = new Modification("cvs");
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("log4j.properties", null);
+        mod1file.action = "modified";
         mod1.revision = "1.2";
         mod1.modifiedTime = createDate("2002/03/13 13:45:50 GMT-6:00");
         mod1.userName = "alden";
@@ -147,40 +146,36 @@ public class CVSTest extends TestCase {
                 "Shortening ConversionPattern so we don't use up all of the available screen space.";
         mod1.emailAddress = "alden@users.sourceforge.net";
 
-        Modification mod2 = new Modification();
-        mod2.type = "modified";
-        mod2.fileName = "build.xml";
-        mod2.folderName = "main";
+        Modification mod2 = new Modification("cvs");
+        Modification.ModifiedFile mod2file = mod2.createModifiedFile("build.xml", null);
+        mod2file.action = "modified";
         mod2.revision = "1.41";
         mod2.modifiedTime = createDate("2002/03/13 19:56:34 GMT-6:00");
         mod2.userName = "alden";
         mod2.comment = "Added target to clean up test results.";
         mod2.emailAddress = "alden@users.sourceforge.net";
 
-        Modification mod3 = new Modification();
-        mod3.type = "modified";
-        mod3.fileName = "build.xml";
-        mod3.folderName = "main";
+        Modification mod3 = new Modification("cvs");
+        Modification.ModifiedFile mod3file = mod3.createModifiedFile("build.xml", "main");
+        mod3file.action = "modified";
         mod3.revision = "1.42";
         mod3.modifiedTime = createDate("2002/03/15 13:20:28 GMT-6:00");
         mod3.userName = "alden";
         mod3.comment = "enabled debug info when compiling tests.";
         mod3.emailAddress = "alden@users.sourceforge.net";
 
-        Modification mod4 = new Modification();
-        mod4.type = "deleted";
-        mod4.fileName = "kungfu.xml";
-        mod4.folderName = "main";
+        Modification mod4 = new Modification("cvs");
+        Modification.ModifiedFile mod4file = mod4.createModifiedFile("kungfu.xml", "main");
+        mod4file.action = "deleted";
         mod4.revision = "1.2";
         mod4.modifiedTime = createDate("2002/03/13 13:45:42 GMT-6:00");
         mod4.userName = "alden";
         mod4.comment = "Hey, look, a deleted file.";
         mod4.emailAddress = "alden@users.sourceforge.net";
 
-        Modification mod5 = new Modification();
-        mod5.type = "deleted";
-        mod5.fileName = "stuff.xml";
-        mod5.folderName = "main";
+        Modification mod5 = new Modification("cvs");
+        Modification.ModifiedFile mod5file = mod5.createModifiedFile("stuff.xml", "main");
+        mod5file.action = "deleted";
         mod5.revision = "1.4";
         mod5.modifiedTime = createDate("2002/03/13 13:38:42 GMT-6:00");
         mod5.userName = "alden";
@@ -212,41 +207,42 @@ public class CVSTest extends TestCase {
                 4,
                 modifications.size());
 
-        Modification mod1 = new Modification();
-        mod1.type = "modified";
-        mod1.fileName = "test.version";
-        mod1.folderName = "";
+        Modification mod1 = new Modification("cvs");
         mod1.revision = "1.1.2.4";
         mod1.modifiedTime = createDate("2002/10/03 16:05:23 GMT");
         mod1.userName = "tim";
         mod1.comment = "Test commit once more";
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("test.version", null);
+        mod1file.action = "modified";
+        mod1file.revision = mod1.revision;
 
-        Modification mod2 = new Modification();
-        mod2.type = "modified";
-        mod2.fileName = "test.version";
-        mod2.folderName = "";
+        Modification mod2 = new Modification("cvs");
         mod2.revision = "1.1.2.3";
         mod2.modifiedTime = createDate("2002/10/03 14:24:17 GMT");
         mod2.userName = "tim";
         mod2.comment = "Test commit";
+        Modification.ModifiedFile mod2file = mod2.createModifiedFile("test.version", null);
+        mod2file.action = "modified";
+        mod2file.revision = mod2.revision;
 
-        Modification mod3 = new Modification();
-        mod3.type = "modified";
-        mod3.fileName = "test.version";
-        mod3.folderName = "";
+        Modification mod3 = new Modification("cvs");
         mod3.revision = "1.1.2.2";
         mod3.modifiedTime = createDate("2002/10/02 21:54:44 GMT");
         mod3.userName = "tim";
         mod3.comment = "Update parameters for test";
+        Modification.ModifiedFile mod3file = mod3.createModifiedFile("test.version", null);
+        mod3file.action = "modified";
+        mod3file.revision = mod3.revision;
 
-        Modification mod4 = new Modification();
-        mod4.type = "modified";
-        mod4.fileName = "test.version";
-        mod4.folderName = "";
+        Modification mod4 = new Modification("cvs");
         mod4.revision = "1.1.2.1";
         mod4.modifiedTime = createDate("2002/10/02 21:49:31 GMT");
         mod4.userName = "tim";
         mod4.comment = "Add parameters for test";
+        Modification.ModifiedFile mod4file = mod4.createModifiedFile("test.version", null);
+        mod4file.action = "modified";
+        mod4file.revision = mod4.revision;
+
 
         assertEquals(mod4, modifications.get(0));
         assertEquals(mod3, modifications.get(1));

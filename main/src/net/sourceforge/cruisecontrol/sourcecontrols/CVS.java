@@ -489,7 +489,6 @@ public class CVS implements SourceControl {
             // section will include this date information line.
             nextLine = readToNotPast(reader, CVS_REVISION_DATE, CVS_FILE_DELIM);
             if (nextLine == null) {
-                //No more revisions for this file.
                 break;
             }
 
@@ -537,17 +536,18 @@ public class CVS implements SourceControl {
                 nextLine = reader.readLine();
             }
 
-            Modification nextModification = new Modification();
-
+            Modification nextModification = new Modification("cvs");
             nextModification.revision = revision;
 
             int lastSlashIndex = workingFileName.lastIndexOf("/");
-            nextModification.fileName = workingFileName.substring(lastSlashIndex + 1);
+
+            String fileName, folderName = null;
+            fileName = workingFileName.substring(lastSlashIndex + 1);
             if (lastSlashIndex != -1) {
-                nextModification.folderName = workingFileName.substring(0, lastSlashIndex);
-            } else {
-                nextModification.folderName = "";
+                folderName = workingFileName.substring(0, lastSlashIndex);
             }
+            Modification.ModifiedFile modfile = nextModification.createModifiedFile(fileName, folderName);
+            modfile.revision = nextModification.revision;
 
             try {
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
@@ -573,14 +573,14 @@ public class CVS implements SourceControl {
             }
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)) {
-                nextModification.type = "deleted";
+                modfile.action = "deleted";
                 if (propertyOnDelete != null) {
                     properties.put(propertyOnDelete, "true");
                 }
             } else if (isAdded) {
-                nextModification.type = "added";
+                modfile.action = "added";
             } else {
-                nextModification.type = "modified";
+                modfile.action = "modified";
             }
             if (property != null) {
                 properties.put(property, "true");

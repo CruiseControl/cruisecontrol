@@ -166,20 +166,21 @@ public class ModificationSetTest extends TestCase {
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
 
         Modification mod1 = new Modification();
-        mod1.type = "Checkin";
-        mod1.fileName = "file3";
-        mod1.folderName = "dir3";
         mod1.userName = "user3";
         mod1.modifiedTime = formatter.parse("04/04/2004 17:23:50");
         mod1.comment = "comment3";
 
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("file3", "dir3");
+        mod1file.action = "Checkin";
+
         Modification mod2 = new Modification();
-        mod2.type = "Checkin";
-        mod2.fileName = "file4";
-        mod2.folderName = "dir4";
         mod2.userName = "user4";
         mod2.modifiedTime = formatter.parse("02/02/2002 17:23:50");
         mod2.comment = "comment4";
+
+        Modification.ModifiedFile mod2file = mod1.createModifiedFile("file4", "dir4");
+        mod2file.action = "Checkin";
+
         final List result = new ArrayList();
         result.add(mod1.toElement(formatter));
         result.add(mod2);
@@ -294,8 +295,7 @@ public class ModificationSetTest extends TestCase {
         mod1.userName = "user1";
         mod1.modifiedTime = formatter.parse("02/02/2002 17:23:50");
         mod1.comment = "comment1";
-        mod1.fileName = "file1";
-        mod1.folderName = "dir1";
+        mod1.createModifiedFile("file1", "dir1");
         modifications.add(mod1);
 
         final Modification mod2 = new Modification();
@@ -303,8 +303,7 @@ public class ModificationSetTest extends TestCase {
         mod2.userName = "user2";
         mod2.modifiedTime = formatter.parse("02/02/2002 17:23:50");
         mod2.comment = "comment2";
-        mod2.fileName = "file1";
-        mod2.folderName = "dir2";
+        mod2.createModifiedFile("file1", "dir2");
         modifications.add(mod2);
 
         final Modification mod3 = new Modification();
@@ -312,8 +311,7 @@ public class ModificationSetTest extends TestCase {
         mod3.userName = "user3";
         mod3.modifiedTime = formatter.parse("02/02/2002 17:23:50");
         mod3.comment = "comment1";
-        mod3.fileName = "file3";
-        mod3.folderName = "dir1";
+        mod3.createModifiedFile("file3", "dir1");
         modifications.add(mod3);
 
         modSet.filterIgnoredModifications(modifications);

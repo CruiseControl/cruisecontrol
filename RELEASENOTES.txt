@@ -128,9 +128,17 @@ MergeLogger
 ----------------------
 * You can now specify a filename pattern for filtering files to be merged (defaults to "*.xml"). Patch by Mark van Holsteijn
 
+Modification
+----------------------
+* As part of fix for CC-65 (P4 source control not working) we are now using a new xml format for all source controls. Patch by Anil Arora
+
 ModificationSet
 ----------------------
 * You can now specify a list of filename patterns for excluding files from the reported Modifications. Patch by Peter Romianowski
+
+P4
+----------------------
+* Fix for CC-65, Perforce support not working. Patch by Anil Arora
 
 Project
 ----------------------

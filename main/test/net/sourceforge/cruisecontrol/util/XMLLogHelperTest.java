@@ -80,11 +80,10 @@ public class XMLLogHelperTest extends TestCase {
         if (addemail) {
             mod.emailAddress = name + "@host.com";
         }
-
-        mod.fileName = "file.txt";
-        mod.folderName = "myfolder";
         mod.modifiedTime = SOME_DATE;
-        mod.type = "checkin";
+
+        Modification.ModifiedFile modfile = mod.createModifiedFile("file.txt", "myfolder");
+        modfile.action = "checkin";
         return mod;
     }
 

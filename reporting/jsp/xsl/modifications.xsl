@@ -39,24 +39,107 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
     <xsl:output method="html"/>
-
     <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
 
     <xsl:template match="/">
-        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+        <table align="center" cellpadding="2" cellspacing="1" border="0" width="98%">
             <!-- Modifications -->
             <tr>
-                <td class="modifications-sectionheader" colspan="4">
+                <td class="modifications-sectionheader" colspan="6">
                     &#160;Modifications since last build:&#160;
                     (<xsl:value-of select="count($modification.list)"/>)
                 </td>
             </tr>
 
             <xsl:apply-templates select="$modification.list">
-                <xsl:sort select="date" order="descending" data-type="text" />
+                <xsl:sort select="@date" order="descending" data-type="text" />
             </xsl:apply-templates>
-            
+
         </table>
+    </xsl:template>
+
+    <!-- P4 changelist template
+    <modification type="p4" revision="15">
+       <revision>15</revision>
+       <user>non</user>
+       <client>non:all</client>
+       <date>2002/05/02 10:10:10</date>
+       <file action="add">
+          <filename>myfile</filename>
+          <revision>10</revision>
+       </file>
+    </modification>
+    -->
+    <xsl:template match="modification[@type='p4']">
+        <tr valign="top">
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">changelists-evenrow</xsl:attribute>
+            </xsl:if>
+            <td class="modifications-data">
+                <xsl:value-of select="revision"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="client"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
+        </tr>
+        <xsl:if test="count(file) > 0">
+            <tr valign="top">
+                <xsl:if test="position() mod 2=0">
+                    <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
+                </xsl:if>
+                <xsl:if test="position() mod 2!=0">
+                    <xsl:attribute name="class">changelists-evenrow</xsl:attribute>
+                </xsl:if>
+                <td class="modifications-data" colspan="6">
+                    <table align="right" cellpadding="1" cellspacing="0" border="0" width="95%">
+                        <tr>
+                            <td class="changelists-file-header" colspan="3">
+                                &#160;Files affected by this changelist:&#160;
+                                (<xsl:value-of select="count(file)"/>)
+                            </td>
+                        </tr>
+                        <xsl:apply-templates select="file"/>
+                    </table>
+                </td>
+            </tr>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="file">
+        <tr valign="top" >
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">changelists-file-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">changelists-file-evenrow</xsl:attribute>
+            </xsl:if>
+
+            <td class="changelists-file-spacer">
+                &#160;
+            </td>
+
+            <td class="modifications-data">
+                <b>
+                    <xsl:value-of select="@action"/>
+                </b>
+            </td>
+            <td class="modifications-data" width="100%">
+                <xsl:value-of select="filename"/>&#160;
+                <xsl:value-of select="revision"/>
+            </td>
+        </tr>
     </xsl:template>
 
     <!-- Modifications template -->
@@ -69,12 +152,22 @@
                 <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
             </xsl:if>
 
-            <td class="modifications-data"><xsl:value-of select="@type"/></td>
-            <td class="modifications-data"><xsl:value-of select="user"/></td>
-            <td class="modifications-data"><xsl:value-of select="project"/>/<xsl:value-of select="filename"/></td>
-            <td class="modifications-data"><xsl:value-of select="comment"/></td>
+            <td class="modifications-data">
+                <xsl:value-of select="file/type"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:if test="file/project">
+                    <xsl:value-of select="file/project"/>/
+                </xsl:if>
+                <xsl:value-of select="file/filename"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
         </tr>
     </xsl:template>
-
 
 </xsl:stylesheet>

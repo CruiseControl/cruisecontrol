@@ -51,23 +51,30 @@ public class ModificationTest extends TestCase {
         Date modifiedTime = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
         Modification mod = new Modification();
-        mod.fileName = "File\"Name&";
-        mod.folderName = "Folder'Name";
+
+        Modification.ModifiedFile modfile = mod.createModifiedFile("File\"Name&", "Folder'Name");
+        modfile.action = "checkin";
+
         mod.modifiedTime = modifiedTime;
         mod.userName = "User<>Name";
         mod.comment = "Comment";
 
         String base =
-            "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>"
-                + formatter.format(modifiedTime)
-                + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Comment]]></comment>";
+            "<modification type=\"unknown\">"
+                + "<file action=\"checkin\"><filename>File\"Name&amp;</filename>"
+                + "<project>Folder'Name</project></file>"
+                + "<date>" + formatter.format(modifiedTime) + "</date>"
+                + "<user>User&lt;&gt;Name</user>"
+                + "<comment><![CDATA[Comment]]></comment>";
         String closingTag = "</modification>";
         String expected = base + closingTag;
+
         assertEquals(expected, mod.toXml(formatter));
 
         String expectedWithEmail =
             base + "<email>foo.bar@quuuux.quuux.quux.qux</email>" + closingTag;
         mod.emailAddress = "foo.bar@quuuux.quuux.quux.qux";
+
         assertEquals(expectedWithEmail, mod.toXml(formatter));
     }
 
@@ -75,19 +82,24 @@ public class ModificationTest extends TestCase {
         Date modifiedTime = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
         Modification mod = new Modification();
-        mod.fileName = "File\"Name&";
-        mod.folderName = "Folder'Name";
+
+        Modification.ModifiedFile modfile = mod.createModifiedFile("File\"Name&", "Folder'Name");
+        modfile.action = "checkin";
+
         mod.modifiedTime = modifiedTime;
         mod.userName = "User<>Name";
         mod.comment = "Attempting to heal the wounded build.\0x18";
 
         String base =
-            "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>"
-                + formatter.format(modifiedTime)
-                + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Unable"
-                + " to parse comment.  It contains illegal data.]]></comment>";
+            "<modification type=\"unknown\">"
+            + "<file action=\"checkin\"><filename>File\"Name&amp;</filename>"
+            + "<project>Folder'Name</project></file>"
+            + "<date>" + formatter.format(modifiedTime) + "</date>"
+            + "<user>User&lt;&gt;Name</user>"
+            + "<comment><![CDATA[Unable to parse comment.  It contains illegal data.]]></comment>";
         String closingTag = "</modification>";
         String expected = base + closingTag;
+
         assertEquals(expected, mod.toXml(formatter));
     }
 
@@ -95,8 +107,10 @@ public class ModificationTest extends TestCase {
         Date modifiedTime = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
         Modification mod = new Modification();
-        mod.fileName = "File\"Name&";
-        mod.folderName = "Folder'Name";
+
+        Modification.ModifiedFile modfile = mod.createModifiedFile("File\"Name&", "Folder'Name");
+        modfile.action = "checkin";
+
         mod.modifiedTime = modifiedTime;
         mod.userName = "User<>Name";
         mod.comment = "Attempting to heal the wounded build.\0x18";

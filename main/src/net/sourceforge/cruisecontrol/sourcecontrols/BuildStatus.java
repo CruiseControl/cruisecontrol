@@ -154,16 +154,17 @@ public class BuildStatus implements SourceControl {
             Modification mostRecent = null;
 
             for (int i = 0; i < newLogs.length; i++) {
-                Modification modification = new Modification();
+                Modification modification = new Modification("buildstatus");
                 String name = newLogs[i].getName();
 
                 modification.modifiedTime = Log.parseDateFromLogFileName(name);
                 modification.userName = "CruiseControl";
                 modification.comment = "New build";
                 modification.revision = Log.parseLabelFromLogFileName(name);
-                modification.folderName = "";
-                modification.fileName = name;
-                modification.type = "add";
+
+                Modification.ModifiedFile modfile = modification.createModifiedFile(name, null);
+                modfile.revision = modification.revision;
+                modfile.action = "add";
 
                 if (mostRecent == null || modification.modifiedTime.after(mostRecent.modifiedTime)) {
                     mostRecent = modification;
@@ -175,7 +176,7 @@ public class BuildStatus implements SourceControl {
             // This makes information about the most recent modification
             // available to Ant tasks
             if (mostRecent != null) {
-                properties.put(MOST_RECENT_LOGFILE_KEY, mostRecent.fileName);
+                properties.put(MOST_RECENT_LOGFILE_KEY, ((Modification.ModifiedFile) mostRecent.files.get(0)).fileName);
                 properties.put(MOST_RECENT_LOGTIME_KEY, Project.getFormatedTime(mostRecent.modifiedTime));
                 properties.put(MOST_RECENT_LOGLABEL_KEY, mostRecent.revision);
             }

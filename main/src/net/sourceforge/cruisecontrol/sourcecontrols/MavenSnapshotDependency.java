@@ -164,13 +164,11 @@ public class MavenSnapshotDependency implements SourceControl {
      * listed as "change" and all have the same comment.
      */
     private void addRevision(File dependency) {
-        Modification mod = new Modification();
-
-        mod.type = "change";
+        Modification mod = new Modification("maven");
+        Modification.ModifiedFile modfile = mod.createModifiedFile(dependency.getName(), dependency.getParent());
+        modfile.action = "change";
 
         mod.userName = user;
-        mod.fileName = dependency.getName();
-        mod.folderName = dependency.getParent();
         mod.modifiedTime = new Date(dependency.lastModified());
         mod.comment = "Maven project dependency: timestamp change detected.";
         modifications.add(mod);

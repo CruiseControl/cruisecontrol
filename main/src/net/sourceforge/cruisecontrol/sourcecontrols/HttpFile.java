@@ -113,9 +113,10 @@ public class HttpFile implements SourceControl {
         }
         List modifiedList = new ArrayList();
         if (lastModified > lastBuild.getTime()) {
-            Modification mod = new Modification();
+            Modification mod = new Modification("http");
+            Modification.ModifiedFile modfile = mod.createModifiedFile(url.getFile(), url.getPath());
+
             mod.userName = "User";
-            mod.fileName = url.getFile();
             mod.modifiedTime = new Date(lastModified);
             mod.comment = "";
             modifiedList.add(mod);

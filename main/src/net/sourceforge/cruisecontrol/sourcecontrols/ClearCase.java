@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.ClearCaseModification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
@@ -244,7 +243,7 @@ public class ClearCase implements SourceControl {
      */
     List parseStream(InputStream input) throws IOException {
         ArrayList modifications = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input, "ISO-8859-1"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         String ls = System.getProperty("line.separator");
 
         String line;
@@ -270,7 +269,8 @@ public class ClearCase implements SourceControl {
     /**
      *  Parses a single line from the reader. Each line contains a signe revision
      *  with the format : <br>
-     *  username#~#date_of_revision#~#element_name#~#operation_type#~#comments <br>
+     *  username££date_of_revision££element_name££operation_type££comments <br>
+     *
      *
      *@param  line the line to parse
      *@return  a modification element corresponding to the given line
@@ -304,17 +304,18 @@ public class ClearCase implements SourceControl {
         ClearCaseModification mod = new ClearCaseModification();
 
         mod.userName = username;
+        mod.revision = version;
 
+        String folderName, fileName;
         int sep = elementName.lastIndexOf(File.separator);
         if (sep > -1) {
-            mod.folderName = elementName.substring(0, sep);
-            mod.fileName = elementName.substring(sep + 1);
+            folderName = elementName.substring(0, sep);
+            fileName = elementName.substring(sep + 1);
         } else {
-            mod.folderName = "";
-            mod.fileName = elementName;
+            folderName = null;
+            fileName = elementName;
         }
-
-        mod.revision = version;
+        ClearCaseModification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
 
         try {
             mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
@@ -322,8 +323,10 @@ public class ClearCase implements SourceControl {
             mod.modifiedTime = null;
         }
 
-        mod.type = operationType;
+        modfile.action = operationType;
+        modfile.revision = version;
 
+        mod.type = "clearcase";
         mod.labels = labels;
         mod.attributes = attributes;
 
