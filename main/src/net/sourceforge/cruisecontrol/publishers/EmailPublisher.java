@@ -90,7 +90,7 @@ public abstract class EmailPublisher implements Publisher {
      *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
      *  @return <code>String</code> containing the subject line.
      */
-    protected String createSubject(XMLLogHelper logHelper) {
+    protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
             if (_reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
                 return logHelper.getProjectName() + " " + logHelper.getLabel() + " Build Fixed";
@@ -108,7 +108,7 @@ public abstract class EmailPublisher implements Publisher {
      *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
      *  @return whether or not the mail message should be sent.
      */
-    protected boolean shouldSend(XMLLogHelper logHelper) {
+    protected boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
         if (!logHelper.isBuildNecessary() && !_spamWhileBroken) {
             log.debug("spamWhileBroken is set to false, not sending email");
             return false;
@@ -194,12 +194,12 @@ public abstract class EmailPublisher implements Publisher {
      */
     public void publish(Element cruisecontrolLog) {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        if (shouldSend(helper)) {
-            try {
+        try {
+            if (shouldSend(helper)) {
                 sendMail(createUserList(helper), createSubject(helper), createMessage(helper));
-            } catch (CruiseControlException e) {
-                e.printStackTrace();
             }
+        } catch (CruiseControlException e) {
+            log.error("", e);
         }
     }
 

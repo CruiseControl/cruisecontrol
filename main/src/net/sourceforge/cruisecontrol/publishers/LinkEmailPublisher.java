@@ -37,8 +37,11 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.io.File;
+
+import org.apache.log4j.Category;
 
 /**
  *  Concrete implementation of the <code>EmailPublisher</code> abstract class.  This class handles the simplest
@@ -48,6 +51,9 @@ import java.io.File;
  */
 public class LinkEmailPublisher extends EmailPublisher {
 
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(LinkEmailPublisher.class.getName());
+
     /**
      *  Creates the email message body.  This implementation of <code>EmailPublisher</code> just creates a message
      *  that is a link to a web page with the details of the build.
@@ -55,7 +61,12 @@ public class LinkEmailPublisher extends EmailPublisher {
      *  @return <code>String</code> the link that makes up the body of the email message
      */
     protected String createMessage(XMLLogHelper logHelper) {
-        String logFileName = logHelper.getLogFileName();
+        String logFileName = "";
+        try {
+            logFileName = logHelper.getLogFileName();
+        } catch (CruiseControlException e) {
+            log.error("", e);
+        }
         String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(File.separator) + 1, logFileName.lastIndexOf("."));
 
         StringBuffer message = new StringBuffer();
