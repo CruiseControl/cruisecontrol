@@ -41,6 +41,9 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -48,8 +51,14 @@ import java.util.*;
 
 public class ModificationSetTest extends TestCase {
 
+    private static Logger log = Logger.getLogger(ModificationSetTest.class);
+
     public ModificationSetTest(String name) {
         super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        log.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void testIsLastModificationInQuietPeriod() throws ParseException {
@@ -208,7 +217,7 @@ public class ModificationSetTest extends TestCase {
         modSet.addSourceControl(mock1);
         modSet.addSourceControl(mock2);
 
-        Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+        modSet.getModifications(new Date()); //mock source controls don't care about the date
 
         Hashtable table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -225,7 +234,7 @@ public class ModificationSetTest extends TestCase {
         modSet.addSourceControl(mock1);
         modSet.addSourceControl(mock2);
 
-        modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+        modSet.getModifications(new Date()); //mock source controls don't care about the date
 
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -239,7 +248,7 @@ public class ModificationSetTest extends TestCase {
         mock1.setProperty("property");
 
         modSet.addSourceControl(mock1);
-        modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+        modSet.getModifications(new Date()); //mock source controls don't care about the date
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
         assertEquals("Properties should should have 1 entry.", 1, table.size());
