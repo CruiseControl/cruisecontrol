@@ -149,8 +149,8 @@ public class Vss implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(ssdir == null)
-            throw new CruiseControlException("'ssdir' is a required attribute on Vss");
+        if(vsspath == null)
+            throw new CruiseControlException("'vsspath' is a required attribute on Vss");
         if(login == null)
             throw new CruiseControlException("'login' is a required attribute on Vss");
     }
@@ -172,7 +172,7 @@ public class Vss implements SourceControl {
         File execFile = new File(ssdir, "ss.exe");
 
 		//call vss, write output to intermediate file
-        String[] cmdArray = {execFile.getAbsolutePath(), "history", ssdir, "-R", "-Vd" +
+        String[] cmdArray = {execFile.getAbsolutePath(), "history", vsspath, "-R", "-Vd" +
                 formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
                 "-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
 		try {
