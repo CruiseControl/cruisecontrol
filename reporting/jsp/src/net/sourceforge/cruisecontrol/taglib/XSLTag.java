@@ -60,7 +60,7 @@ import javax.xml.transform.stream.StreamSource;
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
-public class XSLTag extends CruiseControlBodyTagSupport {
+public class XSLTag extends CruiseControlTagSupport {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
     private String xslFileName;
     private String xslRootContext = DEFAULT_XSL_ROOT;
