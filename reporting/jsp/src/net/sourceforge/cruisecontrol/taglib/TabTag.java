@@ -53,7 +53,7 @@ public class TabTag extends BodyTagSupport {
 
     public int doStartTag() throws JspException {
         Tag parentTag = getParent();
-        if (parentTag instanceof TabSheetTag == false) {
+        if (!(parentTag instanceof TabSheetTag)) {
             throw new JspTagException("TabTag needs to be directly enclosed in a TabSheetTag");
         }
         TabSheetTag tabSheet = (TabSheetTag) parentTag;
