@@ -51,10 +51,13 @@ public class ScheduleTest extends TestCase {
     private Calendar cal2;
     private Calendar cal3;
     private Calendar cal4;
+    private Calendar cal5;
     private Calendar timeBuildPreviousDay;
-    private Calendar atTimeBuilderTime;
+    private Calendar atMiddayTimeBuilderTime;
+    private Calendar atMidnightTimeBuilderTime;
 
-    private MockBuilder timeBuilder;
+    private MockBuilder middayTimeBuilder;
+    private MockBuilder midnightTimeBuilder;
     private MockBuilder multipleOfFive;
     private MockBuilder multipleOfOne;
 
@@ -62,9 +65,12 @@ public class ScheduleTest extends TestCase {
 
     public void setUp() {
         schedule = new Schedule();
-        timeBuilder = new MockBuilder();
-        timeBuilder.setTime("1200");
-        timeBuilder.setBuildLogXML(new Element("builder1"));
+        middayTimeBuilder = new MockBuilder();
+        middayTimeBuilder.setTime("1200");
+        middayTimeBuilder.setBuildLogXML(new Element("builder1"));
+        midnightTimeBuilder = new MockBuilder();
+        midnightTimeBuilder.setTime("0000");
+        midnightTimeBuilder.setBuildLogXML(new Element("builder1"));
         multipleOfFive = new MockBuilder();
         multipleOfFive.setMultiple(5);
         multipleOfFive.setBuildLogXML(new Element("builder2"));
@@ -75,7 +81,8 @@ public class ScheduleTest extends TestCase {
         pauseBuilder.setStartTime(2300);
         pauseBuilder.setEndTime(2359);
 
-        schedule.addBuilder(timeBuilder);
+        schedule.addBuilder(middayTimeBuilder);
+        schedule.addBuilder(midnightTimeBuilder);
         schedule.addBuilder(multipleOfFive);
         schedule.addBuilder(multipleOfOne);
         schedule.addPauseBuilder(pauseBuilder);
@@ -89,10 +96,14 @@ public class ScheduleTest extends TestCase {
         cal3.set(2001, Calendar.NOVEMBER, 22, 12, 01, 01);
         cal4 = Calendar.getInstance();
         cal4.set(2001, Calendar.NOVEMBER, 22, 23, 01, 01);
+        cal5 = Calendar.getInstance();
+        cal5.set(2001, Calendar.NOVEMBER, 23, 00, 00, 01);
         timeBuildPreviousDay = Calendar.getInstance();
         timeBuildPreviousDay.set(2001, Calendar.NOVEMBER, 21, 12, 01, 01);
-        atTimeBuilderTime = Calendar.getInstance();
-        atTimeBuilderTime.set(2001, Calendar.NOVEMBER, 22, 12, 00, 00);
+        atMiddayTimeBuilderTime = Calendar.getInstance();
+        atMiddayTimeBuilderTime.set(2001, Calendar.NOVEMBER, 22, 12, 00, 00);
+        atMidnightTimeBuilderTime = Calendar.getInstance();
+        atMidnightTimeBuilderTime.set(2001, Calendar.NOVEMBER, 23, 00, 00, 00);
     }
 
     public void testSelectBuilder() throws CruiseControlException {
@@ -102,21 +113,30 @@ public class ScheduleTest extends TestCase {
         Builder buildIsMultipleOfFive =
             schedule.selectBuilder(10, cal.getTime(), cal2.getTime());
         assertEquals(multipleOfFive, buildIsMultipleOfFive);
-        Builder timeBuild =
+        Builder middayTimeBuild =
             schedule.selectBuilder(11, cal.getTime(), cal3.getTime());
-        assertEquals(timeBuilder, timeBuild);
+        assertEquals(middayTimeBuilder, middayTimeBuild);
+        Builder midnightTimeBuild =
+            schedule.selectBuilder(11, cal.getTime(), cal5.getTime());
+        assertEquals(midnightTimeBuilder, midnightTimeBuild);
         Builder timeBuildAcrossDays =
             schedule.selectBuilder(
                 11,
                 timeBuildPreviousDay.getTime(),
                 cal3.getTime());
-        assertEquals(timeBuilder, timeBuildAcrossDays);
-        Builder atTimeBuild =
+        assertEquals(middayTimeBuilder, timeBuildAcrossDays);
+        Builder atMiddayTimeBuild =
             schedule.selectBuilder(
                 11,
                 timeBuildPreviousDay.getTime(),
-                atTimeBuilderTime.getTime());
-        assertEquals(timeBuilder, atTimeBuild);
+                atMiddayTimeBuilderTime.getTime());
+        assertEquals(middayTimeBuilder, atMiddayTimeBuild);
+        Builder atMidnightTimeBuild =
+            schedule.selectBuilder(
+                11,
+                timeBuildPreviousDay.getTime(),
+                atMidnightTimeBuilderTime.getTime());
+        assertEquals(midnightTimeBuilder, atMidnightTimeBuild);
     }
 
     public void testIsPaused() {
