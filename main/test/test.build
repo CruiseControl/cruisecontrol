@@ -1,4 +1,4 @@
-<!-- used by AntBuilderTest -->
+<!-- used by NantBuilderTest -->
 <project name="testbuild" default="init" basedir=".">
     <target name="init">
         <echo message="called test.build init target"/>

@@ -397,18 +397,18 @@ public class AntBuilder extends Builder {
     }
 
     /**
-     * @return the path to ant-launcher.jar taken from the given path
+     * @return the path to ant-launcher*.jar taken from the given path
      */
     String getAntLauncherJarLocation(String path, boolean isWindows) throws CruiseControlException {
         String separator = isWindows ? ";" : ":";
         StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
         while (pathTokenizer.hasMoreTokens()) {
             String pathElement = pathTokenizer.nextToken();
-            if (pathElement.endsWith("ant-launcher.jar")) {
+            if (pathElement.indexOf("ant-launcher") != -1 && pathElement.endsWith(".jar")) {
                 return pathElement;
             }
         }
-        throw new CruiseControlException("Couldn't find path to ant-launcher.jar in this classpath: '" + path + "'");
+        throw new CruiseControlException("Couldn't find path to ant-launcher jar in this classpath: '" + path + "'");
     }
 
     protected static Element getAntLogAsElement(File file) throws CruiseControlException {
