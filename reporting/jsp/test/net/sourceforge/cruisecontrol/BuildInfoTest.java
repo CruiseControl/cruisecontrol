@@ -1,0 +1,136 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2004, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Test that we can determine build information correctly.
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ */
+public class BuildInfoTest extends TestCase {
+    public static Test suite() {
+        return new FileSetupDecorator(new TestSuite(BuildInfoTest.class));
+    }
+    
+    public void testCreationFailedBuild() throws ParseException {
+        Date buildDate = new GregorianCalendar(2002, Calendar.FEBRUARY, 22, 12, 0, 0).getTime();
+        BuildInfo buildInfo = new BuildInfo("log20020222120000.xml");
+        assertEquals(buildDate, buildInfo.getBuildDate());
+        assertFalse(buildInfo.isSuccessful());
+        assertNull(buildInfo.getLabel());
+    }
+
+    public void testCreationGoodBuild() throws ParseException {
+        Date buildDate = new GregorianCalendar(2002, Calendar.FEBRUARY, 23, 12, 0, 0).getTime();
+        BuildInfo buildInfo = new BuildInfo("log20020223120000LBuild.1.xml");
+        assertEquals(buildDate, buildInfo.getBuildDate());
+        assertTrue(buildInfo.isSuccessful());
+        assertEquals("Build.1", buildInfo.getLabel());
+    }
+
+    public void testLoadBuildInfo() throws ParseException {
+        // use the BuildInfoHelper to load up the list of BuildInfo objects
+        // verify the build date for each.
+        // verify the build successful state for each
+        // verify the label for each (if any)
+        BuildInfo[] expected = { new BuildInfo("log20020222120000.xml"),
+                                 new BuildInfo("log20020223120000LBuild.1.xml"),
+                                 new BuildInfo("log20020224120000.xml"),
+                                 new BuildInfo("log20020225120000LBuild.2.xml") };
+        
+        List results = BuildInfo.loadFromDir(new File("testresults/BuildInfoHelperTest"));
+        for (int i = 0; i < expected.length; i++) {
+            BuildInfo expectedResult = expected[i];
+            BuildInfo actualResult = (BuildInfo) results.get(i);
+            validateBuildInfo(expectedResult, actualResult);
+        }
+    }
+    
+    private void validateBuildInfo(BuildInfo expected, BuildInfo actual) {
+        assertEquals(expected.getBuildDate(), actual.getBuildDate());
+        assertEquals(expected.getLabel(), actual.getLabel());
+        assertEquals(expected.isSuccessful(), actual.isSuccessful());
+        
+    }
+
+    private static class FileSetupDecorator extends TestSetup {
+        private File[] logFiles;
+        private File logDir;
+
+        /**
+         * @param arg0
+         */
+        public FileSetupDecorator(Test decoratedTest) {
+            super(decoratedTest);
+        }
+        
+        protected void setUp() throws IOException {
+            logDir = new File("testresults/BuildInfoHelperTest");
+            if (!logDir.exists()) {
+                assertTrue("Failed to create test result dir", logDir.mkdir());
+            }
+            logFiles = new File[] { new File(logDir, "log20020222120000.xml"), 
+                                    new File(logDir, "log20020223120000LBuild.1.xml"),
+                                    new File(logDir, "log20020224120000.xml"),
+                                    new File(logDir, "log20020225120000LBuild.2.xml") };
+            for (int i = 0; i < logFiles.length; i++) {
+                File logFile = logFiles[i];
+                logFile.createNewFile();
+            }        
+        }
+        
+        protected void tearDown() throws Exception {
+            for (int i = 0; i < logFiles.length; i++) {
+                logFiles[i].delete();
+            }
+            logDir.delete();
+        }
+        
+    }
+}
