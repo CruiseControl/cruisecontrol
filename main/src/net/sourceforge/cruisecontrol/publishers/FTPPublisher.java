@@ -143,7 +143,7 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
             // prevent exceptions if the directory doesn't exist.
             if (logDir.exists()) {
                 LOG.info("Sending log dir " + logDir + ".");
-                ftpDir(logDir, ftp, destdir, knownDirs);
+                ftpDir(logDir, ftp, destdir + File.separator + uniqueDir, knownDirs);
                 LOG.info("Done sending log dir " + logDir + ".");
             } else {
                 LOG.info("Could not find artifacts directory " + logDir + ".");
