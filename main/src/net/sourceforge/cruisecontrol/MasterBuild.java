@@ -37,6 +37,7 @@ import org.w3c.dom.*;
  * @author Paul Julius (pdjulius@thoughtworks.com)
  * @author Robert Watkins
  * @author Jason Yip, jcyip@thoughtworks.com
+ * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  */
 public class MasterBuild extends XmlLogger implements BuildListener {
 
@@ -81,6 +82,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _returnAddress;
     private Set _buildmaster;
     private Set _notifyOnFailure;
+    private boolean _reportSuccess;
     private static String _projectName;
     private boolean _useEmailMap;
     private String _emailmapFilename;
@@ -223,7 +225,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
     }
 
-
     /**
      * Load properties file, see masterbuild.properties for descriptions of 
      * properties.
@@ -259,7 +260,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _returnAddress = props.getProperty("returnAddress");
         _buildmaster = getSetFromString(props.getProperty("buildmaster"));
         _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
-
+        _reportSuccess = getBooleanProperty(props, "reportSuccess");
+        
         _logDir = props.getProperty("logDir"); 
         new File(_logDir).mkdirs();
         
@@ -347,7 +349,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                     buildcounter++;
                     Set emails = getEmails(_userList);
                     if (_lastBuildSuccessful) {
-                        emailReport(emails, _projectName + " Build " + _label + " Successful");
+                        if(_reportSuccess) {
+                            emailReport(emails, _projectName + " Build " + _label + " Successful");
+                        } else {
+                            log("Skipping email notifications for successful builds");
+                        }                        
                         incrementLabel();
                         writeBuildInfo();
                     } else {
@@ -798,7 +804,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         String currentlyRunning = "<br>&nbsp;<br><b>Current Build Started At:</b><br>";
         String notRunning = "<br>&nbsp;<br><b>Next Build Starts At:</b><br>";
         SimpleDateFormat numericDateFormatter 
-         = new SimpleDateFormat("MM/dd/yyyy hh:mma");
+         = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         Date buildTime = new Date();
         if (!isRunning) {
             buildTime = new Date(buildTime.getTime() + _buildInterval);
