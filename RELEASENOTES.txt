@@ -1,14 +1,5 @@
 CruiseControl Release Notes - Latest CVS
 
-MavenBuilder
----------------------
-New builder implementation, like AntBuilder but for Maven - by Florin Vancea.
-
-
-StreamPumper & StreamConsumer
----------------------
-StreamConsumer implementations may now be registered with StreamPumpers to notified for each line "pumped".
-
 
 AntBuilder
 ---------------------
@@ -17,16 +8,13 @@ AntBuilder
 * Added useDebug attribute. This replaces test of log4j setting to get debug level ant output.  - Patch by Jeffrey Fredrick
 * Save ant log if it can't be read.  Handles case when ant log produces invalid XML. - Patch by Richard Burgess
 
+buildresults.jsp
+----------------------
+* The list of builds is now limited to 10 hard links, with the rest being done via a drop-down list.
+
 CVS
 ---------------------
 * CVS sets the revision number when building lists of Modifications for showing diffs in ViewCVS or cvsWeb - Patch contributed by Christopher Lenz.
-
-
-Multiple Classes
----------------------
-* added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.
-* Add an EmptyLabelIncrementer - Patch by Josh Knowles
-* New functionality to allow for creation of a "build artifacts" directory. This directory can have artifacts published to it - things like jars that were built, documents that were published, etc. Then, these artifacts can be linked to from the CC webapp. 
 
 DefaultLabelIncrementer & CVSLabelIncrementer
 ----------------------
@@ -37,14 +25,19 @@ HTMLEmailPublisher
 ----------------------
 * Added charset attribute.
 
-Schedule
+Main
 ----------------------
-* Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
-* Fixed a bug where a time builder wouldn't run if the time was set to midnight. - Patch by Richard Lewis-Shell
+* Use current time if lastbuildtime isn't specified - Patch by Josh Knowles
 
-ProjectXMLHelper
-----------------------
-* ModificationSet is now pluggable. Defaults to the standard modification set, but a different implementation could be specified in your config.xml, so long as it extends ModificationSet. Thanks to Mike Royal, via Mike Mason.
+MavenBuilder
+---------------------
+* New builder implementation, like AntBuilder but for Maven - by Florin Vancea.
+
+Multiple Classes
+---------------------
+* Added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.
+* Add an EmptyLabelIncrementer - Patch by Josh Knowles
+* New functionality to allow for creation of a "build artifacts" directory. This directory can have artifacts published to it - things like jars that were built, documents that were published, etc. Then, these artifacts can be linked to from the CC webapp. 
 
 NavigationTag
 ----------------------
@@ -52,27 +45,36 @@ NavigationTag
 * Added "startingBuildNumber" and "finalBuildNumber" attributes, to allow for ranges of builds to be output; useful for, say, creating a drop-down list after the first 10 links.
 * Now outputs the log file as a "logfile" variable.
 
+Project
+----------------------
+* Project will create log directory if it doesn't exist. - Patch by Mark Richters
+
+ProjectXMLHelper
+----------------------
+* ModificationSet is now pluggable. Defaults to the standard modification set, but a different implementation could be specified in your config.xml, so long as it extends ModificationSet. Thanks to Mike Royal, via Mike Mason.
+
 PVCS
 ----------------------
 * Fixed bug with UNC share paths - Patch by Dan Rollo
 * Added pvcsbin attribute for when pvcs is not on the path - Patch by Dan Rollo
 
-XSLTag
+Schedule
 ----------------------
-* Fixed a bug where using an unexpanded WAR file caused a NullPointerException.
-* Added "xslRootContext" property, so that nested stylesheets know where the default directory is.
+* Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
+* Fixed a bug where a time builder wouldn't run if the time was set to midnight. - Patch by Richard Lewis-Shell
 
-buildresults.jsp
-----------------------
-* The list of builds is now limited to 10 hard links, with the rest being done via a drop-down list.
-
-Main
-----------------------
-* Use current time if lastbuildtime isn't specified - Patch by Josh Knowles
+StreamPumper & StreamConsumer
+---------------------
+* StreamConsumer implementations may now be registered with StreamPumpers to notified for each line "pumped".
 
 VSS
 ----------------------
 * Fixed issues with label entries, files added or deleted in root directory, branching, and sharing. - Patch by Matt Stave
+
+XSLTag
+----------------------
+* Fixed a bug where using an unexpanded WAR file caused a NullPointerException.
+* Added "xslRootContext" property, so that nested stylesheets know where the default directory is.
 
 
 CruiseControl Release Notes - 2.0.2
