@@ -36,7 +36,7 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-set ANT_CLASSPATH=main/lib/ant.jar;main/lib/optional.jar;main/lib/junit.jar;main/lib/xerces.jar
+set ANT_CLASSPATH=main/lib/ant.jar;main/lib/ant-launcher.jar
 echo %ANT_CLASSPATH%
 
 if "%JAVA_HOME%" == "" goto noJavaFound
