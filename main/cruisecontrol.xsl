@@ -22,170 +22,134 @@
  *****************************************************************************-->
  
 <xsl:stylesheet
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-	xmlns:lxslt="http://xml.apache.org/xslt">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
+    xmlns:lxslt="http://xml.apache.org/xslt">
 
 <xsl:output method="html"/>
 
-<xsl:template match="/">
+    <xsl:template match="/">
+    <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%"> 
 
-<table align="center" cellpadding="0" cellspacing="0" border="0" width="98%"> 
+        <xsl:if test="build/@error">
+        <tr><td colspan="5"><font face="arial" size="3"><b>BUILD FAILED</b></font></td></tr>
+        </xsl:if>   
+        <xsl:if test="not (build/@error)">
+        <tr><td colspan="5"><font face="arial" size="3"><b>BUILD COMPLETE&#160;-&#160;
+                <xsl:value-of select="build/label"/></b>      
+        </font></td></tr>
+        </xsl:if>
 
-   <xsl:if test="build/@error">
-      <tr><td colspan="4"><font face="arial" size="3"><b>BUILD FAILED</b></font></td></tr>
-   </xsl:if>   
-   <xsl:if test="not (build/@error)">
-      <tr><td colspan="4"><font face="arial" size="3"><b>BUILD COMPLETE&#160;-&#160;
-      <xsl:value-of select="build/label"/></b>      
-      </font></td></tr>
-   </xsl:if>
+        <tr><td colspan="5"><font face="arial" size="2"><b>Date of build:&#160;</b><xsl:value-of select="build/today"/></font></td></tr>   
+        <tr><td colspan="5"><font face="arial" size="2"><b>Time to build:&#160;</b><xsl:value-of select="build/@time"/></font></td></tr>
+        <!--
+        <tr><td colspan="5"><font face="arial" size="2"><b>Codeline:&#160;</b><xsl:value-of select="build/modifications/modification/project"/></font></td></tr>
+        -->
+        <tr><td colspan="5"><font face="arial" size="2"><b>Last changed:&#160;</b><xsl:value-of select="build/modifications/modification/date"/></font></td></tr>
+        <tr><td colspan="5"><font face="arial" size="2"><b>Description:&#160;</b><xsl:value-of select="build/modifications/modification/comment"/></font><br/><br/></td></tr>
 
-   <tr><td colspan="4"><font face="arial" size="2"><b>Date:&#160;</b><xsl:value-of select="build/today"/></font></td></tr>   
-   <tr><td colspan="4"><font face="arial" size="2"><b>Time:&#160;</b><xsl:value-of select="build/@time"/></font><br/><br/></td></tr>
+        <xsl:if test="(count(//target/task[@name='Javac']/message[@priority='warn']) + count(//target/task[@name='EjbJar']/message[@priority='warn'])) > 0">
+        <tr><td bgcolor="#000066" colspan="5"><b><font face="arial" size="2" color="#FFFFFF">&#160;Errors:&#160;(<xsl:value-of select="count(//target/task[@name!='get']/message[@priority='warn'])"/>)</font></b></td></tr>
 
+        <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="//target/task[@name='Javac']/message[@priority='warn']"/></font></td></tr>
+        <tr><td colspan="5"><font color="red" face="arial" size="1"><xsl:apply-templates select="//target/task[@name='EjbJar']/message[@priority='warn']"/></font></td></tr>
 
-   <!-- Compilation Errors -->
-   <xsl:if test="(count(build//target/task[@name='Javac']/message[@priority='warn']) + count(build//target/task[@name='EjbJar']/message[@priority='warn'])) > 0">
-
-     <tr><td bgcolor="#000066" colspan="4"><font face="arial" size="2" color="#FFFFFF">&#160;Errors:&#160;(<xsl:value-of select="count(build//target/task[(@name='Javac' or @name='EjbJar') and message[@priority='warn']])"/>)</font></td></tr>
-
-     <tr><td colspan="4"><font face="arial" size="1"><xsl:apply-templates select="build//target/task[@name='Javac']/message[@priority='warn']"/></font></td></tr><tr><td colspan="4">&#160;</td></tr>
-     <tr><td colspan="4"><font face="arial" size="1"><xsl:apply-templates select="build//target/task[@name='EjbJar']/message[@priority='warn']"/></font></td></tr><tr><td colspan="4">&#160;</td></tr>
-   </xsl:if>
-
-
-
-   <!-- Unit Tests -->
-   <tr>
-     <td bgcolor="#000066" colspan="4"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Tests: (<xsl:value-of select="count(build//testsuite/testcase)"/>)</font></td>
-   </tr>
-   
-   
-   <xsl:choose>
-      <xsl:when test="count(build//testsuite/testcase) = 0">
-         <tr><td colspan="4"><i><font face="arial" size="2">No Tests Run</font></i></td></tr>
-      </xsl:when>
-      <xsl:when test="(count(build//testsuite/testcase/error) + count(build//testsuite/testcase/failure)) = 0">
-         <tr><td colspan="4"><i><font face="arial" size="2">All Tests Passed</font></i></td></tr>      
-      </xsl:when>      
-   </xsl:choose>
-   
-      
-   <xsl:apply-templates select="build//testsuite/testcase//error"/>
-   <xsl:apply-templates select="build//testsuite/testcase//failure"/>
-   <tr/>
-   <tr><td colspan="4">&#160;</td></tr>
-   
-   <xsl:if test="count(build//testsuite/testcase[error]) + count(build//testsuite/testcase[failure]) > 0">
-    
-      <tr><td bgcolor="#000066" colspan="4"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Test Error Details:&#160;(<xsl:value-of select="count(build//testsuite/testcase[error]) + count(build//testsuite/testcase[failure])"/>)</font></td></tr>
-
-      <xsl:call-template name="testdetail">
-        <xsl:with-param name="detailnodes" select="build//testsuite/testcase[.//error]"/>
-      </xsl:call-template>
-
-      <xsl:call-template name="testdetail">
-        <xsl:with-param name="detailnodes" select="build//testsuite/testcase[.//failure]"/>
-      </xsl:call-template>
-      
-      <tr><td colspan="4">&#160;</td></tr>
-   </xsl:if>
+        <tr><td colspan="5">&#160;</td></tr>
+        </xsl:if>
+        <tr>
+        <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Unit Tests: (<xsl:value-of select="count(build//testsuite/testcase)"/>)</font></td>
+        </tr>
 
 
-   <!-- Modifications -->
-   <tr>
-   <td bgcolor="#000066" colspan="4"><font face="arial" size="2" color="#FFFFFF">&#160;Modifications:&#160;(<xsl:value-of select="count(build/modifications/modification)"/>)</font></td>
-   </tr>
-
-   <xsl:apply-templates select="build/modifications/modification"/>
-   <tr><td colspan="4">&#160;</td></tr>
-
-</table>
-</xsl:template>
-
+        <xsl:choose>
+        <xsl:when test="count(build//testsuite) = 0">
+            <tr><td colspan="5"><i><font face="arial" size="2">No Tests Run</font></i></td></tr>
+            <tr><td colspan="5"><i><font color="red" face="arial" size="2">This project doesn't have any tests</font></i></td></tr>
+        </xsl:when>
+        <xsl:when test="(count(build//testsuite/testcase/error) + count(build//testsuite/testcase/failure)) = 0">
+            <tr><td colspan="5"><i><font face="arial" size="2">All Tests Passed</font></i></td></tr>      
+        </xsl:when>      
+        </xsl:choose>
 
 
-<!-- UnitTest Errors And Failures Detail Template -->
-<xsl:template name="testdetail">
-  <xsl:param name="detailnodes"/>
-  
-  <xsl:for-each select="$detailnodes">
-    <xsl:variable name="headercolor">#000000</xsl:variable>
-    <xsl:variable name="detailcolor">#FF0000</xsl:variable>
-    
-      <tr>
-      <td colspan="4"><font face="arial" size="1" color="{$headercolor}">Test: <xsl:value-of select="@name" /></font></td></tr>
-    
-      <xsl:if test="error">
-        <tr ><td colspan="4"><font face="arial" size="1" color="{$headercolor}">Type: <xsl:value-of select="error/@type" /></font></td></tr>
-        <tr ><td colspan="4"><font face="arial" size="1" color="{$headercolor}">Message: <xsl:value-of select="error/@message" /></font></td></tr>
-        <tr/><tr/><tr/>
-        <tr><td colspan="4"><PRE><font face="arial" size="1" color="{$detailcolor}"><xsl:value-of select="error" /></font></PRE></td></tr>
-      </xsl:if>
+        <xsl:apply-templates select="build//testsuite/testcase/error"/>
+        <xsl:apply-templates select="build//testsuite/testcase/failure"/>
+        <tr>
+        <tr><td colspan="5">&#160;</td></tr>
+        <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Modifications since last build:&#160;(<xsl:value-of select="count(build/modifications/modification)"/>)</font></td>
+        </tr>
+        <xsl:apply-templates select="build/modifications/modification"/>
 
-      <xsl:if test="failure">
-        <tr><td colspan="4"><font face="arial" size="1" color="{$headercolor}">Type: <xsl:value-of select="failure/@type" /></font></td></tr>
-        <tr><td colspan="4"><font face="arial" size="1" color="{$headercolor}">Message: <xsl:value-of select="failure/@message" /></font></td></tr>
-        <tr/><tr/><tr/>
-        <tr><td colspan="4"><PRE><font face="arial" size="1" color="{$detailcolor}"><xsl:value-of select="failure" /></font></PRE></td></tr>
-      </xsl:if>
+        <xsl:if test="count(//task[@name='Jar']) + count(//task[@name='War']) > 0">
+            <tr>
+                <tr><td colspan="5">&#160;</td></tr>
+                <td bgcolor="#000066" colspan="5"><font face="arial" size="2" color="#FFFFFF">&#160;Deployments by this build:&#160;(<xsl:value-of select="count(//task[@name='Jar']) + count(//task[@name='War'])"/>)</font></td>
+            </tr>
+            <xsl:apply-templates select="//task[@name='Jar'] | //task[@name='War']" />
+        </xsl:if>   
 
-      <tr/><tr/><tr/>
-  </xsl:for-each>
-</xsl:template>
+
+    </table>
+    </xsl:template>
+
+    <xsl:template match="error">
+    <tr>
+        <xsl:if test="position() mod 2 = 0">
+        <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
+        </xsl:if>   
+
+        <td><font size="1" face="arial">error</font></td><td colspan="3"><font size="1" face="arial"><xsl:value-of select="../@name"/></font></td></tr>
+    </xsl:template>
+
+    <xsl:template match="failure">
+    <tr>
+        <xsl:if test="(count(build//testsuite/error) + position()) mod 2 = 0">
+        <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
+        </xsl:if>   
+
+        <td><font size="1" face="arial">failure</font></td><td colspan="3"><font size="1" face="arial"><xsl:value-of select="../@name"/></font></td></tr>
+    </xsl:template>
 
 
 
-<!-- UnitTest Errors -->
-<xsl:template match="error">
-  <tr>
-  <xsl:if test="position() mod 2 = 0">
-    <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
-  </xsl:if>   
-   
-  <td><font size="1" face="arial">error</font></td><td colspan="3"><font size="1" face="arial"><xsl:value-of select="../@name"/></font></td></tr>
-</xsl:template>
+
+    <xsl:template match="message[@priority='warn']">
+    <xsl:value-of select="text()"/><br/><br/>   
+    </xsl:template>
+
+    <xsl:template match="modification">
 
 
-
-<!-- UnitTest Failures -->
-<xsl:template match="failure">
-  <tr>
-  
-  <xsl:if test="(count(build//testsuite//error) + position()) mod 2 = 0">
-    <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
-  </xsl:if>   
-   
-  <td><font size="1" face="arial">failure</font></td><td colspan="3"><font size="1" face="arial"><xsl:value-of select="../@name"/></font></td></tr>
-</xsl:template>
+    <tr>
+        <xsl:if test="position() mod 2 = 0">
+        <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
+        </xsl:if>
 
 
+        <td><font size="1" face="arial"><xsl:value-of select="@type"/></font></td>
+        <!--
+        <td><font size="1" face="arial"><xsl:value-of select="date"/></font></td>
+        -->
+        <td><font size="1" face="arial">&#160;</font></td>
+        <td><font size="1" face="arial"><xsl:value-of select="user"/></font></td>
+        <td><font size="1" face="arial"><xsl:value-of select="project"/></font></td>
+        <td><font size="1" face="arial"><xsl:value-of select="filename"/></font></td>
+    </tr>
+    <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>
+    <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>
 
-<!-- Compilation Error Details -->
-<xsl:template match="message[@priority='warn']">
-  <xsl:value-of select="text()"/><br/>
-  
-</xsl:template>
+    </xsl:template>
 
-
-
-<!-- Modifications template -->
-<xsl:template match="modification">
-  <tr>
-    <xsl:if test="position() mod 2 = 0">
-      <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
-    </xsl:if>
-
-
-    <td><font size="1" face="arial"><xsl:value-of select="@type"/></font></td>
-    <td width="175"><font size="1" face="arial"><xsl:value-of select="date"/></font></td>
-    <td width="80"><font size="1" face="arial"><xsl:value-of select="user"/></font></td>
-    <td><font size="1" face="arial"><xsl:value-of select="filename"/></font></td>
-  </tr>
-    
-  <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>
-  <xsl:comment>Comment: <xsl:value-of select="comment"/></xsl:comment>
-</xsl:template>
-
+    <xsl:template match="task[@name='Jar'] | task[@name='War']">
+        <tr>
+            <xsl:if test="position() mod 2 = 0">
+                <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
+            </xsl:if>
+            <td colspan="5">
+                <nobr>
+                    <font face="arial" size="1"><xsl:value-of select="message"/></font>
+                </nobr>
+            </td>
+        </tr>
+    </xsl:template>
 
 </xsl:stylesheet>
