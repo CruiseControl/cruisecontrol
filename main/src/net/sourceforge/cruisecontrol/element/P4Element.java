@@ -160,7 +160,7 @@ public class P4Element extends SourceControlElement {
 		String comment = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*/$4/s", sbDescription.toString());
 		comment = util.substitute("s/\\t//g", comment);
 
-		java.util.Date modifiedTime;
+		Date modifiedTime;
 		try {
 			modifiedTime = p4Date.parse(sModifiedTime);
 		}
@@ -176,9 +176,9 @@ public class P4Element extends SourceControlElement {
 
 			// the rest should be a list of the files affected and the resp action
 			String affectedFiles = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*?\\n\\n(.*)\\n\\n/$5/s", sbDescription.toString());
-			java.util.Vector files = new java.util.Vector();
+			ArrayList files = new ArrayList();
 			util.split(files, "/\\n/s", affectedFiles);
-			java.util.Iterator iter = files.iterator();
+			Iterator iter = files.iterator();
 			while (iter.hasNext()) {
 				String file = (String) iter.next();
 				String folderName = util.substitute("s/\\.\\.\\.\\s(\\/\\/.*\\/)(.*?)\\s(.*)/$1/s", file);
