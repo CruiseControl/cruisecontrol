@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.publishers.MockPublisher;
 import net.sourceforge.cruisecontrol.publishers.email.MockMapping;
 
@@ -103,7 +104,7 @@ public class PluginXMLHelperTest extends TestCase {
         assertEquals(SOME_OTHER_INT, plugin.getMockPluginChild().getSomeInt());
         assertEquals("foo", plugin.getEmailMapping().getAddress());
         assertEquals("bar", ((MockMapping) plugin.getEmailMapping()).getMockProperty());
-}
+    }
 
     public void testConfigureNoClass() {
         try {
@@ -111,6 +112,22 @@ public class PluginXMLHelperTest extends TestCase {
             fail("Expected an exception because noclass shouldn't exist");
         } catch (CruiseControlException expected) {
         }
+    }
+    
+    public void testConfigureDefaultsForKnownPlugin() throws CruiseControlException {
+        Element pluginElement = new Element("plugin");
+        pluginElement.setAttribute("name", "ant");
+        final String loggerClassName = "net.sourceforge.cruisecontrol.util.XmlLoggerWithStatus";
+        pluginElement.setAttribute("loggerClassName", loggerClassName);
+        PluginRegistry registry = projectXmlHelper.getPlugins();
+        try {
+            registry.register(pluginElement);
+        } catch (CruiseControlException e) {
+            fail("Shouldn't get exception on missing classname for known plugin");
+        }
+        
+        AntBuilder antBuilder = (AntBuilder) projectXmlHelper.configurePlugin(new Element("ant"), false);
+        assertEquals(loggerClassName, antBuilder.getLoggerClassName());
     }
 }
 
