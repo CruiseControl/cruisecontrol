@@ -72,7 +72,7 @@ public class VssTest extends TestCase {
             assertTrue(true);
         }
 
-        vss.setSsDir("ssdir");
+        vss.setVsspath("vsspath");
         vss.setLogin("login");
 
         try {
@@ -204,7 +204,7 @@ public class VssTest extends TestCase {
     private String createVSSLine(String testName, String dateTimeString) {
         return "User: " + testName + " " + dateTimeString;
     }
-    
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(VssTest.class);
     }    
