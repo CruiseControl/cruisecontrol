@@ -62,11 +62,12 @@ public class ProjectWrapper implements WorkerThread {
     if (myProject == null) {
       return;
     }
+    LOG.debug("executing project " + myProject.getName());
     myProject.execute();
   }
 
   public Object getResult() {
-    if (myProject.getState() == ProjectState.IDLE) {
+    if (myProject.getState() == ProjectState.IDLE || myProject.getState() == ProjectState.WAITING) {
       return "true";
     } else {
       return null;
