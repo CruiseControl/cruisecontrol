@@ -38,9 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.text.*;
 import java.util.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 
 import junit.framework.*;
 import net.sourceforge.cruisecontrol.Modification;
@@ -56,7 +54,6 @@ public class VssTest extends TestCase {
 
     private final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
     private final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36";
-    private final String STRANGE_DATE_TIME_STRING = "Date:  6/20/:1   Time:  10:36a";
 
     public VssTest(String name) {
         super(name);
