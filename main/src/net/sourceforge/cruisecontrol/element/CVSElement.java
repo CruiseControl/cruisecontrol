@@ -105,7 +105,12 @@ public class CVSElement extends SourceControlElement {
 	 *  of the deletion of that file.
 	 */
 	private final static String CVS_REVISION_DELETED = "dead";
-
+    
+    /**
+     * Used to identify newly added files in CVS
+     */
+    private final static String CVS_NO_LINES_CHANGED = "+0 -0";
+    
 	/**
 	 *  System dependent new line seperator.
 	 */
@@ -202,8 +207,7 @@ public class CVSElement extends SourceControlElement {
 		ArrayList mods = null;
 		try {
 			mods = execHistoryCommand(buildHistoryCommand(lastBuild));
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log("Log command failed to execute succesfully");
 			e.printStackTrace();
 		}
@@ -364,6 +368,13 @@ public class CVSElement extends SourceControlElement {
 			tokens.nextToken();
 			String stateKeyword = tokens.nextToken();
 
+            // The next token should be the lines keyword, then the lines changed
+            String linesChanged = "";
+            try {
+                tokens.nextToken();
+                linesChanged = tokens.nextToken() + " " + tokens.nextToken();
+            } catch (NoSuchElementException noLinesFoundIgnore) {}
+            
 			// All the text from now to the next revision delimiter or working
 			// file delimiter constitutes the messsage.
 			String message = "";
@@ -392,10 +403,10 @@ public class CVSElement extends SourceControlElement {
 				nextModification.modifiedTime = LOGDATE.parse(dateStamp + " "
 						 + timeStamp + " GMT");
 				updateLastModified(nextModification.modifiedTime);
-			}
-			catch (ParseException pe) {
+			} catch (ParseException pe) {
+                log("Error parsing cvs log for date and time!");
 				pe.printStackTrace();
-				//(PENDING) what else to do?
+                return null;
 			}
 
 			nextModification.userName = authorName;
@@ -408,10 +419,12 @@ public class CVSElement extends SourceControlElement {
 
 			if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DELETED)) {
 				nextModification.type = "deleted";
-			} else {
+			} else if (linesChanged.equals(CVS_NO_LINES_CHANGED)) {
+                nextModification.type = "added";
+            } else {
 				nextModification.type = "modified";
 			}
-
+            
 			mods.add(nextModification);
 		}
 		return mods;
