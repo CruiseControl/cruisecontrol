@@ -72,7 +72,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             System.err.println(
                 "CruiseControl: currentBuildStatusFile "
                     + currentBuildFile.getAbsolutePath()
-                    + "does not exist."
+                    + " does not exist."
                     + " You may need to update the value in the web.xml"
                     + " or the location specified in your CruiseControl config.xml.");
             return;
