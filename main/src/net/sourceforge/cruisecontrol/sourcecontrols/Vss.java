@@ -197,10 +197,11 @@ public class Vss implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
         ArrayList modifications = new ArrayList();
-        try {
-            String[] env = VSSHelper.loadVSSEnvironment(serverPath);
 
-            LOG.info("Vss: getting modifications for " + vssPath);
+        String[] env = VSSHelper.loadVSSEnvironment(serverPath);
+        LOG.info("Vss: getting modifications for " + vssPath);
+
+        try {
             Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
             p.waitFor();
             p.getInputStream().close();
@@ -208,9 +209,15 @@ public class Vss implements SourceControl {
             p.getErrorStream().close();
 
             parseTempFile(modifications);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            LOG.equals(e);
+            throw new RuntimeException(e.getMessage());
+        } catch (CruiseControlException e) {
+            LOG.equals(e);
+            throw new RuntimeException(e.getMessage());
+        } catch (InterruptedException e) {
+            LOG.equals(e);
+            throw new RuntimeException(e.getMessage());
         }
 
         if (property != null && modifications.size() > 0) {
@@ -385,8 +392,8 @@ public class Vss implements SourceControl {
                 modification.type = "create";
                 LOG.debug("this folder was created");
             } else {
-
-                String fileName, folderName = null;
+                String fileName;
+                String folderName;
 
                 if (nameAndDateIndex == 1) {
                     folderName = vssPath;
