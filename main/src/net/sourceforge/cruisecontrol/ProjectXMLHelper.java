@@ -261,5 +261,7 @@ public class ProjectXMLHelper {
 
         _plugins.put("currentbuildstatuspublisher", "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
         _plugins.put("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
+        _plugins.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
+        _plugins.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
     }
 }
