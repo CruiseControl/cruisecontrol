@@ -34,7 +34,7 @@ import org.apache.tools.ant.*;
  * be automatically run.  Extends XmlLogger so
  * this is the only listener that needs to be declared.
  *
- * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001
+ * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001, robertdw, jchyip
  */
 public class MasterBuild extends XmlLogger implements BuildListener {
 
@@ -83,10 +83,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     //build servlet info
     private String _servletURL;
-    private static String _currentBuildStatusFile;
+    private static File _currentBuildStatusFile;
 
     /**
-     *	entry point.  verifies that all command line arguments are correctly specified.
+     * Entry point.  Verifies that all command line arguments are correctly 
+     * specified.
      */
     public static void main(String[] args) {
 
@@ -142,7 +143,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     * serialize the label and timestamp of the last good build
+     * Serialize the label and timestamp of the last good build
      */
     private void writeBuildInfo() {
         try {
@@ -157,7 +158,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     * deserialize the label and timestamp of the last good build.
+     * Deserialize the label and timestamp of the last good build.
      */
     private void readBuildInfo() {
         File infoFile = new File(BUILDINFO_FILENAME);
@@ -183,53 +184,59 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     * Load properties file, see masterbuild.properties for descriptions of properties.
+     * Load properties file, see masterbuild.properties for descriptions of 
+     * properties.
      */
-    private void loadProperties() {
+    private void loadProperties() throws Exception {
         File propFile = new File(_propfilename);
-
-        try {
-            Properties props = new Properties();
-            props.load(new FileInputStream(propFile));
-
-            StringTokenizer st = new StringTokenizer(props.getProperty("auxlogfiles"), ",");
-            _auxLogProperties = new Vector();
-            while (st.hasMoreTokens()) {
-                String nextFile = st.nextToken().trim();
-                _auxLogProperties.add(nextFile);
-            }
-
-            _buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
-            _isIntervalAbsolute = Boolean.valueOf(props.getProperty("absoluteInterval", "false")).booleanValue();
-            
-            _debug = props.getProperty("debug").equals("true");
-            _verbose = props.getProperty("verbose").equals("true");
-            _mailhost = props.getProperty("mailhost");
-            _servletURL = props.getProperty("servletURL");
-            _returnAddress = props.getProperty("returnAddress");
-            _buildmaster = getSetFromString(props.getProperty("buildmaster"));
-            _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
-            _currentBuildStatusFile = props.getProperty("currentBuildStatusFile");
-            _antFile = props.getProperty("antfile");
-            _antTarget = props.getProperty("target");
-            _cleanAntTarget = props.getProperty("cleantarget");
-            _logDir = props.getProperty("logdir");
-            _cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
-            _labelIncrementerClassName = props.getProperty("labelIncrementerClass");
-            if (_labelIncrementerClassName == null) {
-                _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
-            }
-
-            _emailmapFilename = props.getProperty("emailmap");
-            _useEmailMap = usingEmailMap(_emailmapFilename);
-
-            if (_debug || _verbose)
-                props.list(System.out);
-
-        } catch (Exception e) {
-            log("Properties file: " + propFile.getAbsolutePath() + " not found.");
-            e.printStackTrace();
+        
+        if (!propFile.exists()) {
+            throw new FileNotFoundException("Properties file \"" + propFile 
+             + "\" not found");
         }
+        
+        Properties props = new Properties();
+        props.load(new FileInputStream(propFile));
+        
+        StringTokenizer st = new StringTokenizer(props.getProperty("auxlogfiles"), ",");
+        _auxLogProperties = new Vector();
+        while (st.hasMoreTokens()) {
+            String nextFile = st.nextToken().trim();
+            _auxLogProperties.add(nextFile);
+        }
+        
+        _buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
+        _debug = props.getProperty("debug").equals("true");
+        _verbose = props.getProperty("verbose").equals("true");
+        _mailhost = props.getProperty("mailhost");
+        _servletURL = props.getProperty("servletURL");
+        _returnAddress = props.getProperty("returnAddress");
+        _buildmaster = getSetFromString(props.getProperty("buildmaster"));
+        _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
+
+        _logDir = props.getProperty("logdir");
+        new File(_logDir).mkdirs();
+        
+        String buildStatusFileName = _logDir + File.separator 
+         + props.getProperty("currentBuildStatusFile");
+        log("Creating " + buildStatusFileName);
+        _currentBuildStatusFile = new File(buildStatusFileName);
+        _currentBuildStatusFile.createNewFile();
+        
+        _antFile = props.getProperty("antfile");
+        _antTarget = props.getProperty("target");
+        _cleanAntTarget = props.getProperty("cleantarget");
+        _cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
+        _labelIncrementerClassName = props.getProperty("labelIncrementerClass");
+        if (_labelIncrementerClassName == null) {
+            _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
+        }
+        
+        _emailmapFilename = props.getProperty("emailmap");
+        _useEmailMap = usingEmailMap(_emailmapFilename);
+        
+        if (_debug || _verbose)
+            props.list(System.out);
     }
 
     /**
@@ -254,8 +261,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     * loop infinitely, firing off the build as necessary.  reloads the properties file every time so that the build process need not be stopped, only the property
-     *	file needs to be edited if changes are necessary.  will execute an alternate ant task every n builds, so that we can possibly execute a full clean build, etc.
+     * Loop infinitely, firing off the build as necessary.  Reloads the 
+     * properties file every time so that the build process need not be stopped,
+     * only the property file needs to be edited if changes are necessary.  Will
+     * execute an alternate ant task every n builds, so that we can possibly 
+     * execute a full clean build, etc.
      */
     private void execute() {
         try {
@@ -297,7 +307,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             }
 
         } catch (InterruptedException e) {
-            System.out.println("[masterbuild] exception trying to sleep");
+            log("Exception trying to sleep");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -333,11 +343,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         v.add("-buildfile");
         v.add(_antFile);
 
-        if ((buildCounter % _cleanBuildEvery) == 0)
+        if (((buildCounter % _cleanBuildEvery) == 0) && _cleanAntTarget != "") {
+            log("Using clean target");
             v.add(_cleanAntTarget);
-        else
+        } else if (_antTarget != "") {
+            log("Using normal target");
             v.add(_antTarget);
-
+        }
 
         return(String[])v.toArray(new String[v.size()]);
     }
@@ -520,7 +532,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             LabelIncrementer incr = (LabelIncrementer)incrementerClass.newInstance();
             _label = incr.incrementLabel(_label);
         } catch (Exception e) {
-            System.err.println("[masterbuild] Error incrementing label.");
+            log("Error incrementing label.");
             e.printStackTrace();
         }
 
@@ -685,17 +697,19 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      *                  running, otherwise false.
      */
     private void logCurrentBuildStatus(boolean isRunning) {
-        try {
-            String currentlyRunning = "<br>&nbsp;<br><b>Current Build Started At:</b><br>";
-            String notRunning = "<br>&nbsp;<br><b>Next Build Starts At:</b><br>";
-            SimpleDateFormat numericDateFormatter = new SimpleDateFormat("MM/dd/yyyy hh:mma");
-            Date buildTime = new Date();
-            if (!isRunning) {
-                buildTime = new Date(buildTime.getTime() + _buildInterval);
-            }
+        String currentlyRunning = "<br>&nbsp;<br><b>Current Build Started At:</b><br>";
+        String notRunning = "<br>&nbsp;<br><b>Next Build Starts At:</b><br>";
+        SimpleDateFormat numericDateFormatter 
+         = new SimpleDateFormat("MM/dd/yyyy hh:mma");
+        Date buildTime = new Date();
+        if (!isRunning) {
+            buildTime = new Date(buildTime.getTime() + _buildInterval);
+        }
 
-            FileWriter currentBuildWriter = new FileWriter(new File(_currentBuildStatusFile));
-            currentBuildWriter.write((isRunning ? currentlyRunning : notRunning) + numericDateFormatter.format(buildTime) + "<br>");
+        try {        
+            FileWriter currentBuildWriter = new FileWriter(_currentBuildStatusFile);
+            currentBuildWriter.write((isRunning ? currentlyRunning : notRunning) 
+             + numericDateFormatter.format(buildTime) + "<br>");
             currentBuildWriter.close();
             currentBuildWriter = null;
         } catch (IOException ioe) {
@@ -735,10 +749,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             String fileName = proj.getProperty(propertyName);
             if (fileName == null) {
                 log("Auxillary Log File Property '" + propertyName + "' not set.");
-            }
-            else {
+            } else {
                 _auxLogFiles.add(fileName);
-            }
+            }            
+
         }
 
         //If the XmlLogger.file property doesn't exist, we will set it here to a default
@@ -760,6 +774,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         logCurrentBuildStatus(true);
         super.buildStarted(buildevent);
     }
+    
 }
 
 /**
