@@ -78,6 +78,11 @@ public class ProjectController implements ProjectControllerMBean {
         project.setBuildForced(true);
     }
 
+    public void serialize() {
+        log("serializing");
+        project.serializeProject();
+    }
+
 //    // TODO
 //    public long getUpTime() {
 //        return 0;

@@ -53,7 +53,13 @@ public interface ProjectControllerMBean {
     /**
      * Runs a build now
      */
-     public void build();
+    public void build();
+
+    /**
+     * Serialize the project
+     */
+    public void serialize();
+
 
 //    /**
 //     * Returns the duration the managed project process has been executing.
