@@ -55,6 +55,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.ServletContext;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -69,11 +70,13 @@ import javax.xml.transform.stream.StreamSource;
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
 public class XSLTag implements Tag, BodyTag {
-
+    private static final String DEFAULT_XSL_ROOT = "/xsl/";
     private BodyContent bodyOut;
     private Tag parent;
     private PageContext pageContext;
     private String xslFileName;
+    private String xslRootContext = DEFAULT_XSL_ROOT;
+    private static final String CACHE_DIR = "_cache";
 
     /**
      *  Perform an xsl transform.  This body of this method is based upon the xalan sample code.
@@ -85,32 +88,37 @@ public class XSLTag implements Tag, BodyTag {
     protected void transform(File xmlFile, InputStream in, Writer out) {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
-            if (xslFileName != null) {
-                String xslFilePath = pageContext.getServletContext().getRealPath(xslFileName);
-                final String xslDir = new File(xslFilePath).getAbsoluteFile().getParent();
-                javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
-                    public javax.xml.transform.Source resolve(String href, String base) {
-                        File possibleFile = new File(xslDir, href);
-                        if (possibleFile.exists()) {
-                            System.out.println("Using nested stylesheet for " + href);
-                            return new javax.xml.transform.stream.StreamSource(possibleFile);
-                        } else {
-                            System.out.println("Nested stylesheet not found for " + href);
-                            return null;
-                        }
+            javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
+                public javax.xml.transform.Source resolve(String href, String base) {
+                    final ServletContext servletContext = pageContext.getServletContext();
+                    InputStream styleStream = servletContext.getResourceAsStream(xslRootContext + href);
+                    if (styleStream != null) {
+                        info("Using nested stylesheet for " + href);
+                        return new StreamSource(styleStream);
+                    } else {
+                        info("Nested stylesheet not found for " + href);
+                        return null;
                     }
-                };
-                tFactory.setURIResolver(resolver);
-            } else {
-                System.err.println("No XSL File Name!");
-            }
+                }
+            };
+            tFactory.setURIResolver(resolver);
             Transformer transformer = tFactory.newTransformer(new StreamSource(in));
             transformer.transform(new StreamSource(xmlFile), new StreamResult(out));
-        } catch (TransformerFactoryConfigurationError error) {
-            error.printStackTrace();
         } catch (TransformerException e) {
-            e.printStackTrace();
+            err(e);
         }
+    }
+
+    private void info(String message) {
+        System.out.println(message);
+    }
+
+    private void err(String message) {
+        System.err.println(message);
+    }
+
+    private void err(Throwable exception) {
+        exception.printStackTrace();
     }
 
     /**
@@ -123,19 +131,16 @@ public class XSLTag implements Tag, BodyTag {
         if (!cacheFile.exists()) {
             return false;
         }
-
         long xmlLastModified = xmlFile.lastModified();
         long xslLastModified = xmlLastModified;
         long cacheLastModified = cacheFile.lastModified();
-
         try {
             URL url = pageContext.getServletContext().getResource(xslFileName);
             URLConnection con = url.openConnection();
             xslLastModified = con.getLastModified();
         } catch (Exception e) {
-            System.err.println("Failed to retrieve lastModified of xsl file " + xslFileName);
+            err("Failed to retrieve lastModified of xsl file " + xslFileName);
         }
-
         return (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
     }
 
@@ -155,7 +160,7 @@ public class XSLTag implements Tag, BodyTag {
             }
             is.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            err(e);
         } finally {
             is = null;
         }
@@ -185,7 +190,7 @@ public class XSLTag implements Tag, BodyTag {
         File xmlFile = null;
         if (queryString == null || queryString.trim().equals("")) {
             xmlFile = getLatestLogFile(logDir);
-            System.out.println("Using latest log file: " + xmlFile.getAbsolutePath());
+            info("Using latest log file: " + xmlFile.getAbsolutePath());
         } else {
             String logFile = null;
             StringTokenizer tokenizer = new StringTokenizer(queryString, "&");
@@ -196,7 +201,7 @@ public class XSLTag implements Tag, BodyTag {
                 }
             }
             xmlFile = new File(logDir, logFile + ".xml");
-            System.out.println("Using specified log file: " + xmlFile.getAbsolutePath());
+            info("Using specified log file: " + xmlFile.getAbsolutePath());
         }
         return xmlFile;
     }
@@ -226,7 +231,7 @@ public class XSLTag implements Tag, BodyTag {
     }
 
     /**
-     *  Sets the xsl file to use.  It is expected that this can be found by the <code>ServletContext</code> for this
+     *  Sets the xsl file to use. It is expected that this can be found by the <code>ServletContext</code> for this
      *  web application.
      *
      *  @param xslFile The path to the xslFile.
@@ -236,41 +241,68 @@ public class XSLTag implements Tag, BodyTag {
     }
 
     /**
+     * Set the dir to use. It is expected that this can be found by the <code>ServletContext</code> for
+     * this web application.
+     * <p>
+     * This defaults to "/xsl".
+     * <p>
+     * Note that you only need to set this if you've used nested style sheets.
+     * @param dir  the root directory.
+     */
+    public void setXslRootContext(String dir) {
+        xslRootContext = dir;
+    }
+
+    /**
      *  Write the transformed log content to page writer given.
      */
     protected void writeContent(Writer out) throws JspException {
+        File logDir = findLogDir();
+        File xmlFile = findLogFile(logDir);
+        File cacheFile = findCacheFile(logDir, xmlFile);
+        if (isCacheFileCurrent(xmlFile, cacheFile) == false) {
+            updateCacheFile(xmlFile, cacheFile);
+        } else {
+            info("Using cached copy: " + cacheFile.getAbsolutePath());
+        }
+        serveCachedCopy(cacheFile, out);
+    }
+
+    private void updateCacheFile(File xmlFile, File cacheFile) {
+        try {
+            final InputStream styleSheetStream = pageContext.getServletContext().getResourceAsStream(xslFileName);
+            transform(xmlFile, styleSheetStream, new FileWriter(cacheFile));
+        } catch (IOException e) {
+            err(e);
+        }
+    }
+
+    private File findCacheFile(File logDir, File xmlFile) {
+        File cacheDir = new File(logDir, CACHE_DIR);
+        if (!cacheDir.exists()) {
+            cacheDir.mkdir();
+        }
+        File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile));
+        return cacheFile;
+    }
+
+    private File findLogFile(File logDir) {
+        info("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
+        String queryString = ((HttpServletRequest) pageContext.getRequest()).getQueryString();
+        File xmlFile = getXMLFile(queryString, logDir);
+        return xmlFile;
+    }
+
+    private File findLogDir() {
         String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
         if (logDirName == null) {
             logDirName = pageContext.getServletContext().getInitParameter("logDir");
         }
         File logDir = new File(logDirName);
-        System.out.println("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
-
-
-        File cacheDir = new File(logDir, "_cache");
-        if (!cacheDir.exists()) {
-            cacheDir.mkdir();
-        }
-
-        String queryString = ((HttpServletRequest) pageContext.getRequest()).getQueryString();
-        File xmlFile = getXMLFile(queryString, logDir);
-        File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile));
-        if (!isCacheFileCurrent(xmlFile, cacheFile)) {
-            try {
-                final InputStream styleSheetStream = pageContext.getServletContext().getResourceAsStream(xslFileName);
-                transform(xmlFile, styleSheetStream, new FileWriter(cacheFile));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Using cached copy: " + cacheFile.getAbsolutePath());
-        }
-
-        serveCachedCopy(cacheFile, out);
+        return logDir;
     }
 
     public int doAfterBody() throws JspException {
-        //writeContent(bodyOut.getEnclosingWriter());
         return SKIP_BODY;
     }
 
