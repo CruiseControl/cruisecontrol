@@ -50,7 +50,7 @@
         var SystemErr = new Array();
         var Problem = new Array();
         var cur;
-        <xsl:apply-templates select="testsuite" mode="js.props" />
+      <xsl:apply-templates select="//testsuite" mode="js.props" />
     </script>
     <script type="text/javascript" language="JavaScript"><![CDATA[
         function displayProperties (name) {
