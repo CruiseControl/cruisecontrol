@@ -49,7 +49,7 @@
 
 <ul>
 <li><a class="small" href="#downloadsource">1. Download src/build</a></li>
-<li><a class="small" href="#createconfigfile">2. Create config.xml file</a></li>
+<li><a class="small" href="#createconfigfile">2. Create config file</a></li>
 <li><a class="small" href="#startupcruisecontrol">3. Startup cruisecontrol</a></li>
 </ul>
 
@@ -69,13 +69,13 @@ cruisecontrol directory.  Execute the appropriate script, and CruiseControl shou
 and you should find a cruisecontrol.jar file if the build was successful.</p>
 
 <a name="createconfigfile"/>
-<span class="small">2. Create config.xml file / Upgrade previous version</span>
+<span class="small">2. Create config file / Upgrade previous version</span>
 
-<p>All of the cruisecontrol configuration exists in the config.xml file.  If you're new to cruisecontrol, you'll have
+<p>All of the cruisecontrol configuration exists in a single config file.  If you're new to cruisecontrol, you'll have
 to create this file.  If you have used a previous version of cruisecontrol, you can use the upgrader to convert your
 old setup to a config.xml file.</p>
 
-<p>New users should read the <a href="configxml.html">explanation</a> of the config.xml file format</p>
+<p>New users should read the <a href="configxml.html">explanation</a> of the config file format</p>
 
 <p>To run the upgrader, execute the following command:</p>
 
@@ -138,7 +138,7 @@ java -jar dist/cruisecontrol.jar
    <tr>
       <td class="tabledata">-projectname <i>name</i></td>
       <td class="tabledata">Yes</td>
-      <td class="tabledata">Should match the name attribute of the &lt;project&gt; element in config.xml</td>
+      <td class="tabledata">Should match the name attribute of the &lt;project&gt; element in the config file</td>
    </tr>
    <tr>
       <td class="tabledata">-lastbuild <i>timestamp</i></td>
@@ -152,8 +152,13 @@ java -jar dist/cruisecontrol.jar
    </tr>
    <tr>
       <td class="tabledata">-configfile <i>filename</i></td>
-      <td class="tabledata">First Time</td>
-      <td class="tabledata">Relative path to config.xml file</td>
+      <td class="tabledata">No</td>
+      <td class="tabledata">Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
+   </tr>
+   <tr>
+      <td class="tabledata">-port <i>port number</i></td>
+      <td class="tabledata">No</td>
+      <td class="tabledata">Port number for the JMX HTML adaptor.  This will activate the JMX admin functionality of CruiseControl</td>
    </tr>
 </table>
 </p>
