@@ -44,6 +44,7 @@ import com.starbase.starteam.Server;
 import com.starbase.starteam.ServerException;
 import com.starbase.starteam.StarTeamFinder;
 import com.starbase.starteam.User;
+import com.starbase.starteam.UserAccount;
 import com.starbase.starteam.View;
 import com.starbase.starteam.ViewConfiguration;
 import com.starbase.util.OLEDate;
@@ -130,16 +131,16 @@ public class StarTeam implements SourceControl {
 
     public void validate() throws CruiseControlException {
         if (folder == null) {
-           throw new CruiseControlException("'folder' is a required attribute on StarTeam.");
+            throw new CruiseControlException("'folder' is a required attribute on StarTeam.");
         }
         if (url == null) {
-           throw new CruiseControlException("'url' is a required attribute on StarTeam.");
+            throw new CruiseControlException("'url' is a required attribute on StarTeam.");
         }
         if (userName == null) {
-           throw new CruiseControlException("'username' is a required attribute on StarTeam.");
+            throw new CruiseControlException("'username' is a required attribute on StarTeam.");
         }
         if (password == null) {
-           throw new CruiseControlException("'password' is a required attribute on StarTeam.");
+            throw new CruiseControlException("'password' is a required attribute on StarTeam.");
         }
     }
 
@@ -164,17 +165,16 @@ public class StarTeam implements SourceControl {
 
         //StarTeam SDK does not like NoExitSecurityManager
         System.setSecurityManager(null);
-        
+
         Server server = null;
         try {
             // Set up two view snapshots, one at lastbuild time, one now
-            View view = StarTeamFinder.openView(userName + ":"
-             + password + "@" + url);
+            View view = StarTeamFinder.openView(userName + ":" + password + "@" + url);
             server = view.getServer();
 
-
             View snapshotAtNow = new View(view, ViewConfiguration.createFromTime(nowDate));
-            View snapshotAtLastBuild = new View(view, ViewConfiguration.createFromTime(lastBuildDate));
+            View snapshotAtLastBuild =
+                new View(view, ViewConfiguration.createFromTime(lastBuildDate));
 
             Map nowFiles = new HashMap();
             Map lastBuildFiles = new HashMap();
@@ -201,7 +201,8 @@ public class StarTeam implements SourceControl {
             addFolderModsToList(nowFiles, nowRoot);
 
             try {
-                Folder lastBuildRoot = StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), folder);
+                Folder lastBuildRoot =
+                    StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), folder);
 
                 if (preloadFileInformation) {
                     // cache information for last build
@@ -242,13 +243,12 @@ public class StarTeam implements SourceControl {
      * Compare old and new file lists to determine what happened
      */
     private void compareFileLists(Map nowFiles, Map lastBuildFiles) {
-        for (Iterator iter = nowFiles.keySet().iterator(); iter.hasNext(); ) {
-            Integer currentItemID  = (Integer) iter.next();
+        for (Iterator iter = nowFiles.keySet().iterator(); iter.hasNext();) {
+            Integer currentItemID = (Integer) iter.next();
             File currentFile = (File) nowFiles.get(currentItemID);
 
             if (lastBuildFiles.containsKey(currentItemID)) {
-                File lastBuildFile =
-                (File) lastBuildFiles.get(currentItemID);
+                File lastBuildFile = (File) lastBuildFiles.get(currentItemID);
 
                 if (fileHasBeenModified(currentFile, lastBuildFile)) {
                     addRevision(currentFile, "modified");
@@ -272,10 +272,9 @@ public class StarTeam implements SourceControl {
      * are not in the new list from the processing above.
      */
     private void examineOldFiles(Map lastBuildFiles) {
-        for (Iterator iter = lastBuildFiles.values().iterator(); iter.hasNext(); ) {
+        for (Iterator iter = lastBuildFiles.values().iterator(); iter.hasNext();) {
             File currentLastBuildFile = (File) iter.next();
-            addRevision((File) currentLastBuildFile.getFromHistoryByDate(nowDate),
-             "deleted");
+            addRevision((File) currentLastBuildFile.getFromHistoryByDate(nowDate), "deleted");
         }
     }
 
@@ -285,7 +284,7 @@ public class StarTeam implements SourceControl {
 
     private boolean fileHasBeenMoved(File currentFile, File lastBuildFile) {
         return !currentFile.getParentFolder().getFolderHierarchy().equals(
-         lastBuildFile.getParentFolder().getFolderHierarchy());
+            lastBuildFile.getParentFolder().getFolderHierarchy());
     }
 
     private void addFolderModsToList(Map fileList, Folder folder) {
@@ -328,22 +327,27 @@ public class StarTeam implements SourceControl {
         //  Only get emails for users still on the system
         if (user != null && canLookupEmails) {
 
-             // Try to obtain email to add.  This is only allowed if logged on
-             // user is SERVER ADMINISTRATOR
+            // Try to obtain email to add.  This is only allowed if logged on
+            // user is SERVER ADMINISTRATOR
             try {
-                mod.emailAddress =
-                 user.getServer().getAdministration().findUserAccount(
-                 user.getID()).getEmailAddress();
+                // check if user account exists
+                UserAccount useracct =
+                    user.getServer().getAdministration().findUserAccount(user.getID());
+                if (useracct == null) {
+                    LOG.warn("User account " + user.getID() + " not found for email address.");
+                }
+                else {
+                    mod.emailAddress = useracct.getEmailAddress();
+                }
             } catch (ServerException sx) {
                 // Logged on user does not have permission to get user's email.
                 // Return the modifying user's name instead. Then use the
                 // email.properties file to map the name to an email address
                 // outside of StarTeam
-                LOG.info("Error looking up user email address." , sx);
+                LOG.warn("Error looking up user email address.", sx);
                 canLookupEmails = false;
             }
         }
-
 
         modifications.add(mod);
         if (status.equals("deleted")) {
