@@ -149,6 +149,10 @@ public class ClearCase implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
         String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
+        String nowDate = IN_DATE_FORMAT.format(now);
+        _properties.put("clearcaselastbuild", lastBuildDate);
+        _properties.put("clearcasenow", nowDate);
+
         /*
          * let's try a different clearcase command--this one just takes
              * waaaaaaaay too long.
@@ -172,6 +176,8 @@ public class ClearCase implements SourceControl {
 
         command += " -nco -since " + lastBuildDate;
         command += " -fmt \"%u" + DELIMITER + "%Nd" + DELIMITER + "%n" + DELIMITER + "%o" + DELIMITER + "%Nc" + END_OF_STRING_DELIMITER + "\\n\" " + _viewPath;
+
+        log.info("ClearCase: getting modifications for " + _viewPath);
 
         log.debug("Command to execute : " + command);
         List modifications = null;
