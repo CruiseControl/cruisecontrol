@@ -28,9 +28,11 @@ import java.util.*;
 
 /**
  * The Mailer can handle sending simple character based mail messages.
- *
- * @author Alden Almagro, Jack Bolles, Paul Julius, ThoughtWorks, Inc., neillr
- *
+ * 
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:jmbolles@thoughtworks.com">Jack Bolles</a>
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
+ * @author neillr
  * @since November 28, 2000
  */
 public class Mailer {

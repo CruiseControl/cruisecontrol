@@ -24,12 +24,12 @@ import java.util.*;
 import org.apache.tools.ant.*;
 
 /**
- *  This abstract class defines behavior required by ModificationSet.java when
- *  gathering information about the changes made to whatever source control tool
- *  that you choose.
- *
- *@author  Alden Almagro, ThoughtWorks, Inc. 2001,
- *@author  Jason Yip, jcyip@thoughtworks.com
+ * This abstract class defines behavior required by ModificationSet.java when
+ * gathering information about the changes made to whatever source control tool
+ * that you choose.
+ * 
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 
 //(PENDING) pull up buildCommandLine

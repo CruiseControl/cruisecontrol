@@ -38,7 +38,7 @@ import org.apache.tools.ant.Project;
  * createworkingdirectories="true"/>
  *
  * @author Christopher Charlier, ThoughtWorks, Inc. 2001
- * @author Jason Yip, jcyip@thoughtworks.com
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class StarTeamCheckout extends StarTeamTask {
     /**

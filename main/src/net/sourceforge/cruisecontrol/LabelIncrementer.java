@@ -29,7 +29,8 @@ import java.util.Date;
  * is incorporated into the log filename when a successful
  * build occurs.
  * 
- * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public interface LabelIncrementer {
 

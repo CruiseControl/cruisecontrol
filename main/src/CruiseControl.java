@@ -27,8 +27,8 @@ import net.sourceforge.cruisecontrol.*;
  * (instead of "java net.sourceforge.cruisecontrol.MasterBuild"
  *  the command line is snazzier, in the form of "java CruiseControl")
  *
- * @author alden almagro (alden@thoughtworks.com)
- * @author Paul Julius (pdjulius@thoughtworks.com)
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 
 public class CruiseControl {

@@ -38,17 +38,18 @@ import org.apache.tools.ant.types.*;
  *  call to CVS is assumed to work without any setup. This implies that if the
  *  authentication type is pserver the call to cvs login should be done prior to
  *  calling this class. <p>
- *
+ * 
  *  P4Element depends on the optional P4 package delivered with Ant v1.3. But
  *  since it probably doesn't make much sense using the P4Element without other
  *  P4 support it shouldn't be a problem. <p>
- *
+ * 
  *  P4Element sets the property ${p4element.change} with the current changelist
  *  number. This should then be passed into p4sync or other p4 commands.
- *
- *@author  niclas.olofsson@ismobile.com, jchyip
- *@created  den 23 april 2001
- *@version  0.1
+ * 
+ * @created den 23 april 2001
+ * @author niclas.olofsson@ismobile.com
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @version 0.1
  */
 public class P4Element extends SourceControlElement {
 

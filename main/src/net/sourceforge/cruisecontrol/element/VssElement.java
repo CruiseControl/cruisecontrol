@@ -32,9 +32,9 @@ import org.apache.tools.ant.Task;
  *  This class handles all VSS-related aspects of determining the modifications
  *  since the last good build.
  *
- * @author Alden Almagro, ThoughtWorks, Inc. 2001
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author Eli Tucker
- * @author Jason Yip, jcyip@thoughtworks.com
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class VssElement extends SourceControlElement {
 

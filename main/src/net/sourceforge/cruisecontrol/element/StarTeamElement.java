@@ -33,13 +33,18 @@ import org.apache.tools.ant.*;
 
 /**
  * This class logs into StarTeam and collects information on any modifications
- * made since the last successful build. Ant Usage: <taskdef
- * name="starteamelement" classname="net.sourceforge.cruisecontrol.StarTeamElement"/>
+ * made since the last successful build. 
+ * <P>
+ * Ant Usage: 
+ * <CODE><PRE>
+ * <taskdef name="starteamelement" 
+ *     classname="net.sourceforge.cruisecontrol.StarTeamElement"/>
  * <starteamelement username="BuildMaster" password="ant"
- * starteamurl="server:port/project/view" folder="Source"/>
- *
- * @author Christopher Charlier, ThoughtWorks, Inc. 2001
- * @author Jason Yip, jcyip@thoughtworks.com
+ *     starteamurl="server:port/project/view" folder="Source"/>
+ * </PRE></CODE>
+ * 
+ * @author Christopher Charlier -- ThoughtWorks Inc. 2001
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class StarTeamElement extends SourceControlElement {
 

@@ -32,17 +32,17 @@ import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
 
 /**
- *  This class implements the SourceControlElement methods for a CVS repository.
- *  The call to CVS is assumed to work without any setup. This implies that if
- *  the authentication type is pserver the call to cvs login should be done
- *  prior to calling this class.
+ * This class implements the SourceControlElement methods for a CVS repository.
+ * The call to CVS is assumed to work without any setup. This implies that if
+ * the authentication type is pserver the call to cvs login should be done
+ * prior to calling this class.
  *
- *@author  Paul Julius ThoughtWorks Inc.
- *@author  Robert Watkins
- *@author  Frederic Lavigne
- *@author  Jason Yip, jcyip@thoughtworks.com
- *@author  Marc Paquette
- *@author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
+ * @author  <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
+ * @author  Robert Watkins
+ * @author  Frederic Lavigne
+ * @author  <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author  Marc Paquette
+ * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  */
 public class CVSElement extends SourceControlElement {
 
