@@ -53,6 +53,8 @@ public class CVSLabelIncrementer implements LabelIncrementer {
 
     private static final Logger LOG = Logger.getLogger(CVSLabelIncrementer.class);
 
+    private boolean preIncrement = false;
+
     /**
      * Increments the label when a successful build occurs.
      * Assumes that the label will be in
@@ -73,11 +75,16 @@ public class CVSLabelIncrementer implements LabelIncrementer {
         return newLabel;
     }
 
-    /**
-     *  This label incrementer should be called after the build.
-     */
     public boolean isPreBuildIncrementer() {
-        return false;
+        return preIncrement;
+    }
+
+    /**
+     *  Set the pre/post behavior of the label incrementer.
+     */
+    public void setPreBuildIncrementer(boolean preIncrement)
+    {
+        this.preIncrement = preIncrement;
     }
 
     /**

@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.LabelIncrementer;
 
 public class DefaultLabelIncrementerTest extends TestCase {
 
-    private LabelIncrementer incrementer;
+    private DefaultLabelIncrementer incrementer;
 
     public DefaultLabelIncrementerTest(String name) {
         super(name);
@@ -59,5 +59,11 @@ public class DefaultLabelIncrementerTest extends TestCase {
 
     public void testIncrementLabel() {
         assertEquals(incrementer.incrementLabel("x.88", null), "x.89");
+    }
+
+    public void testSetPreBuildIncrementer() {
+	assertEquals(false, incrementer.isPreBuildIncrementer());
+	incrementer.setPreBuildIncrementer(true);
+	assertEquals(true, incrementer.isPreBuildIncrementer());
     }
 }
