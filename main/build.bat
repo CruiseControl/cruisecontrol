@@ -36,7 +36,7 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-set ANT_CLASSPATH=lib/ant.jar;lib/optional.jar;lib/junit.jar;lib/xerces.jar
+set ANT_CLASSPATH=lib/ant.jar;lib/optional.jar;lib/junit.jar;lib/xerces.jar;%CLOVER_HOME%/lib/clover.jar
 echo %ANT_CLASSPATH%
 
 if not defined JAVA_HOME goto noJavaFound

@@ -1,4 +1,4 @@
-<!--********************************************************************************
+<!--****************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,9 +33,10 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************-->
+ ****************************************************************************-->
 
 <project name="CruiseControl" default="all" basedir=".">
+    <property environment="env"/>
     <property file="override.properties"/>
 
     <property name="docs" value="docs"/>
@@ -53,6 +54,14 @@
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
 
+    <property name="clover.home" value="${env.CLOVER_HOME}"/>
+    <!-- **************************************************** -->
+    <!-- Clover classpath.  Assumes that CLOVER_HOME has been set. -->
+    <!-- **************************************************** -->
+    <path id="clover.classpath">
+        <fileset dir="${clover.home}/lib" includes="*.jar"/>
+    </path>
+    
     <!-- ****************************************************
     Define the project classpath references.  Any jar found
     in lib directory will be included in CLASSPATH
@@ -71,6 +80,7 @@
         <path refid="project.classpath" />
         <pathelement location="${classes}" />
         <pathelement path="${java.class.path}"/>
+        <path refid="clover.classpath"/>
     </path>
 
     <!-- **************************************************** -->
@@ -79,6 +89,7 @@
     <target name="init" description="Setup build system">
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
+        <mkdir dir="${junit.results}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
         <tstamp/>
         <property name="label" value="2.1 Compiled on ${TODAY} ${TSTAMP}"/>
@@ -145,6 +156,18 @@
         </javac>
     </target>
 
+    <target name="compile-test" depends="compile" 
+        description="Compile test code">
+
+        <javac debug="on" deprecation="true" srcdir="${test}" 
+            destdir="${classes}" excludes="**/element/,**/*StarTeam*" 
+            classpathref="project.classpath" />
+
+        <copy todir="${classes}">
+            <fileset dir="${test}" includes="**/*.xml"/>
+        </copy>
+    </target>
+
     <!-- **************************************************** -->
     <!-- Run style check on code -->
     <!-- **************************************************** -->
@@ -161,16 +184,38 @@
     </target>
 
     <!-- **************************************************** -->
+    <!-- Initialize Clover. -->
+    <!-- **************************************************** -->
+    <target name="report-coverage" depends="with-clover, clean, compile, compile-test, test, report-clover" 
+        description="Check test coverage">
+        
+        <!-- Don't instrument the test code -->
+<!--        <clover-setup initstring="cc_coverage.db" enabled="false"/>
+        
+        <antcall target="test"/>
+        <antcall target="report-clover"/>-->
+    </target>
+    
+    <target name="report-clover" depends="with-clover">
+        <clover-report>
+            <current outfile="clover-results" title="CruiseControl test coverage">
+                <format type="html"/> 
+            </current>	 
+        </clover-report>
+    </target>
+
+    <target name="with-clover">
+        <fail message="CLOVER_HOME must be set!" unless="env.CLOVER_HOME"/>
+        <fail message="Can't get Clover to work with Jikes..." 
+            if="env.JIKESPATH"/>
+        <taskdef resource="clovertasks" classpathref="clover.classpath"/>
+        <clover-setup initstring="cc_coverage.db"/>
+    </target>
+
+    <!-- **************************************************** -->
     <!-- Executes the unit tests                              -->
     <!-- **************************************************** -->
-    <target name="test" depends="init" description="Executes the unit tests">
-        <delete dir="${junit.results}"/>
-        <mkdir dir="${junit.results}" />
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}" excludes="**/element/,**/*StarTeam*" classpathref="project.classpath" />
-        <copy todir="${classes}">
-            <fileset dir="${test}" includes="**/*.xml"/>
-        </copy>
-
+    <target name="test" depends="compile-test" description="Executes the unit tests">
         <junit fork="yes" haltonfailure="yes" printsummary="on" >
             <classpath >
                 <path refid="project.runtime.classpath" />

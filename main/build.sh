@@ -86,6 +86,11 @@ if test -f ${JAVA_HOME}/lib/tools.jar ; then
     CLASSPATH=${CLASSPATH}:${JAVA_HOME}/lib/tools.jar
 fi
 
+# Try to add clover.jar if installed
+if test -f ${CLOVER_HOME}/lib/clover.jar ; then
+    CLASSPATH=${CLASSPATH}:${CLOVER_HOME}/lib/clover.jar
+fi
+
 # convert the unix path to windows
 if [ "$OSTYPE" = "cygwin32" ] || [ "$OSTYPE" = "cygwin" ] ; then
    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
