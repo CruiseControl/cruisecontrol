@@ -45,6 +45,9 @@ HTMLEmailPublisher
 * Added to the default plugin registry as <htmlemail> - Patch by Alden Almagro.
 * buildServletUrl no longer required parameter (no link if omited). - Patch by Jeffrey Fredrick
 
+CVS & MKS
+----------------------
+* Fixed bug where parsing would stop if input stream wasn't ready. - Patch by Steven Vernon
 
 CruiseControl Release Notes - 2.0.1
 
