@@ -84,12 +84,12 @@ public class ProjectXMLHelperTest extends TestCase {
             fail("schedule should be a required element");
         } catch (CruiseControlException e) {
         }
-            
+
         helper = new ProjectXMLHelper(configFile, "project2");
         Schedule schedule = helper.getSchedule();
         assertEquals(20 * ONE_SECOND, schedule.getInterval());
     }
-    
+
     public void testGetModificationSet() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         try {
@@ -102,26 +102,73 @@ public class ProjectXMLHelperTest extends TestCase {
         ModificationSet modSet = helper.getModificationSet();
         assertEquals(10 * ONE_SECOND, modSet.getQuietPeriod());
     }
-    
+
     public void testGetLogDir() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         assertEquals("logs" + File.separatorChar + "project1", helper.getLogDir());
         helper = new ProjectXMLHelper(configFile, "project2");
         assertEquals("c:/foo", helper.getLogDir());
     }
-    
+
     public void testLogXmlEncoding() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         assertNull(helper.getLogXmlEncoding());
         helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals("utf-8", helper.getLogXmlEncoding());        
+        assertEquals("utf-8", helper.getLogXmlEncoding());
     }
 
     public void testGetAuxLogs() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         assertEquals(0, helper.getAuxLogs().size());
         helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals(1, helper.getAuxLogs().size());        
+        assertEquals(1, helper.getAuxLogs().size());
+    }
+
+    public void testPluginRegistry() {
+        verifyPluginClass(
+            "currentbuildstatusbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
+        verifyPluginClass(
+            "cvsbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
+        verifyPluginClass(
+            "p4bootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
+        verifyPluginClass(
+            "vssbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
+        verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
+        verifyPluginClass("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
+        verifyPluginClass("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
+        verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
+        verifyPluginClass("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
+        verifyPluginClass("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
+        verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
+        verifyPluginClass("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
+        verifyPluginClass("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
+        verifyPluginClass("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
+        verifyPluginClass("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
+        verifyPluginClass("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
+        verifyPluginClass(
+            "labelincrementer",
+            "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
+        verifyPluginClass(
+            "currentbuildstatuspublisher",
+            "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
+        verifyPluginClass("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
+        verifyPluginClass(
+            "htmlemail",
+            "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
+        verifyPluginClass("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
+        verifyPluginClass("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
+        verifyPluginClass("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
+        verifyPluginClass("schedule", "net.sourceforge.cruisecontrol.Schedule");
+    }
+
+    private void verifyPluginClass(String pluginName, String expectedName) {
+        ProjectXMLHelper helper = new ProjectXMLHelper();
+        String className = helper.getClassNameForPlugin(pluginName);
+        assertEquals(expectedName, className);
     }
 
     protected void setUp() throws Exception {
