@@ -161,7 +161,7 @@ public class CruiseControlTagSupport extends TagSupport {
      *
      *  @return The latest log file.
      */
-    protected File getLatestLogFile(File logDir) {
+    public static File getLatestLogFile(File logDir) {
         File[] logs = logDir.listFiles(new CruiseControlLogFileFilter());
         if (logs != null && logs.length > 0) {
             Arrays.sort(logs, new ReversedComparator());

@@ -1,4 +1,11 @@
 
+.white { color:#FFFFFF }
+
+.index { background-color:#FFFFFF }
+.index-passed { color:#004400 }
+.index-failed { color:#FF0000; font-weight:bold }
+.index-header { font-weight:bold }
+
 .link { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; text-decoration:none; }
 
 .tab-table { margin: 0em 0em 0.5em 0em; }

@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,24 +34,62 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.taglib;
+package net.sourceforge.cruisecontrol;
 
-import java.io.FilenameFilter;
+import net.sourceforge.cruisecontrol.taglib.CruiseControlTagSupport;
+import net.sourceforge.cruisecontrol.taglib.NavigationTag;
+
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 /**
- *
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author Jared Richardson
+ * User: jfredrick
+ * Adapted from StatusPage.java, submitted by Jared to the cruisecontrol-devel mailing list.
  */
-public class CruiseControlLogFileFilter implements FilenameFilter {
-    public boolean accept(File dir, String name) {
-        if (!name.startsWith("log")) {
-            return false;
-        } else if (!name.endsWith(".xml")) {
-            return false;
-        } else if (new File(dir, name).isDirectory()) {
-            return false;
-        }
-        return true;
+public class StatusHelper {
+    private File newestLogfile;
+
+    private static final String PASSED = "passed";
+    private static final String FAILED = "failed";
+
+    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
+
+    public void setProjectDirectory(File directory) {
+        newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
     }
+
+    public String getLastBuildResult() {
+        if (newestLogfile == null) {
+            return null;
+        }
+        String filename = newestLogfile.getName();
+
+        // passing log file name is of form log20020102030405L.*.xml
+        // look for L
+        if (filename.length() > 16 && filename.charAt(17) == 'L') {
+            return PASSED;
+        }
+
+        return FAILED;
+    }
+
+    public String getLastBuildTimeString() {
+        if (newestLogfile == null) {
+            return null;
+        }
+        String filename = newestLogfile.getName();
+        String dateFromFilename = filename.substring(3, 17);
+        String dateString = "error";
+        try {
+            Date date = LOG_TIME_FORMAT_SECONDS.parse(dateFromFilename);
+            dateString = NavigationTag.US_DATE_FORMAT.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateString;
+    }
+
 }
