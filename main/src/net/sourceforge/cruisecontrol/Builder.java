@@ -51,6 +51,7 @@ public abstract class Builder implements Comparable {
     private int _day = -1;
     private int _time = -1;
     private int _multiple = -1;
+    private String _group = "default";
 
     //should return log from build
     public abstract Element build(Map properties) throws CruiseControlException;
@@ -96,6 +97,14 @@ public abstract class Builder implements Comparable {
 
     public int getDay() {
         return _day;
+    }
+
+    public String getGroup() {
+        return _group;
+    }
+
+    public void setGroup(String group) {
+        _group = group;
     }
 
     /**
