@@ -92,7 +92,9 @@
        <delete dir="${classes}" quiet="yes"/>
        <delete dir="${apidocs}" quiet="yes"/>
        <delete dir="${junit.results}" quiet="yes"/>
-       <delete dir="${basedir}" includes="_*" />
+       <delete>
+            <fileset dir="${basedir}" includes="_*" />
+       </delete>
     </target>
 
     <!-- **************************************************** -->
@@ -148,8 +150,8 @@
           description="Generates a report of code convention violations.">
 
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
-        <checkstyle config="checkstyle.xml" failOnViolation="false">
-			<formatter type="plain"/>
+        <checkstyle config="checkstyle.xml" failOnViolation="true">
+            <formatter type="plain"/>
             <formatter type="plain" tofile="checkstyleResults.txt"/>
             <fileset dir="src" includes="**/*.java"/>
             <fileset dir="test" includes="**/*.java"/>

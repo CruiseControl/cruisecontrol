@@ -47,7 +47,8 @@ import junit.framework.TestCase;
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
 public class CruiseControlControllerTest extends TestCase {
-    File configFile = new File("_tempConfigFile");
+    
+    private File configFile = new File("_tempConfigFile");
 
     public void tearDown() {
         if (configFile.exists()) {

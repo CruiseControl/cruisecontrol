@@ -82,7 +82,7 @@ public class ProjectTest extends TestCase {
     }
 
     private void deleteFile(File file) {
-        if (file.exists() == false) {
+        if (!file.exists()) {
             return;
         }
         if (file.isDirectory()) {
@@ -132,19 +132,19 @@ public class ProjectTest extends TestCase {
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
                 + "<modifications /><info><property name=\"projectname\" "
                 + "value=\"myproject\" /><property name=\"lastbuild\" value=\""
-                + project.getFormatedTime(now)
+                + Project.getFormatedTime(now)
                 + "\" /><property name=\"lastsuccessfulbuild\" value=\""
                 + project.getLastSuccessfulBuild()
                 + "\" /><property name=\"builddate\" value=\""
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
                 + "\" /><property name=\"cctimestamp\" value=\""
-                + project.getFormatedTime(now)
+                + Project.getFormatedTime(now)
                 + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
                 + "name=\"interval\" value=\"0\" /><property name=\""
                 + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
                 + File.separator
                 + "log"
-                + project.getFormatedTime(now)
+                + Project.getFormatedTime(now)
                 + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
                 + "/></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
