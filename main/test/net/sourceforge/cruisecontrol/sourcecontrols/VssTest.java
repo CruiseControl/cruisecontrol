@@ -240,6 +240,14 @@ public class VssTest extends TestCase {
         for (int i = 0; i < expectedCommandWithSsdir.length; i++) {
             assertEquals(expectedCommandWithSsdir[i], actualCommandWithSsdir[i]);
         }
+
+        vss.setTimeFormat("HH:mm");
+        String[] expectedCommandWithTimeFormat = { execFile.getCanonicalPath(), "history", "$vsspath", "-R", "-Vd04/08/02;13:15~03/08/02;09:30", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt" };
+        String[] actualCommandWithTimeFormat = vss.getCommandLine(lastBuild, now);
+
+        for (int i = 0; i < expectedCommandWithTimeFormat.length; i++) {
+            assertEquals(expectedCommandWithTimeFormat[i], actualCommandWithTimeFormat[i]);
+        }
     }
 
     /**
