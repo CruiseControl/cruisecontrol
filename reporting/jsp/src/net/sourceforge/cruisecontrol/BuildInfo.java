@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
@@ -131,7 +132,7 @@ public class BuildInfo implements Comparable {
      * @param file
      * @return
      */
-    public static List loadFromDir(File logDir) throws CruiseControlException {
+    public static Summary loadFromDir(File logDir) throws CruiseControlException {
         String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
             throw new CruiseControlException("Could not access the directory " + logDir.getAbsolutePath());
@@ -150,7 +151,7 @@ public class BuildInfo implements Comparable {
             }
         }
         Collections.sort(buildInfoList);
-        return buildInfoList;
+        return new Summary(buildInfoList);
     }
 
     /**
@@ -160,5 +161,71 @@ public class BuildInfo implements Comparable {
     public int compareTo(Object arg0) {
         BuildInfo other = (BuildInfo) arg0;
         return this.buildDate.compareTo(other.buildDate);
+    }
+    
+    public static final class Summary {
+        private final List buildInfoList;
+        private final int numBrokenBuilds;
+        private final int numSuccessfulBuilds;
+
+        private Summary(List buildInfoList) {
+            this.buildInfoList = Collections.unmodifiableList(buildInfoList);
+            int brokenBuildsCounter = 0;
+            int successfulBuildsCounter = 0;
+            for (Iterator i = buildInfoList.iterator(); i.hasNext();) {
+                BuildInfo buildInfo = (BuildInfo) i.next();
+                if (buildInfo.isSuccessful()) {
+                    successfulBuildsCounter++;
+                } else {
+                    brokenBuildsCounter++;
+                }
+            }
+            numBrokenBuilds = brokenBuildsCounter;
+            numSuccessfulBuilds = successfulBuildsCounter;
+        }
+        
+        
+        
+        /**
+         * @return Returns the buildInfoList.
+         */
+        public List getBuildInfoList() {
+            return buildInfoList;
+        }
+        /**
+         * @return Returns the numBrokenBuilds.
+         */
+        public int getNumBrokenBuilds() {
+            return numBrokenBuilds;
+        }
+        /**
+         * @return Returns the numSuccessfulBuilds.
+         */
+        public int getNumSuccessfulBuilds() {
+            return numSuccessfulBuilds;
+        }
+        
+        /**
+         * @return
+         */
+        public Iterator iterator() {
+            return buildInfoList.iterator();
+        }
+        
+        /**
+         * @return
+         */
+        public int size() {
+            return buildInfoList.size();
+        }
+
+
+
+        /**
+         * @return
+         */
+        public BuildInfo[] asArray() {
+            return (BuildInfo[]) buildInfoList.toArray(new BuildInfo[buildInfoList.size()]);
+        }
     }
 }

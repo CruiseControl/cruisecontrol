@@ -36,15 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -55,7 +51,7 @@ import junit.framework.TestSuite;
  */
 public class BuildInfoTest extends TestCase {
     public static Test suite() {
-        return new FileSetupDecorator(new TestSuite(BuildInfoTest.class));
+        return new LogFileSetupDecorator(new TestSuite(BuildInfoTest.class));
     }
     
     public void testCreationFailedBuild() throws ParseException {
@@ -84,10 +80,13 @@ public class BuildInfoTest extends TestCase {
                                  new BuildInfo("log20020224120000.xml"),
                                  new BuildInfo("log20020225120000LBuild.2.xml") };
         
-        List results = BuildInfo.loadFromDir(new File("testresults/BuildInfoHelperTest"));
+        BuildInfo.Summary results = BuildInfo.loadFromDir(LogFileSetupDecorator.LOG_DIR);
+        assertEquals(2, results.getNumBrokenBuilds());
+        assertEquals(2, results.getNumSuccessfulBuilds());
+        BuildInfo[] resultsArray = results.asArray();
         for (int i = 0; i < expected.length; i++) {
             BuildInfo expectedResult = expected[i];
-            BuildInfo actualResult = (BuildInfo) results.get(i);
+            BuildInfo actualResult = resultsArray[i];
             validateBuildInfo(expectedResult, actualResult);
         }
     }
@@ -96,41 +95,6 @@ public class BuildInfoTest extends TestCase {
         assertEquals(expected.getBuildDate(), actual.getBuildDate());
         assertEquals(expected.getLabel(), actual.getLabel());
         assertEquals(expected.isSuccessful(), actual.isSuccessful());
-        
-    }
-
-    private static class FileSetupDecorator extends TestSetup {
-        private File[] logFiles;
-        private File logDir;
-
-        /**
-         * @param arg0
-         */
-        public FileSetupDecorator(Test decoratedTest) {
-            super(decoratedTest);
-        }
-        
-        protected void setUp() throws IOException {
-            logDir = new File("testresults/BuildInfoHelperTest");
-            if (!logDir.exists()) {
-                assertTrue("Failed to create test result dir", logDir.mkdir());
-            }
-            logFiles = new File[] { new File(logDir, "log20020222120000.xml"), 
-                                    new File(logDir, "log20020223120000LBuild.1.xml"),
-                                    new File(logDir, "log20020224120000.xml"),
-                                    new File(logDir, "log20020225120000LBuild.2.xml") };
-            for (int i = 0; i < logFiles.length; i++) {
-                File logFile = logFiles[i];
-                logFile.createNewFile();
-            }        
-        }
-        
-        protected void tearDown() throws Exception {
-            for (int i = 0; i < logFiles.length; i++) {
-                logFiles[i].delete();
-            }
-            logDir.delete();
-        }
         
     }
 }
