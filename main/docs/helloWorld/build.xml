@@ -32,9 +32,8 @@
     <property name="masterbuild.logdir" value="logs"/>
     <property name="source.dir" value="src"/>
 
-    <property name="junit.results" value="test-results.xml" />
+    <property name="junit.results" value="test-results" />
 
-    <property name="alltest.class" value="test.hello.HelloWorldTest"/>
     <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
     <property name="cvs.package" value="CruiseControlTest/src"/>
 
@@ -60,24 +59,21 @@
     </target>
 
     <target name="test" depends="init" description="Run unit tests">
-        <mkdir dir="test-results" />
+        <delete dir="${junit.results}"/>
+        <mkdir dir="${junit.results}"/>
         <echo message="Running unit tests..."/>
-        <junit fork="true" haltonfailure="true">
+        <junit fork="yes" haltonfailure="yes">
             <classpath >
                 <path refid="classpath" />
                 <pathelement location="${build.dir}" />
             </classpath>
             <formatter type="plain" usefile="false" />
-            <formatter type="xml" usefile="true" />
-            <batchtest todir="test-results" >
+            <formatter type="xml" />
+            <batchtest todir="${junit.results}" >
                 <fileset dir="${build.dir}" includes="**/*Test.class" />
             </batchtest>
         </junit>
         
-        <junitreport tofile="${junit.results}" >
-            <fileset dir="./test-results" />
-        </junitreport>
-        <delete dir="test-results" />
     </target>
 
     <target name="all" depends="init,clean,compile,test" description="Build application">
