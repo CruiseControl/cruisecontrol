@@ -36,7 +36,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <project name="HelloWorld" basedir="." default="all">
-    <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
 
     <!-- Look in patch manager.  These tasks are to be submitted to Ant -->
     <!--
@@ -110,10 +109,10 @@
         <echo message="Application built!"/>
     </target>
 
-		<target name="cleansrc">
-			<delete dir="${source.dir}"/>
-			<mkdir dir="${source.dir}"/>
-		</target>
+        <target name="cleansrc">
+            <delete dir="${source.dir}"/>
+            <mkdir dir="${source.dir}"/>
+        </target>
 
     <target name="checkout" depends="cleansrc, init">
         <!-- Note the Ant optional task AntStarTeamCheckOut does not synchronize with the repository
@@ -135,7 +134,8 @@
        password="${starteam.passwd}" starteamurl="${starteam.url}"/>
    </target> -->
 
-    <target name="modificationset" depends="init" description="Check modifications since last build">
+    <target name="modificationcheck" depends="init" description="Check modifications since last build">
+        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
         <echo message="Checking for modifications..."/>
         <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" 
          dateformat="yyyy-MMM-dd HH:mm:ss">
@@ -144,7 +144,7 @@
         </modificationset>
     </target>
 
-    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar,labelbuild" 
+    <target name="masterbuild" depends="modificationcheck,checkout,compile,test,jar,labelbuild" 
      description="Cruise control master build"/>
 
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>

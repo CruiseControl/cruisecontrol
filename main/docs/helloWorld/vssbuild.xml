@@ -36,7 +36,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <project name="HelloWorld" basedir="." default="all">
-    <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
 
     <property name="build.compiler" value="jikes"/>
     <property name="build.compiler.emacs" value="true"/>
@@ -116,7 +115,8 @@
          vsspath="{vss.src.path}" label="${label}"/>
     </target>
     
-    <target name="modificationset" depends="init" description="Check modifications since last build">
+    <target name="modificationcheck" depends="init" description="Check modifications since last build">
+        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
         <echo message="Checking for modifications..."/>
         <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" 
          dateformat="yyyy-MMM-dd HH:mm:ss">
@@ -125,7 +125,7 @@
         </modificationset>
     </target>
     
-    <target name="masterbuild" depends="modificationset,vssget,compile,test,jar,labelbuild" 
+    <target name="masterbuild" depends="modificationcheck,vssget,compile,test,jar,labelbuild" 
      description="Cruise control master build"/>
      
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
