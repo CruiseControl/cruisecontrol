@@ -47,7 +47,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -198,22 +197,9 @@ public class Vss implements SourceControl {
      *@return List of modifications
      */
     public List getModifications(Date lastBuild, Date now) {
-        //(PENDING) extract buildHistoryCommand, execHistoryCommand
-        // See CVSElement
         ArrayList modifications = new ArrayList();
         try {
-            Properties systemProps = System.getProperties();
-            if (serverPath != null) {
-                systemProps.put("SSDIR", serverPath);
-            }
-            String[] env = new String[systemProps.size()];
-            int index = 0;
-            Iterator systemPropIterator = systemProps.keySet().iterator();
-            while (systemPropIterator.hasNext()) {
-                String propName = (String) systemPropIterator.next();
-                env[index] = propName + "=" + systemProps.get(propName);
-                index++;
-            }
+            String[] env = VSSHelper.loadVSSEnvironment(serverPath);
 
             LOG.info("Vss: getting modifications for " + vssPath);
             Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
