@@ -119,10 +119,16 @@
         <h2>Plugin Registration</h2>
         
         <p>The registration of plugins is a simple and straightforward task.
-        Within a <code>&lt;project&gt;</code> element, simply add a
+        Directly under the &lt;cruisecontrol&gt; element, or 
+        within a <code>&lt;project&gt;</code> element, simply add a
         <code>&lt;plugin&nbsp;name=""&nbsp;classname=""/&gt;</code> element,
         where the name corresponds to the name you wish to use within the config
-        file, and the classname corresponds to the actual plugin Java class.</p>
+        file, and the classname corresponds to the actual plugin Java class.
+        <br />
+        Plugins specified directly under the root element will be available
+        to all your projects, plugins under a project element will be only
+        available within that project. This is useful to override a plugin
+        like the labelincrementer for a single project.</p>
         
         <p>In the interest of keeping config file sizes to a minimum, all
         plugins that ship with CruiseControl will be automatically registered.
