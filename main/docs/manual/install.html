@@ -20,7 +20,7 @@
    <tr>
       <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
       <td bgcolor="#000033" align="center"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   <tr>
+   </tr>
 </table>
 
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -37,7 +37,9 @@
          <img src="menubottom.gif" border="0">
       </td>
       <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <table cellpadding="5" border="0" width="70%">
+		<tr>
+			<td>
          <!-- content begins here -->
 
 
@@ -59,34 +61,32 @@
 
 <a name="downloadsource"/>
 <span class="small">1. Download Source/Build</span>
-<p>
 
-Download the source from CVS.  If you have CVS installed, the command to download is:
-<p>
-<code>
+<p>Download the source from CVS.  If you have CVS installed, the command to download is:</p>
+
+<p><code>
 cvs -z3 -d:pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
-</code>
-<p>
-When prompted for the password for <i>anonymous</i>, simply press the &lt;ENTER&gt; key.  If you examine the code you
+</code></p>
+
+<p>When prompted for the password for <i>anonymous</i>, simply press the &lt;ENTER&gt; key.  If you examine the code you
 just downloaded, there will be a build.bat (for Windows users) and a build.sh (for UNIX users) present in the
 cruisecontrol directory.  Execute the appropriate script, and CruiseControl should compile.  Look in the dist directory,
-and you should find a cruisecontrol.jar file if the build was successful.
+and you should find a cruisecontrol.jar file if the build was successful.</p>
 
-<p>
 <a name="createconfigfile"/>
 <span class="small">2. Create config.xml file / Upgrade previous version</span>
-<p>
 
-All of the cruisecontrol configuration exists in the config.xml file.  If you're new to cruisecontrol, you'll have
+<p>All of the cruisecontrol configuration exists in the config.xml file.  If you're new to cruisecontrol, you'll have
 to create this file.  If you have used a previous version of cruisecontrol, you can use the upgrader to convert your
-old setup to a config.xml file.
+old setup to a config.xml file.</p>
 
-<p>
-New users should read the <a href="configxml.html">explanation</a> of the config.xml file format
+<p>New users should read the <a href="configxml.html">explanation</a> of the config.xml file format</p>
+
 <p>To run the upgrader, do the following:</p>
 <ul>
 <li>Copy dist/cruisecontrol.jar to the top-level CruiseControl directory.  This is necessary because cruisecontrol.jar assumes this location for its classpath.</li>
 <li> Execute the following command:</li>
+</ul>
 
 <p><code>
 java -jar cruisecontrol.jar -upgrade <i>buildfile propertiesfile configfile projectname</i>
@@ -121,12 +121,12 @@ Where the command line attributes are as follows:
       <td class="tabledata">Unique idenifier for this project.</td>
    </tr>
 </table>
+</p>
 
 <p>A config file should be written to disk, and we can proceed to the next installation step.</p>
 
 <p><i><b>Note:</b> An alternative approach that would not require moving the cruisecontrol.jar would be to modify the CCDIR variable in the cruisecontrol.bat or cruisecontrol.sh scripts, also located in the dist directory.</i></p>
 
-<p>
 <a name="startupcruisecontrol"/>
 <span class="small">3. Startup CruiseControl</span>
 
@@ -167,10 +167,9 @@ java -jar cruisecontrol.jar
       <td class="tabledata">Relative path to config.xml file</td>
    </tr>
 </table>
-<p>
-After the first build cycle, the values for<code>-lastbuild</code>, <code>-label</code> and <code>-config</code> will be saved.  If cruisecontrol should need to be
-restarted, the values for these arguments need not be specified, unless you would like to override the values that cruisecontrol has.  The only argument that is always required is
-<code>-projectname</code>.
+</p>
+
+<p>After the first build cycle, the values for<code>-lastbuild</code>, <code>-label</code> and <code>-config</code> will be saved.  If cruisecontrol should need to be restarted, the values for these arguments need not be specified, unless you would like to override the values that cruisecontrol has.  The only argument that is always required is <code>-projectname</code>.</p>
 
          <!-- content ends here -->
          </td></tr></table>
