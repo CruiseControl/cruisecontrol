@@ -45,7 +45,6 @@ import org.jdom.Element;
 import java.util.Date;
 
 public class CurrentBuildStatusPublisher implements Publisher {
-
     private String fileName;
 
     public void setFile(String fileName) {
@@ -53,15 +52,16 @@ public class CurrentBuildStatusPublisher implements Publisher {
     }
 
     /**
-     *  Called after the configuration is read to make sure that all the mandatory parameters
-     *  were specified..
+     * Called after the configuration is read to make sure that all the mandatory parameters
+     * were specified..
      *
-     *  @throws CruiseControlException if there was a configuration error.
+     * @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
         if (fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusPublisher");
         }
+        CurrentBuildFileWriter.validate(fileName);
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
@@ -72,10 +72,6 @@ public class CurrentBuildStatusPublisher implements Publisher {
 
     protected void writeFile(Date date, long interval) throws CruiseControlException {
         Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
-
-        CurrentBuildFileWriter.writefile(
-            "<span class=\"link\">Next Build Starts At:<br>",
-            datePlusInterval,
-            fileName);
+        CurrentBuildFileWriter.writefile("<span class=\"link\">Next Build Starts At:<br>", datePlusInterval, fileName);
     }
 }

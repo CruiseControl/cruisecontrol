@@ -43,7 +43,6 @@ import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import java.util.Date;
 
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
-
     private String fileName;
 
     public void setFile(String fileName) {
@@ -51,16 +50,13 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     }
 
     public void bootstrap() throws CruiseControlException {
-        CurrentBuildFileWriter.writefile(
-            "<span class=\"link\">Current Build Started At:<br>",
-            new Date(),
-            fileName);
+        CurrentBuildFileWriter.writefile("<span class=\"link\">Current Build Started At:<br>", new Date(), fileName);
     }
 
     public void validate() throws CruiseControlException {
         if (fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
         }
+        CurrentBuildFileWriter.validate(fileName);
     }
-
 }

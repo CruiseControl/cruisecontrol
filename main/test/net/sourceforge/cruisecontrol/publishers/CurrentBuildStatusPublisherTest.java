@@ -39,31 +39,54 @@ package net.sourceforge.cruisecontrol.publishers;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 public class CurrentBuildStatusPublisherTest extends TestCase {
     private static final String TEST_DIR = "tmp";
+    private final List filesToClear = new ArrayList();
 
-    public void testValidate() {
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        filesToClear.clear();
+    }
+
+    public void testValidate() throws CruiseControlException {
         CurrentBuildStatusPublisher publisher = new CurrentBuildStatusPublisher();
         try {
             publisher.validate();
             fail("'file' should be a required attribute on CurrentBuildStatusPublisher");
         } catch (CruiseControlException cce) {
         }
+
+        publisher.setFile("somefile");
+        publisher.validate();
+
+        publisher.setFile("holycowbatman" + File.separator + "filename");
+        try {
+            publisher.validate();
+            fail("validate should fail if parent directory doesn't exist");
+        } catch (CruiseControlException cce) {
+        }
     }
 
     public void testWriteFile() throws CruiseControlException, IOException {
         CurrentBuildStatusPublisher publisher = new CurrentBuildStatusPublisher();
-        publisher.setFile(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt");
+        final String fileName = TEST_DIR + File.separator + "_testCurrentBuildStatus.txt";
+        publisher.setFile(fileName);
+        filesToClear.add(new File(fileName));
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         final String buildTime = formatter.format(new Date(date.getTime() + (300 * 1000)));

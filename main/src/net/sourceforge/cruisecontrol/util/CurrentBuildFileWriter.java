@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.util;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.DateFormatFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -76,4 +77,11 @@ public final class CurrentBuildFileWriter {
         }
     }
 
+    public static void validate(String fileName) throws CruiseControlException {
+        File file = new File(fileName);
+        File dir = file.getParentFile();
+        if (dir != null && !dir.isDirectory()) {
+            throw new CruiseControlException("directory for file " + fileName + " doesn't exist.");
+        }
+    }
 }
