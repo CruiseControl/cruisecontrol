@@ -52,6 +52,15 @@
         <xsl:variable name="maven.info.messages" select="$mavengoal/message[@priority='info']"/>
 
             <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+                 <!-- Style download notifications first -->
+                 <tr class="compile-sectionheader">
+                     <td>Initial Messages</td>
+                 </tr>
+                 <tr>
+                     <td>
+                         <xsl:apply-templates select="cruisecontrol/build/message"/>
+                     </td>
+                 </tr>
                  <xsl:apply-templates select="$mavengoal"/>
             </table>
 
