@@ -139,6 +139,11 @@ public class CVSElement extends SourceControlElement {
      */
     private Date lastModified;
     
+    /** 
+     * If not null, appended to user names to form appropriate e-mail address
+     */
+    private String _emailDomain;
+    
     public static String formatCVSDate(Date date) {
         return CVSDATE.format(date);
     }
@@ -148,7 +153,7 @@ public class CVSElement extends SourceControlElement {
      *
      * @param cvsroot CVSROOT to use.
      */
-    public void setCvsroot(String cvsroot) {
+    public void setCvsRoot(String cvsroot) {
         this.cvsroot = cvsroot;
     }
     
@@ -163,8 +168,13 @@ public class CVSElement extends SourceControlElement {
     public void setLocalWorkingCopy(String local) {
         this.local = local;
         if(local != null && !new File(local).exists()) {
-            throw new BuildException("File " + local + " does not exist!");
+            throw new BuildException(
+             "Local working copy \"" + local + "\" does not exist!");
         }
+    }
+    
+    public void setEmailDomain(String emailDomain) {
+        _emailDomain = emailDomain;
     }
     
     //(PENDING) not currently used
@@ -416,6 +426,9 @@ public class CVSElement extends SourceControlElement {
             }
             
             nextModification.userName = authorName;
+            if (_emailDomain != null) {
+                authorName = authorName + "@" + _emailDomain;
+            }
             emailNames.add(authorName);
             
             nextModification.comment = (message != null ? message : "");

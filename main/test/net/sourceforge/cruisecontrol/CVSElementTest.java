@@ -38,7 +38,7 @@ public class CVSElementTest extends TestCase {
         Date lastBuildTime = new Date();
         Date currTime = new Date();
         CVSElement element = new CVSElement();
-        element.setCvsroot("cvsroot");
+        element.setCvsRoot("cvsroot");
         element.setLocalWorkingCopy(".");
         
         String[] expectedCommand = new String[] { "cvs", "-d", "cvsroot", "log", 
@@ -60,7 +60,7 @@ public class CVSElementTest extends TestCase {
         Date currTime = new Date();
         
         CVSElement element = new CVSElement();
-        element.setCvsroot("cvsroot");
+        element.setCvsRoot("cvsroot");
         element.setLocalWorkingCopy(null);
 
         String[] expectedCommand = new String[] { "cvs", "-d", "cvsroot", "log", 
@@ -81,7 +81,7 @@ public class CVSElementTest extends TestCase {
         Date lastBuildTime = new Date();
         Date currTime = new Date();
         CVSElement element = new CVSElement();
-        element.setCvsroot(null);
+        element.setCvsRoot(null);
         element.setLocalWorkingCopy(".");
 
         String[] expectedCommand = new String[] { "cvs", "log", 
