@@ -7,7 +7,8 @@ added support for multiple targets. (target="clean build")  - Patch by Josh Know
 
 Multiple Classes
 ---------------------
-added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.
+* added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.
+* Add an EmptyLabelIncrementer - Patch by Josh Knowles
 
 DefaultLabelIncrementer & CVSLabelIncrementer
 ----------------------

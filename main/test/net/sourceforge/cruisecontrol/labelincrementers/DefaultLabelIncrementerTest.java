@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.labelincrementers;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.LabelIncrementer;
 
 public class DefaultLabelIncrementerTest extends TestCase {
 
@@ -62,8 +61,9 @@ public class DefaultLabelIncrementerTest extends TestCase {
     }
 
     public void testSetPreBuildIncrementer() {
-	assertEquals(false, incrementer.isPreBuildIncrementer());
-	incrementer.setPreBuildIncrementer(true);
-	assertEquals(true, incrementer.isPreBuildIncrementer());
+        assertEquals(false, incrementer.isPreBuildIncrementer());
+        incrementer.setPreBuildIncrementer(true);
+        assertEquals(true, incrementer.isPreBuildIncrementer());
     }
+    
 }

@@ -48,7 +48,7 @@ import org.jdom.input.SAXBuilder;
 public class Util {
 
     static final long ONE_MINUTE = 60 * 1000;
-    static final long ONE_HOUR   = 60 * ONE_MINUTE;
+    static final long ONE_HOUR = 60 * ONE_MINUTE;
 
     /**
      *  Create an integer time from a <code>Date</code> object.
@@ -90,13 +90,19 @@ public class Util {
         return milliseconds;
     }
 
-    public static Element loadConfigFile(File configFile) throws CruiseControlException {
+    public static Element loadConfigFile(File configFile)
+        throws CruiseControlException {
         Element cruisecontrolElement = null;
         try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder =
+                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             cruisecontrolElement = builder.build(configFile).getRootElement();
         } catch (Exception e) {
-            throw new CruiseControlException("failed to load config file ["+configFile!=null?configFile.getName():""+"]", e);
+            throw new CruiseControlException(
+                "failed to load config file [" + configFile != null
+                    ? configFile.getName()
+                    : "" + "]",
+                e);
         }
         return cruisecontrolElement;
     }
