@@ -56,7 +56,7 @@ package net.sourceforge.cruisecontrol.util;
 import java.io.*;
 
 /**
- *  Inner class to pump the error stream during Process's runtime. Copied from
+ *  Class to pump the error stream during Process's runtime. Copied from
  *  the Ant built-in task.
  *
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
