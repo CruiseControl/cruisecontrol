@@ -21,16 +21,35 @@ REM  * along with this program; if not, write to the Free Software              
 REM  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
 REM  ********************************************************************************/
 
-set OLDCLASSPATH=%CLASSPATH%
-set CLASSPATH=
+if "%OS%"=="Windows_NT" goto NtStart
+
+:win9xStart
+rem Assume they are using the batch file from the local directory.
+set CCDIR=.
+goto setClassPath
+
+:ntStart
+rem %~dp0 is name of current script's directory under NT
+set CCDIR=%~dp0
+
+:setClassPath
+set CRUISE_PATH=
+
+:checkJava
+if "%JAVA_HOME%" == "" goto noJavaHome
+set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
+goto setCruise
+
+:noJavaHome
+echo Warning: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as <javac>) will not work properly.
+
+:setCruise
  
-set CCDIR=d:\projects\cruisecontrol
 set LIBDIR=%CCDIR%\lib
 
-set CLASSPATH=%CCDIR%\dist\cruisecontrol.jar;%LIBDIR%\activation.jar;%LIBDIR%\mail.jar;%LIBDIR%\ant.jar;%LIBDIR%\jaxp.jar;%LIBDIR%\parser.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;.
+set CRUISE_PATH=%CRUISE_PATH%;%CCDIR%\dist\cruisecontrol.jar;%LIBDIR%\activation.jar;%LIBDIR%\mail.jar;%LIBDIR%\ant.jar;%LIBDIR%\jaxp.jar;%LIBDIR%\parser.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;.
 
-set EXEC=java -cp %CLASSPATH% net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
+set EXEC=java -cp %CRUISE_PATH% net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
 echo %EXEC%
 %EXEC%
 
-set CLASSPATH=%OLDCLASSPATH%
