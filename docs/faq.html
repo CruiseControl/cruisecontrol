@@ -41,23 +41,89 @@
 <p>&nbsp;<p>
 <span class="">CruiseControl 2.0 FAQ</span>
 <ul>
-    <li>Why should I upgrade to CruiseControl 2.0?</li>
-    <li>Why don't my jUnit results show up on the web page?</li>
-    <li>What does "Too much repository activity" mean?</li>
-    <li>How do I submit bugs/patches/features?</li>
+    <li><a class="small" href="#whyupgrade">Why should I upgrade to CruiseControl 2.0?</a></li>
+    <li><a class="small" href="#nojunit">Why don't my jUnit results show up on the web page?</a></li>
+    <li><a class="small" href="#toomuchrepository">What does "Too much repository activity" mean?</a></li>
+    <li><a class="small" href="#nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></li>
+    <li><a class="small" href="#nullnav">Why does my jsp page show "null" instead of build names and dates?</a></li>
 </ul>
 
 <p>
 <span class="">CruiseControl 1.x FAQ</span>
 <ul>
-	<li> <a class="small" href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></li>
-	<li> <a class="small" href="#cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></li>
-	<li> <a class="small" href="#servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></li>
-    <li> <a class="small" href="#noCompileErrors">Why don't javac compilation errors show up on the web page?</a></li>
-    <li> <a class="small" href="#cantSearch">How can I search the mailing lists?</a></li>
+	<li><a class="small" href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></li>
+	<li><a class="small" href="#cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></li>
+	<li><a class="small" href="#servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></li>
+    <li><a class="small" href="#noCompileErrors">Why don't javac compilation errors show up on the web page?</a></li>
 </ul>
 
+<p>
+<span class="">General Project FAQ</span>
+<ul>
+    <li><a class="small" href="#cantSearch">How can I search the mailing lists?</a></li>
+    <li><a class="small" href="#howtohelp">How do I submit bugs/patches/features?</a></li>
+</ul>
 <p></p>
+
+
+<span class="small"><a name="whyupgrade">Why should I upgrade to CruiseControl 2.0?</a></span>
+    <p>
+CruiseControl has been pretty much rewritten from the 1.2.x line to the 2.0 line.  A more pluggable
+architecture has been implemented.  There's better test coverage.  XML configuration is more
+flexible.  See the <a href="../main/docs/index.html">build loop page</a> for more details.
+    </p>
+
+    <hr width="90%">
+    <p>
+<span class="small"><a name="nojunit">Why don't my jUnit results show up on the web page?</a></span>
+    <p>
+Perhaps the JUnit results are not being captured correctly.
+Ensure that your &lt;junit&gt; ant task contains the proper formatting directive to
+instruct JUnit to output the results in XML format: &lt;formatter type="xml"/&gt;.
+If you are directing JUnit to send output to a subdirectory, make sure to tell
+CC about it - use the &lt;merge&gt; element in the &lt;log&gt; section of your config.xml.
+    </p>
+
+    <hr width="90%">
+    <p>
+
+<span class="small"><a name="toomuchrepository">What does "Too much repository activity" mean?</a></span>
+    <p>
+This means there is currently code being committed to the repository, and CC
+is afraid of doing a build that may potentially contain partial check-ins. CC
+will not kick off a build until it is sure that a developer is done committing
+code. CC uses the "quietperiod" setting to determine the amount of time it
+should wait after the last commit before doing a build. If you get this
+message in your CC log and not many builds are run, you may want to lower your
+"quietperiod" setting to a smaller time value.
+    </p>
+    <p>
+The amount of time that CruiseControl waits is based on the <nobr>(quietperiod - (now - checkin time)).</nobr>  If we are only 5
+seconds away from the end of the quiet period, we'll just wait that long rather than waiting for the full quiet
+period.  Some issues may arise if the clocks are not synchronized between the CruiseControl machine and the CVS
+machine -- you might get large/odd sleep times if the CVS machine is ahead of the CruiseControl machine.
+    </p>
+    <hr width="90%">
+    <p>
+
+<span class="small"><a name="nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></span>
+    <p>
+Your xml log file encoding is incorrect.
+CC puts the JVM system encoding at the top of every xml log file that it
+generates, and the xsl tranformer on your system is not happy transforming
+that specific encoding. Use the "encoding" parameter of the "log" entry in the
+config.xml to override the xml encoding name. Try "UTF-8" or "ISO-8859-1".
+    </p>
+    <hr width="90%">
+    <p>
+
+<span class="small"><a name="nullnav">Why does my jsp page show "null" instead of build names and dates?</a></span>
+    <p>
+There were issues with some JSP containers with respect to reusing instances of the custom tags.  This has been
+fixed in CVS and is part of the 2.1 release.
+    </p>
+    <hr width="90%">
+    <p>
 
 <span class="small"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span>
 
@@ -117,6 +183,17 @@
         <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2202">cruisecontrol-devel</a>
         <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2204">cruisecontrol-announce</a>
     </ul>
+
+    <hr width="90%">
+    <p>
+<span class="small"><a name="howtohelp">How do I submit bugs/patches/features?</a></span>
+
+    <p>
+Send patches to the <a href="">cruisecontrol-devel</a> mailing list.  Ideally patches should be a diff
+against the existing CVS version and should provide unit tests.  If you're adding new features, an informal
+use case is useful so that others can quickly understand the utility of your patch.
+    </p>
+
 
          <!-- content ends here -->
          </td></tr></table>
