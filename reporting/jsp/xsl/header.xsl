@@ -40,68 +40,41 @@
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
-    <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="javac.tasklist" select="$tasklist[@name='Javac']"/>
-    <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='EjbJar']"/>
-    <xsl:variable name="get.tasklist" select="$tasklist[@name!='get']"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
             <xsl:if test="build/@error">
-                <tr><td colspan="10"><font face="arial" size="3"><b>BUILD FAILED</b></font></td></tr>
-                <tr>
-                    <td colspan="10">
-                        <font face="arial" size="2">
-                            <b>Ant Error Message:&#160;</b>
-                            <xsl:value-of select="build/@error"/>
-                        </font>
-                    </td>
-                </tr>
+                <tr><td class="header-title">BUILD FAILED</td></tr>
+                <tr><td class="header-data">
+                    <span class="header-label">Ant Error Message:&#160;</span>
+                    <xsl:value-of select="build/@error"/>
+                </td></tr>
             </xsl:if>
 
             <xsl:if test="not (build/@error)">
-                <tr><td colspan="10"><font face="arial" size="3"><b>BUILD COMPLETE&#160;-&#160;
-                    <xsl:value-of select="build/label"/></b>
-                </font></td></tr>
+                <tr><td class="header-title">BUILD COMPLETE&#160;-&#160;
+                    <xsl:value-of select="build/label"/>
+                </td></tr>
             </xsl:if>
 
-            <tr>
-                <td colspan="10">
-                    <font face="arial" size="2">
-                        <b>Date of build:&#160;</b>
-                        <xsl:value-of select="build/today"/>
-                    </font>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="10">
-                    <font face="arial" size="2">
-                        <b>Time to build:&#160;</b>
-                        <xsl:value-of select="build/@time"/>
-                    </font>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="10">
-                    <font face="arial" size="2">
-                        <b>Last changed:&#160;</b>
-                        <xsl:value-of select="build/modifications/modification/date"/>
-                    </font>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="10">
-                    <font face="arial" size="2">
-                        <b>Last log entry:&#160;</b>
-                        <xsl:value-of select="build/modifications/modification/comment"/>
-                    </font>
-                    <br/>
-                    <br/>
-                </td>
-            </tr>
+            <tr><td class="header-data">
+                <span class="header-label">Date of build:&#160;</span>
+                <xsl:value-of select="build/today"/>
+            </td></tr>
+            <tr><td class="header-data">
+                <span class="header-label">Time to build:&#160;</span>
+                <xsl:value-of select="build/@time"/>
+            </td></tr>
+            <tr><td class="header-data">
+                <span class="header-label">Last changed:&#160;</span>
+                <xsl:value-of select="build/modifications/modification/date"/>
+            </td></tr>
+            <tr><td class="header-data">
+                <span class="header-label">Last log entry:&#160;</span>
+                <xsl:value-of select="build/modifications/modification/comment"/>
+            </td></tr>
         </table>
     </xsl:template>
-
 
 </xsl:stylesheet>
