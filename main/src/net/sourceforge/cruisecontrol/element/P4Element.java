@@ -61,10 +61,9 @@ import org.apache.tools.ant.types.*;
  *  P4Element sets the property ${p4element.change} with the current changelist
  *  number. This should then be passed into p4sync or other p4 commands.
  * 
- * @created den 23 april 2001
  * @author niclas.olofsson@ismobile.com
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
- * @version 0.1
+ * @author Tim McCune
  */
 public class P4Element extends SourceControlElement {
 
@@ -133,14 +132,14 @@ public class P4Element extends SourceControlElement {
 
 	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
 
-		ArrayList mods = null;
+		ArrayList mods = new ArrayList();
 		final Perl5Util util = new Perl5Util();
 
 		//Init last modified to last build date.
 		_lastModified = lastBuild;
 
 		// next line is a trick to get the variable usable within the adhoc handler.
-		final StringBuffer sbChangenumber = new StringBuffer();
+		final List changeNumbers = new ArrayList();
 		final StringBuffer sbModifiedTime = new StringBuffer();
 		//if this._P4lastChange != p4 changes -m 1 -s submitted <depotpath>
 		execP4Command("changes -m 1 -s submitted " + _P4View,
@@ -148,10 +147,10 @@ public class P4Element extends SourceControlElement {
 				public void process(String line) {
 					if (util.match("/Change/", line)) {
 						//Parse out the change number
-						sbChangenumber.append(util.substitute("s/Change\\s([0-9]*?)\\son\\s.*/$1/gx", line));
-						log("Latest change is " + sbChangenumber, Project.MSG_INFO);
-					}
-					else if (util.match("/error/", line)) {
+						String changeNumber = util.substitute("s/Change\\s([0-9]*?)\\son\\s.*/$1/gx", line);
+						changeNumbers.add(changeNumber);
+						log("Latest change is " + changeNumber, Project.MSG_INFO);
+                    } else if (util.match("/error/", line)) {
 						throw new BuildException("Perforce Error, check client settings and/or server");
 					}
 				}
@@ -159,8 +158,19 @@ public class P4Element extends SourceControlElement {
 
 		// and collect info for this change
 
+		Iterator iter = changeNumbers.iterator();
+		while (iter.hasNext()) {
+			mods.addAll(getChangeInfo((String) iter.next(), lastBuild));
+		}
+		return mods;
+	}
+	
+	private List getChangeInfo(String changeNumber, Date lastBuild) {
+		List rtn = new ArrayList();
+		final Perl5Util util = new Perl5Util();            
+            
 		final StringBuffer sbDescription = new StringBuffer();
-		execP4Command("describe -s " + sbChangenumber.toString(),
+		execP4Command("describe -s " + changeNumber.toString(),
 			new P4HandlerAdapter() {
 				public void process(String line) {
 					if (util.match("/error/", line)) {
@@ -179,16 +189,15 @@ public class P4Element extends SourceControlElement {
 		Date modifiedTime;
 		try {
 			modifiedTime = p4Date.parse(sModifiedTime);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			log("Wrong date format exception caught. Using lastModified date from project instead.");
 			modifiedTime = _lastModified;
 		}
 
 		if (modifiedTime.compareTo(lastBuild) > 0) {
 			// if it differs, we build,
-			_P4lastChange = Integer.parseInt(sbChangenumber.toString());
-			getAntTask().getProject().setProperty("p4element.change", sbChangenumber.toString());
+			_P4lastChange = Integer.parseInt(changeNumber);
+			getAntTask().getProject().setProperty("p4element.change", changeNumber);
 
 			// the rest should be a list of the files affected and the resp action
 			String affectedFiles = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*?\\n\\n(.*)\\n\\n/$5/s", sbDescription.toString());
@@ -208,21 +217,11 @@ public class P4Element extends SourceControlElement {
 				mod.type = action;
 				mod.userName = userName;
 
-				if (mods == null) {
-					mods = new ArrayList();
-				}
-				mods.add(mod);
+				rtn.add(mod);
 			}
-		}
-		else {
-			// otherwise we don't build
-		}
+        }
 
-		if (mods == null) {
-			mods = new ArrayList();
-		}
-
-		return mods;
+        return rtn;
 	}
 
 	/**
