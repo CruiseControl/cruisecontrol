@@ -257,7 +257,9 @@ public class Project implements Serializable, Runnable {
                 queue.requestBuild(this);
                 waitForBuildToFinish();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                String message = "Project " + name + ".run() interrupted";
+                LOG.error(message, e);
+                throw new RuntimeException(message);
             }
         }
     }

@@ -86,7 +86,9 @@ public class BuildQueue implements Runnable {
                             waiting = true;
                             queue.wait();
                         } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                            String message = "BuildQueue.run() interrupted";
+                            LOG.error(message, e);
+                            throw new RuntimeException(message);
                         }
                     }
                     waiting = false;
@@ -106,23 +108,25 @@ public class BuildQueue implements Runnable {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                String message = "BuildQueue.start() interrupted";
+                LOG.error(message, e);
+                throw new RuntimeException(message);
             }
         }
         alive = true;
     }
-    
+
     void stop() {
         alive = false;
         synchronized (queue) {
             queue.notify();
-        }        
+        }
     }
-    
+
     public boolean isAlive() {
         return alive;
     }
-    
+
     public boolean isWaiting() {
         return waiting;
     }
