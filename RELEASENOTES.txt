@@ -9,6 +9,9 @@ AntBuilder & MavenBuilder:
 AntBuilder:
 ----------------------
 * No longer use UTF-8 to read Ant log files, but use default encoding. Patch by Mark Doliner
+* Do not use read-ahead to skip broken processing instruction caused by old Ant versions, but use an XmlFilter
+  so SAXBuilder can build from a File using the right Stream/Reader and encoding. Patch by Hack Kampbjørn
+* Various code cleanups
 
 build.xml (jsp)
 ----------------------
@@ -51,6 +54,10 @@ JMX Support
 ----------------------
 * Upgraded to MX4J 2.0.1 (including support for JSR 160)
 
+Log
+----------------------
+* use directly a Stream instead of wrapping it in a Writer (CC-77). Patch by Hack Kampbjørn
+
 LoggerController
 ----------------------
 * new JMX MBean to control a Logger's logging level. A controller for the root logger is registered at startup.
@@ -83,6 +90,10 @@ testdetails.xsl
 X10Publisher
 ----------------------
 * A new publisher to controlling an X10 electronic device based on the build completion status, i.e. turn a light on when the build breaks and then turn it off when the build is successful.
+
+XSLTLogPublisher
+----------------------
+* use a JDOMSource instead of a StreamSource, use Stream instead of Reader. Patch by Hack Kampbjørn
 
 website / documentation
 ----------------------
