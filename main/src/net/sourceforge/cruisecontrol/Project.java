@@ -73,6 +73,8 @@ public class Project implements Serializable {
     private transient String _logDir;
     private transient String _status;
     private transient Date _buildStartTime;
+    private transient Object mutex = new Object();
+    private static final transient long ONE_MINUTE = 60 * 1000;
 
     private int _buildCounter = 0;
     private Date _lastBuild;
@@ -86,8 +88,6 @@ public class Project implements Serializable {
     private boolean _buildForced = false;
     private boolean _isPaused = false;
     private boolean _buildAfterFailed = true;
-    private Object mutex = new Object();
-    private static final long ONE_MINUTE = 60 * 1000;
 
 	// this variable only exists at the moment for methods needed for 
 	// ProjectTest.testBuild()
@@ -100,6 +100,7 @@ public class Project implements Serializable {
      * the config file is re-parsed on every cycle.
      */
     public void execute() {
+        checkMutex();
         while (true) {
             try {
                 synchronized(mutex){
@@ -119,6 +120,10 @@ public class Project implements Serializable {
             }
         }
     }
+
+	private void checkMutex() {
+		if (mutex==null) mutex = new Object();
+	}
 
     /**
      *  Unless paused, runs any bootstrappers and then the entire build.
@@ -376,6 +381,7 @@ public class Project implements Serializable {
     }
 
     public void setPaused(boolean paused) {
+        checkMutex();
         synchronized(mutex) {
         	_isPaused = paused;
         	if (!paused) mutex.notifyAll();
