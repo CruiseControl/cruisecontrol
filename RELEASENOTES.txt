@@ -16,6 +16,10 @@ EmailPublisher & friends
 ----------------------
 * Uses new EmailMapperHelper to map addresses with EmailMappers. Patch by Esa Laine (Jira CC-2)
 
+LoggerController
+----------------------
+* new JMX MBean to control a Logger's logging level. A controller for the root logger is registered at startup.
+
 MavenBuilder
 ----------------------
 * Fix for CC-40 where download failures were treated as success. Patch by Tim Shadel
