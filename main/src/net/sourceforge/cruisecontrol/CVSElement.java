@@ -190,23 +190,34 @@ public class CVSElement implements SourceControlElement {
         //Init last modified to last build date.
         lastModified = lastBuild;
 
-
-        String command = new String("cvs -d " + cvsroot + " log "
-                                    + "-d\"" + CVSDATE.format(lastBuild) + "<" + CVSDATE.format(now)
-                                    + "\" " + this.local.getAbsolutePath());
-        log("Command to execute: " + command);
+        String[] commandArray = {"cvs",
+                                 "-d", cvsroot,
+                                 "log",
+                                 "-d" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "",
+                                 this.local.getAbsolutePath()};
+        // I tried to make a logging command string from the above commandArray
+        // but knowing where to put the REAL quotes needed to
+        // run the command from my shell got very ugly. I do not like the duplicity here... but...
+        String commandForLogging = "cvs "+
+                                 "-d " + cvsroot +
+                                 " log " +
+                                 "-d\"" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "\" "+
+                                 this.local.getAbsolutePath();
+        log("Command to execute: " + commandForLogging);
 
         try {
-            Process p = Runtime.getRuntime().exec(command);
+            Process p = Runtime.getRuntime().exec(commandArray);
 
-
+            //log the Error
+            logInputStream(p.getErrorStream(),"STDERR");
             //Going to ignore the error stream. It is not interesting for us.
             StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), "STDERR", new PrintWriter(new StringWriter(), true));
             errorPumper.start();
-
+            
             //The input stream has the log information that we want to parse.
             InputStream input = p.getInputStream();
             mods = parseStream(input);
+            
             //Using another stream pumper here will get rid of any leftover data in the stream.
             StreamPumper outPumper = new StreamPumper(input, "STDOUT", new PrintWriter(new StringWriter(), true));
             outPumper.start();
@@ -222,7 +233,25 @@ public class CVSElement implements SourceControlElement {
 
         return mods;
     }
+    
+    /**
+     * Sends to provided input to the log with the provided input stream type.
+     *
+     * @param input The InputStream to log.
+     * @param type The input source like STDERR.
+     */
+    private void logInputStream(InputStream input, String type){
+        try{
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            String nextLine = reader.readLine();
+            log("Log Input Stream found for " + type + " = " + nextLine);
+        }catch(Exception e)
+        {
+            log("**** ERROR in loging Input Stream type = " + type + " error = " + e.toString());
+        }
 
+    }
+    
     /**
      * Parses the input stream, which should be from the
      * cvs log command. This method will format the data
@@ -241,7 +270,7 @@ public class CVSElement implements SourceControlElement {
         //  with this line. A CVS_FILE_DELIMITER is NOT present. If no RCS file lines
         // are found then there is nothing to do.
         String line = readToNotPast(reader,CVS_RCSFILE_LINE, null);
-
+        
         while (line != null) {
             //Parse the single file entry, which may include several modifications.
             ArrayList returnList = parseEntry(reader);
@@ -386,8 +415,9 @@ public class CVSElement implements SourceControlElement {
     private String readToNotPast(BufferedReader reader, String beginsWith, 
                                  String notPast) throws IOException {
         boolean checkingNotPast = notPast != null;
-
+        
         String nextLine = reader.readLine();
+
         while (nextLine != null && !nextLine.startsWith(beginsWith)) {
             if (checkingNotPast && nextLine.startsWith(notPast)) {
                 return null;
