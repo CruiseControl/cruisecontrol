@@ -94,18 +94,28 @@ public class AntBuilderTest extends TestCase {
         String[] resultInfo = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         String[] resultLogger = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-logger", "org.apache.tools.ant.XmlLogger", "-logfile", "log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
+        String[] resultBatchFile = {"cmd.exe", "/C", "ant.bat", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
+        String[] resultShellScript = {"ant.sh", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         log.getRoot().setLevel(Level.INFO);
-        assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties, false)));
-        assertTrue(Arrays.equals(resultLogger, builder.getCommandLineArgs(properties, true)));
+        assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties, false, false, false)));
+        assertTrue(Arrays.equals(resultLogger, builder.getCommandLineArgs(properties, true, false, false)));
+
+        builder.setAntScript("ant.bat");
+        assertTrue(Arrays.equals(resultBatchFile, builder.getCommandLineArgs(properties, false, true, true)));
+        builder.setAntScript("ant.sh");
+        assertTrue(Arrays.equals(resultShellScript, builder.getCommandLineArgs(properties, false, true, false)));
+        builder.setAntScript(null);
 
         log.getRoot().setLevel(Level.DEBUG);
-        assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties, false)));
+        assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties, false, false, false)));
 
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
-        assertTrue(Arrays.equals(resultDebugWithMaxMemory, builder.getCommandLineArgs(properties, false)));
+        assertTrue(Arrays.equals(resultDebugWithMaxMemory, builder.getCommandLineArgs(properties, false, false, false)));
+
+
     }
 
     public void testGetAntLogAsElement() throws Exception {
