@@ -24,8 +24,7 @@ package net.sourceforge.cruisecontrol;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -193,23 +192,37 @@ public class BuildServlet extends HttpServlet {
      *	navigation links.
      */
     private void printLogsAsLinks(PrintWriter out) throws ParseException{
+        final int START_TSTAMP = 3;
+        final int END_TSTAMP = 15;
+        
         File logDirFile = new File(_logDir);
-
+        
         String[] prevBuildLogs = logDirFile.list();
-        for (int i=prevBuildLogs.length-1; i>=0; i--) {
-            if (prevBuildLogs[i].startsWith("log") && prevBuildLogs[i].endsWith(".xml")) {
-                String timestamp = prevBuildLogs[i].substring(3, 15);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-                SimpleDateFormat formatter = new SimpleDateFormat ("MM/dd/yyyy h:mma");
-
+        Arrays.sort(prevBuildLogs);
+        
+        for (int i = prevBuildLogs.length - 1; i >= 0; i--) {
+            String currFileName = prevBuildLogs[i];
+            
+            if (currFileName.startsWith("log") && currFileName.endsWith(".xml")) {
                 String label = "";
-                if (prevBuildLogs[i].indexOf("L") != -1)
-                    label = "&nbsp;(" + prevBuildLogs[i].substring(prevBuildLogs[i].indexOf("L") + 1, prevBuildLogs[i].length()-4) + ")";
-                else
+                if (currFileName.indexOf("L") != -1) {
+                    label = "&nbsp;(" 
+                     + currFileName.substring(currFileName.indexOf("L") + 1, 
+                     currFileName.length() - 4) + ")";
+                } else {
                     label = "";
-                String dateString = formatter.format(new Date(sdf.parse(timestamp).getTime()));
-                String fileNameWithoutExt = prevBuildLogs[i].substring(0,prevBuildLogs[i].lastIndexOf("."));
-                out.println("<a href=\"" + _servletURL + "?" + fileNameWithoutExt + "\">" + dateString + label + "</a><br>");
+                }
+                String timestamp = currFileName.substring(START_TSTAMP, END_TSTAMP);
+                SimpleDateFormat currFormat = new SimpleDateFormat("yyyyMMddHHmm");
+                SimpleDateFormat targetFormat = 
+                 new SimpleDateFormat ("MM/dd/yyyy HH:mm");
+                
+                String dateString = targetFormat.format(
+                 new Date(currFormat.parse(timestamp).getTime()));
+                String fileNameWithoutExt = 
+                 currFileName.substring(0, currFileName.lastIndexOf("."));
+                out.println("<a href=\"" + _servletURL + "?" + fileNameWithoutExt 
+                 + "\">" + dateString + label + "</a><br>");
             }
         }
     }
