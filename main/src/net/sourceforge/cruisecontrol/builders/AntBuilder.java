@@ -183,7 +183,10 @@ public class AntBuilder extends Builder {
             al.add("java");
             Iterator argsIterator = _args.iterator();
             while(argsIterator.hasNext()) {
-                al.add(((JVMArg) argsIterator.next()).getArg());
+                String arg = ((JVMArg) argsIterator.next()).getArg();
+                // empty args may break the command line
+                if ( arg != null && arg.length() > 0 )
+                    al.add(arg);
             }
             al.add("-classpath");
             al.add(System.getProperty("java.class.path"));
