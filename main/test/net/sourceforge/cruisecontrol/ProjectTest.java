@@ -89,6 +89,8 @@ public class ProjectTest extends TestCase {
         project.addAuxiliaryLogFile("_auxLogs");
         project.setLabelIncrementer(new DefaultLabelIncrementer());
         project.setModificationSet(modSet);
+        project.setLastBuild(formatTime(now));
+        project.setLastSuccessfulBuild(formatTime(now));
         writeFile("_auxLog1.xml", "<one/>");
         File auxLogsDirectory = new File("_auxLogs");
         auxLogsDirectory.mkdir();
@@ -337,4 +339,7 @@ public class ProjectTest extends TestCase {
         fw.close();
     }
 
+    private static String formatTime(Date time) {
+        return new SimpleDateFormat("yyyyMMddHHmmss").format(time);
+    }
 }
