@@ -18,7 +18,6 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
- 
 package net.sourceforge.cruisecontrol;
 
 import java.io.*;
@@ -50,6 +49,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static String  _label;
     private static String  _labelIncrementerClassName;
     private static String  _lastGoodBuildTime;
+    private static String  _lastBuildTime;
     private static boolean _lastBuildSuccessful;
     private static boolean _buildNotNecessary;
     private static String  _logDir;
@@ -106,39 +106,24 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
     
     private static boolean processLastBuildArg(String lastBuild) {
-        try {
-            _lastGoodBuildTime = lastBuild;
-            if (!isCompleteTime(_lastGoodBuildTime)) {
-                log("Bad format for last build: " + _lastGoodBuildTime);
-                throw new IllegalArgumentException(
-                 "Bad format for last build: " + _lastGoodBuildTime);
-            }
-            return true;
-        } catch (ArrayIndexOutOfBoundsException aioobe) {
-            log("The last successful build time must be specified.");
-            throw aioobe;
+        if (!isCompleteTime(lastBuild)) {
+            throw new IllegalArgumentException(
+             "Bad format for last build: " + lastBuild);
         }
+        _lastGoodBuildTime = lastBuild;
+        _lastBuildTime = lastBuild;
+        return true;
     }
     
     private static boolean processLabelArg(String label) {
-        try {
-            _label = label;
-            //(PENDING) check format of label
-            return true;
-        } catch (ArrayIndexOutOfBoundsException aioobe) {
-            log("The next label must be specified");
-            throw aioobe;
-        }
+        _label = label;
+        //(PENDING) check format of label
+        return true;
     }
 
     private static boolean processPropertiesArg(String propFile) {
-        try {
-            _propsFileName = propFile;
-            return true;
-        } catch (ArrayIndexOutOfBoundsException aioobe) {
-            log("The masterbuild properties file must be specified.");
-            throw aioobe;
-        }
+        _propsFileName = propFile;
+        return true;
     }
     
     /**
@@ -224,9 +209,15 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             if (_lastGoodBuildTime == null) {
                 _lastGoodBuildTime = info.timestamp;
             }
+            
+            if(_lastBuildTime == null) {
+                _lastBuildTime = _lastGoodBuildTime;
+            }
+            
             if (_label == null) {
                 _label = info.label;
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -393,6 +384,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String[] getCommandLine(int buildCounter) {
         Vector v = new Vector();
         v.add("-DlastGoodBuildTime=" + _lastGoodBuildTime);
+        v.add("-DlastBuildTime=" + _lastBuildTime);
         v.add("-Dlabel=" + _label);
         v.add("-listener");
         v.add(this.getClass().getName());
@@ -844,9 +836,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _userList = proj.getProperty(ModificationSet.USERS);
 
         _lastBuildSuccessful = false;
+
+        _lastBuildTime = proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP);
         if (buildevent.getException() == null) {
             _lastBuildSuccessful = true;
-            _lastGoodBuildTime = proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP);
+            _lastGoodBuildTime = _lastBuildTime;
         }
 
         //get the exact filenames from the ant properties that tell us what aux xml files we have...
