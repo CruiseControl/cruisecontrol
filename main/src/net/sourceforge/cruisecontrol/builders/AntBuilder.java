@@ -158,8 +158,16 @@ public class AntBuilder extends Builder {
      */
     protected static Element getAntLogAsElement(File f) {
         try {
+            FileReader fr = new FileReader(f);
+            StringBuffer sb = new StringBuffer();
+            for(int i=0; i<150; i++) {
+                sb.append((char) fr.read());
+            }
+            String beginning = sb.toString();
+            int skip = beginning.lastIndexOf("<build");
+
             BufferedInputStream bufferedStream = new BufferedInputStream(new FileInputStream(f));
-            bufferedStream.skip(49);
+            bufferedStream.skip(skip);
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             return builder.build(bufferedStream).getRootElement();
         } catch (Exception ee) {

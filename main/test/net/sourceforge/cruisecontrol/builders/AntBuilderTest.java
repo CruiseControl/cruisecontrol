@@ -82,13 +82,20 @@ public class AntBuilderTest extends TestCase {
     public void testGetAntLogAsElement() {
         try {
             Element buildLogElement = new Element("build");
-            File logFile = new File("_tempAntLog.xml");
+            File logFile = new File("_tempAntLog14.xml");
             BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
             bw1.write("<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
             bw1.flush();
             bw1.close();
+            File logFile2 = new File("_tempAntLog141.xml");
+            BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
+            bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
+            bw2.flush();
+            bw2.close();
+
             AntBuilder builder = new AntBuilder();
             assertEquals(buildLogElement.toString(), builder.getAntLogAsElement(logFile).toString());
+            assertEquals(buildLogElement.toString(), builder.getAntLogAsElement(logFile2).toString());
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
