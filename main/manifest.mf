@@ -1,4 +1,4 @@
 Manifest-Version: 1.2
-Class-Path: ../lib/log4j.jar ../lib/xerces.jar ../lib/mail.jar ../lib/activation.jar ../lib/jakarta-oro-2.0.3.jar ../lib/jdom.jar ../lib/jmxtools.jar ../lib/jmxri.jar ../lib/xalan.jar ../lib/ant.jar ../lib/optional.jar ../lib/commons-net-1.1.0.jar
+Class-Path: ../lib/log4j.jar ../lib/xerces.jar ../lib/mail.jar ../lib/activation.jar ../lib/jakarta-oro-2.0.3.jar ../lib/jdom.jar ../lib/jmxtools.jar ../lib/jmxri.jar ../lib/xalan.jar ../lib/ant.jar ../lib/optional.jar ../lib/commons-net-1.1.0.jar ../lib/starteam-sdk.jar
 Main-Class: CruiseControl
 
