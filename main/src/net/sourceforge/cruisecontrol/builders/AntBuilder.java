@@ -40,7 +40,7 @@ package net.sourceforge.cruisecontrol.builders;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
@@ -58,7 +58,7 @@ import java.util.Map;
 public class AntBuilder extends Builder {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(AntBuilder.class.getName());
+    private static Logger log = Logger.getLogger(AntBuilder.class);
 
     private static final String PROPERTY_LOGGER_FILE_NAME = "propertylogger.xml";
     private String _buildFile;

@@ -18,7 +18,7 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Main;
 import net.sourceforge.cruisecontrol.Project;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
@@ -30,7 +30,7 @@ import javax.management.ObjectName;
 public class ProjectController implements ProjectControllerMBean {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(ProjectController.class.getName());
+    private static Logger log = Logger.getLogger(ProjectController.class);
 
     private Project _project = null;
     private int _port;

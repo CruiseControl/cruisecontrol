@@ -44,7 +44,7 @@ import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 
 import java.util.*;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * This class logs into StarTeam and collects information on any modifications
@@ -65,7 +65,7 @@ import org.apache.log4j.Category;
 public class StarTeam implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(StarTeam.class.getName());
+    private static Logger log = Logger.getLogger(StarTeam.class);
 
     private String username;
     private String password;

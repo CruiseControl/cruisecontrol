@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,13 +33,13 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import javax.mail.Message;
@@ -48,23 +48,23 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.*;
 
 /**
- *  Abstract implementation of the <code>Publisher</code> interface, specifically tailored for sending email.  The
- *  only abstract method is createMessage, which allows different implementations to send different messages as the
- *  body of the email.  As it currently stands, there is one concrete implementation--<code>LinkEmailPublisher</code>,
- *  but the ability to create <code>EmailPublisher</code>s that handle sending a text summary or an html summary is
- *  there.
+ * Abstract implementation of the <code>Publisher</code> interface, specifically
+ * tailored for sending email.  The only abstract method is createMessage, which
+ * allows different implementations to send different messages as the body of
+ * the email.  As it currently stands, there is one concrete implementation--
+ * <code>LinkEmailPublisher</code>, but the ability to create
+ * <code>EmailPublisher</code>s that handle sending a text summary or an html
+ * summary is there.
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
 public abstract class EmailPublisher implements Publisher {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(EmailPublisher.class.getName());
+    private static Logger log = Logger.getLogger(EmailPublisher.class);
 
     private String _mailHost;
     protected String _servletUrl;
@@ -90,12 +90,16 @@ public abstract class EmailPublisher implements Publisher {
      *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
      *  @return <code>String</code> containing the subject line.
      */
-    protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
+    protected String createSubject(XMLLogHelper logHelper)
+            throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
-            if (_reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
-                return logHelper.getProjectName() + " " + logHelper.getLabel() + " Build Fixed";
+            if (_reportSuccess.equalsIgnoreCase("fixes")
+                    && !logHelper.wasPreviousBuildSuccessful()) {
+                return logHelper.getProjectName() + " " + logHelper.getLabel()
+                        + " Build Fixed";
             } else {
-                return logHelper.getProjectName() + " " + logHelper.getLabel() + " Build Successful";
+                return logHelper.getProjectName() + " " + logHelper.getLabel()
+                        + " Build Successful";
             }
         } else {
             return logHelper.getProjectName() + " Build Failed";
@@ -108,23 +112,25 @@ public abstract class EmailPublisher implements Publisher {
      *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
      *  @return whether or not the mail message should be sent.
      */
-    protected boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
-        if(logHelper.isBuildSuccessful()) {
-            if(_reportSuccess.equalsIgnoreCase("success")) {
+    protected boolean shouldSend(XMLLogHelper logHelper)
+            throws CruiseControlException {
+        if (logHelper.isBuildSuccessful()) {
+            if (_reportSuccess.equalsIgnoreCase("success")) {
                 return true;
-            } else if(_reportSuccess.equalsIgnoreCase("fixes")) {
-                if(logHelper.wasPreviousBuildSuccessful()) {
+            } else if (_reportSuccess.equalsIgnoreCase("fixes")) {
+                if (logHelper.wasPreviousBuildSuccessful()) {
                     log.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
                     return false;
                 } else {
                     return true;
                 }
-            } else if(_reportSuccess.equalsIgnoreCase("never")) {
+            } else if (_reportSuccess.equalsIgnoreCase("never")) {
                 log.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
                 return false;
             }
         } else { //build wasn't successful
-            if(!logHelper.wasPreviousBuildSuccessful() && !logHelper.isBuildNecessary() && !_spamWhileBroken) {
+            if (!logHelper.wasPreviousBuildSuccessful()
+                    && !logHelper.isBuildNecessary() && !_spamWhileBroken) {
                 log.debug("spamWhileBroken is set to false, not sending email");
                 return false;
             }
@@ -133,14 +139,18 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     *  Creates the list of email addresses to receive the email message.  If an emailmap file is found, usernames
-     *  will attempt to be mapped to emails from that file.  If no emailmap is found, or no match for the given
-     *  username is found in the emailmap, then the default email suffix will be used.  Any addresses set in the
-     *  <code>addAlwaysAddress</code> method will always receive the email if it is sent.  Any address set in the
-     *  <code>addFailureAddress</code> method will receive the message if the build has failed.
+     * Creates the list of email addresses to receive the email message.  If an
+     * emailmap file is found, usernames will attempt to be mapped to emails
+     * from that file.  If no emailmap is found, or no match for the given
+     * username is found in the emailmap, then the default email suffix will be
+     * used.  Any addresses set in the <code>addAlwaysAddress</code> method will
+     * always receive the email if it is sent.  Any address set in the
+     * <code>addFailureAddress</code> method will receive the message if the
+     * build has failed.
      *
-     *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
-     *  @return comma delimited <code>String</code> of email addresses to receive the email message.
+     * @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
+     * @return comma delimited <code>String</code> of email addresses to
+     * receive the email message.
      */
     protected String createUserList(XMLLogHelper logHelper) {
         Set users = logHelper.getBuildParticipants();
@@ -155,7 +165,8 @@ public abstract class EmailPublisher implements Publisher {
         if (!logHelper.isBuildSuccessful()) {
             Iterator failureAddressIterator = _failureAddresses.iterator();
             while (failureAddressIterator.hasNext()) {
-                users.add(((Failure) failureAddressIterator.next()).getAddress());
+                users.add(
+                        ((Failure) failureAddressIterator.next()).getAddress());
             }
         }
 
@@ -179,9 +190,10 @@ public abstract class EmailPublisher implements Publisher {
         Set emails = new TreeSet();
         Hashtable emailMap = new Hashtable();
         Iterator emailMapIterator = _emailMap.iterator();
-        while(emailMapIterator.hasNext()) {
+        while (emailMapIterator.hasNext()) {
             Map map = (Map) emailMapIterator.next();
-            log.debug("Mapping alias: " + map.getAlias() + " to address: " + map.getAddress());
+            log.debug("Mapping alias: " + map.getAlias() + " to address: "
+                    + map.getAddress());
             emailMap.put(map.getAlias(), map.getAddress());
         }
 
@@ -189,7 +201,8 @@ public abstract class EmailPublisher implements Publisher {
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
             if (emailMap.containsKey(user)) {
-                log.debug("User found in email map.  Mailing to: " + emailMap.get(user));
+                log.debug("User found in email map.  Mailing to: "
+                        + emailMap.get(user));
                 emails.add(emailMap.get(user));
             } else {
                 if (user.indexOf("@") < 0) {
@@ -223,7 +236,8 @@ public abstract class EmailPublisher implements Publisher {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
         try {
             if (shouldSend(helper)) {
-                sendMail(createUserList(helper), createSubject(helper), createMessage(helper));
+                sendMail(createUserList(helper), createSubject(helper),
+                        createMessage(helper));
             }
         } catch (CruiseControlException e) {
             log.error("", e);
@@ -237,7 +251,8 @@ public abstract class EmailPublisher implements Publisher {
      *  @param subject subject line for the message
      *  @param message body of the message
      */
-    protected void sendMail(String toList, String subject, String message) throws CruiseControlException {
+    protected void sendMail(String toList, String subject, String message)
+            throws CruiseControlException {
         log.info("Sending mail notifications.");
         Properties props = System.getProperties();
         props.put("mail.smtp.host", _mailHost);
@@ -247,7 +262,8 @@ public abstract class EmailPublisher implements Publisher {
         try {
             Message msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(_returnAddress));
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toList, false));
+            msg.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(toList, false));
             msg.setSubject(subject);
             msg.setText(message);
             msg.setSentDate(new Date());
@@ -351,4 +367,5 @@ public abstract class EmailPublisher implements Publisher {
             _address = address;
         }
     }
+
 }

@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.io.File;
@@ -51,7 +51,7 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 public class ProjectXMLHelper {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(ProjectXMLHelper.class.getName());
+    private static Logger log = Logger.getLogger(ProjectXMLHelper.class);
 
     private Map _plugins = new HashMap();
     private Element _projectElement;

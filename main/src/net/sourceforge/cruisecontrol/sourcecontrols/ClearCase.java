@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.text.ParseException;
@@ -58,7 +58,7 @@ import java.util.*;
 public class ClearCase implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(ClearCase.class.getName());
+    private static Logger log = Logger.getLogger(ClearCase.class);
 
     private Hashtable _properties = new Hashtable();
 

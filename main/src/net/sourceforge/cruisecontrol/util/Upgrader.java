@@ -7,7 +7,7 @@ import net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher;
 import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 public class Upgrader {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Upgrader.class.getName());
+    private static Logger log = Logger.getLogger(Upgrader.class);
 
     private File _buildFile = null;
     private File _configFile = null;

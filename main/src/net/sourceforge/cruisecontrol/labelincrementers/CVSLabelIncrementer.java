@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,12 +33,12 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import org.jdom.Element;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * This class provides a label incrementation compatible with CVS tagging.
@@ -46,12 +46,13 @@ import org.apache.log4j.Category;
  * where x is any String and y is an integer.
  *
  * @author Jeff Brekke (Jeff.Brekke@qg.com)
- * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001
+ * @author alden almagro (alden@thoughtworks.com)
+ * @author Paul Julius (pdjulius@thoughtworks.com)
  */
 public class CVSLabelIncrementer implements LabelIncrementer {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(CVSLabelIncrementer.class.getName());
+    private static Logger log = Logger.getLogger(CVSLabelIncrementer.class);
 
     /**
      * Increments the label when a successful build occurs.
@@ -65,7 +66,8 @@ public class CVSLabelIncrementer implements LabelIncrementer {
     public String incrementLabel(String oldLabel, Element buildLog) {
 
         String prefix = oldLabel.substring(0, oldLabel.lastIndexOf("-") + 1);
-        String suffix = oldLabel.substring(oldLabel.lastIndexOf("-") + 1, oldLabel.length());
+        String suffix = oldLabel.substring(oldLabel.lastIndexOf("-") + 1,
+                oldLabel.length());
         int i = Integer.parseInt(suffix);
         String newLabel = prefix + ++i;
         log.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
@@ -80,8 +82,9 @@ public class CVSLabelIncrementer implements LabelIncrementer {
     }
 
     /**
-     *  Verify that the label specified is a valid label.  In this case a valid label contains
-     *  at least one '-' character, and an integer after the last occurrence of the '-' character.
+     * Verify that the label specified is a valid label.  In this case a valid
+     * label contains at least one '-' character, and an integer after the last
+     * occurrence of the '-' character.
      */
     public boolean isValidLabel(String label) {
 
@@ -90,11 +93,13 @@ public class CVSLabelIncrementer implements LabelIncrementer {
         }
 
         try {
-            String suffix = label.substring(label.lastIndexOf("-") + 1, label.length());
-            int i = Integer.parseInt(suffix);
+            String suffix = label.substring(label.lastIndexOf("-") + 1,
+                    label.length());
+            Integer.parseInt(suffix);
             return true;
         } catch (NumberFormatException e) {
             return false;
         }
     }
+
 }

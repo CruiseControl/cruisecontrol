@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
 
@@ -66,7 +66,7 @@ import java.util.*;
 public class P4 implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(P4.class.getName());
+    private static Logger log = Logger.getLogger(P4.class);
 
     //P4 runtime directives
 

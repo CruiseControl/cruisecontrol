@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -91,7 +91,7 @@ public class CVS implements SourceControl {
     private boolean _defaultBranchOnly = false;
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(CVS.class.getName());
+    private static Logger log = Logger.getLogger(CVS.class);
 
     /**
      *  This line delimits seperate files in the CVS log information.
@@ -449,7 +449,6 @@ public class CVS implements SourceControl {
             String message = "";
             nextLine = reader.readLine();
             boolean multiLine = false;
-            boolean addedOnBranch = false;
 
             while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)
                     && !nextLine.startsWith(CVS_REVISION_DELIM)) {

@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,13 +33,13 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 
 package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import org.jdom.Element;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * This class provides a default label incrementation.
@@ -52,7 +52,7 @@ import org.apache.log4j.Category;
 public class DefaultLabelIncrementer implements LabelIncrementer {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(DefaultLabelIncrementer.class.getName());
+    private static Logger log = Logger.getLogger(DefaultLabelIncrementer.class);
 
     /**
      * Increments the label when a successful build occurs.
@@ -66,7 +66,8 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     public String incrementLabel(String oldLabel, Element buildLog) {
 
         String prefix = oldLabel.substring(0, oldLabel.lastIndexOf(".") + 1);
-        String suffix = oldLabel.substring(oldLabel.lastIndexOf(".") + 1, oldLabel.length());
+        String suffix = oldLabel.substring(oldLabel.lastIndexOf(".") + 1,
+                oldLabel.length());
         int i = Integer.parseInt(suffix);
         String newLabel = prefix + ++i;
         log.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
@@ -81,8 +82,9 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     }
 
     /**
-     *  Verify that the label specified is a valid label.  In this case a valid label contains
-     *  at least one '.' character, and an integer after the last occurrence of the '.' character.
+     * Verify that the label specified is a valid label.  In this case a valid
+     * label contains at least one '.' character, and an integer after the last
+     * occurrence of the '.' character.
      */
     public boolean isValidLabel(String label) {
 
@@ -91,8 +93,9 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
         }
 
         try {
-            String suffix = label.substring(label.lastIndexOf(".") + 1, label.length());
-            int i = Integer.parseInt(suffix);
+            String suffix = label.substring(label.lastIndexOf(".") + 1,
+                    label.length());
+            Integer.parseInt(suffix);
             return true;
         } catch (NumberFormatException e) {
             return false;
