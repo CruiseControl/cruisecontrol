@@ -35,10 +35,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.io.File;
+
 public class SCPPublisherTest extends TestCase {
+
     public void testValidate() {
         SCPPublisher publisher = new SCPPublisher();
         publisher.setSourceUser("user1");
@@ -49,6 +52,7 @@ public class SCPPublisherTest extends TestCase {
         }
         publisher.setSourceUser(null);
         publisher.setSourceHost("host1");
+
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions when only host is set.");
@@ -64,6 +68,7 @@ public class SCPPublisherTest extends TestCase {
         } catch (CruiseControlException e) {
         }
     }
+
     public void testCreateCommandline() {
         SCPPublisher publisher = new SCPPublisher();
         publisher.setSourceUser("user1");
@@ -78,7 +83,6 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator
                 + "filename",
             publisher.createCommandline("filename").toString());
-
         publisher.setOptions("-P 1000");
         assertEquals(
             "scp -P 1000 -S ssh user1@host1:."
@@ -88,7 +92,6 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator
                 + "filename",
             publisher.createCommandline("filename").toString());
-
         publisher.setSSH("plink");
         assertEquals(
             "scp -P 1000 -S plink user1@host1:."
@@ -98,9 +101,7 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator
                 + "filename",
             publisher.createCommandline("filename").toString());
-
-        publisher.setTargetDir(
-            File.separator + "home" + File.separator + "httpd");
+        publisher.setTargetDir(File.separator + "home" + File.separator + "httpd");
         assertEquals(
             "scp -P 1000 -S plink user1@host1:."
                 + File.separator
