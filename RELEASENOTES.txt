@@ -21,6 +21,10 @@ AntPublisher:
 ----------------------
 * Submitted by Robert Smith
 
+buildresults.xsl:
+----------------------
+* Added consolidated xsl to make transform more efficent (CC-115). Patch by Alban Peignier with updates by Hack Kampbjorn
+
 contrib:
 ----------------------
 * added build.xml for XmlLoggerWithStatus, minor change to readme. Patch by Brad Clarke

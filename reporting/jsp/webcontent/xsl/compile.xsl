@@ -46,7 +46,7 @@
     <xsl:variable name="javac.tasklist" select="$tasklist[@name='Javac'] | $tasklist[@name='javac'] | $tasklist[@name='compilewithwalls']"/>
     <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='EjbJar'] | $tasklist[@name='ejbjar']"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="compile">
 
         <xsl:variable name="javac.error.messages" select="$javac.tasklist/message[@priority='error'][text() != '']"/>
         <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn'][text() != '']"/>
@@ -68,7 +68,7 @@
                     <tr>
                         <td>
                            <pre class="compile-error-data">
-                            <xsl:apply-templates select="$javac.error.messages"/>
+                            <xsl:apply-templates select="$javac.error.messages" mode="compile"/>
                            </pre>
                         </td>
                     </tr>
@@ -77,7 +77,7 @@
                     <tr>
                         <td>
                            <pre class="compile-data">
-                            <xsl:apply-templates select="$javac.warn.messages"/>
+                            <xsl:apply-templates select="$javac.warn.messages" mode="compile"/>
                            </pre>
                         </td>
                     </tr>
@@ -86,7 +86,7 @@
                     <tr>
                         <td>
                            <pre class="compile-error-data">
-                            <xsl:apply-templates select="$ejbjar.error.messages"/>
+                            <xsl:apply-templates select="$ejbjar.error.messages" mode="compile"/>
                            </pre>
                         </td>
                     </tr>
@@ -95,7 +95,7 @@
                     <tr>
                         <td>
                            <pre class="compile-warn-data">
-                            <xsl:apply-templates select="$ejbjar.warn.messages"/>
+                            <xsl:apply-templates select="$ejbjar.warn.messages" mode="compile"/>
                            </pre>
                         </td>
                     </tr>
@@ -105,15 +105,18 @@
 
     </xsl:template>
 
-    <xsl:template match="message[@priority='error']">
+    <xsl:template match="message[@priority='error']" mode="compile">
         <xsl:value-of select="text()"/>
         <xsl:if test="count(./../message[@priority='error']) != position()">
             <br class="none"/>
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="message[@priority='warn']">
+    <xsl:template match="message[@priority='warn']" mode="compile">
         <xsl:value-of select="text()"/><br class="none"/>
     </xsl:template>
 
+    <xsl:template match="/">
+       <xsl:apply-templates select="." mode="compile"/>
+    </xsl:template>
 </xsl:stylesheet>

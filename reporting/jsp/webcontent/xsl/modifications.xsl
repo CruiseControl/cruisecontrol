@@ -41,7 +41,7 @@
     <xsl:output method="html"/>
     <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="modifications">
         <table align="center" cellpadding="2" cellspacing="1" border="0" width="98%">
             <!-- Modifications -->
             <tr>
@@ -51,7 +51,7 @@
                 </td>
             </tr>
 
-            <xsl:apply-templates select="$modification.list">
+            <xsl:apply-templates select="$modification.list" mode="modifications">
                 <xsl:sort select="date" order="descending" data-type="text" />
             </xsl:apply-templates>
 
@@ -70,7 +70,7 @@
        </file>
     </modification>
     -->
-    <xsl:template match="modification[@type='p4']">
+    <xsl:template match="modification[@type='p4']" mode="modifications">
         <tr valign="top">
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
@@ -110,7 +110,7 @@
                                 (<xsl:value-of select="count(file)"/>)
                             </td>
                         </tr>
-                        <xsl:apply-templates select="file"/>
+                        <xsl:apply-templates select="file" mode="modifications"/>
                     </table>
                 </td>
             </tr>
@@ -118,7 +118,7 @@
     </xsl:template>
 
     <!-- used by P4 -->
-    <xsl:template match="file">
+    <xsl:template match="file" mode="modifications">
         <tr valign="top" >
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">changelists-file-oddrow</xsl:attribute>
@@ -144,7 +144,7 @@
     </xsl:template>
 
     <!-- Modifications template for other SourceControls -->
-    <xsl:template match="modification[file][@type!='p4']">
+    <xsl:template match="modification[file][@type!='p4']" mode="modifications">
         <tr>
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
@@ -174,7 +174,7 @@
 
     <!-- Up to version 2.1.6 the modification set format did not
          include the file node -->
-    <xsl:template match="modification">
+    <xsl:template match="modification" mode="modifications">
         <tr>
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
@@ -203,7 +203,7 @@
     </xsl:template>
 
     <!-- Used by CM Synergy -->
-    <xsl:template match="modification[@type='ccmtask']">
+    <xsl:template match="modification[@type='ccmtask']" mode="modifications">
         <tr>
             <td class="modifications-sectionheader">Task</td>
             <td class="modifications-sectionheader">Owner</td>
@@ -229,7 +229,7 @@
                 <xsl:value-of select="revision"/>
             </td>
             <td class="modifications-data">
-                <xsl:apply-templates select="ccmcr"/>
+                <xsl:apply-templates select="ccmcr" mode="modifications"/>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="date"/>
@@ -262,13 +262,13 @@
                             <td class="changelists-file-header">Project</td>
                             <td class="changelists-file-header">Comment</td>
                         </tr>
-                        <xsl:apply-templates select="ccmobject"/>
+                        <xsl:apply-templates select="ccmobject" mode="modifications"/>
                     </table>
                 </td>
             </tr>
         </xsl:if>
     </xsl:template>
-    <xsl:template match="ccmobject">
+    <xsl:template match="ccmobject" mode="modifications">
         <tr valign="top" >
             <xsl:if test="position() mod 2=0">
                 <xsl:attribute name="class">changelists-file-oddrow</xsl:attribute>
@@ -284,12 +284,14 @@
             <td class="modifications-data"><xsl:value-of select="comment"/></td>
         </tr>
     </xsl:template>
-    <xsl:template match="ccmcr">
+    <xsl:template match="ccmcr" mode="modifications">
         <xsl:if test="position() != 1">
             ,
         </xsl:if>
         <xsl:copy-of select="*"/>
     </xsl:template>
 
-
+    <xsl:template match="/">
+        <xsl:apply-templates select="." mode="modifications"/>
+    </xsl:template>
 </xsl:stylesheet>

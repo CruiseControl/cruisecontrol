@@ -48,7 +48,7 @@
     <xsl:variable name="testcase.failure.list" select="$testcase.list/failure"/>
     <xsl:variable name="totalErrorsAndFailures" select="count($testcase.error.list) + count($testcase.failure.list) + $testsuite.error.count"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="unittests">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
             <!-- Unit Tests -->
@@ -83,8 +83,8 @@
             <tr>
               <td>
                  <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
-                    <xsl:apply-templates select="$testcase.error.list"/>
-                    <xsl:apply-templates select="$testcase.failure.list"/>
+                    <xsl:apply-templates select="$testcase.error.list" mode="unittests"/>
+                    <xsl:apply-templates select="$testcase.failure.list" mode="unittests"/>
                  </table>
               </td>
             </tr>
@@ -117,7 +117,7 @@
     </xsl:template>
 
     <!-- UnitTest Errors -->
-    <xsl:template match="error">
+    <xsl:template match="error" mode="unittests">
         <tr>
             <xsl:if test="position() mod 2 = 0">
                 <xsl:attribute name="class">unittests-oddrow</xsl:attribute>
@@ -136,7 +136,7 @@
     </xsl:template>
 
     <!-- UnitTest Failures -->
-    <xsl:template match="failure">
+    <xsl:template match="failure" mode="unittests">
         <tr>
             <xsl:if test="($testsuite.error.count + position()) mod 2 = 0">
                 <xsl:attribute name="class">unittests-oddrow</xsl:attribute>
@@ -239,5 +239,7 @@
         </xsl:choose>
     </xsl:template>
 
-
+    <xsl:template match="/">
+        <xsl:apply-templates select="." mode="unittests"/>
+    </xsl:template>
 </xsl:stylesheet>

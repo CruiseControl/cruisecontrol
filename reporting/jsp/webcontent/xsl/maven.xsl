@@ -44,7 +44,7 @@
 
     <xsl:variable name="mavengoal" select="/cruisecontrol/build//mavengoal"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="maven">
 
         <xsl:variable name="maven.messages" select="$mavengoal/message"/>
         <xsl:variable name="maven.error.messages" select="$mavengoal/message[@priority='error']"/>
@@ -59,15 +59,15 @@
                  </tr>
                  <tr>
                      <td>
-                         <xsl:apply-templates select="cruisecontrol/build/message"/>
+                         <xsl:apply-templates select="cruisecontrol/build/message" mode="maven"/>
                      </td>
                  </tr>
-                 <xsl:apply-templates select="$mavengoal"/>
+                 <xsl:apply-templates select="$mavengoal" mode="maven"/>
             </table>
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="mavengoal">
+    <xsl:template match="mavengoal" mode="maven">
        <tr class="compile-sectionheader">
        		<td>
             	<xsl:value-of select="@name"/>
@@ -75,27 +75,30 @@
        </tr>
        <tr>
        		<td>
-            	<xsl:apply-templates select="./message"/>
+            	<xsl:apply-templates select="./message" mode="maven"/>
             </td>
        </tr>
     </xsl:template>
 
-    <xsl:template match="message[@priority='error']">
+    <xsl:template match="message[@priority='error']" mode="maven">
     	  <span class="compile-error-data">
         <xsl:value-of select="text()"/><xsl:text disable-output-escaping="yes"><![CDATA[<br/>]]></xsl:text>
         </span>
     </xsl:template>
 
-    <xsl:template match="message[@priority='warn']">
+    <xsl:template match="message[@priority='warn']" mode="maven">
     	  <span class="compile-data">
         <xsl:value-of select="text()"/><xsl:text disable-output-escaping="yes"><![CDATA[<br/>]]></xsl:text>
         </span>
     </xsl:template>
 
-    <xsl:template match="message[@priority='info']">
+    <xsl:template match="message[@priority='info']" mode="maven">
     	  <span class="compile-data">
         <xsl:value-of select="text()"/><xsl:text disable-output-escaping="yes"><![CDATA[<br/>]]></xsl:text>
         </span>
     </xsl:template>
 
+    <xsl:template match="/">
+        <xsl:apply-templates select="." mode="maven"/>
+    </xsl:template>
 </xsl:stylesheet>

@@ -45,7 +45,7 @@
     <xsl:variable name="tasklist" select="/cruisecontrol/build//target/task"/>
     <xsl:variable name="javadoc.tasklist" select="$tasklist[@name='Javadoc'] | $tasklist[@name='javadoc']"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="javadoc">
 
         <xsl:variable name="javadoc.error.messages" select="$javadoc.tasklist/message[@priority='error']"/>
         <xsl:variable name="javadoc.warn.messages" select="$javadoc.tasklist/message[@priority='warn']"/>
@@ -65,7 +65,7 @@
                     <tr>
                         <td>
                            <pre class="compile-error-data">
-                            <xsl:apply-templates select="$javadoc.error.messages"/>
+                            <xsl:apply-templates select="$javadoc.error.messages" mode="javadoc"/>
                            </pre>
                         </td>
                     </tr>
@@ -74,7 +74,7 @@
                     <tr>
                         <td>
                            <pre class="compile-data">
-                            <xsl:apply-templates select="$javadoc.warn.messages"/>
+                            <xsl:apply-templates select="$javadoc.warn.messages" mode="javadoc"/>
                            </pre>
                         </td>
                     </tr>
@@ -84,14 +84,14 @@
 
     </xsl:template>
 
-    <xsl:template match="message[@priority='error']">
+    <xsl:template match="message[@priority='error']" mode="javadoc">
         <xsl:value-of select="text()"/>
         <xsl:if test="count(./../message[@priority='error']) != position()">
             <br class="none" />
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="message[@priority='warn']">
+    <xsl:template match="message[@priority='warn']" mode="javadoc">
         <xsl:value-of select="text()"/><br class="none" />
     </xsl:template>
 

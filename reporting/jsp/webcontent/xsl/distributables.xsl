@@ -48,7 +48,7 @@
     <xsl:variable name="ear.tasklist" select="$tasklist[@name='ear']/message[@priority='info']"/>
     <xsl:variable name="dist.count" select="count($jar.tasklist) + count($war.tasklist) + count($ejbjar.tasklist) + count($ear.tasklist)"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="distributables">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
             <xsl:if test="$dist.count > 0">
@@ -57,13 +57,13 @@
                         &#160;Deployments by this build:&#160;(<xsl:value-of select="$dist.count"/>)
                     </td>
                 </tr>
-                <xsl:apply-templates select="$jar.tasklist | $war.tasklist | $ejbjar.tasklist | $ear.tasklist" />
+                <xsl:apply-templates select="$jar.tasklist | $war.tasklist | $ejbjar.tasklist | $ear.tasklist" mode="distributables"/>
             </xsl:if>
 
         </table>
     </xsl:template>
 
-    <xsl:template match="task[@name='Jar']/message[@priority='info'] | task[@name='War']/message[@priority='info'] | task[@name='jar']/message[@priority='info'] | task[@name='war']/message[@priority='info'] | task[@name='ejbjar']/message[@priority='info'] | task[@name='ear']/message[@priority='info']">
+    <xsl:template match="task[@name='Jar']/message[@priority='info'] | task[@name='War']/message[@priority='info'] | task[@name='jar']/message[@priority='info'] | task[@name='war']/message[@priority='info'] | task[@name='ejbjar']/message[@priority='info'] | task[@name='ear']/message[@priority='info']" mode="distributables">
         <tr>
             <xsl:if test="position() mod 2 = 0">
                 <xsl:attribute name="class">distributables-oddrow</xsl:attribute>
@@ -74,4 +74,7 @@
         </tr>
     </xsl:template>
 
+    <xsl:template match="/">
+        <xsl:apply-templates select="." mode="distributables"/>
+    </xsl:template>
 </xsl:stylesheet>
