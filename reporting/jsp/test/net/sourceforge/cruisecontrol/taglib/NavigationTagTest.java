@@ -71,7 +71,7 @@ public class NavigationTagTest extends TestCase {
         tag.setPageContext(pageContext);
         tag.setBodyContent(new MockBodyContent());
 
-        logDir = new File("testresults/");
+        logDir = new File("testresults/NavigationTagTest");
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
