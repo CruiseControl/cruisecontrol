@@ -187,7 +187,7 @@ public class HTMLEmailPublisher extends LinkEmailPublisher {
       String logFileName = inFile.getName();
       String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(File.separator) + 1,
               logFileName.lastIndexOf("."));
-      String url = _servletUrl + "?" + baseLogFileName;
+      String url = _servletUrl + "?log=" + baseLogFileName;
 
       messageBuffer.append("View results here -> <a href=\"" + url + "\">" + url + "</a>");
       messageBuffer.append("<p>\n");

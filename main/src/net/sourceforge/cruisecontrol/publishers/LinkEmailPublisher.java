@@ -72,7 +72,7 @@ public class LinkEmailPublisher extends EmailPublisher {
         StringBuffer message = new StringBuffer();
         message.append("View results here -> ");
         message.append(_servletUrl);
-        message.append("?");
+        message.append("?log=");
         message.append(baseLogFileName);
         return message.toString();
 

@@ -178,7 +178,7 @@ public class LinkEmailPublisherTest extends TestCase {
 
     public void testCreateMessage() {
         _emailPublisher.setBuildResultsUrl("http://mybuildserver.com:8080/buildservlet/BuildServlet");
-        assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log20020206120000", _emailPublisher.createMessage(_successLogHelper));
+        assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000", _emailPublisher.createMessage(_successLogHelper));
     }
 
     public void testCreateSubject() throws Exception {
