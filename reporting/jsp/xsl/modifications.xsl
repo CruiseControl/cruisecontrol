@@ -52,7 +52,7 @@
             </tr>
 
             <xsl:apply-templates select="$modification.list">
-                <xsl:sort select="@date" order="descending" data-type="text" />
+                <xsl:sort select="date" order="descending" data-type="text" />
             </xsl:apply-templates>
 
         </table>
