@@ -52,13 +52,14 @@ public class LinkEmailPublisherTest extends TestCase {
     private XMLLogHelper _successLogHelper;
     private XMLLogHelper _fixedLogHelper;
     private XMLLogHelper _failureLogHelper;
+    private XMLLogHelper _firstFailureLogHelper;
     private EmailPublisher _emailPublisher;
 
     public LinkEmailPublisherTest(String name) {
         super(name);
     }
 
-    protected XMLLogHelper createLogHelper(boolean success, boolean fixed) {
+    protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = new Element("cruisecontrol");
         Element buildElement = new Element("build");
         Element modificationsElement = new Element("modifications");
@@ -84,17 +85,17 @@ public class LinkEmailPublisherTest extends TestCase {
 
         cruisecontrolElement.addContent(modificationsElement);
         cruisecontrolElement.addContent(buildElement);
-        cruisecontrolElement.addContent(createInfoElement("somelabel", fixed));
+        cruisecontrolElement.addContent(createInfoElement("somelabel", lastBuildSuccess));
 
         return new XMLLogHelper(cruisecontrolElement);
     }
 
-    private Element createInfoElement(String label, boolean fixed) {
+    private Element createInfoElement(String label, boolean lastBuildSuccess) {
         Element infoElement = new Element("info");
 
         Hashtable properties = new Hashtable();
         properties.put("label", label);
-        properties.put("lastbuildsuccessful", !fixed + "");
+        properties.put("lastbuildsuccessful", lastBuildSuccess + "");
         properties.put("logfile", "log20020206120000.xml");
 
         Iterator propertyIterator = properties.keySet().iterator();
@@ -130,23 +131,49 @@ public class LinkEmailPublisherTest extends TestCase {
 
         _successLogHelper = createLogHelper(true, true);
         _failureLogHelper = createLogHelper(false, false);
-        _fixedLogHelper = createLogHelper(true, true);
+        _fixedLogHelper = createLogHelper(true, false);
+        _firstFailureLogHelper = createLogHelper(false, true);
+
     }
 
     public void testShouldSend() throws Exception {
         //build not necessary, spam while broken=true
         _emailPublisher.setSpamWhileBroken(true);
+        _emailPublisher.setReportSuccess("success");
+        assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
         assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
 
-        //build necessary, spam while broken = true
-        assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
+        _emailPublisher.setReportSuccess("fixes");
+        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
 
-        //build not necessary, spam while broken=false
+        _emailPublisher.setReportSuccess("never");
+        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
+        assertEquals(false, _emailPublisher.shouldSend(_fixedLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
+
+
         _emailPublisher.setSpamWhileBroken(false);
-        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
-
-        //build necessary, spam while broken = false
+        _emailPublisher.setReportSuccess("success");
         assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
+        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_firstFailureLogHelper));
+
+        _emailPublisher.setReportSuccess("fixes");
+        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
+        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_firstFailureLogHelper));
+
+        _emailPublisher.setReportSuccess("never");
+        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
+        assertEquals(false, _emailPublisher.shouldSend(_fixedLogHelper));
+        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
+        assertEquals(true, _emailPublisher.shouldSend(_firstFailureLogHelper));
+
     }
 
     public void testCreateMessage() {
