@@ -86,6 +86,7 @@ public class BuildStatusTest extends TestCase {
         
         // Verify log directory must be a directory
         File tempFile = File.createTempFile("temp", "txt");
+        tempFile.deleteOnExit();
         buildStatus.setLogDir(tempFile.getAbsolutePath());
 
         try {
@@ -104,7 +105,9 @@ public class BuildStatusTest extends TestCase {
      * Verify the getModifications() method works properly.
      */
     public void testGetModifications() throws Exception {
-        File tempDir = File.createTempFile("temp", "txt").getParentFile();
+        File tempFile = File.createTempFile("temp", "txt");
+        File tempDir = tempFile.getParentFile();
+        tempFile.delete();
 
         buildStatus.setLogDir(tempDir.getAbsolutePath());
         buildStatus.validate();

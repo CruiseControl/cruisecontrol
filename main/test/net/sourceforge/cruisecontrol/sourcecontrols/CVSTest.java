@@ -85,6 +85,7 @@ public class CVSTest extends TestCase {
         cvs = new CVS();
         File tempFile = File.createTempFile("temp", "txt");
         cvs.setLocalWorkingCopy(tempFile.getParent());
+        tempFile.delete();
 
         try {
             cvs.validate();

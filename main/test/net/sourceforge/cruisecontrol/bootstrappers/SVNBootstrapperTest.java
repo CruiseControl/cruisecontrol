@@ -74,6 +74,7 @@ public class SVNBootstrapperTest extends TestCase {
         }
 
         File tempFile = File.createTempFile("temp", "txt");
+        tempFile.deleteOnExit();
 
         bootStrapper = new SVNBootstrapper();
         bootStrapper.setLocalWorkingCopy(tempFile.getParent());
