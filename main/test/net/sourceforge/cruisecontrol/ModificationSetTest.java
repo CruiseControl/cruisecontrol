@@ -37,6 +37,15 @@
 
 package net.sourceforge.cruisecontrol;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
+import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,16 +53,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
-import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 public class ModificationSetTest extends TestCase {
 
@@ -269,6 +268,68 @@ public class ModificationSetTest extends TestCase {
         assertFalse(modSet.isModified());
         modSet.setRequireModification(false);
         assertTrue(modSet.isModified());
+    }
+
+    public void testSetIgnoreFiles() {
+
+        final String correctPattern = "*.txt,dir1/*/file*.txt";
+        try {
+            modSet.setIgnoreFiles(correctPattern);
+        } catch (CruiseControlException e) {
+            fail ("Exception while setting pattern");
+        }
+
+        final List globPatterns = modSet.getIgnoreFiles();
+        assertEquals("The number of parsed patterns is not correct", 2, globPatterns.size());
+
+    }
+
+    public void testFilterIgnoredFiles() throws CruiseControlException, ParseException {
+
+        final SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+        final List modifications = new ArrayList();
+
+        final Modification mod1 = new Modification();
+        mod1.type = "Checkin";
+        mod1.userName = "user1";
+        mod1.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod1.comment = "comment1";
+        mod1.fileName = "file1";
+        mod1.folderName = "dir1";
+        modifications.add(mod1);
+
+        final Modification mod2 = new Modification();
+        mod2.type = "Checkin";
+        mod2.userName = "user2";
+        mod2.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod2.comment = "comment2";
+        mod2.fileName = "file1";
+        mod2.folderName = "dir2";
+        modifications.add(mod2);
+
+        final Modification mod3 = new Modification();
+        mod3.type = "Checkin";
+        mod3.userName = "user3";
+        mod3.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod3.comment = "comment1";
+        mod3.fileName = "file3";
+        mod3.folderName = "dir1";
+        modifications.add(mod3);
+
+        modSet.filterIgnoredModifications(modifications);
+        assertEquals ("No modification should have been filtered out", 3, modifications.size());
+
+        // Now set a filter
+        modSet.setIgnoreFiles("dir2/file3,di?1/f*3");
+        modSet.filterIgnoredModifications(modifications);
+        assertEquals ("No modification have been filtered out", 2, modifications.size());
+
+        final List expectedModifications = new ArrayList();
+        expectedModifications.add(mod1);
+        expectedModifications.add(mod2);
+
+        assertEquals ("The wrong modification has been filtered out", expectedModifications, modifications);
+
     }
 
     protected void setUp() throws Exception {

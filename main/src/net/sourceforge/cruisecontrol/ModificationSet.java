@@ -38,14 +38,18 @@
 package net.sourceforge.cruisecontrol;
 
 import org.apache.log4j.Logger;
+import org.apache.oro.io.GlobFilenameFilter;
+import org.apache.oro.text.MalformedCachePatternException;
 import org.jdom.Element;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Set of modifications collected from included SourceControls
@@ -65,6 +69,11 @@ public class ModificationSet {
     private final SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
 
     /**
+     * File-Patterns (as org.apache.oro.io.GlobFilenameFilter) to be ignored
+     */
+    private List ignoreFiles;
+
+    /**
      * Set the amount of time in which there is no source control activity
      * after which it is assumed that it is safe to update from the source
      * control system and initiate a build.
@@ -72,6 +81,34 @@ public class ModificationSet {
     public void setQuietPeriod(int seconds) {
         quietPeriod = seconds * ONE_SECOND;
     }
+
+    /**
+     * Set the list of Glob-File-Patterns to be ignored
+     *
+     * @param filePatterns a comma separated list of glob patterns. "*" and "?" are valid wildcards
+     *                     example: "?razy-*-.txt,*.jsp"
+     * @throws CruiseControlException if at least one of the patterns is malformed
+     */
+    public void setIgnoreFiles(String filePatterns) throws CruiseControlException {
+        if (filePatterns != null) {
+            StringTokenizer st = new StringTokenizer(filePatterns, ",");
+            ignoreFiles = new ArrayList();
+            while (st.hasMoreTokens()) {
+                String pattern = st.nextToken();
+                // Compile the pattern
+                try {
+                    ignoreFiles.add (new GlobFilenameFilter(pattern));
+                } catch (MalformedCachePatternException e) {
+                    throw new CruiseControlException("Invalid filename pattern '" + pattern + "'", e);
+                }
+            }
+        }
+    }
+
+    protected List getIgnoreFiles() {
+        return this.ignoreFiles;
+    }
+
 
     public void addSourceControl(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
@@ -144,6 +181,10 @@ public class ModificationSet {
                 SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
                 modifications.addAll(sourceControl.getModifications(lastBuild, timeOfCheck));
             }
+
+            // Postfilter all modifications of ignored files
+            filterIgnoredModifications (modifications);
+
             modificationsElement = new Element("modifications");
             Iterator modificationIterator = modifications.iterator();
             if (modifications.size() > 0) {
@@ -182,6 +223,52 @@ public class ModificationSet {
 
 
         return modificationsElement;
+    }
+
+    /**
+     * Remove all Modifications that match any of the ignoreFiles-patterns
+     */
+    protected void filterIgnoredModifications (List modifications) {
+        for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
+            Object object = iterator.next();
+            Modification modification = null;
+            if (object instanceof Modification) {
+                modification = (Modification) object;
+            }
+            if (object instanceof Element) {
+                Element element = (Element) object;
+                modification = new Modification();
+                modification.fromElement(element, formatter);
+            }
+
+            if (isIgnoredModification(modification)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private boolean isIgnoredModification(Modification modification) {
+        boolean isIgnored = false;
+        if (this.ignoreFiles != null) {
+
+            File file = new File (modification.folderName, modification.fileName);
+            String path = file.toString();
+
+            // On systems with a '\' as pathseparator convert it to a forward slash '/'
+            // That makes patterns platform independent
+            if (File.separatorChar == '\\') {
+                path = path.replace('\\', '/');
+            }
+
+            for (Iterator iterator = this.ignoreFiles.iterator(); iterator.hasNext() && !isIgnored;) {
+                GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
+
+                // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
+                // the path, so we use the complete path as the 'filename'-argument.
+                isIgnored = pattern.accept(file, path);
+            }
+        }
+        return isIgnored;
     }
 
     public Date getTimeOfCheck() {
