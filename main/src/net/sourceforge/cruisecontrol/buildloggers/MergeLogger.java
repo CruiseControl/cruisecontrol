@@ -47,6 +47,7 @@ import org.jdom.input.SAXBuilder;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * This BuildLogger implementation merges other XML logs into the CruiseControl
@@ -102,6 +103,7 @@ public class MergeLogger implements BuildLogger {
                             || file.getName().endsWith(".xml");
                 }
             });
+            Arrays.sort(children);
             for (int j = 0; j < children.length; j++) {
                 mergeFile(children[j], buildLog);
             }
