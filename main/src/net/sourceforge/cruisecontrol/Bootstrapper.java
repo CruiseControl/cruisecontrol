@@ -49,4 +49,11 @@ public interface Bootstrapper {
      */
     public void bootstrap() throws CruiseControlException;
 
+    /**
+     *  Called after the configuration is read to make sure that all the mandatory parameters
+     *  were specified..
+     *
+     *  @throws CruiseControlException if there was a configuration error.
+     */
+    public void validate() throws CruiseControlException;
 }

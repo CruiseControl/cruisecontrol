@@ -19,7 +19,6 @@ public class VssBootstrapper implements Bootstrapper {
   private String login;
 
   public void bootstrap() throws CruiseControlException {
-    checkAttributes();
     String commandLine = generateCommandLine();
 
     try {
@@ -40,7 +39,7 @@ public class VssBootstrapper implements Bootstrapper {
     }
   }
 
-  void checkAttributes() throws CruiseControlException {
+  public void validate() throws CruiseControlException {
     if (vssPath == null || localDirectory == null) throw new CruiseControlException("VssBootstrapper has required attributes vssPath and filePath");
     File localDirForFile = new File(localDirectory);
     boolean dirExists = localDirForFile.exists();

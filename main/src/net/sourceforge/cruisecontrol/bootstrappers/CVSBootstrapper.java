@@ -1,6 +1,7 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
@@ -54,6 +55,12 @@ public class CVSBootstrapper implements Bootstrapper {
             p.waitFor();
         } catch (Exception e) {
             log.error("Error executing CVS update command", e);
+        }
+    }
+
+    public void validate() throws CruiseControlException {
+        if(_filename == null) {
+            throw new CruiseControlException("'file' is required for CVSBootstrapper");
         }
     }
 

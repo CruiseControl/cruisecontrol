@@ -58,10 +58,13 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     }
 
     public void bootstrap() throws CruiseControlException {
+        writeFile(new Date());
+    }
+
+    public void validate() throws CruiseControlException {
         if (_fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
         }
-        writeFile(new Date());
     }
 
     protected void writeFile(Date date) throws CruiseControlException {

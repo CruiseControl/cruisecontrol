@@ -98,6 +98,7 @@ public class ProjectXMLHelper {
         while (bootstrapperIterator.hasNext()) {
             Element bootstrapperElement = (Element) bootstrapperIterator.next();
             Bootstrapper bootstrapper = (Bootstrapper) configurePlugin(bootstrapperElement);
+            bootstrapper.validate();
             bootstrappers.add(bootstrapper);
         }
         return bootstrappers;
