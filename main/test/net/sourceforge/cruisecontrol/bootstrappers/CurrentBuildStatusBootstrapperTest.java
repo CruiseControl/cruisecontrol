@@ -50,6 +50,8 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
+    private static final String TEST_DIR = "tmp";
+
     private final List filesToClear = new ArrayList();
 
     public CurrentBuildStatusBootstrapperTest(String name) {
@@ -80,25 +82,18 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         }
     }
 
-    public void testBootstrap() {
+    public void testBootstrap() throws CruiseControlException {
         CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
-        cbsb.setFile("_testCurrentBuildStatus.txt");
-        filesToClear.add(new File("_testCurrentBuildStatus.txt"));
+        cbsb.setFile(TEST_DIR  + File.separator + "_testCurrentBuildStatus.txt");
+        filesToClear.add(new File(TEST_DIR  + File.separator + "_testCurrentBuildStatus.txt"));
 
-        try {
-            cbsb.bootstrap();
-            // This should be equivalent to the date used in bootstrap at seconds precision
-            Date date = new Date();
+        cbsb.bootstrap();
+        // This should be equivalent to the date used in bootstrap at seconds precision
+        Date date = new Date();
 
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            String expected =
-                "<span class=\"link\">Current Build Started At:<br>"
-                    + formatter.format(date)
-                    + "</span>";
-            assertEquals(expected, readFileToString("_testCurrentBuildStatus.txt"));
-        } catch (CruiseControlException cce2) {
-            cce2.printStackTrace();
-        }
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        String expected = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
+        assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
     }
 
     private String readFileToString(String fileName) {

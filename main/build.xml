@@ -40,26 +40,28 @@
     <property environment="env"/>
     <property file="override.properties"/>
 
-    <property name="docs" value="docs"/>
+    <property name="version" value="2.1.7-dev"/>
+
+    <property name="docs" value="${basedir}/docs"/>
     <property name="apidocs" value="${docs}/api"/>
-    <property name="bin" value="bin"/>
-    <property name="classes" value="classes"/>
+    <property name="target" value="${basedir}/target"/>
+
+    <property name="classes" value="${target}/classes"/>
     <property name="dist" value="dist"/>
-    <property name="images" value="images"/>
-    <property name="junit.results" value="test-results" />
-    <property name="lib" value="lib"/>
-    <property name="src" value="src"/>
-    <property name="test" value="test"/>
-    <property name="test.classes" value="test-classes" />
+    <property name="junit.results" value="${target}/test-results" />
+    <property name="lib" value="${basedir}/lib"/>
+    <property name="src" value="${basedir}/src"/>
+    <property name="test" value="${basedir}/test"/>
+    <property name="test.classes" value="${target}/test-classes" />
     <property name="tests" value="*Test"/>
-    <property name="xsl" value="xsl"/>
+    <property name="xsl" value="${basedir}/xsl"/>
 
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
 
     <property name="clover.home" value="${env.CLOVER_HOME}"/>
     <property name="clover.jar" value="${clover.home}/lib/clover.jar"/>
-    <property name="clover.results" value="clover-results"/>
+    <property name="clover.results" value="${target}/clover-results"/>
 
     <path id="clover.classpath">
         <pathelement location="${clover.jar}"/>
@@ -70,7 +72,7 @@
     in lib directory will be included in CLASSPATH
     **************************************************** -->
     <path id="project.classpath" >
-        <fileset dir="lib">
+        <fileset dir="${lib}">
             <exclude name="ant.jar"/>
             <exclude name="optional.jar"/>
         </fileset>
@@ -87,42 +89,22 @@
     <target name="init" description="Setup build system">
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
+        <mkdir dir="${target}/tmp"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${junit.results}"/>
         <mkdir dir="${clover.results}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
         <available file="lib/STComm.jar" property="sametime-sdk-present"/>
         <tstamp/>
-        <property name="label" value="2.1 Compiled on ${TODAY} ${TSTAMP}"/>
+        <property name="label" value="${version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
+    <!-- FIXME why don't we just clean target and dist ?? -->
     <target name="clean" description="Cleans out the build directories" >
        <delete quiet="yes">
-            <fileset dir="dist" includes="*.jar, *.war, *.zip"/>
+            <fileset dir="${dist}" includes="*.jar, *.war, *.zip"/>
        </delete>
-       <delete dir="${classes}" quiet="yes"/>
-       <delete dir="${test.classes}" quiet="yes"/>
-       <delete dir="${apidocs}" quiet="yes"/>
-       <delete dir="${junit.results}" quiet="yes"/>
-       <delete dir="${clover.results}" quiet="yes"/>
-       <delete>
-            <fileset dir="${basedir}" includes="_*" />
-       </delete>
-    </target>
-
-    <target name="clean-testresults" description="Clean up after test result files">
-       <delete file="final.xml" quiet="yes"/>
-       <delete file="log.xml" quiet="yes"/>
-       <delete file="logFileOne.xml" quiet="yes"/>
-       <delete file="logFileTwo.xml" quiet="yes"/>
-       <delete dir="_auxLogs" quiet="yes"/>
-       <delete file="myproject" quiet="yes"/>
-       <delete file="_" quiet="yes">
-          <fileset dir=".">
-             <include name="log*.xml"/>
-             <include name="_*"/>
-          </fileset>
-       </delete>
+       <delete dir="${target}"/>
     </target>
 
     <target name="compile" depends="init" description="Compile source code">
@@ -133,8 +115,8 @@
            <exclude name="**/Sametime*"/>
         </javac>
         <copy todir="${classes}">
-            <fileset dir="." includes="log4j.properties"/>
-            <fileset dir="." includes="version.properties"/>
+            <fileset dir="${basedir}" includes="log4j.properties"/>
+            <fileset dir="${basedir}" includes="version.properties"/>
             <filterset>
                 <filter token="VERSION" value="${label}" />
             </filterset>
@@ -170,16 +152,22 @@
 
         <copy todir="${test.classes}">
             <fileset dir="${test}" includes="**/*.xml"/>
+            <fileset dir="${test}" includes="**/*.txt"/>
+            <fileset dir="${test}" includes="**/*.jar"/>
+            <fileset dir="${test}" includes="**/*.properties"/>
+        </copy>
+        <copy todir="${target}">
+            <fileset dir="${test}" includes="testbuild.xml"/>
         </copy>
     </target>
 
     <target name="checkstyle" description="Run CheckStyle on code">
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
-        <checkstyle config="checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
+        <checkstyle config="${basedir}/checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
             <formatter type="plain"/>
-            <formatter type="plain" tofile="checkstyleResults.txt"/>
-            <fileset dir="src" includes="net/sourceforge/cruisecontrol/**/*.java"/>
-            <fileset dir="test" includes="net/sourceforge/cruisecontrol/**/*.java"/>
+            <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
+            <fileset dir="${src}" includes="net/sourceforge/cruisecontrol/**/*.java"/>
+            <fileset dir="${test}" includes="net/sourceforge/cruisecontrol/**/*.java"/>
         </checkstyle>
     </target>
 
@@ -212,7 +200,7 @@
     </target>
 
     <target name="test" depends="compile-test" description="Executes the unit tests">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" >
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath >
                 <path refid="project.runtime.classpath" />
             </classpath>
@@ -221,6 +209,17 @@
             <batchtest todir="${junit.results}" >
                 <fileset dir="${test.classes}" includes="**/${tests}.class" />
             </batchtest>
+        </junit>
+    </target>
+
+    <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+            <classpath >
+                <path refid="project.runtime.classpath" />
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <test name="${testcase}" todir="${junit.results}" />
         </junit>
     </target>
 
@@ -263,7 +262,7 @@
     </target>
 
     <target name="jar" depends="compile">
-        <jar jarfile="${dist}\cruisecontrol.jar" manifest="manifest.mf">
+        <jar jarfile="${dist}/cruisecontrol.jar" manifest="${basedir}/manifest.mf">
             <fileset dir="${classes}"/>
             <fileset dir="${xsl}"/>
         </jar>
@@ -282,16 +281,11 @@
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar"/>
     
-    <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar,clean-testresults" description="Performs a build, runs tests, and builds jar" />
+    <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar" description="Performs a build, runs tests, and builds jar" />
 
     <target name="cvs-update" depends="init" if="localCopy">
         <cvs command="update -d -P" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol"
              package="cruisecontrol" dest="${localCopy}" />
-    </target>
-
-    <!-- used by AntBuilderTest -->
-    <target name="timeout-test-target">
-        <sleep seconds="20"/>
     </target>
 
 </project>

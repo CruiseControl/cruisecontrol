@@ -21,6 +21,11 @@ build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
 * Removed references to "**/element/" (CC-57). Patch by Jerome Lacoste
+* Build products now created only under target & dist (CC-81). Patch by Jerome Lacoste
+
+build.xml (main)
+----------------------
+* Build products now created only under target & dist (CC-81). Patch by Jerome Lacoste
 
 BuildQueue
 ----------------------

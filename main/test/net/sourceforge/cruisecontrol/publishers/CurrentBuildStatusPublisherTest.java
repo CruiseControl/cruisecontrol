@@ -51,6 +51,7 @@ import java.io.File;
 
 public class CurrentBuildStatusPublisherTest extends TestCase {
     private final List filesToClear = new ArrayList();
+    private static final String TEST_DIR = "tmp";
 
     public CurrentBuildStatusPublisherTest(String name) {
         super(name);
@@ -76,7 +77,7 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
 
     public void testWriteFile() {
         CurrentBuildStatusPublisher cbsb = new CurrentBuildStatusPublisher();
-        cbsb.setFile("_testCurrentBuildStatus.txt");
+        cbsb.setFile(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt");
         Date date = new Date();
 
         try {
@@ -86,7 +87,7 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
                 "<span class=\"link\">Next Build Starts At:<br>"
                     + formatter.format(new Date(date.getTime() + (300 * 1000)))
                     + "</span>";
-            assertEquals(expected, readFileToString("_testCurrentBuildStatus.txt"));
+            assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
         } catch (CruiseControlException cce2) {
             cce2.printStackTrace();
         }

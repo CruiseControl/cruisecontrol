@@ -47,10 +47,11 @@ public class MavenSnapshotDependencyTest extends TestCase {
 
     private static final String BAD_REPOSITORY = "folder";
 
+    // FIXME hardcoded paths...
     private static final String TEST_PROJECT_XML =
-        "test/net/sourceforge/cruisecontrol/sourcecontrols/maven-project.xml";
+        "test-classes/net/sourceforge/cruisecontrol/sourcecontrols/maven-project.xml";
 
-    private static final String TEST_REPOSITORY = "test/net/sourceforge/cruisecontrol/sourcecontrols/";
+    private static final String TEST_REPOSITORY = "test-classes/net/sourceforge/cruisecontrol/sourcecontrols/";
 
     public MavenSnapshotDependencyTest(String name) {
         super(name);

@@ -67,6 +67,8 @@ public class ProjectTest extends TestCase {
     private static final org.apache.log4j.Logger LOG4J =
             org.apache.log4j.Logger.getLogger(ProjectTest.class);
 
+    private static final String TEST_DIR = "tmp";
+
     private Project project;
     private final List filesToClear = new ArrayList();
 
@@ -101,29 +103,29 @@ public class ProjectTest extends TestCase {
         project.setSchedule(sched);
         project.setLabel("1.2.2");
         project.setName("myproject");
-        File logDir = new File("test-results");
+        File logDir = new File(TEST_DIR  + File.separator + "test-results");
         logDir.mkdir();
-        project.getLog().setLogDir("test-results");
+        project.getLog().setLogDir(TEST_DIR  + File.separator + "test-results");
         project.setLogXmlEncoding("ISO-8859-1");
         MergeLogger logger = new MergeLogger();
-        logger.setFile("_auxLog1.xml");
+        logger.setFile(TEST_DIR  + File.separator + "_auxLog1.xml");
         project.getLog().addLogger(logger);
 
         logger = new MergeLogger();
-        logger.setDir("_auxLogs");
+        logger.setDir(TEST_DIR  + File.separator + "_auxLogs");
         project.getLog().addLogger(logger);
 
         project.setLabelIncrementer(new DefaultLabelIncrementer());
         project.setModificationSet(modSet);
         project.setLastBuild(formatTime(now));
         project.setLastSuccessfulBuild(formatTime(now));
-        writeFile("_auxLog1.xml", "<one/>");
-        File auxLogsDirectory = new File("_auxLogs");
+        writeFile(TEST_DIR  + File.separator + "_auxLog1.xml", "<one/>");
+        File auxLogsDirectory = new File(TEST_DIR  + File.separator + "_auxLogs");
         auxLogsDirectory.mkdir();
         writeFile(
-            "_auxLogs/_auxLog2.xml",
+            TEST_DIR  + File.separator + "_auxLogs/_auxLog2.xml",
             "<testsuite><properties><property/></properties><testcase/></testsuite>");
-        writeFile("_auxLogs/_auxLog3.xml", "<testsuite/>");
+        writeFile(TEST_DIR  + File.separator + "_auxLogs/_auxLog3.xml", "<testsuite/>");
 
         final ArrayList resultEvents = new ArrayList();
         project.addBuildResultListener(new BuildResultListener() {

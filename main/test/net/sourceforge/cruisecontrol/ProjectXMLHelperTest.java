@@ -48,6 +48,7 @@ import java.util.List;
 public class ProjectXMLHelperTest extends TestCase {
 
     private File configFile;
+    private File tempDirectory;
 
     private static final int ONE_SECOND = 1000;
 
@@ -121,7 +122,7 @@ public class ProjectXMLHelperTest extends TestCase {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         assertEquals("logs" + File.separatorChar + "project1", helper.getLog().getLogDir());
         helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals("c:/foo", helper.getLog().getLogDir());
+        assertEquals(tempDirectory.getAbsolutePath() + "/foo", helper.getLog().getLogDir());
         helper = new ProjectXMLHelper(configFile, "project3");
         assertEquals("logs" + File.separatorChar + "project3", helper.getLog().getLogDir());
 
@@ -133,8 +134,8 @@ public class ProjectXMLHelperTest extends TestCase {
     protected void setUp() throws Exception {
         configFile = File.createTempFile("tempConfig", "xml");
         configFile.deleteOnExit();
-        File tempDirectory = configFile.getParentFile();
-
+        tempDirectory = configFile.getParentFile();
+        // Note: the project1 and project3 directories will be created in <testexecutiondir>/logs/
         String config =
             "<cruisecontrol>"
                 + "  <project name='project1' />"
@@ -145,12 +146,18 @@ public class ProjectXMLHelperTest extends TestCase {
                 + "' />"
                 + "    </bootstrappers>"
                 + "    <schedule interval='20' >"
-                + "      <ant multiple='1' buildfile='c:/foo/bar.xml' target='baz' />"
+                + "      <ant multiple='1' buildfile='"
+                + tempDirectory.getAbsolutePath()
+                + "/foo/bar.xml' target='baz' />"
                 + "    </schedule>"
                 + "    <modificationset quietperiod='10' >"
-                + "      <vss vsspath='c:/foo/bar' login='login' />"
+                + "      <vss vsspath='"
+                + tempDirectory.getAbsolutePath()
+                + "/foo/bar' login='login' />"
                 + "    </modificationset>"
-                + "    <log dir='c:/foo' encoding='utf-8' >"
+                + "    <log dir='"
+                + tempDirectory.getAbsolutePath()
+                + "/foo' encoding='utf-8' >"
                 + "      <merge file='blah' />"
                 + "    </log>"
                 + "    <labelincrementer separator='#' />"

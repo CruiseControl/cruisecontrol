@@ -51,24 +51,21 @@ import java.util.Date;
 public final class CurrentBuildFileWriter {
 
     private CurrentBuildFileWriter() {
-        
     }
 
-    public static void writefile(String info, Date date, String fileName)
-        throws CruiseControlException {
-            
+    public static void writefile(String info, Date date, String fileName) throws CruiseControlException {
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         StringBuffer sb = new StringBuffer();
         sb.append(info);
         sb.append(formatter.format(date));
         sb.append("</span>");
-        
+
         FileWriter fw = null;
         try {
             fw = new FileWriter(fileName);
             fw.write(sb.toString());
         } catch (IOException ioe) {
-            throw new CruiseControlException("Error Writing File: " + fileName);
+            throw new CruiseControlException("Error writing file: " + fileName, ioe);
         } finally {
             if (fw != null) {
                 try {
