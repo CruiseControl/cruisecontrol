@@ -17,6 +17,7 @@ EmailPublisher
 ----------------------
 * Allow optional subject line prefix on emails for easier filtering - Patch by Peter Mei
 * Added 'skipUsers' attribute to skip sending email to users who have checked in code - Patch by Jeffrey Fredrick
+* Added optional 'returnName' attribute that pairs w/fromAddress - Patch by Gunnar Wagenknecht
 
 Manifest
 ----------------------
