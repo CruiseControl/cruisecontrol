@@ -40,12 +40,6 @@ import junit.framework.TestCase;
 
 public class MainTest extends TestCase {
 
-    private Main main;
-
-    protected void setUp() {
-        main = new Main();
-    }
-
     public void testParseConfigurationFileName() throws Exception {
         String[] correctArgs = new String[] {"-configfile", "config.xml"};
         String[] missingArgs = new String[] {""};
@@ -193,5 +187,12 @@ public class MainTest extends TestCase {
         } catch (CruiseControlException e) {
             assertTrue("Good, expected to get an exception.", true);
         }
+    }
+
+    public void testUsage() {
+        String[] usage = {"-?"};
+        String[] notusage = {"-port", "8000"};
+        assertTrue(Main.printUsage(usage));
+        assertFalse(Main.printUsage(notusage));
     }
 }
