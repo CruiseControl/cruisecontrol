@@ -36,13 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.BufferedWriter;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,15 +56,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 /**
  * Represents a single logical project consisting of source code that needs to
@@ -74,15 +68,15 @@ public class Project implements Serializable, Runnable {
 
     private transient ProjectState state = ProjectState.STOPPED_STATE;
     private transient Schedule schedule;
+    private transient Log log;
     private transient List bootstrappers = new ArrayList();
     private transient ModificationSet modificationSet;
     private transient List publishers = new ArrayList();
     private transient LabelIncrementer labelIncrementer;
     private transient List auxLogs = new ArrayList();
-    private transient String logXmlEncoding = null;
+
     private transient long buildInterval;
-    private transient String logFileName;
-    private transient String logDir;
+
     private transient Date buildStartTime;
     private transient Object pausedMutex = new Object();
     private transient Object scheduleMutex = new Object();
@@ -152,7 +146,7 @@ public class Project implements Serializable, Runnable {
 
         bootstrap();
 
-        Element cruisecontrolElement = new Element("cruisecontrol");
+        Element buildLog = new Element("cruisecontrol");
 
         Element modifications = getModifications();
         if (modifications == null) {
@@ -160,43 +154,34 @@ public class Project implements Serializable, Runnable {
             return;
         }
 
-        cruisecontrolElement.addContent(modifications);
+        buildLog.addContent(modifications);
 
         Date now = modificationSet.getTimeOfCheck();
 
         if (labelIncrementer.isPreBuildIncrementer()) {
-            label = labelIncrementer.incrementLabel(label, cruisecontrolElement);
+            label = labelIncrementer.incrementLabel(label, buildLog);
         }
 
         // collect project information
-        cruisecontrolElement.addContent(getProjectPropertiesElement(now));
+        buildLog.addContent(getProjectPropertiesElement(now));
 
         setState(ProjectState.BUILDING_STATE);
-        cruisecontrolElement.addContent(
+        buildLog.addContent(
             schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
 
-        boolean buildSuccessful = new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
+        boolean buildSuccessful = new XMLLogHelper(buildLog).isBuildSuccessful();
 
         if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-            label = labelIncrementer.incrementLabel(label, cruisecontrolElement);
+            label = labelIncrementer.incrementLabel(label, buildLog);
         }
 
         setState(ProjectState.MERGING_LOGS_STATE);
         Iterator auxLogIterator = getAuxLogElements().iterator();
         while (auxLogIterator.hasNext()) {
-            cruisecontrolElement.addContent((Element) auxLogIterator.next());
+            buildLog.addContent((Element) auxLogIterator.next());
         }
 
-        createLogFileName(cruisecontrolElement, now);
-
-        Element logFileElement = new Element("property");
-        logFileElement.setAttribute("name", "logfile");
-        logFileElement.setAttribute(
-            "value",
-            logFileName.substring(logFileName.lastIndexOf(File.separator)));
-        cruisecontrolElement.getChild("info").addContent(logFileElement);
-
-        writeLogFile(cruisecontrolElement);
+        log.writeLogFile(buildLog, now);
 
         // If we only want to build after a check in, even when broken, set the last build to now,
         // regardless of success or failure (buildAfterFailed = false in config.xml)
@@ -216,10 +201,20 @@ public class Project implements Serializable, Runnable {
         serializeProject();
 
         setState(ProjectState.PUBLISHING_STATE);
-        publish(cruisecontrolElement);
-        cruisecontrolElement = null;
+        publish(buildLog);
+        buildLog = null;
 
         setState(ProjectState.IDLE_STATE);
+    }
+
+    /**
+     * Returns just the filename from the File object, i.e. no path information
+     * included. So if the File instance represents c:\java\ant\build.xml
+     * this method will return build.xml.
+     */
+    public static String getSimpleFilename(File file) {
+        String fullPath = file.getAbsolutePath();
+        return fullPath.substring(fullPath.lastIndexOf(File.separator));
     }
 
     public void run() {
@@ -413,7 +408,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public void setLogXmlEncoding(String encoding) {
-        logXmlEncoding = encoding;
+        log.setLogXmlEncoding(encoding);
     }
 
     public void setConfigFile(File fileName) {
@@ -488,11 +483,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public String getLogDir() {
-        return logDir;
-    }
-
-    public void setLogDir(String pathToLogDir) {
-        logDir = pathToLogDir;
+        return log.getLogDir();
     }
 
     public long getSleepMilliseconds() {
@@ -501,10 +492,6 @@ public class Project implements Serializable, Runnable {
 
     public void setSleepMillis(long sleepMillis) {
         buildInterval = sleepMillis;
-    }
-
-    protected String getLogFileName() {
-        return logFileName;
     }
 
     public boolean isPaused() {
@@ -556,9 +543,11 @@ public class Project implements Serializable, Runnable {
     protected void init() throws CruiseControlException {
         log("reading settings from config file [" + configFile.getAbsolutePath() + "]");
         ProjectXMLHelper helper = getProjectXMLHelper();
-        logDir = helper.getLogDir();
-        checkLogDirectory();
-        logXmlEncoding = helper.getLogXmlEncoding();
+
+        this.log = new Log(this.name);
+        log.setLogDir(helper.getLogDir());
+        log.setLogXmlEncoding(helper.getLogXmlEncoding());
+
         bootstrappers = helper.getBootstrappers();
         schedule = helper.getSchedule();
         buildInterval = schedule.getInterval();
@@ -591,9 +580,8 @@ public class Project implements Serializable, Runnable {
         debug("label                  = [" + label + "]");
         debug("lastBuild              = [" + getFormatedTime(lastBuild) + "]");
         debug("lastSuccessfulBuild    = [" + getFormatedTime(lastSuccessfulBuild) + "]");
-        debug("logDir                 = [" + logDir + "]");
-        debug("logFileName            = [" + logFileName + "]");
-        debug("logXmlEncoding         = [" + logXmlEncoding + "]");
+        debug("logDir                 = [" + log.getLogDir() + "]");
+        debug("logXmlEncoding         = [" + log.getLogXmlEncoding() + "]");
         debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
     }
 
@@ -605,28 +593,6 @@ public class Project implements Serializable, Runnable {
     ProjectXMLHelper getProjectXMLHelper() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
         return helper;
-    }
-
-    /**
-     * creates log directory if it doesn't already exist
-     * @throws CruiseControlException if directory can't be created or there is a file of the same name
-     */
-    protected void checkLogDirectory() throws CruiseControlException {
-        File logDirectory = new File(logDir);
-        if (!logDirectory.exists()) {
-            log(
-                "log directory specified in config file does not exist; creating: "
-                    + logDirectory.getAbsolutePath());
-            if (!logDirectory.mkdirs()) {
-                throw new CruiseControlException(
-                    "Can't create log directory specified in config file: "
-                        + logDirectory.getAbsolutePath());
-            }
-        } else if (!logDirectory.isDirectory()) {
-            throw new CruiseControlException(
-                "Log directory specified in config file is not a directory: "
-                    + logDirectory.getAbsolutePath());
-        }
     }
 
     protected Element getProjectPropertiesElement(Date now) {
@@ -734,46 +700,6 @@ public class Project implements Serializable, Runnable {
         Iterator bootstrapperIterator = bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
-        }
-    }
-
-    protected void createLogFileName(Element logElement, Date now) throws CruiseControlException {
-        XMLLogHelper helper = new XMLLogHelper(logElement);
-        if (helper.isBuildSuccessful()) {
-            logFileName =
-                new File(logDir, "log" + getFormatedTime(now) + "L" + helper.getLabel() + ".xml")
-                    .getAbsolutePath();
-        } else {
-            logFileName = new File(logDir, "log" + getFormatedTime(now) + ".xml").getAbsolutePath();
-        }
-    }
-
-    /**
-     *  Write the entire log file to disk, merging in any additional logs
-     *
-     *  @param logElement JDOM Element representing the build log.
-     */
-    protected void writeLogFile(Element logElement) throws CruiseControlException {
-        BufferedWriter logWriter = null;
-        try {
-            debug("Writing log file [" + logFileName + "]");
-            XMLOutputter outputter = null;
-            if (logXmlEncoding == null) {
-                outputter = new XMLOutputter("   ", true);
-                logWriter =
-                    new BufferedWriter(new OutputStreamWriter(new FileOutputStream(logFileName)));
-            } else {
-                outputter = new XMLOutputter("   ", true, logXmlEncoding);
-                logWriter =
-                    new BufferedWriter(
-                        new OutputStreamWriter(new FileOutputStream(logFileName), logXmlEncoding));
-            }
-            outputter.output(new Document(logElement), logWriter);
-            logWriter = null;
-        } catch (IOException e) {
-            throw new CruiseControlException(e);
-        } finally {
-            logWriter = null;
         }
     }
 
@@ -925,5 +851,12 @@ public class Project implements Serializable, Runnable {
         midnight.set(Calendar.SECOND, 0);
         midnight.set(Calendar.MILLISECOND, 0);
         return midnight.getTime();
+    }
+
+    public Log getLog() {
+        if (this.log == null) {
+            this.log = new Log(getName());
+        }
+        return this.log;
     }
 }

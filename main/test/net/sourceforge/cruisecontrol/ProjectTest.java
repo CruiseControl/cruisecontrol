@@ -108,7 +108,7 @@ public class ProjectTest extends TestCase {
         project.setSchedule(sched);
         File logDir = new File("test-results");
         logDir.mkdir();
-        project.setLogDir("test-results");
+        project.getLog().setLogDir("test-results");
         project.setLogXmlEncoding("ISO-8859-1");
         project.addAuxiliaryLogFile("_auxLog1.xml");
         project.addAuxiliaryLogFile("_auxLogs");
@@ -147,7 +147,7 @@ public class ProjectTest extends TestCase {
                 + Project.getFormatedTime(now)
                 + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
                 + "/></testsuite><testsuite /></cruisecontrol>";
-        assertEquals(expected, readFileToString(project.getLogFileName()));
+        assertEquals(expected, readFileToString(project.getLog().getLastLogFile()));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 
         //look for sourcecontrol properties
@@ -387,8 +387,8 @@ public class ProjectTest extends TestCase {
         assertEquals("Project foo: stopped (paused)", project.toString());
     }
 
-    private String readFileToString(String filename) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
+    private static String readFileToString(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         StringBuffer result = new StringBuffer();
 
         String s = reader.readLine();
