@@ -133,19 +133,22 @@ public class BuildServlet extends HttpServlet {
     }
 
     private void transformBuildLogToHTML(PrintWriter out) throws FileNotFoundException, org.xml.sax.SAXException {
-        FileReader xml = new FileReader(_logFile);
-        FileReader xsl = new FileReader(_xslFile);
+        File xmlFile = new File(_logFile);
+        if (xmlFile.exists()) {
+            FileReader xml = new FileReader(xmlFile);
+            FileReader xsl = new FileReader(_xslFile);
 
-        // Instantiate an XSLTProcessor.
-        org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
+            // Instantiate an XSLTProcessor.
+            org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
 
-        // Create the 3 objects the XSLTProcessor needs to perform the transformation.
-        XSLTInputSource xmlSource = new XSLTInputSource(xml);
-        XSLTInputSource xslSheet = new XSLTInputSource(xsl);
-        XSLTResultTarget xmlResult = new XSLTResultTarget(out);
+            // Create the 3 objects the XSLTProcessor needs to perform the transformation.
+            XSLTInputSource xmlSource = new XSLTInputSource(xml);
+            XSLTInputSource xslSheet = new XSLTInputSource(xsl);
+            XSLTResultTarget xmlResult = new XSLTResultTarget(out);
 
-        // Perform the transformation.
-        processor.process(xmlSource, xslSheet, xmlResult);
+            // Perform the transformation.
+            processor.process(xmlSource, xslSheet, xmlResult);
+        }
     }
 
     private String getLastBuildLogFilename() {
@@ -166,16 +169,20 @@ public class BuildServlet extends HttpServlet {
     private void printCurrentBuildStatus(PrintWriter out) 
         throws FileNotFoundException, IOException {
 
-        BufferedReader br = new BufferedReader(
-            new FileReader(
-                new File(_logDir + File.separator + _currentBuildStatusFile)), 1024);
-        String s = br.readLine();
-        while (s != null) {
-            out.println(s);
-            s = br.readLine();
+        File buildStatusFile = new File(_logDir + File.separator + _currentBuildStatusFile);
+        if (buildStatusFile.exists()) {
+            BufferedReader br = new BufferedReader(new FileReader(buildStatusFile), 1024);
+            String s = br.readLine();
+            while (s != null) {
+                out.println(s);
+                s = br.readLine();
+            }
+            br.close();
+            br = null;
         }
-        br.close();
-        br = null;
+        else {
+            log(_currentBuildStatusFile + " does not exist");
+        }
     }
 
     /**
