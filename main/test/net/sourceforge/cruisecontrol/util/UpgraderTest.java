@@ -92,7 +92,6 @@ public class UpgraderTest extends TestCase {
 
     public void testCreateLabelIncrementer() throws Exception {
         String expectedIncrementerSpecified = "<plugin name=\"labelincrementer\" classname=\"somelabelincrementer\"/>";
-        String expectedIncrementerNotSpecified = "";
         Properties propertiesIncrementerSpecified = new Properties();
         propertiesIncrementerSpecified.put("labelIncrementerClass", "somelabelincrementer");
 
