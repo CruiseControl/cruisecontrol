@@ -278,9 +278,8 @@ public class CVSElement extends SourceControlElement {
         
         commandLine.createArgument().setValue("log");
         commandLine.createArgument().setValue("-N");
-        commandLine.createArgument().setValue("-d");
         String dateRange = ">" + formatCVSDate(lastBuildTime);
-        commandLine.createArgument().setValue(dateRange);
+        commandLine.createArgument().setValue("-d"+dateRange);
         
         if (tag != null) {
             // add -b and -rTAG to list changes relative to the current branch,
