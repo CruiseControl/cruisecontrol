@@ -13,6 +13,10 @@ FTPPublisher:
 * Made setDeleteArtifacts take a boolean argument, instead of parsing a String as a boolean, for consistency with other plugins (CC-158).
   This means that you MUST use "true" or "false" now in your config file for deleteArtifacts-attribute, and not "yes" or "no"!
 
+index.jsp:
+----------------------
+* Use rounded corners on the right of the page (CC-113). Patch by Mark Doliner
+
 Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler

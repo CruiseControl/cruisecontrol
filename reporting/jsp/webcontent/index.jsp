@@ -78,10 +78,10 @@
 
 <table align="center" border="0" cellpadding="0" cellspacing="0" width="70%">
 <tfoot>
-  <tr><td class="link">listing generated at <%=reportTime.toString()%></td></tr>
+  <tr><td class="link" colspan="2">listing generated at <%=reportTime.toString()%></td></tr>
 </tfoot>
 <tbody>
-<tr><td align="right">
+<tr><td align="right" colspan="2">
   <%
      if (autoRefresh) {
   %>
@@ -94,9 +94,12 @@
      }
   %>
   </td></tr>
-  <tr><td>&nbsp;</td></tr>
-  <tr><td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"></td></tr>
-  <tr><td><table class="index" width="100%">
+  <tr><td colspan="2">&nbsp;</td></tr>
+  <tr>
+    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"></td>
+    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"></td>
+  </tr>
+  <tr><td colspan="2"><table class="index" width="100%">
 <%
    String logDirPath = application.getInitParameter("logDir");
    if (logDirPath == null) {
@@ -147,8 +150,11 @@
        }
    }
 %></table></td></tr>
-  <tr><td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"></td></tr>
-  <tr><td>&nbsp;</td></tr>
+  <tr>
+    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"></td>
+    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"></td>
+  </tr>
+  <tr><td colspan="2">&nbsp;</td></tr>
 </tbody>
 </table>
 </body>
