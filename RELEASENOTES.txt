@@ -90,6 +90,7 @@ manifest.mf:
 modifications.xsl:
 ----------------------
 * Fixed matching wrong template for p4 modifications. Patch by Anil Arora
+* Removed call to system-property, since it causes errors with JDK 1.5
 
 ModificationSet:
 ----------------------

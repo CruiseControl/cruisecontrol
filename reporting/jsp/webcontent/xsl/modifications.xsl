@@ -163,7 +163,10 @@
             <td class="modifications-data">
                 <xsl:if test="file/project">
                     <xsl:value-of select="file/project"/>
+                    <!-- the following doesn't work with JDK 1.5.0, so it's disabled by default:
                     <xsl:value-of select="system-property('file.separator')"/>
+                    -->
+                    <xsl:value-of select="'/'"/>
                 </xsl:if>
                 <xsl:value-of select="file/filename"/>
             </td>
@@ -227,7 +230,10 @@
             <td class="modifications-data">
                 <xsl:if test="project">
                     <xsl:value-of select="project"/>
+                    <!-- the following doesn't work with JDK 1.5.0, so it's disabled by default:
                     <xsl:value-of select="system-property('file.separator')"/>
+                    -->
+                    <xsl:value-of select="'/'"/>
                 </xsl:if>
                 <xsl:value-of select="filename"/>
             </td>
