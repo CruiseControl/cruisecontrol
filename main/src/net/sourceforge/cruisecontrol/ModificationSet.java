@@ -58,6 +58,8 @@ public class ModificationSet extends Task {
     private DateFormat _formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
 
     private Set _emails = new HashSet();
+    
+    private boolean _useServerTime = false;
 
     public final static String BUILDUNNECESSARY = "modificationset.buildunnecessary";
     public final static String SNAPSHOTTIMESTAMP = "modificationset.snapshottimestamp";
@@ -70,6 +72,10 @@ public class ModificationSet extends Task {
         if (format != null && format.length() > 0) {
             _formatter = new SimpleDateFormat(format);
         }
+    }
+
+    public void setUseservertime(boolean useServerTime) {
+        _useServerTime = useServerTime;
     }
 
     /**
@@ -136,8 +142,14 @@ public class ModificationSet extends Task {
                 throw new BuildException("No Build Necessary");
             }
 
-            getProject().setProperty(SNAPSHOTTIMESTAMP,
-                    _simpleDateFormat.format(currentDate));
+            if (_useServerTime) {
+                getProject().setProperty(SNAPSHOTTIMESTAMP,
+                        _simpleDateFormat.format(new Date(_lastModified)));
+            }
+            else {
+                getProject().setProperty(SNAPSHOTTIMESTAMP,
+                        _simpleDateFormat.format(currentDate));
+            }
             getProject().setProperty(USERS, emailsAsCommaDelimitedList());
 
             writeFile(modifications);
