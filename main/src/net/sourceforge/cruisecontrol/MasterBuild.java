@@ -425,7 +425,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      **/
     private void mergeAuxXmlFiles(Project antProject) {
         _logFile = getFinalLogFileName(antProject);
-
+        log("Final log name is: " + _logFile);
+        
         try {
             StringBuffer aggregatedXMLLog = new StringBuffer();
             aggregatedXMLLog.append(readAntBuildLog(antProject));
@@ -484,14 +485,14 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                                        + " before MasterBuild will work.");
         }
 
-        String logFile = "log" + dateStamp + timeStamp;
+        String logFileName = "log" + dateStamp + timeStamp;
         if (_lastBuildSuccessful) {
-            logFile += "L" + _label;
+            logFileName += "L" + _label;
         }
-        logFile += ".xml";
-        logFile = _logDir + File.separator + logFile;
+        logFileName += ".xml";
+        logFileName = _logDir + File.separator + logFileName;
 
-        return logFile;
+        return logFileName;
     }
 
     /**
