@@ -350,7 +350,7 @@ public abstract class EmailPublisher implements Publisher {
      * Subclasses can override this method to control how the content
      * is added to the Message.
      * 
-     * @param message content returned by createMessage
+     * @param content content returned by createMessage
      * @param msg mail Message with headers and addresses added elsewhere
      * @throws MessagingException
      */
@@ -522,27 +522,6 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     public class Success extends Address {
-    }
-
-    public class EmailMapping {
-        private String alias;
-        private String address;
-
-        public String getAlias() {
-            return alias;
-        }
-
-        public void setAlias(String theAlias) {
-            alias = theAlias;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String theAddress) {
-            this.address = theAddress;
-        }
     }
 
     public static void main(String[] args) {
