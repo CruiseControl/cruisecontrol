@@ -71,6 +71,7 @@ Project:
 XSLTag:
 ----------------------
 * now extends CruiseControlTagSupport instead of CruiseControlBodyTagSupport (CC-109). Patch by Mark Doliner
+* will now use the optional cacheRoot variable for the location of the cache directory. Patch by Bart Vanhaute
 
 CruiseControl Release Notes - 2.2
 

@@ -227,7 +227,10 @@ public class XSLTag extends CruiseControlTagSupport {
     }
 
     private File findCacheFile(File logDir, File xmlFile) {
-        File cacheDir = new File(logDir, CACHE_DIR);
+        String cacheRoot = getContextParam("cacheRoot");
+        File cacheDir = cacheRoot == null 
+            ? new File(logDir, CACHE_DIR)
+            : new File(cacheRoot + File.separator + getProject());
         if (!cacheDir.exists()) {
             cacheDir.mkdir();
         }
