@@ -48,8 +48,7 @@ import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
 /**
  * Class that will run the "Master Build" -- a
  * loop over the build process so that builds can
- * be automatically run.  Extends XmlLogger so
- * this is the only listener that needs to be declared.
+ * be automatically run.
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
@@ -177,10 +176,16 @@ public class MasterBuild {
         }
     }
 
+    /**
+     * Performs a build, defaulting the start time for the build to NOW.
+     */
     protected void performBuild() throws Exception {
         performBuild(new Date());
     }
 
+    /**
+     * Does the work of performing the actual build.
+     */
     protected void performBuild(Date startTime) throws Exception {
         
         boolean previousBuildSuccessful = (info.getLastBuild() == info.getLastGoodBuild());       
@@ -263,6 +268,14 @@ public class MasterBuild {
         runner.reset();
     }
 
+    /**
+     * Esnures that a ModificationSet was invoked during the last build cycle.
+     * If none was invoked, then an error message is logged and a BuildException
+     * will be thrown.
+     *
+     * @throws BuildException if no ModificationSet was invoked during the
+     *  previous build cycle.
+     */
     void checkModificationSetInvoked(Project project) throws BuildException {
         // There might be a better way to do this, perhaps by quering the project for
         // a list of executed tasks??? For now, this will suffice, as this property
@@ -274,6 +287,7 @@ public class MasterBuild {
             throw new BuildException("No ModificationSet task invoked");
         }
     }
+
     private void sendBuildEmail(String message) {
         CruiseControlMailer mailer = new CruiseControlMailer(props.getMailhost(),
                                                              props.getReturnAddress());
@@ -328,6 +342,11 @@ public class MasterBuild {
         System.out.println("where options are:");
         printOptions(System.out, "    ");
         System.out.println("");
+
+        //REDTAG - Paul Julius - Ideally we would get rid of all calls to
+        //  System.exit so that if someone else wraps us in a way we don't
+        //  predict now, they don't get snaffued by our calls to kill the VM.
+        //  Note ANT and Weblogic utils suffer from similar badness.
         System.exit(0);
     }
 
@@ -346,28 +365,39 @@ public class MasterBuild {
 
 
     /**
-     * Overrides method in XmlLogger.  Gets us the timestamp that we performed 
+     * Gets us the timestamp that we performed
      * a "get" on our source control repository and whether or not the build was 
-     * successful.  Calls the method on XmlLogger afterward.
+     * successful.
      */
     public void buildFinished(Project proj, boolean successful) {
         _projectName = proj.getName();
-        info.setBuildNotNecessary(proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
+
+        //If no build was required, because no changes were committed to the
+        //  repository, then ModificationSet will have set a property on the
+        //  project to indicate as such.
+        boolean buildUnnecessary =
+                proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null;
+        info.setBuildNotNecessary(buildUnnecessary);
+
+        //And if no build was required, then we are done.
         if (info.isBuildNotNecessary()) {
             return;
         }
 
+        //Otherwise, a build was required, so we need to setup some of the
+        //  details on the BuildInfo instance.
         info.setUserList(proj.getProperty(ModificationSet.USERS));
-
-        info.setLastBuildSuccessful(false);
-
         info.setLastBuild(proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP));
-        if (successful == true) {
+        if (successful) {
             info.setLastBuildSuccessful(true);
             info.setLastGoodBuild(info.getLastBuild());
+        } else {
+            info.setLastBuildSuccessful(false);
         }
 
-        FileMerger merger = new FileMerger(proj,props.getAuxLogProperties());
+        //Combine all the xml log files output from the build using
+        //  a FileMerger.
+        FileMerger merger = new FileMerger(proj, props.getAuxLogProperties());
         merger.mergeAuxXmlFiles(proj, info, props.getLogDir());
     }
 }
