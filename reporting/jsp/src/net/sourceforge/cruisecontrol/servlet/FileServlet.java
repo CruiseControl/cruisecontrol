@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.servlet;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -53,21 +54,44 @@ public class FileServlet extends HttpServlet {
 
     public void init(ServletConfig servletconfig) throws ServletException {
         super.init(servletconfig);
-        String dir = servletconfig.getInitParameter("rootDir");
-        if (dir == null) {
-            throw new ServletException("Must specify rootDir paramter");
-        }
-        rootDir = new File(dir);
-        if (!rootDir.exists() || rootDir.isFile()) {
-            throw new ServletException(rootDir + " must be a valid directory");
-        }
+        rootDir = getRootDir(servletconfig);
     }
 
+    static File getRootDir(ServletConfig servletconfig) throws ServletException {
+        File rootDirectory = null;
 
-    public void service(
-            HttpServletRequest request,
-            HttpServletResponse response)
-            throws ServletException, IOException {
+        String root = servletconfig.getInitParameter("rootDir");
+        rootDirectory = getDirectoryFromName(root);
+        if (rootDirectory == null) {
+            ServletContext context = servletconfig.getServletContext();
+            String logDir = context.getInitParameter("logDir");
+            rootDirectory = getDirectoryFromName(logDir);
+            if (rootDirectory == null) {
+                String message = "ArtifactServlet not configured correctly in web.xml.\n"
+                     + "Either rootDir or logDir must point to existing directory.\n"
+                     + "rootDir is currently set to <" + root + "> "
+                     + "while logDir is <" + logDir + ">";
+                throw new ServletException(message);
+            }
+        }
+
+        return rootDirectory;
+    }
+
+    private static File getDirectoryFromName(String dir) throws ServletException {
+        File rootDirectory;
+        if (dir == null) {
+            return null;
+        }
+        rootDirectory = new File(dir);
+        if (!rootDirectory.exists() || rootDirectory.isFile()) {
+            return null;
+        }
+        return rootDirectory;
+    }
+
+    public void service(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
         WebFile file = new WebFile(rootDir, request.getPathInfo());
         if (file.isFile()) {
             file.write(response.getOutputStream());
@@ -87,13 +111,19 @@ public class FileServlet extends HttpServlet {
         writer.write("</html>");
     }
 
-
     private void printDirs(HttpServletRequest request, WebFile file, Writer writer)
-            throws IOException {
+        throws IOException {
         String[] files = file.list();
         writer.write("<ul>");
         for (int i = 0; i < files.length; i++) {
-            writer.write("<li><a href=" + request.getRequestURI() + "/" + files[i] + ">" + files[i] + "</a></li>");
+            writer.write(
+                "<li><a href="
+                    + request.getRequestURI()
+                    + "/"
+                    + files[i]
+                    + ">"
+                    + files[i]
+                    + "</a></li>");
         }
         writer.write("</ul>");
     }

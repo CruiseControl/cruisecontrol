@@ -88,7 +88,7 @@
     </servlet>
 
     <servlet>
-        <servlet-name>BuildLogs</servlet-name>
+        <servlet-name>ArtifactServlet</servlet-name>
         <servlet-class>net.sourceforge.cruisecontrol.servlet.FileServlet</servlet-class>
         <init-param>
             <param-name>rootDir</param-name>
@@ -97,8 +97,8 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>BuildLogs</servlet-name>
-        <url-pattern>/buildlogs/*</url-pattern>
+        <servlet-name>ArtifactServlet</servlet-name>
+        <url-pattern>/artifacts/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
