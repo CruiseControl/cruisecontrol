@@ -78,7 +78,6 @@
     <target name="init" description="Setup build system">
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
-        <mkdir dir="${apidocs}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
         <tstamp/>
         <property name="label" value="2.0 Compiled on ${TODAY} ${TSTAMP}"/>
@@ -215,6 +214,8 @@
     <!-- Generates the javadocs                               -->
     <!-- **************************************************** -->
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
+       <mkdir dir="${apidocs}"/>
+
        <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*">
            <classpath>
                <path refid="project.classpath" />
