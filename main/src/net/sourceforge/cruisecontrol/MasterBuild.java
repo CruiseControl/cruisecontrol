@@ -38,6 +38,7 @@ import org.w3c.dom.*;
  * @author Robert Watkins
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
+ * @author <a href="mailto:davidl@iis.com">David Le Strat</a>
  */
 public class MasterBuild extends XmlLogger implements BuildListener {
 
