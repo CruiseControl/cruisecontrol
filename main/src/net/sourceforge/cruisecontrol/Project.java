@@ -76,7 +76,12 @@ public class Project implements Serializable, Runnable {
     private transient LabelIncrementer labelIncrementer;
     private transient List auxLogs = new ArrayList();
 
-    private transient long buildInterval;
+    /**
+     * If this attribute is set, then it means that the user has overriden
+     * the build interval specified in the Schedule element, probably
+     * using the JMX interface.
+     */
+    private transient Long overrideBuildInterval;
 
     private transient Date buildStartTime;
     private transient Object pausedMutex = new Object();
@@ -252,7 +257,7 @@ public class Project implements Serializable, Runnable {
 
     void waitForNextBuild() throws InterruptedException {
         Date now = new Date();
-        long waitTime = schedule.getTimeToNextBuild(now, buildInterval);
+        long waitTime = schedule.getTimeToNextBuild(now, getBuildInterval());
         if (needToWaitForNextBuild(waitTime)) {
             appLog("next build in " + Util.formatTime(waitTime));
             synchronized (waitMutex) {
@@ -461,12 +466,27 @@ public class Project implements Serializable, Runnable {
         return log.getLogDir();
     }
 
-    public long getSleepMilliseconds() {
-        return buildInterval;
+    /**
+     * Returns the build interval. This value is initially specified on the
+     * schedule, but the user may override that value using the JMX interface.
+     * If the user hasn't override the Schedule, then this method will
+     * return the Schedule's interval, otherwise the overriden value will
+     * be returned.
+     */
+    public long getBuildInterval() {
+        if (overrideBuildInterval == null) {
+            return schedule.getInterval();
+        } else {
+            return overrideBuildInterval.longValue();
+        }
     }
 
-    public void setSleepMillis(long sleepMillis) {
-        buildInterval = sleepMillis;
+    /**
+     * Sets the build interval that this Project should use. This method
+     * overrides the value initially specified in the Schedule attribute.
+     */
+    public void overrideBuildInterval(long sleepMillis) {
+        overrideBuildInterval = new Long(sleepMillis);
     }
 
     public boolean isPaused() {
@@ -523,7 +543,6 @@ public class Project implements Serializable, Runnable {
         schedule = helper.getSchedule();
         log = helper.getLog();
 
-        buildInterval = schedule.getInterval();
         modificationSet = helper.getModificationSet();
 
         labelIncrementer = helper.getLabelIncrementer();
@@ -545,7 +564,7 @@ public class Project implements Serializable, Runnable {
             lastSuccessfulBuild = lastBuild;
         }
 
-        debug("buildInterval          = [" + buildInterval + "]");
+        debug("buildInterval          = [" + getBuildInterval() + "]");
         debug("buildForced            = [" + buildForced + "]");
         debug("buildAfterFailed       = [" + buildAfterFailed + "]");
         debug("buildCounter           = [" + buildCounter + "]");
@@ -609,7 +628,7 @@ public class Project implements Serializable, Runnable {
 
         Element intervalElement = new Element("property");
         intervalElement.setAttribute("name", "interval");
-        intervalElement.setAttribute("value", "" + (buildInterval / 1000));
+        intervalElement.setAttribute("value", "" + (getBuildInterval() / 1000));
         infoElement.addContent(intervalElement);
 
         Element lastBuildSuccessfulPropertyElement = new Element("property");

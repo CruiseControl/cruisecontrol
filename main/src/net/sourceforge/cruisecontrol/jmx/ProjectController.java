@@ -175,11 +175,11 @@ public class ProjectController implements ProjectControllerMBean {
 
     public void setBuildInterval(long buildInterval) {
         log("setting build interval to [" + buildInterval + "]");
-        project.setSleepMillis(buildInterval);
+        project.overrideBuildInterval(buildInterval);
     }
 
     public long getBuildInterval() {
-        return project.getSleepMilliseconds();
+        return project.getBuildInterval();
     }
     
     public String getStatus() {
