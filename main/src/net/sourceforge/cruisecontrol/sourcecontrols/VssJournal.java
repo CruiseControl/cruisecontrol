@@ -148,10 +148,9 @@ public class VssJournal implements SourceControl {
      *
      *@param  lastBuild
      *@param  now
-     *@param  quietPeriod
      *@return
      */
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
         _lastBuild = lastBuild;
         _modifications.clear();
 

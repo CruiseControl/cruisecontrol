@@ -121,10 +121,9 @@ public class StarTeam implements SourceControl {
      *
      * @param lastBuild
      * @param now
-     * @param quietPeriod
      * @return
      */
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
         // Clean out the modifications list.  Otherwise we get duplicate entries
         // when this function is called more than once in a quiet period breach
         // We normally would need to clean out the email list as well, except we
@@ -181,7 +180,8 @@ public class StarTeam implements SourceControl {
             log.info(modifications.size() + " modifications in " + this.folder);
             return (ArrayList) modifications;
         } finally {
-            server.disconnect();
+            if(server != null)
+                server.disconnect();
             System.setSecurityManager(new NoExitSecurityManager());
         }
     }

@@ -64,12 +64,12 @@ public class ModificationSetTest extends TestCase {
         Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
 
         Element modificationsElement = new Element("modifications");
-        Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date(), 0).iterator();
+        Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date()).iterator();
         while (mock1ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock1ModificationsIterator.next();
             modificationsElement.addContent(modification.toElement(modSet._formatter));
         }
-        Iterator mock2ModificationsIterator = mock2.getModifications(new Date(), new Date(), 0).iterator();
+        Iterator mock2ModificationsIterator = mock2.getModifications(new Date(), new Date()).iterator();
         while (mock2ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock2ModificationsIterator.next();
             modificationsElement.addContent(modification.toElement(modSet._formatter));
@@ -109,7 +109,7 @@ public class ModificationSetTest extends TestCase {
         result.add(mod2);
 
         modSet.addSourceControl(new SourceControl() {
-            public List getModifications(Date lastBuild, Date now, long quietperiod) {
+            public List getModifications(Date lastBuild, Date now) {
                 return result;
             }
 

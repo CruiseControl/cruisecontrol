@@ -231,7 +231,7 @@ public class CVS implements SourceControl {
      *@param lastBuild last build time
      *@return maybe empty, never null.
      */
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
         List mods = null;
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild));

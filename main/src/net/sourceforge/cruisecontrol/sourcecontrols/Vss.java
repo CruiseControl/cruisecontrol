@@ -144,10 +144,9 @@ public class Vss implements SourceControl {
 	 *
 	 *@param  lastBuild
 	 *@param  now
-	 *@param  quietPeriod
 	 *@return List of modifications
 	 */
-	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+	public List getModifications(Date lastBuild, Date now) {
         //(PENDING) extract buildHistoryCommand, execHistoryCommand
         // See CVSElement
         

@@ -134,11 +134,10 @@ public class P4 implements SourceControl {
      * 
      * @param lastBuild     time of last build
      * @param now           time this build started
-     * @param quietPeriod   how long the repository will judge as safe
      * @return              a list of XML elements that contains data about the modifications
      *                      that took place. If no changes, this method returns an empty list.
      */
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
 
         List mods = new ArrayList();
         try {

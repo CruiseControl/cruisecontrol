@@ -133,11 +133,10 @@ public class ClearCase implements SourceControl {
      *
      *@param  lastBuild the last build time
      *@param  now time now, or time to check, NOT USED
-     *@param  quietPeriod NOT USED
      *@return  the list of modifications, an empty (not null) list if no
      *      modifications.
      */
-    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now) {
         String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
         /*
          * let's try a different clearcase command--this one just takes

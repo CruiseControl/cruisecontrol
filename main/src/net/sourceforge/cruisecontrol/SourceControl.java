@@ -59,7 +59,7 @@ public interface SourceControl {
 	 *@param  now
 	 *@return List of Modification objects
 	 */
-    public List getModifications(Date lastBuild, Date now, long quietperiod);
+    public List getModifications(Date lastBuild, Date now);
 
 
     /**
