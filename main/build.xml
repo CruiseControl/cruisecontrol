@@ -71,7 +71,7 @@
         <mkdir dir="test-results" />
         <javac srcdir="${test}" destdir="${classes}" classpathref="classpath" />
 
-        <junit printsummary="true" haltonfailure="true" >
+        <junit haltonfailure="true" >
             <classpath >
                 <path refid="classpath" />
                 <pathelement location="${classes}" />
@@ -82,7 +82,10 @@
                 <fileset dir="${classes}" includes="**/*Test.class" />
             </batchtest>
         </junit>
-        <junitreport tofile="test-results.xml" >
+
+        <property name="junit.results" value="test-results.xml" />
+
+        <junitreport tofile="${junit.results}" >
             <fileset dir="./test-results" />
         </junitreport>
         <delete dir="test-results" />
