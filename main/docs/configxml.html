@@ -527,6 +527,11 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">The date format to use for querying VSS and processing reports; default is <i>MM/dd/yy</i>.  If your computer is set to a different region, you may wish to use a format such as <i>dd/MM/yy</i>.</td>
             </tr>
             <tr>
+               <td class="tabledata">timeformat</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The time format to use for querying VSS and processing reports; default is <i>hh:mma</i>.  If your VSS is configured differnetly you may need a different format such as <i>HH:mm:ss</i>.</td>
+            </tr>
+            <tr>
                <td class="tabledata">vsspath</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">The VSS project to get history from.  <br><b>Example:</b> /Project/subproject</td>
@@ -672,7 +677,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">uselogger</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger.  'false' to call it as a Listener. Defaults to 'false'</td>
+               <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger.  'false' to call it as a Listener. Logger will log messages based on log4j setting which can make for smaller log files. Listener will echo ant messages to console which is useful when debugging your ant build. Defaults to 'false'</td>
             </tr>
          </table>
 
@@ -849,14 +854,70 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">No</td>
                <td class="tabledata">The filename to copy, defaults to the current logfile.</td>
             </tr>
+         </table>
 
-
-
-
+         <p><a name="emailpublisher"><span class="small">EmailPublisher</span><br/>
+	 EmailPublisher can't be used directly but has basic functionality for sending email that can be extended by other publishers. See <a href="#linkemailpublisher">LinkEmailPublisher</a> and <a href="#htmlemailpublisher">HTMLEmailPublisher</a> for specific features they add to these core attributes.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">buildresultsurl</td>
+               <td class="tabledata">varies on publisher</td>
+               <td class="tabledata">URL to the build results JSP</td>
+            </tr>
+            <tr>
+               <td class="tabledata">defaultsuffix</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">mailhost</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Mail server address</td>
+            </tr>
+            <tr>
+               <td class="tabledata">username</td>
+               <td class="tabledata">if password is specified</td>
+               <td class="tabledata">Username for smtp server</td>
+            </tr>
+            <tr>
+               <td class="tabledata">password</td>
+               <td class="tabledata">if username is specified</td>
+               <td class="tabledata">Password for smtp server</td>
+            </tr>
+            <tr>
+               <td class="tabledata">reportsuccess</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Valid values are <i>always</i>, <i>fixes</i>, and <i>never</i>.  <i>always</i> publishes (<i>i.e.</i>, e-mails) results on every successful build.  <i>fixes</i> publishes results only on the first successful build and the first successful build after a failed build.  <i>fixes</i> does not publish on subsequent successful builds.  <i>never</i> only publishes on failed builds.  Default value is <i>always</i>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">returnaddress</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">E-mail address that will appear in the sent email's From field</td>
+            </tr>
+            <tr>
+               <td class="tabledata">skipusers</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Controls if the users who made changes in this build get email. Useful to set to "true" while configuring or debugging your system. Users specificed by the failure or always nested elements will still recieve email. Defaults to 'false.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">spamwhilebroken</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether or not e-mail reports on failed builds will continue for subsequent failed builds.  Default value is true.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">subjectprefix</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Prefix for subject line of email. Useful for easily filtering email.</td>
+            </tr>
          </table>
 
          <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br/>
-	 Publisher that sends an email with a URL to the build results JSP.</p>
+	 A version of EmailPublisher that sends an email with a URL to the build results JSP. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the LinkEmailPublisher as well.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -866,52 +927,12 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">buildresultsurl</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">URL to the build results JSP</td>
+               <td class="tabledata">URL used to create link to the build results JSP</td>
             </tr>
-            <tr>
-               <td class="tabledata">defaultsuffix</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">mailhost</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Mail server address</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">Yes, if password is specified</td>
-               <td class="tabledata">Username for smtp server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">Yes, if username is specified</td>
-               <td class="tabledata">Password for smtp server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">reportsuccess</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Valid values are <i>always</i>, <i>fixes</i>, and <i>never</i>.  <i>always</i> publishes (<i>i.e.</i>, e-mails) results on every successful build.  <i>fixes</i> publishes results only on the first successful build and the first successful build after a failed build.  <i>fixes</i> does not publish on subsequent successful builds.  <i>never</i> only publishes on failed builds.  Default value is <i>always</i>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">returnaddress</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">E-mail address that will appear in the sent email's From field</td>
-            </tr>
-            <tr>
-               <td class="tabledata">spamwhilebroken</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether or not e-mail reports on failed builds will continue for subsequent failed builds.  Default value is true.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">subjectprefix</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Prefix for subject line of email</td>
-            </tr>
-         </table>
+          </table>
 
          <p><a name="htmlemailpublisher"><span class="small">HTMLEmailPublisher</span><br/>
-         Publisher that sends an email with the build results embedded.</p>
+         A version of EmailPublisher that sends an email with an HTML version of the build results embedded. By default has the same information as the JSP build results page. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the LinkEmailPublisher as well.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -920,62 +941,22 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">buildresultsurl</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">URL to the build results JSP</td>
-            </tr>
-            <tr>
-               <td class="tabledata">defaultsuffix</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">mailhost</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Mail server address</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">Yes, if password is specified</td>
-               <td class="tabledata">Username for smtp server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">Yes, if username is specified</td>
-               <td class="tabledata">Password for smtp server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">reportsuccess</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Valid values are <i>always</i>, <i>fixes</i>, and <i>never</i>.  <i>always</i> publishes (<i>i.e.</i>, e-mails) results on every successful build.  <i>fixes</i> publishes results only on the first successful build and the first successful build after a failed build.  <i>fixes</i> does not publish on subsequent successful builds.  <i>never</i> only publishes on failed builds.  Default value is <i>always</i>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">returnaddress</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">E-mail address that will appear in the sent email's From field</td>
-            </tr>
-            <tr>
-               <td class="tabledata">spamwhilebroken</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether or not e-mail reports on failed builds will continue for subsequent failed builds.  Default value is true.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">subjectprefix</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Prefix for subject line of email</td>
+               <td class="tabledata">Email will include link to the build results JSP if this URL is provided.</td>
             </tr>
             <tr>
                <td class="tabledata">css</td>
-               <td class="tabledata">Yes</td>
+               <td class="tabledata">unless xslfile specified</td>
                <td class="tabledata">Path to cruisecontrol.css.  Used only if xsldir set and not xslfile.</td>
             </tr>
             <tr>
                <td class="tabledata">logdir</td>
-               <td class="tabledata">Yes</td>
+               <td class="tabledata">unless xslfile specified</td>
                <td class="tabledata">Path to the log file as set in the log element of the configuration xml file.</td>
             </tr>
             <tr>
                <td class="tabledata">xsldir</td>
-               <td class="tabledata">Yes</td>
+               <td class="tabledata">unless xslfile specified</td>
                <td class="tabledata">Directory where standard CruiseControl xsl files are located.</td>
             </tr>
             <tr>
