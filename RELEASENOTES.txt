@@ -43,6 +43,7 @@ ClearCase
 HTMLEmailPublisher
 ----------------------
 * Added to the default plugin registry as <htmlemail> - Patch by Alden Almagro.
+* buildServletUrl no longer required parameter (no link if omited). - Patch by Jeffrey Fredrick
 
 
 CruiseControl Release Notes - 2.0.1
