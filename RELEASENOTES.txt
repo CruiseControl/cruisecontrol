@@ -23,6 +23,10 @@ ArtifactsPublisher
 ----------------------
 * Added publishOnFailure attribute to control the behavior on a failed build. Idea by James Nichols
 
+build.sh
+----------------------
+* Replaced check for cygwin with uname-based test. Patch by John Woodward
+
 build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
