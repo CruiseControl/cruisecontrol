@@ -169,6 +169,10 @@ SSCM & SSCMBootstrapper
 ----------------------
 * New SourceControl and Bootstrapper for SSCM-support. Contribution by Matt Harp
 
+SnapshotCM & SnapshotCMBootstrapper
+-----------------------------------
+* New SourceControl and Bootstrapper for SnapshotCM-support. Contribution by Patrick Conant
+
 testdetails.xsl
 ----------------------
 * patch for JS-escape template so whole string is escaped and line feeds are dealt with properly. Patch by Han Wang and Roy O. Wright
