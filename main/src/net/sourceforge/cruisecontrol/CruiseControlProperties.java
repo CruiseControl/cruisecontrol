@@ -241,6 +241,11 @@ public class CruiseControlProperties {
     }
 
 
+    public List getAuxLogFileNames() {
+        return auxLogProperties;
+    }
+
+
     /**
      * Load properties file, see cruisecontrol.properties for descriptions of
      * properties.
