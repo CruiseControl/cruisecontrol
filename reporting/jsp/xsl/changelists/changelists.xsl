@@ -40,8 +40,7 @@
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
-    <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="modification.list" select="build/modifications/changelist"/>
+    <xsl:variable name="modification.list" select="cruisecontrol/modifications/changelist"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="1" border="0" width="98%">

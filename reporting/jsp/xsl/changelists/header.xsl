@@ -44,50 +44,38 @@
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
-            <xsl:if test="build/@error">
-                <tr>
-                    <td class="header-title">BUILD FAILED</td>
-                </tr>
-                <tr>
-                    <td class="header-data">
-                        <span class="header-label">Ant Error Message:&#160;</span>
-                        <xsl:value-of select="build/@error"/>
-                    </td>
-                </tr>
+            <xsl:if test="cruisecontrol/build/@error">
+                <tr><td class="header-title">BUILD FAILED</td></tr>
+                <tr><td class="header-data">
+                    <span class="header-label">Error Message:&#160;</span>
+                    <xsl:value-of select="cruisecontrol/build/@error"/>
+                </td></tr>
             </xsl:if>
 
-            <xsl:if test="not (build/@error)">
-                <tr>
-                    <td class="header-title">
-                        BUILD COMPLETE&#160;-&#160;                        
-                            
-                            <xsl:value-of select="build/label"/>
-                    </td>
-                </tr>
+            <xsl:if test="not (cruisecontrol/build/@error)">
+                <tr><td class="header-title">BUILD COMPLETE&#160;-&#160;
+                    <xsl:value-of select="cruisecontrol/info/property[@name='label']/@value"/>
+                </td></tr>
             </xsl:if>
 
-            <tr>
-                <td class="header-data">
-                    <span class="header-label">Date of build:&#160;</span>
-                    <xsl:value-of select="build/today"/>
-                </td>
-            </tr>
-            <tr>
-                <td class="header-data">
-                    <span class="header-label">Time to build:&#160;</span>
-                    <xsl:value-of select="build/@time"/>
-                </td>
-            </tr>
+            <tr><td class="header-data">
+                <span class="header-label">Date of build:&#160;</span>
+                <xsl:value-of select="cruisecontrol/info/property[@name='lastbuild']/@value"/>
+            </td></tr>
+            <tr><td class="header-data">
+                <span class="header-label">Time to build:&#160;</span>
+                <xsl:value-of select="cruisecontrol/build/@time"/>
+            </td></tr>
             <tr>
                 <td class="header-data">
                     <span class="header-label">Last changed:&#160;</span>
-                    <xsl:value-of select="build/modifications/changelist/@dateOfSubmission"/>
+                    <xsl:value-of select="cruisecontrol/modifications/changelist/@dateOfSubmission"/>
                 </td>
             </tr>
             <tr>
                 <td class="header-data">
                     <span class="header-label">Last log entry:&#160;</span>
-                    <xsl:value-of select="build/modifications/changelist/description"/>
+                    <xsl:value-of select="cruisecontrol/modifications/changelist/description"/>
                 </td>
             </tr>
         </table>
