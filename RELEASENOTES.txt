@@ -8,6 +8,11 @@ DefaultLabelIncrementer:
 ----------------------
 * Fixed bug when using non-default label separator (CC-155). Patch by Jerome Lacoste
 
+FTPPublisher:
+----------------------
+* Made setDeleteArtifacts take a boolean argument, instead of parsing a String as a boolean, for consistency with other plugins (CC-158).
+  This means that you MUST use "true" or "false" now in your config file for deleteArtifacts-attribute, and not "yes" or "no"!
+
 Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
