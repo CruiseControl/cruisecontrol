@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,24 +34,51 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+
 package net.sourceforge.cruisecontrol.taglib;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
-public class AllTests extends TestCase {
+/**
+ *
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ */
+public class TabTag extends BodyTagSupport {
+    private String name;
+    private String label;
 
-    public AllTests(String name) {
-        super(name);
+    public int doStartTag() throws JspException {
+        Tag parentTag = getParent();
+        if (parentTag instanceof TabSheetTag == false) {
+            throw new JspTagException("TabTag needs to be directly enclosed in a TabSheetTag");
+        }
+        TabSheetTag tabSheet = (TabSheetTag) parentTag;
+        final boolean selected = isSelected(tabSheet);
+        tabSheet.addTab(new Tab(name, label, selected));
+        return selected ? Tag.EVAL_BODY_INCLUDE : Tag.SKIP_BODY;
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(NavigationTagTest.class);
-        suite.addTestSuite(XSLTagTest.class);
-        suite.addTestSuite(TabSheetTagTest.class);
-        suite.addTestSuite(TabTagTest.class);
-        return suite;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    private boolean isSelected(TabSheetTag tabSheet) {
+        final String expectedTab = getPageContext().getRequest().getParameter("tab");
+        if (expectedTab == null && !tabSheet.hasTabs()) {
+            return true;
+        }
+        return name.equals(expectedTab);
+    }
+
+    private PageContext getPageContext() {
+        return pageContext;
     }
 }

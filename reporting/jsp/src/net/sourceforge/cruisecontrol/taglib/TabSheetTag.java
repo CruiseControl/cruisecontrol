@@ -38,6 +38,7 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -69,12 +70,11 @@ public class TabSheetTag extends BodyTagSupport {
     }
 
     /**
-     * Add a Tab to the list of tabs. The only cute thing is that the first tab added to the list will default to being
-     * the selected tab.
+     * Add a Tab to the list of tabs.
      * @param tab   the tab to add.
      */
     public void addTab(Tab tab) {
-        if (tab.isSelected() || tabs.isEmpty()) {
+        if (tab.isSelected()) {
             selectedTab = tab;
         }
         tabs.add(tab);
@@ -115,7 +115,7 @@ public class TabSheetTag extends BodyTagSupport {
      * @throws IOException  if there's an IO error.
      */
     private void printTabHeaders() throws IOException {
-        final BodyContent out = getBodyContent();
+        final Writer out = getPageContext().getOut();
         out.write("<tr>");
         for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
             Tab tab = (Tab) iterator.next();
@@ -141,11 +141,11 @@ public class TabSheetTag extends BodyTagSupport {
      * @throws IOException  if there's an IO error.
      */
     private void printBody() throws IOException {
-        final BodyContent out = getBodyContent();
+        final Writer out = getPageContext().getOut();
         out.write("<tr>");
         if (selectedTab != NONE_SELECTED) {
             out.write("<td>");
-            out.write(selectedTab.getText());
+            out.write(getBodyContent().getString());
             out.write("</td>");
         }
         out.write("</tr>");
@@ -156,4 +156,7 @@ public class TabSheetTag extends BodyTagSupport {
         return request.getContextPath() + request.getServletPath();
     }
 
+    public boolean hasTabs() {
+        return !tabs.isEmpty();
+    }
 }
