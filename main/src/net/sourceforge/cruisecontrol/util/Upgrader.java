@@ -38,11 +38,6 @@ package net.sourceforge.cruisecontrol.util;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ModificationSet;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher;
-import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
-import net.sourceforge.cruisecontrol.builders.AntBuilder;
-import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
