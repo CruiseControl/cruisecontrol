@@ -45,35 +45,39 @@
     <property name="masterbuild.logdir" value="logs"/>
     <property name="source.dir" value="src"/>
     <property name="junit.results" value="test-results"/>
-    <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
-    <property name="cvs.package" value="CruiseControlTest/src"/>
+    
     <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
+    <property name="vss.login" value=""/>
+    <property name="vss.password" value=""/>
+    <property name="vss.src.path" value="/src"/>
+    <property name="vss.executable.dir" value="REPLACE with VSS executable directory"/>
+    <property name="vss.src.changed" value="false"/>
+    <property name="vss.src.delete" value="false"/> -->
     
     <path id="classpath">
         <fileset dir="${ccdir}/lib">
             <include name="**/*.jar"/>
         </fileset>
     </path>
-
+    
     <target name="init" description="Prepare for build">
         <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${masterbuild.logdir}"/>
     </target>
-
+    
     <target name="clean" description="Clean all build products">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
     </target>
-
+    
     <target name="compile" depends="init" description="Compile application without cleaning">
-        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" 
-         includes="**/*.java" debug="true" deprecation="true"/>
+        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" includes="**/*.java" debug="true" deprecation="true"/>
     </target>
-
+    
     <target name="test" depends="init" description="Run unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}"/>
@@ -90,32 +94,40 @@
             </batchtest>
         </junit>
     </target>
-
+    
     <target name="jar">
         <jar jarfile="${dist.dir}\helloWorld.jar">
             <fileset dir="${build.dir}"/>
         </jar>
     </target>
-
+    
     <target name="all" depends="init,clean,compile,test,jar" description="Build application">
         <echo message="Application built!"/>
     </target>
 
-    <target name="checkout" description="Update package from CVS">
-        <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".."/>
+    <target name="vssget" description="gets the latest source from vss" if="vss.src.changed" 
+     depends="init, modificationset">
+        <vssget login="${vss.login},${vss.password}" ssdir="${vss.executable.dir}" 
+         vsspath="${vss.src.path}" localPath="${source.dir}" recursive="true" writable="false"/>
     </target>
-
+    
+    <target name="labelbuild">
+        <vsslabel login="${vss.login},${vss.password}" ssdir="${vss.executable.path}" 
+         vsspath="{vss.src.path}" label="${label}"/>
+    </target>
+    
     <target name="modificationset" depends="init" description="Check modifications since last build">
         <echo message="Checking for modifications..."/>
         <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" 
          dateformat="yyyy-MMM-dd HH:mm:ss">
-            <cvselement cvsroot="${cvs.repository}"/> 
+            <vsselement ssdir="${vss.src.path}" login="${vss.login},${vss.password}" 
+             property="vss.src.changed" propertyOnDelete="vss.src.delete"/>
         </modificationset>
     </target>
-
-    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" 
-     description="Cruise control master build"/> 
-
+    
+    <target name="masterbuild" depends="modificationset,vssget,compile,test,jar,labelbuild" 
+     description="Cruise control master build"/>
+     
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
     
 </project>

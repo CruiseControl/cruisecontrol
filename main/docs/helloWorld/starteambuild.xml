@@ -38,6 +38,12 @@
 <project name="HelloWorld" basedir="." default="all">
     <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
 
+    <!-- Look in patch manager.  These tasks are to be submitted to Ant -->
+    <!--
+    <taskdef name="starteamcheckout" 
+     classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamCheckout"/>
+    <taskdef name="starteamlabel" 
+     classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamLabel"/>    -->
     <property name="build.compiler" value="jikes"/>
     <property name="build.compiler.emacs" value="true"/>
     <property name="build.dir" value="classes"/>
@@ -45,35 +51,38 @@
     <property name="masterbuild.logdir" value="logs"/>
     <property name="source.dir" value="src"/>
     <property name="junit.results" value="test-results"/>
-    <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
-    <property name="cvs.package" value="CruiseControlTest/src"/>
-    <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
+
+    <property name="starteam.folder" value="src" />
+    <property name="starteam.url" value="10.1.2.65:49201/CruiseControl/CruiseControl" />
+    <property name="starteam.user" value="jcyip" />
+    <property name="starteam.passwd" value="" />
     
+    <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
+
     <path id="classpath">
         <fileset dir="${ccdir}/lib">
             <include name="**/*.jar"/>
         </fileset>
     </path>
-
+    
     <target name="init" description="Prepare for build">
         <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${masterbuild.logdir}"/>
     </target>
-
+    
     <target name="clean" description="Clean all build products">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
     </target>
-
+    
     <target name="compile" depends="init" description="Compile application without cleaning">
-        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" 
-         includes="**/*.java" debug="true" deprecation="true"/>
+        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" includes="**/*.java" debug="true" deprecation="true"/>
     </target>
-
+    
     <target name="test" depends="init" description="Run unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}"/>
@@ -90,32 +99,49 @@
             </batchtest>
         </junit>
     </target>
-
+    
     <target name="jar">
         <jar jarfile="${dist.dir}\helloWorld.jar">
             <fileset dir="${build.dir}"/>
         </jar>
     </target>
-
+    
     <target name="all" depends="init,clean,compile,test,jar" description="Build application">
         <echo message="Application built!"/>
     </target>
 
-    <target name="checkout" description="Update package from CVS">
-        <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".."/>
-    </target>
+    <target name="checkout" depends="clean, init">
+        <!-- Note the Ant optional task AntStarTeamCheckOut does not synchronize with the repository
+         so you need to set a depends agains clean as well-->
+        <antstarteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
+                 foldername="${starteam.folder}" targetfolder="${starteam.folder}" force="true" 
+                 recursion="true" projectname="CruiseControl" viewname="CruiseControl" 
+                 servername="10.1.2.65" serverport="49201" verbose="true"/>-->
+        <!-- This custom checkout task (look in patch manager, to be submitted to Ant) only updates 
+        files that changed and deletes files not in the repository -->
+        <!--<starteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
+           folder="${starteam.folder}" starteamurl="${starteam.url}" createworkingdirectories="true"/>-->           
+   </target>
+
+    <!-- Look in patch manager.  To be submitted to Ant -->
+<!--   <target name="labelbuild">
+      <starteamlabel label="${label}" lastbuild="${lastGoodBuildTime}" 
+       description="Release Build Successful." username="${starteam.user}" 
+       password="${starteam.passwd}" starteamurl="${starteam.url}"/>
+   </target> -->
 
     <target name="modificationset" depends="init" description="Check modifications since last build">
         <echo message="Checking for modifications..."/>
         <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" 
          dateformat="yyyy-MMM-dd HH:mm:ss">
-            <cvselement cvsroot="${cvs.repository}"/> 
+            <starteamelement username="${starteam.user}" password="${starteam.passwd}" 
+             folder="${starteam.folder}" starteamurl="${starteam.url}" />
         </modificationset>
     </target>
 
-    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" 
-     description="Cruise control master build"/> 
+    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar,labelbuild" 
+     description="Cruise control master build"/>
 
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
-    
+
 </project>
