@@ -189,10 +189,6 @@
     <target name="all" depends="clean,init,compile,test,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
-    <!-- CRUISE EXAMPLES                                        -->
-    <!-- ****************************************************** -->
-
-    <!-- ****************************************************** -->
     <!-- Updates local code with cvs changes                    -->
     <!-- ****************************************************** -->
     <target name="cvs-update" depends="init" if="localCopy">
@@ -200,34 +196,4 @@
              package="cruisecontrol" dest="${localCopy}" />
     </target>
 
-    <!-- ****************************************************** -->
-    <!-- Check for modifications in cvs                         -->
-    <!-- ****************************************************** -->
-    <target name="cruise-check" depends="init" if="localCopy" >
-        <tstamp />
-        <property name="modificationset.file" value="modifications.xml" />
-        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet" />
-
-        <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="60">
-            <cvselement cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol"
-                        localworkingcopy="${localCopy}/cruisecontrol" />
-        </modificationset>
-    </target>
-
-    <!-- ****************************************************** -->
-    <!-- Build for continuous integration                       -->
-    <!-- ****************************************************** -->
-    <target name="cruise" depends="init,cruise-check" >
-        <antcall target="cvs-update" />
-        <ant antfile="${localCopy}/cruisecontrol/build.xml" target="all" />
-    </target>
-
-    <!-- ****************************************************** -->
-    <!-- Clean build for continuous integration                 -->
-    <!-- ****************************************************** -->
-    <target name="cruise-clean" depends="init,cruise-check" >
-        <antcall target="cvs-update" />
-        <ant antfile="${localCopy}/cruisecontrol/build.xml" target="clean" />
-        <ant antfile="${localCopy}/cruisecontrol/build.xml" target="all" />
-    </target>
 </project>
