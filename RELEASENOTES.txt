@@ -1,12 +1,22 @@
 CruiseControl Release Notes - Latest CVS
 
 
+ArtifactsPublisher
+----------------------
+* New functionality to allow for creation of a "build artifacts" directory. This directory can have artifacts published to it - things like jars that were built, documents that were published, etc. Then, these artifacts can be linked to from the CC webapp. - Submitted by Mike Rettig
+
 AntBuilder
 ---------------------
 * Added antWorkingDir attribute. - Patch by Brett Wooldridge
 * Added support for multiple targets. (target="clean build")  - Patch by Josh Knowles
 * Added useDebug attribute. This replaces test of log4j setting to get debug level ant output.  - Patch by Jeffrey Fredrick
 * Save ant log if it can't be read.  Handles case when ant log produces invalid XML. - Patch by Richard Burgess
+* 'target' attribute optional; will run default target in build.xml
+* 'buildfile' attribute options; defaults to build.xml
+
+Builder (includes AntBuilder)
+----------------------
+* if 'multiple' and 'time' are unspecified will default to multiple="1"
 
 buildresults.jsp
 ----------------------
@@ -19,11 +29,21 @@ ClearCaseBootstrapper
 CVS
 ---------------------
 * CVS sets the revision number when building lists of Modifications for showing diffs in ViewCVS or cvsWeb - Patch contributed by Christopher Lenz.
+* Bug fixes to make mapping email addresses from CVSROOT/users work - Patch by Jeffrey Fredrick
+
+CVSBootstrapper
+----------------------
+* Added LocalWorkingCopy attribute - Patch by Jon Langlois
+* Now supports updating directories, not just single files
 
 DefaultLabelIncrementer & CVSLabelIncrementer
 ----------------------
 * Added preBuildIncrementer attribute. - Patch by Brett Wooldridge
 * Added separator attribute to DefaultLabelIncrementer. CVSLabelIncrementor is just the default with separator="-".  - Patch by Jeffrey Fredrick
+
+EmptyLabelIncrementer
+----------------------
+* Added EmptyLabelIncrementer - Submission by Josh Knowles
 
 HTMLEmailPublisher
 ----------------------
@@ -37,11 +57,14 @@ MavenBuilder
 ---------------------
 * New builder implementation, like AntBuilder but for Maven - by Florin Vancea.
 
+ModificationSet
+---------------------
+* quietPeriod now optional; default value is 60 (one minutes)
+* will complain if there isn't at least one nested sourcecontrol element
+
 Multiple Classes
 ---------------------
-* Added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.
-* Add an EmptyLabelIncrementer - Patch by Josh Knowles
-* New functionality to allow for creation of a "build artifacts" directory. This directory can have artifacts published to it - things like jars that were built, documents that were published, etc. Then, these artifacts can be linked to from the CC webapp. 
+* Added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time. Multiple project supported in JMX and web reporting interfaces.
 
 NavigationTag
 ----------------------
@@ -52,10 +75,14 @@ NavigationTag
 Project
 ----------------------
 * Project will create log directory if it doesn't exist. - Patch by Mark Richters
+* Serialized file now uses .ser extension
 
 ProjectXMLHelper
 ----------------------
 * ModificationSet is now pluggable. Defaults to the standard modification set, but a different implementation could be specified in your config.xml, so long as it extends ModificationSet. Thanks to Mike Royal, via Mike Mason.
+* 'pause' and 'maven' are now registered by default
+* Schedule is now pluggable.
+* bootstrapper, log, and publishers are no longer required elements.
 
 PVCS
 ----------------------
@@ -66,6 +93,8 @@ Schedule
 ----------------------
 * Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
 * Fixed a bug where a time builder wouldn't run if the time was set to midnight. - Patch by Richard Lewis-Shell
+* 'interval' now optional; defaults to 300 (five minutes)
+* will complain if there isn't at least one nested builder element
 
 StreamPumper & StreamConsumer
 ---------------------
