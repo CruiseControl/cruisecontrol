@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import org.jdom.Element;
+import org.apache.log4j.Category;
 
 /**
  * This class provides a default label incrementation.
@@ -49,6 +50,9 @@ import org.jdom.Element;
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public class DefaultLabelIncrementer implements LabelIncrementer {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(DefaultLabelIncrementer.class.getName());
 
     /**
      * Increments the label when a successful build occurs.
@@ -64,7 +68,9 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
         String prefix = oldLabel.substring(0, oldLabel.lastIndexOf(".") + 1);
         String suffix = oldLabel.substring(oldLabel.lastIndexOf(".") + 1, oldLabel.length());
         int i = Integer.parseInt(suffix);
-        return prefix + ++i;
+        String newLabel = prefix + ++i;
+        log.info("Incrementing label: " + oldLabel + " -> " + newLabel);
+        return newLabel;
     }
 
     /**

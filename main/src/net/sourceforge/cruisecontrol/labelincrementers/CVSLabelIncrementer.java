@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import org.jdom.Element;
+import org.apache.log4j.Category;
 
 /**
  * This class provides a label incrementation compatible with CVS tagging.
@@ -48,6 +49,9 @@ import org.jdom.Element;
  * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001
  */
 public class CVSLabelIncrementer implements LabelIncrementer {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(CVSLabelIncrementer.class.getName());
 
     /**
      * Increments the label when a successful build occurs.
@@ -63,7 +67,9 @@ public class CVSLabelIncrementer implements LabelIncrementer {
         String prefix = oldLabel.substring(0, oldLabel.lastIndexOf("-") + 1);
         String suffix = oldLabel.substring(oldLabel.lastIndexOf("-") + 1, oldLabel.length());
         int i = Integer.parseInt(suffix);
-        return prefix + ++i;
+        String newLabel = prefix + ++i;
+        log.info("Incrementing label: " + oldLabel + " -> " + newLabel);
+        return newLabel;
     }
 
     /**
