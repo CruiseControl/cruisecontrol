@@ -228,6 +228,7 @@
                <include name="build.*"/>
                <include name="log4j.properties"/>
                <include name="manifest.mf"/>
+               <include name="version.properties"/>
             </fileset>
         </zip>
     </target>
