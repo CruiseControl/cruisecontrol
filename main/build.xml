@@ -1,3 +1,4 @@
+<!-- comment to test commit emails. -->
 <project name="CruiseControl" default="all">
 
     <property name="build.compiler" value="jikes"/>
