@@ -92,7 +92,6 @@
               <include name="servlet.jar"/>
               <include name="xerces.jar"/>
               <include name="xalan.jar"/>
-              <include name="velocity-1.1.jar"/>
            </lib>
            <classes dir="${classes}">
               <include name="net/sourceforge/cruisecontrol/BuildServlet*"/>

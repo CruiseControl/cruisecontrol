@@ -123,7 +123,7 @@
             <!--<starteamelement username="${starteam.user}" password="${starteam.passwd}" 
              folder="${starteam.folder}" starteamurl="${starteam.url}" />-->
             <!-- Uncomment for VSS -->
-            <!-- <vsselement ssdir="${vss.src.path}" login="${vss.login}" property="vss.src.changed" propertyOnDelete="vss.src.delete"/> -->
+            <!-- <vsselement ssdir="${vss.src.path}" login="${vss.login},${vss.password}" property="vss.src.changed" propertyOnDelete="vss.src.delete"/> -->
         </modificationset>
     </target>
     <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" description="Cruise control master build"/> 
