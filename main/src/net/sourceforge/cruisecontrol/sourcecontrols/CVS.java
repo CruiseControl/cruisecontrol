@@ -466,8 +466,13 @@ public class CVS implements SourceControl {
 
             Modification nextModification = new Modification();
 
-            nextModification.fileName = workingFileName.substring(workingFileName.lastIndexOf("/") + 1);
-            nextModification.folderName = workingFileName.substring(0, workingFileName.lastIndexOf("/"));
+            int lastSlashIndex = workingFileName.lastIndexOf("/");
+            nextModification.fileName = workingFileName.substring(lastSlashIndex+1);
+            if (lastSlashIndex != -1) {
+                nextModification.folderName = workingFileName.substring(0, lastSlashIndex);
+            } else {
+                nextModification.folderName = "";
+            }
 
             try {
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " "

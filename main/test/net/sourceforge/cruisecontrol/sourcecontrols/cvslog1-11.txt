@@ -128,7 +128,7 @@ description:
 =============================================================================
 
 RCS file: /cvsroot/cruisecontrol/cruisecontrol/main/log4j.properties,v
-Working file: main/log4j.properties
+Working file: log4j.properties
 head: 1.2
 branch:
 locks: strict
