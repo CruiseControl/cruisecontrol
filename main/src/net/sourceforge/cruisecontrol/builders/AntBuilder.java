@@ -60,7 +60,6 @@ public class AntBuilder extends Builder {
     /** enable logging for this class */
     private static Logger log = Logger.getLogger(AntBuilder.class);
 
-    private static final String PROPERTY_LOGGER_FILE_NAME = "propertylogger.xml";
     private String _buildFile;
     private String _target;
     private String _tempFileName = "log.xml";
@@ -120,19 +119,6 @@ public class AntBuilder extends Builder {
         }
         Element buildLogElement = getAntLogAsElement(logFile);
         logFile.delete();
-
-        //also read in this file, which has all of the ant properties defined.
-        Element propertiesElement = null;
-        try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            propertiesElement = builder.build(PROPERTY_LOGGER_FILE_NAME).getRootElement();
-            buildLogElement.addContent(propertiesElement.detach());
-        } catch (Exception ee) {
-            throw new CruiseControlException("Error reading " + PROPERTY_LOGGER_FILE_NAME, ee);
-        }
-
-        File propertiesLog = new File(PROPERTY_LOGGER_FILE_NAME);
-        propertiesLog.delete();
 
         return buildLogElement;
     }
@@ -225,8 +211,6 @@ public class AntBuilder extends Builder {
             al.add("org.apache.tools.ant.XmlLogger");
             al.add("-DXmlLogger.file=" + _tempFileName);
         }
-        al.add("-listener");
-        al.add("net.sourceforge.cruisecontrol.builders.PropertyLogger");
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
