@@ -43,12 +43,17 @@ import java.io.*;
 
 public class ProjectTest extends TestCase {
 
+    private Project project;
+
     public ProjectTest(String name) {
         super(name);
     }
 
+    protected void setUp() {
+        project = new Project();
+    }
+
     public void testBuild() throws Exception {
-        Project project = new Project();
         assertEquals("Default value of config file doesn't match", "config.xml",
                 project.getConfigFileName());
 
@@ -84,13 +89,35 @@ public class ProjectTest extends TestCase {
     }
 
     public void testBadLabel() {
-        Project project = new Project();
-
         try {
             project.validateLabel("build_0", new DefaultLabelIncrementer());
             fail("Expected exception due to bad label");
         } catch (CruiseControlException expected) {
 
+        }
+    }
+
+    public void testSetLastBuild() throws CruiseControlException {
+        String lastBuild = "20000101120000";
+
+        project.setLastBuild(lastBuild);
+
+        assertEquals(lastBuild, project.getLastBuild());
+    }
+
+    public void testNullLastBuild() throws CruiseControlException {
+        try {
+            project.setLastBuild(null);
+            fail("Expected an IllegalArgumentException for a null last build");
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    public void testBadLastBuild() {
+        try {
+            project.setLastBuild("af32455432");
+            fail("Expected a CruiseControlException for a bad last build");
+        } catch (CruiseControlException e) {
         }
     }
 
