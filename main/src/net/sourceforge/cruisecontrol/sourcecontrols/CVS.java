@@ -41,14 +41,14 @@ import java.lang.reflect.*;
 import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 import net.sourceforge.cruisecontrol.util.*;
 import net.sourceforge.cruisecontrol.util.Commandline;
 
-import org.apache.tools.ant.*;
-import org.apache.tools.ant.taskdefs.*;
-import org.apache.tools.ant.types.*;
 import org.apache.log4j.Category;
+import org.apache.tools.ant.BuildException;
 
 /**
  * This class implements the SourceControlElement methods for a CVS repository.
@@ -64,10 +64,14 @@ import org.apache.log4j.Category;
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  * @author <a href="mailto:mcclain@looneys.net">McClain Looney</a>
  */
-public class CVS extends SourceControlElement {
+public class CVS implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(CVS.class.getName());
+
+    private Hashtable _properties = new Hashtable();
+    private String _property;
+    private String _propertyOnDelete;
 
     /**
      * The caller must provide the CVSROOT to use when calling CVS.
@@ -79,20 +83,7 @@ public class CVS extends SourceControlElement {
      * exists.
      */
     private String local;
-    
-    /**
-     * This is a set of the authors that modified files. In many projects the
-     * author name for CVS corresponds to the author's email address, without
-     * the domain name.
-     */
-    private Set emailNames = new HashSet();
-    
-    /**
-     * This date indicates the latest modification time found in the history,
-     * i.e. the most recent modification time.
-     */
-    private Date lastModified;
-    
+
     /**
      * The CVS tag we are dealing with.
      */
@@ -205,10 +196,10 @@ public class CVS extends SourceControlElement {
      *@param local String indicating the relative or absolute path to the local
      *      working copy of the module of which to find the log history.
      */
-    public void setLocalWorkingCopy(String local) {
+    public void setLocalWorkingCopy(String local) throws CruiseControlException {
         this.local = local;
         if (local != null && !new File(local).exists()) {
-            throw new BuildException(
+            throw new CruiseControlException(
             "Local working copy \"" + local + "\" does not exist!");
         }
     }
@@ -221,40 +212,19 @@ public class CVS extends SourceControlElement {
     public void setTag(String tag){
         this.tag = tag;
     }
-    
-    /**
-     * Returns a Set of email addresses. CVS doesn't track actual email
-     * addresses, so we'll just return the usernames here, which may correspond
-     * to email ids.  We'll tack on the suffix, i.e. "@apache.org",  in
-     * MasterBuild.java before mailing results of the build.
-     *
-     *@return Set of author names; maybe empty, never null.
-     */
-    public Set getEmails() {
-        if (emailNames == null) {
-            emailNames = new HashSet();
-        }
-        return emailNames;
+
+    public void setProperty(String property) {
+        _property = property;
     }
-    
-    /**
-     * Gets the last modified time for this set of files queried in the
-     * getHistory() method.
-     *
-     *@return Latest revision time.
-     */
-    public long getLastModified() {
-        return lastModified.getTime();
+
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
     }
-    
-    /**
-     * Delegate to getHistory(Date lastBuild) since now and quietPeriod are not
-     * used.
-     */
-    public List getHistory(Date lastBuild, Date now, long quietPeriod) {
-        return getHistory(lastBuild);
+
+    public Hashtable getProperties() {
+        return _properties;
     }
-    
+
     /**
      * Returns a List of Modifications detailing all the changes between the
      * last build and the latest revision at the repository
@@ -262,9 +232,7 @@ public class CVS extends SourceControlElement {
      *@param lastBuild last build time
      *@return maybe empty, never null.
      */
-    public List getHistory(Date lastBuild) {
-        setLastModified(lastBuild);
-        
+    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
         List mods = null;
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild));
@@ -310,15 +278,6 @@ public class CVS extends SourceControlElement {
         }
         
         return commandLine;
-    }
-    
-    private void setLastModified(Date lastModified) {
-        if (lastModified == null) {
-            lastModified = new NullDate();
-            return;
-        }
-        
-        this.lastModified = lastModified;
     }
     
     private void getRidOfLeftoverData(InputStream stream) {
@@ -512,15 +471,13 @@ public class CVS extends SourceControlElement {
             try {
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " "
                 + timeStamp + " GMT");
-                updateLastModified(nextModification.modifiedTime);
             } catch (ParseException pe) {
                 log.error("Error parsing cvs log for date and time", pe);
                 return null;
             }
             
             nextModification.userName = authorName;
-            emailNames.add(authorName);
-            
+
             nextModification.comment = (message != null ? message : "");
             
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)) {
@@ -533,20 +490,6 @@ public class CVS extends SourceControlElement {
             mods.add(nextModification);
         }
         return mods;
-    }
-    
-    /**
-     * Updates the lastModified date if necessary. The new possible date must be
-     * after the current lastModified date to make an update occur. If the
-     * current lastModified date has not been set, then it will be set to the
-     * new possible date.
-     *
-     *@param newPossible New possible date.
-     */
-    private void updateLastModified(Date newPossible) {
-        if (lastModified == null || lastModified.before(newPossible)) {
-            lastModified = newPossible;
-        }
     }
     
     /**
