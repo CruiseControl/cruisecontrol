@@ -1,5 +1,9 @@
 CruiseControl Release Notes - CVS
 
+modifications.xsl:
+----------------------
+* Fixed matching wrong template for p4 modifications. Patch by Anil Arora
+
 ModificationSet:
 ----------------------
 * Fix for possible NPE when using ignoreFiles
