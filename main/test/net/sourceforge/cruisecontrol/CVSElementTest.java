@@ -35,7 +35,28 @@ public class CVSElementTest extends TestCase {
         super(testName);
     }
 
-    public void testLogCommandNullLocal() {
+    public void testBuildHistoryCommand() {
+        Date lastBuildTime = new Date();
+        Date currTime = new Date();
+        CVSElement element = new CVSElement();
+        element.setCvsroot("cvsroot");
+        element.setLocalWorkingCopy("local");
+        
+        String[] expectedCommand = new String[] { "cvs", "-d", "cvsroot", "log", 
+         "-N", "-d", "\"" + CVSElement.formatCVSDate(lastBuildTime) + "<" 
+         + CVSElement.formatCVSDate(currTime) + "\"", "local"};
+        
+        String[] actualCommand = 
+         element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
+         
+        assertEquals("Mismatched lengths!", expectedCommand.length, 
+         actualCommand.length);
+        for (int i = 0; i < expectedCommand.length; i++) {
+            assertEquals(expectedCommand[i], actualCommand[i]);
+        }
+    }
+    
+    public void testHistoryCommandNullLocal() {
         Date lastBuildTime = new Date();
         Date currTime = new Date();
         
@@ -43,24 +64,24 @@ public class CVSElementTest extends TestCase {
         element.setCvsroot("cvsroot");
         element.setLocalWorkingCopy(null);
         
-        assertEquals("cvs -d cvsroot log -d \"" 
-         + CVSElement.CVSDATE.format(lastBuildTime) 
-         + "<" + CVSElement.CVSDATE.format(currTime) + "\"", 
-         element.prepareCommandForDisplay(element.buildLogCommand(lastBuildTime, 
-          currTime)).trim());
+        assertEquals("cvs -d cvsroot log -N -d \"" 
+         + CVSElement.formatCVSDate(lastBuildTime) 
+         + "<" + CVSElement.formatCVSDate(currTime) + "\"", 
+         element.prepareCommandForDisplay(element.buildHistoryCommand(
+          lastBuildTime, currTime).getCommandline()).trim());
     }
     
-    public void testLogCommandNullCVSROOT() {
+    public void testHistoryCommandNullCVSROOT() {
         Date lastBuildTime = new Date();
         Date currTime = new Date();
         CVSElement element = new CVSElement();
         element.setCvsroot(null);
         element.setLocalWorkingCopy("local");
 
-        assertEquals("cvs log -d \"" + CVSElement.CVSDATE.format(lastBuildTime) 
-         + "<" + CVSElement.CVSDATE.format(currTime) + "\" local", 
-         element.prepareCommandForDisplay(element.buildLogCommand(lastBuildTime, 
-          currTime)).trim());
+        assertEquals("cvs log -N -d \"" + CVSElement.formatCVSDate(lastBuildTime) 
+         + "<" + CVSElement.formatCVSDate(currTime) + "\" local", 
+         element.prepareCommandForDisplay(element.buildHistoryCommand(lastBuildTime, 
+          currTime).getCommandline()).trim());
     }
     
     public void testLogPrepend() {
@@ -87,32 +108,31 @@ public class CVSElementTest extends TestCase {
         Date may18_2001_6pm = 
          new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001-05-18 18:00:00 GMT", 
-         CVSElement.CVSDATE.format(may18_2001_6pm));
+         CVSElement.formatCVSDate(may18_2001_6pm));
     }
     
     public void testFormatCVSDateGMTPlusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
         Date may18_2001_6pm = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001-05-18 08:00:00 GMT", 
-         CVSElement.CVSDATE.format(may18_2001_6pm));
+         CVSElement.formatCVSDate(may18_2001_6pm));
         Date may8_2001_6pm = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
         assertEquals("2001-05-17 22:00:00 GMT", 
-         CVSElement.CVSDATE.format(may8_2001_6pm));
+         CVSElement.formatCVSDate(may8_2001_6pm));
     }
 
     public void testFormatCVSDateGMTMinusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
         Date may18_2001_6pm = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals("2001-05-19 04:00:00 GMT", 
-         CVSElement.CVSDATE.format(may18_2001_6pm));
+         CVSElement.formatCVSDate(may18_2001_6pm));
         Date may8_2001_6pm = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
         assertEquals("2001-05-18 18:00:00 GMT", 
-         CVSElement.CVSDATE.format(may8_2001_6pm));
+         CVSElement.formatCVSDate(may8_2001_6pm));
     }
 
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(CVSElementTest.class);
     }
-    
     
 }
