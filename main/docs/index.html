@@ -55,68 +55,12 @@
         daemon process will wake up at a user defined time interval and attempt
         a build cycle.  Each time, the configuration file will be reloaded so
         that the CruiseControl process need not be restarted for the changes to
-        take effect.  At the end of the build, a log file will be written for
+        take effect. This is only done for known projects, so if you add or
+		remove projects from your config file, you'll still have to restart
+		CruiseControl to pick up the changes.
+		At the end of the build, a log file will be written for
         use by the <a href="../../reporting/jsp/docs/index.html">Build Results
         JSP</a>.</p>
-
-        <h2>New Features</h2>
-
-        <h3>XML Configuration</h3>
-
-        <p>Defining the configuration for CruiseControl in XML has allowed us
-        freedoms that were not easily possible with the old properties file.</p>
-
-        <h3>Runs standard Ant build files</h3>
-
-        <p>CruiseControl now runs as a true wrapper to Ant and no longer
-        requires any changes to your existing build file to run.</p>
-
-        <h3>Pluggable Architecture</h3>
-
-        <p>CruiseControl is easier to customize now that almost all of the
-        non-core functionality is implemented as plugins.  See the
-        <a href="plugins.html">plugins</a> page for more details about the
-        plugin philosophy and the <a href="configxml.html">config.xml</a> page
-        for more details about the stock plugins that ship with CruiseControl.
-        </p>
-
-        <h3>Better Scheduling Functionality</h3>
-
-        <p>Schedule as many different builds as you like, run at an interval or
-        scheduled at a given time.</p>
-
-        <h3>HTML email support</h3>
-
-        <p>View the build results directly on the notification emails rather
-        than linking to the build results JSP.</p>
-
-        <h3>Upgrade utility for migrating from 1.x to 2.0</h3>
-
-        <p>Relatively painless upgrading if you have an earlier version of
-        CruiseControl installed.  Run the included Upgrader and be ready to run
-        2.0 almost instantaneously.</p>
-
-        <h3>Better Memory Management</h3>
-
-        <p>The CruiseControl 1.x product line was plagued by memory leaks.
-        Most should be plugged now, and the decoupling from Ant should make
-        sure that CruiseControl's memory usage should not grow over time.</p>
-
-<!--
-<p>
-<span class="small">Better support for CVS Branching</span><br>
-Previous versions of CruiseControl had issues with returning all modifications, regardless of the branch on which
-they occurred.
-
-<p>
-<span class="small">Internationalization</span><br>
-As our user base has grown, we need to be aware of issues that occur when CruiseControl is run in non-US locales.
-Configuring date formats has become simpler, for instance.
-
-? ability to force builds from jsp ?
--->
-
-        <h2>Known Issues</h2>
 
     </div>
 </div>
