@@ -59,9 +59,6 @@ public class TdTimer {
     return mStop - mStart;
   }
 
-  public long total() {
-    return System.currentTimeMillis() - mStart;
-  }
   /**
    * Note that split returns the amount of time since
    * the last time you called split.  It does NOT return
