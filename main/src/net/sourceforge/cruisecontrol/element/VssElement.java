@@ -29,7 +29,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import org.apache.tools.ant.Task;
 
 /**
- *  This class handles all vss-related aspects of determining the modifications
+ *  This class handles all VSS-related aspects of determining the modifications
  *  since the last good build.
  *
  * @author Alden Almagro, ThoughtWorks, Inc. 2001
@@ -50,10 +50,11 @@ public class VssElement extends SourceControlElement {
 	private ArrayList _modifications = new ArrayList();
 	private Set _emails = new HashSet();
 
-	private SimpleDateFormat _vssOutFormat = new SimpleDateFormat("'Date:'MM/dd/yy   'Time: 'hh:mma");
+	private SimpleDateFormat _vssOutFormat = 
+     new SimpleDateFormat("'Date:'MM/dd/yy   'Time: 'hh:mma");
 
 	/**
-	 *  set the project to get history
+	 *  Set the project to get history from
 	 *
 	 *@param  s
 	 */
@@ -62,7 +63,7 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  login for vss
+	 *  Login for vss
 	 *
 	 *@param  s
 	 */
@@ -71,7 +72,7 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  choose a property to be set if the project has modifications if we have a
+	 *  Choose a property to be set if the project has modifications if we have a
 	 *  change that only requires repackaging, i.e. jsp, we don't need to recompile
 	 *  everything, just rejar.
 	 *
@@ -81,12 +82,12 @@ public class VssElement extends SourceControlElement {
 		_property = s;
 	}
 
-	public void setPropertyondelete(String s) {
+	public void setPropertyOnDelete(String s) {
 		_propertyOnDelete = s;
 	}
 
 	/**
-	 *  for parent modificationset to find out the time of last modification for
+	 *  For parent modificationset to find out the time of last modification for
 	 *  this project
 	 *
 	 *@return
@@ -96,7 +97,7 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  returns a Set of usernames that made any modification since the last good
+	 *  Returns a Set of usernames that made any modification since the last good
 	 *  build.
 	 *
 	 *@return
@@ -106,7 +107,7 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  returns an ArrayList of modifications to this project since the last good
+	 *  Returns an ArrayList of modifications to this project since the last good
 	 *  build.
 	 *
 	 *@return
@@ -148,8 +149,7 @@ public class VssElement extends SourceControlElement {
 						s = br.readLine();
 					}
 					handleEntry(a);
-				}
-				else {
+				} else {
 					s = br.readLine();
 				}
 			}
@@ -157,8 +157,7 @@ public class VssElement extends SourceControlElement {
 			br.close();
 			(new File(VSS_TEMP_FILE)).delete();
 
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -194,20 +193,20 @@ public class VssElement extends SourceControlElement {
 		mod.userName = parseUser(historyEntry);
 		mod.modifiedTime = parseDate(historyEntry);
 
-		if (((String) historyEntry.get(3)).startsWith("Checked in")) {
+        String folderLine = (String) historyEntry.get(0);
+        String fileLine = (String) historyEntry.get(3);
+		if (fileLine.startsWith("Checked in")) {
 			mod.type = "checkin";
 			mod.comment = parseComment(historyEntry);
-			mod.fileName = ((String) historyEntry.get(0)).substring(7, ((String) historyEntry.get(0)).indexOf("  *"));
-			mod.folderName = ((String) historyEntry.get(3)).substring(12);
-		} else {
-			String folderLine = (String) historyEntry.get(0);
-			String fileLine = (String) historyEntry.get(3);
+			mod.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+			mod.folderName = fileLine.substring(12);
+		} else if (fileLine.endsWith("Created")) {
+            mod.type = "create";
+        } else {
 			mod.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
 			mod.fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
 
-			if (fileLine.endsWith("Created")) {
-                mod.type = "create";
-            } else if (fileLine.endsWith("added")) {
+            if (fileLine.endsWith("added")) {
 				mod.type = "add";
 			} else if (fileLine.endsWith("deleted")) {
 				mod.type = "delete";
