@@ -264,7 +264,7 @@ public class CVS implements SourceControl {
      * @param local String indicating the relative or absolute path to the local
      *              working copy of the module of which to find the log history.
      */
-    public void setLocalWorkingCopy(String local) throws CruiseControlException {
+    public void setLocalWorkingCopy(String local) {
         this.local = local;
     }
 
@@ -511,13 +511,15 @@ public class CVS implements SourceControl {
         commandLine.createArgument().setValue("-q");
 
         commandLine.createArgument().setValue("log");
-        if (tag == null || tag.equals("HEAD")) {
+        
+        boolean useHead = tag == null || tag.equals("HEAD") || tag.equals("");
+        if (useHead) {
             commandLine.createArgument().setValue("-N");
         }
         String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
         commandLine.createArgument().setValue("-d" + dateRange);
 
-        if (tag != null) {
+        if (!useHead) {
             // add -b and -rTAG to list changes relative to the current branch,
             // not relative to the default branch, which is HEAD
 
