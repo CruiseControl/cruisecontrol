@@ -35,6 +35,10 @@ HTMLEmailBuilder
 ----------------------
 * Delete temp files after they've been used. Patch by Joris Kuipers
 
+HttpFile
+----------------------
+* New sourcecontrol that reports changes if a web page has been changed. Patch by Brad Clarke
+
 index.jsp
 ----------------------
 * Sort projects. Patch by Brad Clarke

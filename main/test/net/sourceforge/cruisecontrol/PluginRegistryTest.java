@@ -122,6 +122,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
         verifyPluginClass("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
         verifyPluginClass("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
+        verifyPluginClass("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
         verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
         verifyPluginClass("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
         verifyPluginClass("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
