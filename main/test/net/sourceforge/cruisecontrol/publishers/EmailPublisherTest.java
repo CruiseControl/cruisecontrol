@@ -89,7 +89,7 @@ public class EmailPublisherTest extends TestCase {
         emailPublisher =
             (MockEmailPublisher) xmlHelper.configure(
                 emailPublisherElement,
-                "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher");
+                "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher", false);
 
         successLogHelper = createLogHelper(true, true);
         failureLogHelper = createLogHelper(false, false);

@@ -52,7 +52,7 @@ public class VssBootstrapperTest extends TestCase {
         String message = ex.getMessage();
         assertEquals(
             "exception message when required attributes not set",
-            "VssBootstrapper has required attributes vssPath and filePath",
+            "VssBootstrapper has required attributes vssPath and localDirectory",
             message);
     }
 
@@ -64,7 +64,7 @@ public class VssBootstrapperTest extends TestCase {
         String message = ex.getMessage();
         assertEquals(
             "exception message when required attributes not set",
-            "VssBootstrapper has required attributes vssPath and filePath",
+            "VssBootstrapper has required attributes vssPath and localDirectory",
             message);
     }
 

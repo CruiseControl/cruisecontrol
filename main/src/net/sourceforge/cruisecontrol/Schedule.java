@@ -59,11 +59,14 @@ public class Schedule {
 
     private static final Logger LOG = Logger.getLogger(Schedule.class);
 
+    static final long ONE_SECOND = 1000;
+    static final long ONE_MINUTE = 60 * ONE_SECOND;
+    static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
+
     private List builders = new ArrayList();
     private List pauseBuilders = new ArrayList();
+    private long interval = 300 * ONE_SECOND;
 
-    static final long ONE_MINUTE = 60 * 1000;
-    static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
     /** date formatting for time statements */
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
@@ -254,6 +257,20 @@ public class Schedule {
             timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
         }
         return timeToEndOfPause + ONE_MINUTE;
+    }
+
+    public void setInterval(int intervalBetweenModificationChecks) {
+        interval = intervalBetweenModificationChecks * ONE_SECOND;
+    }
+
+    public long getInterval() {
+        return interval;
+    }
+
+    public void validate() throws CruiseControlException {
+        if (builders.size() == 0) {
+            throw new CruiseControlException("schedule element requires at least one nested builder element");
+        }
     }
     
 }

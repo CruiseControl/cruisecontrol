@@ -58,12 +58,14 @@ public class ProjectXMLHelper {
 
     private Map plugins = new HashMap();
     private Element projectElement;
+    private String projectName;
 
     public ProjectXMLHelper() {
     };
 
     public ProjectXMLHelper(File configFile, String projectName) throws CruiseControlException {
-        Iterator projectIterator = Util.loadConfigFile(configFile).getChildren("project").iterator();
+        Iterator projectIterator =
+            Util.loadConfigFile(configFile).getChildren("project").iterator();
         while (projectIterator.hasNext()) {
             Element currentProjectElement = (Element) projectIterator.next();
             if (currentProjectElement.getAttributeValue("name") != null
@@ -75,6 +77,7 @@ public class ProjectXMLHelper {
             throw new CruiseControlException("Project not found in config file: " + projectName);
         }
 
+        this.projectName = projectName;
         setDateFormat(projectElement);
 
         initDefaultPluginRegistry();
@@ -95,11 +98,9 @@ public class ProjectXMLHelper {
 
     protected void setDateFormat(Element projectElement) {
         if (projectElement.getChild("dateformat") != null
-            && projectElement.getChild("dateformat").getAttributeValue("format")
-                != null) {
+            && projectElement.getChild("dateformat").getAttributeValue("format") != null) {
             DateFormatFactory.setFormat(
-                projectElement.getChild("dateformat").getAttributeValue(
-                    "format"));
+                projectElement.getChild("dateformat").getAttributeValue("format"));
         }
     }
 
@@ -114,94 +115,108 @@ public class ProjectXMLHelper {
         return buildafterfailed;
     }
 
-    public long getBuildInterval() throws CruiseControlException {
-        Element scheduleElement = getRequiredElement(projectElement, "schedule");
-        return Long.parseLong(getRequiredAttribute(scheduleElement, "interval"));
-    }
-
     public String getLogDir() throws CruiseControlException {
-        return getRequiredAttribute(getRequiredElement(projectElement, "log"), "dir");
+        String logDir = "logs" + File.separatorChar + projectName;
+
+        Element logElement = projectElement.getChild("log");
+        if (logElement != null) {
+            logDir = getRequiredAttribute(logElement, "dir");
+        }
+
+        return logDir;
     }
 
     public List getBootstrappers() throws CruiseControlException {
         List bootstrappers = new ArrayList();
-        Iterator bootstrapperIterator = getRequiredElement(projectElement, "bootstrappers").getChildren().iterator();
-        while (bootstrapperIterator.hasNext()) {
-            Element bootstrapperElement = (Element) bootstrapperIterator.next();
-            Bootstrapper bootstrapper = (Bootstrapper) configurePlugin(bootstrapperElement);
-            bootstrapper.validate();
-            bootstrappers.add(bootstrapper);
+        Element element = projectElement.getChild("bootstrappers");
+        if (element != null) {
+            Iterator bootstrapperIterator = element.getChildren().iterator();
+            while (bootstrapperIterator.hasNext()) {
+                Element bootstrapperElement = (Element) bootstrapperIterator.next();
+                Bootstrapper bootstrapper =
+                    (Bootstrapper) configurePlugin(bootstrapperElement, false);
+                bootstrapper.validate();
+                bootstrappers.add(bootstrapper);
+            }
+        } else {
+            LOG.debug("Project " + projectName + " has no bootstrappers");
         }
         return bootstrappers;
     }
 
-    public List getPublishers()  throws CruiseControlException {
+    public List getPublishers() throws CruiseControlException {
         List publishers = new ArrayList();
-        Iterator publisherIterator = getRequiredElement(projectElement, "publishers").getChildren().iterator();
-        while (publisherIterator.hasNext()) {
-            Element publisherElement = (Element) publisherIterator.next();
-            Publisher publisher = (Publisher) configurePlugin(publisherElement);
-            publisher.validate();
-            publishers.add(publisher);
+        Element publishersElement = projectElement.getChild("publishers");
+        if (publishersElement != null) {
+            Iterator publisherIterator = publishersElement.getChildren().iterator();
+            while (publisherIterator.hasNext()) {
+                Element publisherElement = (Element) publisherIterator.next();
+                Publisher publisher = (Publisher) configurePlugin(publisherElement, false);
+                publisher.validate();
+                publishers.add(publisher);
+            }
+        } else {
+            LOG.debug("Project " + projectName + " has no publishers");
         }
         return publishers;
     }
 
     public List getAuxLogs() throws CruiseControlException {
         List auxLogs = new ArrayList();
-        Iterator additionalLogIterator = projectElement.getChild("log").getChildren("merge").iterator();
-        while (additionalLogIterator.hasNext()) {
-            Element additionalLogElement = (Element) additionalLogIterator.next();
-            auxLogs.add(parseMergeElement(additionalLogElement));
+        Element logElement = projectElement.getChild("log");
+        if (logElement != null) {
+            Iterator additionalLogIterator = logElement.getChildren("merge").iterator();
+            while (additionalLogIterator.hasNext()) {
+                Element additionalLogElement = (Element) additionalLogIterator.next();
+                auxLogs.add(parseMergeElement(additionalLogElement));
+            }
         }
         return auxLogs;
     }
 
     public String getLogXmlEncoding() throws CruiseControlException {
-        String encoding = projectElement.getChild("log").getAttributeValue("encoding");
+        String encoding = null;
+        Element logElement = projectElement.getChild("log");
+        if (logElement != null) {
+            encoding = logElement.getAttributeValue("encoding");
+        }
         return encoding;
     }
 
     public Schedule getSchedule() throws CruiseControlException {
-        Schedule schedule = new Schedule();
-        Iterator builderIterator = projectElement.getChild("schedule").getChildren().iterator();
+        Element scheduleElement = getRequiredElement(projectElement, "schedule");
+        Schedule schedule = (Schedule) configurePlugin(scheduleElement, true);
+        Iterator builderIterator = scheduleElement.getChildren().iterator();
         while (builderIterator.hasNext()) {
             Element builderElement = (Element) builderIterator.next();
             if (builderElement.getName().equalsIgnoreCase("pause")) {
-                PauseBuilder pauseBuilder = (PauseBuilder) configurePlugin(builderElement);
+                PauseBuilder pauseBuilder = (PauseBuilder) configurePlugin(builderElement, false);
                 pauseBuilder.validate();
                 schedule.addPauseBuilder(pauseBuilder);
             } else {
-                Builder builder = (Builder) configurePlugin(builderElement);
+                Builder builder = (Builder) configurePlugin(builderElement, false);
                 builder.validate();
                 schedule.addBuilder(builder);
             }
         }
+        schedule.validate();
         return schedule;
     }
 
     public ModificationSet getModificationSet() throws CruiseControlException {
-        ModificationSet modificationSet;
-        try {
-            modificationSet =
-                    (ModificationSet) Class.forName(
-                            (String) plugins.get("modificationset"))
-                    .newInstance();
-        } catch (Exception e) {
-            throw new CruiseControlException(
-                    "Couldn't create ModificationSet plugin", e);
-        }
-
-        final Element modificationSetElement = getRequiredElement(projectElement, "modificationset");
-        int quietPeriod = Integer.parseInt(getRequiredAttribute(modificationSetElement, "quietperiod"));
-        modificationSet.setQuietPeriod(quietPeriod);
+        final Element modificationSetElement =
+            getRequiredElement(projectElement, "modificationset");
+        ModificationSet modificationSet =
+            (ModificationSet) configurePlugin(modificationSetElement, true);
         Iterator sourceControlIterator = modificationSetElement.getChildren().iterator();
         while (sourceControlIterator.hasNext()) {
             Element sourceControlElement = (Element) sourceControlIterator.next();
-            SourceControl sourceControl = (SourceControl) configurePlugin(sourceControlElement);
+            SourceControl sourceControl =
+                (SourceControl) configurePlugin(sourceControlElement, false);
             sourceControl.validate();
             modificationSet.addSourceControl(sourceControl);
         }
+        modificationSet.validate();
         return modificationSet;
     }
 
@@ -218,22 +233,36 @@ public class ProjectXMLHelper {
     /**
      *  returns the String value of an attribute on an element, exception if it's not set
      */
-    protected String getRequiredAttribute(Element element, String attributeName) throws CruiseControlException {
+    protected String getRequiredAttribute(Element element, String attributeName)
+        throws CruiseControlException {
         if (element.getAttributeValue(attributeName) != null) {
             return element.getAttributeValue(attributeName);
         } else {
-            throw new CruiseControlException("Attribute " + attributeName + " is required on " + element.getName());
+            throw new CruiseControlException(
+                "Project "
+                    + projectName
+                    + ":  attribute "
+                    + attributeName
+                    + " is required on "
+                    + element.getName());
         }
     }
 
     private Element getRequiredElement(final Element parentElement, final String childName)
-            throws CruiseControlException {
-        final Element scheduleElement = parentElement.getChild(childName);
-        if (scheduleElement == null) {
-            throw new CruiseControlException("<" + parentElement.getName() + "> requires a <" + childName
-                                             + "> element");
+        throws CruiseControlException {
+        final Element requiredElement = parentElement.getChild(childName);
+        if (requiredElement == null) {
+            throw new CruiseControlException(
+                "Project "
+                    + projectName
+                    + ": <"
+                    + parentElement.getName()
+                    + ">"
+                    + " requires a <"
+                    + childName
+                    + "> element");
         }
-        return scheduleElement;
+        return requiredElement;
     }
 
     /**
@@ -256,13 +285,17 @@ public class ProjectXMLHelper {
     /**
      *  TO DO: also check that instantiated class implements/extends correct interface/class
      */
-    protected Object configurePlugin(Element pluginElement) throws CruiseControlException {
+    protected Object configurePlugin(Element pluginElement, boolean skipChildElements)
+        throws CruiseControlException {
         String name = pluginElement.getName();
         PluginXMLHelper pluginHelper = new PluginXMLHelper();
         String lowercaseName = pluginElement.getName().toLowerCase();
 
         if (plugins.containsKey(lowercaseName)) {
-            return pluginHelper.configure(pluginElement, (String) plugins.get(lowercaseName));
+            return pluginHelper.configure(
+                pluginElement,
+                (String) plugins.get(lowercaseName),
+                skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
@@ -273,9 +306,13 @@ public class ProjectXMLHelper {
         plugins.put(
             "currentbuildstatusbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
-        plugins.put("cvsbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
+        plugins.put(
+            "cvsbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
         plugins.put("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
-        plugins.put("vssbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
+        plugins.put(
+            "vssbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
 
         plugins.put("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
         plugins.put("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
@@ -285,13 +322,13 @@ public class ProjectXMLHelper {
         plugins.put("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
         plugins.put("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         plugins.put("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
-        plugins.put(
-            "vssjournal",
-            "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
+        plugins.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
 
         plugins.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
 
-        plugins.put("labelincrementer", "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
+        plugins.put(
+            "labelincrementer",
+            "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
 
         plugins.put(
             "currentbuildstatuspublisher",
@@ -301,5 +338,6 @@ public class ProjectXMLHelper {
         plugins.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
         plugins.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
         plugins.put("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
+        plugins.put("schedule", "net.sourceforge.cruisecontrol.Schedule");
     }
 }

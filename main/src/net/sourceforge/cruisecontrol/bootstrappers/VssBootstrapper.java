@@ -97,7 +97,7 @@ public class VssBootstrapper implements Bootstrapper {
 
   public void validate() throws CruiseControlException {
     if (vssPath == null || localDirectory == null) {
-        throw new CruiseControlException("VssBootstrapper has required attributes vssPath and filePath");
+        throw new CruiseControlException("VssBootstrapper has required attributes vssPath and localDirectory");
     }
     File localDirForFile = new File(localDirectory);
     boolean dirExists = localDirForFile.exists();

@@ -95,4 +95,10 @@ public class MockProject extends Project {
         return loopCount;
     }
 
+    /* don't do anything
+     * @see net.sourceforge.cruisecontrol.Project#checkLogDirectory()
+     */
+    protected void checkLogDirectory() throws CruiseControlException {
+    }
+
 }

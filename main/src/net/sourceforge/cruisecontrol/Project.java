@@ -589,25 +589,12 @@ public class Project implements Serializable, Runnable {
     protected void init() throws CruiseControlException {
         log("reading settings from config file [" + configFile.getAbsolutePath() + "]");
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
-        buildInterval = ONE_SECOND * helper.getBuildInterval();
         logDir = helper.getLogDir();
+        checkLogDirectory();
         logXmlEncoding = helper.getLogXmlEncoding();
-        File logDirectory = new File(logDir);
-        if (!logDirectory.exists()) {
-            log("log directory specified in config file does not exist; creating: "
-                + logDirectory.getAbsolutePath());
-            if (!logDirectory.mkdirs()) {
-                throw new CruiseControlException(
-                    "Can't create log directory specified in config file: "
-                        + logDirectory.getAbsolutePath());
-            }
-        } else if (!logDirectory.isDirectory()) {
-            throw new CruiseControlException(
-                "Log directory specified in config file is not a directory: "
-                    + logDirectory.getAbsolutePath());
-        }
         bootstrappers = helper.getBootstrappers();
         schedule = helper.getSchedule();
+        buildInterval = schedule.getInterval();
         modificationSet = helper.getModificationSet();
 
         labelIncrementer = helper.getLabelIncrementer();
@@ -633,6 +620,27 @@ public class Project implements Serializable, Runnable {
         debug("logFileName            = [" + logFileName + "]");
         debug("logXmlEncoding         = [" + logXmlEncoding + "]");
         debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
+    }
+
+    /**
+     * creates log directory if it doesn't already exist
+     * @throws CruiseControlException if directory can't be created or there is a file of the same name
+     */
+    protected void checkLogDirectory() throws CruiseControlException {
+        File logDirectory = new File(logDir);
+        if (!logDirectory.exists()) {
+            log("log directory specified in config file does not exist; creating: "
+                + logDirectory.getAbsolutePath());
+            if (!logDirectory.mkdirs()) {
+                throw new CruiseControlException(
+                    "Can't create log directory specified in config file: "
+                        + logDirectory.getAbsolutePath());
+            }
+        } else if (!logDirectory.isDirectory()) {
+            throw new CruiseControlException(
+                "Log directory specified in config file is not a directory: "
+                    + logDirectory.getAbsolutePath());
+        }
     }
 
     protected Element getProjectPropertiesElement(Date now) {

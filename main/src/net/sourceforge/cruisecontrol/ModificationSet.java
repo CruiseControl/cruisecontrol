@@ -55,10 +55,11 @@ import org.jdom.Element;
 public class ModificationSet {
 
     private static final Logger LOG = Logger.getLogger(ModificationSet.class);
+    private static final int ONE_SECOND = 1000;
 
     private List modifications = new ArrayList();
     private List sourceControls = new ArrayList();
-    private int quietPeriod;
+    private int quietPeriod = 60 * ONE_SECOND;
     private Date timeOfCheck;
 
     /**
@@ -67,9 +68,9 @@ public class ModificationSet {
      * control system and initiate a build.
      */
     public void setQuietPeriod(int seconds) {
-        quietPeriod = seconds * 1000;
+        quietPeriod = seconds * ONE_SECOND;
     }
-
+    
     public void addSourceControl(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
     }
@@ -183,5 +184,16 @@ public class ModificationSet {
 
     public boolean isModified() {
         return modifications.size() > 0;
+    }
+
+    public void validate() throws CruiseControlException {
+        if (sourceControls.size() == 0) {
+            throw new CruiseControlException(
+                "modificationset element requires at least one nested source control element");
+        }
+    }
+
+    int getQuietPeriod() {
+        return quietPeriod;
     }
 }
