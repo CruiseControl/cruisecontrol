@@ -36,9 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Logger;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -49,12 +52,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+
+import org.apache.log4j.Logger;
+import org.apache.tools.ant.launch.Locator;
 
 /**
  * Used to publish an HTML e-mail that includes the build report
@@ -101,7 +104,15 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
 
         if (xslFile == null) {
+            if (xslDir == null) {
+                // try to obtain the dir relative to the current classpath
+                xslDir = getXslDirFromClasspath();
+            }
             verifyDirectory("HTMLEmailPublisher.xslDir", xslDir);
+            if (css == null) {
+                // same for css
+                css = getCssFromClasspath();
+            }
             verifyFile("HTMLEmailPublisher.css", css);
 
             String[] fileNames = getXslFileNames();
@@ -119,6 +130,58 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } else {
             verifyFile("HTMLEmailPublisher.xslFile", xslFile);
         }
+    }
+
+    /**
+     * @return the absolute path where the cruisecontrol.css file is located,
+     * or null if it can't be found.
+     */
+    private String getCssFromClasspath() {
+        File cssFile = new File(getCruiseRootDir(), "reporting/jsp/webcontent/css/cruisecontrol.css");
+        if (cssFile.exists()) {
+            return cssFile.getAbsolutePath();
+        }
+        return null;
+    }
+
+    /**
+     * @return the absolute path where the xsl dir is located,
+     * or null if it can't be found.
+     */
+    private String getXslDirFromClasspath() {
+        File xsl = new File(getCruiseRootDir(), "reporting/jsp/webcontent/xsl");
+        if (xsl.isDirectory()) {
+            return xsl.getAbsolutePath();
+        }
+        return null;
+    }
+
+    /**
+     * @return the root directory of the running cruisecontrol installation.
+     * Uses Ant's Locator.
+     */
+    private File getCruiseRootDir() {
+        File classDir = Locator.getClassSource(getClass());
+        if (classDir != null) {
+            try {
+                // we're probably in main/dist/cruisecontrol.jar, so three parents up
+                File rootDir = classDir.getParentFile().getParentFile().getParentFile();
+                if (classDir.getAbsolutePath().endsWith("test-classes")) {
+                    // not the expected main/dist-dir but the main/target/test-classes dir, 
+                    // so we need to go up an extra directory
+                    rootDir = rootDir.getParentFile();
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("rootDir seems to be " + rootDir.getAbsolutePath()
+                            + " (classDir = " + classDir.getAbsolutePath() + ")");
+                }
+                return rootDir;
+            } catch (NullPointerException npe) {
+                // don't know where we are, then...
+                return null;
+            }
+        }
+        return null;
     }
 
     private void verifyDirectory(String dirName, String dir) throws CruiseControlException {
