@@ -14,6 +14,10 @@ cruisecontrol.sh:
 ----------------------
 * handle path conversion under cygwin. Patch by John Woodward
 
+errors.xsl:
+----------------------
+* Added errors.xsl to replace compile.xsl. Similar logic, but shows errors and warnings from all tasks.
+
 JabberPublisher:
 ----------------------
 * Add 1 second sleep so multiple jabber publishers work. (CC-119) Patch by Fleur Kelpin

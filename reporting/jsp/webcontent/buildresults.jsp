@@ -47,7 +47,13 @@
 <p>
 <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
 <p>
+<cruisecontrol:xsl xslFile="/xsl/errors.xsl"/>
+<!--
+  for traditional cc display of only compile errors and warnings
+  comment out errors.xsl and uncomment compile.xsl
+<p>
 <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
+-->
 <p>
 <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
 <p>
