@@ -36,6 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -47,14 +54,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications

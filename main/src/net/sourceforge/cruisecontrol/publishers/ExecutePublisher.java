@@ -39,9 +39,10 @@ package net.sourceforge.cruisecontrol.publishers;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import org.jdom.Element;
-import java.io.IOException;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+
+import java.io.IOException;
 
 /**
  * Used to execute a custom publishing command

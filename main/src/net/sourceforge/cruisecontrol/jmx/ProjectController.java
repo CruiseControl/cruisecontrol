@@ -36,17 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import java.io.File;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.JMException;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import org.apache.log4j.Logger;
+
+import javax.management.JMException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.io.File;
 
 /**
  * @author Niclas Olofsson

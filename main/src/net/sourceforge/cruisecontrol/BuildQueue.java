@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.util.LinkedList;
-
 import org.apache.log4j.Logger;
+
+import java.util.LinkedList;
 
 /**
  * Provides an independent thread of execution that knows how to

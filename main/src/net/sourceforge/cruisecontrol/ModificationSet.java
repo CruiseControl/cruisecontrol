@@ -37,15 +37,15 @@
 
 package net.sourceforge.cruisecontrol;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * Set of modifications collected from included SourceControls

@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.io.File;
 import java.util.ArrayList;

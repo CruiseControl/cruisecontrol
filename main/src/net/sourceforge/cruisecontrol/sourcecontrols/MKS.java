@@ -36,6 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -50,13 +56,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-
-import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods

@@ -37,8 +37,8 @@
 
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Element;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 import java.text.DateFormat;
 import java.util.HashMap;

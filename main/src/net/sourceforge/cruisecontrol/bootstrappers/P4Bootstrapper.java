@@ -38,8 +38,9 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import java.io.IOException;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
 
 /**
  *  Bootstrapper for Perforce. Accepts one path that we sync. 

@@ -37,9 +37,9 @@
 
 package net.sourceforge.cruisecontrol;
 
-import java.util.List;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * This interface defines behavior required by ModificationSet.java when

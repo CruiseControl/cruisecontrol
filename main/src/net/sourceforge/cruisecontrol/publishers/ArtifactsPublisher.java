@@ -36,18 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import java.io.File;
-import java.io.IOException;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.util.FileUtils;
 import org.jdom.Element;
+
+import java.io.File;
+import java.io.IOException;
 
 public class ArtifactsPublisher implements Publisher {
 

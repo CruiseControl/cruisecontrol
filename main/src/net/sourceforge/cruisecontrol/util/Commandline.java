@@ -90,13 +90,12 @@
 package net.sourceforge.cruisecontrol.util;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Vector;
 import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
+import java.util.Vector;
 
 /**
  * Commandline objects help handling command lines specifying processes to

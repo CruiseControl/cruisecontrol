@@ -36,6 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.Util;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -44,10 +48,6 @@ import java.util.Collections;
 import java.util.EventListener;
 import java.util.Iterator;
 import java.util.List;
-
-import net.sourceforge.cruisecontrol.util.Util;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  *

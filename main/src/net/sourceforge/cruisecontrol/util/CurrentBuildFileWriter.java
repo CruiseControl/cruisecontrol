@@ -36,13 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
