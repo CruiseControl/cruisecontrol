@@ -16,9 +16,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import net.sourceforge.cruisecontrol.gui.ProjectBrowser;
-
-import org.arch4j.ui.components.PropertiesPanel;
 import org.jdom.Element;
 
 /**
@@ -27,12 +24,10 @@ import org.jdom.Element;
  * 
  * @author Allan Wick
  */
-public class ProjectPanel extends PropertiesPanel implements EditorPanel {
+public class ProjectPanel extends BaseElementPanel implements EditorPanel {
 
-	private Element element;
 	private JTextField projectText;
 	private JCheckBox buildAfterFailedBox;
-	private ProjectBrowser browser;
 	
 	/**
 	 * Add all the widgets to the panel
@@ -46,9 +41,9 @@ public class ProjectPanel extends PropertiesPanel implements EditorPanel {
 		projectText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						element.setAttribute( "name", projectText.getText() );
+						setAttribute( "name", projectText.getText() );
 						
-						browser.updateNodeText( projectText.getText() );
+						getBrowser().updateNodeText( projectText.getText() );
 					}
 				});
 		
@@ -60,8 +55,8 @@ public class ProjectPanel extends PropertiesPanel implements EditorPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						element.setAttribute( "buildAfterFailed", 
-								              String.valueOf( buildAfterFailedBox.isSelected() ) );						
+						setAttribute( "buildAfterFailed", 
+						              buildAfterFailedBox.isSelected() );						
 					}
 				});
 
@@ -69,7 +64,7 @@ public class ProjectPanel extends PropertiesPanel implements EditorPanel {
 		theButton.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent anEvent ) {
 				
-				browser.addListenerType();
+				getBrowser().addListenerType();
 			}
 		});
 		
@@ -79,7 +74,7 @@ public class ProjectPanel extends PropertiesPanel implements EditorPanel {
 		theButton.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent anEvent ) {
 				
-				browser.addBootstrapper();
+				getBrowser().addBootstrapper();
 			}
 		});
 		
@@ -89,7 +84,7 @@ public class ProjectPanel extends PropertiesPanel implements EditorPanel {
 		theButton.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent anEvent ) {
 				
-				browser.addModificationSetType();
+				getBrowser().addModificationSetType();
 			}
 		});
 		
@@ -99,21 +94,16 @@ public class ProjectPanel extends PropertiesPanel implements EditorPanel {
 		theButton.addActionListener( new ActionListener() {
 			public void actionPerformed(ActionEvent anEvent ) {
 				
-				browser.addPublisherType();
+				getBrowser().addPublisherType();
 			}
 		});
 		
 		addComponent( theButton, 5, 150 );
 	}
 	
-	public void setProjectBrowser( ProjectBrowser aBrowser ) {
-		
-		browser = aBrowser;
-	}
-	
 	public void setElement( Element anElement ) {
 		
-		element = anElement;
+		super.setElement( anElement );
 		
 		projectText.setText( anElement.getAttributeValue("name") );
 		String theBuildAfterFailed = anElement.getAttributeValue( "buildAfterFailed" );

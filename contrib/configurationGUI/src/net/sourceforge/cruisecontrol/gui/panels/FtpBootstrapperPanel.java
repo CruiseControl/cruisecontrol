@@ -38,7 +38,7 @@ public class FtpBootstrapperPanel extends FtpCommonPanel {
 		fileText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "file", fileText.getText() );
+						setAttribute( "file", fileText.getText() );
 					}
 				});
 
@@ -48,7 +48,7 @@ public class FtpBootstrapperPanel extends FtpCommonPanel {
 		destDirText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "destDir", destDirText.getText() );
+						setAttribute( "destDir", destDirText.getText() );
 					}
 				});
 	}

@@ -37,7 +37,7 @@ public class FtpPublisherPanel extends FtpCommonPanel {
 		fileText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "file", fileText.getText() );
+						setAttribute( "file", fileText.getText() );
 					}
 				});
 
@@ -47,7 +47,7 @@ public class FtpPublisherPanel extends FtpCommonPanel {
 		destDirText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "destDir", destDirText.getText() );
+						setAttribute( "destDir", destDirText.getText() );
 					}
 				});
 		
@@ -59,8 +59,8 @@ public class FtpPublisherPanel extends FtpCommonPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "deleteArtifacts", 
-								                   String.valueOf( deleteArtifactsBox.isSelected() ) );						
+						setAttribute( "deleteArtifacts", 
+						              deleteArtifactsBox.isSelected() );						
 					}
 				});
 	}

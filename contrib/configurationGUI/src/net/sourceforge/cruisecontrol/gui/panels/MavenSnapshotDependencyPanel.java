@@ -37,7 +37,7 @@ public class MavenSnapshotDependencyPanel extends BaseElementPanel {
 		projectFileText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "projectFile", projectFileText.getText() );
+						setAttribute( "projectFile", projectFileText.getText() );
 					}
 				});
 		
@@ -47,7 +47,7 @@ public class MavenSnapshotDependencyPanel extends BaseElementPanel {
 		userText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "user", userText.getText() );
+						setAttribute( "user", userText.getText() );
 					}
 				});
 		
@@ -57,7 +57,7 @@ public class MavenSnapshotDependencyPanel extends BaseElementPanel {
 		localRepositoryText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "localRepository", localRepositoryText.getText() );
+						setAttribute( "localRepository", localRepositoryText.getText() );
 					}
 				});
 		
@@ -67,7 +67,7 @@ public class MavenSnapshotDependencyPanel extends BaseElementPanel {
 		projectFileText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "property", projectFileText.getText() );
+						setAttribute( "property", projectFileText.getText() );
 					}
 				});		
 	}

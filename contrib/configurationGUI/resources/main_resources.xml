@@ -29,6 +29,10 @@
   
   <resource name="project" label="Project" value="addPlugin addDateFormat addLabelIncrementer addListeners addBootstrappers addModificationSet addSchedule addLog addPublishers"/>
 	
+  <!-- root node menu -->
+  <resource name="cruisecontrolMenu" value="paste | addProject"/>
+  <resource name="addProject" label="Add Project" command="addProject"/>
+    
   <!-- default node menu -->
   <resource name="nodeMenu" value="copy cut delete copyPaste"/>
   

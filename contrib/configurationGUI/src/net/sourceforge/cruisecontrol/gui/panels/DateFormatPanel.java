@@ -1,8 +1,5 @@
 /*
  * Created on Dec 30, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package net.sourceforge.cruisecontrol.gui.panels;
 
@@ -11,9 +8,6 @@ import java.awt.event.FocusEvent;
 
 import javax.swing.JTextField;
 
-import net.sourceforge.cruisecontrol.gui.ProjectBrowser;
-
-import org.arch4j.ui.components.PropertiesPanel;
 import org.jdom.Element;
 
 /**
@@ -21,12 +15,9 @@ import org.jdom.Element;
  * 
  * @author Allan Wick
  */
-public class DateFormatPanel extends PropertiesPanel implements EditorPanel {
-
-	private Element dateFormatElement;
+public class DateFormatPanel extends BaseElementPanel implements EditorPanel {
 	
 	private JTextField dateFormat;
-	private ProjectBrowser browser;
 	
 	public void addComponents() {
 		
@@ -38,22 +29,15 @@ public class DateFormatPanel extends PropertiesPanel implements EditorPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						dateFormatElement.setAttribute( "format", 
-								                        dateFormat.getText() );						
+						setAttribute( "format", 
+						              dateFormat.getText() );						
 					}
 				});
 	}
-	
-	/**
-	 * Set the owning browser class
-	 */
-	public void setProjectBrowser( ProjectBrowser aBrowser ) {
-		
-		browser = aBrowser;
-	}
+
 	public void setElement( Element anElement ) {
 		
-		dateFormatElement = anElement;
+		super.setElement( anElement );
 		
 		dateFormat.setText( anElement.getAttributeValue("format") );
 	}

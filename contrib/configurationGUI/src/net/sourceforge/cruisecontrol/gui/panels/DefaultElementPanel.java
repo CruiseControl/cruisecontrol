@@ -17,9 +17,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import net.sourceforge.cruisecontrol.gui.ProjectBrowser;
-
-import org.arch4j.ui.components.PropertiesPanel;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -27,7 +24,7 @@ import org.jdom.Element;
  * A pane for editing the details of a CruiseControl plugin -- an AntBuilder,
  * ModificationSet, etc.
  */
-public class DefaultElementPanel extends PropertiesPanel implements EditorPanel {
+public class DefaultElementPanel extends BaseElementPanel implements EditorPanel {
 
     /**
      * Fields on this pane with the key being, i.e. Component.getName(). Every
@@ -35,8 +32,6 @@ public class DefaultElementPanel extends PropertiesPanel implements EditorPanel 
      * lower case.
      */
     private final Map fieldMap = new HashMap();
-
-    private Element element;
     
     public DefaultElementPanel(Class builderClass) throws IntrospectionException {
 
@@ -47,7 +42,7 @@ public class DefaultElementPanel extends PropertiesPanel implements EditorPanel 
     
     public void setElement( Element anElement ) {
     
-    	element = anElement;
+    	super.setElement( anElement );
     	
         List attributes = anElement.getAttributes();
         for (Iterator iter = attributes.iterator(); iter.hasNext();) {
@@ -57,10 +52,6 @@ public class DefaultElementPanel extends PropertiesPanel implements EditorPanel 
 
             setFieldValue(fieldName, fieldValue);
         }
-    }
-    
-    public void setProjectBrowser( ProjectBrowser aBrowser ) {
-    	
     }
     
     private void setFieldValue(String fieldName, String value) {
@@ -108,10 +99,12 @@ public class DefaultElementPanel extends PropertiesPanel implements EditorPanel 
                 			
     						public void focusLost(FocusEvent e) {
     							
+    							// get the fieldname as name of attribute
     							JTextField theField = (JTextField) e.getComponent();
     							String fieldName = theField.getName();
     							
-    							element.setAttribute( fieldName, theField.getText() );
+    							// set the attribute value
+    							setAttribute( fieldName, theField.getText() );
     						}
                 		});
             }
@@ -134,7 +127,6 @@ public class DefaultElementPanel extends PropertiesPanel implements EditorPanel 
      */
 	public Dimension getPreferredSize() {
 
-
-		return new Dimension( y, 400 );
+		return new Dimension( 400, y );
 	}
 }
