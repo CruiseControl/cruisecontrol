@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -122,15 +123,18 @@ public class Compound implements SourceControl {
         List targetMods = new ArrayList();
         
         triggerMods = triggers.getModifications(lastBuild, now);
-        // System.out.println("Number of trigger mods is " + triggerMods.size());
         
         if (!triggerMods.isEmpty()) {
             targetMods = targets.getModifications(lastBuild, now);
-            // System.out.println("Number of target mods is " + targetMods.size());
+            // make sure we also pass the properties from the underlying targets
+            properties.putAll(targets.getProperties());
         }
 
         if (includeTriggerChanges) {
             targetMods.addAll(triggerMods);
+            // make sure we also pass the properties from the underlying triggers
+            // TODO: do we really only want this when includeTriggerChanges is set?
+            properties.putAll(triggers.getProperties());
         }
         
         return targetMods;
@@ -192,4 +196,113 @@ public class Compound implements SourceControl {
     public void setIncludeTriggerChanges(String changes) {
         this.includeTriggerChanges = changes.equalsIgnoreCase("true");
     }
+    
+    /**
+     * Static inner class, used to define a basis for the Targets and Triggers
+     * classes that are used inside the &lt;compound&gt;-tag.
+     */
+    protected static class Entry implements SourceControl {
+        
+        private Hashtable properties = new Hashtable();
+        private String property;
+        private String propertyOnDelete;
+        
+        private List sourceControls = new ArrayList();
+        private Compound parent;
+        
+        /**
+         * Public constructor for reflection purposes.
+         *
+         */
+        public Entry() {
+        }
+        
+        /**
+         * Constructor that the Compound class uses to create
+         * an object of this class.
+         * 
+         * @param parent    the parent of this object (an
+         *                  object of class Compound) 
+         */
+        public Entry(Compound parent) {
+            this.parent = parent;
+        }
+        
+        public Hashtable getProperties() {
+            return this.properties;
+        }
+        
+        public void setProperty(String property) {
+            this.property = property;
+            
+        }
+        
+        public void setPropertyOnDelete(String property) {
+            this.propertyOnDelete = property;
+        }
+        
+        /**
+         * Returns a list of modifications since the last build
+         * by querying the sourceControl that this object contains.
+         * 
+         * @param   lastBuild   the date and time of the last build
+         * @param   now         the current date and time
+         * 
+         * @return  a list of the modifications
+         */
+        public List getModifications(Date lastBuild, Date now) {
+            List retVal = new ArrayList();
+            
+            for (Iterator it = sourceControls.iterator(); it.hasNext(); ) {
+                SourceControl sourceControl = (SourceControl) it.next();
+                retVal.addAll(sourceControl.getModifications(lastBuild, now));
+                // make sure we also pass the properties from the underlying sourcecontrol
+                properties.putAll(sourceControl.getProperties());
+            }
+            
+            return retVal;
+        }
+        
+        /**
+         * Confirms that the sourceControl that this object wraps
+         * has been set.
+         * 
+         * @throws  a CruiseControlException if the validation fails
+         */
+        public void validate() throws CruiseControlException {
+            if (sourceControls.isEmpty()) {
+                throw new CruiseControlException("Error: there must be at least one source control in a "
+                        + getEntryName() + " block.");
+            }
+            if (parent == null) {
+                throw new CruiseControlException("Error: " + getEntryName() 
+                        + " blocks must be contained within compound blocks.");
+            }
+        }
+        
+        /**
+         * Adds a sourcecontrol to the list of sourcecontrols that
+         * this object contains.
+         * 
+         * @param sc the sourceControl object to add
+         */
+        public void add(SourceControl sc) {
+            sourceControls.add(sc);
+        }
+        
+        /**
+         * Used by validate() to create a subclass-specific error-message.
+         * @return lower-case version of classname without package, e.g. 'triggers'.
+         */
+        private String getEntryName() {
+            String classname = getClass().getName();
+            int index = classname.lastIndexOf('.');
+            if (index != -1) {
+                return classname.substring(index + 1).toLowerCase();
+            } else {
+                return classname.toLowerCase();
+            }
+        }
+    }
+
 }
