@@ -281,8 +281,8 @@ public class CVS implements SourceControl {
     }
     
     private void getRidOfLeftoverData(InputStream stream) {
-        StreamPumper outPumper = new StreamPumper(stream, null, null);
-        outPumper.start();
+        StreamPumper outPumper = new StreamPumper(stream, null);
+        new Thread(outPumper).start();
     }
     
     /**
@@ -348,9 +348,9 @@ public class CVS implements SourceControl {
     }
     
     private void logErrorStream(Process p) {
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), null,
+        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(),
         new PrintWriter(System.err, true));
-        errorPumper.start();
+        new Thread(errorPumper).start();
     }
     
     /**
@@ -527,57 +527,4 @@ public class CVS implements SourceControl {
     public static String formatCVSDate(Date date) {
         return CVSDATE.format(date);
     }
-    
-    /**
-     * Inner class for continually pumping the input stream during Process's
-     * runtime. This was copied/duplicated from the Ant Exec built-in task.
-     */
-    class StreamPumper extends Thread {
-        private BufferedReader dataStream;
-        private String name;
-        private boolean endOfStream = false;
-        private int SLEEP_TIME = 5;
-        private PrintWriter fileStream;
-        private final static int BUFFER_SIZE = 512;
-        
-        public StreamPumper(InputStream input, String name, PrintWriter fileStream) {
-            dataStream = new BufferedReader(new InputStreamReader(input));
-            this.fileStream = fileStream;
-            
-            if (name != null) {
-                this.name = "[cvselement " + name + "] ";
-            } else {
-                this.name = "[cvselement] ";
-            }
-        }
-        
-        public void pumpStream() throws IOException {
-            byte[] buf = new byte[BUFFER_SIZE];
-            if (!endOfStream) {
-                String line = dataStream.readLine();
-                
-                if (line != null && fileStream != null) {
-                                        /*
-                                         *  DO NOTHING, IGNORE
-                                         */
-                    fileStream.println(name + line);
-                } else {
-                    endOfStream = true;
-                }
-            }
-        }
-        
-        public void run() {
-            try {
-                try {
-                    while (!endOfStream) {
-                        pumpStream();
-                        sleep(SLEEP_TIME);
-                    }
-                } catch (InterruptedException ignoredInterruptedException) { }
-                dataStream.close();
-            } catch (IOException ignoredIOException) { }
-        }
-    }
-    
 }

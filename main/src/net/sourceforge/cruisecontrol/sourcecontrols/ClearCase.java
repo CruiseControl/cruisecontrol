@@ -42,6 +42,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Category;
 
@@ -280,35 +281,5 @@ public class ClearCase implements SourceControl {
     //TO DO: check if operation type is a delete
 
     return mod;
-  }
-
-  /**
-   *  Inner class to pump the error stream during Process's runtime. Copied from
-   *  the Ant built-in task.
-   */
-  class StreamPumper implements Runnable {
-
-    private InputStream _in;
-    private final static int SIZE = 128;
-    private final static int SLEEP = 5;
-
-    public StreamPumper(InputStream in) {
-      _in = in;
-    }
-
-    public void run() {
-      final byte[] buf = new byte[SIZE];
-      int length;
-
-      try {
-        while ((length = _in.read(buf)) > 0) {
-          System.err.write(buf, 0, length);
-          try {
-            Thread.sleep(SLEEP);
-          }
-          catch (InterruptedException ignoredInterrupted) { }
-        }
-      } catch (IOException ignoredIOE) { }
-    }
   }
 }
