@@ -136,4 +136,16 @@ public final class Util {
         return sb.toString();
     }
 
+    /**
+     * @return midnight on today's date
+     */
+    public static Date getMidnight() {
+        Calendar midnight = Calendar.getInstance();
+        midnight.set(Calendar.HOUR, 0);
+        midnight.set(Calendar.MINUTE, 0);
+        midnight.set(Calendar.SECOND, 0);
+        midnight.set(Calendar.MILLISECOND, 0);
+        return midnight.getTime();
+    }
+
 }
