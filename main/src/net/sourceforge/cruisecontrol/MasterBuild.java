@@ -371,10 +371,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                             log("Skipping email notifications for successful builds");
                         }
                         incrementLabel();
-                        writeBuildInfo();
                     } else {
                         sendBuildEmail(_projectName + "Build Failed");
                     }
+                    writeBuildInfo();
                 }
                 long timeToSleep = getSleepTime(startTime);
                 endLog(timeToSleep);
