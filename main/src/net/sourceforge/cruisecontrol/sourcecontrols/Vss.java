@@ -113,8 +113,8 @@ public class Vss implements SourceControl {
      *
      *  @param serverPath
      */
-    public void setServerPath(String serverPath) {
-        this.serverPath = serverPath;
+    public void setServerPath(String dirWithSrcsafeIni) {
+        serverPath = dirWithSrcsafeIni;
     }
 
     /**
@@ -122,8 +122,8 @@ public class Vss implements SourceControl {
      *
      *@param  login
      */
-    public void setLogin(String login) {
-        this.login = login;
+    public void setLogin(String usernameCommaPassword) {
+        login = usernameCommaPassword;
     }
 
     /**
@@ -133,8 +133,8 @@ public class Vss implements SourceControl {
      *
      *@param  property
      */
-    public void setProperty(String property) {
-        this.property = property;
+    public void setProperty(String propertyName) {
+        property = propertyName;
     }
 
     /**
@@ -142,8 +142,8 @@ public class Vss implements SourceControl {
      *
      *  @param  propertyOnDelete
      */
-    public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
+    public void setPropertyOnDelete(String propertyName) {
+        propertyOnDelete = propertyName;
     }
 
     /**
@@ -348,23 +348,8 @@ public class Vss implements SourceControl {
         LOG.debug("VSS history entry END");
 
         try {
-            boolean isLabelEntry = false;
-
             final String labelDelimiter = "**********************";
-            isLabelEntry = labelDelimiter.equals(entry.get(0));
-
-            // Ignore unusual labels of directories which cause parsing errors that
-            // look like this:
-            //
-            // *****  built  *****
-            // Version 4
-            // Label: "autobuild_test"
-            // User: Etucker      Date:  6/26/01   Time: 11:53a
-            // Labeled
-            if (!isLabelEntry) {
-                isLabelEntry =
-                    (entry.size() > 4) && (((String) entry.get(4)).startsWith("Labeled"));
-            }
+            boolean isLabelEntry = labelDelimiter.equals(entry.get(0));
 
             if (isLabelEntry) {
                 LOG.debug("this is a label; ignoring this entry");
@@ -453,6 +438,9 @@ public class Vss implements SourceControl {
                     modification.type = "rename";
                     LOG.debug("this file was renamed");
                     addPropertyOnDelete();
+                } else if (fileLine.startsWith("Labeled")) {
+                   LOG.debug("this is a label; ignoring this entry");
+                   return null;
                 } else {
                     LOG.debug("action for this vss entry (" + fileLine + ") is unknown");
                 }

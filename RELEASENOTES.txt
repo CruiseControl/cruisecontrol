@@ -20,6 +20,10 @@ Schedule
 * Fixed a bug where no builder was selected on a forced build if all the builders were time based.
 * Fixed a bug where time builders set for midnight would build later in the day
 
+Vss
+----------------------
+* Fixed a bug where a label in a root directory was showing up as a modification.
+
 CruiseControl Release Notes - 2.1.3
 
 log4j.properties
