@@ -61,10 +61,14 @@ public class ClearCaseTest extends TestCase {
 
     public static final File TEST_DIR =
         new File("test/net/sourceforge/cruisecontrol/sourcecontrols");
-    public static final File TEST_LOG = 
+    public static final File WINDOWS_LOG = 
         new File(TEST_DIR, "clearcase-history.txt");
-    public static final File TEST_XML =
+    public static final File UNIX_LOG = 
+        new File(TEST_DIR, "clearcase-history-alt.txt");    
+    public static final File WINDOWS_XML =
         new File(TEST_DIR, "clearcase-history.xml");
+    public static final File UNIX_XML =
+        new File(TEST_DIR, "clearcase-history-alt.xml");
 
     public static final SimpleDateFormat DATE_FMT =
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -77,9 +81,16 @@ public class ClearCaseTest extends TestCase {
         clearCase = new ClearCase();
         mods = new Vector();
 
+        File testXML;
+        if (File.separatorChar == '\\') {
+            testXML = WINDOWS_XML;
+        } else {
+            testXML = UNIX_XML;
+        }
+
         // Set up the modification list to match against
         SAXBuilder parser = new SAXBuilder();
-        Document doc = parser.build(TEST_XML);
+        Document doc = parser.build(testXML);
         List elts = doc.getRootElement().getChildren();
 
         Iterator it = elts.iterator();
@@ -95,8 +106,14 @@ public class ClearCaseTest extends TestCase {
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
     public void testClearCaseStream() throws IOException {
+        File testLog;
+        if (File.separatorChar == '\\') {
+            testLog = WINDOWS_LOG;
+        } else {
+            testLog = UNIX_LOG;
+        }
         BufferedInputStream stream =
-            new BufferedInputStream(new FileInputStream(TEST_LOG));
+            new BufferedInputStream(new FileInputStream(testLog));
 
         List list = clearCase.parseStream(stream);
         assertEquals(mods.size(), list.size());
