@@ -125,6 +125,8 @@ public class Project implements Serializable {
             return;
         }
 
+        _now = _modificationSet.getNow();
+
         if (_labelIncrementer.isPreBuildIncrementer()) {
             _label = _labelIncrementer.incrementLabel(_label,
                     cruisecontrolElement);
