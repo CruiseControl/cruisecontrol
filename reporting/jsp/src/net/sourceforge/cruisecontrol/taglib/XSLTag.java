@@ -50,6 +50,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
@@ -92,13 +94,21 @@ public class XSLTag implements Tag, BodyTag {
      *
      *  @return true if the cache file is current.
      */
-    protected boolean isCacheFileCurrent(File xmlFile, File xslFile, File cacheFile) {
+    protected boolean isCacheFileCurrent(File xmlFile, File cacheFile) {
         if(!cacheFile.exists())
             return false;
 
         long xmlLastModified = xmlFile.lastModified();
-        long xslLastModified = xslFile.lastModified();
+        long xslLastModified = xmlLastModified;
         long cacheLastModified = cacheFile.lastModified();
+
+        try {
+          URL url = _pageContext.getServletContext().getResource(_xslFileName);
+          URLConnection con = url.openConnection();
+          xslLastModified = con.getLastModified();
+        } catch (Exception e) {
+          System.err.println("Failed to retrieve lastModified of xsl file " + _xslFileName);
+        }
 
         return (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
     }
@@ -214,9 +224,8 @@ public class XSLTag implements Tag, BodyTag {
 
         String queryString = ((HttpServletRequest) _pageContext.getRequest()).getQueryString();
         File xmlFile = getXMLFile(queryString, logDir);
-        File xslFile = new File(_pageContext.getServletContext().getRealPath(_xslFileName));
         File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile));
-        if(!isCacheFileCurrent(xmlFile, xslFile, cacheFile)) {
+        if(!isCacheFileCurrent(xmlFile, cacheFile)) {
             try {
                 transform(xmlFile, _pageContext.getServletContext().getResourceAsStream(_xslFileName), new FileWriter(new File(cacheDir, getCachedCopyFileName(xmlFile))));
             } catch (IOException e) {
