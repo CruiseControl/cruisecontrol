@@ -63,6 +63,15 @@
     <property name="clover.jar" value="${clover.home}/lib/clover.jar"/>
     <property name="clover.results" value="${target}/clover-results"/>
 
+    <property name="emma.results" value="${target}/emma-results"/>
+    <property name="emma.stats" value="${emma.results}/coverage.emma"/>
+
+    <path id='emma.classpath' >
+        <pathelement location="${lib}/emma.jar"/>
+        <pathelement location="${lib}/emma_ant.jar"/>
+    </path>
+    <taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
+
     <path id="clover.classpath">
         <pathelement location="${clover.jar}"/>
     </path>
@@ -92,6 +101,8 @@
         <mkdir dir="${dist}"/>
         <mkdir dir="${junit.results}"/>
         <mkdir dir="${clover.results}"/>
+        <mkdir dir="${emma.results}"/>
+
         <available file="${lib}/starteam-sdk.jar" property="starteam-sdk-present"/>
         <available file="${lib}/STComm.jar" property="sametime-sdk-present"/>
     	<available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
@@ -170,9 +181,34 @@
         </checkstyle>
     </target>
 
-    <target name="report-coverage" depends="with-clover, clean, compile, compile-test, test, report-clover" 
+    <target name="emma-instrument" depends="init, compile" >
+        <emma>
+          <instr instrpath="${classes}"
+                 outdir="${classes}"
+                 merge="yes"
+                 metadatafile="${emma.results}/metadata.emma"
+                 mode="overwrite"
+          />
+        </emma>
+    </target>
+
+    <target name="report-emma" depends="init, emma-instrument, test">
+        <property name="emma.html.report" value="${emma.results}/coverage.html"/>
+        <emma>
+            <report sourcepath="${src}" >
+                <fileset dir="${emma.results}" >
+                  <include name="*.emma" />
+                </fileset>
+
+                <html outfile="${emma.html.report}" />
+            </report>
+        </emma>
+        <echo message="View EMMA's HTML report at ${emma.html.report}"/>
+    </target>
+
+    <target name="report-coverage" depends="with-clover, clean, compile, compile-test, test, report-clover"
         description="Check test coverage"/>
-    
+
     <target name="report-clover" depends="with-clover">
         <clover-report>
             <current outfile="${clover.results}" title="CruiseControl test coverage">
@@ -210,6 +246,8 @@
                          includes="**/${tests}.class"
                          excludes="**/NantBuilder*Test.class" />
             </batchtest>
+            <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
+            <jvmarg value="-Demma.coverage.out.merge=true" />
         </junit>
     </target>
 
