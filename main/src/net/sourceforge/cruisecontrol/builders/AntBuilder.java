@@ -379,9 +379,6 @@ public class AntBuilder extends Builder {
 
     }
 
-    /**
-     * @param b
-     */
     public void setUseDebug(boolean debug) {
         useDebug = debug;
     }
