@@ -26,6 +26,7 @@ HTMLEmailPublisher
 Schedule
 ----------------------
 * Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
+* Fixed a bug where a time builder wouldn't run if the time was set to midnight. - Patch by Richard Lewis-Shell
 
 NavigationTag
 ----------------------
