@@ -59,6 +59,7 @@ public class AntBuilderTest extends TestCase {
     private final List filesToClear = new ArrayList();
     private AntBuilder builder;
     private String classpath;
+    private String antLauncherPath;
     private Hashtable properties;
     private String javaCmd = "java";
 
@@ -66,6 +67,8 @@ public class AntBuilderTest extends TestCase {
         builder = new AntBuilder();
         builder.setTarget("target");
         builder.setBuildFile("buildfile");
+        classpath = System.getProperty("java.class.path");
+        antLauncherPath = builder.getAntLauncherJarLocation(classpath);
         if (builder.isWindows()) {
             javaCmd = "java.exe";
         }
@@ -73,7 +76,6 @@ public class AntBuilderTest extends TestCase {
         properties = new Hashtable();
         properties.put("label", "200.1.23");
 
-        classpath = System.getProperty("java.class.path");
         
         BasicConfigurator.configure(
             new ConsoleAppender(new PatternLayout("%m%n")));
@@ -125,8 +127,10 @@ public class AntBuilderTest extends TestCase {
             {
                 javaCmd,
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -143,8 +147,10 @@ public class AntBuilderTest extends TestCase {
             {
                 javaCmd,
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -164,8 +170,10 @@ public class AntBuilderTest extends TestCase {
             {
                 javaCmd,
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -182,8 +190,10 @@ public class AntBuilderTest extends TestCase {
             {
                 javaCmd,
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -202,8 +212,10 @@ public class AntBuilderTest extends TestCase {
             {
                 javaCmd,
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -225,8 +237,10 @@ public class AntBuilderTest extends TestCase {
                 javaCmd,
                 "-Xmx256m",
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -250,8 +264,10 @@ public class AntBuilderTest extends TestCase {
                 javaCmd,
                 "-Xmx256m",
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -314,8 +330,10 @@ public class AntBuilderTest extends TestCase {
             {
                 javaCmd,
                 "-classpath",
-                classpath,
+                antLauncherPath,
                 "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                classpath,
                 "-listener",
                 "com.canoo.Logger",
                 "-DXmlLogger.file=log.xml",
@@ -414,5 +432,65 @@ public class AntBuilderTest extends TestCase {
         builder.setTempFile("shouldNot.xml");
         buildElement = builder.build(buildProperties);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+    }
+    
+    public void testGetAntLauncherJarLocationForWindows() throws Exception {
+        AntBuilder windowsBuilder = new AntBuilder() {
+            protected boolean isWindows() {
+                return true;
+            }
+        };
+        String windowsPath = "C:\\Progra~1\\IBM\\WSAD\\v5.1.2\\runtimes\\base_v51\\Java\\lib\\tools.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\dist\\cruisecontrol.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\log4j.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\jdom.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\xerces.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\xalan.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\jakarta-oro-2.0.3.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mail.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\junit.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\activation.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\commons-net-1.1.0.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\starteam-sdk.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-tools.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-remote.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\smack.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\comm.jar;"
+            + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\x10.jar;.";
+        assertEquals("C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar",
+                     windowsBuilder.getAntLauncherJarLocation(windowsPath));
+    }
+
+    public void testGetAntLauncherJarLocationForUnix() throws Exception {
+        AntBuilder unixBuilder = new AntBuilder() {
+            protected boolean isWindows() {
+                return false;
+            }
+        };
+        String unixPath = "/usr/java/jdk1.5.0/lib/tools.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/log4j.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/jdom.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/ant:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/xerces.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/xalan.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/jakarta-oro-2.0.3.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/mail.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/junit.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/activation.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/commons-net-1.1.0.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/starteam-sdk.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-tools.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-remote.jar:"
+            + "/home/joris/java/cruisecontrol-2.2/main/lib/smack.jar:.";
+        assertEquals("/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar",
+                     unixBuilder.getAntLauncherJarLocation(unixPath));
     }
 }
