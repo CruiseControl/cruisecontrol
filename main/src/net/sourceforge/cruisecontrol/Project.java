@@ -930,7 +930,7 @@ public class Project implements Serializable, Runnable {
         sb.append(getName());
         sb.append(": ");
         sb.append(getStatus());
-        if(isPaused) {
+        if (isPaused) {
             sb.append(" (paused)");
         }
         return sb.toString();
