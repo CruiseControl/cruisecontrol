@@ -193,6 +193,14 @@ public class ModificationSet extends Task {
         return ce;
     }
 
+    public FileSystemElement createFileSystemElement() {
+        FileSystemElement fse = new FileSystemElement();
+        fse.setAntTask(this);
+        _sourceControlElements.add(fse);
+        
+        return fse;
+    }
+    
     /**
      * Add a nested element for MKS specific code.
      *
