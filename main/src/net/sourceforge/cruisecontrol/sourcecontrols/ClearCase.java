@@ -36,16 +36,25 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
 
 /**
  *  This class implements the SourceControlElement methods for a Clear Case
@@ -58,8 +67,7 @@ import java.util.*;
  */
 public class ClearCase implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ClearCase.class);
+    private static final Logger LOG = Logger.getLogger(ClearCase.class);
 
     private Hashtable _properties = new Hashtable();
 
@@ -75,23 +83,23 @@ public class ClearCase implements SourceControl {
     private boolean _recursive = true;
 
     /**  Date format required by commands passed to Clear Case */
-    final static SimpleDateFormat IN_DATE_FORMAT =
+    static final SimpleDateFormat IN_DATE_FORMAT =
             new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
     /**  Date format returned in the output of Clear Case commands. */
-    final static SimpleDateFormat OUT_DATE_FORMAT =
+    static final SimpleDateFormat OUT_DATE_FORMAT =
             new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     /**
      *  Unlikely combinaison of characters to separate fields in a ClearCase query
      */
-    final static String DELIMITER = "£~£";
+    static final String DELIMITER = "£~£";
 
     /**
      *  Even more unlikely combinaison of characters to indicate end of one line in query.
      * Carriage return (\n) can be used in comments and so is not available to us.
      */
-    final static String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
+    static final String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
 
     /**
      * Sets the local working copy to use when making queries.
@@ -132,10 +140,12 @@ public class ClearCase implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(_branch == null)
+        if (_branch == null) {
            throw new CruiseControlException("'branch' is a required attribute for ClearCase.");
-        if(_viewPath == null)
+        }
+        if (_viewPath == null) {
            throw new CruiseControlException("'viewpath' is a required attribute for ClearCase.");
+        }
     }
 
     /**
@@ -170,16 +180,27 @@ public class ClearCase implements SourceControl {
             command += " -branch " + _branch;
         }
 
-        if (_recursive == true) {
+        if (_recursive) {
             command += " -r ";
         }
 
         command += " -nco -since " + lastBuildDate;
-        command += " -fmt \"%u" + DELIMITER + "%Nd" + DELIMITER + "%n" + DELIMITER + "%o" + DELIMITER + "%Nc" + END_OF_STRING_DELIMITER + "\\n\" " + _viewPath;
+        command += " -fmt \"%u"
+            + DELIMITER
+            + "%Nd"
+            + DELIMITER
+            + "%n"
+            + DELIMITER
+            + "%o"
+            + DELIMITER
+            + "%Nc"
+            + END_OF_STRING_DELIMITER
+            + "\\n\" "
+            + _viewPath;
 
-        log.info("ClearCase: getting modifications for " + _viewPath);
+        LOG.info("ClearCase: getting modifications for " + _viewPath);
 
-        log.debug("Command to execute : " + command);
+        LOG.debug("Command to execute : " + command);
         List modifications = null;
         try {
             Process p = Runtime.getRuntime().exec(command);
@@ -195,7 +216,7 @@ public class ClearCase implements SourceControl {
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (Exception e) {
-            log.error("Error in executing the Clear Case command : ", e);
+            LOG.error("Error in executing the Clear Case command : ", e);
         }
 
         if (modifications == null) {
@@ -247,7 +268,7 @@ public class ClearCase implements SourceControl {
      *@return  a modification element corresponding to the given line
      */
     private Modification parseEntry(String line) {
-        log.debug("parsing entry: " + line);
+        LOG.debug("parsing entry: " + line);
         StringTokenizer st = new StringTokenizer(line, DELIMITER);
 
         // we should get either 4 (w/o comments) or 5 tokens (w/ comments)
@@ -265,9 +286,8 @@ public class ClearCase implements SourceControl {
         } else {
             comment = "";
         }
-        /*
-         *  a branch event shouldn't trigger a build
-         */
+        
+        // A branch event shouldn't trigger a build
         if (operationType.equals("mkbranch")) {
             return null;
         }
@@ -277,9 +297,11 @@ public class ClearCase implements SourceControl {
         mod.userName = username;
 
         elementName = elementName.substring(elementName.indexOf(File.separator));
-		int branchIndex = elementName.indexOf("@@");
-		String fileName = branchIndex > 0 ? elementName.substring(0, branchIndex) : elementName;
-		
+        int branchIndex = elementName.indexOf("@@");
+        String fileName =
+            branchIndex > 0
+                ? elementName.substring(0, branchIndex)
+                : elementName;
         mod.fileName = fileName.substring(fileName.lastIndexOf(File.separator));
         mod.folderName = fileName.substring(0, fileName.lastIndexOf(File.separator));
 
@@ -293,10 +315,11 @@ public class ClearCase implements SourceControl {
 
         mod.comment = comment;
 
-        if (_property != null)
+        if (_property != null) {
             _properties.put(_property, "true");
+        }
 
-        //TO DO: check if operation type is a delete
+        // TODO: check if operation type is a delete
 
         return mod;
     }

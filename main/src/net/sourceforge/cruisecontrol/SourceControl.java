@@ -52,13 +52,13 @@ import java.util.Hashtable;
 public interface SourceControl {
 
     /**
-	 *  Get a List of Modifications detailing all the changes between now and
-	 *  the last build
-	 *
-	 *@param  lastBuild
-	 *@param  now
-	 *@return List of Modification objects
-	 */
+     *  Get a List of Modifications detailing all the changes between now and
+     *  the last build
+     *
+     *@param  lastBuild
+     *@param  now
+     *@return List of Modification objects
+     */
     public List getModifications(Date lastBuild, Date now);
 
 

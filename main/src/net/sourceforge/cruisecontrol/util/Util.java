@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
 import java.util.Calendar;
@@ -44,38 +44,44 @@ public class Util {
     static final long ONE_MINUTE = 60 * 1000;
     static final long ONE_HOUR   = 60 * ONE_MINUTE;
 
-	/**
-	 *  Create an integer time from a <code>Date</code> object.
-	 *
-	 *  @param date The date to get the timestamp from.
-	 *  @return The time as an integer formatted as "HHmm".
-	 */
-	public static int getTimeFromDate(Date date) {
-	    Calendar calendar = Calendar.getInstance();
-	    calendar.setTime(date);
-	    int hour = calendar.get(Calendar.HOUR_OF_DAY) * 100;
-	    int minute = calendar.get(Calendar.MINUTE);
-	    return hour + minute;
-	}
+    /**
+     *  Create an integer time from a <code>Date</code> object.
+     *
+     *  @param date The date to get the timestamp from.
+     *  @return The time as an integer formatted as "HHmm".
+     */
+    public static int getTimeFromDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY) * 100;
+        int minute = calendar.get(Calendar.MINUTE);
+        return hour + minute;
+    }
 
-	/**
-	 * finds the difference in milliseconds between two integer time
-	 * values of the format "HHmm".
-	 * @param earlier integer time value of format "HHmm"
-	 * @param later integer time value of format "HHmm"
-	 * @return long millisecond time difference
-	 */
-	public static long milliTimeDiffernce(int earlier, int later) {
-		long earlierMillis = convertToMillis(earlier);
-		long laterMillis = convertToMillis(later);
-		return laterMillis-earlierMillis;
-	}
+    /**
+     * finds the difference in milliseconds between two integer time
+     * values of the format "HHmm".
+     * @param earlier integer time value of format "HHmm"
+     * @param later integer time value of format "HHmm"
+     * @return long millisecond time difference
+     */
+    public static long milliTimeDiffernce(int earlier, int later) {
+        long earlierMillis = convertToMillis(earlier);
+        long laterMillis = convertToMillis(later);
+        return laterMillis - earlierMillis;
+    }
 
-	public static long convertToMillis(int HHmm) {
-		int minutes = HHmm % 100;
-		int hours = (HHmm - minutes)/100;
-		long milliseconds = hours * ONE_HOUR + minutes * ONE_MINUTE;
-		return milliseconds;
-	}
+    /**
+     * Convert a time represented by the format "HHmm" into milliseconds.
+     * 
+     * @param hhmm where hh are hours and mm are minutes
+     * @return hhmm in milliseconds
+     */
+    public static long convertToMillis(int hhmm) {
+        int minutes = hhmm % 100;
+        int hours = (hhmm - minutes) / 100;
+        long milliseconds = hours * ONE_HOUR + minutes * ONE_MINUTE;
+        return milliseconds;
+    }
 
 }

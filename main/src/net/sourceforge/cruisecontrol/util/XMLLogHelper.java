@@ -108,7 +108,9 @@ public class XMLLogHelper {
      *  @return true if the build was necessary
      */
     public boolean isBuildNecessary() {
-        if(_log.getChild("build") != null && _log.getChild("build").getAttributeValue("error") != null) {
+        if (_log.getChild("build") != null
+            && _log.getChild("build").getAttributeValue("error") != null) {
+                
             return !_log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
         }
         return true;
@@ -125,11 +127,7 @@ public class XMLLogHelper {
      *  @return true if the build was successful, false otherwise
      */
     public boolean isBuildSuccessful() {
-        if (_log.getChild("build").getAttribute("error") != null) {
-            return false;
-        } else {
-            return true;
-        }
+        return (_log.getChild("build").getAttribute("error") == null);
     }
 
     /**
@@ -138,9 +136,14 @@ public class XMLLogHelper {
      */
     public Set getBuildParticipants() {
         Set results = new HashSet();
-        if(_log.getChild("modifications").getChildren("changelist") != null && !_log.getChild("modifications").getChildren("changelist").isEmpty()) {
+        if (_log.getChild("modifications").getChildren("changelist") != null
+            && !_log
+                .getChild("modifications")
+                .getChildren("changelist")
+                .isEmpty()) {
+                    
             Iterator changelistIterator = _log.getChild("modifications").getChildren("changelist").iterator();
-            while(changelistIterator.hasNext()) {
+            while (changelistIterator.hasNext()) {
                 Element changelistElement = (Element) changelistIterator.next();
                 results.add(changelistElement.getAttributeValue("user"));
             }
@@ -164,9 +167,9 @@ public class XMLLogHelper {
      */
     public String getAntProperty(String propertyName) throws CruiseControlException {
         Iterator propertyIterator = _log.getChild("build").getChild("properties").getChildren("property").iterator();
-        while(propertyIterator.hasNext()) {
+        while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
-            if(property.getAttributeValue("name").equals(propertyName)) {
+            if (property.getAttributeValue("name").equals(propertyName)) {
                 return property.getAttributeValue("value");
             }
         }
@@ -175,9 +178,9 @@ public class XMLLogHelper {
 
     public String getCruiseControlInfoProperty(String propertyName) throws CruiseControlException {
         Iterator propertyIterator = _log.getChild("info").getChildren("property").iterator();
-        while(propertyIterator.hasNext()) {
+        while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
-            if(property.getAttributeValue("name").equals(propertyName)) {
+            if (property.getAttributeValue("name").equals(propertyName)) {
                 return property.getAttributeValue("value");
             }
         }

@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,16 +33,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Element;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
-
-import java.util.*;
+import org.jdom.Element;
 
 /**
  *  Handles scheduling different builds.
@@ -51,12 +54,11 @@ import java.util.*;
  */
 public class Schedule {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(Schedule.class);
+    private static final Logger LOG = Logger.getLogger(Schedule.class);
 
     private List _builders = new ArrayList();
     private List _pauseBuilders = new ArrayList();
-    
+
     static final long ONE_MINUTE = 60 * 1000;
     static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
 
@@ -77,22 +79,23 @@ public class Schedule {
     public boolean isPaused(Date now) {
         PauseBuilder pause = findPause(now);
         if (pause != null) {
-			log.info("CruiseControl is paused until: " + pause.getEndTime()+1);
-        	return true;
-        } 
+            LOG.info(
+                "CruiseControl is paused until: " + pause.getEndTime() + 1);
+            return true;
+        }
         return false;
     }
 
-	PauseBuilder findPause(Date date) {	
-		Iterator pauseBuilderIterator = _pauseBuilders.iterator();
-		while (pauseBuilderIterator.hasNext()) {
-		    PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
-		    if (builder.isPaused(date)) {
-		        return builder;
-		    }
-		}
-		return null;
-	}
+    PauseBuilder findPause(Date date) {
+        Iterator pauseBuilderIterator = _pauseBuilders.iterator();
+        while (pauseBuilderIterator.hasNext()) {
+            PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
+            if (builder.isPaused(date)) {
+                return builder;
+            }
+        }
+        return null;
+    }
 
     /**
      *  Select the correct <code>Builder</code> and start a build.
@@ -105,7 +108,12 @@ public class Schedule {
      *
      *  @return JDOM Element representation of build log.
      */
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
+    public Element build(
+        int buildNumber,
+        Date lastBuild,
+        Date now,
+        Map properties)
+        throws CruiseControlException {
         Builder builder = selectBuilder(buildNumber, lastBuild, now);
         return builder.build(properties);
     }
@@ -120,19 +128,19 @@ public class Schedule {
      *  @return The <code>Builder</code> that should be run.
      */
     protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now)
-            throws CruiseControlException {
+        throws CruiseControlException {
         Iterator builderIterator = _builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
             int buildTime = builder.getTime();
-            boolean isTimeBuilder = buildTime>0;
+            boolean isTimeBuilder = buildTime > 0;
             if (isTimeBuilder) {
-				boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
-            	boolean isAfterBuildTime = buildTime<=Util.getTimeFromDate(now);
-            	boolean isValidDay = builder.isValidDay(now); 
-                if (didntBuildToday
-                    && isAfterBuildTime
-                    && isValidDay) {
+                boolean didntBuildToday =
+                    builderDidntBuildToday(lastBuild, now, buildTime);
+                boolean isAfterBuildTime =
+                    buildTime <= Util.getTimeFromDate(now);
+                boolean isValidDay = builder.isValidDay(now);
+                if (didntBuildToday && isAfterBuildTime && isValidDay) {
                     return builder;
                 }
             } else if (builder.getMultiple() > 0) {
@@ -140,81 +148,90 @@ public class Schedule {
                     return builder;
                 }
             } else {
-                throw new CruiseControlException(
-                        "The selected Builder is not properly configured");
+                throw new CruiseControlException("The selected Builder is not properly configured");
             }
         }
         throw new CruiseControlException("No Builder selected.");
     }
 
-	boolean builderDidntBuildToday(Date lastBuild, Date now, int buildTime) {
-		int time = Util.getTimeFromDate(now);
-		long timeMillis = Util.convertToMillis(time);
-		long startOfToday = now.getTime() - timeMillis;
-		boolean lastBuildYesterday = lastBuild.getTime()<startOfToday;
-		boolean lastBuildTimeBeforeBuildTime = Util.getTimeFromDate(lastBuild)<buildTime;
-		boolean didntBuildToday = lastBuildYesterday || lastBuildTimeBeforeBuildTime;
-		return didntBuildToday;
-	}
-
-    long getTimeToNextBuild(Date now, long sleepInterval) {
-    	long timeToNextBuild = sleepInterval;
-        log.debug("getTimeToNextBuild: inital timeToNextBuild = " + timeToNextBuild);
-		timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
-        log.debug("getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
-		timeToNextBuild = checkPauseBuilders(now, timeToNextBuild);
-        log.debug("getTimeToNextBuild: after checkPauseBuilders = " + timeToNextBuild);
-    	return timeToNextBuild;
+    boolean builderDidntBuildToday(Date lastBuild, Date now, int buildTime) {
+        int time = Util.getTimeFromDate(now);
+        long timeMillis = Util.convertToMillis(time);
+        long startOfToday = now.getTime() - timeMillis;
+        boolean lastBuildYesterday = lastBuild.getTime() < startOfToday;
+        boolean lastBuildTimeBeforeBuildTime =
+            Util.getTimeFromDate(lastBuild) < buildTime;
+        boolean didntBuildToday =
+            lastBuildYesterday || lastBuildTimeBeforeBuildTime;
+        return didntBuildToday;
     }
 
-	long checkTimeBuilders(Date now, long proposedTime) {
-		long timeToNextBuild = proposedTime;
-		int nowTime = Util.getTimeFromDate(now);
-		Iterator builderIterator = _builders.iterator();
-		while (builderIterator.hasNext()) {
-			Builder builder = (Builder) builderIterator.next();
-			int thisBuildTime = builder.getTime();
-			boolean isTimeBuilder = thisBuildTime>0;
-			if (isTimeBuilder) {
-				long timeToThisBuild = Long.MAX_VALUE;
-				boolean isBeforeBuild = nowTime<=thisBuildTime;
-				boolean isValidDay = builder.isValidDay(now);
-				if (isBeforeBuild && isValidDay) {
-					timeToThisBuild = Util.milliTimeDiffernce(nowTime, thisBuildTime);
-				}
-				else {
-					Date tomorrow = new Date(now.getTime()+ONE_DAY);
-					boolean tomorrowIsValid = builder.isValidDay(tomorrow);
-					if (tomorrowIsValid) {
-						long remainingTimeToday = ONE_DAY - Util.convertToMillis(nowTime);
-						long timeTomorrow = Util.convertToMillis(thisBuildTime);
-						timeToThisBuild = remainingTimeToday + timeTomorrow;
-					}
-				}
-				if (timeToThisBuild < timeToNextBuild) {
-					timeToNextBuild = timeToThisBuild;
-				}
-			}
-		}
-		return timeToNextBuild;
-	}
-	
-	long checkPauseBuilders(Date now, long proposedTime) {
-		long futureMillis = now.getTime() + proposedTime;
-		Date futureDate = new Date(futureMillis);
-		PauseBuilder pause = findPause(futureDate);
-		if (pause == null) return proposedTime;
-        
+    long getTimeToNextBuild(Date now, long sleepInterval) {
+        long timeToNextBuild = sleepInterval;
+        LOG.debug(
+            "getTimeToNextBuild: inital timeToNextBuild = " + timeToNextBuild);
+        timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
+        LOG.debug(
+            "getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
+        timeToNextBuild = checkPauseBuilders(now, timeToNextBuild);
+        LOG.debug(
+            "getTimeToNextBuild: after checkPauseBuilders = "
+                + timeToNextBuild);
+        return timeToNextBuild;
+    }
+
+    long checkTimeBuilders(Date now, long proposedTime) {
+        long timeToNextBuild = proposedTime;
+        int nowTime = Util.getTimeFromDate(now);
+        Iterator builderIterator = _builders.iterator();
+        while (builderIterator.hasNext()) {
+            Builder builder = (Builder) builderIterator.next();
+            int thisBuildTime = builder.getTime();
+            boolean isTimeBuilder = thisBuildTime > 0;
+            if (isTimeBuilder) {
+                long timeToThisBuild = Long.MAX_VALUE;
+                boolean isBeforeBuild = nowTime <= thisBuildTime;
+                boolean isValidDay = builder.isValidDay(now);
+                if (isBeforeBuild && isValidDay) {
+                    timeToThisBuild =
+                        Util.milliTimeDiffernce(nowTime, thisBuildTime);
+                } else {
+                    Date tomorrow = new Date(now.getTime() + ONE_DAY);
+                    boolean tomorrowIsValid = builder.isValidDay(tomorrow);
+                    if (tomorrowIsValid) {
+                        long remainingTimeToday =
+                            ONE_DAY - Util.convertToMillis(nowTime);
+                        long timeTomorrow = Util.convertToMillis(thisBuildTime);
+                        timeToThisBuild = remainingTimeToday + timeTomorrow;
+                    }
+                }
+                if (timeToThisBuild < timeToNextBuild) {
+                    timeToNextBuild = timeToThisBuild;
+                }
+            }
+        }
+        return timeToNextBuild;
+    }
+
+    long checkPauseBuilders(Date now, long proposedTime) {
+        long futureMillis = now.getTime() + proposedTime;
+        Date futureDate = new Date(futureMillis);
+        PauseBuilder pause = findPause(futureDate);
+        if (pause == null) {
+            return proposedTime;
+        }
+
         long timeToEndOfPause = proposedTime;
         int endPause = pause.getEndTime();
         int currentTime = Util.getTimeFromDate(now);
         boolean pauseIsTomorrow = currentTime > endPause;
         if (pauseIsTomorrow) {
-            timeToEndOfPause = ONE_DAY - Util.milliTimeDiffernce(endPause, currentTime);
-        }
-        else {
+            timeToEndOfPause =
+                ONE_DAY - Util.milliTimeDiffernce(endPause, currentTime);
+        } else {
             timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
         }
-		return timeToEndOfPause + ONE_MINUTE;
-	}
+        return timeToEndOfPause + ONE_MINUTE;
+    }
+    
 }

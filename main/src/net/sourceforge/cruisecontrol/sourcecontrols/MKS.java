@@ -1,6 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, Skila, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 500
+ * Chicago, IL 60661 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,12 +36,24 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
@@ -55,8 +69,7 @@ import org.apache.log4j.Logger;
  */
 public class MKS implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(MKS.class);
+    private static final Logger LOG = Logger.getLogger(MKS.class);
 
     private Hashtable _properties = new Hashtable();
     private String _property;
@@ -73,12 +86,13 @@ public class MKS implements SourceControl {
      */
     private static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-
     /**
      * This line delimits seperate files in the MKS
      * log information.
      */
-    private static final String MKS_FILE_DELIM = "===============================================================================";
+    private static final String MKS_FILE_DELIM =
+        "===============================================================================";
+        
     /**
      * This is the keyword that precedes the name of the
      * RCS filename in the MKS log information.
@@ -93,7 +107,7 @@ public class MKS implements SourceControl {
      * This line delimits the different revisions of a file
      * in the MKS log information.
      */
-    private static final String MKS_REVISION_DELIM ="----------------------------";
+    private static final String MKS_REVISION_DELIM = "----------------------------";
     /**
      * This is the keyword that precedes the timestamp of a
      * file revision in the MKS log information.
@@ -120,16 +134,8 @@ public class MKS implements SourceControl {
      */
     private static final String NEW_LINE = System.getProperty("line.separator");
 
-    /**
-     * The caller must provide the MKSROOT to use when
-     * calling MKSVS.
-     */
-    private String mksroot;
-    /**
-     * The caller must indicate where the local copy of
-     * the repository exists.
-     */
-    private File local;
+    private String _mksroot;
+    private File _localWorkingCopy;
 
     /**
      * Sets the MKSROOT for all calls to MKS.
@@ -137,7 +143,7 @@ public class MKS implements SourceControl {
      * @param mksroot MKSROOT to use.
      */
     public void setMksroot(String mksroot) {
-        this.mksroot = mksroot;
+        _mksroot = mksroot;
     }
 
     /**
@@ -149,7 +155,7 @@ public class MKS implements SourceControl {
      *               to find the log history.
      */
     public void setLocalWorkingCopy(String local) {
-        this.local = new File(local);
+        _localWorkingCopy = new File(local);
     }
 
     public void setProperty(String property) {
@@ -165,8 +171,9 @@ public class MKS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(mksroot == null)
+        if (_mksroot == null) {
             throw new CruiseControlException("'mksroot' is a required attribute on MKS");
+        }
     }
 
     /**
@@ -180,9 +187,10 @@ public class MKS implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         List mods = null;
 
-        String dateRange = "\""+MKSDATE.format(lastBuild) +"<" + MKSDATE.format(now)+"\"";
-        String commandArray = "rlog -q -d"+dateRange+ " -P"+mksroot;
-        log.debug("Executing: " + commandArray);
+        String dateRange =
+            "\"" + MKSDATE.format(lastBuild) + "<" + MKSDATE.format(now) + "\"";
+        String commandArray = "rlog -q -d" + dateRange + " -P" + _mksroot;
+        LOG.debug("Executing: " + commandArray);
 
         try {
             Process p = Runtime.getRuntime().exec(commandArray);
@@ -215,10 +223,13 @@ public class MKS implements SourceControl {
         /*********************************************/
        Iterator itr = mods.iterator();
 
-        while (itr.hasNext())
-        {
-          Modification mod = (Modification) itr.next();
-          System.out.println(" File Modified :" + mod.fileName + "Time Modified :" + mod.modifiedTime.toString());
+        while (itr.hasNext()) {
+            Modification mod = (Modification) itr.next();
+            System.out.println(
+                " File Modified :"
+                    + mod.fileName
+                    + "Time Modified :"
+                    + mod.modifiedTime.toString());
         }
 
 
@@ -247,17 +258,17 @@ public class MKS implements SourceControl {
         //  with this line. A MKS_FILE_DELIMITER is NOT present. If no RCS file lines
         // are found then there is nothing to do.
        // String line = readToNotPast(reader,MKS_RCSFILE_LINE, null);
-        String line = readToNotPast(reader,MKS_RCSFILE_LINE, null);
+        String line = readToNotPast(reader, MKS_RCSFILE_LINE, null);
 
         while (line != null) {
 
             //Parse the single file entry, which may include several modifications.
-            List returnList = parseEntry(reader,line);
+            List returnList = parseEntry(reader, line);
             //Add all the modifications to the local list.
             mods.addAll(returnList);
             //Read to the next RCS file line. The MKS_FILE_DELIMITER may have been
             //  consumed by the parseEntry method, so we cannot read to it.
-            line = readToNotPast(reader,MKS_RCSFILE_LINE, null);
+            line = readToNotPast(reader, MKS_RCSFILE_LINE, null);
 
 
         }
@@ -285,7 +296,10 @@ public class MKS implements SourceControl {
         //String workingFileLine = readToNotPast(reader, MKS_WORKINGFILE_LINE, null);
         String workingFileLine =  archFileLine;
 
-        String workingFilename = workingFileLine.substring(workingFileLine.indexOf(MKS_WORKINGFILE_LINE)+MKS_WORKINGFILE_LINE.length());
+        String workingFilename =
+            workingFileLine.substring(
+                workingFileLine.indexOf(MKS_WORKINGFILE_LINE)
+                    + MKS_WORKINGFILE_LINE.length());
        // System.err.println("WorkingFilename :" + workingFilename);
 
         while (nextLine != null && !nextLine.startsWith(MKS_FILE_DELIM)) {
@@ -343,7 +357,7 @@ public class MKS implements SourceControl {
                // nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
             } catch (ParseException pe) {
-                log.error("Error parsing date stamp.", pe);
+                LOG.error("Error parsing date stamp.", pe);
             }
 
             nextModification.userName = authorName;
@@ -352,14 +366,17 @@ public class MKS implements SourceControl {
 
             if (stateKeyword.equalsIgnoreCase(MKS_REVISION_DELETED)) {
                 nextModification.type = "deleted";
-                if( _propertyOnDelete != null )
+                if (_propertyOnDelete != null) {
                     _properties.put(_propertyOnDelete, "true");
-                if(_property != null)
+                }
+                if (_property != null) {
                     _properties.put(_property, "true");
+                }
             } else {
                 nextModification.type = "modified";
-                if(_property != null)
+                if (_property != null) {
                     _properties.put(_property, "true");
+                }
             }
 
             mods.add(nextModification);
@@ -390,7 +407,9 @@ public class MKS implements SourceControl {
 
 
         String nextLine = "";
-        while (nextLine != null && (!nextLine.startsWith(beginsWith)) && !(nextLine.indexOf(beginsWith) != -1) ){
+        while (nextLine != null
+            && (!nextLine.startsWith(beginsWith))
+            && !(nextLine.indexOf(beginsWith) != -1)) {
 
             if (checkingNotPast && nextLine.startsWith(notPast)) {
                 return null;

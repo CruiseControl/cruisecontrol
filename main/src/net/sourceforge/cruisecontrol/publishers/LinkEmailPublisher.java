@@ -51,8 +51,7 @@ import org.apache.log4j.Logger;
  */
 public class LinkEmailPublisher extends EmailPublisher {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(LinkEmailPublisher.class);
+    private static final Logger LOG = Logger.getLogger(LinkEmailPublisher.class);
 
     /**
      *  Creates the email message body.  This implementation of <code>EmailPublisher</code> just creates a message
@@ -65,9 +64,12 @@ public class LinkEmailPublisher extends EmailPublisher {
         try {
             logFileName = logHelper.getLogFileName();
         } catch (CruiseControlException e) {
-            log.error("", e);
+            LOG.error("", e);
         }
-        String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(File.separator) + 1, logFileName.lastIndexOf("."));
+        String baseLogFileName =
+            logFileName.substring(
+                logFileName.lastIndexOf(File.separator) + 1,
+                logFileName.lastIndexOf("."));
 
         StringBuffer message = new StringBuffer();
         message.append("View results here -> ");
@@ -78,17 +80,17 @@ public class LinkEmailPublisher extends EmailPublisher {
 
     }
 
-  	/*
-	 *  Called  after the configuration is read to make sure that all the
-	 * mandatory parameters  were specified..
-	 *
-	 *  @throws  CruiseControlException if there was a configuration error.
-  	 */
-	public void validate() throws CruiseControlException {
-		 if(getBuildResultsURL() == null) {
-			 throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
-		 }
-		 super.validate();
-	}
+    /*
+    *  Called  after the configuration is read to make sure that all the
+    * mandatory parameters  were specified..
+    *
+    *  @throws  CruiseControlException if there was a configuration error.
+     */
+    public void validate() throws CruiseControlException {
+        if (getBuildResultsURL() == null) {
+            throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
+        }
+        super.validate();
+    }
 
 }

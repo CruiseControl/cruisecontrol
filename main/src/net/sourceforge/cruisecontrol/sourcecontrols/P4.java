@@ -35,16 +35,28 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.SourceControl;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+
 import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The
@@ -66,37 +78,33 @@ import java.util.*;
  */
 public class P4 implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(P4.class);
+    private static final Logger LOG = Logger.getLogger(P4.class);
 
-    //P4 runtime directives
-
-    private String _P4Port;
-    private String _P4Client;
-    private String _P4User;
-    private String _P4View;
-    private final static java.text.SimpleDateFormat P4DATE = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private final static java.text.SimpleDateFormat P4REVISIONDATE = new java.text.SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+    private String _p4Port;
+    private String _p4Client;
+    private String _p4User;
+    private String _p4View;
+    private static final SimpleDateFormat P4_DATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final SimpleDateFormat P4_REVISION_DATE = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
     private Hashtable _properties = new Hashtable();
     private String _property;
     private String _propertyOnDelete;
 
-    //Setters called by PluginXMLHelper
-    public void setPort(String P4Port) {
-        this._P4Port = P4Port;
+    public void setPort(String p4Port) {
+        _p4Port = p4Port;
     }
 
-    public void setClient(String P4Client) {
-        this._P4Client = P4Client;
+    public void setClient(String p4Client) {
+        _p4Client = p4Client;
     }
 
-    public void setUser(String P4User) {
-        this._P4User = P4User;
+    public void setUser(String p4User) {
+        _p4User = p4User;
     }
 
-    public void setView(String P4View) {
-        this._P4View = P4View;
+    public void setView(String p4View) {
+        _p4View = p4View;
     }
 
     public void setProperty(String property) {
@@ -121,14 +129,18 @@ public class P4 implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(_P4Port == null)
+        if (_p4Port == null) {
             throw new CruiseControlException("'port' is a required attribute on P4");
-        if(_P4Client == null)
+        }
+        if (_p4Client == null) {
             throw new CruiseControlException("'client' is a required attribute on P4");
-        if(_P4User == null)
+        }
+        if (_p4User == null) {
             throw new CruiseControlException("'user' is a required attribute on P4");
-        if(_P4View == null)
+        }
+        if (_p4View == null) {
             throw new CruiseControlException("'view' is a required attribute on P4");
+        }
     }
 
     /**
@@ -151,7 +163,7 @@ public class P4 implements SourceControl {
             String[] changelistNumbers = null;
             {
                 Commandline command = buildChangesCommand(lastBuild, now);
-                log.debug("Executing: " + command.toString());
+                LOG.debug("Executing: " + command.toString());
                 Process p = Runtime.getRuntime().exec(command.getCommandline());
 
                 logErrorStream(p.getErrorStream());
@@ -182,7 +194,7 @@ public class P4 implements SourceControl {
 
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("Log command failed to execute succesfully", e);
+            LOG.error("Log command failed to execute succesfully", e);
         }
 
         return changeListsToElement(mods);
@@ -240,25 +252,25 @@ public class P4 implements SourceControl {
 
                 st.nextToken(); // skip 'text:' text
                 st.nextToken(); // skip 'Change' text
-                changelist._changelistNumber = st.nextToken();
+                changelist.changelistNumber = st.nextToken();
                 st.nextToken(); // skip 'by' text
                 {
                     // split user@client
                     StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
-                    changelist._user = st2.nextToken();
-                    changelist._client = st2.nextToken();
+                    changelist.user = st2.nextToken();
+                    changelist.client = st2.nextToken();
                 }
                 st.nextToken(); // skip 'on' text
-                changelist._dateOfSubmission = st.nextToken();
+                changelist.dateOfSubmission = st.nextToken();
             }
 
             line = reader.readLine(); // get past a 'text:'
             StringBuffer descriptionBuffer = new StringBuffer();
             // Use this since we don't want the final (empty) line
             String previousLine = null;
-            while ((line = reader.readLine()) != null &&
-                    line.startsWith("text:") &&
-                    !line.startsWith("text: Affected files ...")) {
+            while ((line = reader.readLine()) != null
+                && line.startsWith("text:")
+                && !line.startsWith("text: Affected files ...")) {
 
                 if (previousLine != null) {
                     if (descriptionBuffer.length() > 0) {
@@ -269,11 +281,11 @@ public class P4 implements SourceControl {
                 try {
                     previousLine = line.substring(5).trim();
                 } catch (Exception e) {
-                    log.error("Error parsing Perforce description, line that caused problem was: [" + line + "]");
+                    LOG.error("Error parsing Perforce description, line that caused problem was: [" + line + "]");
                 }
 
             }
-            changelist._description = descriptionBuffer.toString();
+            changelist.description = descriptionBuffer.toString();
 
             // Ok, read affected files if there are any.
             if (line != null) {
@@ -283,7 +295,7 @@ public class P4 implements SourceControl {
                     affectedFile.filename = line.substring(7, line.lastIndexOf(" ") - 2);
                     affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
                     affectedFile.revision = line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
-                    changelist._affectedFiles.add(affectedFile);
+                    changelist.affectedFiles.add(affectedFile);
                 }
             }
             changelists.add(changelist);
@@ -310,19 +322,19 @@ public class P4 implements SourceControl {
         commandLine.setExecutable("p4");
         commandLine.createArgument().setValue("-s");
 
-        if (_P4Client != null) {
+        if (_p4Client != null) {
             commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(_P4Client);
+            commandLine.createArgument().setValue(_p4Client);
         }
 
-        if (_P4Port != null) {
+        if (_p4Port != null) {
             commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(_P4Port);
+            commandLine.createArgument().setValue(_p4Port);
         }
 
-        if (_P4User != null) {
+        if (_p4User != null) {
             commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(_P4User);
+            commandLine.createArgument().setValue(_p4User);
         }
 
 //        execP4Command("changes -m 1 -s submitted " + _P4View,
@@ -330,7 +342,12 @@ public class P4 implements SourceControl {
         commandLine.createArgument().setValue("changes");
         commandLine.createArgument().setValue("-s");
         commandLine.createArgument().setValue("submitted");
-        commandLine.createArgument().setValue(_P4View + "@" + P4REVISIONDATE.format(lastBuildTime) + ",@" + P4REVISIONDATE.format(now));
+        commandLine.createArgument().setValue(
+            _p4View
+                + "@"
+                + P4_REVISION_DATE.format(lastBuildTime)
+                + ",@"
+                + P4_REVISION_DATE.format(now));
 
         return commandLine;
     }
@@ -341,19 +358,19 @@ public class P4 implements SourceControl {
         commandLine.setExecutable("p4");
         commandLine.createArgument().setValue("-s");
 
-        if (_P4Client != null) {
+        if (_p4Client != null) {
             commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(_P4Client);
+            commandLine.createArgument().setValue(_p4Client);
         }
 
-        if (_P4Port != null) {
+        if (_p4Port != null) {
             commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(_P4Port);
+            commandLine.createArgument().setValue(_p4Port);
         }
 
-        if (_P4User != null) {
+        if (_p4User != null) {
             commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(_P4User);
+            commandLine.createArgument().setValue(_p4User);
         }
 
 //        execP4Command("describe -s " + changeNumber.toString(),
@@ -393,37 +410,37 @@ public class P4 implements SourceControl {
      * user, client, date of submission, textual description, list
      * of affected files
      */
-
     class Changelist {
-        String _changelistNumber;
-        String _user;
-        String _client;
-        String _dateOfSubmission;
-        String _description;
-        Vector _affectedFiles = new Vector();
+        public String changelistNumber;
+        public String user;
+        public String client;
+        public String dateOfSubmission;
+        public String description;
+        public Vector affectedFiles = new Vector();
 
         public Element toElement() {
             Element changelistElement = new Element("changelist");
             changelistElement.setAttribute("type", "p4");
-            changelistElement.setAttribute("changelistNumber", _changelistNumber);
-            changelistElement.setAttribute("user", _user);
-            changelistElement.setAttribute("client", _client);
-            changelistElement.setAttribute("dateOfSubmission", _dateOfSubmission);
+            changelistElement.setAttribute("changelistNumber", changelistNumber);
+            changelistElement.setAttribute("user", user);
+            changelistElement.setAttribute("client", client);
+            changelistElement.setAttribute("dateOfSubmission", dateOfSubmission);
             Element descriptionElement = new Element("description");
-            descriptionElement.addContent(new CDATA(_description));
+            descriptionElement.addContent(new CDATA(description));
             changelistElement.addContent(descriptionElement);
-            for (int i = 0; i < _affectedFiles.size(); i++) {
-                AffectedFile affectedFile = (AffectedFile) _affectedFiles.elementAt(i);
+            for (int i = 0; i < affectedFiles.size(); i++) {
+                AffectedFile affectedFile = (AffectedFile) affectedFiles.elementAt(i);
                 changelistElement.addContent(affectedFile.toElement());
             }
             return changelistElement;
         }
+        
     }
 
     class AffectedFile {
-        String filename;
-        String revision;
-        String action;
+        public String filename;
+        public String revision;
+        public String action;
 
         public Element toElement() {
             Element affectedFileElement = new Element("affectedfile");
@@ -441,5 +458,3 @@ public class P4 implements SourceControl {
     }
 
 }
-
-// P4Element

@@ -1,6 +1,6 @@
-/*******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,21 +33,32 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
 
-import java.io.*;
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods for a CVS repository.
@@ -74,116 +85,99 @@ public class CVS implements SourceControl {
      * If CVSROOT/users exists, it's contents will be parsed and stored in this
      * hashtable.
      */
-    private Hashtable mailAliases = new Hashtable();
+    private Hashtable _mailAliases = new Hashtable();
+    private String _cvsroot;
+    private String _localWorkingCopy;
+    private String _cvsTag;
 
-    /**
-     * The caller must provide the CVSROOT to use when calling CVS.
-     */
-    private String cvsroot;
-
-    /**
-     * The caller must indicate where the local copy of the repository
-     * exists.
-     */
-    private String local;
-
-    /**
-     * The CVS tag we are dealing with.
-     */
-    private String tag;
-
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(CVS.class);
+    private static final Logger LOG = Logger.getLogger(CVS.class);
 
     /**
      *  This line delimits seperate files in the CVS log information.
      */
-    private final static String CVS_FILE_DELIM =
+    private static final String CVS_FILE_DELIM =
             "=============================================================================";
 
     /**
      * This is the keyword that precedes the name of the RCS filename in the CVS
      * log information.
      */
-    private final static String CVS_RCSFILE_LINE = "RCS file: ";
+    private static final String CVS_RCSFILE_LINE = "RCS file: ";
 
     /**
      * This is the keyword that precedes the name of the working filename in the
      * CVS log information.
      */
-    private final static String CVS_WORKINGFILE_LINE = "Working file: ";
+    private static final String CVS_WORKINGFILE_LINE = "Working file: ";
 
     /**
      * This line delimits the different revisions of a file in the CVS log
      * information.
      */
-    private final static String CVS_REVISION_DELIM =
+    private static final String CVS_REVISION_DELIM =
             "----------------------------";
 
     /**
      * This is the keyword that precedes the timestamp of a file revision in the
      * CVS log information.
      */
-    private final static String CVS_REVISION_DATE = "date:";
+    private static final String CVS_REVISION_DATE = "date:";
 
     /**
      * This is the keyword that precedes the author of a file revision in the
      * CVS log information.
      */
-    private final static String CVS_REVISION_AUTHOR = "author:";
+    private static final String CVS_REVISION_AUTHOR = "author:";
 
     /**
      * This is the keyword that precedes the state keywords of a file revision
      * in the CVS log information.
      */
-    private final static String CVS_REVISION_STATE = "state:";
+    private static final String CVS_REVISION_STATE = "state:";
 
     /**
      * This is the name of the tip of the main branch, which needs special handling with
      * the log entry parser
      */
-    private final static String CVS_HEAD_TAG = "HEAD";
+    private static final String CVS_HEAD_TAG = "HEAD";
 
     /**
      * This is the keyword that precedes the revision as found in the
      * CVS log information.
      */
-    private final static String CVS_REVISION_REVISION = "revision";
+    private static final String CVS_REVISION_REVISION = "revision";
 
     /**
      * This is the keyword that tells us when we have reaced the ned of the
      * header as found in the CVS log information.
      */
-    private final static String CVS_DESCRIPTION = "description:";
+    private static final String CVS_DESCRIPTION = "description:";
 
     /**
      * This is a state keyword which indicates that a revision to a file was not
      * relevant to the current branch, or the revision consisted of a deletion
      * of the file (removal from branch..).
      */
-    private final static String CVS_REVISION_DEAD = "dead";
+    private static final String CVS_REVISION_DEAD = "dead";
 
     /**
      * This is the log string set for files that are added on a different branch
      */
-    private final static String CVS_BRANCH_ADDED =
+    private static final String CVS_BRANCH_ADDED =
             "was initially added on branch";
 
-    /**
-     * System dependent new line seperator.
-     */
-    private final static String NEW_LINE = System.getProperty("line.separator");
+    private static final String NEW_LINE = System.getProperty("line.separator");
 
     /**
      * This is the date format required by commands passed to CVS.
      */
-    final static SimpleDateFormat CVSDATE =
+    private static final SimpleDateFormat CVSDATE =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
 
     /**
      *  This is the date format returned in the log information from CVS.
      */
-    final static SimpleDateFormat LOGDATE =
+    static final SimpleDateFormat LOGDATE =
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
 
     static {
@@ -199,7 +193,7 @@ public class CVS implements SourceControl {
      *@param cvsroot CVSROOT to use.
      */
     public void setCvsRoot(String cvsroot) {
-        this.cvsroot = cvsroot;
+        _cvsroot = cvsroot;
     }
 
     /**
@@ -209,7 +203,7 @@ public class CVS implements SourceControl {
      *      working copy of the module of which to find the log history.
      */
     public void setLocalWorkingCopy(String local) throws CruiseControlException {
-        this.local = local;
+        _localWorkingCopy = local;
         if (local != null && !new File(local).exists()) {
             throw new CruiseControlException(
                     "Local working copy \"" + local + "\" does not exist!");
@@ -222,7 +216,7 @@ public class CVS implements SourceControl {
      * @param tag the cvs tag
      */
     public void setTag(String tag) {
-        this.tag = tag;
+        _cvsTag = tag;
     }
 
     public void setProperty(String property) {
@@ -238,8 +232,9 @@ public class CVS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(cvsroot == null)
+        if (_cvsroot == null) {
             throw new CruiseControlException("'cvsroot' is a required attribute on CVS");
+        }
     }
 
     /**
@@ -254,7 +249,7 @@ public class CVS implements SourceControl {
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild));
         } catch (Exception e) {
-            log.error("Log command failed to execute succesfully", e);
+            LOG.error("Log command failed to execute succesfully", e);
         }
 
         if (mods == null) {
@@ -270,18 +265,18 @@ public class CVS implements SourceControl {
      * If CVSROOT/users doesn't exist, an empty Hashtable is returned.
      */
     private Hashtable getMailAliases() {
-        if (mailAliases == null) {
-            mailAliases = new Hashtable();
+        if (_mailAliases == null) {
+            _mailAliases = new Hashtable();
             Commandline commandLine = new Commandline();
             commandLine.setExecutable("cvs");
 
-            if (cvsroot != null) {
+            if (_cvsroot != null) {
                 commandLine.createArgument().setValue("-d");
-                commandLine.createArgument().setValue(cvsroot);
+                commandLine.createArgument().setValue(_cvsroot);
             }
 
             commandLine.createArgument().setLine("-q co -p CVSROOT/users");
-            log.debug("Executing: " + commandLine);
+            LOG.debug("Executing: " + commandLine);
 
             Process p = null;
             try {
@@ -293,14 +288,12 @@ public class CVS implements SourceControl {
                 String line;
 
                 while ((line = in.readLine()) != null) {
-                    log.debug("Mapping " + line);
+                    LOG.debug("Mapping " + line);
                     int colon = line.indexOf(':');
-                    if (colon < 1) {
-                        // log an error
-                    } else {
+                    if (colon >= 1) {
                         String user = line.substring(0, colon);
                         String address = line.substring(colon + 1);
-                        mailAliases.put(user, address);
+                        _mailAliases.put(user, address);
                     }
                 }
 
@@ -309,15 +302,15 @@ public class CVS implements SourceControl {
                 p.getOutputStream().close();
                 p.getErrorStream().close();
             } catch (Exception e) {
-                log.error("Failed reading mail aliases", e);
+                LOG.error("Failed reading mail aliases", e);
             }
 
             if (p == null || p.exitValue() != 0) {
-                mailAliases = new Hashtable();
+                _mailAliases = new Hashtable();
             }
         }
 
-        return mailAliases;
+        return _mailAliases;
     }
 
     /**
@@ -328,9 +321,9 @@ public class CVS implements SourceControl {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cvs");
 
-        if (cvsroot != null) {
+        if (_cvsroot != null) {
             commandLine.createArgument().setValue("-d");
-            commandLine.createArgument().setValue(cvsroot);
+            commandLine.createArgument().setValue(_cvsroot);
         }
         commandLine.createArgument().setValue("-q");
 
@@ -338,12 +331,12 @@ public class CVS implements SourceControl {
         String dateRange = ">" + formatCVSDate(lastBuildTime);
         commandLine.createArgument().setValue("-d" + dateRange);
 
-        if (tag != null) {
+        if (_cvsTag != null) {
             // add -b and -rTAG to list changes relative to the current branch,
             // not relative to the default branch, which is HEAD
 
             // note: -r cannot have a space between itself and the tag spec.
-            commandLine.createArgument().setValue("-r" + tag);
+            commandLine.createArgument().setValue("-r" + _cvsTag);
         } else {
             // This is used to include the head only if a Tag is not specified.
             commandLine.createArgument().setValue("-b");
@@ -405,7 +398,7 @@ public class CVS implements SourceControl {
      *      separator.
      */
     private String getLocalPath() {
-        return local.replace('\\', '/');
+        return _localWorkingCopy.replace('\\', '/');
     }
 
     private boolean preJava13() {
@@ -416,10 +409,10 @@ public class CVS implements SourceControl {
     private List execHistoryCommand(Commandline command) throws Exception {
         Process p = null;
 
-        if (local != null) {
+        if (_localWorkingCopy != null) {
             if (System.getProperty("os.name").equalsIgnoreCase("Linux")
                     && !(preJava13())) {
-                log.debug("Executing: " + command + " in directory: "
+                LOG.debug("Executing: " + command + " in directory: "
                           + getLocalPath());
 
                 // Use reflection to call this JDK 1.3 method
@@ -443,7 +436,7 @@ public class CVS implements SourceControl {
         }
 
         if (p == null) {
-            log.debug("Executing: " + command);
+            LOG.debug("Executing: " + command);
             p = Runtime.getRuntime().exec(command.getCommandline());
         }
 
@@ -457,13 +450,13 @@ public class CVS implements SourceControl {
         p.getOutputStream().close();
         p.getErrorStream().close();
 
-        mailAliases = getMailAliases();
+        _mailAliases = getMailAliases();
 
         return mods;
     }
 
     protected void setMailAliases(Hashtable mailAliases) {
-        this.mailAliases = mailAliases;
+        _mailAliases = mailAliases;
     }
 
     private void logErrorStream(Process p) {
@@ -493,18 +486,26 @@ public class CVS implements SourceControl {
         String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
         String branchRevisionName = null;
 
-        if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
+        if (_cvsTag != null && !_cvsTag.equals(CVS_HEAD_TAG)) {
             // Look for the revision of the form "tag: *.(0.)y ". this doesn't work for HEAD
             // get line with branch revision on it.
 
-            String branchRevisionLine = readToNotPast(reader, "\t"+tag+": ", CVS_DESCRIPTION);
+            String branchRevisionLine =
+                readToNotPast(reader, "\t" + _cvsTag + ": ", CVS_DESCRIPTION);
 
-            if(branchRevisionLine!=null) {
+            if (branchRevisionLine != null) {
                 // Look for the revision of the form "tag: *.(0.)y "
-                branchRevisionName = branchRevisionLine.substring(tag.length()+3);
-                if(branchRevisionName.charAt(branchRevisionName.lastIndexOf(".")-1)=='0') {
-                    branchRevisionName= branchRevisionName.substring(0,branchRevisionName.lastIndexOf(".")-2)+
-                    branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
+                branchRevisionName =
+                    branchRevisionLine.substring(_cvsTag.length() + 3);
+                if (branchRevisionName
+                    .charAt(branchRevisionName.lastIndexOf(".") - 1)
+                    == '0') {
+                    branchRevisionName =
+                        branchRevisionName.substring(
+                            0,
+                            branchRevisionName.lastIndexOf(".") - 2)
+                            + branchRevisionName.substring(
+                                branchRevisionName.lastIndexOf("."));
                 }
             }
         }
@@ -520,9 +521,10 @@ public class CVS implements SourceControl {
             StringTokenizer tokens = new StringTokenizer(nextLine, " ");
             tokens.nextToken();
             String revision = tokens.nextToken();
-            if(tag != null && !tag.equals(CVS_HEAD_TAG)) {
-                String itsBranchRevisionName = revision.substring(0,revision.lastIndexOf('.'));
-                if(!itsBranchRevisionName.equals(branchRevisionName)) {
+            if (_cvsTag != null && !_cvsTag.equals(CVS_HEAD_TAG)) {
+                String itsBranchRevisionName =
+                    revision.substring(0, revision.lastIndexOf('.'));
+                if (!itsBranchRevisionName.equals(branchRevisionName)) {
                     break;
                 }
             }
@@ -581,7 +583,8 @@ public class CVS implements SourceControl {
             Modification nextModification = new Modification();
 
             int lastSlashIndex = workingFileName.lastIndexOf("/");
-            nextModification.fileName = workingFileName.substring(lastSlashIndex+1);
+            nextModification.fileName =
+                workingFileName.substring(lastSlashIndex + 1);
             if (lastSlashIndex != -1) {
                 nextModification.folderName = workingFileName.substring(0, lastSlashIndex);
             } else {
@@ -592,29 +595,31 @@ public class CVS implements SourceControl {
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " "
                                                               + timeStamp + " GMT");
             } catch (ParseException pe) {
-                log.error("Error parsing cvs log for date and time", pe);
+                LOG.error("Error parsing cvs log for date and time", pe);
                 return null;
             }
 
             nextModification.userName = authorName;
 
 
-            String address = (String)mailAliases.get(authorName);
-            if(address != null) {
+            String address = (String) _mailAliases.get(authorName);
+            if (address != null) {
                 nextModification.emailAddress = address;
             }
 
             nextModification.comment = (message != null ? message : "");
 
-            if(stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD) && message.indexOf("was initially added on branch")!=-1) {
-                log.debug("skipping branch addition activity for " + nextModification);
+            if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)
+                && message.indexOf("was initially added on branch") != -1) {
+                    
+                LOG.debug("skipping branch addition activity for " + nextModification);
                 //this prevents additions to a branch from showing up as action "deleted" from head
                 continue;
             }
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)) {
                 nextModification.type = "deleted";
-                 if( _propertyOnDelete != null ) {
+                if (_propertyOnDelete != null) {
                      _properties.put(_propertyOnDelete, "true");
                  }
             } else if (isAdded) {
@@ -622,7 +627,7 @@ public class CVS implements SourceControl {
             } else {
                 nextModification.type = "modified";
             }
-            if( _property != null ) {
+            if (_property != null) {
                 _properties.put(_property, "true");
             }
             mods.add(nextModification);
