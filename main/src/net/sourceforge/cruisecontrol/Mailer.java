@@ -21,8 +21,10 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.*;
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.net.InetAddress;
 import java.util.*;
-import org.apache.tools.mail.MailMessage;
 
 /**
  * The Mailer can handle sending simple character based mail messages.
@@ -107,26 +109,46 @@ public class Mailer {
      *
      * @param subject Subject of the mail message.
      * @param message Message body.
-     * @throws IOException
+     * @throws MessagingException
      */
-    public void sendMessage(String subject, String message) 
-      throws IOException {
+    public void sendMessage(String subject, String message) throws MessagingException {
+         sendMessage(subject, message, false);
+    }
+    
+     /**
+      * Sends a message to the recipient(s) managed by this
+      * Mailer instance.
+      * 
+      * @param subject Subject of the mail message.
+      * @param message Message body.
+      * @param debug   true to output standard debug information from the
+      *                JavaMail Transport Provider.
+      * @exception MessagingException
+      */
+     public void sendMessage(String subject, String message, boolean debug) 
+       throws MessagingException  {
         if (mailhost == null || mailhost.equals("")) {
-            System.out.println("\nMail was not sent, as no mailhost has been specified");
+            System.out.println(
+              "\nMail was not sent, as no mailhost has been specified");
             return;
         }
 
-        MailMessage msg = new MailMessage(mailhost);
-        msg.from(from);
-        msg.to(to);
-        msg.setSubject(subject);
-        
-        PrintStream msg_out = msg.getPrintStream();
-        msg_out.println(message);
-        msg.setHeader("X-Mailer", "MasterBuild.Mailer");
-        msg.sendAndClose();
-        
-        System.out.println("\nMail was sent successfully.");
-    }
+         Properties props = System.getProperties();
+         props.put("mail.smtp.host", mailhost);
+         Session session = Session.getDefaultInstance(props, null);
+         session.setDebug(debug);
     
+         Message msg = new MimeMessage(session);
+         msg.setFrom(new InternetAddress(from));
+         msg.setRecipients(Message.RecipientType.TO, 
+           InternetAddress.parse(to, false));
+         msg.setSubject(subject);
+         msg.setText(message);
+         msg.setSentDate(new Date());
+ 
+         // send the message off
+         Transport.send(msg);
+         System.out.println("\nMail was sent successfully.");         
+     } 
+
 }
