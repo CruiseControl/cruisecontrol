@@ -11,174 +11,175 @@ import javax.servlet.http.*;
 
 import org.apache.xalan.xslt.*;
 
-
-
 public class BuildServlet extends HttpServlet {
 
-// **** these are coming from the properties file
-private String _logDir = "";
-private String _xslFile = "";
-private String _title = "";
-private String _logo = "";
-private String _currentBuildStatusFile = "";
-private String _servletURL = "";
-private String _imageDir = "";
+    // **** these are coming from the properties file
+    private String _logDir = "";
+    private String _xslFile = "";
+    private String _title = "";
+    private String _logo = "";
+    private String _currentBuildStatusFile = "";
+    private String _servletURL = "";
+    private String _imageDir = "";
 
-private String _logFile;
-private FileReader _xml;
-private FileReader _xsl;
+    private String _logFile;
+    private FileReader _xml;
+    private FileReader _xsl;
 
-   /**
-    *	load properties file
-    */
-   public void init() {
-      try {
-         _logDir = getServletConfig().getInitParameter("logDir");
-         _xslFile = getServletConfig().getInitParameter("xslFile");
-         _title = getServletConfig().getInitParameter("pageTitle");
-         _imageDir = getServletConfig().getInitParameter("imageDir");
-         _logo = getServletConfig().getInitParameter("logo");
-         _currentBuildStatusFile = getServletConfig().getInitParameter("currentBuildStatusFile");
-         _servletURL = getServletConfig().getInitParameter("servletURL");
-      } catch(Exception e) {
-         e.printStackTrace();
-      }
+    /**
+     *	load properties file
+     */
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        try {
+            _logDir = getServletConfig().getInitParameter("logDir");
+            _xslFile = getServletConfig().getInitParameter("xslFile");
+            _title = getServletConfig().getInitParameter("pageTitle");
+            _imageDir = getServletConfig().getInitParameter("imageDir");
+            _logo = getServletConfig().getInitParameter("logo");
+            _currentBuildStatusFile = getServletConfig().getInitParameter("currentBuildStatusFile");
+            _servletURL = getServletConfig().getInitParameter("servletURL");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-   }
+    /**
+     *	print out html for a given log, or the latest if no log is specified
+     *	on the query string
+     */
+    public void doGet(HttpServletRequest req, HttpServletResponse res) {
+        try {
 
-   /**
-    *	print out html for a given log, or the latest if no log is specified
-    *	on the query string
-    */
-   public void doGet(HttpServletRequest req, HttpServletResponse res) {
-      try {
-
-         _logFile = req.getQueryString();
-         if(_logFile == null || _logFile.equals(""))
-            _logFile = getLastBuildLogFilename();
-         else
-            _logFile += ".xml";
-         _logFile = _logDir + "\\" + _logFile;
-
-         PrintWriter out = res.getWriter();
-         res.setContentType("text/html");
-
-         out.println("<html>");
-         out.println("<head><title>" + _title + "</title></head>");
-         out.println("<body link=\"#FFFFFF\" vlink=\"#FFFFFF\" background=\"" + _imageDir + "/bluebg.gif\" topmargin=\"0\" leftmargin=\"0\" marginheight=\"0\" marginwidth=\"0\">");
-         out.println("<table border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"98%\">");
-         out.println("   <tr>");
-         out.println("      <td>&nbsp;</td>");
-         out.println("      <td background=\"" + _imageDir + "/bluestripestop.gif\"><img src=\"" + _imageDir + "/blank20.gif\" border=\"0\"></td>");
-         out.println("   </tr>");
-         out.println("   <tr>");
-         out.println("      <td width=\"180\" valign=\"top\"><img src=\"" + _imageDir + "/" + _logo + "\" border=\"0\"><br><table border=\"0\" align=\"center\" width=\"98%\"><tr><td>");
-         out.println("<font face=\"arial\" size=\"2\" color=\"#FFFFFF\">");
-
-
-         // ***** print current build info (when did we start the running build?) *****
-         printCurrentBuildStatus(out);
-
-
-         out.println("<br>&nbsp;<br><b>Previous Builds:</b><br>");
-
-
-         // ***** all logs for navigation *****
-         printLogsAsLinks(out);
-
-
-         out.println("      </td></tr></table></td>");
-         out.println("      <td valign=\"top\" bgcolor=\"#FFFFFF\" width=\"640\">");
-         out.println("      &nbsp;<br>");
-
-
-         // ***** transform build xml to html *****
-         transformBuildLogToHTML(out);
-
-
-         out.println("      &nbsp;<br>");
-         out.println("   </td>");
-         out.println("   </tr>");
-         out.println("   <tr>");
-         out.println("      <td>&nbsp;</td>");
-         out.println("      <td background=\"" + _imageDir + "/bluestripesbottom.gif\"><img src=\"" + _imageDir + "/blank20.gif\" border=\"0\"></td>");
-         out.println("   </tr>");
-         out.println("</table>");
-
-         out.println("</body>");
-         out.println("</html>");
-
-      } catch(Exception e) {
-         e.printStackTrace();
-      }
-   }
-
-   private void transformBuildLogToHTML(PrintWriter out) throws FileNotFoundException, org.xml.sax.SAXException {
-	  FileReader xml = new FileReader(_logFile);
-      FileReader xsl = new FileReader(_xslFile);
-
-      // Instantiate an XSLTProcessor.
-      org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
-
-      // Create the 3 objects the XSLTProcessor needs to perform the transformation.
-      XSLTInputSource xmlSource = new XSLTInputSource(xml);
-      XSLTInputSource xslSheet = new XSLTInputSource(xsl);
-      XSLTResultTarget xmlResult = new XSLTResultTarget(out);
-
-      // Perform the transformation.
-      processor.process(xmlSource, xslSheet, xmlResult);
-   }
-
-   private String getLastBuildLogFilename() {
-	  String logFile = "";
-	  File logDirFile = new File(_logDir);
-
-	  String[] prevBuildLogs = logDirFile.list();
-	  for(int i=prevBuildLogs.length-1; i >=0; i--) {
-	     if(prevBuildLogs[i].startsWith("log") && prevBuildLogs[i].endsWith(".xml"))
-	        return prevBuildLogs[i];
-	  }
-	  return null;
-   }
-
-   /**
-    *
-    */
-   private void printCurrentBuildStatus(PrintWriter out) throws FileNotFoundException, IOException {
-      BufferedReader br = new BufferedReader(new FileReader(new File(_logDir + "\\" + _currentBuildStatusFile)), 1024);
-      String s = br.readLine();
-      while(s != null) {
-	     out.println(s);
-	     s = br.readLine();
-	  }
-      br.close();
-      br = null;
-   }
-
-   /**
-    *	scans log directory for all log files, and formats file name accordingly for
-    *	navigation links.
-    */
-   private void printLogsAsLinks(PrintWriter out) throws ParseException{
-	  File logDirFile = new File(_logDir);
-
-      String[] prevBuildLogs = logDirFile.list();
-      for(int i=prevBuildLogs.length-1; i>=0; i--) {
-         if(prevBuildLogs[i].startsWith("log") && prevBuildLogs[i].endsWith(".xml")) {
- 	        String timestamp = prevBuildLogs[i].substring(3, 15);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-            SimpleDateFormat formatter = new SimpleDateFormat ("MM/dd/yyyy h:mma");
-
-            String label = "";
-            if(prevBuildLogs[i].indexOf("L") != -1)
-               label = "&nbsp;(" + prevBuildLogs[i].substring(prevBuildLogs[i].indexOf("L") + 1, prevBuildLogs[i].length()-4) + ")";
+            _logFile = req.getQueryString();
+            if (_logFile == null || _logFile.equals(""))
+                _logFile = getLastBuildLogFilename();
             else
-               label = "";
-	        String dateString = formatter.format(new Date(sdf.parse(timestamp).getTime()));
-	        String fileNameWithoutExt = prevBuildLogs[i].substring(0,prevBuildLogs[i].lastIndexOf("."));
-	        out.println("<a href=\"" + _servletURL + "?" + fileNameWithoutExt + "\">" + dateString + label + "</a><br>");
-         }
-      }
+                _logFile += ".xml";
+            _logFile = _logDir + File.separator + _logFile;
 
-   }
+            PrintWriter out = res.getWriter();
+            res.setContentType("text/html");
+
+            out.println("<html>");
+            out.println("<head><title>" + _title + "</title></head>");
+            out.println("<body link=\"#FFFFFF\" vlink=\"#FFFFFF\" background=\"" + _imageDir + "/bluebg.gif\" topmargin=\"0\" leftmargin=\"0\" marginheight=\"0\" marginwidth=\"0\">");
+            out.println("<table border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"98%\">");
+            out.println("   <tr>");
+            out.println("      <td>&nbsp;</td>");
+            out.println("      <td background=\"" + _imageDir + "/bluestripestop.gif\"><img src=\"" + _imageDir + "/blank20.gif\" border=\"0\"></td>");
+            out.println("   </tr>");
+            out.println("   <tr>");
+            out.println("      <td width=\"180\" valign=\"top\"><img src=\"" + _imageDir + "/" + _logo + "\" border=\"0\"><br><table border=\"0\" align=\"center\" width=\"98%\"><tr><td>");
+            out.println("<font face=\"arial\" size=\"2\" color=\"#FFFFFF\">");
+
+
+            // ***** print current build info (when did we start the running build?) *****
+            printCurrentBuildStatus(out);
+
+
+            out.println("<br>&nbsp;<br><b>Previous Builds:</b><br>");
+
+
+            // ***** all logs for navigation *****
+            printLogsAsLinks(out);
+
+
+            out.println("      </td></tr></table></td>");
+            out.println("      <td valign=\"top\" bgcolor=\"#FFFFFF\" width=\"640\">");
+            out.println("      &nbsp;<br>");
+
+
+            // ***** transform build xml to html *****
+            transformBuildLogToHTML(out);
+
+
+            out.println("      &nbsp;<br>");
+            out.println("   </td>");
+            out.println("   </tr>");
+            out.println("   <tr>");
+            out.println("      <td>&nbsp;</td>");
+            out.println("      <td background=\"" + _imageDir + "/bluestripesbottom.gif\"><img src=\"" + _imageDir + "/blank20.gif\" border=\"0\"></td>");
+            out.println("   </tr>");
+            out.println("</table>");
+
+            out.println("</body>");
+            out.println("</html>");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void transformBuildLogToHTML(PrintWriter out) throws FileNotFoundException, org.xml.sax.SAXException {
+        FileReader xml = new FileReader(_logFile);
+        FileReader xsl = new FileReader(_xslFile);
+
+        // Instantiate an XSLTProcessor.
+        org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
+
+        // Create the 3 objects the XSLTProcessor needs to perform the transformation.
+        XSLTInputSource xmlSource = new XSLTInputSource(xml);
+        XSLTInputSource xslSheet = new XSLTInputSource(xsl);
+        XSLTResultTarget xmlResult = new XSLTResultTarget(out);
+
+        // Perform the transformation.
+        processor.process(xmlSource, xslSheet, xmlResult);
+    }
+
+    private String getLastBuildLogFilename() {
+        String logFile = "";
+        File logDirFile = new File(_logDir);
+
+        String[] prevBuildLogs = logDirFile.list();
+        for (int i=prevBuildLogs.length-1; i >=0; i--) {
+            if (prevBuildLogs[i].startsWith("log") && prevBuildLogs[i].endsWith(".xml"))
+                return prevBuildLogs[i];
+        }
+        return null;
+    }
+
+    /**
+     *
+     */
+    private void printCurrentBuildStatus(PrintWriter out) 
+        throws FileNotFoundException, IOException {
+
+        BufferedReader br = new BufferedReader(
+            new FileReader(
+                new File(_logDir + File.separator + _currentBuildStatusFile)), 1024);
+        String s = br.readLine();
+        while (s != null) {
+            out.println(s);
+            s = br.readLine();
+        }
+        br.close();
+        br = null;
+    }
+
+    /**
+     *	scans log directory for all log files, and formats file name accordingly for
+     *	navigation links.
+     */
+    private void printLogsAsLinks(PrintWriter out) throws ParseException{
+        File logDirFile = new File(_logDir);
+
+        String[] prevBuildLogs = logDirFile.list();
+        for (int i=prevBuildLogs.length-1; i>=0; i--) {
+            if (prevBuildLogs[i].startsWith("log") && prevBuildLogs[i].endsWith(".xml")) {
+                String timestamp = prevBuildLogs[i].substring(3, 15);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+                SimpleDateFormat formatter = new SimpleDateFormat ("MM/dd/yyyy h:mma");
+
+                String label = "";
+                if (prevBuildLogs[i].indexOf("L") != -1)
+                    label = "&nbsp;(" + prevBuildLogs[i].substring(prevBuildLogs[i].indexOf("L") + 1, prevBuildLogs[i].length()-4) + ")";
+                else
+                    label = "";
+                String dateString = formatter.format(new Date(sdf.parse(timestamp).getTime()));
+                String fileNameWithoutExt = prevBuildLogs[i].substring(0,prevBuildLogs[i].lastIndexOf("."));
+                out.println("<a href=\"" + _servletURL + "?" + fileNameWithoutExt + "\">" + dateString + label + "</a><br>");
+            }
+        }
+    }
 }
