@@ -566,7 +566,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         try {
             Mailer mailer = new Mailer(_mailhost, emails, _returnAddress);
             mailer.sendMessage(subject, message);
-        } catch (MessagingException be) {
+        } catch (java.io.IOException be) {
             System.out.println("unable to send email.");
             be.printStackTrace();
         }
