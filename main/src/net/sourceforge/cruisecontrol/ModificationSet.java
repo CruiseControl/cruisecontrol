@@ -114,29 +114,36 @@ public class ModificationSet extends Task {
      */
     public void execute() throws BuildException {
         getProject().setProperty(MODIFICATIONSET_INVOKED, "true");
+        
+        Date currentDate = new Date();
         List modifications = new ArrayList();
+        
         long currentTime = 0;
         try {
-            Date currentDate = new Date();
-            _lastModified = _lastBuild.getTime();
-
+            
+            if (_lastBuild != null) {
+                _lastModified = _lastBuild.getTime();
+            }  else {
+                _lastModified = currentDate.getTime();
+            }
+            
             modifications = processSourceControlElements(currentDate, _lastBuild);
-
+            
             currentTime = currentDate.getTime();
             while (tooMuchRepositoryActivity(currentTime)) {
                 long sleepTime = calculateSleepTime(currentTime);
-
+                
                 log("[modificationset] Too much repository activity...sleeping for: "
-                         + (sleepTime / 1000.0) + " seconds.");
+                + (sleepTime / 1000.0) + " seconds.");
                 Thread.sleep(sleepTime);
-
+                
                 modifications =
-                        processSourceControlElements(currentDate, _lastBuild);
-
+                processSourceControlElements(currentDate, _lastBuild);
+                
                 currentDate = new Date();
                 currentTime = currentDate.getTime();
             }
-
+            
             //If there aren't any modifications, then a build is not necessary, so
             //  we will terminate this build by throwing a BuildException. That will
             //  kill the Ant process and return control to MasterBuild.
@@ -144,24 +151,25 @@ public class ModificationSet extends Task {
                 getProject().setProperty(BUILDUNNECESSARY, "true");
                 throw new BuildException("No Build Necessary");
             }
-
+            
+            getProject().setProperty(USERS, emailsAsCommaDelimitedList());
+            
+        } catch (InterruptedException ie) {
+            throw new BuildException(ie);
+        } finally {
             if (_useServerTime) {
                 getProject().setProperty(SNAPSHOTTIMESTAMP,
-                        _simpleDateFormat.format(new Date(_lastModified)));
-            }
-            else {
+                _simpleDateFormat.format(new Date(_lastModified)));
+            } else {
                 getProject().setProperty(SNAPSHOTTIMESTAMP,
-                        _simpleDateFormat.format(currentDate));
+                _simpleDateFormat.format(currentDate));
             }
-            getProject().setProperty(USERS, emailsAsCommaDelimitedList());
-
-            writeFile(modifications);
-        }
-        catch (InterruptedException ie) {
-            throw new BuildException(ie);
-        }
-        catch (IOException ioe) {
-            throw new BuildException(ioe);
+            
+            try {
+                writeFile(modifications);
+            } catch (IOException e) {
+                throw new BuildException(e);
+            }
         }
     }
 
