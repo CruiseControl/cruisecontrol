@@ -445,45 +445,14 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      **/
     private void mergeAuxXmlFiles(Project antProject) {
         _logFile = getFinalLogFileName(antProject);
-        log("Final log name is: " + _logFile);
-        
+        XMLLogMerger merger = 
+         new XMLLogMerger(_logFile, antProject.getProperty("XmlLogger.file"), 
+         _auxLogFiles, _label, _today);
         try {
-            StringBuffer aggregatedXMLLog = new StringBuffer();
-            aggregatedXMLLog.append(readAntBuildLog(antProject));
-            
-            //for each aux xml file, read and write to aggregated log
-            for (Enumeration logFiles = _auxLogFiles.elements(); 
-             logFiles.hasMoreElements();) {
-                String nextFileName = (String) logFiles.nextElement();
-                
-                //Read in the entire aux log file, stripping any xml version tags.
-                try {
-                    String text = stripXMLVersionTags(readFile(nextFileName));
-                    aggregatedXMLLog.append(text);
-                } catch (FileNotFoundException fnfe) {
-                    log(nextFileName + " not found. Skipping...");
-                }
-            }
-            
-            //close aggregated build log
-            aggregatedXMLLog.append("<label>" + _label + "</label>");
-            aggregatedXMLLog.append("<today>" + _today + "</today>");
-            aggregatedXMLLog.append("</build>");
-
-            writeFile(_logFile, aggregatedXMLLog.toString());
-
-        } catch (Throwable ioe) {
-            ioe.printStackTrace();
+            merger.merge();
+        } catch (IOException ioe) {
+            System.err.println("Failure merging XML files: " + ioe.getMessage());
         }
-    }
-    
-    /**
-     * Read in the ant build log output by the XmlLogger then throw away the 
-     * last </build> tag. We will add it later.
-     */
-    private String readAntBuildLog(Project antProject) throws IOException {
-        String antBuildLog = readFile(antProject.getProperty("XmlLogger.file"));
-        return antBuildLog.substring(0, antBuildLog.lastIndexOf("</build>"));
     }
     
     /**
@@ -513,123 +482,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         logFileName = _logDir + File.separator + logFileName;
 
         return logFileName;
-    }
-
-    /**
-     * Reads the file specified returning a String including
-     * all the text from the file. This will include
-     * special characters like carriage returns and
-     * line feeds.
-     *
-     * @param filename Filename to read.
-     * @return String containing the text of the file.
-     * @exception IOException
-     */
-    private String readFile(String fileName) throws IOException {
-        File file = new File(fileName);
-        StringBuffer text = new StringBuffer();
-        
-        if (file.isDirectory()) {
-            String[] files = retrieveXMLFiles(file);
-            if (files == null) {
-                return "";
-            }
-            
-            for (int i = 0; i < files.length; i++) {
-                text.append(readFile(fileName + File.separator + files[i]));
-            }
-            
-            return text.toString();
-        }
-        
-        log("Reading file " + file.getAbsolutePath());
-        
-        FileInputStream in = new FileInputStream(file);
-        byte[] allBytes = new byte[in.available()];
-        in.read(allBytes);
-        in.close();
-        in = null;
-        
-        return text.append(new String(allBytes)).toString();
-    }    
-
-    private String[] retrieveXMLFiles(File dir) {
-        return dir.list(new FilenameFilter() {
-            public boolean accept(File directory, String name) {
-                return name.endsWith(".xml");
-            }
-        });
-    }
-    
-    /**
-     * Writes the text to the file specified.
-     *
-     * @param filename Filename to write to.
-     * @param text     Text to write to the file.
-     * @exception IOException
-     */
-    private void writeFile(String filename, String text) throws IOException {
-        File f = new File(filename);
-        log("Writing file: " + f.getAbsolutePath());
-        BufferedWriter out = new BufferedWriter(new FileWriter(f));
-        out.write(text);
-        out.flush();
-        out.close();
-        out = null;
-    }
-
-    /**
-     * This method removes any xml version tags from the
-     * String and returns the updated String. This method
-     * doesn't care whether the version tag appears
-     * in a comment, or anywhere else in the text. It searches
-     * for the xml version open tag,<CODE>%lt;?xml version</CODE>,
-     * and deletes everything up to and including
-     * the closing version tag, <CODE>?%gt;</CODE>. This method
-     * also trims any whitespace left.
-     *
-     * @param text   Text to remove xml version tags from.
-     * @return Text with all xml version tags removed.
-     */
-    private String stripXMLVersionTags(String text) {
-        String openTag = "<?xml version";
-        String closeTag = "?>";
-
-        StringBuffer buf = new StringBuffer();
-
-        int openTagIndex = -1;
-        //As long as opening tags can be found in the text, loop through removing them.
-        while ((openTagIndex = text.indexOf(openTag)) > -1) {
-            //Find the next closing tag.
-            int closeTagIndex = text.indexOf(closeTag, openTagIndex);
-
-            //If no closing tag was found, then an error has occured. This isn't
-            //  well formed XML.
-            if (closeTagIndex < 0) {
-                log("Found an xml version tag that opens"
-                    +" but does not close."
-                    +" This is most likely not well formed XML,"
-                    +" or the xml version tag appears in a comment."
-                    +" Please remove the xml version tag from any"
-                    +" comments if it exists, or create well formed xml.");
-            }
-
-            //Everything before the opening tag can be appended to the new text.
-            buf.append(text.substring(0, openTagIndex).trim());
-            //Everything after the closing tag will now be the text. This eliminates
-            //  everything between the opening tag and the ending tag.
-            int indexAfterClosingTag = closeTagIndex + closeTag.length() + 1;
-            if (indexAfterClosingTag <= text.length()) {
-                text = text.substring(indexAfterClosingTag);
-            } else {
-                text = "";
-            }
-        }
-
-        //Add whatever is left in the text buffer to the new text.
-        buf.append(text);
-
-        return buf.toString().trim();
     }
 
     /**
