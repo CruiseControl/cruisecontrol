@@ -58,14 +58,17 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void pause() {
+        log("pausing");
         _project.setPaused(true);
     }
 
     public void resume() {
+        log("resuming");
         _project.setPaused(false);
     }
 
     public void build() {
+        log("forcing build");
         _project.setBuildForced(true);
     }
 
@@ -84,6 +87,7 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setConfigFileName(String fileName) {
+        log("setting config file to [" + fileName + "]");
         _project.setConfigFileName(fileName);
     }
 
@@ -92,6 +96,7 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setLabel(String label) {
+        log("setting label to [" + label + "]");
         _project.setLabel(label);
     }
 
@@ -100,13 +105,17 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setLabelIncrementer(String classname) {
+        log("setting label incrementer to [" + classname + "]");
         LabelIncrementer incrementer = null;
         try {
             incrementer =
-                    (LabelIncrementer) Class.forName(classname).newInstance();
-        } catch (Exception e) {
-            log.error("Error instantiating label incrementer."
-                    + "  Using DefaultLabelIncrementer.", e);
+                (LabelIncrementer) Class.forName(classname).newInstance();
+        }
+        catch (Exception e) {
+            log.error(
+                "Error instantiating label incrementer."
+                    + "  Using DefaultLabelIncrementer.",
+                e);
             incrementer = new DefaultLabelIncrementer();
         }
 
@@ -118,6 +127,7 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setLastBuild(String date) throws CruiseControlException {
+        log("setting last build to [" + date + "]");
         _project.setLastBuild(date);
     }
 
@@ -125,7 +135,9 @@ public class ProjectController implements ProjectControllerMBean {
         return _project.getLastBuild();
     }
 
-    public void setLastSuccessfulBuild(String date) throws CruiseControlException {
+    public void setLastSuccessfulBuild(String date)
+        throws CruiseControlException {
+        log("setting last successful build to [" + date + "]");
         _project.setLastSuccessfulBuild(date);
     }
 
@@ -134,6 +146,7 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setLogDir(String logdir) {
+        log("setting log dir to [" + logdir + "]");
         _project.setLogDir(logdir);
     }
 
@@ -142,6 +155,7 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setProjectName(String name) {
+        log("setting project name to [" + name + "]");
         _project.setName(name);
     }
 
@@ -150,6 +164,7 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     public void setBuildInterval(long buildInterval) {
+        log("setting build interval to [" + buildInterval + "]");
         _project.setSleepMillis(buildInterval);
     }
 
@@ -157,4 +172,7 @@ public class ProjectController implements ProjectControllerMBean {
         return _project.getSleepMilliseconds();
     }
 
+    private void log(String message) {
+        log.info(_project.getName() + " Controller: " + message);
+    }
 }
