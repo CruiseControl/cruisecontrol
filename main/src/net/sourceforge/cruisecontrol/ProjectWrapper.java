@@ -67,11 +67,17 @@ public class ProjectWrapper implements WorkerThread {
   }
 
   public Object getResult() {
-    if (myProject.getState() == ProjectState.IDLE || myProject.getState() == ProjectState.WAITING) {
-      return "true";
+    if (doneBuilding()) {
+      return "finished";
     } else {
       return null;
     }
+  }
+
+  private boolean doneBuilding() {
+    final ProjectState state = myProject.getState();
+    return state == ProjectState.IDLE || state == ProjectState.WAITING 
+           || state == ProjectState.PAUSED || state == ProjectState.STOPPED;
   }
 
   public void terminate() {
