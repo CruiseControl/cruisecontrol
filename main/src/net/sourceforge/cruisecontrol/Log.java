@@ -233,7 +233,10 @@ public class Log {
         if (filename == null) {
             return false;
         }
-        return filename.matches("log\\d{14}L.*\\.xml");
+        boolean startsWithLog = filename.startsWith("log");
+        boolean hasLabelSeparator = filename.indexOf('L') == 17;
+        boolean isXmlFile = filename.endsWith(".xml");
+        return startsWithLog && hasLabelSeparator && isXmlFile;
     }
 
     public static Date parseDateFromLogFileName(String filename) throws ParseException {
