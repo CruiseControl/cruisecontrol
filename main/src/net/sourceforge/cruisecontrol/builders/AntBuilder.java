@@ -41,6 +41,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -281,38 +282,38 @@ public class AntBuilder extends Builder {
                                           boolean useLogger,
                                           boolean useScript,
                                           boolean isWindows) throws CruiseControlException {
-        List arguments = new ArrayList();
+        Commandline cmdLine = new Commandline();
 
         if (useScript) {
-            arguments.add(quote(antScript));
+            cmdLine.setExecutable(antScript);
         } else {
             if (isWindows()) {
-                arguments.add("java.exe");
+                cmdLine.setExecutable("java.exe");
             } else {
-                arguments.add("java");
+                cmdLine.setExecutable("java");
             }
             Iterator argsIterator = args.iterator();
             while (argsIterator.hasNext()) {
                 String arg = ((JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
-                    arguments.add(quote(arg));
+                    cmdLine.createArgument().setValue(arg);
                 }
             }
-            arguments.add("-classpath");
-            arguments.add(quote(System.getProperty("java.class.path")));
-            arguments.add("org.apache.tools.ant.Main");
+            cmdLine.createArgument().setValue("-classpath");
+            cmdLine.createArgument().setValue(System.getProperty("java.class.path"));
+            cmdLine.createArgument().setValue("org.apache.tools.ant.Main");
         }
 
         if (useLogger) {
-            arguments.add("-logger");
-            arguments.add(getLoggerClassName());
-            arguments.add("-logfile");
-            arguments.add(quote(tempFileName));
+            cmdLine.createArgument().setValue("-logger");
+            cmdLine.createArgument().setValue(getLoggerClassName());
+            cmdLine.createArgument().setValue("-logfile");
+            cmdLine.createArgument().setValue(tempFileName);
         } else {
-            arguments.add("-listener");
-            arguments.add(getLoggerClassName());
-            arguments.add(quote("-DXmlLogger.file=" + tempFileName));
+            cmdLine.createArgument().setValue("-listener");
+            cmdLine.createArgument().setValue(getLoggerClassName());
+            cmdLine.createArgument().setValue("-DXmlLogger.file=" + tempFileName);
         }
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
@@ -320,30 +321,30 @@ public class AntBuilder extends Builder {
             String key = (String) propertiesIterator.next();
             final String value = (String) buildProperties.get(key);
             if (value != null & !value.equals("")) {
-                arguments.add(quote("-D" + key + "=" + value));
+                cmdLine.createArgument().setValue("-D" + key + "=" + value);
             }
         }
 
         Iterator antPropertiesIterator = properties.iterator();
         while (antPropertiesIterator.hasNext()) {
             Property property = (Property) antPropertiesIterator.next();
-            arguments.add(quote("-D" + property.getName() + "=" + property.getValue()));
+            cmdLine.createArgument().setValue("-D" + property.getName() + "=" + property.getValue());
         }
 
         if (useDebug) {
-            arguments.add("-debug");
-            arguments.add("-verbose");
+            cmdLine.createArgument().setValue("-debug");
+            cmdLine.createArgument().setValue("-verbose");
         }
 
-        arguments.add("-buildfile");
-        arguments.add(quote(buildFile));
+        cmdLine.createArgument().setValue("-buildfile");
+        cmdLine.createArgument().setValue(buildFile);
 
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
-            arguments.add(quote(targets.nextToken()));
+            cmdLine.createArgument().setValue(targets.nextToken());
         }
 
-        return (String[]) arguments.toArray(new String[arguments.size()]);
+        return cmdLine.getCommandline();
     }
 
     /**

@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
@@ -206,10 +207,10 @@ public class MavenBuilder extends Builder implements StreamConsumer {
     protected String[] getCommandLineArgs(Map buildProperties, boolean isWindows, String goalset) 
         throws CruiseControlException {
 
-        List al = new ArrayList();
+        Commandline cmdLine = new Commandline();
 
         if (mavenScript != null) {
-            al.add(quote(mavenScript));
+            cmdLine.setExecutable(mavenScript);
         } else {
             throw new CruiseControlException(
                 "Non-script running is not implemented yet.\n"
@@ -219,40 +220,40 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
             String key = (String) propertiesIterator.next();
-            al.add(quote("-D" + key + "=" + buildProperties.get(key)));
+            cmdLine.createArgument().setValue("-D" + key + "=" + buildProperties.get(key));
         }
 
         if (LOG.isDebugEnabled()) {
-            al.add("-X");
+            cmdLine.createArgument().setValue("-X");
         }
 
-        al.add("-b"); // no banner
+        cmdLine.createArgument().setValue("-b"); // no banner
         if (projectFile != null) {
             // we need only the name of the file
             File pFile = new File(projectFile);
-            al.add("-p");
-            al.add(quote(pFile.getName()));
+            cmdLine.createArgument().setValue("-p");
+            cmdLine.createArgument().setValue(pFile.getName());
         }
         if (goalset != null) {
             StringTokenizer stok = new StringTokenizer(goalset, " \t\r\n");
             while (stok.hasMoreTokens()) {
-                al.add(stok.nextToken());
+                cmdLine.createArgument().setValue(stok.nextToken());
             }
         }
 
         if (LOG.isDebugEnabled()) {
             StringBuffer sb = new StringBuffer();
             sb.append("Executing Command: ");
-            Iterator argIterator = al.iterator();
-            while (argIterator.hasNext()) {
-                String arg = (String) argIterator.next();
+            String[] args = cmdLine.getCommandline();
+            for (int i = 0; i < args.length; i++) {
+                String arg = args[i];
                 sb.append(arg);
                 sb.append(" ");
             }
             LOG.debug(sb.toString());
         }
 
-        return (String[]) al.toArray(new String[al.size()]);
+        return cmdLine.getCommandline();
     }
 
     protected boolean isWindows() {
