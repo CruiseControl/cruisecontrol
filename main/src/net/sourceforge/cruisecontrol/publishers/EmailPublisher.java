@@ -67,6 +67,7 @@ public abstract class EmailPublisher implements Publisher {
     private static Logger log = Logger.getLogger(EmailPublisher.class);
 
     private String _mailHost;
+    private String _mailPort;
     protected String _servletUrl;
     private List _alwaysAddresses = new ArrayList();
     private List _failureAddresses = new ArrayList();
@@ -262,6 +263,23 @@ public abstract class EmailPublisher implements Publisher {
         }
     }
 
+
+    /**
+     * builds the properties object for the mail session
+     * @return a properties object containing configured properties.
+     */
+    protected Properties getMailProperties() {
+        Properties props = System.getProperties();
+        props.put("mail.smtp.host", _mailHost);
+        if (_mailPort != null) {
+            props.put("mail.smtp.port", _mailPort);
+        }
+        log.debug("mailHost is " + _mailHost + ", mailPort is " +
+                   _mailPort==null?"default":_mailPort);
+        return props;
+    }
+
+
     /**
      *  Sends an email message.
      *
@@ -272,9 +290,7 @@ public abstract class EmailPublisher implements Publisher {
     protected void sendMail(String toList, String subject, String message)
             throws CruiseControlException {
         log.info("Sending mail notifications.");
-        Properties props = System.getProperties();
-        props.put("mail.smtp.host", _mailHost);
-        Session session = Session.getDefaultInstance(props, null);
+        Session session = Session.getDefaultInstance(getMailProperties(), null);
         session.setDebug(log.isDebugEnabled());
 
         try {
@@ -297,6 +313,14 @@ public abstract class EmailPublisher implements Publisher {
 
     public String getMailHost() {
         return _mailHost;
+    }
+
+    public void setMailPort(String mailPort) {
+        _mailPort = mailPort;
+    }
+
+    public String getMailPort() {
+        return _mailPort;
     }
 
     public void setBuildResultsUrl(String servletUrl) {
