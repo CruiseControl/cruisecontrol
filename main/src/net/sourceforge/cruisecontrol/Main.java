@@ -51,6 +51,7 @@ import java.util.Properties;
  */
 public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class);
+    private static final int NOT_FOUND = -1;
 
     /**
      * Print the version, configure the project with serialized build info
@@ -60,6 +61,9 @@ public class Main {
         Main main = new Main();
         main.printVersion();
 
+        if (printUsage(args)) {
+            usage();
+        }
         try {
             CruiseControlController controller = new CruiseControlController();
             String configFileName = parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
@@ -200,27 +204,38 @@ public class Main {
      *      Java main function.
      * @param argName Name of the argument, without any preceeding "-",
      *      i.e. "port" not "-port".
-     * @param defaultArgValue A default argument value, in case one was not
+     * @param defaultValue A default argument value, in case one was not
      *      specified.
      * @return The argument value found, or the default if none was found.
      * @throws CruiseControlException If the user specified the argument name
      *      but didn't include the argument, as in "-port" when it should most
      *      likely be "-port 8080".
      */
-    public static String parseArgument(String[] args, String argName, String defaultArgValue)
+    public static String parseArgument(String[] args, String argName, String defaultValue)
             throws CruiseControlException {
-        //Init to default value.
-        String returnArgValue = defaultArgValue;
-        for (int i = 0; i <= args.length - 1; i++) {
-            if (args[i].equals("-" + argName)) {
-                try {
-                    returnArgValue = args[i + 1];
-                    LOG.debug("Main: value of parameter " + argName + " is [" + returnArgValue + "]");
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'" + argName + "' argument was not specified.");
-                }
+        String returnArgValue = defaultValue;
+        int argIndex = findIndex(args, argName);
+        if (argIndex != NOT_FOUND) {
+            try {
+                returnArgValue = args[argIndex + 1];
+                LOG.debug("Main: value of parameter " + argName + " is [" + returnArgValue + "]");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new CruiseControlException("'" + argName + "' argument was not specified.");
             }
         }
         return returnArgValue;
+    }
+
+    static int findIndex(String[] args, String argName) {
+        for (int i = 0; i <= args.length - 1; i++) {
+            if (args[i].equals("-" + argName)) {
+                return i;
+            }
+        }
+        return NOT_FOUND;
+    }
+
+    static boolean printUsage(String[] args) {
+        return findIndex(args, "?") != NOT_FOUND;
     }
 }
