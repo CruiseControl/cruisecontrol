@@ -36,17 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.Util;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.util.Util;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  *  Instantiates a project from a JDOM Element
@@ -55,7 +53,7 @@ public class ProjectXMLHelper {
 
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
 
-    private Map plugins;
+    private PluginRegistry plugins;
     private Element projectElement;
     private String projectName;
 
@@ -92,7 +90,7 @@ public class ProjectXMLHelper {
             LOG.debug("Registering plugin: " + pluginName);
             LOG.debug("to classname: " + pluginClassName);
             LOG.debug("");
-            plugins.put(pluginName.toLowerCase(), pluginClassName);
+            plugins.register(pluginName, pluginClassName);
         }
     }
 
@@ -230,7 +228,7 @@ public class ProjectXMLHelper {
         if (labelIncrementerElement != null) {
             incrementer = (LabelIncrementer) configurePlugin(labelIncrementerElement, false);
         } else {
-            String classname = (String) plugins.get("labelincrementer");
+            String classname = plugins.getPluginClassname("labelincrementer");
             try {
                 incrementer = (LabelIncrementer) Class.forName(classname).newInstance();
             } catch (Exception e) {
@@ -304,19 +302,15 @@ public class ProjectXMLHelper {
         throws CruiseControlException {
         String name = pluginElement.getName();
         PluginXMLHelper pluginHelper = new PluginXMLHelper();
-        String lowercaseName = pluginElement.getName().toLowerCase();
+        String pluginName = pluginElement.getName();
 
-        if (plugins.containsKey(lowercaseName)) {
+        if (plugins.isPluginRegistered(pluginName)) {
             return pluginHelper.configure(
                 pluginElement,
-                (String) plugins.get(lowercaseName),
+                plugins.getPluginClassname(pluginName),
                 skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
-    }
-
-    String getClassNameForPlugin(String pluginName) {
-        return (String) plugins.get(pluginName);
     }
 }
