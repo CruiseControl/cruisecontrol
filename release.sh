@@ -74,11 +74,7 @@ if [ "$JAVABIN" = "" ] ; then
   JAVABIN=${JAVA_HOME}/bin/java
 fi
 
-# Find all jars defined in LIBDIR and add them to the classpath
-for lib in ${LIBDIR:-.}/*.jar
-do
-    CLASSPATH=${CLASSPATH}:${lib}
-done
+CLASSPATH=${CLASSPATH}:${LIBDIR}/ant/ant-launcher.jar
 
 # Try to include tools.jar for compilation
 if test -f ${JAVA_HOME}/lib/tools.jar ; then
@@ -91,5 +87,5 @@ if [ `uname | grep -n CYGWIN` ]; then
 fi
 
 # Call Ant
-${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.Main \
+${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.launch.Launcher \
            -buildfile "${BUILDFILE}" "$@"
