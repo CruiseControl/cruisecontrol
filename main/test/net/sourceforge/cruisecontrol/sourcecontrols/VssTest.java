@@ -233,6 +233,23 @@ public class VssTest extends TestCase {
 			assertEquals("true", setThisValue);
 		}
 
+    public void testHandleEntryDestroyed() {
+        _vss.setPropertyOnDelete("setThis");
+        List entry = new ArrayList();
+        entry.add("*****  installer_vms  *****");
+        entry.add("Version 42");
+        entry.add("User: Sfrolich      Date:  11/19/02   Time: 1:40p");
+        entry.add("IBMJDK130AIX_with_xerces.jar.vm destroyed");
+
+        Modification modification = _vss.handleEntry(entry);
+        assertEquals("IBMJDK130AIX_with_xerces.jar.vm", modification.fileName);
+        assertEquals("Sfrolich", modification.userName);
+        assertEquals("destroy", modification.type);
+        Hashtable properties = _vss.getProperties();
+        String setThisValue = (String) properties.get("setThis");
+        assertEquals("true", setThisValue);
+    }
+
     public void testGetCommandLine() throws Exception {
         Vss vss = new Vss();
         vss.setVsspath("vsspath");
