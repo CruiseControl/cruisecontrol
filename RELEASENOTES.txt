@@ -18,6 +18,10 @@ distributables.xsl
 ----------------------
 * Added info for the ejbjar and ear tasks. Patch by Joris Kuipers
 
+index.jsp
+----------------------
+* Sort projects. Patch by Brad Clarke
+
 jmx
 ----------------------
 * Now using MX4J instead of Sun's reference implementation. Patch by Michael Kloss

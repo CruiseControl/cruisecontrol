@@ -1,4 +1,5 @@
 <%@ page import="java.io.File,
+                 java.util.Arrays,
                  java.util.Calendar"%>
  <%--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
@@ -95,6 +96,7 @@
     </thead>
     <tbody>
  <%
+               Arrays.sort(projectDirs);
                for (int i = 0; i < projectDirs.length; i++) {
                    String project = projectDirs[i];
                    File projectDir = new File(logDir, project);
