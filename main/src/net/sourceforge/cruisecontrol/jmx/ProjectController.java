@@ -181,6 +181,10 @@ public class ProjectController implements ProjectControllerMBean {
     public long getBuildInterval() {
         return project.getSleepMilliseconds();
     }
+    
+    public String getStatus() {
+        return project.getStatus();
+    }
 
     private void log(String message) {
         LOG.info(project.getName() + " Controller: " + message);
