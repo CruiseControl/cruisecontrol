@@ -43,6 +43,10 @@ JabberPublisher:
 ----------------------
 * Add 1 second sleep so multiple jabber publishers work. (CC-119) Patch by Fleur Kelpin
 
+javadoc.xsl:
+----------------------
+* Improve formatting of Javadoc warnings. Patch by Dan Penhurst
+
 JDOM support:
 ----------------------
 * Upgraded from version b9 to version 1.0
