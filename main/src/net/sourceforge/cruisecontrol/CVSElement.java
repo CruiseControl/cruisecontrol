@@ -34,7 +34,6 @@ import org.apache.tools.ant.Task;
  * the call to cvs login should be done prior to calling this class.
  *
  * @author Paul Julius ThoughtWorks Inc., robertdw, Frederic Lavigne, jchyip
- * @version March 18, 2001
  */
 public class CVSElement implements SourceControlElement {
     
@@ -55,10 +54,7 @@ public class CVSElement implements SourceControlElement {
      * This is the date format returned in the log information
      * from CVS.
      */
-//    private static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss 'GMT'");
-    
     static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-    
     
     /**
      * This line delimits seperate files in the CVS
