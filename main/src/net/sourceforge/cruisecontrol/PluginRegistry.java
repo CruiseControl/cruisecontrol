@@ -147,6 +147,7 @@ public final class PluginRegistry {
     public static PluginRegistry getDefaultPluginRegistry() {
         PluginRegistry registry = new PluginRegistry();
         // bootstrappers
+        registry.register("clearcasebootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper");
         registry.register(
             "currentbuildstatusbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
