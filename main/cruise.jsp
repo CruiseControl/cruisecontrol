@@ -1,4 +1,4 @@
-<%@page contentType="text/html" import="java.io.*,java.util.*,java.text.DateFormat,org.apache.xalan.xslt.*" %>
+<%@page contentType="text/html" import="java.io.*,java.util.*,java.text.DateFormat,javax.xml.transform.*,javax.xml.transform.stream.*" %>
 <html>
 <%
   InitData _initData = new InitData(request);
@@ -150,11 +150,11 @@
         DateFormat targetFormat =  DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
         for (int i = prevBuildLogs.length - 1; i >= 0; i--) {
             String currFileName = prevBuildLogs[i];
-						
-						if (currFileName.length() < END_TSTAMP) {
-							  continue;
-						}
             
+	    if (currFileName.length() < END_TSTAMP) {
+		continue;
+	    }
+
             if (!(currFileName.startsWith("log") && currFileName.endsWith(".xml"))) {
                 continue;
             }
@@ -181,22 +181,22 @@
 
 <%!
     private void transformBuildLogToHTML(InitData init, JspWriter out) 
-    throws FileNotFoundException, org.xml.sax.SAXException {
+    throws FileNotFoundException, org.xml.sax.SAXException, TransformerException  {
         File xmlFile = new File(init.logFile);
         if (xmlFile.exists()) {
-            FileReader xml = new FileReader(xmlFile);
-            FileReader xsl = new FileReader(init.xslFile);
 
-            // Instantiate an XSLTProcessor.
-            org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
+            // The following snippet istaken from the xalan website
+            // (http://xml.apache.org/xalan-j/usagepatterns.html)
+            // 1. Instantiate a TransformerFactory.
+            TransformerFactory tFactory = TransformerFactory.newInstance();
 
-            // Create the 3 objects the XSLTProcessor needs to perform the transformation.
-            XSLTInputSource xmlSource = new XSLTInputSource(xml);
-            XSLTInputSource xslSheet = new XSLTInputSource(xsl);
-            XSLTResultTarget xmlResult = new XSLTResultTarget(out);
+            // 2. Use the TransformerFactory to process the stylesheet Source and
+            //    generate a Transformer.
+            Transformer transformer = tFactory.newTransformer(new StreamSource(init.xslFile));
 
-            // Perform the transformation.
-            processor.process(xmlSource, xslSheet, xmlResult);
+            // 3. Use the Transformer to transform an XML Source and send the
+            //    output to a Result object.
+            transformer.transform(new StreamSource(xmlFile), new StreamResult(out));
         }
     }
  %>
