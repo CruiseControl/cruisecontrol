@@ -117,7 +117,7 @@ public class ClearCaseElement extends SourceControlElement {
 	}
 
 	/**
-	 *  Returns an {@link java.util.ArrayList ArrayList} of {@link Modification}
+	 *  Returns an {@link java.util.List List} of {@link Modification}
 	 *  detailing all the changes between now and the last build.
 	 *
 	 *@param  lastBuild the last build time
@@ -126,8 +126,7 @@ public class ClearCaseElement extends SourceControlElement {
 	 *@return  the list of modifications, an empty (not null) list if no
 	 *      modifications.
 	 */
-	public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
-		ArrayList modifications = null;
+	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
 		String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
 		/*
 		 *  let's try a different clearcase command--this one just takes waaaaaaaay too long.
@@ -150,6 +149,7 @@ public class ClearCaseElement extends SourceControlElement {
 		command += " -fmt \"%u;%Nd;%n;%o\\n\" " + _viewPath;
 
 		log("Command to execute : " + command);
+        List modifications = null;
 		try {
 			Process p = Runtime.getRuntime().exec(command);
 
@@ -178,7 +178,7 @@ public class ClearCaseElement extends SourceControlElement {
 	 *@return  a list of modification elements
 	 *@exception  IOException
 	 */
-	private ArrayList parseStream(InputStream input)
+	private List parseStream(InputStream input)
 			 throws IOException {
 		ArrayList modifications = new ArrayList();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
