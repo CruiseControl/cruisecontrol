@@ -38,15 +38,21 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
+import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.jdom.Element;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -114,6 +120,20 @@ public class ProjectTest extends TestCase {
             "<testsuite><properties><property/></properties><testcase/></testsuite>");
         writeFile("_auxLogs/_auxLog3.xml", "<testsuite/>");
 
+        final ArrayList resultEvents = new ArrayList();
+        project.addBuildResultListener(new BuildResultListener() {
+            public void handleBuildResult(BuildResultEvent event) {
+                resultEvents.add(event);
+            }
+        });
+
+        final ArrayList progressEvents = new ArrayList();
+        project.addBuildProgressListener(new BuildProgressListener() {
+            public void handleBuildProgress(BuildProgressEvent event) {
+                progressEvents.add(event);
+            }
+        });
+
         project.build();
 
         assertTrue(project.isLastBuildSuccessful());
@@ -148,6 +168,10 @@ public class ProjectTest extends TestCase {
         assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
         assertEquals(project.getLastSuccessfulBuild(), props.get("cclastgoodbuildtimestamp"));
         assertEquals(project.getLastBuild(), props.get("cclastbuildtimestamp"));
+
+        // check that the proper events were fired
+        assertEquals("Should be exactly one build result event", 1, resultEvents.size());
+        assertEquals("Should be exactly 6 build progress events", 6, progressEvents.size());
     }
 
     public void testBadLabel() {
@@ -360,6 +384,15 @@ public class ProjectTest extends TestCase {
         } catch (IllegalStateException expected) {
             assertEquals("set config file on project before calling init()", expected.getMessage());
         }
+    }
+
+    public void testSerialization() throws IOException {
+        ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
+        ObjectOutputStream objects = new ObjectOutputStream(outBytes);
+
+        objects.writeObject(new Project());
+        objects.flush();
+        objects.close();
     }
 
     private void writeFile(String fileName, String contents) throws IOException {

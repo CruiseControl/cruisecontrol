@@ -37,6 +37,10 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -83,6 +87,8 @@ public class Project implements Serializable, Runnable {
     private transient Object scheduleMutex = new Object();
     private transient Object waitMutex = new Object();
     private transient BuildQueue queue;
+    private transient ArrayList progressListeners = new ArrayList();
+    private transient ArrayList resultListeners = new ArrayList();
 
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -167,6 +173,7 @@ public class Project implements Serializable, Runnable {
                 schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
 
         boolean buildSuccessful = log.wasBuildSuccessful();
+        fireResultEvent(new BuildResultEvent(this, wasLastBuildSuccessful));
 
         if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
             label = labelIncrementer.incrementLabel(label, log.getContent());
@@ -506,6 +513,7 @@ public class Project implements Serializable, Runnable {
     private void setState(ProjectState newState) {
         state = newState;
         appLog(getStatus());
+        fireProgressEvent(new BuildProgressEvent(this, newState));
     }
 
     public void setBuildQueue(BuildQueue buildQueue) {
@@ -767,5 +775,34 @@ public class Project implements Serializable, Runnable {
             sb.append(" (paused)");
         }
         return sb.toString();
+    }
+    public void addBuildProgressListener(BuildProgressListener listener) {
+        synchronized (progressListeners) {
+            progressListeners.add(listener);
+        }
+    }
+
+    protected void fireProgressEvent(BuildProgressEvent event) {
+        synchronized (progressListeners) {
+            for (Iterator i = progressListeners.iterator(); i.hasNext();) {
+                BuildProgressListener listener = (BuildProgressListener) i.next();
+                listener.handleBuildProgress(event);
+            }
+        }
+    }
+
+    public void addBuildResultListener(BuildResultListener listener) {
+        synchronized (resultListeners) {
+            resultListeners.add(listener);
+        }
+    }
+
+    protected void fireResultEvent(BuildResultEvent event) {
+        synchronized (resultListeners) {
+            for (Iterator i = resultListeners.iterator(); i.hasNext();) {
+                BuildResultListener listener = (BuildResultListener) i.next();
+                listener.handleBuildResult(event);
+            }
+        }
     }
 }
