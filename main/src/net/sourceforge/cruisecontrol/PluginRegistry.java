@@ -36,8 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -144,70 +147,19 @@ public final class PluginRegistry {
      * the fully qualified classname
      * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
-    public static PluginRegistry getDefaultPluginRegistry() {
+    public static PluginRegistry getDefaultPluginRegistry() throws CruiseControlException {
         PluginRegistry registry = new PluginRegistry();
-        // bootstrappers
-        registry.register("clearcasebootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper");
-        registry.register(
-            "currentbuildstatusbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
-        registry.register(
-            "cvsbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
-        registry.register("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
-        registry.register(
-            "svnbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper");
-        registry.register(
-            "vssbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
-        registry.register(
-            "starteambootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper");
-        // sourcecontrols
-        registry.register("buildstatus", "net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus");
-        registry.register("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
-        registry.register("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
-        registry.register("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
-        registry.register("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
-        registry.register("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
-        registry.register("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
-        registry.register("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
-        registry.register("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
-        registry.register("svn", "net.sourceforge.cruisecontrol.sourcecontrols.SVN");
-        registry.register("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
-        registry.register("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
-        registry.register("compound", "net.sourceforge.cruisecontrol.sourcecontrols.Compound");
-        registry.register("triggers", "net.sourceforge.cruisecontrol.sourcecontrols.Triggers");
-        registry.register("targets", "net.sourceforge.cruisecontrol.sourcecontrols.Targets");
-        registry.register("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
-        // builders
-        registry.register("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
-        registry.register("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
-        registry.register("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
-        // label incrementer -- only one!
-        registry.register(
-            "labelincrementer",
-            "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
-        // publishers
-        registry.register(
-            "artifactspublisher",
-            "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
-        registry.register(
-            "currentbuildstatuspublisher",
-            "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
-        registry.register("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
-        registry.register("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
-        registry.register("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
-        registry.register("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
-        registry.register("xsltlogpublisher", "net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher");
-        // other
-        registry.register("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
-        registry.register("schedule", "net.sourceforge.cruisecontrol.Schedule");
-        registry.register("log", "net.sourceforge.cruisecontrol.Log");
-        registry.register("merge", "net.sourceforge.cruisecontrol.buildloggers.MergeLogger");
-        registry.register("map", "net.sourceforge.cruisecontrol.publishers.EmailMapping");
-
+        
+        Properties pluginDefinitions = new Properties();
+        try {
+            pluginDefinitions.load(PluginRegistry.class.getResourceAsStream("default-plugins.properties"));
+        } catch (IOException e) {
+            throw new CruiseControlException("Error loading plugin-definitions from default-plugins.properties", e);
+        }
+        for (Iterator iter = pluginDefinitions.entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            registry.register((String) entry.getKey(), (String) entry.getValue());
+        }
         return registry;
     }
 }
