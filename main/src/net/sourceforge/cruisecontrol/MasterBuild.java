@@ -56,38 +56,37 @@ import org.w3c.dom.*;
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  * @author <a href="mailto:davidl@iis.com">David Le Strat</a>
  */
-public class MasterBuild extends XmlLogger implements BuildListener {
+public class MasterBuild {
 
     private static String BUILDINFO_FILENAME = "buildcycleinfo";
     private final String DEFAULT_EMAILMAP = "emailmap.properties";
     private final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
-    private final String XML_LOGGER_FILE = "log.xml";
+    public static final String XML_LOGGER_FILE = "log.xml";
     private final String DEFAULT_BUILD_STATUS_FILENAME = "currentbuild.txt";
     private final String DEFAULT_LOG_DIR = "logs";
     private final String DEFAULT_BUILD_FILE = "build.xml";
     private final String DEFAULT_TARGET = "masterbuild";
     private final String DEFAULT_CLEAN_TARGET = "cleanbuild";
 
-    // Needs to be static since new instance used each build
     //label/modificationset/build participants
-    private static String  _label;
-    private static String  _labelIncrementerClassName;
-    // Needs to be static since new instance used each build
-    private static String  _lastGoodBuildTime;
-    private static String  _lastBuildAttemptTime;
+    private String  _label;
+    private String  _labelIncrementerClassName;
+
+    private String  _lastGoodBuildTime;
+    private String  _lastBuildAttemptTime;
     
-    private static boolean _lastBuildSuccessful = true;
-    private static boolean _buildNotNecessary;
+    private boolean _lastBuildSuccessful = true;
+    private boolean _buildNotNecessary;
     
-    private static boolean _spamWhileBroken = true;
+    private boolean _spamWhileBroken = true;
     
-    private static String  _logDir;
-    private static String  _logFile;
-    private static String  _userList;
+    private String  _logDir;
+    private String  _logFile;
+    private String  _userList;
 
     //build iteration info
-    private static long _buildInterval;
-    private static boolean _isIntervalAbsolute;
+    private long _buildInterval;
+    private boolean _isIntervalAbsolute;
     private int _cleanBuildEvery;
 
     //build properties
@@ -95,9 +94,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _propsFileName;
 
     //xml merge stuff
-    private static Vector _auxLogFiles = new Vector();
-    private static Vector _auxLogProperties = new Vector();
-    private static String _today;
+    private Vector _auxLogFiles = new Vector();
+    private Vector _auxLogProperties = new Vector();
+    private String _today;
 
     //email stuff
     private String _defaultEmailSuffix;
@@ -106,7 +105,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private Set _buildmaster;
     private Set _notifyOnFailure;
     private boolean _reportSuccess;
-    private static String _projectName;
+    private String _projectName;
     private boolean _useEmailMap;
     private String _emailmapFilename;
 
@@ -116,16 +115,16 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _cleanAntTarget;
     
     //(PENDING) Extract class to handle logging
-    // _debug and _verbose are static because a new instance is used to do logging
-    private static boolean _debug;
-    private static boolean _verbose;
+    private boolean _debug;
+    private boolean _verbose;
     
     private boolean _mapSourceControlUsersToEmail;
     
     //build servlet info
     private String _servletURL;
-    private static File _currentBuildStatusFile;
+    private File _currentBuildStatusFile;
 
+    private int _buildCounter;
     /**
      * Entry point.  Verifies that all command line arguments are correctly 
      * specified.
@@ -374,45 +373,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      */
     public void execute() {
         try {
-            int buildcounter = 0;
+            _buildCounter = 0;
             while (true) {
                 Date startTime = new Date();
                 startLog();
-                loadProperties();
-
-                //Set the security manager to one which will prevent 
-                // the Ant Main class from killing the VM.
-                SecurityManager oldSecMgr = System.getSecurityManager();
-                System.setSecurityManager(new NoExitSecurityManager());
-                try {
-                    Main.main(getCommandLine(buildcounter));
-                } catch (ExitException ee) {
-                    //Ignoring the exit exception from Main.
-                } finally {
-                    //Reset the SecurityManager to the old one.
-                    System.setSecurityManager(oldSecMgr);
-                }
-
-                //(PENDING) do this in buildFinished?
-                if (_buildNotNecessary) {
-                    if (!_lastBuildSuccessful && _spamWhileBroken) {
-                        sendBuildEmail(_projectName + "Build still failing...");
-                    }
-                } else {
-                    if (_lastBuildSuccessful) {
-                        buildcounter++;
-                        if(_reportSuccess) {
-                            sendBuildEmail(_projectName + " Build " + _label 
-                             + " Successful");
-                        } else {
-                            log("Skipping email notifications for successful builds");
-                        }
-                        incrementLabel();
-                    } else {
-                        sendBuildEmail(_projectName + "Build Failed");
-                    }
-                    writeBuildInfo();
-                }
+                performBuild();
                 long timeToSleep = getSleepTime(startTime);
                 endLog(timeToSleep);
                 Thread.sleep(timeToSleep);
@@ -424,6 +389,55 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void performBuild() throws Exception {
+        loadProperties();
+
+        logCurrentBuildStatus(true);
+
+        int messageLevel = _debug ? Project.MSG_DEBUG :
+                                    (_verbose ? Project.MSG_VERBOSE : Project.MSG_INFO);
+        CruiseLogger logger = new CruiseLogger(messageLevel);
+        
+        log("Opening build file: " + _antFile);
+        String target = null; // remember: Null target means default target.
+        if (((_buildCounter % _cleanBuildEvery) == 0) && _cleanAntTarget != "") {
+            log("Using clean target: " + _cleanAntTarget);
+            target = _cleanAntTarget;
+        } else if (_antTarget != "") {
+            log("Using normal target: " + _antTarget);
+            target = _antTarget;
+        }
+        BuildRunner runner = new BuildRunner(_antFile, target, _lastGoodBuildTime,
+                                             _label, logger);
+        
+        boolean successful = runner.runBuild();
+        
+        logCurrentBuildStatus(false);
+
+        buildFinished(runner.getProject(), successful);
+
+        //(PENDING) do this in buildFinished?
+        if (_buildNotNecessary) {
+            if (!_lastBuildSuccessful && _spamWhileBroken) {
+                sendBuildEmail(_projectName + "Build still failing...");
+            }
+        } else {
+            if (_lastBuildSuccessful) {
+                _buildCounter++;
+                if(_reportSuccess) {
+                    sendBuildEmail(_projectName + " Build " + _label + " Successful");
+                } else {
+                    log("Skipping email notifications for successful builds");
+                }
+                incrementLabel();
+            } else {
+                sendBuildEmail(_projectName + "Build Failed");
+            }
+            writeBuildInfo();
+        }
+        runner.reset();
     }
 
     private void sendBuildEmail(String message) {
@@ -439,38 +453,12 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             long sleepTime = startTime.getTime() + _buildInterval - now.getTime();
             sleepTime = (sleepTime < 0 ? 0 : sleepTime);
             return sleepTime;
-        } else {
+        }
+        else {
             return _buildInterval;
         }
     }
     
-    private String[] getCommandLine(int buildCounter) {
-        Vector v = new Vector();
-        v.add("-DlastGoodBuildTime=" + _lastGoodBuildTime);
-        v.add("-DlastBuildAttemptTime=" + _lastBuildAttemptTime);
-        v.add("-Dlabel=" + _label);
-        v.add("-listener");
-        v.add(this.getClass().getName());
-
-        if (_debug)
-            v.add("-debug");
-        if (_verbose)
-            v.add("-verbose");
-
-        v.add("-buildfile");
-        v.add(_antFile);
-
-        if (((buildCounter % _cleanBuildEvery) == 0) && _cleanAntTarget != "") {
-            log("Using clean target");
-            v.add(_cleanAntTarget);
-        } else if (_antTarget != "") {
-            log("Using normal target");
-            v.add(_antTarget);
-        }
-
-        return(String[])v.toArray(new String[v.size()]);
-    }
-
     /**
      * Merge any auxiliary xml-based files into the main log xml,
      * e.g. xml from junit, modificationset, bugs, etc.
@@ -647,21 +635,21 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     *	convenience method for logging
+     *  convenience method for logging
      */
     public void log(String s) {
         log(s, System.out);
     }
 
     /**
-     *	divert logging to any printstream
+     *  divert logging to any printstream
      */
     public void log(String s, PrintStream out) {
         out.println("[masterbuild] " + s);
     }
 
     /**
-     *	Print header for each build attempt.
+     *  Print header for each build attempt.
      */
     private void startLog() {
         log("***** Starting Build Cycle");
@@ -671,7 +659,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     *	Print footer for each build attempt.
+     *  Print footer for each build attempt.
      */
     private void endLog(long sleepTime) {
         log("\n");
@@ -682,7 +670,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     *	Print usage instructions if command line arguments are not correctly specified.
+     *  Print usage instructions if command line arguments are not correctly specified.
      */
     public void usage() {
         System.out.println("Usage:");
@@ -736,13 +724,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * a "get" on our source control repository and whether or not the build was 
      * successful.  Calls the method on XmlLogger afterward.
      */
-    public void buildFinished(BuildEvent buildevent) {
-        logCurrentBuildStatus(false);
-
-        Project proj = buildevent.getProject();
+    public void buildFinished(Project proj, boolean successful) {
         _projectName = proj.getName();
-        _buildNotNecessary = 
-         (proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
+        _buildNotNecessary = (proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
         if (_buildNotNecessary) {
             return;
         }
@@ -754,7 +738,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _lastBuildSuccessful = false;
 
         _lastBuildAttemptTime = proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP);
-        if (buildevent.getException() == null) {
+        if (successful == true) {
             _lastBuildSuccessful = true;
             _lastGoodBuildTime = _lastBuildAttemptTime;
         }
@@ -772,28 +756,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
         }
 
-        //If the XmlLogger.file property doesn't exist, we will set it here to a default
-        //  value. This will short circuit XmlLogger from setting the default value.
-        String prop = proj.getProperty("XmlLogger.file");
-        if (prop == null || prop.trim().length() == 0) {
-            proj.setProperty("XmlLogger.file", XML_LOGGER_FILE);
-        }
-
-        super.buildFinished(buildevent);
         mergeAuxXmlFiles(proj);
-    }
-
-    /**
-     *	Overrides method in XmlLogger.  writes snippet of html to disk
-     *	specifying the start time of the running build, so that the build servlet can pick this up.
-     */
-    public void buildStarted(BuildEvent buildevent) {
-        if (!canWriteXMLLoggerFile()) {
-            throw new BuildException("No write access to " + XML_LOGGER_FILE);
-        }
-
-        logCurrentBuildStatus(true);
-        super.buildStarted(buildevent);
     }
 
     boolean canWriteXMLLoggerFile() {
@@ -804,23 +767,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         
         return false;
     }
-    
-    /**
-     * Wraps the XmlLogger's method with a logging level check
-     */
-    public void messageLogged(BuildEvent event) {
-        int logLevel = event.getPriority();
-        if (false == _debug && Project.MSG_DEBUG == logLevel) {
-            return;
-        }
-        
-        if (false == _verbose && Project.MSG_VERBOSE == logLevel) {
-            return;
-        }
-        
-        super.messageLogged(event);
-    }    
-    
 }
 
 /**

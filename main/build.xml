@@ -114,6 +114,9 @@
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}" />
         <javac srcdir="${test}" destdir="${classes}" classpathref="project.classpath" />
+        <copy todir="${classes}">
+            <fileset dir="${test}" includes="**/*.xml"/>
+        </copy>
 
         <junit fork="yes" haltonfailure="yes" >
             <classpath >
