@@ -17,6 +17,10 @@ BuildInfoTag
 * Added a tag to obtain summary and metric data about builds from the log
   files. This is used in the metris.jsp page.
 
+ClearCase
+----------------------
+* use ISO-8859-1 enoding while parsing ClearCase outpout. Patch by Arent-Jan Banck
+
 compile.xsl
 ----------------------
 * Ignore empty lines. Patch by Brad Clarke (note: this is now obsolete for new logfiles but still useful for old ones)
