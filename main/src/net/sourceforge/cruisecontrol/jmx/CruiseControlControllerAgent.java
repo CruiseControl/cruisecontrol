@@ -136,7 +136,7 @@ public class CruiseControlControllerAgent {
         ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,httpPort=" + httpPort);
         server.registerMBean(httpAdaptor, adaptorName);
         ObjectName processorName = new ObjectName("Http:name=XSLTProcessor");
-        server.createMBean("mx4j.httpAdaptor.http.XSLTProcessor", processorName, null);
+        server.createMBean("mx4j.adaptor.http.XSLTProcessor", processorName, null);
         String pathInJar = "net/sourceforge/cruisecontrol/jmx/xsl";
         if (path != null && !path.equals("")) {
             LOG.info("Starting HttpAdaptor with customized Stylesheets");
