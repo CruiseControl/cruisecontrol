@@ -206,18 +206,6 @@ public class AntBuilder extends Builder {
      */
     public void setAntScript(String antScript) {
         this.antScript = antScript;
-        if (!antScript.endsWith(".bat") && isWindows()) {
-            File file = new File(antScript);
-            if (!file.exists()) {
-                // check if we need to add a '.bat' extension
-                file = new File(antScript + ".bat");
-                if (file.exists()) {
-                    this.antScript = antScript + ".bat";
-                }
-                // we're not going to solve other problems here:
-                // just let the execution fail
-            }
-        }
     }
 
     /**
@@ -298,7 +286,11 @@ public class AntBuilder extends Builder {
         if (useScript) {
             arguments.add(quote(antScript));
         } else {
-            arguments.add("java");
+            if (isWindows()) {
+                arguments.add("java.exe");
+            } else {
+                arguments.add("java");
+            }
             Iterator argsIterator = args.iterator();
             while (argsIterator.hasNext()) {
                 String arg = ((JVMArg) argsIterator.next()).getArg();

@@ -60,11 +60,15 @@ public class AntBuilderTest extends TestCase {
     private AntBuilder builder;
     private String classpath;
     private Hashtable properties;
+    private String javaCmd = "java";
 
     protected void setUp() throws Exception {
         builder = new AntBuilder();
         builder.setTarget("target");
         builder.setBuildFile("buildfile");
+        if (builder.isWindows()) {
+            javaCmd = "java.exe";
+        }
         
         properties = new Hashtable();
         properties.put("label", "200.1.23");
@@ -119,7 +123,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
             {
-                "java",
+                javaCmd,
                 "-classpath",
                 classpath,
                 "org.apache.tools.ant.Main",
@@ -137,7 +141,7 @@ public class AntBuilderTest extends TestCase {
 
         String[] resultLogger =
             {
-                "java",
+                javaCmd,
                 "-classpath",
                 classpath,
                 "org.apache.tools.ant.Main",
@@ -158,7 +162,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
         String[] resultInfo =
             {
-                "java",
+                javaCmd,
                 "-classpath",
                 classpath,
                 "org.apache.tools.ant.Main",
@@ -176,7 +180,7 @@ public class AntBuilderTest extends TestCase {
 
         String[] resultLogger =
             {
-                "java",
+                javaCmd,
                 "-classpath",
                 classpath,
                 "org.apache.tools.ant.Main",
@@ -196,7 +200,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
         String[] resultDebug =
             {
-                "java",
+                javaCmd,
                 "-classpath",
                 classpath,
                 "org.apache.tools.ant.Main",
@@ -219,7 +223,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_DebugMaxMemory() throws CruiseControlException {
         String[] resultDebugWithMaxMemory =
             {
-                "java",
+                javaCmd,
                 "-Xmx256m",
                 "-classpath",
                 classpath,
@@ -245,7 +249,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_DebugMaxMemoryAndProperty() throws CruiseControlException {
         String[] resultDebugWithMaxMemoryAndProperty =
             {
-                "java",
+                javaCmd,
                 "-Xmx256m",
                 "-classpath",
                 classpath,
@@ -311,7 +315,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
         String[] args =
             {
-                "java",
+                javaCmd,
                 "-classpath",
                 classpath,
                 "org.apache.tools.ant.Main",
