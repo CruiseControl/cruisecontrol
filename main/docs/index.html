@@ -1,0 +1,121 @@
+<html>
+<head>
+   <title>The CruiseControl Build Loop</title>
+   <style type="text/css">
+      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
+      .header { font-size:12pt; font-weight:bold; }
+      pre { font-family:courier,serif; }
+      .small { font-size:8pt; font-weight:bold; }
+      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
+   </style>
+</head>
+
+
+<body class="body" leftmargin="0" topmargin="0">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+   <tr>
+      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
+      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
+   <tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+   <tr>
+      <td valign="top" width="80">
+         <img src="menutop.gif" border="0"><br>
+         <a href="index.html"><img src="menubuildloop.gif" border="0"></a><br>
+         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
+         <img src="menublank.gif" border="0"><br>
+         <a href="../../docs/index.html"><img src="menuhome.gif" border="0"></a><br>
+         <img src="menubottom.gif" border="0">
+      </td>
+      <td valign="top" align="left" width="650">
+         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <!-- content begins here -->
+
+<span class="header">The CruiseControl Build Loop</span>
+<p>
+
+<span class="small">What Is It?</span><br>
+
+The Build Loop is designed to run as a daemon process which will periodically check your source control tool for
+changes to your codebase, build if necessary, and send out a notification regarding the status of the build.
+
+<p>
+<span class="small">How Does It Work?</span><br>
+CruiseControl defines a build cycle - determine if a build is necessary, build, create a log file, and send
+notifications.  The daemon
+process will wake up at a user defined time interval and attempt a build cycle.  Each time, the configuration file
+will be reloaded so that the CruiseControl process need not be restarted for the changes to take effect.  At the end
+of the build, a log file will be written for use by the Build Results JSP.
+
+<p>&nbsp;<p>
+
+<span class="header">New Features</span><p>
+
+<p>
+<span class="small">XML Configuration</span><br>
+Defining the configuration for CruiseControl in XML has allowed us freedoms that were not easily possible
+with the old properties file.
+
+<p>
+<span class="small">Runs standard Ant build files</span><br>
+CruiseControl now runs as a true wrapper to Ant and no longer requires any changes to your existing build file
+to run.
+
+<p>
+<span class="small">Pluggable Architecture</span><br>
+CruiseControl is easier to customize now that almost all of the non-core functionality is
+implemented as plugins.  See the <a href="">plugins</a> page for more details about the plugin philosophy and
+the <a href="">config.xml</a> page for more details about the stock plugins that ship with CruiseControl.
+
+<p>
+<span class="small">Better Scheduling Functionality</span><br>
+Schedule as many different builds as you like, run at an interval or scheduled at a given time.
+
+<p>
+<span class="small">HTML email support</span><br>
+View the build results directly on the notification emails rather than linking to the build results JSP.
+
+<p>
+<span class="small">Upgrade utility for migrating from 1.x to 2.0</span><br>
+Relatively painless upgrading if you have an earlier version of CruiseControl installed.  Run the included
+Upgrader and be ready to run 2.0 almost instantaneously.
+
+<p>
+<span class="small">Better Memory Management</span><br>
+The CruiseControl 1.x product line was plagued by memory leaks.  Most should be plugged now, and the decoupling
+from Ant should make sure that CruiseControl's memory usage should not grow over time.
+
+<p>
+<span class="small">Support for NAnt</span><br>
+Ant, while a great build tool, is not the only one available.  We're now supporting the latest version of NAnt for
+building your .NET projects.
+
+<p>
+<span class="small">Support for Subversion</span><br>
+Subversion has entered the alpha phase, and is functioning reasonably well.  CruiseControl now integrates with Subversion.
+
+<p>
+<span class="small">Better support for CVS Branching</span><br>
+Previous versions of CruiseControl had issues with returning all modifications, regardless of the branch on which
+they occurred.
+
+<p>
+<span class="small">Internationalization</span><br>
+As our user base has grown, we need to be aware of issues that occur when CruiseControl is run in non-US locales.
+Configuring date formats has become simpler, for instance.
+
+? ability to force builds from jsp ?
+
+<p>&nbsp;<p>
+<span class="header">Known Issues</span><p>
+
+         <!-- content ends here -->
+         </td></tr></table>
+      </td>
+   </tr>
+</table>
+</body>
+</html>
