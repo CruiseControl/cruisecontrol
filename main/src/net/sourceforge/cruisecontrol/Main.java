@@ -118,9 +118,6 @@ public class Main {
         return project;
     }
 
-    // TODO: Jason Yip - Introduce Command Pattern to remove duplication in
-    // parsing arguments
-
     /**
      * Parse lastbuild from arguments and override any existing lastbuild value
      * from reading serialized Project info.
@@ -130,22 +127,10 @@ public class Main {
      * @return final value of lastbuild; never null
      * @throws CruiseControlException if final lastbuild value is null
      */
-    protected String parseLastBuild(String args[], String lastBuild)
-            throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-lastbuild")) {
-                try {
-                    lastBuild = args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                            "'lastbuild' argument was not specified.");
-                }
-            }
-        }
-
+    protected String parseLastBuild(String args[], String lastBuild) throws CruiseControlException {
+        lastBuild = parseArgument(args, "lastbuild", lastBuild);
         if (lastBuild == null) {
-            throw new CruiseControlException(
-                    "'lastbuild' is a required argument to CruiseControl.");
+            throw new CruiseControlException("'lastbuild' is a required argument to CruiseControl.");
         }
         return lastBuild;
     }
@@ -159,21 +144,10 @@ public class Main {
      * @return final value of label; never null
      * @throws CruiseControlException if final label value is null
      */
-    protected String parseLabel(String args[], String label)
-            throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-label")) {
-                try {
-                    label = args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                            "'label' argument was not specified.");
-                }
-            }
-        }
+    protected String parseLabel(String args[], String label) throws CruiseControlException {
+        label = parseArgument(args, "label", label);
         if (label == null) {
-            throw new CruiseControlException(
-                    "'label' is a required argument to CruiseControl.");
+            throw new CruiseControlException("'label' is a required argument to CruiseControl.");
         }
         return label;
     }
@@ -187,22 +161,10 @@ public class Main {
      * @return final value of configFileName; never null
      * @throws CruiseControlException if final configfile value is null
      */
-    protected String parseConfigFileName(String args[], String configFileName)
-            throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-configfile")) {
-                try {
-                    configFileName = args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                            "'configfile' argument was not specified.");
-                }
-            }
-        }
-
+    protected String parseConfigFileName(String args[], String configFileName) throws CruiseControlException {
+        configFileName = parseArgument(args, "configfile", configFileName);
         if (configFileName == null) {
-            throw new CruiseControlException(
-                    "'configfile' is a required argument to CruiseControl.");
+            throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
         }
         return configFileName;
     }
@@ -214,29 +176,22 @@ public class Main {
      * @return project name; never null
      * @throws CruiseControlException if projectname is not specified
      */
-    protected String parseProjectName(String args[])
-            throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-projectname")) {
-                try {
-                    return args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                            "'projectname' argument was not specified.");
-                }
-            }
+    protected String parseProjectName(String args[]) throws CruiseControlException {
+        String projectName = parseArgument(args, "projectname", null);
+        if (projectName == null) {
+            throw new CruiseControlException("'projectname' is a required argument to CruiseControl.");
         }
-        throw new CruiseControlException(
-                "'projectname' is a required argument to CruiseControl.");
+        return projectName;
     }
 
     private static boolean shouldStartProjectController(String[] args) {
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equalsIgnoreCase("-port")) {
+            if (args[i].equals("-port")) {
+                log.debug("Main: -port parameter found. will start ProjectControllerAgent.");
                 return true;
             }
         }
-
+        log.debug("Main: -port parameter not found. will not start ProjectControllerAgent.");
         return false;
     }
 
@@ -246,21 +201,19 @@ public class Main {
      * @return port number
      * @throws CruiseControlException if port argument is not specified
      */
-    private static int parsePort(String args[])
-            throws CruiseControlException {
-
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-port")) {
-                try {
-                    return Integer.parseInt(args[i + 1]);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                            "'port' argument was not specified.");
-                }
-            }
+    static int parsePort(String args[]) throws CruiseControlException {
+        String portString = parseArgument(args, "port", null);
+        if (portString == null) {
+            throw new IllegalStateException("Should not reach this point " +
+                    " without returning or throwing CruiseControlException");
         }
-        throw new IllegalStateException("Should not reach this point "
-                + " without returning or throwing CruiseControlException");
+        int port;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("-port parameter requires integer argument");
+        }
+        return port;
     }
 
     /**
@@ -287,7 +240,7 @@ public class Main {
                 Project project = (Project) s.readObject();
                 return project;
             } catch (Exception e) {
-                log.warn("Error deserializing project.", e);
+                log.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
             }
         }
 
@@ -304,4 +257,17 @@ public class Main {
         log.info("CruiseControl Version " + props.getProperty("version"));
     }
 
+    private static String parseArgument(String[] args, String argName, String argValue) throws CruiseControlException {
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-" + argName)) {
+                try {
+                    argValue = args[i + 1];
+                    log.debug("Main: value of parameter " + argName + " is [" + argValue + "]");
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException("'" + argName + "' argument was not specified.");
+                }
+            }
+        }
+        return argValue;
+    }
 }

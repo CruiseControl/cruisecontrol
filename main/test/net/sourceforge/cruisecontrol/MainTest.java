@@ -213,4 +213,33 @@ public class MainTest extends TestCase {
         }
     }
 
+    public void testParsePort() throws Exception {
+        String[] correctArgs = new String[]{"-port", "123"};
+        String[] missingArgs = new String[]{""};
+        String[] incorrectArgs = new String[]{"-port"};
+        String[] invalidArgs = new String[]{"-port", "ABC"};
+
+        assertEquals(main.parsePort(correctArgs), 123);
+
+        try {
+            main.parsePort(missingArgs);
+            fail("Expected exception");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+
+        try {
+            main.parsePort(incorrectArgs);
+            fail("Expected exception");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+
+        try {
+            main.parsePort(invalidArgs);
+            fail("Expected exception");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
 }
