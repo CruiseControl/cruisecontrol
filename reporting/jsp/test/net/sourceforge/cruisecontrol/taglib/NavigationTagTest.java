@@ -46,6 +46,7 @@ import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
+import net.sourceforge.cruisecontrol.mock.MockServletRequest;
 
 public class NavigationTagTest extends TestCase {
     private NavigationTag tag;
@@ -63,6 +64,8 @@ public class NavigationTagTest extends TestCase {
         final MockServletConfig config = new MockServletConfig();
         pageContext.setServletConfig(config);
         pageContext.setServletContext(new MockServletContext());
+        MockServletRequest request = new MockServletRequest("context", "servlet");
+        pageContext.setHttpServletRequest(request);
 
         tag.setPageContext(pageContext);
         tag.setBodyContent(new MockBodyContent());
@@ -88,11 +91,6 @@ public class NavigationTagTest extends TestCase {
         logDir.delete();
     }
 
-    public void testGetUrl() {
-        final String expectedValue = "cruisecontrol/buildresults?log=log20020222120000";
-        assertEquals(expectedValue, tag.getUrl("log20020222120000", "cruisecontrol/buildresults"));
-    }
-
     public void testGetLinkText() {
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000"));
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200"));
@@ -112,6 +110,7 @@ public class NavigationTagTest extends TestCase {
         tag.doInitBody();
         assertEquals("02/25/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
         assertEquals("log20020225120000", pageContext.getAttribute(NavigationTag.LOG_FILE_ATTR));
+        assertEquals("/context/servlet?log=log20020225120000", pageContext.getAttribute(NavigationTag.URL_ATTR));
         assertEquals("02/25/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
         assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));

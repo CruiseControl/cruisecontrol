@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2003, ThoughtWorks, Inc.
+ * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -36,46 +36,47 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.File;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.JspException;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockServletRequest;
 
 /**
- * An abstract class to consolidate tags that deal with log files.
- * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
+ *
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class AbstractLogAwareTag {
-    private PageContext pageContext;
+public class CruiseTagSupportTest extends TestCase {
+    private CruiseTagSupport tag;
+    private MockServletRequest request;
 
-    protected void info(String message) {
-        System.out.println(message);
+    public CruiseTagSupportTest(String name) {
+        super(name);
     }
 
-    protected void err(String message) {
-        System.err.println(message);
+    public void setUp() {
+        tag = new CruiseTagSupport();
+        MockPageContext pageContext = new MockPageContext();
+        tag.setPageContext(pageContext);
+        request = new MockServletRequest("context", "servlet");
+        pageContext.setHttpServletRequest(request);
     }
 
-    protected void err(Throwable exception) {
-        exception.printStackTrace();
+    public void testCreateUrl() {
+        assertEquals("/context/servlet?param=value", tag.createUrl("param", "value"));
     }
 
-    protected File findLogDir() throws JspException {
-        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
-        if (logDirName == null) {
-            logDirName = pageContext.getServletContext().getInitParameter("logDir");
-        }
-        File logDir = new File(logDirName);
-        if (!logDir.exists() || !logDir.isDirectory()) {
-            throw new JspException(logDirName + " either does not exist, or is not a directory");
-        }
-        return logDir;
+    public void testCreateUrlReplacingParam() {
+        request.addParameter("param", "differentValue");
+        assertEquals("/context/servlet?param=value", tag.createUrl("param", "value"));
     }
 
-    public void setPageContext(PageContext pageContext) {
-        this.pageContext = pageContext;
+    public void testCreateUrlPreservingParam() {
+        request.addParameter("otherParam", "otherValue");
+        assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
     }
 
-    protected PageContext getPageContext() {
-        return pageContext;
+    public void testCreateUrlPreservingAndReplacingParams() {
+        request.addParameter("otherParam", "otherValue");
+        request.addParameter("param", "differentValue");
+        assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
     }
 }

@@ -44,7 +44,7 @@
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
     <tr>
-      <td>
+      <td valign="top">
         <jsp:include page="navigation.jsp" />
       </td>
       <td valign="top">
