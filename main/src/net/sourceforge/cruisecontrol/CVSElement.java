@@ -25,6 +25,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import net.sourceforge.cruisecontrol.util.*;
+
 /**
  * This class implements the SourceControlElement methods
  * for a CVS repository. The call to CVS is assumed to work without
@@ -156,6 +158,10 @@ public class CVSElement extends SourceControlElement {
      *               to find the log history.
      */
     public void setLocalWorkingCopy(String local) {
+        if (local == null) {
+            this.local = new NullFile();
+            return;
+        }
         this.local = new File(local);
     }
     
@@ -191,9 +197,6 @@ public class CVSElement extends SourceControlElement {
      * @return Latest revision time.
      */
     public long getLastModified() {
-        if (lastModified == null) {
-            return 0;
-        }
         return lastModified.getTime();
     }
 
@@ -208,9 +211,9 @@ public class CVSElement extends SourceControlElement {
      * @return maybe empty, never null.
      */
     public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
-        initLastModified(lastBuild);
+        setLastModified(lastBuild);
 
-        String[] commandArray = buildLogCommand(now);
+        String[] commandArray = buildLogCommand(lastBuild, now);
         log(prepareCommandForDisplay(commandArray));
         
         ArrayList mods = null;
@@ -226,51 +229,43 @@ public class CVSElement extends SourceControlElement {
         return mods;
     }
 
-    private void initLastModified(Date lastModified) {
-        this.lastModified = lastModified;
-    }
-
     /**
      * Build command "cvs -d CVSROOT log -d lastbuildtime<currtime "
      */
-    private String[] buildLogCommand(Date currentTime) {
+    String[] buildLogCommand(Date lastBuildTime, Date currentTime) {
         //(PENDING) get rid of this duplication somehow
         if (cvsroot == null) {
 	    // omit -d CVSROOT
 	    return new String[] {"cvs", "log", "-d", 
-                CVSDATE.format(lastModified) + "<" + CVSDATE.format(currentTime), 
+                "\"" + CVSDATE.format(lastBuildTime) + "<" 
+                + CVSDATE.format(currentTime) + "\"", 
                 getLocalPath() };
 	} else {
 	    return new String[] {"cvs", "-d", cvsroot, "log", "-d", 
-                CVSDATE.format(lastModified) + "<" + CVSDATE.format(currentTime), 
+                "\"" + CVSDATE.format(lastBuildTime) + "<" 
+                + CVSDATE.format(currentTime) + "\"", 
                 getLocalPath() };
 	}
     }
 
-    /**
-     * This is simply to show what command we run, with the added benefit 
-     * that you can cut&paste the displayed string in a shell and don't 
-     * have to worry about quoting
-     */
-    private String prepareCommandForDisplay(String[] commandArray) {
+    String prepareCommandForDisplay(String[] commandArray) {
         String logCommand = "";
         for (int i = 0; i < commandArray.length; i++) {
-	    // Quote element if necessary.  Since we've programatically made that
-	    // array above, we can keep it simple : look for ' ', '<' or '>'.
-	    // These 3 are command-line separator characters in command interpreters.
-	    if (commandArray[i].indexOf(" ") >= 0
-		|| commandArray[i].indexOf("<") >= 0
-		|| commandArray[i].indexOf(">") >= 0) {
-		logCommand += "\"" + commandArray[i] + "\"" + " ";
-	    } else {
-		// no need to quote
-		logCommand += commandArray[i] + " ";
-	    }        
+            logCommand += commandArray[i] + " ";
         }
         
         return logCommand;
     }
 
+    private void setLastModified(Date lastModified) {
+        if (lastModified == null) {
+            lastModified = new NullDate();
+            return;
+        }
+        
+        this.lastModified = lastModified;
+    }    
+    
     private List execLogCommand(String[] commandArray) throws Exception {
         Process p = Runtime.getRuntime().exec(commandArray);            
  
@@ -306,14 +301,7 @@ public class CVSElement extends SourceControlElement {
      *         as path separator.
      */
     private String getLocalPath() {
-        //(PENDING) use NullFileObject
-        if (local == null) {
-            return " ";
-        }
-        
-        String basicPath = local.getPath();
-        String formattedPath = basicPath.replace('\\', '/');
-        return formattedPath;
+        return local.getPath().replace('\\', '/');
     }
     
     /**

@@ -35,6 +35,34 @@ public class CVSElementTest extends TestCase {
         super(testName);
     }
 
+    public void testLogCommandNullLocal() {
+        Date lastBuildTime = new Date();
+        Date currTime = new Date();
+        
+        CVSElement element = new CVSElement();
+        element.setCvsroot("cvsroot");
+        element.setLocalWorkingCopy(null);
+        
+        assertEquals("cvs -d cvsroot log -d \"" 
+         + CVSElement.CVSDATE.format(lastBuildTime) 
+         + "<" + CVSElement.CVSDATE.format(currTime) + "\"", 
+         element.prepareCommandForDisplay(element.buildLogCommand(lastBuildTime, 
+          currTime)).trim());
+    }
+    
+    public void testLogCommandNullCVSROOT() {
+        Date lastBuildTime = new Date();
+        Date currTime = new Date();
+        CVSElement element = new CVSElement();
+        element.setCvsroot(null);
+        element.setLocalWorkingCopy("local");
+
+        assertEquals("cvs log -d \"" + CVSElement.CVSDATE.format(lastBuildTime) 
+         + "<" + CVSElement.CVSDATE.format(currTime) + "\" local", 
+         element.prepareCommandForDisplay(element.buildLogCommand(lastBuildTime, 
+          currTime)).trim());
+    }
+    
     public void testLogPrepend() {
         CVSElement element = new CVSElement();
         MockTask task = new MockTask();
