@@ -68,6 +68,7 @@ PluginXMLHelper
 Project
 ----------------------
 * Now fires BuildProgressEvents and BuildResultEvents. Patch by Michael Beauregard
+* Includes a cvs friendly timestamp in the properties sent to Ant named cvstimestamp. Patch by Brad Clarke
 
 PVCS
 ----------------------
