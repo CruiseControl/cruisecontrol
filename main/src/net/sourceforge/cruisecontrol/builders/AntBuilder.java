@@ -68,7 +68,7 @@ public class AntBuilder extends Builder {
 
     private String antWorkingDir = null;
     private String buildFile = "build.xml";
-    private String target = "all";
+    private String target = "";
     private String tempFileName = "log.xml";
     private String antScript;
     private boolean useLogger;
