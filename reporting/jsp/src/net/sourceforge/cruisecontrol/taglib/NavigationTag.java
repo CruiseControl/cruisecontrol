@@ -118,7 +118,12 @@ public class NavigationTag implements Tag, BodyTag {
 
     public int doStartTag() throws JspException {
         _count = 0;
-        _logDir = new File(_pageContext.getServletConfig().getInitParameter("logDir"));
+        String logDirName = _pageContext.getServletConfig().getInitParameter("logDir");
+        if (logDirName == null) {
+            logDirName = _pageContext.getServletContext().getInitParameter("logDir");
+        }
+        _logDir = new File(logDirName);
+
         String logDirPath = _logDir.getAbsolutePath();
 
         System.out.println("Scanning directory: " + logDirPath + " for log files.");

@@ -213,7 +213,11 @@ public class XSLTag implements Tag, BodyTag {
      *  Write the transformed log content to page writer given.
      */
     protected void writeContent(Writer out) throws JspException {
-        File logDir = new File(_pageContext.getServletConfig().getInitParameter("logDir"));
+        String logDirName = _pageContext.getServletConfig().getInitParameter("logDir");
+        if (logDirName == null) {
+            logDirName = _pageContext.getServletContext().getInitParameter("logDir");
+        }
+        File logDir = new File(logDirName);
         System.out.println("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
 
 

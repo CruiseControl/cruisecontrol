@@ -64,9 +64,11 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
 
     private void writeStatus(java.io.Writer out) throws JspException {
         BufferedReader br = null;
-        String currentBuildFileName =
-                _pageContext.getServletConfig().getInitParameter(
-                        "currentBuildStatusFile");
+        String currentBuildFileName = _pageContext.getServletConfig().getInitParameter("currentBuildStatusFile");
+        if (currentBuildFileName == null) {
+            currentBuildFileName =_pageContext.getServletContext().getInitParameter("currentBuildStatusFile");
+        }
+
         try {
             br = new BufferedReader(new FileReader(currentBuildFileName));
             String s = br.readLine();
