@@ -42,14 +42,16 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     private static final String BUILDINFO_FILENAME = "buildcycleinfo";
     private static final String DEFAULT_MAP = "emailmap.properties";
-    private static final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
+    private final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
     private static final String XML_LOGGER_FILE = "log.xml";
+    private final String DEFAULT_LABEL = "label.0";
+    private final String DEFAULT_LASTBUILD = "20010101120000";
     
     //label/modificationset/build participants
-    private static String  _label;
+    private String  _label;
     private static String  _labelIncrementerClassName;
-    private static String  _lastGoodBuildTime;
-    private static String  _lastBuildTime;
+    private String  _lastGoodBuildTime;
+    private String  _lastBuildTime;
     private static boolean _lastBuildSuccessful;
     private static boolean _buildNotNecessary;
     private static String  _logDir;
@@ -63,7 +65,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     //build properties
     private Properties _properties;
-    private static String _propsFileName;
+    private String _propsFileName;
 
     //xml merge stuff
     private static Vector _auxLogFiles = new Vector();
@@ -86,7 +88,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _cleanAntTarget;
     
     //(PENDING) Extract class to handle logging
-    // static because a new instance is used to do logging
+    // _debug and _verbose are static because a new instance is used to do logging
     private static boolean _debug;
     private static boolean _verbose;
     
@@ -96,7 +98,104 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _servletURL;
     private static File _currentBuildStatusFile;
 
-    private static boolean isCompleteTime(String time) {
+    /**
+     * Entry point.  Verifies that all command line arguments are correctly 
+     * specified.
+     */
+    //(PENDING) Add --help/--usage
+    public static void main(String[] args) {
+        MasterBuild mb = new MasterBuild();
+        mb.log("***** Starting automated build process *****\n");
+
+        mb.readBuildInfo();
+        mb.overwriteWithUserArguments(args);
+        mb.setRemainingDefaultValues();
+
+        if (mb.buildInfoSpecified()) {
+            mb.execute();
+        } else {
+            mb.usage();
+        }
+    }
+
+    // (PENDING) Extract class
+    ////////////////////////////
+    // BEGIN Handling arguments
+    ////////////////////////////
+    /**
+     * Deserialize the label and timestamp of the last good build.
+     */
+    public void readBuildInfo() {
+        File infoFile = new File(BUILDINFO_FILENAME);
+        log("Reading build information from : " + infoFile.getAbsolutePath());
+        if (!infoFile.exists() || !infoFile.canRead()) {
+            log("Cannot read build information.");
+            return;
+        }
+
+        try {
+            ObjectInputStream s = new ObjectInputStream(new FileInputStream(infoFile));
+            //(PENDING) just pass back a BuildInfo instead
+            BuildInfo info = (BuildInfo) s.readObject();
+
+            _lastGoodBuildTime = info.timestamp;
+            _lastBuildTime = _lastGoodBuildTime;
+            _label = info.label;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void overwriteWithUserArguments(String[] args) {
+        for (int i = 0; i < args.length - 1; i++) {
+            try {
+                if (args[i].equals("-lastbuild")) {
+                    _lastBuildTime = processLastBuildArg(args[i + 1]);
+                    _lastGoodBuildTime = _lastBuildTime;
+                } else if (args[i].equals("-label")) {
+                    //(PENDING) check format of label
+                    _label = args[i + 1];
+                } else if (args[i].equals("-properties")) {
+                    _propsFileName = args[i + 1];
+                }
+            } catch (RuntimeException re) {
+                re.printStackTrace();
+                usage();
+            }
+        }
+    }
+
+    public void setRemainingDefaultValues() {
+        if (_lastBuildTime == null) {
+            _lastBuildTime = DEFAULT_LASTBUILD;
+            _lastGoodBuildTime = _lastBuildTime;
+        }
+        
+        if (_label == null) {
+            _label = DEFAULT_LABEL;
+        }
+
+        if (_propsFileName == null) {
+            if (new File(DEFAULT_PROPERTIES_FILENAME).exists()) {
+                _propsFileName = DEFAULT_PROPERTIES_FILENAME;
+            }
+        }
+    }
+    
+    public boolean buildInfoSpecified() {
+        return 
+         (_lastBuildTime != null) && (_label != null) && (_propsFileName != null);
+    }
+
+    private String processLastBuildArg(String lastBuild) {
+        if (!isCompleteTime(lastBuild)) {
+            throw new IllegalArgumentException(
+             "Bad format for last build: " + lastBuild);
+        }
+        return lastBuild;
+    }    
+
+    private boolean isCompleteTime(String time) {
         int expectedLength = 14;
         if (time.length() < expectedLength) {
             return false;
@@ -104,78 +203,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         
         return true;
     }
-    
-    private static boolean processLastBuildArg(String lastBuild) {
-        if (!isCompleteTime(lastBuild)) {
-            throw new IllegalArgumentException(
-             "Bad format for last build: " + lastBuild);
-        }
-        _lastGoodBuildTime = lastBuild;
-        _lastBuildTime = lastBuild;
-        return true;
-    }
-    
-    private static boolean processLabelArg(String label) {
-        _label = label;
-        //(PENDING) check format of label
-        return true;
-    }
-
-    private static boolean processPropertiesArg(String propFile) {
-        _propsFileName = propFile;
-        return true;
-    }
-    
-    /**
-     * Entry point.  Verifies that all command line arguments are correctly 
-     * specified.
-     */
-    
-    //(PENDING) Have default values for all arguments
-    // Read build info first, overwrite with user specified, default values catch
-    // the rest.  Add --help/--usage
-    public static void main(String[] args) {
-        MasterBuild mb = new MasterBuild();
-        log("***** Starting automated build process *****\n");
-
-        boolean lastBuildSpecified = false;
-        boolean labelSpecified = false;
-        boolean propsSpecified = false;
-
-        for (int i = 0; i < args.length - 1; i++) {
-            try {
-                if (args[i].equals("-lastbuild")) {
-                    lastBuildSpecified = processLastBuildArg(args[i + 1]);
-                } else if (args[i].equals("-label")) {
-                    labelSpecified = processLabelArg(args[i + 1]);
-                } else if (args[i].equals("-properties")) {
-                    propsSpecified = processPropertiesArg(args[i + 1]);
-                }
-            } catch (RuntimeException re) {
-                re.printStackTrace();
-                mb.usage();
-            }
-        }
-
-        if (!labelSpecified || !lastBuildSpecified) {
-            mb.readBuildInfo();
-            labelSpecified = (_label != null);
-            lastBuildSpecified = (_lastGoodBuildTime != null);
-        }
-
-        if (!propsSpecified) {
-            if (new File(DEFAULT_PROPERTIES_FILENAME).exists()) {
-                _propsFileName = DEFAULT_PROPERTIES_FILENAME;
-                propsSpecified = true;
-            }
-        }
-        
-        if (lastBuildSpecified && labelSpecified && propsSpecified) {
-            mb.execute();
-        } else
-            mb.usage();
-    }
-
+    //////////////////////////
+    // END handling arguments
+    //////////////////////////
     /**
      * Serialize the label and timestamp of the last good build
      */
@@ -191,37 +221,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
     }
 
-    /**
-     * Deserialize the label and timestamp of the last good build.
-     */
-    private void readBuildInfo() {
-        File infoFile = new File(BUILDINFO_FILENAME);
-        log("Reading build information from : " + infoFile.getAbsolutePath());
-        if (!infoFile.exists() || !infoFile.canRead()) {
-            log("Cannot read build information.");
-            return;
-        }
-
-        try {
-            ObjectInputStream s = new ObjectInputStream(new FileInputStream(infoFile));
-            BuildInfo info = (BuildInfo) s.readObject();
-
-            if (_lastGoodBuildTime == null) {
-                _lastGoodBuildTime = info.timestamp;
-            }
-            
-            if(_lastBuildTime == null) {
-                _lastBuildTime = _lastGoodBuildTime;
-            }
-            
-            if (_label == null) {
-                _label = info.label;
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Load properties file, see masterbuild.properties for descriptions of 
@@ -734,14 +733,14 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      *	convenience method for logging
      */
-    private static void log(String s) {
+    public void log(String s) {
         log(s, System.out);
     }
 
     /**
      *	divert logging to any printstream
      */
-    private static void log(String s, PrintStream out) {
+    public void log(String s, PrintStream out) {
         out.println("[masterbuild] " + s);
     }
 
