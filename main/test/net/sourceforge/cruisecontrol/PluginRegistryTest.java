@@ -129,6 +129,9 @@ public class PluginRegistryTest extends TestCase {
         // verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         verifyPluginClass("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
         verifyPluginClass("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
+        verifyPluginClass("compound", "net.sourceforge.cruisecontrol.sourcecontrols.Compound");
+        verifyPluginClass("triggers", "net.sourceforge.cruisecontrol.sourcecontrols.Triggers");
+        verifyPluginClass("targets", "net.sourceforge.cruisecontrol.sourcecontrols.Targets");
         verifyPluginClass("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
         verifyPluginClass("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
         verifyPluginClass("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
