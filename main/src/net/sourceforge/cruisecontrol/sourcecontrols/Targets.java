@@ -36,15 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.SourceControl;
-
 /**
  * The class identifies the source control objects that it
  * contains as targets to be built only when corresponding
@@ -54,20 +45,14 @@ import net.sourceforge.cruisecontrol.SourceControl;
  * @author  <a href="mailto:will.gwaltney@sas.com">Will Gwaltney</a>
  
  */
-public class Targets implements SourceControl {
+public class Targets extends Compound.Entry {
 
-    private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
-
-    private ArrayList sourceControls = new ArrayList();
-    private Compound parent;
-    
     /**
      * Public constructor for reflection purposes.
      *
      */
     public Targets() {
+        super();
     }
     
     /**
@@ -78,66 +63,7 @@ public class Targets implements SourceControl {
      *                  object of class Compound) 
      */
     public Targets(Compound parent) {
-        this.parent = parent;
-    }
-    
-    public Hashtable getProperties() {
-        return this.properties;
-    }
-    
-    public void setProperty(String property) {
-        this.property = property;
-        
-    }
-    
-    public void setPropertyOnDelete(String property) {
-        this.propertyOnDelete = property;
-    }
-    
-    /**
-     * Returns a list of modifications since the last build
-     * by querying the sourceControls that this object contains.
-     * 
-     * @param   lastBuild   the date and time of the last build
-     * @param   now         the current date and time
-     * 
-     * @return  a list of the modifications
-     */
-    public List getModifications(Date lastBuild, Date now) {
-        ArrayList retVal = new ArrayList();
-        
-        Iterator it = sourceControls.iterator();
-        
-        while (it.hasNext()) {
-            retVal.addAll(((SourceControl) it.next()).getModifications(lastBuild, now));
-        }
-        
-        return retVal;
+        super(parent);
     }
 
-    /**
-     * Confirms that this object contains at least one
-     * sourcecontrol and is the parent of a Compound object.
-     * 
-     * @throws  a CruiseControlException if the validation fails
-     */
-    public void validate() throws CruiseControlException {
-        if (sourceControls.isEmpty()) {
-           throw new CruiseControlException("Error: there must be at least one source control in a targets block.");
-        }
-        
-        if (!(parent instanceof Compound)) {
-            throw new CruiseControlException("Error: targets blocks must be contained within compound blocks.");
-        }
-    }
-
-    /**
-     * Adds a sourcecontrol to the list of sourcecontrols that
-     * this object contains.
-     * 
-     * @param sc the sourceControl object to add
-     */
-    public void add(SourceControl sc) {
-        sourceControls.add(sc);
-    }
 }
