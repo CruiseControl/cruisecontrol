@@ -215,7 +215,7 @@
             <tr>
                <td class="tabledata">localWorkingCopy</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">The local directory with a previous checkout of the project. CVSBootstrapper will execute the update command from this directory if specified.</td>
+               <td class="tabledata">Path (absolute or relative to Build Loop execution directory) to the local copy of the CVS module which contains the target file. CVSBootstrapper will execute the update command from this directory if specified. Defaults to Build Loop execution directory.</td>
             </tr>
             <tr>
                <td class="tabledata">cvsroot</td>
@@ -225,7 +225,7 @@
             <tr>
                <td class="tabledata">file</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">The file to update from CVS. If not specified either the current working directory must be in the local cvs project or the localWorkingCopy must be set.</td>
+               <td class="tabledata">The file to update from CVS, relative to localworkingcopy. If not specified either the current working directory must be in the local cvs project or the localWorkingCopy must be set.</td>
             </tr>
          </table>
 
