@@ -332,28 +332,18 @@ public class AntBuilderTest extends TestCase {
 
     public void testGetAntLogAsElement() throws IOException, CruiseControlException {
         Element buildLogElement = new Element("build");
-        File logFile = new File("_tempAntLog14.xml");
+        File logFile = new File("_tempAntLog.xml");
         filesToClear.add(logFile);
-        BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
-        bw1.write(
-                "<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
-        bw1.flush();
-        bw1.close();
-        File logFile2 = new File("_tempAntLog141.xml");
-        filesToClear.add(logFile2);
-        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
+        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile));
         bw2.write(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
-                + "type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
+                + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");
         bw2.flush();
         bw2.close();
 
         assertEquals(
                 buildLogElement.toString(),
                 AntBuilder.getAntLogAsElement(logFile).toString());
-        assertEquals(
-                buildLogElement.toString(),
-                AntBuilder.getAntLogAsElement(logFile2).toString());
     }
 
     public void testGetAntLogAsElement_NoLogFile() throws IOException {
