@@ -119,6 +119,10 @@ public class CVSBootstrapperTest extends TestCase {
         bootStrapper.setResetStickyTags(true);
         assertEquals("cvs -d somecvsroot update -dPA somefile",
                 bootStrapper.buildUpdateCommand().toString());
+        
+        bootStrapper.setOverwriteChanges(true);
+        assertEquals("cvs -d somecvsroot update -dPAC somefile",
+                bootStrapper.buildUpdateCommand().toString());
     }
     
 }
