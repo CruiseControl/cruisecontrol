@@ -231,7 +231,7 @@ public class MainTest extends TestCase {
         try {
             main.parsePort(incorrectArgs);
             fail("Expected exception");
-        } catch (IllegalStateException e) {
+        } catch (CruiseControlException e) {
             // expected
         }
 
@@ -240,6 +240,43 @@ public class MainTest extends TestCase {
             fail("Expected exception");
         } catch (IllegalArgumentException e) {
             // expected
+        }
+    }
+
+    public void testParseArgs() throws Exception {
+        String argName = "port";
+        String defaultValue = "8080";
+
+        //No args specified. Should get the default back.
+        String[] args = {};
+        String foundValue = Main.parseArgument(args, argName, defaultValue);
+        assertEquals(defaultValue, foundValue);
+
+        //One arg specified, should get the value specified, not the default.
+        String setValue = "100";
+        args = new String[]{"-port", setValue};
+        foundValue = Main.parseArgument(args, argName, defaultValue);
+        assertEquals(setValue, foundValue);
+
+        //More than one arg specified, should still get the value specified.
+        args = new String[]{"-port", setValue, "-throwAway", "value"};
+        foundValue = Main.parseArgument(args, argName, defaultValue);
+        assertEquals(setValue, foundValue);
+
+        //Switch the order around, should still get the value specified.
+        args = new String[]{"-throwAway", "value", "-port", setValue};
+        foundValue = Main.parseArgument(args, argName, defaultValue);
+        assertEquals(setValue, foundValue);
+
+        //If arg name is included, but no arg, then should get an exception.
+        args = new String[]{"-port"};
+        try {
+            foundValue = Main.parseArgument(args, argName, defaultValue);
+            fail("Expected to get an exception, because the user specified" +
+                    " an argument but didn't provide a value for the argument." +
+                    " Got the value '" + foundValue + "' instead.");
+        } catch (CruiseControlException e) {
+            assertTrue("Good, expected to get an exception.", true);
         }
     }
 }

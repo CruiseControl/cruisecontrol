@@ -203,9 +203,12 @@ public class Main {
      * Parse port number from arguments.
      *
      * @return port number
-     * @throws CruiseControlException if port argument is not specified
+     * @throws IllegalArgumentException if port argument is not specified
+     *          or invalid
      */
-    static int parsePort(String args[]) throws CruiseControlException {
+    static int parsePort(String args[])
+            throws IllegalArgumentException, CruiseControlException {
+
         String portString = parseArgument(args, "port", null);
         if (portString == null) {
             throw new IllegalStateException("Should not reach this point " +
@@ -215,7 +218,8 @@ public class Main {
         try {
             port = Integer.parseInt(portString);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("-port parameter requires integer argument");
+            throw new IllegalArgumentException("-port parameter, specified as '"
+                    + portString + "', requires integer argument");
         }
         return port;
     }
@@ -244,13 +248,18 @@ public class Main {
                 Project project = (Project) s.readObject();
                 return project;
             } catch (Exception e) {
-                log.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
+                log.warn("Error deserializing project file from "
+                        + serializedProjectFile.getAbsolutePath(), e);
             }
         }
 
         return new Project();
     }
 
+    /**
+     * Writes the current version information, as indicated in the
+     * version.properties file, to the logging information stream.
+     */
     private void printVersion() {
         Properties props = new Properties();
         try {
@@ -261,17 +270,46 @@ public class Main {
         log.info("CruiseControl Version " + props.getProperty("version"));
     }
 
-    private static String parseArgument(String[] args, String argName, String argValue) throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
+    /**
+     * Searches the array of args for the value corresponding to a particular
+     * argument name. This method assumes that the argName doesn't include
+     * a "-", but adds one while looking through the array. For example, if a
+     * user is supposed to type "-port", the appropriate argName to supply to
+     * this method is just "port".
+     *
+     * This method also allows the specification
+     * of a default argument value, in case one was not specified.
+     *
+     * @param args Application arguments like those specified to the standard
+     *      Java main function.
+     * @param argName Name of the argument, without any preceeding "-",
+     *      i.e. "port" not "-port".
+     * @param defaultArgValue A default argument value, in case one was not
+     *      specified.
+     * @return The argument value found, or the default if none was found.
+     * @throws CruiseControlException If the user specified the argument name
+     *      but didn't include the argument, as in "-port" when it should most
+     *      likely be "-port 8080".
+     */
+    public static String parseArgument(String[] args, String argName,
+                                        String defaultArgValue)
+            throws CruiseControlException {
+
+        //Init to default value.
+        String returnArgValue = defaultArgValue;
+
+        for (int i = 0; i <= args.length - 1; i++) {
             if (args[i].equals("-" + argName)) {
                 try {
-                    argValue = args[i + 1];
-                    log.debug("Main: value of parameter " + argName + " is [" + argValue + "]");
+                    returnArgValue = args[i + 1];
+                    log.debug("Main: value of parameter " + argName + " is ["
+                            + returnArgValue + "]");
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'" + argName + "' argument was not specified.");
+                    throw new CruiseControlException("'" + argName
+                            + "' argument was not specified.");
                 }
             }
         }
-        return argValue;
+        return returnArgValue;
     }
 }
