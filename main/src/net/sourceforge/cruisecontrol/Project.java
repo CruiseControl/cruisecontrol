@@ -925,6 +925,17 @@ public class Project implements Serializable, Runnable {
         setState(STOPPED_STATE);
     }
 
+    public String toString() {
+        StringBuffer sb = new StringBuffer("Project ");
+        sb.append(getName());
+        sb.append(": ");
+        sb.append(getStatus());
+        if(isPaused) {
+            sb.append(" (paused)");
+        }
+        return sb.toString();
+    }
+
     /**
      * @return midnight on today's date
      */

@@ -380,6 +380,13 @@ public class ProjectTest extends TestCase {
         assertFalse(Project.needToWaitForNextBuild(-1));
     }
 
+    public void testToString() {
+        project.setName("foo");
+        assertEquals("Project foo: stopped", project.toString());
+        project.setPaused(true);
+        assertEquals("Project foo: stopped (paused)", project.toString());
+    }
+
     private String readFileToString(String filename) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         StringBuffer result = new StringBuffer();

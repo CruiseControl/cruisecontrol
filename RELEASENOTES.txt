@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+Project
+----------------------
+* add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
+
 SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
