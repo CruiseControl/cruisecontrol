@@ -416,6 +416,11 @@ public class P4 implements SourceControl {
         public Vector affectedFiles = new Vector();
 
         public Element toElement() {
+            LOG.debug("changelistNumber = " + changelistNumber);
+            LOG.debug("user = " + user);
+            LOG.debug("client = " + client);
+            LOG.debug("dateOfSubmission = " + dateOfSubmission);
+            LOG.debug("description = " + description);
             Element changelistElement = new Element("changelist");
             changelistElement.setAttribute("type", "p4");
             changelistElement.setAttribute("changelistNumber", changelistNumber);
