@@ -1,5 +1,15 @@
 CruiseControl Release Notes - Latest CVS
 
+MavenBuilder
+---------------------
+New builder implementation, like AntBuilder but for Maven - by Florin Vancea.
+
+
+StreamPumper & StreamConsumer
+---------------------
+StreamConsumer implementations may now be registered with StreamPumpers to notified for each line "pumped".
+
+
 AntBuilder
 ---------------------
 * Added antWorkingDir attribute. - Patch by Brett Wooldridge
