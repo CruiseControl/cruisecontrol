@@ -108,8 +108,7 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
   </tr>
   <tr>
     <td valign="top">localworkingcopy</td>
-        <td valign="top">This directory will be used to determine from which
-        point in the repository to recursively obtain the log history.</td>
+        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy)</td>
     <td valign="top" align="center">Yes</td>
   </tr>
 </table>
@@ -200,7 +199,6 @@ library.
 <h3>Examples</h3>
 <PRE>
 &lt;target name=&quot;modificationset&quot;&gt;
-    &lt;property name=&quot;modificationset.file&quot; value=&quot;logs\modificationset.xml&quot; /&gt;
     &lt;modificationset lastbuild=&quot;${lastGoodBuildTime}&quot;
         quietperiod=&quot;30&quot;
         dateformat=&quot;yyyy-MMM-dd HH:mm:ss&quot;&gt;
@@ -214,7 +212,6 @@ library.
 
 <PRE>
 &lt;target name=&quot;modificationset&quot;&gt;
-    &lt;property name=&quot;modificationset.file&quot; value=&quot;logs\modificationset.xml&quot; /&gt;
     &lt;modificationset lastbuild=&quot;${lastGoodBuildTime}&quot;
         quietperiod=&quot;30&quot;
         dateformat=&quot;yyyy-MMM-dd HH:mm:ss&quot;&gt;
@@ -236,10 +233,10 @@ library.
 </PRE>
 
 This example will recursively scan 3 different folders in sourcesafe, and conditionally set the
-properties named in each element.  Thus, i can call a "clean" target for each of these folders and,
-using the "depends" attribute, determine whether i need to clean.  The same applies for a target to
+properties named in each element.  Thus, I can call a "clean" target for each of these folders and,
+using the "depends" attribute, determine whether I need to clean.  The same applies for a target to
 get the latest source.  If no modifications have occurred within my src directory, but we've modified
-a jsp file, we really don't need to compile all our source again, just repackage our distributable.
+a JSP file, we really don't need to compile all our source again, just repackage our distributable.
 </body>
 
 </html>
