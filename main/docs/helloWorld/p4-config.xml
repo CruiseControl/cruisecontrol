@@ -2,6 +2,7 @@
    <project name="helloworld">
       <bootstrappers>
          <currentbuildstatusbootstrapper file="currentbuild.txt" />
+         <p4bootstrapper path="//depot/mycruise/build.xml" p4Port="localhost:1666" p4User="mroberts" p4Client="robertsm"/>
       </bootstrappers>
       <modificationset quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
          <p4 port="${p4.port}" user="${p4.user}" client="${p4.client}" view="${p4.view}" />
