@@ -50,6 +50,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -277,55 +278,24 @@ public class ClearCase implements SourceControl {
      */
     private ClearCaseModification parseEntry(String line) {
         LOG.debug("parsing entry: " + line);
-        StringTokenizer st = new StringTokenizer(line, DELIMITER);
-
-        // we should get either 4 (w/o comments) or 5 tokens (w/ comments)
-        if ((st.countTokens() < 7) || (st.countTokens() > 8)) {
+        String[] tokens = tokeniseEntry(line);
+        if (tokens == null) {
             return null;
         }
+        String username = tokens[0].trim();
 
-        String username = st.nextToken().trim();
+        String timeStamp = tokens[1].trim();
+        String elementName = tokens[2].trim();
+        String version = tokens[3].trim();
+        String operationType = tokens[4].trim();
 
-        String timeStamp = st.nextToken().trim();
-        String elementName = st.nextToken().trim();
-        String version = st.nextToken().trim();
-        String operationType = st.nextToken().trim();
+        String labelList = tokens[5].substring(1).trim();
+        Vector labels = extractLabelsList(labelList);
 
-        String labelList = st.nextToken().substring(1).trim();
-        Vector labels = null;
-        if (labelList.length() > 0) {
-            labels = new Vector();
-            StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
-            while (labelST.hasMoreTokens()) {
-                labels.add(labelST.nextToken().trim());
-            }
-        }
+        String attributeList = tokens[6].substring(1).trim();
+        Hashtable attributes = extractAttributesMap(attributeList);
 
-        String attributeList = st.nextToken().substring(1).trim();
-        Hashtable attributes = null;
-        if (attributeList.length() > 0) {
-            attributes = new Hashtable();
-            StringTokenizer attrST = new StringTokenizer(attributeList, "(), ");
-            while (attrST.hasMoreTokens()) {
-                String attr = attrST.nextToken();
-                int idx = attr.indexOf('=');
-                if (idx > 0) {
-                    String attrName = attr.substring(0, idx);
-                    String attrValue = attr.substring(idx + 1);
-                    if (attrValue.startsWith("\"")) {
-                        attrValue = attrValue.substring(1, attrValue.length() - 1);
-                    }
-                    attributes.put(attrName, attrValue);
-                }
-            }
-        }
-
-        String comment;
-        if (st.countTokens() > 0) {
-            comment = st.nextToken().trim();
-        } else {
-            comment = "";
-        }
+        String comment = tokens[7].trim();
 
         // A branch event shouldn't trigger a build
         if (operationType.equals("mkbranch")) {
@@ -367,5 +337,72 @@ public class ClearCase implements SourceControl {
         // TODO: check if operation type is a delete
 
         return mod;
+    }
+
+    private String[] tokeniseEntry(String line) {
+        int maxTokens = 8;
+        int minTokens = maxTokens - 1; // comment may be absent.
+        String[] tokens  = new String[maxTokens];
+        Arrays.fill(tokens, "");
+        int tokenIndex = 0;
+        for (int oldIndex = 0, index = line.indexOf(DELIMITER, 0); true; 
+             oldIndex = index + DELIMITER.length(), index = line.indexOf(DELIMITER, oldIndex), tokenIndex++) {
+            if (tokenIndex > maxTokens) {
+                LOG.debug("Too many tokens; skipping entry");
+                return null;
+            }
+            if (index == -1) {
+                tokens[tokenIndex] = line.substring(oldIndex);
+                break;
+            } else {
+                tokens[tokenIndex] = line.substring(oldIndex, index);
+            }
+        }
+        if (tokenIndex < minTokens) {
+            LOG.debug("Not enough tokens; skipping entry");
+            return null;
+        }
+        return tokens;
+    }
+
+    /**
+     * @param attributeList
+     * @return
+     */
+    private Hashtable extractAttributesMap(String attributeList) {
+        Hashtable attributes = null;
+        if (attributeList.length() > 0) {
+            attributes = new Hashtable();
+            StringTokenizer attrST = new StringTokenizer(attributeList, "(), ");
+            while (attrST.hasMoreTokens()) {
+                String attr = attrST.nextToken();
+                int idx = attr.indexOf('=');
+                if (idx > 0) {
+                    String attrName = attr.substring(0, idx);
+                    String attrValue = attr.substring(idx + 1);
+                    if (attrValue.startsWith("\"")) {
+                        attrValue = attrValue.substring(1, attrValue.length() - 1);
+                    }
+                    attributes.put(attrName, attrValue);
+                }
+            }
+        }
+        return attributes;
+    }
+
+    /**
+     * @param labelList
+     * @return
+     */
+    private Vector extractLabelsList(String labelList) {
+        Vector labels = null;
+        if (labelList.length() > 0) {
+            labels = new Vector();
+            StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
+            while (labelST.hasMoreTokens()) {
+                labels.add(labelST.nextToken().trim());
+            }
+        }
+        return labels;
     }
 }
