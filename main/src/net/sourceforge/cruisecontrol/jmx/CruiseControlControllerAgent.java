@@ -36,15 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
+import mx4j.adaptor.http.HttpAdaptor;
+import mx4j.adaptor.rmi.RMIAdaptorMBean;
+import mx4j.adaptor.rmi.jrmp.JRMPAdaptorMBean;
+import mx4j.tools.naming.NamingServiceMBean;
+import mx4j.util.StandardMBeanProxy;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import org.apache.log4j.Logger;
-import mx4j.adaptor.http.HttpAdaptor;
 
+import javax.management.Attribute;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-import javax.management.Attribute;
+import javax.naming.Context;
 import java.io.IOException;
+import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
 
 /**
  * JMX agent for a ProjectController
@@ -55,13 +62,17 @@ public class CruiseControlControllerAgent {
 
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerAgent.class);
 
-    private HttpAdaptor adaptor = new HttpAdaptor();
-    private int port;
+    private HttpAdaptor httpAdaptor = new HttpAdaptor();
+    private int httpPort;
+    private RMIAdaptorMBean rmiAdaptor;
+    private int rmiPort;
+    private NamingServiceMBean rmiRegistry;
     private CruiseControlControllerJMXAdaptor controllerAdaptor;
     private String path;
 
-    public CruiseControlControllerAgent(CruiseControlController controller, int port, String xslPath) {
-        this.port = port;
+    public CruiseControlControllerAgent(CruiseControlController controller, int httpPort, int rmiPort, String xslPath) {
+        this.httpPort = httpPort;
+        this.rmiPort = rmiPort;
         path = xslPath;
         this.controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
 
@@ -69,33 +80,63 @@ public class CruiseControlControllerAgent {
         try {
             controllerAdaptor.register(server);
         } catch (Exception e) {
-            LOG.error("Problem registering CruiseControlController Adaptor", e);
+            LOG.error("Problem registering CruiseControlController HttpAdaptor", e);
         }
         try {
-            registerHTMLAdaptor(server);
+            registerHttpAdaptor(server);
         } catch (Exception e) {
-            LOG.error("Problem registering HTML adaptor", e);
+            LOG.error("Problem registering HttpAdaptor", e);
+        }
+        try {
+            registerRmiAdaptor(server);
+        } catch (Exception e) {
+            LOG.error("Problem registering RmiAdaptor", e);
         }
     }
 
     public void start() {
         try {
-            adaptor.start();
+            LOG.info("starting httpAdaptor");
+            httpAdaptor.start();
         } catch (IOException e) {
-            LOG.error("Exception starting adaptor", e);
+            LOG.error("Exception starting httpAdaptor", e);
+        }
+        try {
+            LOG.info("starting rmiRegistry");
+            rmiRegistry.start();
+        } catch (RemoteException e) {
+            LOG.error("Exception starting rmiRegistry", e);
+        }
+        try {
+            LOG.info("starting rmiAdaptor");
+            rmiAdaptor.start();
+        } catch (Exception e) {
+            LOG.error("Exception starting rmiAdaptor", e);
         }
     }
 
     public void stop() {
-        adaptor.stop();
+        httpAdaptor.stop();
+        try {
+            LOG.info("stopping rmiAdaptor");
+            rmiAdaptor.stop();
+        } catch (Exception e) {
+            LOG.error("Exception stopping rmiAdaptor", e);
+        }
+        try {
+            LOG.info("stopping rmiRegistry");
+            rmiRegistry.stop();
+        } catch (NoSuchObjectException e) {
+            LOG.error("Exception stopping rmiRegistry", e);
+        }
     }
 
-    private void registerHTMLAdaptor(MBeanServer server) throws Exception {
-        adaptor.setPort(port);
-        ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,port=" + port);
-        server.registerMBean(adaptor, adaptorName);
+    private void registerHttpAdaptor(MBeanServer server) throws Exception {
+        httpAdaptor.setPort(httpPort);
+        ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,httpPort=" + httpPort);
+        server.registerMBean(httpAdaptor, adaptorName);
         ObjectName processorName = new ObjectName("Http:name=XSLTProcessor");
-        server.createMBean("mx4j.adaptor.http.XSLTProcessor", processorName, null);
+        server.createMBean("mx4j.httpAdaptor.http.XSLTProcessor", processorName, null);
         String pathInJar = "net/sourceforge/cruisecontrol/jmx/xsl";
         if (path != null && !path.equals("")) {
             LOG.info("Starting HttpAdaptor with customized Stylesheets");
@@ -105,5 +146,26 @@ public class CruiseControlControllerAgent {
             server.setAttribute(processorName, new Attribute("PathInJar", pathInJar));
         }
         server.setAttribute(adaptorName, new Attribute("ProcessorName", processorName));
+    }
+
+    private void registerRmiAdaptor(MBeanServer server) throws Exception {
+        // Create and start the naming service
+        ObjectName naming = new ObjectName("Naming:type=rmiregistry");
+        server.createMBean("mx4j.tools.naming.NamingService", naming, null);
+        rmiRegistry = (NamingServiceMBean) StandardMBeanProxy.create(NamingServiceMBean.class, server, naming);
+
+        // Create the JRMP adaptor
+        ObjectName adaptor = new ObjectName("Adaptor:protocol=JRMP");
+        server.createMBean("mx4j.adaptor.rmi.jrmp.JRMPAdaptor", adaptor, null);
+        rmiAdaptor = (JRMPAdaptorMBean) StandardMBeanProxy.create(JRMPAdaptorMBean.class, server, adaptor);
+
+        // Set the JNDI name with which it will be registered
+        String jndiName = "jrmp";
+        rmiAdaptor.setJNDIName(jndiName);
+
+        // Optionally, you can specify the JNDI properties,
+        // instead of having in the classpath a jndi.properties file
+        rmiAdaptor.putJNDIProperty(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        rmiAdaptor.putJNDIProperty(Context.PROVIDER_URL, "rmi://localhost:" + rmiPort);
     }
 }

@@ -67,7 +67,10 @@ public class Main {
 
             if (shouldStartController(args)) {
                 CruiseControlControllerAgent agent
-                        = new CruiseControlControllerAgent(controller, parsePort(args), parseXslPath(args));
+                        = new CruiseControlControllerAgent(controller,
+                                                           parseHttpPort(args),
+                                                           parseRmiPort(args),
+                                                           parseXslPath(args));
                 agent.start();
             }
             controller.resume();
@@ -89,16 +92,9 @@ public class Main {
         LOG.info("java CruiseControl [options]");
         LOG.info("where options are:");
         LOG.info("");
-        LOG.info(
-            "   -port number           where number is the port of the Controller web site");
-//        LOG.info(
-//            "   -projectname name      where name is the name of the project");
-//        LOG.info(
-//            "   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-//        LOG.info(
-//            "   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-        LOG.info(
-            "   -configfile file       where file is the configuration file");
+        LOG.info("   -port number           where number is the port of the Controller web site");
+        LOG.info("   -rmiport number        where number is the RMI port of the Controller");
+        LOG.info("   -configfile file       where file is the configuration file");
         System.exit(1);
     }
 
@@ -140,25 +136,28 @@ public class Main {
      * @throws IllegalArgumentException if port argument is not specified
      *          or invalid
      */
-    static int parsePort(String[] args)
-        throws IllegalArgumentException, CruiseControlException {
+    static int parseHttpPort(String[] args) throws CruiseControlException {
+        return parseInt(args, "port", null);
+    }
 
-        String portString = parseArgument(args, "port", null);
-        if (portString == null) {
+    static int parseRmiPort(String[] args) throws CruiseControlException {
+        return parseInt(args, "rmiport", null);
+    }
+
+    private static int parseInt(String[] args, String argName, String defaultValue) throws CruiseControlException {
+        String intString = parseArgument(args, argName, defaultValue);
+        if (intString == null) {
             throw new IllegalStateException(
-                "Should not reach this point "
-                    + " without returning or throwing CruiseControlException");
+                "Should not reach this point without returning or throwing CruiseControlException");
         }
-        int port;
+        int intValue;
         try {
-            port = Integer.parseInt(portString);
+            intValue = Integer.parseInt(intString);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
-                "-port parameter, specified as '"
-                    + portString
-                    + "', requires integer argument");
+                "-" + argName + " parameter, specified as '" + intString + "', requires integer argument");
         }
-        return port;
+        return intValue;
     }
 
     static String parseXslPath(String[] args) throws CruiseControlException {

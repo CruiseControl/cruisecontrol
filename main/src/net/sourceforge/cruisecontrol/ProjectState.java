@@ -43,29 +43,31 @@ package net.sourceforge.cruisecontrol;
 public final class ProjectState {
 
     public static final ProjectState QUEUED =
-            new ProjectState(1, "in build queue");
+            new ProjectState(1, "queued", "in build queue");
     public static final ProjectState IDLE =
-            new ProjectState(0, "idle");
+            new ProjectState(0, "idle", "idle");
     public static final ProjectState BOOTSTRAPPING =
-            new ProjectState(2, "bootstrapping");
+            new ProjectState(2, "bootstrapping", "bootstrapping");
     public static final ProjectState MODIFICATIONSET =
-            new ProjectState(3, "checking for modifications");
+            new ProjectState(3, "modificationset", "checking for modifications");
     public static final ProjectState BUILDING =
-            new ProjectState(4, "now building");
+            new ProjectState(4, "building", "now building");
     public static final ProjectState MERGING_LOGS =
-            new ProjectState(5, "merging accumulated log files");
+            new ProjectState(5, "merging", "merging accumulated log files");
     public static final ProjectState PUBLISHING =
-            new ProjectState(6, "publishing build results");
+            new ProjectState(6, "publishing", "publishing build results");
     public static final ProjectState PAUSED =
-            new ProjectState(7, "paused");
+            new ProjectState(7, "paused", "paused");
     public static final ProjectState STOPPED =
-            new ProjectState(8, "stopped");
+            new ProjectState(8, "stopped", "stopped");
 
     private String description;
+    private String name;
     private int code;
 
-    private ProjectState (int code, String desc) {
+    private ProjectState (int code, String name, String desc) {
         this.code = code;
+        this.name = name;
         this.description = desc;
     }
 
@@ -75,5 +77,9 @@ public final class ProjectState {
 
     public int getCode() {
         return code;
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -20,6 +20,7 @@ distributables.xsl
 jmx
 ----------------------
 * Now using MX4J instead of Sun's reference implementation. Patch by Michael Kloss
+* Added RMI adapter. Patch by Michael Beauregard
 
 ModificationSet
 ----------------------
