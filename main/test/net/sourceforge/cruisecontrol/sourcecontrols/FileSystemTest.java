@@ -101,16 +101,16 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing");
-        tempFile.setLastModified(now.getTime() + 1);
+        tempFile.setLastModified(now.getTime() + 1000);
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 2");
-        tempFile.setLastModified(now.getTime() + 1);
+        tempFile.setLastModified(now.getTime() + 1000);
 
         //Check for mods...there should be some, one for each file written.
         lastBuild = now;
-        Thread.sleep(100); //slight delay
+        Thread.sleep(1000); //slight delay
         now = new Date();
         mods = fsystem.getModifications(lastBuild, now);
         assertNotNull(mods);
@@ -120,21 +120,21 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 3");
-        tempFile.setLastModified(now.getTime() + 1);
+        tempFile.setLastModified(now.getTime() + 1000);
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 4");
-        tempFile.setLastModified(now.getTime() + 1);
+        tempFile.setLastModified(now.getTime() + 1000);
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 5");
-        tempFile.setLastModified(now.getTime() + 1);
+        tempFile.setLastModified(now.getTime() + 1000);
 
         //Checking for mods again should turn up only the new files.
         lastBuild = now;
-        Thread.sleep(100); //slight delay
+        Thread.sleep(1000); //slight delay
         now = new Date();
         mods = fsystem.getModifications(lastBuild, now);
         assertNotNull(mods);
@@ -144,11 +144,11 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 6");
-        tempFile.setLastModified(now.getTime() + 1);
+        tempFile.setLastModified(now.getTime() + 1000);
 
         //Checking for mods again should turn up only the one file
         lastBuild = now;
-        Thread.sleep(100); //slight delay
+        Thread.sleep(1000); //slight delay
         now = new Date();
         mods = fsystem.getModifications(lastBuild, now);
         assertNotNull(mods);
