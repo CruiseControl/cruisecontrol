@@ -46,6 +46,8 @@ import javax.servlet.jsp.JspException;
 
 public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    
     public int doEndTag() throws JspException {
         File logDir = findLogDir();
 
@@ -67,7 +69,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             String line = br.readLine();
             while (line != null) {
                 out.write(line);
-                out.write('\n');
+                out.write(LINE_SEPARATOR);
                 line = br.readLine();
             }
         } catch (IOException e) {
