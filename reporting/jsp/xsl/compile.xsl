@@ -42,7 +42,7 @@
 
     <xsl:output method="html"/>
 
-    <xsl:variable name="tasklist" select="/cruisecontrol/build/target/task"/>
+    <xsl:variable name="tasklist" select="/cruisecontrol/build//target/task"/>
     <xsl:variable name="javac.tasklist" select="$tasklist[@name='Javac']"/>
     <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='EjbJar']"/>
 
