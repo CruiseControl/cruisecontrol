@@ -43,6 +43,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
+import net.sourceforge.cruisecontrol.testutil.Util;
 
 import java.io.StringReader;
 import java.util.Iterator;
@@ -65,48 +66,9 @@ public class EmailPublisherTest extends TestCase {
     }
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
-        Element cruisecontrolElement = new Element("cruisecontrol");
-        Element buildElement = new Element("build");
-        Element modificationsElement = new Element("modifications");
-        String[] users = new String[]{"user1", "user2", "user2", "user3"};
-        for (int i = 0; i < users.length; i++) {
-            Element modificationElement = new Element("modification");
-            Element userElement = new Element("user");
-            userElement.addContent(users[i]);
-            modificationElement.addContent(userElement);
-            modificationsElement.addContent(modificationElement);
-        }
-
-        if (!success) {
-            buildElement.setAttribute("error", "Compile failed");
-        }
-
-        cruisecontrolElement.addContent(modificationsElement);
-        cruisecontrolElement.addContent(buildElement);
-        cruisecontrolElement.addContent(createInfoElement("somelabel", lastBuildSuccess));
+        Element cruisecontrolElement = Util.createElement(success, lastBuildSuccess);
 
         return new XMLLogHelper(cruisecontrolElement);
-    }
-
-    private Element createInfoElement(String label, boolean lastBuildSuccess) {
-        Element infoElement = new Element("info");
-
-        Hashtable properties = new Hashtable();
-        properties.put("label", label);
-        properties.put("lastbuildsuccessful", lastBuildSuccess + "");
-        properties.put("logfile", "log20020206120000.xml");
-        properties.put("projectname", "some project");
-
-        Iterator propertyIterator = properties.keySet().iterator();
-        while (propertyIterator.hasNext()) {
-            String propertyName = (String) propertyIterator.next();
-            Element propertyElement = new Element("property");
-            propertyElement.setAttribute("name", propertyName);
-            propertyElement.setAttribute("value", (String) properties.get(propertyName));
-            infoElement.addContent(propertyElement);
-        }
-
-        return infoElement;
     }
 
     public void setUp() throws Exception {
@@ -196,19 +158,19 @@ public class EmailPublisherTest extends TestCase {
 
     public void testCreateSubject() throws Exception {
         _emailPublisher.setReportSuccess("always");
-        assertEquals("some project somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
+        assertEquals("TestProject somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
         _emailPublisher.setReportSuccess("fixes");
-        assertEquals("some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
+        assertEquals("TestProject somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
 
-        assertEquals("some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+        assertEquals("TestProject Build Failed", _emailPublisher.createSubject(_failureLogHelper));
 
         _emailPublisher.setSubjectPrefix("[CC]");
         _emailPublisher.setReportSuccess("always");
-        assertEquals("[CC] some project somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
+        assertEquals("[CC] TestProject somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
         _emailPublisher.setReportSuccess("fixes");
-        assertEquals("[CC] some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
+        assertEquals("[CC] TestProject somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
 
-        assertEquals("[CC] some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+        assertEquals("[CC] TestProject Build Failed", _emailPublisher.createSubject(_failureLogHelper));
 
     }
 
