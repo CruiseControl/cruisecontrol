@@ -137,9 +137,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected void sendMail(String toList, String subject, String message)
             throws CruiseControlException {
         log.info("Sending mail notifications.");
-        Properties props = System.getProperties();
-        props.put("mail.smtp.host", getMailHost());
-        Session session = Session.getDefaultInstance(props, null);
+        Session session = Session.getDefaultInstance(getMailProperties(), null);
         session.setDebug(log.isDebugEnabled());
 
         try {
