@@ -48,7 +48,11 @@
     Calendar now = Calendar.getInstance();
     reportTime.append(now.get(Calendar.HOUR_OF_DAY));
     reportTime.append(":");
-    reportTime.append(now.get(Calendar.MINUTE));
+    String minutes = String.valueOf(now.get(Calendar.MINUTE));
+    if (minutes.length() == 1) {
+        minutes = 0 + minutes;
+    }
+    reportTime.append(minutes);
 %>
 <html>
 <head>
