@@ -194,7 +194,10 @@
             <td class="modifications-data">
                 <xsl:if test="file/project">
                     <xsl:value-of select="file/project"/>
+                    <!-- the following doesn't work with JDK 1.5.0, so it's disabled by default:
                     <xsl:value-of select="system-property('file.separator')"/>
+                    -->
+                    <xsl:value-of select="'/'"/>
                 </xsl:if>
                 <xsl:for-each select="file/filename">
                         <xsl:variable name="thefile" select="substring(current(),1,string-length(current())-4)"/>
