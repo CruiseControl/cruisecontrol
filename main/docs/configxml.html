@@ -98,6 +98,7 @@
 <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
 <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
 <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
+<a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a>
 <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
@@ -111,6 +112,7 @@
 <a href="#httpfile">&lt;httpfile&gt;</a>
 <a href="#jabber">&lt;jabber&gt;</a>
 <a href="#labelincrementer">&lt;labelincrementer&gt;</a>
+<a href="#listeners">&lt;listeners&gt;</a>
 <a href="#log">&lt;log&gt;</a>
 <a href="#maven">&lt;maven&gt;</a>
 <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
@@ -171,6 +173,9 @@
       <a href="#plugin">&lt;plugin/&gt;</a>
       <a href="#dateformat">&lt;dateformat/&gt;</a>
       <a href="#labelincrementer">&lt;labelincrementer/&gt;</a>
+      <a href="#listeners">&lt;listeners&gt;</a>
+         <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
+      <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
@@ -374,6 +379,11 @@
             </tr>
             </thead>
             <tbody>
+            <tr>
+                <td><a href="#listeners">&lt;listeners&gt;</a></td>
+                <td>0 .. 1</td>
+                <td>Container element for Listener plugin instances.</td>
+            </tr>
             <tr class="oddrow">
                 <td><a href="#bootstrappers">&lt;bootstrappers&gt;</a></td>
                 <td>0 .. 1</td>
@@ -409,6 +419,84 @@
                 <td><a href="#plugin">&lt;plugin&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Registers a classname with an alias.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="listeners">&lt;listeners&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;listeners&gt;</pre>
+        </div>
+
+        <p>The <code>&lt;listeners&gt;</code> element is a container element
+        for Listener plugin instances.</p>
+
+        <p>Listeners are notified with every ProjectEvent but most Listeners
+        are designed to handle a specific subclass of ProjectEvent.</p>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td><a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Writes a build status snippet to the filesystem</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#listeners">&lt;listeners&gt;</a>
+      &lt;currentbuildstatuslistener&gt;</pre>
+        </div>
+
+        <p>The CruiseControl Build Results JSP can indicate whether or not
+        CruiseControl is currently building a project. To get this information
+        to the JSP, we can use the optional
+        <code>&lt;currentbuildstatuslistener&gt;</code> to write an HTML
+        snippet to disk in a location where the JSP can read it. This file will
+        consist of the current status of the build and the last time the status
+        changed, with the formatting set by the
+        <a href="#dateformat">dateformat</a> element.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>The filename to write, including path</td>
             </tr>
             </tbody>
         </table>
@@ -545,6 +633,8 @@
     <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
       &lt;currentbuildstatusbootstrapper&gt;</pre>
         </div>
+        <p>Note: this plugin has been made obsolete by the
+        <a href="#currentbuildstatuslistener"><code>currentbuildstatuslistener</code></a>.</p>
 
         <p>The CruiseControl Build Results JSP can indicate whether or not
         CruiseControl is currently building a project. To get this information
@@ -553,6 +643,9 @@
         snippet to disk in a location where the JSP can read it. This file will
         consist of the time the build was started with the formatting set by the
         <a href="#dateformat">dateformat</a> element.</p>
+
+        <p>This plugin is used in tandem with the
+        <a href="#currentbuildstatuspublisher"><code>currentbuildstatuspublisher</code></a>.</p>
 
         <h3>Attributes</h3>
 
@@ -2881,12 +2974,18 @@ endlocal</pre>
       &lt;currentbuildstatuspublisher&gt;</pre>
         </div>
 
+        <p>Note: this plugin has been made obsolete by the
+        <a href="#currentbuildstatuslistener"><code>currentbuildstatuslistener</code></a>.</p>
+
         <p>The CruiseControl Build Results JSP will indicate whether or not
         CruiseControl is currently building a project. To get this information
         to the JSP, we write an HTML snippet to disk in a location where the JSP
         can read it. This file will consist of the time the next build attempt
         will take place, so there is an optional attribute to customize the
         dateformat.</p>
+
+        <p>This plugin is used in tandem with the
+        <a href="#currentbuildstatusbootstrapper"><code>currentbuildstatusbootstrapper</code></a>.</p>
 
         <h3>Attributes</h3>
 
