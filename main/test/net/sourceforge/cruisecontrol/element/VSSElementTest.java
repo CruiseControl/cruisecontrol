@@ -39,7 +39,12 @@ package net.sourceforge.cruisecontrol.element;
 import java.text.*;
 import java.util.*;
 import junit.framework.*;
+import net.sourceforge.cruisecontrol.Modification;
 
+/**
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author Arun Aggarwal
+ */
 public class VSSElementTest extends TestCase {
 
     private VssElement _element;
@@ -55,6 +60,8 @@ public class VSSElementTest extends TestCase {
     protected void setUp() {
         _element = new VssElement();
     }
+    
+    //(PENDING) test the form of the history command used
 
     public void testParseUserSingleCharName() {
         String testName = "1";
@@ -99,6 +106,58 @@ public class VSSElementTest extends TestCase {
         assertEquals(testName, _element.parseUser(createVSSLine(testName)));
     }
 
+    public void testHandleEntryUnusualLabel() {
+        int modificationsSizeBefore = _element.getModifications().size();
+        
+        List entry = new ArrayList();
+        entry.add("*****  built  *****");
+        entry.add("Version 4");
+        entry.add("Label: \"autobuild_test\"");
+        entry.add("User: Etucker      Date:  6/26/01   Time: 11:53a");
+        entry.add("Labeled");
+        
+        _element.handleEntry(entry);
+        assertEquals("Unusual label entry added. Labels shouldn't be added.",
+                     _element.getModifications().size(), modificationsSizeBefore);
+    }
+
+    public void testHandleEntryCheckinWithComment() {
+        int modificationsSizeBefore = _element.getModifications().size();
+        
+        List entry = new ArrayList();        
+        entry.add("*****  ttyp_direct.properties  *****");
+        entry.add("Version 10");
+        entry.add("User: Etucker      Date:  7/03/01   Time:  3:24p");
+        entry.add("Checked in $/Eclipse/src/main/com/itxc/eclipse/some/path/here");
+        entry.add("Comment: updated country codes for Colombia and Slovokia");
+        
+        _element.handleEntry(entry);
+        assertEquals(_element.getModifications().size(), modificationsSizeBefore + 1);
+        Modification mod = (Modification) _element.getModifications().get(_element.getModifications().size() - 1);
+        assertEquals(mod.fileName, "ttyp_direct.properties");
+        assertEquals(mod.folderName, "/Eclipse/src/main/com/itxc/eclipse/some/path/here");
+        assertEquals(mod.comment, "Comment: updated country codes for Colombia and Slovokia");
+        assertEquals(mod.userName, "Etucker");
+        assertEquals(mod.type, "checkin");        
+    }
+
+    public void testHandleEntryAdded() {
+        int modificationsSizeBefore = _element.getModifications().size();
+        
+        List entry = new ArrayList();        
+        entry.add("*****  core  *****");
+        entry.add("Version 19");
+        entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
+        entry.add("SessionIdGenerator.java added");
+        
+        _element.handleEntry(entry);
+        assertEquals(_element.getModifications().size(), modificationsSizeBefore + 1);
+        Modification mod = (Modification) _element.getModifications().get(_element.getModifications().size() - 1);
+        assertEquals(mod.fileName, "SessionIdGenerator.java");        
+        assertEquals(mod.userName, "Etucker");
+        assertEquals(mod.type, "add");
+    }    
+    
     /**
      * Produces a VSS line that looks something like this:
      * User: Username     Date:  6/14/01   Time:  6:39p
