@@ -42,8 +42,14 @@ import java.io.File;
 
 public class MainTest extends TestCase {
 
+    private Main main;
+
     public MainTest(String name) {
         super(name);
+    }
+
+    protected void setUp() {
+        main = new Main();
     }
 
     public void testConfigureProject() throws Exception {
@@ -57,7 +63,6 @@ public class MainTest extends TestCase {
         if (myProjFile.exists()) {
             myProjFile.delete();
         }
-        Main main = new Main();
 
         {
             Project project = main.configureProject(correctArgs);
@@ -103,7 +108,6 @@ public class MainTest extends TestCase {
         String[] correctArgs = new String[]{"-lastbuild", "20020310120000"};
         String[] missingArgs = new String[]{""};
         String[] incorrectArgs = new String[]{"-lastbuild"};
-        Main main = new Main();
 
         assertEquals(main.parseLastBuild(correctArgs, null), "20020310120000");
 
@@ -125,29 +129,40 @@ public class MainTest extends TestCase {
         }
     }
 
-    public void testParseLabel() throws Exception {
-        String[] correctArgs = new String[]{"-label", "1.2.3"};
-        String[] missingArgs = new String[]{""};
+    public void testParseLabelCorrect() throws CruiseControlException {
+        String correctLabel = "1.2.3";
+        String[] correctArgs = new String[]{"-label", correctLabel};
+
+        assertEquals(
+                main.parseLabel(correctArgs, null),
+                correctLabel);
+    }
+
+    public void testParseLabelNoArgs() throws CruiseControlException {
+        String[] noArgs = new String[]{""};
+        String previousLabel = "1.2.2";
+
+        assertEquals(main.parseLabel(noArgs, previousLabel),
+                previousLabel);
+    }
+
+    public void testParseLabelMissingLabelValue() {
         String[] incorrectArgs = new String[]{"-label"};
-        Main main = new Main();
-
-        assertEquals(main.parseLabel(correctArgs, null), "1.2.3");
-
-        assertEquals(main.parseLabel(missingArgs, "1.2.2"), "1.2.2");
 
         try {
             main.parseLabel(incorrectArgs, null);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
+            fail("Expected exception due to missing label value");
+        } catch (CruiseControlException expected) {
         }
+    }
+
+    public void testParseLabelNoArgsNoPreviousLabel() {
+        String[] noArgs = new String[]{""};
 
         try {
-            main.parseLabel(missingArgs, null);
-            assertTrue(false);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
+            main.parseLabel(noArgs, null);
+            fail("Expected exception due to label not being set");
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -155,7 +170,6 @@ public class MainTest extends TestCase {
         String[] correctArgs = new String[]{"-configfile", "config.xml"};
         String[] missingArgs = new String[]{""};
         String[] incorrectArgs = new String[]{"-configfile"};
-        Main main = new Main();
 
         assertEquals(main.parseConfigFileName(correctArgs, null), "config.xml");
 
@@ -181,7 +195,6 @@ public class MainTest extends TestCase {
         String[] correctArgs = new String[]{"-projectname", "myproject"};
         String[] missingArgs = new String[]{""};
         String[] incorrectArgs = new String[]{"-projectname"};
-        Main main = new Main();
 
         assertEquals(main.parseProjectName(correctArgs), "myproject");
 
@@ -199,4 +212,5 @@ public class MainTest extends TestCase {
             // expected
         }
     }
+
 }
