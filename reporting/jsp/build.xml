@@ -83,9 +83,7 @@
             </classpath>
             <formatter type="plain" usefile="false" />
             <formatter type="xml" />
-            <batchtest todir="${test.results}" >
-                <fileset dir="${classes}" includes="**/*Test.class" />
-            </batchtest>
+            <test name="net.sourceforge.cruisecontrol.taglib.AllTests" outfile="testresults"/>
         </junit>
     </target>
 
