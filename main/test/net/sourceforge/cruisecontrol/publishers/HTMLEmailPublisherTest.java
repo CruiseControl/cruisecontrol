@@ -69,7 +69,7 @@ public class HTMLEmailPublisherTest extends TestCase {
      */
     public void testSetXSLFileNames() {
         try {
-            HTMLEmailPublisher brokenPublisher = new BrokenTestPublisher();
+            new BrokenTestPublisher();
             fail("setXSLFileNames should fail when called with null");
         } catch (IllegalArgumentException e) {
             // should fail
