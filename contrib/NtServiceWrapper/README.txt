@@ -4,7 +4,7 @@ First build CruiseControl.
 Download and unzip wrapper_win32_3.1.1.zip 
 from http://sourceforge.net/projects/wrapper
 
-place wrapper.jar, wrapper-test.jar and wrapper.dll in the lib dir.
+place wrapper.jar, wrappertest.jar and wrapper.dll in the lib dir.
 place wrapper.exe in the bin dir.
 
 run ant -Dcc.work.dir=/Absolute/Path/To/Dir/ContainingConfig.xml/
