@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>How To Make A CruiseControl Plugin</title>
+</head>
+<body>
+<h1>Coding your Plugin</h1>
+<p>Your Plugin class must implement the interface
+<a href="apidocs/net/sourceforge/cruisecontrol/Plugin.html"><code>net.sourceforge.cruisecontrol.Plugin</code></a> in order 
+to be recognised as a plugin. On this interface, there are several methods of
+interest. Whilst the API documentation provides the full list, two important
+methods are:
+<dl>
+  <dt><code>initialise(<a href="apidocs/net/sourceforge/cruisecontrol/CruiseContext.html">net.sourceforge.cruisecontrol.CruiseContext</a> context)</code></dt>
+  <dd>This method gives the Plugin a reference back into the CruiseControl program. The CruiseContext provides several utility
+      methods, such as logging.</dd>
+  <dt><code>validate()</code></dt>
+  <dd>This method gives the Plugin a chance to verify that all mandatory attributes are set, and that all the attributes are
+      suitable. In the event of a parameter being invalid, the Plugin should throw a 
+      <a href="apidocs/net/sourceforge/cruisecontrol/PluginNotValidException"><code>net.sourceforge.cruisecontrol.PluginNotValidException</code></a>.</dd>
+</dl>
+<p>
+When you design your Plugin's attributes, it is important to consider the format of the XML that will be used to represent the
+Plugin in the CruiseControl configuration file. Any attributes on the XML element will be set on the Plugin via a JavaBean-type
+setter method (e.g. if there is an attribute called XYZ, then there should be a corresponding setter method on your Plugin called
+<code>setXYZ(String value)</code>. Please note that the method name is case-insensitive, so <code>setxyz(String value)</code> is 
+also correct). At this time, only String values are supported as attribute types, but automatic type-transformation, similar to
+that used in the Jakarta Ant project's TaskDefs, is planned.
+</p>
+<p>
+Your Plugin can also support sub-elements. In order to create them, your Plugin must have a method called <code>createXYZ()</code>,
+where XYZ is the name of the sub-element (again, the XYZ component is case-insensitive). This sub-element will then have its
+attributes set, in the same manner that the Plugin itself was configured. Sub-elements can also have sub-elements; there is no
+limit to how deep the sub-element nesting can go.
+</p>
+<p>
+Once the sub-element is fully configured, it needs to be set on the Plugin. To do this, CruiseControl looks for a method called
+either <code>addXYZ(...)</code> or <code>setXYZ(...)</code>. By convention, <code>setXYZ(...)</code> is used when only one
+sub-element is expected, while <code>addXYZ(...)</code> would be used when the sub-element can be repeated. The method is 
+expected to take a parameter that is compatible with the type created by the <code>createXYZ()</code> method.
+</p>
+<h1>Registering Your Plugin</h1>
+<p>In order to register your plugin, you need to enter the following line into
+your CruiseControl configuration file, outside of any <code>&lt;project&gt;</code> or
+<code>&lt;schedule&gt;</code> element:
+<blockquote>
+    <code>&lt;plugin name=&quot;PluginName&quot; classname=&quot;class.name.of.the.Plugin&quot;
+    /&gt;</code>
+</blockquote>
+(Obviously, you will need the class in the class path used to invoke CruiseControl)
+</p>
+<p>
+For a more permanent means of registering the Plugin, edit the property file
+<code>net.sourceforge.cruisecontrol.DefaultPluginRegistry.properties</code>.
+</p>
+</body>
+</html>
