@@ -80,8 +80,7 @@
          <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
               </cruisecontrol:tab>
               <cruisecontrol:tab name="testResults" label="Test Results" >
-         Test Details
-         &nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>
+         <cruisecontrol:xsl xslFile="/xsl/testdetails.xsl"/>
               </cruisecontrol:tab>
               <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
         <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
