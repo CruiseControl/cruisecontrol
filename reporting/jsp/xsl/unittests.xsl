@@ -49,11 +49,11 @@
     <xsl:variable name="totalErrorsAndFailures" select="count($testcase.error.list) + count($testcase.failure.list)"/>
 
     <xsl:template match="/">
-        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+        <table align="center" cellpadding="2" cellspacing="0" border="1" width="98%">
 
             <!-- Unit Tests -->
             <tr>
-                <td class="unittests-sectionheader" colspan="10">
+                <td class="unittests-sectionheader" colspan="2">
                    &#160;Unit Tests: (<xsl:value-of select="count($testcase.list)"/>)
                 </td>
             </tr>
@@ -61,23 +61,21 @@
             <xsl:choose>
                 <xsl:when test="count($testsuite.list) = 0">
                     <tr>
-                        <td colspan="10">
-                            <i><font face="arial" size="2">No Tests Run</font></i>
+                        <td colspan="2" class="unittests-data">
+                            No Tests Run
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="10">
-                            <i><font color="red" face="arial" size="2">
-                                This project doesn't have any tests
-                            </font></i>
+                        <td colspan="2" class="unittests-error">
+                            This project doesn't have any tests
                         </td>
                     </tr>
                 </xsl:when>
 
                 <xsl:when test="$totalErrorsAndFailures = 0">
                     <tr>
-                        <td colspan="10">
-                            <i><font face="arial" size="2">All Tests Passed</font></i>
+                        <td colspan="2" class="unittests-data">
+                            All Tests Passed
                         </td>
                     </tr>
                 </xsl:when>
@@ -86,12 +84,12 @@
             <xsl:apply-templates select="$testcase.error.list"/>
             <xsl:apply-templates select="$testcase.failure.list"/>
             <tr/>
-            <tr><td colspan="4">&#160;</td></tr>
+            <tr><td colspan="2">&#160;</td></tr>
 
             <xsl:if test="$totalErrorsAndFailures > 0">
 
               <tr>
-                <td class="unittests-sectionheader" colspan="10">
+                <td class="unittests-sectionheader" colspan="2">
                     &#160;Unit Test Error Details:&#160;(<xsl:value-of select="$totalErrorsAndFailures"/>)
                 </td>
               </tr>
@@ -106,7 +104,7 @@
               </xsl:call-template>
 
 
-              <tr><td colspan="4">&#160;</td></tr>
+              <tr><td colspan="2">&#160;</td></tr>
             </xsl:if>
 
 
@@ -117,14 +115,14 @@
     <xsl:template match="error">
         <tr>
             <xsl:if test="position() mod 2 = 0">
-                <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>
+                <xsl:attribute name="class">unittests-oddrow</xsl:attribute>
             </xsl:if>
 
-            <td colspan="5">
-                <font size="1" face="arial">error</font>
+            <td class="unittests-data">
+                error
             </td>
-            <td colspan="5">
-                <font size="1" face="arial"><xsl:value-of select="../@name"/></font>
+            <td class="unittests-data">
+                <xsl:value-of select="../@name"/>
             </td>
         </tr>
     </xsl:template>
@@ -133,14 +131,14 @@
     <xsl:template match="failure">
         <tr>
             <xsl:if test="($testsuite.error.count + position()) mod 2 = 0">
-                <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>
+                <xsl:attribute name="class">unittests-oddrow</xsl:attribute>
             </xsl:if>
 
-            <td colspan="5">
-                <font size="1" face="arial">failure</font>
+            <td class="unittests-data">
+                failure
             </td>
-            <td colspan="5">
-                <font size="1" face="arial"><xsl:value-of select="../@name"/></font>
+            <td class="unittests-data">
+                <xsl:value-of select="../@name"/>
             </td>
         </tr>
     </xsl:template>
@@ -150,39 +148,29 @@
       <xsl:param name="detailnodes"/>
 
       <xsl:for-each select="$detailnodes">
-        <xsl:variable name="headercolor">#000000</xsl:variable>
-        <xsl:variable name="detailcolor">#FF0000</xsl:variable>
 
         <tr>
-            <td colspan="10">
-                <font face="arial" size="1" color="{$headercolor}">
-                    Test:&#160;<xsl:value-of select="@name"/>
-                </font>
+            <td colspan="2" class="unittests-data">
+                Test:&#160;<xsl:value-of select="@name"/>
             </td>
         </tr>
 
         <xsl:if test="error">
             <tr>
-                <td colspan="10">
-                    <font face="arial" size="1" color="{$headercolor}">
-                        Type: <xsl:value-of select="error/@type" />
-                    </font>
+                <td colspan="2" class="unittests-data">
+                    Type: <xsl:value-of select="error/@type" />
                 </td>
             </tr>
         <tr>
-            <td colspan="10">
-                <font face="arial" size="1" color="{$headercolor}">
-                    Message: <xsl:value-of select="error/@message" />
-                </font>
+            <td colspan="2" class="unittests-data">
+                Message: <xsl:value-of select="error/@message" />
             </td>
         </tr>
 
         <tr>
-            <td colspan="10">
+            <td colspan="2" class="unittests-error">
                 <PRE>
-                    <font face="arial" size="1" color="{$detailcolor}">
-                        <xsl:value-of select="error" />
-                    </font>
+                    <xsl:value-of select="error" />
                 </PRE>
             </td>
         </tr>
@@ -190,28 +178,22 @@
 
         <xsl:if test="failure">
         <tr>
-            <td colspan="10">
-                <font face="arial" size="1" color="{$headercolor}">
-                    Type: <xsl:value-of select="failure/@type" />
-                </font>
+            <td colspan="2" class="unittests-data">
+                Type: <xsl:value-of select="failure/@type" />
             </td>
         </tr>
         <tr>
-            <td colspan="10">
-                <font face="arial" size="1" color="{$headercolor}">
-                    Message: <xsl:value-of select="failure/@message" />
-                </font>
+            <td colspan="2" class="unittests-data">
+                Message: <xsl:value-of select="failure/@message" />
             </td>
         </tr>
 
         <tr>
-            <td colspan="10">
+            <td colspan="2" class="unittests-error">
                 <pre>
-                   <font face="arial" size="1" color="{$detailcolor}">
-                       <xsl:call-template name="br-replace">
-                           <xsl:with-param name="word" select="failure"/>
-                       </xsl:call-template>
-                   </font>
+                    <xsl:call-template name="br-replace">
+                        <xsl:with-param name="word" select="failure"/>
+                    </xsl:call-template>
                 </pre>
             </td>
         </tr>
