@@ -36,11 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.servlet;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
+import net.sourceforge.cruisecontrol.mock.MockServletRequest;
+import net.sourceforge.cruisecontrol.mock.MockServletResponse;
 
 /**
  * @author jfredrick
@@ -67,21 +73,21 @@ public class FileServletTest extends TestCase {
         config.setServletContext(context);
         
         try {
-            FileServlet.getRootDir(config);
+            servlet.getRootDir(config);
             fail("should have exception when required attributes not set");
         } catch (ServletException e) {
         }
 
         config.setInitParameter("rootDir", ".");
         try {
-            FileServlet.getRootDir(config);
+            servlet.getRootDir(config);
         } catch (ServletException e) {
             fail("shouldn't throw exception when valid rootDir parameter set");
         }
         
         context.setInitParameter("logDir", "this directory does not exist");
         try {
-            FileServlet.getRootDir(config);
+            servlet.getRootDir(config);
         } catch (ServletException e) {
             fail("good rootDir but bad logDir should work");
         }
@@ -92,14 +98,14 @@ public class FileServletTest extends TestCase {
 
         context.setInitParameter("logDir", ".");
         try {
-            FileServlet.getRootDir(config);
+            servlet.getRootDir(config);
         } catch (ServletException e) {
             fail("shouldn't throw exception when valid logDir parameter set");
         }
         
         config.setInitParameter("rootDir", "this directory does not exist");
         try {
-            FileServlet.getRootDir(config);
+            servlet.getRootDir(config);
         } catch (ServletException e) {
             fail("bad rootDir but good logDir should work");
         }
@@ -108,8 +114,24 @@ public class FileServletTest extends TestCase {
     /*
      * Test for void service(HttpServletRequest, HttpServletResponse)
      */
-    public void testServiceHttpServletRequestHttpServletResponse() {
-        //      TODO:
+    public void testService() throws ServletException, IOException {
+        MockServletRequest request = new MockServletRequest();
+        MockServletResponse response = new MockServletResponse();
+        File file = File.createTempFile("tmp", ".html");
+        file.deleteOnExit();
+        final File dir = file.getParentFile();
+        request.setPathInfo(file.getName());
+        servlet = new FileServlet() {
+            File getRootDir(ServletConfig servletconfig) {
+                return dir;
+            }
+        };
+        servlet.service(request, response);
+        String actual = response.getWritten();
+        String expected = "<html><body><h1>" + file.getName() + "</h1><h1>Invalid File or Directory</h1></body></html>";
+        assertEquals(expected, actual);
+        String actualMimeType = response.getContentType();
+        assertEquals("text/html", actualMimeType);
     }
 
 }

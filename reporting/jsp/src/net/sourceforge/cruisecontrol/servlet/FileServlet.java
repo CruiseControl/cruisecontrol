@@ -57,7 +57,7 @@ public class FileServlet extends HttpServlet {
         rootDir = getRootDir(servletconfig);
     }
 
-    static File getRootDir(ServletConfig servletconfig) throws ServletException {
+    File getRootDir(ServletConfig servletconfig) throws ServletException {
         File rootDirectory = null;
 
         String root = servletconfig.getInitParameter("rootDir");
@@ -94,10 +94,14 @@ public class FileServlet extends HttpServlet {
         throws ServletException, IOException {
         WebFile file = new WebFile(rootDir, request.getPathInfo());
         if (file.isFile()) {
+            String filename = file.getName();
+            String mimeType = getServletContext().getMimeType(filename);
+            response.setContentType(mimeType);
             file.write(response.getOutputStream());
             return;
         }
 
+        response.setContentType("text/html");
         Writer writer = response.getWriter();
         writer.write("<html>");
         writer.write("<body>");
@@ -138,9 +142,10 @@ class WebFile {
         file = WebFile.parsePath(root, path);
     }
 
-    /**
-     * @return
-     */
+    public String getName() {
+        return file.getName();
+    }
+
     public boolean isDir() {
         return file.isDirectory();
     }
