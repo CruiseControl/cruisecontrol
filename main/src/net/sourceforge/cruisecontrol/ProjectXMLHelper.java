@@ -56,14 +56,16 @@ public class ProjectXMLHelper {
 
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
 
-    private Map plugins = new HashMap();
+    private Map plugins;
     private Element projectElement;
     private String projectName;
 
     public ProjectXMLHelper() {
+        initDefaultPluginRegistry();
     };
 
     public ProjectXMLHelper(File configFile, String projectName) throws CruiseControlException {
+        this();
         Iterator projectIterator =
             Util.loadConfigFile(configFile).getChildren("project").iterator();
         while (projectIterator.hasNext()) {
@@ -80,7 +82,6 @@ public class ProjectXMLHelper {
         this.projectName = projectName;
         setDateFormat(projectElement);
 
-        initDefaultPluginRegistry();
         Iterator pluginIterator = projectElement.getChildren("plugin").iterator();
         while (pluginIterator.hasNext()) {
             Element pluginElement = (Element) pluginIterator.next();
@@ -204,11 +205,9 @@ public class ProjectXMLHelper {
     }
 
     public ModificationSet getModificationSet() throws CruiseControlException {
-        final Element modificationSetElement =
-            getRequiredElement(projectElement, "modificationset");
-        ModificationSet modificationSet =
-            (ModificationSet) configurePlugin(modificationSetElement, true);
-        Iterator sourceControlIterator = modificationSetElement.getChildren().iterator();
+        final Element modSetElement = getRequiredElement(projectElement, "modificationset");
+        ModificationSet modificationSet = (ModificationSet) configurePlugin(modSetElement, true);
+        Iterator sourceControlIterator = modSetElement.getChildren().iterator();
         while (sourceControlIterator.hasNext()) {
             Element sourceControlElement = (Element) sourceControlIterator.next();
             SourceControl sourceControl =
@@ -325,6 +324,8 @@ public class ProjectXMLHelper {
         plugins.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
 
         plugins.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
+        plugins.put("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
+        plugins.put("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
 
         plugins.put(
             "labelincrementer",
@@ -339,5 +340,9 @@ public class ProjectXMLHelper {
         plugins.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
         plugins.put("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
         plugins.put("schedule", "net.sourceforge.cruisecontrol.Schedule");
+    }
+
+    String getClassNameForPlugin(String pluginName) {
+        return (String) plugins.get(pluginName);
     }
 }
