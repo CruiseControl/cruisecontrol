@@ -53,6 +53,34 @@ public class BuildServlet extends HttpServlet {
     private FileReader _xml;
     private FileReader _xsl;
 
+    protected String getLogDir() {
+        return _logDir;
+    }
+    
+    protected String getXSLFile() {
+        return _xslFile;
+    }
+    
+    protected String getPageTitle() {
+        return _title;
+    }
+    
+    protected String getLogo() {
+        return _logo;
+    }
+    
+    protected String getCurrentBuildStatusFile() {
+        return _currentBuildStatusFile;
+    }
+    
+    protected String getServletURL() {
+        return _servletURL;
+    }
+    
+    protected String getImageDir() {
+        return _imageDir;
+    }
+    
     /**
      * Load properties file
      * @throws ServletException
