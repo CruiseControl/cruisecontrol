@@ -168,9 +168,9 @@
             addproperty="cruise.build.artifacts.dir"/>
     </target>
     
-    <target name="war" depends="test,create-web-xml,war,war_pre14"/>
+    <target name="war" depends="test,create-web-xml,war_post1.4,war_pre14"/>
 
-    <target name="war" unless="pre1.4">
+    <target name="war_post1.4" unless="pre1.4">
         <war warfile="${deploy.dir}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir=".">
                 <exclude name="samplelogs/_cache/"/>
