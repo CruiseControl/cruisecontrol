@@ -70,12 +70,12 @@ public class ArtifactsPublisherTest extends TestCase {
         assertTrue(publisher.shouldPublish(false));
 
         //Set "publishOnFailure" to true should be the same result.
-        publisher.setPublisherOnFailure(true);
+        publisher.setPublishOnFailure(true);
         assertTrue(publisher.shouldPublish(true));
         assertTrue(publisher.shouldPublish(false));
 
         //Set "publishOnFailure" to false should NOT publish on a broken build.
-        publisher.setPublisherOnFailure(false);
+        publisher.setPublishOnFailure(false);
         assertTrue(publisher.shouldPublish(true));
         assertFalse(publisher.shouldPublish(false));
     }
