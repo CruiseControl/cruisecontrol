@@ -2244,14 +2244,19 @@
             </tr>
             <tr>
                <td>dir</td>
-               <td>all files with extension .xml will be merged into the build log.</td>
+               <td>all files matching the specified pattern will be merged into the build log.</td>
             </tr>
             <tr class="oddrow">
                <td>removeproperties</td>
                <td>No (defaults to true)</td>
                <td>when merging a JUnit xml file should the properties section be removed.</td>
             </tr>
-            </tbody>
+             <tr>
+               <td>pattern</td>
+               <td>No</td>
+	           <td>Specifies the pattern which matches the filenames to merge. This pattern should be a valid Jakarta-ORO Glob pattern. Defaults to "*.xml".</td>
+            </tr>
+           </tbody>
         </table>
         </div>
 

@@ -43,6 +43,8 @@ import net.sourceforge.cruisecontrol.util.PruneElementFilter;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.apache.oro.io.GlobFilenameFilter;
+import org.apache.oro.text.MalformedCachePatternException;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -63,6 +65,8 @@ public class MergeLogger implements BuildLogger {
 
     private String file;
     private String dir;
+    private String pattern = "*.xml";
+    private GlobFilenameFilter fileNameFilter;
     private boolean removeProperties = true;
 
     public void setFile(String file) {
@@ -73,6 +77,18 @@ public class MergeLogger implements BuildLogger {
         this.dir = dir;
     }
 
+    /**
+     * sets the pattern which the filenames in a directory must match. 
+     * Default pattern is "*.xml". Invalidates the current filename
+     * filter. The filename filter is compiled using compilePattern().
+     * @param pattern a valid Jakarta-ORO Glob pattern.
+     * @see #compilePattern()
+     */
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+        this.fileNameFilter = null;
+    }
+
     public void validate() throws CruiseControlException {
         if (file == null && dir == null) {
             throw new CruiseControlException(
@@ -81,18 +97,40 @@ public class MergeLogger implements BuildLogger {
             throw new CruiseControlException(
                     "only one of file or dir may be specified");
         }
+   
+        if (dir != null && pattern == null) {
+            throw new CruiseControlException(
+                "no file pattern was specified");
+        }
+        compilePattern();
+    }
+
+    /**
+     * compiles the pattern in the a filename filter. Only compiles
+     * if a pattern is specified and fileNameFilter == null.
+     * @throws CruiseControlException if an invalid pattern is specified.
+     */
+    private void compilePattern() throws CruiseControlException {
+       try {
+           if (fileNameFilter == null && pattern != null) {
+               fileNameFilter = new GlobFilenameFilter(pattern);
+           }
+       } catch (MalformedCachePatternException e) {
+           throw new CruiseControlException("Invalid filename pattern", e);
+       }
     }
 
     public void log(Element buildLog) throws CruiseControlException {
         String nextLogFilename = ((file != null) ? file : dir);
 
+        compilePattern();
         mergeFile(new File(nextLogFilename), buildLog);
     }
 
     /**
      * Recursive method that merges the specified file into the buildLog. If
      * the file is a directory, then all it's children that are XML files
-     * are merged.
+     * are merged matching the specified pattern.
      */
     private void mergeFile(File nextLogFile, Element buildLog) {
 
@@ -100,7 +138,7 @@ public class MergeLogger implements BuildLogger {
             File[] children = nextLogFile.listFiles(new FileFilter() {
                 public boolean accept(File file) {
                     return file.isDirectory()
-                            || file.getName().endsWith(".xml");
+                            || fileNameFilter.accept(file);
                 }
             });
             Arrays.sort(children);

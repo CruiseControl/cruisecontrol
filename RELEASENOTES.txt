@@ -55,6 +55,10 @@ MavenSnapshotDependency
 ----------------------
 * Add new SourceControl that will query Maven SNAPSHOT to determine if a build should proceed. Submitted by Tim Shadel
 
+MergeLogger
+----------------------
+* You can now specify a filename pattern for filtering files to be merged (defaults to "*.xml"). Patch by Mark van Holsteijn
+
 Project
 ----------------------
 * Reset ProjectState to IDLE in case of an exception while building. Patch by Will Gwaltney

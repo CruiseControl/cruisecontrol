@@ -76,6 +76,29 @@ public class MergeLoggerTest extends TestCase {
         log = null;
     }
 
+    public void testFilePatternValidation() throws Exception {
+        logger.setDir("temp");
+        logger.setPattern(null);
+        try {
+            logger.validate();
+            fail("Expected an exception because we have not specified a pattern.");
+        } catch (CruiseControlException expected) {
+            assertEquals("no file pattern was specified", expected.getMessage());
+        }
+
+        logger.setPattern("[a-z*");
+        try {
+            logger.validate();
+            fail("Expected an exception because an invalid pattern.");
+        } catch (CruiseControlException expected) {
+            String expect = "Invalid filename pattern";
+            assertEquals(expect, expected.getMessage().substring(0, expect.length()));
+        }
+
+        logger.setPattern("*.xml");
+        logger.validate();
+    }
+
     public void testMergingFile() throws Exception {
         String content = "<name>John Doe</name>";
         File fileToMerge = createFile(content);
