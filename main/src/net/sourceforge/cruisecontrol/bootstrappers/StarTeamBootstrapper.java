@@ -37,11 +37,9 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import com.starbase.starteam.commandline.StarTeamCmd;
-import java.io.PrintStream;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
 
 /**
@@ -56,8 +54,15 @@ import org.apache.log4j.Logger;
  *
  * Usage:
  *
- *     &lt;starteambootstrapper username="" password="" server="" port="" project="" view="" folder="" files="" localfolder=""/&gt;
- *
+ *     &lt;starteambootstrapper username="" 
+ *                              password="" 
+ *                              server="" 
+ *                              port="" 
+ *                              project="" 
+ *                              view=""
+ *                              folder=""
+ *                              files=""
+ *                              localfolder=""/&gt;
  */
 public class StarTeamBootstrapper implements Bootstrapper {
 
@@ -115,8 +120,9 @@ public class StarTeamBootstrapper implements Bootstrapper {
     public void bootstrap() {
         Commandline args = buildCheckoutCommand();
         int retVal = StarTeamCmd.run(args.getCommandline());
-        if (retVal != 0)
+        if (retVal != 0) {
             log.error("Error executing StarTeam checkout command");
+        }
     }
 
     public void validate() throws CruiseControlException {
@@ -127,10 +133,14 @@ public class StarTeamBootstrapper implements Bootstrapper {
             || serverport == null
             || projectname == null
             || viewname == null
-            || foldername == null)
-            throw new CruiseControlException("'username', 'password', 'server', 'port', 'project', 'view', 'folder' and 'files' are all required for StarTeamBootstrapper");
-        else
+            || foldername == null) {
+            throw new CruiseControlException(
+                "'username', 'password',"
+                    + " 'server', 'port', 'project', 'view',"
+                    + " 'folder' and 'files' are all required for StarTeamBootstrapper");
+        } else {
             return;
+        }
     }
 
     private Commandline buildCheckoutCommand() {
