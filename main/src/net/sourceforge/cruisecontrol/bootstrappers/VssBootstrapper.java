@@ -6,13 +6,20 @@ import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
 import java.io.File;
-import java.io.*;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Properties;
 
 
 public class VssBootstrapper implements Bootstrapper {
 
   /** enable logging for this class */
   private static Logger log = Logger.getLogger(VssBootstrapper.class.getName());
+
+  private String ssDir;
+  private String serverPath;
 
   private String vssPath;
   private String localDirectory;
@@ -22,7 +29,20 @@ public class VssBootstrapper implements Bootstrapper {
     String commandLine = generateCommandLine();
 
     try {
-      Process p = Runtime.getRuntime().exec(commandLine);
+      Properties systemProps = System.getProperties();
+      if(this.serverPath != null) {
+        systemProps.put("SSDIR", this.serverPath);
+      }
+      String[] env = new String[systemProps.size()];
+      int index = 0;
+      Iterator systemPropIterator = systemProps.keySet().iterator();
+      while(systemPropIterator.hasNext()) {
+        String propName = (String) systemPropIterator.next();
+        env[index] = propName + "=" + systemProps.get(propName);
+        index++;
+      }
+
+      Process p = Runtime.getRuntime().exec(commandLine, env);
       InputStream errorIn = p.getErrorStream();
       PrintWriter errorOut = new PrintWriter(System.err, true);
       StreamPumper errorPumper = new StreamPumper(errorIn, errorOut);
@@ -57,9 +77,18 @@ public class VssBootstrapper implements Bootstrapper {
 
   String generateCommandLine() {
     StringBuffer commandLine = new StringBuffer();
+    final String BACKSLASH = "\\";
+    // optionally prefix the executable
+    if (this.ssDir != null ) {
+        commandLine.append(this.ssDir).append(this.ssDir.endsWith(BACKSLASH) ? "" : BACKSLASH);
+    }
     final String QUOTE = "\"";
     commandLine.append("ss.exe get ");
-    commandLine.append(QUOTE+this.vssPath+QUOTE);
+    // check for leading "$", to be argument-compatible with other tasks
+    if (this.vssPath != null) {
+        String pathPrefix = this.vssPath.startsWith("$") ? "" : "$";
+        commandLine.append(QUOTE + pathPrefix + this.vssPath + QUOTE);
+    }
     commandLine.append(" -GL");
     commandLine.append(QUOTE + this.localDirectory + QUOTE);
     commandLine.append(" -I-N");
@@ -73,6 +102,22 @@ public class VssBootstrapper implements Bootstrapper {
    */
   public void setVssPath(String vssPath) {
     this.vssPath = vssPath;
+  }
+
+  /***
+   * Optional.
+   * @param ssDir Path to the directory containing ss.exe. Assumes that ss.exe is in the path by default.
+   */
+   public void setSsDir(String ssDir) {
+     this.ssDir = ssDir;
+   }
+
+  /**
+   * Optional.
+   * @param serverPath The path to the directory containing the srcsafe.ini file.
+   */
+  public void setServerPath(String serverPath) {
+    this.serverPath = serverPath;
   }
 
   /**

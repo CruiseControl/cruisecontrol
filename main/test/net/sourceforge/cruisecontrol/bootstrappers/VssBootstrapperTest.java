@@ -63,5 +63,13 @@ public class VssBootstrapperTest extends TestCase {
     commandLine = bootstrapper.generateCommandLine();
     expectedCommandLine = expectedCommandLine + " -Ybob,password";
     this.assertEquals(expectedCommandLine, commandLine);
+
+    final String ssDir = "c:\\buildtools\\vss";
+    bootstrapper.setSsDir(ssDir);
+    final String serverPath = "t:\\vss\\foo";
+    bootstrapper.setServerPath(serverPath);
+    expectedCommandLine = ssDir + "\\" + expectedCommandLine;
+    commandLine = bootstrapper.generateCommandLine();
+    this.assertEquals(expectedCommandLine, commandLine);
   }
 }

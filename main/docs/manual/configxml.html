@@ -211,17 +211,27 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">vsspath</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">Fully qualified VSS path to the target file. <b>Example:</b> $/Project/subproject/filename.ext</td>
+               <td class="tabledata">Fully qualified VSS path to the target file.  If the leading dollar-sign ['$'] is omitted, one will be prepended automatically.<br><b>Example:</b> /Project/subproject/filename.ext</td>
             </tr>
             <tr>
                <td class="tabledata">localdirectory</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">Fully qualified path for the destination directory. <b>Example:</b> c:\directory\subdirectory\</td>
+               <td class="tabledata">Fully qualified path for the destination directory. <br><b>Example:</b> c:\directory\subdirectory\</td>
             </tr>
             <tr>
                <td class="tabledata">login</td>
                <td class="tabledata">No</td>
                <td class="tabledata">VSS login information in the form <i>username,password</i></td>
+            </tr>
+            <tr>
+               <td class="tabledata">ssdir</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Path to the directory containing ss.exe.  By default, ss.exe is assumed to be in the path.  <br>Note: should not contain whitespace.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">serverpath</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Path to the directory containing srcsafe.ini.</td>
             </tr>
          </table>
 
@@ -479,19 +489,19 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">The date format to use for querying VSS and processing reports; default is <i>MM/dd/yy</i>.  If your computer is set to a different region, you may wish to use a format such as <i>dd/MM/yy</i>.</td>
             </tr>
             <tr>
-               <td class="tabledata">login</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The VSS login</td>
-            </tr>
-            <tr>
                <td class="tabledata">vsspath</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">The VSS project to get history from</td>
+               <td class="tabledata">The VSS project to get history from.  <br><b>Example:</b> /Project/subproject</td>
             </tr>
+            <tr>
+               <td class="tabledata">login</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The VSS login to use, in the form <i>username,password</i></td>
+           </tr>
             <tr>
                <td class="tabledata">ssdir</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">Path to the directory containing ss.exe.  Assumes that ss.exe is in the path by default.</td>
+               <td class="tabledata">Path to the directory containing ss.exe.  By default, ss.exe is assumed to be in the path.  <br>Note: should not contain whitespace.</td>
             </tr>
             <tr>
                <td class="tabledata">serverpath</td>
