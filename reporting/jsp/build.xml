@@ -98,9 +98,11 @@
                 <pathelement location="${lib}/junit.jar"/>
                 <pathelement location="${classes}"/>
             </classpath>
-            <!--<formatter type="brief" usefile="false" />-->
+            <formatter type="brief" usefile="false" />
             <formatter type="xml"/>
-            <test name="net.sourceforge.cruisecontrol.taglib.AllTests" outfile="testresults"/>
+            <batchtest todir="${test.results}" >
+                <fileset dir="${classes}" includes="**/*Test.class" />
+            </batchtest>
         </junit>
     </target>
 
