@@ -57,7 +57,15 @@
         </table>
       </td>
       <td valign="top" bgcolor="#FFFFFF">
-         <cruisecontrol:xsl xslFile="xsl/cruisecontrol.xsl"/>
+         <cruisecontrol:xsl xslFile="xsl/header.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="xsl/compile.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="xsl/unittests.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="xsl/modifications.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="xsl/distributables.xsl"/>
       </td>
     </tr>
     <tr>
