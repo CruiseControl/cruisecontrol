@@ -37,15 +37,11 @@
 package net.sourceforge.cruisecontrol.element;
 
 import com.starbase.starteam.*;
-import com.starbase.starteam.vts.comm.CommandException;
 import com.starbase.util.OLEDate;
-
-import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.NoExitSecurityManager;
-import org.apache.tools.ant.*;
+import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
+
+import java.util.*;
 
 /**
  * This class logs into StarTeam and collects information on any modifications
