@@ -39,8 +39,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
-import org.apache.tools.ant.*;
 import net.sourceforge.cruisecontrol.Modification;
+import org.apache.log4j.Category;
 
 /**
  * Scans a directory tree on a local drive rather than in a repository.
@@ -53,9 +53,7 @@ public class FileSystem extends SourceControlElement {
 	private File _folder;
 	private long _mostRecent;
 
-    private SimpleDateFormat _format = new SimpleDateFormat("M-dd-yyyy hh:mm a");
-
-    /** 
+    /**
      * Set the root folder of the directories that we are going to scan 
      */
     public void setFolder(String s) {
@@ -110,8 +108,6 @@ public class FileSystem extends SourceControlElement {
 		mod.comment = "";
 		_modifications.add(mod);
 
-		logModification(mod);
-
 		if (revision.lastModified() > _mostRecent) {
 			_mostRecent = revision.lastModified();
 		}
@@ -133,12 +129,4 @@ public class FileSystem extends SourceControlElement {
             }
         }
     }
-
-    private void logModification(Modification mod) {
-	       log("Type: " + mod.type + " " + mod.fileName, Project.MSG_VERBOSE);
-	       log("User: " + mod.userName + " Date: " 
-            + _format.format(mod.modifiedTime) 
-            + System.getProperty("line.separator"), Project.MSG_VERBOSE);
-    }
-
 }
