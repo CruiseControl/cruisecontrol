@@ -4,6 +4,10 @@ CVSBootstrapper:
 ----------------------
 * Add overwriteChanges attribute.
 
+DefaultLabelIncrementer:
+----------------------
+* Fixed bug when using non-default label separator (CC-155). Patch by Jerome Lacoste
+
 Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
@@ -12,9 +16,18 @@ P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.
 
+JMX Support:
+----------------------
+* Expose Project's BuildStartTime as JMX attribute (CC-92). Patch by Jerome Lacoste
+
 SCPPublisher:
 ----------------------
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
+
+VSS(Journal):
+----------------------
+* Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)
+
 
 CruiseControl Release Notes - 2.2.1
 
