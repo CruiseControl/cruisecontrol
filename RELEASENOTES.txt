@@ -32,6 +32,8 @@ controlpanel.jsp
 CruiseControlController
 ----------------------
 * On a new project (no serialized project found) force a build. This is to aid setting up CruiseControl as you will not need to wait for a modification.
+* Now parses plugin definitions defined directly under the <cruisecontrol> root-element in the config file. 
+  These are defined for all projects, but can still be overridden per project.
 
 distributables.xsl
 ----------------------
@@ -94,7 +96,9 @@ P4
 
 PluginRegistry
 ----------------------
-getDefaultPluginRegistry() now reads default plugins from a properties-file.
+* getDefaultPluginRegistry() now reads default plugins from a properties-file.
+* Changed the implementation to have one root registry which contains the default plugins plus plugins defined as root elements in the config file.
+  Each project will receive its own registry which delegates to its parent registry (the root) if it doesn't have its own definition for a plugin.
 
 PluginXMLHelper
 ----------------------
