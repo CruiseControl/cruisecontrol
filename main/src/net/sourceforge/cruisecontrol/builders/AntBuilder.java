@@ -66,6 +66,15 @@ public class AntBuilder extends Builder {
     List _args = new ArrayList();
 
 
+    public void validate() throws CruiseControlException {
+        super.validate();
+
+        if(_buildFile == null)
+            throw new CruiseControlException("'buildfile' is a required attribute on AntBuilder");
+        if(_target == null)
+            throw new CruiseControlException("'target' is a required attribute on AntBuilder");
+    }
+
     /**
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.

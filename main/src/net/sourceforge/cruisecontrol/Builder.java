@@ -55,6 +55,11 @@ public abstract class Builder implements Comparable {
     //should return log from build
     public abstract Element build(Map properties) throws CruiseControlException;
 
+    public void validate() throws CruiseControlException {
+        if((_time < 0) && (_multiple < 0))
+            throw new CruiseControlException("One of 'time' or 'multiple' are required on builders.");
+    }
+
     public void setDay(String dayString) {
         if (dayString.equalsIgnoreCase("sunday")) {
             _day = Calendar.SUNDAY;
