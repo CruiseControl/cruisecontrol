@@ -57,7 +57,7 @@ public class MavenBuilderTest extends TestCase {
     /**
      * void validate()
      */
-    public void testvalidate() {
+    public void testValidate() {
         final String testScriptName = "_testmaven.bat";
         final String testProjectName = "_testproject.xml";
         MavenBuilder mb = new MavenBuilder();
@@ -70,10 +70,10 @@ public class MavenBuilderTest extends TestCase {
 
         try {
             // these files must also exist for MavenBuilder to be happy.
-            makeTestFile(testScriptName,
-                         "@echo This is a fake maven.bat\n");
-            makeTestFile(testProjectName,
-                         "<project><!-- This is a fake Maven project file --></project>\n");
+            makeTestFile(testScriptName, "@echo This is a fake maven.bat\n");
+            makeTestFile(
+                testProjectName,
+                "<project><!-- This is a fake Maven project file --></project>\n");
             mb.setMultiple(1);
             mb.setMavenScript(testScriptName);
             mb.setProjectFile(testProjectName);
@@ -93,7 +93,7 @@ public class MavenBuilderTest extends TestCase {
     /**
      * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
      */
-    public void testgetCommandLineArgs() {
+    public void testGetCommandLineArgs() {
         MavenBuilder builder = new MavenBuilder();
         // none should exist for this test
         builder.setMavenScript("testmaven.sh");
@@ -102,63 +102,70 @@ public class MavenBuilderTest extends TestCase {
         properties.put("label", "200.1.23");
 
         Logger.getRoot().setLevel(Level.INFO);
-        compareArrays("NoDebug:",
-                      new String[]{
-                          "testmaven.sh",
-                          "-Dlabel=200.1.23",
-                          "-b",
-                          "-p",
-                          "testproject.xml"},
-                      builder.getCommandLineArgs(properties, false, null));
+        compareArrays(
+            "NoDebug:",
+            new String[] {
+                "sh",
+                "testmaven.sh",
+                "-Dlabel=200.1.23",
+                "-b",
+                "-p",
+                "testproject.xml" },
+            builder.getCommandLineArgs(properties, false, null));
 
         Logger.getRoot().setLevel(Level.DEBUG);
-        compareArrays("WithDebug:",
-                      new String[]{
-                          "testmaven.sh",
-                          "-Dlabel=200.1.23",
-                          "-X",
-                          "-b",
-                          "-p",
-                          "testproject.xml"},
-                      builder.getCommandLineArgs(properties, false, null));
+        compareArrays(
+            "WithDebug:",
+            new String[] {
+                "sh",
+                "testmaven.sh",
+                "-Dlabel=200.1.23",
+                "-X",
+                "-b",
+                "-p",
+                "testproject.xml" },
+            builder.getCommandLineArgs(properties, false, null));
 
         Logger.getRoot().setLevel(Level.INFO);
-        compareArrays("Windows:",
-                      new String[]{
-                          "cmd.exe",
-                          "/C",
-                          "testmaven.sh",
-                          "-Dlabel=200.1.23",
-                          "-b",
-                          "-p",
-                          "testproject.xml"},
-                      builder.getCommandLineArgs(properties, true, null));
+        compareArrays(
+            "Windows:",
+            new String[] {
+                "cmd.exe",
+                "/C",
+                "testmaven.sh",
+                "-Dlabel=200.1.23",
+                "-b",
+                "-p",
+                "testproject.xml" },
+            builder.getCommandLineArgs(properties, true, null));
 
-        compareArrays("WithTarget:",
-                      new String[]{
-                          "testmaven.sh",
-                          "-Dlabel=200.1.23",
-                          "-b",
-                          "-p",
-                          "testproject.xml",
-                          "clean",
-                          "jar"},
-                      // notice the spaces in goalSet
-                      builder.getCommandLineArgs(properties, false, " clean jar"));
+        compareArrays(
+            "WithTarget:",
+            new String[] {
+                "sh",
+                "testmaven.sh",
+                "-Dlabel=200.1.23",
+                "-b",
+                "-p",
+                "testproject.xml",
+                "clean",
+                "jar" },
+        // notice the spaces in goalSet
+        builder.getCommandLineArgs(properties, false, " clean jar"));
     }
 
     /**
      * Element build(Map). Mock a success.
      */
-    public void testbuild() {
-        internaltestbuild(false);  // mocking the success
-        internaltestbuild(true);   // mocking the failure
+    public void testBuild() {
+        internalTestBuild(false); // mocking the success
+        internalTestBuild(true); // mocking the failure
     }
 
     /**
      * Element build(Map). mockFailure == (Mock a failure?).
      */
-    private void internaltestbuild(boolean mockFailure) {
+    private void internalTestBuild(boolean mockFailure) {
         MavenBuilder mb = new MavenBuilder();
         String testScriptName = null;
         String msgHead = mockFailure ? "MockFailure" : "MockSuccess";
@@ -166,16 +173,26 @@ public class MavenBuilderTest extends TestCase {
             // Prepare mock files.
             if (mb.isWindows()) {
                 testScriptName = "_testmaven.bat";
-                makeTestFile(testScriptName,
-                             "@rem This is a fake maven.bat\n"
-                             + "@echo java:compile:\n"
-                             + "@echo Bla-bla-compile\n"
-                             + "@echo test:test:\n"
-                             + "@echo " + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL") + "\n");
+                makeTestFile(
+                    testScriptName,
+                    "@rem This is a fake maven.bat\n"
+                        + "@echo java:compile:\n"
+                        + "@echo Bla-bla-compile\n"
+                        + "@echo test:test:\n"
+                        + "@echo "
+                        + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
+                        + "\n");
             } else {
-                testScriptName = "_testmaven.sh";
-                fail("Some kind person, please write the Linux version of the test"
-                     + " or comment this test out alltogether");
+                testScriptName = "/Users/jtf/Projects/cruisecontrol/main/_testmaven.sh";
+                makeTestFile(
+                    testScriptName,
+                    "# This is a fake maven.sh\n"
+                        + "echo java:compile:\n"
+                        + "echo Bla-bla-compile\n"
+                        + "echo test:test:\n"
+                        + "echo "
+                        + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
+                        + "\n");
             }
             mb.setMavenScript(testScriptName);
             mb.setProjectFile("don-t-care.xml");
@@ -238,7 +255,7 @@ public class MavenBuilderTest extends TestCase {
     /**
      * List getGoalSets()
      */
-    public void testgetGoalSets() {
+    public void testGetGoalSets() {
         MavenBuilder mb = new MavenBuilder();
         List gsList;
         mb.setGoal(null);
@@ -246,14 +263,14 @@ public class MavenBuilderTest extends TestCase {
         assertNotNull(gsList);
         assertEquals("No goal produces non-empty list", 0, gsList.size());
 
-        mb.setGoal("clean ");   // I want the space there..
+        mb.setGoal("clean "); // I want the space there..
         gsList = mb.getGoalSets();
         assertNotNull(gsList);
         assertEquals("One goal should produce one item", 1, gsList.size());
         // but notice, no space below
         assertEquals("One goal produces bad list content", "clean", (String) gsList.get(0));
 
-        mb.setGoal(" clean|update ");    // Notice the spaces here
+        mb.setGoal(" clean|update "); // Notice the spaces here
         gsList = mb.getGoalSets();
         assertNotNull(gsList);
         assertEquals("Two goals should produce two items", 2, gsList.size());
@@ -262,7 +279,7 @@ public class MavenBuilderTest extends TestCase {
         assertEquals("Second run produces bad goal", "update", (String) gsList.get(1));
 
         // full-featured test
-        mb.setGoal("clean update|\ttest||");    // Notice the spaces here
+        mb.setGoal("clean update|\ttest||"); // Notice the spaces here
         gsList = mb.getGoalSets();
         assertNotNull(gsList);
         assertEquals("Complex goal should produce two goalsets", 2, gsList.size());
@@ -282,8 +299,7 @@ public class MavenBuilderTest extends TestCase {
             bwr.flush();
             bwr.close();
         } catch (IOException ioex) {
-            fail("Unexpected IOException while preparing "
-                 + fname + " test file");
+            fail("Unexpected IOException while preparing " + fname + " test file");
         }
     }
 
@@ -295,19 +311,12 @@ public class MavenBuilderTest extends TestCase {
             return true;
         }
 
-        if (refarr == null) {
-            fail(msg + " Reference array is null and test not");
-        }
-        if (testarr == null) {
-            fail(msg + " Test array is null and reference not");
-        }
-        if (refarr.length != testarr.length) {
-            fail(msg + " Arrays have different lengths");
-        }
+        assertNotNull(msg + " Reference array is null and test not", refarr);
+        assertNotNull(msg + " Test array is null and reference not", testarr);
+        assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
 
         for (int i = 0; i < refarr.length; i++) {
-            assertEquals(msg + " Element " + i + " mismatch.",
-                         refarr[i], testarr[i]);
+            assertEquals(msg + " Element " + i + " mismatch.", refarr[i], testarr[i]);
         }
         return true;
     }

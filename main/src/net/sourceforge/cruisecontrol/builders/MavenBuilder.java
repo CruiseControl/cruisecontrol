@@ -67,17 +67,12 @@ public class MavenBuilder extends Builder implements StreamConsumer {
 
     private String projectFile;
     private String goal;
-    //private String tempFileName = "log.xml";
     private String mavenScript;
-    /* This is AntBuilder legacy
-        private boolean useLogger;
-        private List args = new ArrayList();
-        private List properties = new ArrayList();
-       */
-// We must produce an Ant-like log, but it's a little difficult.
-// Therefore we'll produce <mavengoal> tags containing <message> tags
-// and adapt accordingly the reporting side.
-    private Element buildLogElement = null;  // Global log to produce
+
+    // We must produce an Ant-like log, but it's a little difficult.
+    // Therefore we'll produce <mavengoal> tags containing <message> tags
+    // and adapt accordingly the reporting side.
+    private Element buildLogElement = null; // Global log to produce
     private Element currentElement = null;
 
     public void validate() throws CruiseControlException {
@@ -89,14 +84,16 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         }
         ckFile = new File(mavenScript);
         if (!ckFile.exists()) {
-            throw new CruiseControlException("Script " + ckFile.getAbsolutePath() + " does not exist");
+            throw new CruiseControlException(
+                "Script " + ckFile.getAbsolutePath() + " does not exist");
         }
         if (projectFile == null) {
             throw new CruiseControlException("'projectfile' is a required attribute on MavenBuilder");
         }
         ckFile = new File(projectFile);
         if (!ckFile.exists()) {
-            throw new CruiseControlException("Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
+            throw new CruiseControlException(
+                "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
         }
     }
 
@@ -114,26 +111,19 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         List runs = getGoalSets();
         for (int runidx = 0; runidx < runs.size(); runidx++) {
             String goalset = (String) runs.get(runidx);
+            final String[] commandLineArgs =
+                getCommandLineArgs(buildProperties, isWindows(), goalset);
             try {
-                p = Runtime.getRuntime().exec(
-                        getCommandLineArgs(
-                                buildProperties,
-                                isWindows(),
-                                goalset),
-                        null,
-                        projDir
-                );
+                p = Runtime.getRuntime().exec(commandLineArgs, null, projDir);
             } catch (IOException e) {
                 throw new CruiseControlException(
-                        "Encountered an IO exception while attempting to execute Maven."
+                    "Encountered an IO exception while attempting to execute Maven."
                         + " CruiseControl cannot continue.",
-                        e);
+                    e);
             }
 
-            StreamPumper errorPumper =
-                    new StreamPumper(p.getErrorStream(), this);
-            StreamPumper outPumper =
-                    new StreamPumper(p.getInputStream(), this);
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), this);
+            StreamPumper outPumper = new StreamPumper(p.getInputStream(), this);
             new Thread(errorPumper).start();
             new Thread(outPumper).start();
             int exitCode = 1;
@@ -145,7 +135,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
                 p.getErrorStream().close();
             } catch (InterruptedException e) {
                 LOG.info(
-                        "Was interrupted while waiting for Maven to finish."
+                    "Was interrupted while waiting for Maven to finish."
                         + " CruiseControl will continue, assuming that it completed");
             } catch (IOException ie) {
                 LOG.info("Exception trying to close Process streams.", ie);
@@ -170,7 +160,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         return buildLogElement;
     }
 
-//***************************** Param setters ****************************
+    //***************************** Param setters ****************************
 
     /**
      * The path to the Maven script
@@ -179,10 +169,6 @@ public class MavenBuilder extends Builder implements StreamConsumer {
     public void setMavenScript(String mavenScript) {
         this.mavenScript = mavenScript;
     }
-
-    /*public void setTempFile(String tempFileName) {
-        this.tempFileName = tempFileName;
-    }*/
 
     /**
      * Maven goal to run. Supports sets of goals.
@@ -204,8 +190,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         this.projectFile = projectFile;
     }
 
-
-//******************** Command line generation **********************
+    //******************** Command line generation **********************
 
     /**
      *  construct the command that we're going to execute.
@@ -213,10 +198,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
      *  @param goalset A set of goals to run (list, separated by emptyspace)
      *  @return String[] holding command to be executed
      */
-    protected String[] getCommandLineArgs(
-            Map buildProperties,
-            boolean isWindows,
-            String goalset) {
+    protected String[] getCommandLineArgs(Map buildProperties, boolean isWindows, String goalset) {
         List al = new ArrayList();
 
         if (mavenScript != null) {
@@ -225,11 +207,12 @@ public class MavenBuilder extends Builder implements StreamConsumer {
                 al.add("/C");
                 al.add(mavenScript);
             } else {
+                al.add("sh");
                 al.add(mavenScript);
             }
         } else {
             throw new RuntimeException(
-                    "Non-script running is not implemented yet.\n"
+                "Non-script running is not implemented yet.\n"
                     + "As of 1.0-beta-10 Maven startup mechanism is still changing...");
         }
 
@@ -239,19 +222,11 @@ public class MavenBuilder extends Builder implements StreamConsumer {
             al.add("-D" + key + "=" + buildProperties.get(key));
         }
 
-        /* Legacy from AntBuilder. I don't need this for Maven, not now.
-        Iterator mavenPropertiesIterator = properties.iterator();
-        while (mavenPropertiesIterator.hasNext()) {
-           Property property = (Property) mavenPropertiesIterator.next();
-           al.add("-D" + property.getName() + "=" + property.getValue());
-        }
-        */
-
         if (LOG.isDebugEnabled()) {
             al.add("-X");
         }
 
-        al.add("-b");  // no banner
+        al.add("-b"); // no banner
         if (projectFile != null) {
             // we need only the name of the file
             File pFile = new File(projectFile);
@@ -306,7 +281,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         return al;
     }
 
-//********************* Log interception and production ******************
+    //********************* Log interception and production ******************
 
     /**
      * Ugly parsing of Maven output into some Elements.
