@@ -84,6 +84,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private String[] xslFileNames =
         {
             "header.xsl",
+            "maven.xsl",
             "compile.xsl",
             "javadoc.xsl",
             "unittests.xsl",
