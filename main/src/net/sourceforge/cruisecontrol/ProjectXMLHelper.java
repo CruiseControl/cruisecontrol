@@ -109,6 +109,7 @@ public class ProjectXMLHelper {
         while (publisherIterator.hasNext()) {
             Element publisherElement = (Element) publisherIterator.next();
             Publisher publisher = (Publisher) configurePlugin(publisherElement);
+            publisher.validate();
             publishers.add(publisher);
         }
         return publishers;

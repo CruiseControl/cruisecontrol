@@ -84,6 +84,18 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected abstract String createMessage(XMLLogHelper logHelper);
 
+    /*
+     *  Called after the configuration is read to make sure that all the mandatory parameters
+     *  were specified..
+     *
+     *  @throws CruiseControlException if there was a configuration error.
+     */
+    public void validate() throws CruiseControlException {
+        if(_servletUrl == null) {
+            throw new CruiseControlException("EmailPublisher.servletUrl not specified in configuration file.");
+        }
+    }
+
     /**
      *  Creates the subject line for the email message.
      *
