@@ -41,24 +41,14 @@ import net.sourceforge.cruisecontrol.builders.AntBuilder;
 
 public class PluginRegistryTest extends TestCase {
 
-    public void testCreatingRegistry() {
-        PluginRegistry registry = new PluginRegistry();
-
-        //The registry should be empty...
-        assertFalse(registry.isPluginRegistered("foo"));
-        assertFalse(registry.isPluginRegistered("ant"));
-        assertFalse(registry.isPluginRegistered("labelincrementer"));
-        assertFalse(registry.isPluginRegistered("cvs"));
-    }
-
     public void testGettingPluginClass() throws Exception {
-        PluginRegistry registry = PluginRegistry.getDefaultPluginRegistry();
+        PluginRegistry registry = PluginRegistry.createRegistry();
 
         assertNotNull(registry.getPluginClass("ant"));
     }
 
     public void testRegisteringPluginNoClass() {
-        PluginRegistry registry = new PluginRegistry();
+        PluginRegistry registry = PluginRegistry.createRegistry();
 
         final String nonExistentClassname =
                 "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
@@ -72,7 +62,7 @@ public class PluginRegistryTest extends TestCase {
     }
 
     public void testAddingPlugin() throws Exception {
-        PluginRegistry registry = new PluginRegistry();
+        PluginRegistry registry = PluginRegistry.createRegistry();
 
         //Add a plugin with a classname that exists
         final Class antBuilderClass = AntBuilder.class;
@@ -84,25 +74,42 @@ public class PluginRegistryTest extends TestCase {
         assertEquals(antBuilderClassname, registry.getPluginClassname("ant"));
         assertEquals(antBuilderClass, registry.getPluginClass("ant"));
     }
+    
+    public void testRootRegistry() throws Exception {
+        PluginRegistry registry = PluginRegistry.createRegistry();
+        String antClassName = registry.getPluginClassname("ant");
+        String nonExistentClassname =
+            "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
+        PluginRegistry.registerToRoot("ant", nonExistentClassname);
+        // did the overwrite work?
+        assertNotSame(antClassName, registry.getPluginClassname("ant"));
+        // now override the root definition in the child registry
+        registry.register("ant", antClassName);
+        // does it mask the parent definition?
+        assertEquals(antClassName, registry.getPluginClassname("ant"));
+        
+        // restore the root definition, or we'll wreck the other tests
+        PluginRegistry.registerToRoot("ant", antClassName);
+    }
 
     public void testCaseInsensitivityPluginNames() throws Exception {
         //Plugin names are treated as case-insensitive by CruiseControl, so
-        //  a plugin named Ant and ant are the same.
-        PluginRegistry registry = new PluginRegistry();
+        //  a plugin named TestName and testname are the same.
+        PluginRegistry registry = PluginRegistry.createRegistry();
 
         //Add a plugin with an all lowercase name
         final String antBuilderClassname = AntBuilder.class.getName();
-        registry.register("ant", antBuilderClassname);
+        registry.register("testname", antBuilderClassname);
 
         //It should be registered
-        assertTrue(registry.isPluginRegistered("ant"));
+        assertTrue(registry.isPluginRegistered("testname"));
 
         //If we ask if other case versions are registered, it should
         //  say "yes"
-        assertTrue(registry.isPluginRegistered("ANT"));
-        assertTrue(registry.isPluginRegistered("Ant"));
-        assertTrue(registry.isPluginRegistered("aNT"));
-        assertTrue(registry.isPluginRegistered("aNt"));
+        assertTrue(registry.isPluginRegistered("TESTNAME"));
+        assertTrue(registry.isPluginRegistered("Testname"));
+        assertTrue(registry.isPluginRegistered("TestName"));
+        assertTrue(registry.isPluginRegistered("tESTnAME"));
     }
 
     public void testPluginRegistry() throws Exception {
@@ -165,7 +172,7 @@ public class PluginRegistryTest extends TestCase {
 
     static void verifyPluginClass(String pluginName, String expectedName)
             throws Exception {
-        PluginRegistry registry = PluginRegistry.getDefaultPluginRegistry();
+        PluginRegistry registry = PluginRegistry.createRegistry();
 
         assertTrue(registry.isPluginRegistered(pluginName));
 
