@@ -73,11 +73,20 @@ public class LinkEmailPublisher extends EmailPublisher {
 
         StringBuffer message = new StringBuffer();
         message.append("View results here -> ");
-        message.append(getBuildResultsURL());
-        message.append("?log=");
-        message.append(baseLogFileName);
-        return message.toString();
 
+        String buildResultsURL = getBuildResultsURL();
+        message.append(buildResultsURL);
+
+        if (buildResultsURL.indexOf("?") == -1) {
+            message.append("?");
+        } else {
+            message.append("&");
+        }
+
+        message.append("log=");
+        message.append(baseLogFileName);
+        
+        return message.toString();
     }
 
     /*

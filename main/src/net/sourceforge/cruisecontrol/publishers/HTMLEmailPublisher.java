@@ -309,20 +309,32 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     protected String createLinkLine(String logFileName) {
-        String linkLine = "";
+        StringBuffer linkLine = new StringBuffer("");
+        String buildResultsURL = getBuildResultsURL();
         
-        if (getBuildResultsURL() == null) {
-            return linkLine;
+        if (buildResultsURL == null) {
+            return linkLine.toString();
         } 
 
         int startName = logFileName.lastIndexOf(File.separator) + 1;
         int endName = logFileName.lastIndexOf(".");
         String baseLogFileName = logFileName.substring(startName, endName);
-        String url = getBuildResultsURL() + "?log=" + baseLogFileName;
+        StringBuffer url = new StringBuffer(buildResultsURL);
+        if (buildResultsURL.indexOf("?") == -1) {
+            url.append("?");
+        } else {
+            url.append("&");
+        }
+        url.append("log=");
+        url.append(baseLogFileName);
 
-        linkLine = "View results here -> <a href=\"" + url + "\">" + url + "</a>";
+        linkLine.append("View results here -> <a href=\"");
+        linkLine.append(url);
+        linkLine.append("\">");
+        linkLine.append(url);
+        linkLine.append("</a>");
 
-        return linkLine;
+        return linkLine.toString();
     }
 
     protected void appendTransform(File inFile, StringBuffer messageBuffer,
