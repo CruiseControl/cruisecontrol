@@ -75,13 +75,33 @@ public class CruiseControlController {
     }
 
     private void parseConfigFile() throws CruiseControlException {
-        List projectList = getAllProjects();
+        Element configRoot = Util.loadConfigFile(configFile);
+        addPluginsToRootRegistry(configRoot);
+        List projectList = getAllProjects(configRoot);
         for (Iterator iterator = projectList.iterator(); iterator.hasNext();) {
             Project project = (Project) iterator.next();
             addProject(project);
         }
     }
 
+    private void addPluginsToRootRegistry(Element configRoot) {
+        for (Iterator pluginIter = configRoot.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
+            Element pluginElement = (Element) pluginIter.next();
+            String pluginName = pluginElement.getAttributeValue("name");
+            if (pluginName == null) {
+                LOG.warn(configFile.getName() + " contains plugin without a name-attribute, ignoring it");
+                continue;
+            }
+            String pluginClassname = pluginElement.getAttributeValue("classname");
+            if (pluginClassname == null) {
+                LOG.warn(configFile.getName() + " contains plugin '" + pluginName 
+                        + "' without a classname-attribute, ignoring it");
+                continue;
+            }
+            PluginRegistry.registerToRoot(pluginName, pluginClassname);
+        }
+    }
+    
     private void addProject(Project project) {
         projects.add(project);
         for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
@@ -129,8 +149,7 @@ public class CruiseControlController {
         return Collections.unmodifiableList(projects);
     }
 
-    private List getAllProjects() throws CruiseControlException {
-        Element configRoot = Util.loadConfigFile(configFile);
+    private List getAllProjects(Element configRoot) throws CruiseControlException {
         String[] projectNames = getProjectNames(configRoot);
         ArrayList allProjects = new ArrayList(projectNames.length);
         for (int i = 0; i < projectNames.length; i++) {

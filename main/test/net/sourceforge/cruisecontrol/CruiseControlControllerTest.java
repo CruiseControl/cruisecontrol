@@ -117,6 +117,22 @@ public class CruiseControlControllerTest extends TestCase {
         assertNotNull(project);
         assertTrue(project.getBuildForced());
     }
+    
+    public void testRegisterPlugins() throws Exception {
+        FileWriter configOut = new FileWriter(configFile);
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+        configOut.write("  <plugin name=\"testname\" classname=\"net.sourceforge.cruisecontrol.CruiseControllerTest\"/>\n");
+        configOut.write("  <plugin name=\"labelincrementer\" classname=\"my.global.Incrementer\"/>\n");
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+
+        test.setConfigFile(configFile);
+        PluginRegistry newRegistry = PluginRegistry.createRegistry();
+        assertTrue(newRegistry.isPluginRegistered("testname"));
+        assertFalse(newRegistry.isPluginRegistered("unknown_plugin"));
+        assertEquals(newRegistry.getPluginClassname("labelincrementer"), "my.global.Incrementer");
+    }
 
     private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {
         configOut.write("<project name=\"" + projectName + "\" />\n");
