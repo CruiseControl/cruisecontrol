@@ -95,6 +95,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             verifyFile("HTMLEmailPublisher.xslDir/unittests.xsl", new File(this.xslDir, "unittests.xsl"));
             verifyFile("HTMLEmailPublisher.xslDir/modifications.xsl", new File(this.xslDir, "modifications.xsl"));
             verifyFile("HTMLEmailPublisher.xslDir/distributables.xsl", new File(this.xslDir, "distributables.xsl"));
+            verifyFile("HTMLEmailPublisher.xslDir/javadoc.xsl", new File(this.xslDir, "javadoc.xsl"));
         }
     }
 
@@ -258,6 +259,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             File unittestxsl = new File(xslDir, "unittests.xsl");
             File modificationsxsl = new File(xslDir, "modifications.xsl");
             File distributablesxsl = new File(xslDir, "distributables.xsl");
+            File javadocxsl = new File(xslDir, "javadoc.xsl");
 
             appendHeader(messageBuffer);
             messageBuffer.append(createLinkLine(inFile.getName()));
@@ -265,6 +267,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
             appendTransform(inFile, messageBuffer, tFactory, headerxsl);
             messageBuffer.append("<p>\n");
             appendTransform(inFile, messageBuffer, tFactory, compilexsl);
+            messageBuffer.append("<p>\n");
+            appendTransform(inFile, messageBuffer, tFactory, javadocxsl);
             messageBuffer.append("<p>\n");
             appendTransform(inFile, messageBuffer, tFactory, unittestxsl);
             messageBuffer.append("<p>\n");
