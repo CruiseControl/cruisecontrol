@@ -226,25 +226,25 @@ public class ProjectXMLHelper {
 
     protected void initDefaultPluginRegistry() {
         _plugins = new HashMap();
-        _plugins.put("currentbuildstatusbootstrapper", net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper.class.getName());
-        _plugins.put("cvsbootstrapper", net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper.class.getName());
-        _plugins.put("vssbootstrapper", net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper.class.getName());
+        _plugins.put("currentbuildstatusbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
+        _plugins.put("cvsbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
+        _plugins.put("vssbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
 
-        _plugins.put("clearcase", net.sourceforge.cruisecontrol.sourcecontrols.ClearCase.class.getName());
-        _plugins.put("cvs", net.sourceforge.cruisecontrol.sourcecontrols.CVS.class.getName());
-        _plugins.put("filesystem", net.sourceforge.cruisecontrol.sourcecontrols.FileSystem.class.getName());
-        _plugins.put("mks", net.sourceforge.cruisecontrol.sourcecontrols.MKS.class.getName());
-        _plugins.put("p4", net.sourceforge.cruisecontrol.sourcecontrols.P4.class.getName());
-        _plugins.put("pvcs", net.sourceforge.cruisecontrol.sourcecontrols.PVCS.class.getName());
-        _plugins.put("starteam", net.sourceforge.cruisecontrol.sourcecontrols.StarTeam.class.getName());
-        _plugins.put("vss", net.sourceforge.cruisecontrol.sourcecontrols.Vss.class.getName());
-        _plugins.put("vssjournal", net.sourceforge.cruisecontrol.sourcecontrols.VssJournal.class.getName());
+        _plugins.put("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
+        _plugins.put("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
+        _plugins.put("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
+        _plugins.put("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
+        _plugins.put("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
+        _plugins.put("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
+        _plugins.put("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
+        _plugins.put("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
+        _plugins.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
 
-        _plugins.put("ant", net.sourceforge.cruisecontrol.builders.AntBuilder.class.getName());
+        _plugins.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
 
-        _plugins.put("labelincrementer", net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer.class.getName());
+        _plugins.put("labelincrementer", "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
 
-        _plugins.put("currentbuildstatuspublisher", net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher.class.getName());
-        _plugins.put("email", net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher.class.getName());
+        _plugins.put("currentbuildstatuspublisher", "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
+        _plugins.put("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
     }
 }
