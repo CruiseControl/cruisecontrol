@@ -335,8 +335,7 @@ public class StarTeam implements SourceControl {
                     user.getServer().getAdministration().findUserAccount(user.getID());
                 if (useracct == null) {
                     LOG.warn("User account " + user.getID() + " not found for email address.");
-                }
-                else {
+                } else {
                     mod.emailAddress = useracct.getEmailAddress();
                 }
             } catch (ServerException sx) {
