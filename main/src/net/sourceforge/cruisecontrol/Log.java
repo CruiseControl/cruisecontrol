@@ -41,11 +41,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,6 +60,9 @@ public class Log {
     private static final org.apache.log4j.Logger LOG4J =
             org.apache.log4j.Logger.getLogger(Log.class);
 
+    private static final int BEFORE_LENGTH = "logYYYYMMDDhhmmssL".length();
+    private static final int AFTER_LENGTH  = ".xml".length();
+    
     private transient String logDir;
     private transient String logXmlEncoding;
     private transient File lastLogFile;
@@ -85,7 +88,7 @@ public class Log {
     }
 
     public BuildLogger[] getLoggers() {
-        return (BuildLogger[]) loggers.toArray(new BuildLogger[0]);
+        return (BuildLogger[]) loggers.toArray(new BuildLogger[loggers.size()]);
     }
 
     public String getLogXmlEncoding() {
@@ -163,33 +166,31 @@ public class Log {
         logFileElement.setAttribute("value", File.separator + logFilename);
         buildLog.getChild("info").addContent(logFileElement);
 
-
         this.lastLogFile = new File(logDir, logFilename);
-        LOG4J.debug("Project " + projectName + ":  Writing log file ["
+        if (LOG4J.isDebugEnabled()) {
+            LOG4J.debug("Project " + projectName + ":  Writing log file ["
                 + lastLogFile.getAbsolutePath() + "]");
+        }
 
-        //Write the log file out using the proper encoding.
-        BufferedWriter logWriter = null;
+        //Write the log file out, let jdom care about the encoding by using
+        //an OutputStream instead of a Writer.
+        OutputStream logStream = null;
         try {
             XMLOutputter outputter = null;
             if (logXmlEncoding == null) {
                 outputter = new XMLOutputter("   ", true);
-                logWriter =
-                    new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lastLogFile)));
             } else {
                 outputter = new XMLOutputter("   ", true, logXmlEncoding);
-                logWriter =
-                    new BufferedWriter(
-                        new OutputStreamWriter(new FileOutputStream(lastLogFile), logXmlEncoding));
             }
-            outputter.output(new Document(buildLog), logWriter);
+            logStream = new BufferedOutputStream(new FileOutputStream(lastLogFile));
+            outputter.output(new Document(buildLog), logStream);
         } catch (IOException e) {
             throw new CruiseControlException(e);
         } finally {
-            if (logWriter != null) {
+            if (logStream != null) {
                 try {
-                    logWriter.close();
-                } catch (IOException e1) {
+                    logStream.close();
+                } catch (IOException e) {
                     // nevermind, then
                 }
             }
@@ -238,25 +239,21 @@ public class Log {
             return false;
         }
         boolean startsWithLog = filename.startsWith("log");
-        boolean hasLabelSeparator = filename.indexOf('L') == 17;
+        boolean hasLabelSeparator = filename.indexOf('L') == BEFORE_LENGTH - 1;
         boolean isXmlFile = filename.endsWith(".xml");
         return startsWithLog && hasLabelSeparator && isXmlFile;
     }
 
     public static Date parseDateFromLogFileName(String filename) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        return formatter.parse(filename.substring(3, 17));
+        return formatter.parse(filename.substring(3, BEFORE_LENGTH - 1));
     }
 
     public static String parseLabelFromLogFileName(String filename) {
         if (!Log.wasSuccessfulBuild(filename)) {
             return "";
         }
-        String beforeLabel = "log??????????????L";
-        String afterLabel = ".xml";
-        String label = filename.substring(beforeLabel.length());
-        label = label.substring(0, label.length() - afterLabel.length());
-        return label;
+        return filename.substring(BEFORE_LENGTH, filename.length() - AFTER_LENGTH);
     }
 }
 
