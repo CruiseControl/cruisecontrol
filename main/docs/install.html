@@ -88,7 +88,14 @@
                   java -jar dist/cruisecontrol.jar
                 </code><br>
                 If you use this, make sure CruiseControl can find the classes it needs.
-                If you don't know which classes this are, you should just use the script.</p>
+                If you don't know which classes this are, you should just use the script.
+                As of CruiseControl version 2.2.1, the MANIFEST.MF file is updated to 
+                contain a Class-Path entry with all the jars needed, so using 
+                java&nbsp;-jar should just work.<br/>
+                If you're using Java 1.5/5.0, you should also provide a system property
+                to enable CruiseControl to use its own MX4J as JMX Server instead of the
+                JMX server that comes with the JVM: have a look at the startup scripts 
+                for more details.</p>
             </li>
         </ul>
 
