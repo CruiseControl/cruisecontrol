@@ -138,28 +138,10 @@ public class CVS implements SourceControl {
     private static final String CVS_REVISION_DATE = "date:";
 
     /**
-     * This is the keyword that precedes the author of a file revision in the
-     * CVS log information.
-     */
-    private static final String CVS_REVISION_AUTHOR = "author:";
-
-    /**
-     * This is the keyword that precedes the state keywords of a file revision
-     * in the CVS log information.
-     */
-    private static final String CVS_REVISION_STATE = "state:";
-
-    /**
      * This is the name of the tip of the main branch, which needs special handling with
      * the log entry parser
      */
     private static final String CVS_HEAD_TAG = "HEAD";
-
-    /**
-     * This is the keyword that precedes the revision as found in the
-     * CVS log information.
-     */
-    private static final String CVS_REVISION_REVISION = "revision";
 
     /**
      * This is the keyword that tells us when we have reaced the ned of the
@@ -173,12 +155,6 @@ public class CVS implements SourceControl {
      * of the file (removal from branch..).
      */
     private static final String CVS_REVISION_DEAD = "dead";
-
-    /**
-     * This is the log string set for files that are added on a different branch
-     */
-    private static final String CVS_BRANCH_ADDED =
-        "was initially added on branch";
 
     /**
      * System dependent new line seperator.
