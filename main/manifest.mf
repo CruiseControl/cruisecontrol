@@ -1,5 +1,4 @@
 Manifest-Version: 1.2
-Class-Path: ../lib/log4j.jar ../lib/xerces.jar ../lib/mail.jar ../lib/activation.jar ../lib/jakarta-oro-2.0.3.jar ../lib/jdom.jar ../lib/jmxtools.jar ../lib/jmxri.jar
+Class-Path: lib/log4j.jar lib/xerces.jar lib/mail.jar lib/activation.jar lib/jakarta-oro-2.0.3.jar lib/jdom.jar lib/jmxtools.jar lib/jmxri.jar
 Main-Class: CruiseControl
-
 
