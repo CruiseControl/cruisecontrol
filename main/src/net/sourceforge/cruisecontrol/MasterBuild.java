@@ -81,6 +81,7 @@ public class MasterBuild {
     private CruiseControlProperties props;
 
     private int _buildCounter;
+    
     /**
      * Entry point.  Verifies that all command line arguments are correctly 
      * specified.
@@ -99,10 +100,6 @@ public class MasterBuild {
         }
     }
 
-    // (PENDING) Extract class
-    ////////////////////////////
-    // BEGIN Handling arguments
-    ////////////////////////////
     /**
      * Deserialize the label and timestamp of the last good build.
      */
@@ -237,57 +234,6 @@ public class MasterBuild {
     }
     
     /**
-     * Merge any auxiliary xml-based files into the main log xml,
-     * e.g. xml from junit, modificationset, bugs, etc.
-     * only copies text from aux files to the main ant log,
-     * and thus assumes that your aux xml has valid syntax.
-     * The auxiliary xml files are declared in the masterbuild properties
-     * file.  If the auxiliary xml File is a directory, all files with extension
-     * xml will be appended.
-     **/
-    private void mergeAuxXmlFiles(Project antProject) {
-        info.setLogfile(getFinalLogFileName(antProject));
-        XMLLogMerger merger = 
-         new XMLLogMerger(info.getLogfile(), 
-                          antProject.getProperty("XmlLogger.file"), 
-                          _auxLogFiles, info.getLabel(), _today);
-        try {
-            merger.merge();
-        } catch (IOException ioe) {
-            System.err.println("Failure merging XML files: " + ioe.getMessage());
-        }
-    }
-    
-    /**
-     * Returns the filename that should be used as the
-     * composite log file. This method uses information
-     * from previous steps in the build process, like
-     * whether or not the build was successful, to determine
-     * what the filename will be.
-     *
-     * @param proj   Project to get property values from.
-     * @return Name of the composite log file.
-     */
-    private String getFinalLogFileName(Project proj) {
-        String dateStamp = proj.getProperty("DSTAMP");
-        String timeStamp = proj.getProperty("TSTAMP");
-        if (dateStamp == null || timeStamp == null) {
-            throw new RuntimeException("Datestamp and timestamp are not set."
-                                       + " The ANT tstamp task must be called"
-                                       + " before MasterBuild will work.");
-        }
-
-        String logFileName = "log" + dateStamp + timeStamp;
-        if (info.isLastBuildSuccessful()) {
-            logFileName += "L" + info.getLabel();
-        }
-        logFileName += ".xml";
-        logFileName = props.getLogDir() + File.separator + logFileName;
-
-        return logFileName;
-    }
-
-    /**
      *  convenience method for logging
      */
     public void log(String s) {
@@ -410,15 +356,7 @@ public class MasterBuild {
 
         }
 
-        mergeAuxXmlFiles(proj);
-    }
-
-    boolean canWriteXMLLoggerFile() {
-        File logFile = new File(XML_LOGGER_FILE);
-        if (!logFile.exists() || logFile.canWrite()) {
-            return true;
-        }
-        
-        return false;
+        FileMerger merger = new FileMerger(proj,props.getAuxLogProperties());
+        merger.mergeAuxXmlFiles(proj, info, props.getLogDir());
     }
 }
