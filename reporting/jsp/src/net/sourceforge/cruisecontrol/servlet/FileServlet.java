@@ -133,11 +133,11 @@ public class FileServlet extends HttpServlet {
         writer.write("<ul>");
         for (int i = 0; i < files.length; i++) {
             writer.write(
-                "<li><a href="
+                "<li><a href=\""
                     + request.getRequestURI()
                     + "/"
                     + files[i]
-                    + ">"
+                    + "\">"
                     + files[i]
                     + "</a></li>");
         }
