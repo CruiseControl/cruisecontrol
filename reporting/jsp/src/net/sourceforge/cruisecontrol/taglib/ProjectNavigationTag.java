@@ -76,7 +76,7 @@ public class ProjectNavigationTag extends CruiseControlBodyTagSupport {
     void setupLinkVariables() {
         if (count == -1) {
             getPageContext().setAttribute(LINK_TEXT_ATTR, STATUS_PAGE_TEXT);
-            getPageContext().setAttribute(URL_ATTR, getRequest().getContextPath());
+            getPageContext().setAttribute(URL_ATTR, getRequest().getContextPath() + "/");
             getPageContext().setAttribute(SELECTED_ATTR, "");
         } else {
             final String projectName = projects[count];

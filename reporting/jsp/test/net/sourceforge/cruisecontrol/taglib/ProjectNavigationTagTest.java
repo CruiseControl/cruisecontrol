@@ -103,7 +103,7 @@ public class ProjectNavigationTagTest extends TestCase {
         tag.doInitBody();
         
         assertEquals("", pageContext.getAttribute(ProjectNavigationTag.SELECTED_ATTR));
-        //assertEquals(ProjectNavigationTag.STATUS_PAGE_URL, pageContext.getAttribute(ProjectNavigationTag.URL_ATTR));
+        assertEquals("/context/", pageContext.getAttribute(ProjectNavigationTag.URL_ATTR));
         assertEquals(ProjectNavigationTag.STATUS_PAGE_TEXT, 
                      pageContext.getAttribute(ProjectNavigationTag.LINK_TEXT_ATTR));
         
