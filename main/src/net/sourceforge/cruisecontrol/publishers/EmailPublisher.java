@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -46,7 +47,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Arrays;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -93,6 +93,7 @@ public abstract class EmailPublisher implements Publisher {
     private boolean spamWhileBroken = true;
     private boolean skipUsers = false;
     private String subjectPrefix;
+    private boolean failAsImportant = true;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -275,9 +276,14 @@ public abstract class EmailPublisher implements Publisher {
      */
     public void publish(Element cruisecontrolLog) {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+        boolean important = !helper.isBuildSuccessful() && failAsImportant;
         try {
             if (shouldSend(helper)) {
-                sendMail(createUserList(helper), createSubject(helper), createMessage(helper));
+                sendMail(
+                    createUserList(helper),
+                    createSubject(helper),
+                    createMessage(helper),
+                    important);
             }
         } catch (CruiseControlException e) {
             LOG.error("", e);
@@ -309,7 +315,7 @@ public abstract class EmailPublisher implements Publisher {
      *  @param subject subject line for the message
      *  @param message body of the message
      */
-    protected void sendMail(String toList, String subject, String message)
+    protected void sendMail(String toList, String subject, String message, boolean important)
         throws CruiseControlException {
         LOG.info("Sending mail notifications.");
         Session session = Session.getDefaultInstance(getMailProperties(), null);
@@ -320,8 +326,12 @@ public abstract class EmailPublisher implements Publisher {
             msg.setFrom(getFromAddress());
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toList, false));
             msg.setSubject(subject);
-            msg.setText(message);
             msg.setSentDate(new Date());
+            String importance = (important) ? "High" : "Normal";
+            msg.addHeader("Importance", importance);
+
+            addContentToMessage(message, msg);
+
             if (userName != null && password != null) {
                 msg.saveChanges(); // implicit with send()
                 Transport transport = session.getTransport("smtp");
@@ -334,6 +344,18 @@ public abstract class EmailPublisher implements Publisher {
         } catch (MessagingException e) {
             throw new CruiseControlException(e.getMessage());
         }
+    }
+
+    /**
+     * Subclasses can override this method to control how the content
+     * is added to the Message.
+     * 
+     * @param message content returned by createMessage
+     * @param msg mail Message with headers and addresses added elsewhere
+     * @throws MessagingException
+     */
+    protected void addContentToMessage(String content, Message msg) throws MessagingException {
+        msg.setText(content);
     }
 
     protected InternetAddress getFromAddress() throws AddressException {
@@ -429,6 +451,10 @@ public abstract class EmailPublisher implements Publisher {
         spamWhileBroken = spam;
     }
 
+    public void setFailAsImportant(boolean important) {
+        failAsImportant = important;
+    }
+
     public Always createAlways() {
         List alwaysList = new ArrayList();
         alwaysList.addAll(Arrays.asList(alwaysAddresses));
@@ -476,8 +502,8 @@ public abstract class EmailPublisher implements Publisher {
 
         return map;
     }
-    
-   public class Address {
+
+    public class Address {
         private String address;
 
         public String getAddress() {
@@ -486,7 +512,7 @@ public abstract class EmailPublisher implements Publisher {
 
         public void setAddress(String theAddress) {
             address = theAddress;
-        }        
+        }
     }
 
     public class Always extends Address {
@@ -530,7 +556,7 @@ public abstract class EmailPublisher implements Publisher {
         pub.setPassword(args[2]);
         pub.setReturnAddress(args[3]);
         try {
-            pub.sendMail(args[4], "test subject", "test message");
+            pub.sendMail(args[4], "test subject", "test message", false);
         } catch (CruiseControlException e) {
             LOG.error("test failed", e);
         }
