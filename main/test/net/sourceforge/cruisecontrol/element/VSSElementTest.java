@@ -50,7 +50,7 @@ public class VSSElementTest extends TestCase {
     private VssElement _element;
     
     private final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
-    
+    private final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36a";    
     private final String STRANGE_DATE_TIME_STRING = "Date:  6/20/:1   Time:  10:36a";
     
     public VSSElementTest(String name) {
@@ -65,20 +65,37 @@ public class VSSElementTest extends TestCase {
 
     public void testParseUserSingleCharName() {
         String testName = "1";
-        assertEquals(testName, _element.parseUser(createVSSLine(testName)));
+        assertEquals(testName, _element.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
     
     public void testParseDateSingleCharName() {
         String testName = "1";
         try {
             assertEquals(
-             VssElement.VSS_OUT_FORMAT.parse(DATE_TIME_STRING.trim() + "m"), 
-             _element.parseDate(createVSSLine(testName)));
+             _element.vssDateTimeFormat.parse(DATE_TIME_STRING.trim() + "m"), 
+             _element.parseDate(createVSSLine(testName, DATE_TIME_STRING)));
+            
         } catch (ParseException e) {
             fail("Could not parse date string: " + e.getMessage());
         }
     }
 
+    /**
+     * Parse a user supplied date format.
+     */
+    public void testParseDateAlternate() {
+        String testName = "1";
+        VssElement vssElement = new VssElement();
+        vssElement.setDateFormat("dd/MM/yy");
+        try {
+            assertEquals(
+              vssElement.vssDateTimeFormat.parse(ALTERNATE_DATE_TIME_STRING.trim() + "m"), 
+              vssElement.parseDate(createVSSLine(testName, ALTERNATE_DATE_TIME_STRING)));
+        } catch (ParseException e) {
+            fail("Could not parse date string: " + e.getMessage());
+        }
+    }
+    
     /**
      * Some people are seeing strange date outputs from their VSS history that
      * looks like this:
@@ -89,7 +106,7 @@ public class VSSElementTest extends TestCase {
         String strangeDateLine = "User: Aaggarwa     Date:  6/20/:1   Time: 10:36a";
         try {
             assertEquals(
-             VssElement.VSS_OUT_FORMAT.parse(DATE_TIME_STRING.trim() + "m"),
+             _element.vssDateTimeFormat.parse(DATE_TIME_STRING.trim() + "m"),
              _element.parseDate(strangeDateLine));
         } catch (ParseException e) {
             fail("Could not parse strange date string: " + e.getMessage());
@@ -98,12 +115,12 @@ public class VSSElementTest extends TestCase {
     
     public void testParseUser10CharName() {
         String testName = "1234567890";
-        assertEquals(testName, _element.parseUser(createVSSLine(testName)));
+        assertEquals(testName, _element.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
     
     public void testParseUser20CharName() {
         String testName = "12345678900987654321";
-        assertEquals(testName, _element.parseUser(createVSSLine(testName)));
+        assertEquals(testName, _element.parseUser(createVSSLine(testName, DATE_TIME_STRING)));
     }
 
     public void testHandleEntryUnusualLabel() {
@@ -164,8 +181,8 @@ public class VSSElementTest extends TestCase {
      *
      * @param testName Replaces the Username in above example
      */
-    private String createVSSLine(String testName) {
-        return "User: " + testName + " " + DATE_TIME_STRING;
+    private String createVSSLine(String testName, String dateTimeString) {
+        return "User: " + testName + " " + dateTimeString;
     }
     
     public static void main(String[] args) {
