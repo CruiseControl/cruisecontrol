@@ -91,9 +91,11 @@ public class FileSystemTest extends TestCase {
         fsystem.setFolder(tempDirectory.getAbsolutePath());
 
         //Check for modifications...there shouldn't be any
-        Date lastBuild = new GregorianCalendar(1900, 0, 1).getTime();
-        Date now = new Date();
-        List mods = fsystem.getModifications(lastBuild, now);
+        Date startTime = new GregorianCalendar(2000, 0, 1).getTime();
+        Date timeOne = new Date(startTime.getTime() + 2000);
+        Date timeTwo = new Date(timeOne.getTime() + 2000);
+        Date timeThree = new Date(timeTwo.getTime() + 2000);
+        List mods = fsystem.getModifications(startTime, timeOne);
         assertNotNull(mods);
         assertEquals(0, mods.size());
 
@@ -101,17 +103,15 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing");
-        tempFile.setLastModified(now.getTime());
+        tempFile.setLastModified(timeOne.getTime());
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 2");
-        tempFile.setLastModified(now.getTime());
+        tempFile.setLastModified(timeOne.getTime());
 
         //Check for mods...there should be some, one for each file written.
-        Thread.sleep(1000); //slight delay
-        now = new Date();
-        mods = fsystem.getModifications(lastBuild, now);
+        mods = fsystem.getModifications(startTime, timeOne);
         assertNotNull(mods);
         assertEquals(2, mods.size());
 
@@ -119,23 +119,20 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 3");
-        tempFile.setLastModified(now.getTime() + 1000);
+        tempFile.setLastModified(timeTwo.getTime());
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 4");
-        tempFile.setLastModified(now.getTime() + 1000);
+        tempFile.setLastModified(timeTwo.getTime());
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 5");
-        tempFile.setLastModified(now.getTime() + 1000);
+        tempFile.setLastModified(timeTwo.getTime());
 
         //Checking for mods again should turn up only the new files.
-        lastBuild = now;
-        Thread.sleep(1000); //slight delay
-        now = new Date();
-        mods = fsystem.getModifications(lastBuild, now);
+        mods = fsystem.getModifications(timeOne, timeTwo);
         assertNotNull(mods);
         assertEquals(3, mods.size());
 
@@ -143,13 +140,10 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 6");
-        tempFile.setLastModified(now.getTime() + 1000);
+        tempFile.setLastModified(timeThree.getTime());
 
         //Checking for mods again should turn up only the one file
-        lastBuild = now;
-        Thread.sleep(1000); //slight delay
-        now = new Date();
-        mods = fsystem.getModifications(lastBuild, now);
+        mods = fsystem.getModifications(timeTwo, timeThree);
         assertNotNull(mods);
         assertEquals(1, mods.size());
 
