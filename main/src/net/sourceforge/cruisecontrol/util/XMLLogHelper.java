@@ -41,8 +41,11 @@ import org.jdom.Element;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.text.SimpleDateFormat;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
 
 /**
  *  Wrapper for the cruisecontrol build log.  This class serves two purposes:<br>
@@ -136,11 +139,7 @@ public class XMLLogHelper {
      */
     public Set getBuildParticipants() {
         Set results = new HashSet();
-        if (log.getChild("modifications").getChildren("changelist") != null
-            && !log
-                .getChild("modifications")
-                .getChildren("changelist")
-                .isEmpty()) {
+        if (isP4Modifications()) {
                     
             Iterator changelistIterator = log.getChild("modifications").getChildren("changelist").iterator();
             while (changelistIterator.hasNext()) {
@@ -161,7 +160,15 @@ public class XMLLogHelper {
         return results;
     }
 
-    /**
+	private boolean isP4Modifications() {
+		return log.getChild("modifications").getChildren("changelist") != null
+					&& !log
+						.getChild("modifications")
+						.getChildren("changelist")
+						.isEmpty();
+	}
+
+	/**
      *  @param propertyName the name of the ant property
      *  @return the value of the ant property
      */
@@ -186,4 +193,20 @@ public class XMLLogHelper {
         }
         throw new CruiseControlException("Property: " + propertyName + " not found.");
     }
+
+	public Set getModifications() {
+		Set results = new HashSet();
+		if (isP4Modifications()){
+			//todo implement this
+		}else{
+			Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
+			while (modificationIterator.hasNext()) {
+				Element modification = (Element) modificationIterator.next();
+				Modification mod = new Modification();
+				mod.fromElement(modification, new SimpleDateFormat(DateFormatFactory.getFormat()));
+				results.add(mod);
+			}
+		}
+		return results;
+	}
 }

@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -53,6 +54,14 @@ import java.util.Date;
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
 public class Modification implements Comparable {
+	private static final String TAGNAME_MODIFICATION = "modification";
+	private static final String TAGNAME_TYPE = "type";
+	private static final String TAGNAME_FILENAME = "filename";
+	private static final String TAGNAME_FOLDERNAME = "project";
+	private static final String TAGNAME_DATE = "date";
+	private static final String TAGNAME_USER = "user";
+	private static final String TAGNAME_COMMENT = "comment";
+	private static final String TAGNAME_EMAIL = "email";
 
     private static final Logger LOG = Logger.getLogger(Modification.class);
 
@@ -64,18 +73,18 @@ public class Modification implements Comparable {
     public String emailAddress;
     public String comment = "";
 
-    public Element toElement(DateFormat formatter) {
-        Element modificationElement = new Element("modification");
-        modificationElement.setAttribute("type", type);
-        Element filenameElement = new Element("filename");
+	public Element toElement(DateFormat formatter) {
+        Element modificationElement = new Element(TAGNAME_MODIFICATION);
+        modificationElement.setAttribute(TAGNAME_TYPE, type);
+        Element filenameElement = new Element(TAGNAME_FILENAME);
         filenameElement.addContent(fileName);
-        Element projectElement = new Element("project");
+        Element projectElement = new Element(TAGNAME_FOLDERNAME);
         projectElement.addContent(folderName);
-        Element dateElement = new Element("date");
+        Element dateElement = new Element(TAGNAME_DATE);
         dateElement.addContent(formatter.format(modifiedTime));
-        Element userElement = new Element("user");
+        Element userElement = new Element(TAGNAME_USER);
         userElement.addContent(userName);
-        Element commentElement = new Element("comment");
+        Element commentElement = new Element(TAGNAME_COMMENT);
 
         CDATA cd = null;
         try {
@@ -94,7 +103,7 @@ public class Modification implements Comparable {
 
         // not all sourcecontrols guarantee a non-null email address
         if (emailAddress != null) {
-            Element emailAddressElement = new Element("email");
+            Element emailAddressElement = new Element(TAGNAME_EMAIL);
             emailAddressElement.addContent(emailAddress);
             modificationElement.addContent(emailAddressElement);
         }
@@ -170,4 +179,19 @@ public class Modification implements Comparable {
         mod.comment = "Comment";
         System.out.println(mod.toXml(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")));
     }
+
+	public void fromElement(Element modification, DateFormat formatter) {
+		type = modification.getAttributeValue(TAGNAME_TYPE);
+		fileName = modification.getChildText(TAGNAME_FILENAME);
+		folderName = modification.getChildText(TAGNAME_FOLDERNAME);
+		try {
+			modifiedTime = formatter.parse(modification.getChildText(TAGNAME_DATE));
+		} catch (ParseException e) {
+			//maybe we should do something different
+			modifiedTime = new Date();
+		}
+		userName = modification.getChildText(TAGNAME_USER);
+		comment = modification.getChildText(TAGNAME_COMMENT);
+		emailAddress = modification.getChildText(TAGNAME_EMAIL);		
+	}
 }
