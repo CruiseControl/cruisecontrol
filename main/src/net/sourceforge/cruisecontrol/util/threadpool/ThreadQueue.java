@@ -37,15 +37,16 @@
 
 package net.sourceforge.cruisecontrol.util.threadpool;
 
-import net.sourceforge.cruisecontrol.util.TdTimer;
-import org.apache.log4j.Logger;
-
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import net.sourceforge.cruisecontrol.util.TdTimer;
+
+import org.apache.log4j.Logger;
 
 /**
  * Used to encapsulate the concept of a Thread Pool
@@ -56,6 +57,7 @@ import java.util.List;
  * or not wait at all.
  *
  * @author Jared Richardson
+ * @version $Id$
  */
 
 public class ThreadQueue extends Thread {
@@ -73,14 +75,14 @@ public class ThreadQueue extends Thread {
     /**
      * the resultList from each WorkerThread's run
      */
-    private Hashtable resultList = new Hashtable();
+    private Map resultList = Collections.synchronizedMap(new HashMap());
 
     /**
      * Retains a handle to all the running Threads
      * to handle all sorts of interesting situations
      */
 
-    private Hashtable runningThreads = new Hashtable();
+    private Map runningThreads = Collections.synchronizedMap(new HashMap());
 
     /**
      * The number of java.lang.Threads to be launched by the pool at one time
@@ -95,7 +97,7 @@ public class ThreadQueue extends Thread {
     /**
      * A handle to the Thread Pool
      */
-    private static ThreadQueue threadPool = null;
+    private static ThreadQueue threadPool;
 
     /**
      * this variable is used to generate a unique name
@@ -421,26 +423,28 @@ public class ThreadQueue extends Thread {
         ThreadQueue.terminate = false;
     }
 
-    /**
-     * Interrupts all running threads
-     */
-    public static void interruptRunningTasks() {
+    public static void interruptAllRunningTasks() {
         synchronized (getThreadQueue().busyTasks) {
-            // get the list of running threads
-            Enumeration enum = getThreadQueue().runningThreads.keys();
-            // now interrupt each running thread
-            while (enum.hasMoreElements()) {
-                WorkerThread currentTask = (WorkerThread) enum.nextElement();
-                currentTask.terminate();
-                System.out.println("Preparing to stop " + currentTask.getName());
-            }
+            Map currentRunningThreads = getThreadQueue().runningThreads;
+            
+            terminateRunningTasks(currentRunningThreads);
+            interruptRunningThreads(currentRunningThreads);
+        }
+    }
 
-            enum = getThreadQueue().runningThreads.elements();
-            // now interrupt each running thread
-            while (enum.hasMoreElements()) {
-                Thread currentThread = (Thread) enum.nextElement();
-                currentThread.interrupt();
-            }
+    private static void interruptRunningThreads(Map currentRunningThreads) {
+        for (Iterator iter = currentRunningThreads.values().iterator(); iter.hasNext();) {
+            Thread currentThread = (Thread) iter.next();
+            currentThread.interrupt();
+        }
+    }
+
+    private static void terminateRunningTasks(Map currentRunningThreads) {
+        for (Iterator iter = currentRunningThreads.keySet().iterator(); iter.hasNext();) {
+            WorkerThread currentTask = (WorkerThread) iter.next();
+            currentTask.terminate();
+            
+            LOG.info("Preparing to stop " + currentTask.getName());
         }
     }
 
