@@ -42,35 +42,24 @@ package net.sourceforge.cruisecontrol;
  */
 public final class ProjectState {
 
-    public static final ProjectState QUEUED_STATE =
+    public static final ProjectState QUEUED =
             new ProjectState(1, "in build queue");
-    public static final ProjectState IDLE_STATE =
+    public static final ProjectState IDLE =
             new ProjectState(0, "idle");
-    public static final ProjectState BOOTSTRAPPING_STATE =
+    public static final ProjectState BOOTSTRAPPING =
             new ProjectState(2, "bootstrapping");
-    public static final ProjectState MODIFICATIONSET_STATE =
+    public static final ProjectState MODIFICATIONSET =
             new ProjectState(3, "checking for modifications");
-    public static final ProjectState BUILDING_STATE =
+    public static final ProjectState BUILDING =
             new ProjectState(4, "now building");
-    public static final ProjectState MERGING_LOGS_STATE =
+    public static final ProjectState MERGING_LOGS =
             new ProjectState(5, "merging accumulated log files");
-    public static final ProjectState PUBLISHING_STATE =
+    public static final ProjectState PUBLISHING =
             new ProjectState(6, "publishing build results");
-    public static final ProjectState PAUSED_STATE =
+    public static final ProjectState PAUSED =
             new ProjectState(7, "paused");
-    public static final ProjectState STOPPED_STATE =
+    public static final ProjectState STOPPED =
             new ProjectState(8, "stopped");
-    /*public static final String[] STATE_DESCRIPTIONS =
-        {
-            "idle",
-            "in build queue",
-            "bootstrapping",
-            "checking for modifications",
-            "now building",
-            "merging accumulated log files",
-            "publishing build results",
-            "paused",
-            "stopped" };*/
 
     private String description;
     private int code;
