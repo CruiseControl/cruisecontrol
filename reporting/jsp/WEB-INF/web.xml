@@ -55,7 +55,7 @@
     <context-param>
       <!-- You can set this value via the user.log.dir property in Ant, when building the WAR file. -->
       <param-name>logDir</param-name>
-      <param-value>@YOUR CRUISECONTROL LOG DIRECTORY@ </param-value>
+      <param-value>@YOUR CRUISECONTROL LOG DIRECTORY@</param-value>
       <description> This should be the full path to your CruiseControl log directory. If you
           are in single project mode, this will contain only the logs for your project. If you
           are in multi-project mode, it is expected that you will have multiple sub-directories
@@ -66,7 +66,7 @@
     <context-param>
       <!-- You can set this value via the user.build.status.file property in Ant, when building the WAR file. -->
       <param-name>currentBuildStatusFile</param-name>
-      <param-value>@CURRENT BUILD STATUS FILE@ </param-value>
+      <param-value>@CURRENT BUILD STATUS FILE@</param-value>
       <description>This should be the path to your current build status file, which is relative
           to the log directory (or, in single-project mode, relative to the project's log
           directory)
