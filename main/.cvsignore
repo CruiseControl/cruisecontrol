@@ -1,16 +1,9 @@
-classes
-test-classes
+target
 dist
-test-results
-checkstyle.cache
-checkstyle*.txt
 override.propertiesmyproject.ser
-cruisecontrol.log
-myproject.ser
 notLog.xml
 _*
 cc_coverage*
 clover-results
-logs
 .classpath
 .project
