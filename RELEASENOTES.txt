@@ -4,9 +4,17 @@ build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
 
+BuildQueue
+----------------------
+* Add support for multiple build threads (ThreadQueue). Patch by Jared Richardson
+
 MavenBuilder
 ----------------------
 * Fix for CC-40 where download failures were treated as success. Patch by Tim Shadel
+
+Project
+----------------------
+* Reset ProjectState to IDLE in case of an exception while building. Patch by Will Gwaltney
 
 CruiseControl Release Notes - 2.1.6
 

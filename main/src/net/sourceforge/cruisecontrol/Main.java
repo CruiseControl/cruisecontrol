@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -69,6 +70,8 @@ public class Main {
             CruiseControlController controller = new CruiseControlController();
             String configFileName = parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
             controller.setConfigFile(new File(configFileName));
+            ServerXMLHelper helper = new ServerXMLHelper(new File(configFileName));
+            ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
 
             if (shouldStartController(args)) {
                 CruiseControlControllerAgent agent

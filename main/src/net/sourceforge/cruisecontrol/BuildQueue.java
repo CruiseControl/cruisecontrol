@@ -36,16 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
 import org.apache.log4j.Logger;
 
 import java.util.LinkedList;
 
 /**
  * Provides an independent thread of execution that knows how to
- * build Projects.  Consumes {@link Project} objects from a blocking queue.
- * 
+ * build Projects.  Passes {@link Project} objects to a thread
+ * queue.  The number of worker threads is defined in config.xml
+ *
  * @author Peter Mei <pmei@users.sourceforge.net>
  * @author jfredrick
+ * @author Jared Richardson <jared.richardson@sas.com>
  */
 public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);
@@ -66,13 +69,22 @@ public class BuildQueue implements Runnable {
 
     void serviceQueue() {
         while (!queue.isEmpty()) {
-            Project nextProject = null;
+            Project nextProject;
             synchronized (queue) {
                 nextProject = (Project) queue.remove(0);
             }
             if (nextProject != null) {
-                LOG.info("processing project: " + nextProject.getName());
-                nextProject.execute();
+                LOG.info("now adding to the thread queue: " + nextProject.getName());
+                ProjectWrapper pw = new ProjectWrapper(nextProject);
+                // let's not add the task more than once
+                String name = nextProject.getName();
+                if (ThreadQueue.isActive(name)) {
+                  // it's already there... don't re-add it.
+                  // later, we'll need to add it to a queued up list
+                  // so we don't 'forget' about the new build request
+                } else {
+                  ThreadQueue.addTask(pw);
+                }
             }
         }
     }
@@ -125,7 +137,7 @@ public class BuildQueue implements Runnable {
     }
 
     public boolean isAlive() {
-        return buildQueueThread != null ? buildQueueThread.isAlive() : false;
+        return true;
     }
 
     public boolean isWaiting() {
