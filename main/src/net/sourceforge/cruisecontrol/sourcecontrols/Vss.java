@@ -245,7 +245,12 @@ public class Vss implements SourceControl {
             mod.type = "create";
         } else {
 			mod.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
-			mod.fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
+            int lastSpace = fileLine.lastIndexOf(" ");
+            if ( lastSpace != -1 ) {
+              mod.fileName = fileLine.substring(0, lastSpace);
+            } else {
+              mod.fileName = fileLine;
+            }
 
             if (fileLine.endsWith("added")) {
 				mod.type = "add";
