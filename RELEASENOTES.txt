@@ -57,6 +57,10 @@ cruisecontrol-jsp12.tld
 ----------------------
 * Fix id attribute typo for LinkTag. Patch by Gareth Reakes
 
+CurrentBuildStatusBootstrapper & Publisher
+----------------------
+* Checks parent directory of file exists as part of validation rather than failing later.
+
 EmailPublisher & friends
 ----------------------
 * Uses new EmailMapperHelper to map addresses with EmailMappers (CC-2). Patch by Esa Laine

@@ -36,6 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -45,9 +48,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
     private static final String TEST_DIR = "tmp";
@@ -60,35 +60,41 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
                 file.delete();
             }
         }
+        filesToClear.clear();
     }
 
-    public void testValidate() {
-        CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
+    public void testValidate() throws CruiseControlException {
+        CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
         try {
-            cbsb.validate();
+            bootstrapper.validate();
             fail("'file' should be a required attribute on CurrentBuildStatusBootstrapper");
         } catch (CruiseControlException cce) {
         }
-        cbsb.setFile("somefile");
+
+        bootstrapper.setFile("somefile");
+        bootstrapper.validate();
+
+        bootstrapper.setFile("holycowbatman" + File.separator + "filename");
         try {
-            cbsb.validate();
-        } catch (CruiseControlException e) {
-            fail("CurrentBuildStatusBootstrapper should throw an exception if required attributes are not set");
+            bootstrapper.validate();
+            fail("validate should fail if parent directory doesn't exist");
+        } catch (CruiseControlException cce) {
         }
     }
 
     public void testBootstrap() throws CruiseControlException, IOException {
-        CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
-        cbsb.setFile(TEST_DIR  + File.separator + "_testCurrentBuildStatus.txt");
-        filesToClear.add(new File(TEST_DIR  + File.separator + "_testCurrentBuildStatus.txt"));
+        CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
+        final String fileName = TEST_DIR + File.separator + "_testCurrentBuildStatus.txt";
+        bootstrapper.setFile(fileName);
+        filesToClear.add(new File(fileName));
 
-        cbsb.bootstrap();
+        bootstrapper.bootstrap();
         // This should be equivalent to the date used in bootstrap at seconds precision
         Date date = new Date();
 
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         String expected = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
-        assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
+        assertEquals(expected, readFileToString(fileName));
     }
 
     private String readFileToString(String fileName) throws IOException {
