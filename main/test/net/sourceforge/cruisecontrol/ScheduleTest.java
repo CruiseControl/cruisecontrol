@@ -45,10 +45,13 @@ import java.util.Date;
 import org.jdom.Element;
 
 public class ScheduleTest extends TestCase {
-
     private Schedule schedule;
 
     private static final long ONE_MINUTE = Schedule.ONE_MINUTE;
+    private static final long ONE_HOUR = 60 * ONE_MINUTE;
+    private static final long TWELVE_HOURS = 12 * ONE_HOUR;
+    private static final long ONE_DAY = Schedule.ONE_DAY;
+
 
     private static final Calendar FRIDAY;
     private static final Calendar THURSDAY;
@@ -166,11 +169,8 @@ public class ScheduleTest extends TestCase {
 
     public void testGetTimeToNextBuild() {
         long fiveSeconds = 5 * 1000;
-        long oneHour = 60 * ONE_MINUTE;
-        long elevenHours = 11 * oneHour;
-        long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
-        long twelveHours = 12 * oneHour;
-        long twentyFourHours = 2 * twelveHours;
+        long elevenHours = 11 * ONE_HOUR;
+        long oneHourFiftyNineMinutes = (2 * ONE_HOUR) - ONE_MINUTE;
 
         PauseBuilder pause = new PauseBuilder();
         pause.setStartTime(2300);
@@ -189,17 +189,17 @@ public class ScheduleTest extends TestCase {
 
         assertEquals(
             "next time build is tomorrow",
-            twelveHours - ONE_MINUTE,
-            schedule.getTimeToNextBuild(THURSDAY_1201, twentyFourHours * 2));
+            TWELVE_HOURS - ONE_MINUTE,
+            schedule.getTimeToNextBuild(THURSDAY_1201, ONE_DAY * 2));
 
         assertEquals(
             "wait till after pause",
-            twelveHours - ONE_MINUTE,
+            TWELVE_HOURS - ONE_MINUTE,
             schedule.getTimeToNextBuild(THURSDAY_1201, elevenHours));
 
         assertEquals(
             "wait till after pause we're in",
-            oneHour - ONE_MINUTE,
+            ONE_HOUR - ONE_MINUTE,
             schedule.getTimeToNextBuild(THURSDAY_2301, fiveSeconds));
 
         pause = new PauseBuilder();
@@ -209,12 +209,12 @@ public class ScheduleTest extends TestCase {
 
         assertEquals(
             "wait till after pause on next day",
-            2 * oneHour,
-            schedule.getTimeToNextBuild(THURSDAY_2301, oneHour));
+            2 * ONE_HOUR,
+            schedule.getTimeToNextBuild(THURSDAY_2301, ONE_HOUR));
 
         assertEquals(
             "two back-to-back pauses",
-            2 * oneHour,
+            2 * ONE_HOUR,
             schedule.getTimeToNextBuild(THURSDAY_2301, fiveSeconds));
 
         pause = new PauseBuilder();
@@ -225,21 +225,17 @@ public class ScheduleTest extends TestCase {
 
         assertEquals(
             "chained pauses with day specific pause",
-            twentyFourHours + (2 * oneHour),
-            schedule.getTimeToNextBuild(THURSDAY_2301, oneHour));
+            ONE_DAY + (2 * ONE_HOUR),
+            schedule.getTimeToNextBuild(THURSDAY_2301, ONE_HOUR));
     }
     
     public void testGetTimeToNextBuild_BadSchedule() {
-        long oneHour = 60 * ONE_MINUTE;
-        long twelveHours = 12 * oneHour;
-        long twentyFourHours = 2 * twelveHours;
-
         Schedule badSchedule = new Schedule();
 
         assertEquals(
             "use interval when no builders found",
-            twentyFourHours,
-            badSchedule.getTimeToNextBuild(THURSDAY_1001, twentyFourHours));
+            ONE_DAY,
+            badSchedule.getTimeToNextBuild(THURSDAY_1001, ONE_DAY));
 
         PauseBuilder alwaysPaused = new PauseBuilder();
         alwaysPaused.setStartTime(0000);
@@ -249,20 +245,16 @@ public class ScheduleTest extends TestCase {
         assertEquals(
             "pause doesn't exceed maximum interval",
             Schedule.MAX_INTERVAL_MILLISECONDS,
-            badSchedule.getTimeToNextBuild(THURSDAY_1001, twentyFourHours));
+            badSchedule.getTimeToNextBuild(THURSDAY_1001, ONE_DAY));
     }
     
     public void testGetTimeToNextBuild_DailyBuild() {
-        long oneHour = 60 * ONE_MINUTE;
-        long twelveHours = 12 * oneHour;
-        long twentyFourHours = 2 * twelveHours;
-
         Schedule dailyBuildSchedule = new Schedule();
         dailyBuildSchedule.addBuilder(NOON_BUILDER);
 
         assertEquals(
             "ignore interval when only time builds",
-            oneHour - ONE_MINUTE,
+            ONE_HOUR - ONE_MINUTE,
             dailyBuildSchedule.getTimeToNextBuild(THURSDAY_1101, ONE_MINUTE));
             
         PauseBuilder pause = new PauseBuilder();
@@ -273,8 +265,35 @@ public class ScheduleTest extends TestCase {
 
         assertEquals(
             "pause w/only time builder",
-            (twentyFourHours * 2) - ONE_MINUTE,
+            (ONE_DAY * 2) - ONE_MINUTE,
             dailyBuildSchedule.getTimeToNextBuild(THURSDAY_1201, ONE_MINUTE));
+    }
+
+    public void testGetTimeToNextBuild_WeeklyBuild() {
+        schedule = new Schedule();
+        Builder weeklyBuilder = new MockBuilder();
+        weeklyBuilder.setTime("0100");
+        weeklyBuilder.setDay("Sunday");
+        schedule.addBuilder(weeklyBuilder);
+
+        assertEquals((ONE_DAY * 2) + ONE_HOUR,
+                schedule.getTimeToNextBuild(FRIDAY_0000, ONE_MINUTE));
+    }
+
+    public void testGetTimeToNextBuild_MonthlyBuild() {
+        schedule = new Schedule();
+        Builder monthlyBuilder = new MockBuilder() {
+            private long targetTime = FRIDAY_0000.getTime() + (30 * ONE_DAY);
+            public boolean isValidDay(Date now) {
+                return targetTime <= now.getTime() ? true : false;
+            }
+        };
+        monthlyBuilder.setTime("0000");
+        schedule.addBuilder(monthlyBuilder);
+
+        assertEquals(ONE_DAY * 30,
+                schedule.getTimeToNextBuild(FRIDAY_0000, ONE_MINUTE));
+
     }
 
     public void testInterval() {
