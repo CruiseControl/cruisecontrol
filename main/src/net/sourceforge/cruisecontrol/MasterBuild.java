@@ -40,7 +40,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     private static final String BUILDINFO_FILENAME = "buildcycleinfo";
     private static final String DEFAULT_EMAILMAP = "emailmap.properties";
-
+    private static final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
+    
     //label/modificationset/build participants
     private static String  _label;
     private static String  _labelIncrementerClassName;
@@ -58,7 +59,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     //build properties
     private Properties _properties;
-    private static String _propfilename;
+    private static String _propsFileName;
 
     //xml merge stuff
     private static Vector _auxLogFiles = new Vector();
@@ -97,53 +98,70 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         return true;
     }
     
+    private static boolean processLastBuildArg(String lastBuild) {
+        try {
+            _lastGoodBuildTime = lastBuild;
+            if (!isCompleteTime(_lastGoodBuildTime)) {
+                log("Bad format for last build: " + _lastGoodBuildTime);
+                throw new IllegalArgumentException(
+                 "Bad format for last build: " + _lastGoodBuildTime);
+            }
+            return true;
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            log("The last successful build time must be specified.");
+            throw aioobe;
+        }
+    }
+    
+    private static boolean processLabelArg(String label) {
+        try {
+            _label = label;
+            //(PENDING) check format of label
+            return true;
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            log("The next label must be specified");
+            throw aioobe;
+        }
+    }
+
+    private static boolean processPropertiesArg(String propFile) {
+        try {
+            _propsFileName = propFile;
+            return true;
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            log("The masterbuild properties file must be specified.");
+            throw aioobe;
+        }
+    }
+    
     /**
      * Entry point.  Verifies that all command line arguments are correctly 
      * specified.
      */
+    
+    //(PENDING) Have default values for all arguments
+    // Read build info first, overwrite with user specified, default values catch
+    // the rest.  Add --help/--usage
     public static void main(String[] args) {
-
         MasterBuild mb = new MasterBuild();
         log("***** Starting automated build process *****\n");
+
         boolean lastBuildSpecified = false;
         boolean labelSpecified = false;
         boolean propsSpecified = false;
 
-        for (int i=0; i<args.length - 1; i++) {
-
-            if (args[i].equals("-lastbuild")) {
-                try {
-                    //(PENDING) Check lastGoodBuildTime for correct length
-                    _lastGoodBuildTime = args[i+1];
-                    if (!isCompleteTime(_lastGoodBuildTime)) {
-                        log("Bad format for last build");
-                        mb.usage();
-                    }
-                    lastBuildSpecified = true;
-                } catch (ArrayIndexOutOfBoundsException aioobe) {
-                    log("The last successful build time must be specified.");
-                    mb.usage();
+        for (int i = 0; i < args.length - 1; i++) {
+            try {
+                if (args[i].equals("-lastbuild")) {
+                    lastBuildSpecified = processLastBuildArg(args[i + 1]);
+                } else if (args[i].equals("-label")) {
+                    labelSpecified = processLabelArg(args[i + 1]);
+                } else if (args[i].equals("-properties")) {
+                    propsSpecified = processPropertiesArg(args[i + 1]);
                 }
-            }
-
-            if (args[i].equals("-label")) {
-                try {
-                    _label = args[i+1];
-                    labelSpecified = true;
-                } catch (ArrayIndexOutOfBoundsException aioobe) {
-                    log("The next label must be specified");
-                    mb.usage();
-                }
-            }
-
-            if (args[i].equals("-properties")) {
-                try {
-                    _propfilename = args[i+1];
-                    propsSpecified = true;
-                } catch (ArrayIndexOutOfBoundsException aioobe) {
-                    log("The masterbuild properties file must be specified.");
-                    mb.usage();
-                }
+            } catch (RuntimeException re) {
+                re.printStackTrace();
+                mb.usage();
             }
         }
 
@@ -153,6 +171,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             lastBuildSpecified = (_lastGoodBuildTime != null);
         }
 
+        if (!propsSpecified) {
+            if (new File(DEFAULT_PROPERTIES_FILENAME).exists()) {
+                _propsFileName = DEFAULT_PROPERTIES_FILENAME;
+                propsSpecified = true;
+            }
+        }
+        
         if (lastBuildSpecified && labelSpecified && propsSpecified) {
             mb.execute();
         } else
@@ -205,7 +230,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * properties.
      */
     private void loadProperties() throws Exception {
-        File propFile = new File(_propfilename);
+        File propFile = new File(_propsFileName);
         
         if (!propFile.exists()) {
             throw new FileNotFoundException("Properties file \"" + propFile 
@@ -254,9 +279,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         
         if (_debug || _verbose)
             props.list(System.out);
-        
-System.out.println("Load properties called");
-System.out.println("Debug: " + _debug + ", Verbose: " + _verbose);
     }
 
     /**
