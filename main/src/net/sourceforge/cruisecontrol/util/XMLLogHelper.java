@@ -235,4 +235,8 @@ public class XMLLogHelper {
         }
         return results;
     }
+
+    public boolean isBuildFix() throws CruiseControlException {
+        return !this.wasPreviousBuildSuccessful() && this.isBuildSuccessful();
+    }
 }

@@ -141,8 +141,11 @@ public abstract class EmailPublisher implements Publisher {
                 subjectLine.append(" ");
                 subjectLine.append(logHelper.getLabel());
             }
-            if (reportSuccess.equalsIgnoreCase("fixes")
-                && !logHelper.wasPreviousBuildSuccessful()) {
+
+            //Anytime the build is "fixed" the subjest line
+            //  should read "fixed". It might confuse recipients...but
+            //  it shouldn't
+            if (logHelper.isBuildFix()) {
                 subjectLine.append(" Build Fixed");
                 return subjectLine.toString();
             } else {
@@ -203,7 +206,9 @@ public abstract class EmailPublisher implements Publisher {
      * @return comma delimited <code>String</code> of email addresses to
      * receive the email message.
      */
-    protected String createUserList(XMLLogHelper logHelper) {
+    protected String createUserList(XMLLogHelper logHelper)
+            throws CruiseControlException {
+
         Set users = logHelper.getBuildParticipants();
         if (skipUsers) {
             users = new HashSet();
@@ -218,6 +223,14 @@ public abstract class EmailPublisher implements Publisher {
         if (!logHelper.isBuildSuccessful()) {
             for (int i = 0; i < failureAddresses.length; i++) {
                 users.add(failureAddresses[i].getAddress());
+            }
+        }
+        //If build fixed, add failure addresses that want to know about the fix
+        if (logHelper.isBuildFix()) {
+             for (int i = 0; i < failureAddresses.length; i++) {
+                 if (failureAddresses[i].shouldReportWhenFixed()) {
+                    users.add(failureAddresses[i].getAddress());
+                 }
             }
         }
 
@@ -347,7 +360,7 @@ public abstract class EmailPublisher implements Publisher {
     /**
      * Subclasses can override this method to control how the content
      * is added to the Message.
-     * 
+     *
      * @param content content returned by createMessage
      * @param msg mail Message with headers and addresses added elsewhere
      * @throws MessagingException
@@ -517,6 +530,19 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     public class Failure extends Address {
+        /**
+         * Set to true to send an email to this "address" when the build gets
+         * fixed.
+         */
+        private boolean reportWhenFixed = false;
+
+        public boolean shouldReportWhenFixed() {
+            return reportWhenFixed;
+        }
+
+        public void setReportWhenFixed(boolean reportWhenFixed) {
+            this.reportWhenFixed = reportWhenFixed;
+        }
     }
 
     public class Success extends Address {

@@ -126,7 +126,7 @@
          &lt;email mailhost="" returnaddress="" buildresultsurl=""
                reportsuccess="" spamwhilebroken="" defaultsuffix=""&gt;
             &lt;always address=""/&gt;
-            &lt;failure address=""/&gt;
+            &lt;failure address="" reportWhenFixed="true"/&gt;
             &lt;map alias="" address=""/&gt;
          &lt;/email&gt;
       &lt;/publishers&gt;
@@ -1165,8 +1165,43 @@
          </table>
 
 <ul>
-         <p><span class="small">always/failure/success</span><br/>
-	 All forms of the EmailPublisher allow always, failure, and success sub-elements.  These identify e-mail addresses that should always be sent mail or sent mail only on failed builds or sent mail only on successful builds.</p>
+         <p><span class="small">always</span><br/>
+	 All forms of the EmailPublisher allow always sub-elements.  These identify e-mail addresses that should always be sent mail upon build completion, both successful and failures.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">address</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">e-mail address</td>
+            </tr>
+         </table>
+
+         <p><span class="small">failure</span><br/>
+	 All forms of the EmailPublisher allow failure sub-elements.  These identify e-mail addresses that should be sent mail only on failed builds, and optionally on fixed builds depending on the value for the reportWhenFixed attribute.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">address</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">e-mail address</td>
+            </tr>
+            <tr>
+               <td class="tabledata">reportWhenFixed</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">either true or false; defaults to false</td>
+            </tr>
+         </table>
+
+         <p><span class="small">success</span><br/>
+	 All forms of the EmailPublisher allow success sub-elements.  These identify e-mail addresses that should be sent mail only on successful builds.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
