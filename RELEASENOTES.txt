@@ -34,6 +34,7 @@ VSS
 ----------------------
 * Fix parsing when label is in the entry.  Patches by Jeffrey Fredrick.
 * Improved logging messages. Patch by Jeffrey Fredrick.
+* Fix so that timeFormat is used. Patch by hammett
 
 ClearCase
 ----------------------
