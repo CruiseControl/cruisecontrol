@@ -172,10 +172,10 @@ public class UpgraderTest extends TestCase {
     }
 
     public void testFindModificationSet() throws Exception {
-        String xml = "<project><taskdef name=\"modset\" classname=\"net.sourceforge.cruisecontrol.ModificationSet\"/><target><modset quietperiod=\"15\"><element att1=\"value1\" /></modset></target></project>";
-        String xml2 = "<project><target><taskdef name=\"modset\" classname=\"net.sourceforge.cruisecontrol.ModificationSet\"/><modset quietperiod=\"15\"><element att1=\"value1\" /></modset></target></project>";
+        String xml = "<project><taskdef name=\"modset\" classname=\"net.sourceforge.cruisecontrol.ModificationSet\"/><target><modset quietperiod=\"15\"><vsselement att1=\"value1\" /></modset></target></project>";
+        String xml2 = "<project><target><taskdef name=\"modset\" classname=\"net.sourceforge.cruisecontrol.ModificationSet\"/><modset quietperiod=\"15\"><vsselement att1=\"value1\" /></modset></target></project>";
         String xml3 = "<project><target></target></project>";
-        String modset = "<modset quietperiod=\"15\"><element att1=\"value1\" /></modset>";
+        String modset = "<modset quietperiod=\"15\"><vsselement att1=\"value1\" /></modset>";
 
         //get xml string to element
         Element buildFileElement = null;
@@ -201,6 +201,22 @@ public class UpgraderTest extends TestCase {
             // expected behavior
             assertEquals("Could not find a modification set.", e.getMessage());
         }
+    }
+
+    public void testCreateModificationSet() throws Exception {
+        String oldModSet = "<modset lastbuild=\"\" quietperiod=\"15\"><starteamelement att1=\"value1\" /></modset>";
+        String newModSet = "<modificationset quietperiod=\"15\"><starteam att1=\"value1\" /></modificationset>";
+
+        String oldModSetVss = "<modset lastbuild=\"\" quietperiod=\"15\"><vsselement ssdir=\"value1\" /></modset>";
+        String newModSetVss = "<modificationset quietperiod=\"15\"><vss vsspath=\"value1\" /></modificationset>";
+        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        Element modSetElement = builder.build(new StringReader(oldModSet)).getRootElement();
+        Element modSetElementVss = builder.build(new StringReader(oldModSetVss)).getRootElement();
+
+        Upgrader upgrader = new Upgrader();
+
+        assertEquals(newModSet, upgrader.createModificationSet(modSetElement));
+        assertEquals(newModSetVss, upgrader.createModificationSet(modSetElementVss));
     }
 
     public void testExecute() throws Exception {

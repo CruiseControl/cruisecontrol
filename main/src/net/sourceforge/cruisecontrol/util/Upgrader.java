@@ -10,6 +10,7 @@ import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrappe
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Attribute;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
@@ -170,10 +171,40 @@ public class Upgrader {
      *  Creates the xml for the modificationset.
      */
     public String createModificationSet(Element modificationSetElement) {
-        modificationSetElement.removeAttribute("lastbuild");
+        Element outputModSetElement = new Element("modificationset");
+        Iterator attributeIterator = modificationSetElement.getAttributes().iterator();
+        while(attributeIterator.hasNext()) {
+            Attribute attribute = (Attribute) attributeIterator.next();
+            if(!attribute.getName().equalsIgnoreCase("lastbuild")) {
+                outputModSetElement.setAttribute(attribute.getName(), attribute.getValue());
+            }
+        }
+
+        Iterator elementIterator = modificationSetElement.getChildren().iterator();
+        while(elementIterator.hasNext()) {
+            Element childElement = (Element) elementIterator.next();
+            if(childElement.getName().equalsIgnoreCase("vsselement")) {
+                Iterator vssAttributeIterator = childElement.getAttributes().iterator();
+                while(vssAttributeIterator.hasNext()) {
+                    Attribute attribute = (Attribute) vssAttributeIterator.next();
+                    if(attribute.getName().equalsIgnoreCase("ssdir")) {
+                        childElement.removeAttribute("ssdir");
+                        childElement.setAttribute("vsspath", attribute.getValue());
+                    }
+                }
+            }
+            //correct vss naming scheme
+
+            if(childElement.getName().endsWith("element")) {
+                String newName = childElement.getName().substring(0, childElement.getName().indexOf("element"));
+                childElement.setName(newName);
+            }
+            outputModSetElement.addContent(childElement.detach());
+        }
+
         XMLOutputter outputter = new XMLOutputter("", false);
         outputter.setTextNormalize(true);
-        return outputter.outputString(modificationSetElement);
+        return outputter.outputString(outputModSetElement);
     }
 
     public String createEmailMap(Properties emailmap) {
