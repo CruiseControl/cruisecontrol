@@ -115,6 +115,10 @@ TabSheetTag
 ----------------------
 * changed to not use images for tabs. should make it easier to add new tabs.
 
+XSLTLogPublisher
+----------------------
+* New publisher implementation to publish build results to an arbitrary output file. Obvious use is to generate web pages from the log, but could be another format as well. Contributed by David Cole
+
 CruiseControl Release Notes - 2.1.4
 
 AntBuilder

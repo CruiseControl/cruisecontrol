@@ -64,12 +64,10 @@ public class PluginRegistryTest extends TestCase {
                 "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
         registry.register("foo", nonExistentClassname);
         try {
-
             registry.getPluginClass("foo");
             fail("Expected an exception when getting a plugin"
                     + " class that isn't loadable.");
-        } catch (CruiseControlException e) {
-            //Good, expected this exception
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -153,6 +151,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("schedule", "net.sourceforge.cruisecontrol.Schedule");
         verifyPluginClass("buildstatus", "net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus");
         verifyPluginClass("clearcasebootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper");
+        verifyPluginClass("xsltlogpublisher", "net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher");
     }
 
     private void verifyPluginClass(String pluginName, String expectedName)
