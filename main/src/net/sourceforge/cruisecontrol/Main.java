@@ -237,7 +237,7 @@ public class Main {
                 + serializedProjectFile.getAbsolutePath());
         if (!serializedProjectFile.exists()
                 || !serializedProjectFile.canRead()) {
-            log.warn("Cannot read serialized project: "
+            log.warn("No previously serialized project found: "
                     + serializedProjectFile.getAbsolutePath());
         } else {
             try {
