@@ -435,4 +435,25 @@ public class AntBuilderTest extends TestCase {
         return initFoundCount;
     }
 
+    public void testBuildTimeout() throws Exception {
+        builder.setBuildFile("build.xml");
+        builder.setTarget("timeout-test-target");
+        builder.setTimeout(5);
+        builder.setUseDebug(true);
+        builder.setUseLogger(true);
+
+        HashMap buildProperties = new HashMap();
+        long startTime = System.currentTimeMillis();
+        Element buildElement = builder.build(buildProperties);
+        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+
+        // test we don't fail when there is no ant log file
+        builder.setTimeout(1);
+        builder.setUseDebug(false);
+        builder.setUseLogger(false);
+        builder.setTempFile("shouldNot.xml");
+        buildElement = builder.build(buildProperties);
+        assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+    }
 }

@@ -819,6 +819,11 @@
                <td class="tabledata">Will invoke ant in the specified directory.</td>
             </tr>
             <tr>
+               <td class="tabledata">timeout</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Ant build will be halted if it continues longer than the specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
                <td class="tabledata">uselogger</td>
                <td class="tabledata">No</td>
                <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger; 'false' to call it as a Listener. Logger will log messages based on log4j setting which can make for smaller log files. Listener will echo ant messages to console which is useful when debugging your ant build. Defaults to 'false'</td>
