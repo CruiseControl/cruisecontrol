@@ -412,11 +412,11 @@ public class Project implements Serializable, Runnable {
     public void serializeProject() {
         try {
             ObjectOutputStream s =
-                new ObjectOutputStream(new FileOutputStream(name));
+                new ObjectOutputStream(new FileOutputStream(name + ".ser"));
             s.writeObject(this);
             s.flush();
             s.close();
-            debug("Serializing project to [" + name + "]");
+            debug("Serializing project to [" + name + ".ser]");
         } catch (Exception e) {
             e.printStackTrace();
         }
