@@ -35,27 +35,31 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
+<!--********************************************************************************
+ * Updated April 17, 2003 by Jean Czerlinski
+ * to use stcheckout instead of the outdated antstarteamcheckout.
+ ********************************************************************************-->
+ 
 <project name="HelloWorld" basedir="." default="all">
 
-    <property name="build.compiler" value="jikes"/>
-    <property name="build.compiler.emacs" value="true"/>
     <property name="build.dir" value="classes"/>
     <property name="dist.dir" value="dist"/>
     <property name="logdir" value="logs"/>
     <property name="source.dir" value="src"/>
-    <property name="junit.results" value="test-results"/>
-
-    <property name="starteam.folder" value="src" />
-    <property name="starteam.server" value="REPLACE WITH STARTEAM SERVER IP ADDRESS" />
-    <property name="starteam.port" value="REPLACE WITH STARTEAM SERVER PORT #" />
-    <property name="starteam.project" value="REPLACE WITH PROJECT NAME" />
-    <property name="starteam.view" value="REPLACE WITH VIEW NAME" />
-    <property name="starteam.url" 
-     value="${starteam.server}:${starteam.port}/${starteam.project}/${starteam.view}" />
-    <property name="starteam.user" value="REPLACE WITH STARTEAM USER NAME" />
-    <property name="starteam.passwd" value="REPLACE WITH STARTEAM PASSWORD" />
+    <property name="junit.results" value="test-results"/>   
     
-    <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
+    <property name="starteam.folder" value="REPLACE" />
+    <property name="starteam.server" value="REPLACE" />
+    <property name="starteam.serverport" value="REPLACE" />
+    <property name="starteam.project" value="REPLACE" />
+    <property name="starteam.view" value="REPLACE" />
+    <property name="starteam.url" 
+     value="${starteam.server}:${starteam.serverport}/${starteam.project}/${starteam.view}" />
+    <property name="starteam.user" value="REPLACE" />
+    <property name="starteam.passwd" value="REPLACE" />
+        
+    <property name="ccdir" value="REPLACE"/>
+    
 
     <target name="init" description="Prepare for build">
         <mkdir dir="${build.dir}"/>
@@ -97,18 +101,24 @@
     
     <target name="all" depends="init,clean,compile,test,jar" description="Build application"/>
 
-        <target name="cleansrc">
-            <delete dir="${source.dir}"/>
-            <mkdir dir="${source.dir}"/>
-        </target>
+    <target name="cleansrc">
+        <delete dir="${source.dir}"/>
+        <mkdir dir="${source.dir}"/>
+    </target>
+    
 
     <target name="checkout" depends="cleansrc, init">
-        <!-- Note the Ant optional task AntStarTeamCheckOut does not synchronize with the repository
-         so you need to set a depends agains clean as well-->
-        <antstarteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
-                 foldername="${starteam.folder}" targetfolder="${starteam.folder}" force="true" 
-                 recursion="true" projectname="${starteam.project}" viewname="${starteam.view}" 
-                 servername="${starteam.server}" serverport="${starteam.port}" verbose="true"/>
+    	<!-- stcheckout uses optional.jar and starteam-sdk.jar.
+    	     Both must be in your ant lib.
+    	     optional.jar is part of the Ant distribution.
+    	     starteam-sdk.jar is part of the StarTeam distribution.
+    	-->
+        <!-- To ensure synchronization with the repository
+             we set a depends on cleansrc as well-->
+        <stcheckout username="${starteam.user}" password="${starteam.passwd}" 
+                 rootstarteamfolder="${starteam.folder}" rootlocalfolder="${starteam.folder}" forced="true" 
+                 recursive="true" projectname="${starteam.project}" viewname="${starteam.view}" 
+                 servername="${starteam.server}" serverport="${starteam.serverport}"/>
    	</target>
 
     <target name="masterbuild" depends="checkout,compile,test,jar"
