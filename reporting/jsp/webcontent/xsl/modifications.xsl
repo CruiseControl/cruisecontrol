@@ -40,6 +40,7 @@
 
     <xsl:output method="html"/>
     <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
+    <xsl:variable name="urlroot" select='"/cruisecontrol/buildresults/"'/>
 
     <xsl:template match="/" mode="modifications">
         <table align="center" cellpadding="2" cellspacing="1" border="0" width="98%">
@@ -165,6 +166,40 @@
                     <xsl:value-of select="system-property('file.separator')"/>
                 </xsl:if>
                 <xsl:value-of select="file/filename"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
+        </tr>
+    </xsl:template>
+
+    <xsl:template match="modification[file][@type='buildstatus']" mode="modifications">
+        <tr>
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
+            </xsl:if>
+
+            <td class="modifications-data">
+                <xsl:value-of select="file/@action"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:if test="file/project">
+                    <xsl:value-of select="file/project"/>
+                    <xsl:value-of select="system-property('file.separator')"/>
+                </xsl:if>
+                <xsl:for-each select="file/filename">
+                        <xsl:variable name="thefile" select="substring(current(),1,string-length(current())-4)"/>
+                        <xsl:variable name="theproject" select="../../comment"/>
+                        <a href="{$urlroot}{$theproject}?log={$thefile}">
+                                <xsl:copy-of select="$thefile"/>
+                        </a>
+                </xsl:for-each>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="comment"/>

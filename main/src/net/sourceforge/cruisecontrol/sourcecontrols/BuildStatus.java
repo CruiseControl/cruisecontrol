@@ -50,6 +50,13 @@ import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Log;
 
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.jdom.input.SAXBuilder;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import java.io.IOException;
+
 /**
  * This class allows for starting builds based on the results of another
  * build.  It does this by examining the build's log files.  Only
@@ -158,8 +165,8 @@ public class BuildStatus implements SourceControl {
                 String name = newLogs[i].getName();
 
                 modification.modifiedTime = Log.parseDateFromLogFileName(name);
-                modification.userName = "CruiseControl";
-                modification.comment = "New build";
+                modification.userName = "cc-" + getProjectFromLog(newLogs[i]);
+                modification.comment = logDir.substring(logDir.lastIndexOf('/') + 1);
                 modification.revision = Log.parseLabelFromLogFileName(name);
 
                 Modification.ModifiedFile modfile = modification.createModifiedFile(name, null);
@@ -186,4 +193,28 @@ public class BuildStatus implements SourceControl {
         }
         return modifications;
     }
+
+    private String getProjectFromLog(File f) {
+        System.out.println("Getting project from file: " + f.getName());
+        try {
+            Document doc = readDocFromFile(f);
+            LOG.info("Loaded xml document for BuildStatus");
+            Element root = doc.getRootElement();
+            XMLLogHelper log = new XMLLogHelper(root);
+        return log.getProjectName();
+        } catch (JDOMException ex) {
+            LOG.info("Failed to load BuildStatus xml document" + ex);
+        } catch (IOException ex) {
+            LOG.info("Failed to load BuildStatus xml document" + ex);
+        } catch (CruiseControlException ex) {
+            LOG.info("Could load BuildStstus xml log document, but generated exception anyway" + ex);
+        }
+        return "Unknown";
+    }
+
+    private Document readDocFromFile(File f) throws JDOMException, IOException {
+        SAXBuilder sxb = new SAXBuilder();
+        return sxb.build(f);
+    }
 }
+

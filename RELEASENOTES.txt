@@ -25,6 +25,10 @@ buildresults.xsl:
 ----------------------
 * Added consolidated xsl to make transform more efficent (CC-115). Patch by Alban Peignier with updates by Hack Kampbjorn
 
+BuildStatus:
+----------------------
+* Modifications reported for BuildStatus will now be clickable and default username will now be "cc-" followed by the project name. Patch by Peter Buckner
+
 contrib:
 ----------------------
 * added build.xml for XmlLoggerWithStatus, minor change to readme. Patch by Brad Clarke

@@ -1474,7 +1474,15 @@
         </div>
 
         <p>Used to trigger a build when another CruiseControl project has a
-        successful build.</p>
+        successful build. When triggered, this will report a modification
+        with action "add", the successfully built project's logfile, the 
+        name of the successfully built project's log directory (the final
+        component of attribute logdir), and the username set to "cc-" +
+        name of the successfully built project. You may need make an
+        alias for this username if you are using an <a href="#email">&lt;email&gt;</a>
+        publisher.
+        
+        </p>
 
         <h3>Attributes</h3>
 
