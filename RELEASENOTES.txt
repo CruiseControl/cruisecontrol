@@ -38,6 +38,10 @@ log4j.properties
 * Added more information into the console log including the timestamp - Patch by Mark Richters
 * Added a rotating file log - Patch by Mark Richters
 
+Project
+----------------------
+* Fixed a bug causing NPE when using a serialized project file from releases prior to 2.1
+
 ProjectXMLHelper
 ----------------------
 * Fixed a bug where if the log element existed dir was a required attribute

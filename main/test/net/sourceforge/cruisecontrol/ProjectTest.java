@@ -42,6 +42,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -75,6 +76,8 @@ public class ProjectTest extends TestCase {
     }
 
     public void tearDown() {
+        project = null;
+        
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
             File file = (File) iterator.next();
             deleteFile(file);
@@ -96,10 +99,10 @@ public class ProjectTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-//        assertEquals(
-//            "Default value of config file doesn't match",
-//            "config.xml",
-//            project.getConfigFile());
+        //        assertEquals(
+        //            "Default value of config file doesn't match",
+        //            "config.xml",
+        //            project.getConfigFile());
 
         Date now = new Date();
         MockModificationSet modSet = new MockModificationSet();
@@ -148,18 +151,13 @@ public class ProjectTest extends TestCase {
                 + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
                 + "/></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
-        assertEquals(
-            "Didn't increment the label",
-            "1.2.3",
-            project.getLabel().intern());
+        assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
         assertEquals("Should be 4 build properties.", 4, props.size());
-        assertTrue(
-            "filemodified not found.",
-            props.containsKey("filemodified"));
+        assertTrue("filemodified not found.", props.containsKey("filemodified"));
         assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
     }
 
@@ -194,6 +192,20 @@ public class ProjectTest extends TestCase {
             fail("Expected a CruiseControlException for a bad last build");
         } catch (CruiseControlException e) {
         }
+    }
+
+    public void testGetMidnight() {
+        Calendar midnight = Calendar.getInstance();
+        midnight.set(Calendar.HOUR, 0);
+        midnight.set(Calendar.MINUTE, 0);
+        midnight.set(Calendar.SECOND, 0);
+        midnight.set(Calendar.MILLISECOND, 0);
+        Date midnightToday = midnight.getTime();
+        assertEquals(midnightToday, Project.getMidnight());
+    }
+
+    public void testGetFormattedTime() {
+        assertNull(Project.getFormatedTime(null));
     }
 
     public void testGetModifications() throws CruiseControlException {
@@ -250,25 +262,19 @@ public class ProjectTest extends TestCase {
         int firstLoopCount = mockProject.getLoopCount();
         Thread.sleep(100);
         int secondLoopCount = mockProject.getLoopCount();
-        assertTrue(
-            "loop counts are different when not paused",
-            firstLoopCount != secondLoopCount);
+        assertTrue("loop counts are different when not paused", firstLoopCount != secondLoopCount);
 
         mockProject.setPaused(true);
         Thread.sleep(100);
         firstLoopCount = mockProject.getLoopCount();
         Thread.sleep(100);
         secondLoopCount = mockProject.getLoopCount();
-        assertTrue(
-            "loop counts are the same when paused",
-            firstLoopCount == secondLoopCount);
+        assertTrue("loop counts are the same when paused", firstLoopCount == secondLoopCount);
 
         mockProject.setPaused(false);
         Thread.sleep(100);
         int lastLoopCount = mockProject.getLoopCount();
-        assertTrue(
-            "loop count increased after pause ended",
-            lastLoopCount > secondLoopCount);
+        assertTrue("loop count increased after pause ended", lastLoopCount > secondLoopCount);
 
         mockProject.stopLooping();
     }
@@ -362,8 +368,7 @@ public class ProjectTest extends TestCase {
         return result.toString();
     }
 
-    private void writeFile(String fileName, String contents)
-        throws IOException {
+    private void writeFile(String fileName, String contents) throws IOException {
 
         File theFile = new File(fileName);
         filesToClear.add(theFile);
