@@ -54,9 +54,9 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     private static final Logger LOG =
         Logger.getLogger(DefaultLabelIncrementer.class);
 
-    private boolean preIncrement = false;
+    private static boolean preIncrement = false;
 
-    private String separator = ".";
+    private static String separator = ".";
 
     /**
      * Increments the label when a successful build occurs.
@@ -88,8 +88,8 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     /**
      *  Set the pre/post behavior of the label incrementer.
      */
-    public void setPreBuildIncrementer(boolean preIncrement) {
-        this.preIncrement = preIncrement;
+    public void setPreBuildIncrementer(boolean preInc) {
+        preIncrement = preInc;
     }
 
     /**
