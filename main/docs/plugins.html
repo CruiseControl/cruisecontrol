@@ -1,155 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-   <title>CruiseControl Home</title>
-   <style type="text/css">
-      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
-      .header { font-size:12pt; font-weight:bold; }
-      pre { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
-      .tableheader { font-size:8pt; font-weight:bold; color:#FFFFFF; background-color:#000033; }
-   </style>
+   <title>CruiseControl Plugins</title>
+   <link href="../../docs/cruisecontrol.css" type="text/css" rel="stylesheet"/>
 </head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+    </div>
+    <img alt="CruiseControl" src="banner.gif"/>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><a href="../../docs/index.html">home</a></li>
+            <li><a href="../../docs/download.html">download</a></li>
+            <li><h2>documentation</h2>
+                <ul>
+                    <li><a href="index.html">build loop</a>
+                        <ul>
+                            <li><a href="install.html">install</a></li>
+                            <li><p id="menuselected">plugins</p></li>
+                        </ul>
+                    </li>
+                    <li><a href="../../reporting/jsp/docs/index.html">results jsp</a></li>
+                    <li><a href="configxml.html">config</a></li>
+                    <li><a href="../../docs/faq.html">faq</a></li>
+                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                </ul>
+            </li>
+            <li><h2>contributing</h2>
+                <ul>
+                    <li><a href="../../docs/developers.html">developers</a></li>
+                    <li><a href="../../docs/contact.html">mailing lists</a></li>
+                    <li><a href="../../docs/cvs.html">cvs repository</a></li>
+                </ul>
+            </li>
+            <li><p id="menubottom">&nbsp;</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Plugins</h1>
+        
+        <p>
+        It's tough to imagine all of the ways that CruiseControl can be used.  Different tools and subtle nuances in
+        team style make it difficult to code a "one-size-fits-all" solution.  As a result, CruiseControl has been
+        designed as a small core with a very high-level implementation of continuous integration, with most of the
+        implementation details delegated to plugins.  This makes it easy to create new functionality, modify existing functionality,
+        or remove unwanted functionality.  Plugins also create a shallower learning curve when digging in the codebase,
+        as you can be assured that all of the cvs functionality, for example, exists in one place.  Encapsulating all
+        of the functionality into plugins also makes testing easier.
+        </p><p>
+        There are currently five different types of plugins that CruiseControl supports:  <code>Bootstrapper</code>,
+        <code>SourceControl</code>, <code>Builder</code>, <code>LabelIncrementer</code>, and <code>Publisher</code>.
+        Each has a slightly different role, but all are designed similarly.  Bootstrappers are designed to be run before
+        the build.  The SourceControl implementations will poll a code repository and determine if anything has changed
+        within your project that would require another build.  Builders will actually perform the building and testing of
+        your code.  LabelIncrementers will handle incrementing the label for you to use to tag your source.  Publishers will
+        then publish the results of your build, via email for example.  While they all implement different interfaces and
+        have slightly different method names, we will refer to them collectively as plugins when discussing their similarities.
+        </p>
 
+        <h2>Plugin Initialization</h2>
+        <p>
+        The <code>PluginXMLHelper</code> will use introspection to call setter methods that correspond to attributes on your xml tag
+        in the config file.  For example, the method <code>setTarget(String target)</code> on the <code>AntBuilder</code>
+        class corresponds to the attribute <code>target</code> on the <code>&lt;ant/&gt;</code> element in the config
+        file.  The parser is case insensitive, so the case need not match from your attributes to your method names, so the
+        standard capitalization rules should apply.
+        </p><p>
+        It is possible for you to declare nested elements within your plugin's declaration in the config file.  In this case,
+        CruiseControl will expect your plugin class to implement a create method for each nested element.  Returning to our
+        example <code>AntBuilder</code> class, we will see a <code>createJVMArg()</code> method.  We'll also see that
+        <code>AntBuilder</code> has a nested JVMArg class.  This create method is responsible for creating an instance of
+        <code>JVMArg</code> and keeping a reference to that object for <code>AntBuilder</code> to use later.  It returns a
+        reference to the newly created <code>JVMArg</code> object, so that <code>PluginXMLHelper</code> can configure the
+        nested element in the same way as the parent element.  In theory, there is no limit to the depth of your nesting, as
+        long as the appropriate create methods have been written.
+        </p><p>
+        Immediately after the parser has configured your plugin, we will validate the plugin using it's own <code>validate()</code>
+        method.  This will enable us to fail quickly if your plugin has been incorrectly configured, saving you the time of
+        waiting for your plugin to execute to determine whether your CruiseControl installation has been successful.
+        </p>
 
-<body class="body" leftmargin="0" topmargin="0">
+        <h2>Plugin Execution</h2>
+        <p>
+        After we have configured and validated all of the plugins, we will begin executing them according to their type.
+        Each plugin has an "action" method that is the one method that CruiseControl will call when executing your plugin.
+        Let's take the example of the bootstrappers.  At the beginning of the build cycle, the first thing that we need to
+        do is to run the bootstrappers.  We've already initialized and validated each of these, so now we will just call
+        the <code>bootstrap()</code> method as we iterate over the list of registered bootstrappers.  It's fairly similar
+        for each of the other types of plugins.
+        </p>
 
-<table width="100%" cellpadding="0" cellspacing="0">
-   <tr>
-      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
-      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   <tr>
-</table>
+        <h2>Plugin Registration</h2>
+        <p>
+        The registration of plugins is a simple and straightforward task.  Within a &lt;project&gt; element, simply add
+        a &lt;plugin name="" classname=""/&gt; element, where the name corresponds to the name you wish to use within
+        the config file, and the classname corresponds to the actual plugin Java class.
+        </p><p>
+        In the interest of keeping config file sizes to a minimum, all plugins that ship with CruiseControl will be
+        automatically registered.  Should you wish to use one of the registered plugin names with your own custom
+        plugin class, you can just explicitly register the plugin name and that will override the default registration.
+        </p><p>
+        The following tables outlines the default plugin registry:
+        </p>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-   <tr>
-      <td valign="top" width="80">
-         <img src="menutop.gif" border="0"><br>
-         <a href="index.html"><img src="menubuildloop.gif" border="0"></a><br>
-         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
-         <img src="menublank.gif" border="0"><br>
-         <a href="../../docs/index.html"><img src="menuhome.gif" border="0"></a><br>
-         <img src="menubottom.gif" border="0">
-      </td>
-      <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%"><tr><td>
-         <!-- content begins here -->
-
-   <span class="header">Plugins</span>
-   <p>
-   It's tough to imagine all of the ways that CruiseControl can be used.  Different tools and subtle nuances in
-   team style make it difficult to code a "one-size-fits-all" solution.  As a result, CruiseControl has been
-   designed as a small core with a very high-level implementation of continuous integration, with most of the
-   implementation details delegated to plugins.  This makes it easy to create new functionality, modify existing functionality,
-   or remove unwanted functionality.  Plugins also create a shallower learning curve when digging in the codebase,
-   as you can be assured that all of the cvs functionality, for example, exists in one place.  Encapsulating all
-   of the functionality into plugins also makes testing easier.
-   </p><p>
-   There are currently five different types of plugins that CruiseControl supports:  <code>Bootstrapper</code>,
-   <code>SourceControl</code>, <code>Builder</code>, <code>LabelIncrementer</code>, and <code>Publisher</code>.
-   Each has a slightly different role, but all are designed similarly.  Bootstrappers are designed to be run before
-   the build.  The SourceControl implementations will poll a code repository and determine if anything has changed
-   within your project that would require another build.  Builders will actually perform the building and testing of
-   your code.  LabelIncrementers will handle incrementing the label for you to use to tag your source.  Publishers will
-   then publish the results of your build, via email for example.  While they all implement different interfaces and
-   have slightly different method names, we will refer to them collectively as plugins when discussing their similarities.
-   </p>
-
-   <span class="small">Plugin Initialization</span>
-   <p>
-   The <code>PluginXMLHelper</code> will use introspection to call setter methods that correspond to attributes on your xml tag
-   in the config file.  For example, the method <code>setTarget(String target)</code> on the <code>AntBuilder</code>
-   class corresponds to the attribute <code>target</code> on the <code>&lt;ant/&gt;</code> element in the config
-   file.  The parser is case insensitive, so the case need not match from your attributes to your method names, so the
-   standard capitalization rules should apply.
-   </p><p>
-   It is possible for you to declare nested elements within your plugin's declaration in the config file.  In this case,
-   CruiseControl will expect your plugin class to implement a create method for each nested element.  Returning to our
-   example <code>AntBuilder</code> class, we will see a <code>createJVMArg()</code> method.  We'll also see that
-   <code>AntBuilder</code> has a nested JVMArg class.  This create method is responsible for creating an instance of
-   <code>JVMArg</code> and keeping a reference to that object for <code>AntBuilder</code> to use later.  It returns a
-   reference to the newly created <code>JVMArg</code> object, so that <code>PluginXMLHelper</code> can configure the
-   nested element in the same way as the parent element.  In theory, there is no limit to the depth of your nesting, as
-   long as the appropriate create methods have been written.
-   </p><p>
-   Immediately after the parser has configured your plugin, we will validate the plugin using it's own <code>validate()</code>
-   method.  This will enable us to fail quickly if your plugin has been incorrectly configured, saving you the time of
-   waiting for your plugin to execute to determine whether your CruiseControl installation has been successful.
-   </p>
-
-   <span class="small">Plugin Execution</span>
-   <p>
-   After we have configured and validated all of the plugins, we will begin executing them according to their type.
-   Each plugin has an "action" method that is the one method that CruiseControl will call when executing your plugin.
-   Let's take the example of the bootstrappers.  At the beginning of the build cycle, the first thing that we need to
-   do is to run the bootstrappers.  We've already initialized and validated each of these, so now we will just call
-   the <code>bootstrap()</code> method as we iterate over the list of registered bootstrappers.  It's fairly similar
-   for each of the other types of plugins.
-   </p>
-
-   <span class="small">Plugin Registration</span>
-   <p>
-   The registration of plugins is a simple and straightforward task.  Within a &lt;project&gt; element, simply add
-   a &lt;plugin name="" classname=""/&gt; element, where the name corresponds to the name you wish to use within
-   the config file, and the classname corresponds to the actual plugin Java class.
-   </p><p>
-   In the interest of keeping config file sizes to a minimum, all plugins that ship with CruiseControl will be
-   automatically registered.  Should you wish to use one of the registered plugin names with your own custom
-   plugin class, you can just explicitly register the plugin name and that will override the default registration.
-   </p><p>
-   The following tables outlines the default plugin registry:
-   </p>
-
-   <table>
-
-      <tr><td class="tableheader" colspan="3">Bootstrappers</td></tr>
-      <tr><td rowspan="6" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
-      <tr><td>currentbuildstatusbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</td></tr>
-      <tr><td>cvsbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</td></tr>
-      <tr><td>p4bootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</td></tr>
-      <tr><td>svnbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper</td></tr>
-      <tr><td>vssbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</td></tr>
-      
-      <tr><td>&nbsp;</td></tr>
-      <tr><td class="tableheader" colspan="3">Builders</td></tr>
-      <tr><td rowspan="3" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
-      <tr><td>ant</td><td>net.sourceforge.cruisecontrol.builders.AntBuilder</td></tr>
-      
-      <tr><td>&nbsp;</td></tr>
-      <tr><td class="tableheader" colspan="3">Label Incrementers</td></tr>
-      <tr><td rowspan="3" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
-      <tr><td>labelincrementer</td><td>net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</td></tr>
-      
-      <tr><td>&nbsp;</td></tr>
-      <tr><td class="tableheader" colspan="3">Publishers</td></tr>
-      <tr><td rowspan="7" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
-      <tr><td>currentbuildstatuspublisher</td><td>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher</td></tr>
-      <tr><td>email</td><td>net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</td></tr>
-      <tr><td>htmlemail</td><td>net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</td></tr>
-      <tr><td>execute</td><td>net.sourceforge.cruisecontrol.publishers.ExecutePublisher</td></tr>
-      <tr><td>scp</td><td>net.sourceforge.cruisecontrol.publishers.SCPPublisher</td></tr>
-
-      <tr><td>&nbsp;</td></tr>
-      <tr><td class="tableheader" colspan="3">Source Controls</td></tr>
-      <tr><td rowspan="11" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
-      <tr><td>clearcase</td><td>net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</td></tr>
-      <tr><td>cvs</td><td>net.sourceforge.cruisecontrol.sourcecontrols.CVS</td></tr>
-      <tr><td>filesystem</td><td>net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</td></tr>
-      <tr><td>pvcs</td><td>net.sourceforge.cruisecontrol.sourcecontrols.PVCS</td></tr>
-      <tr><td>starteam</td><td>net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</td></tr>
-      <tr><td>svn</td><td>net.sourceforge.cruisecontrol.sourcecontrols.SVN</td></tr>
-      <tr><td>vss</td><td>net.sourceforge.cruisecontrol.sourcecontrols.Vss</td></tr>
-      <tr><td>vssjournal</td><td>net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td></tr>
-      <tr><td>mks</td><td>net.sourceforge.cruisecontrol.sourcecontrols.MKS</td></tr>
-      <tr><td>p4</td><td>net.sourceforge.cruisecontrol.sourcecontrols.P4</td></tr>
-      <tr><td>httpfile</td><td>net.sourceforge.cruisecontrol.sourcecontrols.HttpFile</td></tr>
-
-   </table>
-
-         <!-- content ends here -->
-         </td></tr></table>
-      </td>
-   </tr>
-</table>
+        <h3>Bootstrappers</h3>
+        <table class="documentation">
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            <tr class="oddrow">
+                <td>currentbuildstatusbootstrapper</td>
+                <td>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</td>
+            </tr>
+            <tr>
+                <td>cvsbootstrapper</td>
+                <td>net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</td>
+            </tr>
+            <tr class="oddrow">
+                <td>p4bootstrapper</td>
+                <td>net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</td>
+            </tr>
+            <tr>
+                <td>svnbootstrapper</td>
+                <td>net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper</td>
+            </tr>
+            <tr class="oddrow">
+                <td>vssbootstrapper</td>
+                <td>net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</td>
+            </tr>
+        </table>
+        
+        <h3>Builders</h3>
+        <table class="documentation">
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            <tr class="oddrow">
+                <td>ant</td>
+                <td>net.sourceforge.cruisecontrol.builders.AntBuilder</td>
+            </tr>
+        </table>
+        
+        <h3>Label Incrementers</h3>
+        <table class="documentation">
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            <tr class="oddrow">
+                <td>labelincrementer</td>
+                <td>net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</td>
+            </tr>
+        </table>
+        
+        <h3>Publishers</h3>
+        <table class="documentation">
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            <tr class="oddrow">
+                <td>currentbuildstatuspublisher</td>
+                <td>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher</td>
+            </tr>
+            <tr>
+                <td>email</td>
+                <td>net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</td>
+            </tr>
+            <tr class="oddrow">
+                <td>htmlemail</td>
+                <td>net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</td>
+            </tr>
+            <tr>
+                <td>execute</td>
+                <td>net.sourceforge.cruisecontrol.publishers.ExecutePublisher</td>
+            </tr>
+            <tr class="oddrow">
+                <td>scp</td>
+                <td>net.sourceforge.cruisecontrol.publishers.SCPPublisher</td>
+            </tr>
+        </table>
+        
+        <h3>Source Controls</h3>
+        <table class="documentation">
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            <tr class="oddrow">
+                <td>clearcase</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</td>
+            </tr>
+            <tr>
+                <td>cvs</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.CVS</td>
+            </tr>
+            <tr class="oddrow">
+                <td>filesystem</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</td>
+            </tr>
+            <tr>
+                <td>httpfile</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.HttpFile</td>
+            </tr>
+            <tr class="oddrow">
+                <td>mks</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.MKS</td>
+            </tr>
+            <tr>
+                <td>p4</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.P4</td>
+            </tr>
+            <tr class="oddrow">
+                <td>pvcs</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.PVCS</td>
+            </tr>
+            <tr>
+                <td>starteam</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</td>
+            </tr>
+            <tr class="oddrow">
+                <td>svn</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.SVN</td>
+            </tr>
+            <tr>
+                <td>vss</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.Vss</td>
+            </tr>
+            <tr class="oddrow">
+                <td>vssjournal</td>
+                <td>net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td>
+            </tr>
+        </table>
+    </div>
+</div>
 </body>
 </html>

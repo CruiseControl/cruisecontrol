@@ -34,18 +34,18 @@
         <fileset dir="${jsp}/docs"/>
     </copy>
 
-    <replace dir="${website}" token="../main/docs/index.html" value="main/index.html">
+    <replace dir="${website}" token="../main/docs/" value="main/">
         <include name="**/*.html"/>
     </replace>
-    <replace dir="${website}" token="../reporting/jsp/docs/index.html" value="reporting/jsp/index.html">
-        <include name="**/*.html"/>
-    </replace>
-
-    <replace dir="${website}/main" token="../../docs/index.html" value="../index.html">
+    <replace dir="${website}" token="../reporting/jsp/docs/" value="reporting/jsp/">
         <include name="**/*.html"/>
     </replace>
 
-    <replace dir="${website}/reporting/jsp" token="../../../docs/index.html" value="../../index.html">
+    <replace dir="${website}/main" token="../../docs/" value="../">
+        <include name="**/*.html"/>
+    </replace>
+
+    <replace dir="${website}/reporting/jsp" token="../../../docs/" value="../../">
         <include name="**/*.html"/>
     </replace>
 

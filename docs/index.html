@@ -1,70 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
    <title>CruiseControl Home</title>
-   <style type="text/css">
-      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
-      .header { font-size:12pt; font-weight:bold; }
-      pre { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
-   </style>
+   <link href="cruisecontrol.css" type="text/css" rel="stylesheet"/>
 </head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+    </div>
+    <img alt="CruiseControl" src="banner.gif"/>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><p id="menuselected">home</p></li>
+            <li><a href="download.html">download</a></li>
+            <li><h2>documentation</h2>
+                <ul>
+                    <li><a href="../main/docs/index.html">build loop</a></li>
+                    <li><a href="../reporting/jsp/docs/index.html">results jsp</a></li>
+                    <li><a href="../main/docs/configxml.html">config</a></li>
+                    <li><a href="faq.html">faq</a></li>
+                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                </ul>
+            </li>
+            <li><h2>contributing</h2>
+                <ul>
+                    <li><a href="developers.html">developers</a></li>
+                    <li><a href="contact.html">mailing lists</a></li>
+                    <li><a href="cvs.html">cvs repository</a></li>
+                </ul>
+            </li>
+            <li><p id="menubottom">&nbsp;</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>CruiseControl</h1>
 
+        <p>CruiseControl is a framework for a continuous build process. It
+        includes, but is not limited to, plugins for email notification, Ant,
+        and various source control tools. A web interface is provided to view
+        the details of the current and previous builds.</p>
 
-<body class="body" leftmargin="0" topmargin="0">
+        <h2>What is Continuous Integration?</h2>
 
-<table width="100%" cellpadding="0" cellspacing="0">
-   <tr>
-      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
-      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   <tr>
-</table>
+        <p><a href="http://www.martinfowler.com/articles/continuousIntegration.html">Continuous
+        Integration</a> by Martin Fowler and Matthew Foemmel.</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-   <tr>
-      <td valign="top" width="80">
-         <img src="menutop.gif" border="0"><br>
-         <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
-         <a href="download.html"><img src="menudownload.gif" border="0"></a><br>
-         <a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
-         <a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
-         <a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
-         <img src="menublank.gif" border="0"><br>
-         <a href="../main/docs/index.html"><img src="menubuildloop.gif" border="0"></a><br>
-         <a href="../reporting/jsp/docs/index.html"><img src="menujsp.gif" border="0"></a><br>
-         <img src="menubottom.gif" border="0">
-      </td>
-      <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%"><tr><td>
-         <!-- content begins here -->
+        <p>An important part of any software development process is getting
+        reliable builds of the software. Despite it's importance, we are often
+        surprised when this isn't done. We stress a fully automated and
+        reproducible build, including testing, that runs many times a day. This
+        allows each developer to integrate daily thus reducing integration
+        problems.</p>
 
-<p>&nbsp;</p>
-<p><span class="header">CruiseControl</span></p>
+        <h2>Related links</h2>
 
-<p>CruiseControl is a framework for a continuous build process. It includes, but is not limited to,
-plugins for email notification, Ant, and various source control tools. A web interface is provided
-to view the details of the current and previous builds.</p>
-
-<p>&nbsp;</p>
-<p><span class="header">What is Continuous Integration?</span></p>
-
-<p><a href="http://www.martinfowler.com/articles/continuousIntegration.html">Continuous Integration</a> by Martin Fowler and Matthew Foemmel<br /><br />
-An important part of any software development process is getting reliable builds of the software. Despite it's importance, we are often surprised when this isn't done. We stress a fully automated and reproducible build, including testing, that runs many times a day. This allows each developer to integrate daily thus reducing integration problems.</p>
-
-<p>&nbsp;</p>
-<p><span class="header">Related links</span></p>
-
-<p>
-<ul>
-  <li><a href="http://ccnet.thoughtworks.com/">CruiseControl.NET</a>: port of CruiseControl to the .NET platform</li>
-  <li><a href="http://dashboard.sourceforge.net/">Dashboard</a>: plug-in for Eclipse and IntelliJ that provides remote build feedback</li>
-  <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl Wiki</a>: ever growing knowledge-base of the CruiseControl community</li>
-</ul>
-</p>
-         <!-- content ends here -->
-         </td></tr></table>
-      </td>
-   </tr>
-</table>
+        <ul>
+            <li><a href="http://ccnet.thoughtworks.com/">CruiseControl.NET</a>:
+            port of CruiseControl to the .NET platform</li>
+            <li><a href="http://dashboard.sourceforge.net/">Dashboard</a>:
+            plug-in for Eclipse and IntelliJ that provides remote build
+            feedback</li>
+            <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl
+            Wiki</a>: ever growing knowledge-base of the CruiseControl
+            community</li>
+        </ul>
+    </div>
+</div>
 </body>
 </html>

@@ -1,1733 +1,2557 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-   <title>CruiseControl Installation Instructions</title>
-   <style type="text/css">
-      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
-      .header { font-size:12pt; font-weight:bold; }
-      pre { font-family:courier,serif; background-color:#CCCCCC; border:1; }
-      code { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .tabledata { font-size:8pt; }
-      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
-      .tableheader { font-size:8pt; font-weight:bold; color:#FFFFFF; background-color:#000033; }
-      .table { border-width:thin; border-color:#000033; }
-   </style>
+   <title>CruiseControl Configuration Reference</title>
+   <link href="../../docs/cruisecontrol.css" type="text/css" rel="stylesheet"/>
 </head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+    </div>
+    <img alt="CruiseControl" src="banner.gif"/>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><a href="../../docs/index.html">home</a></li>
+            <li><a href="../../docs/download.html">download</a></li>
+            <li><h2>documentation</h2>
+                <ul>
+                    <li><a href="index.html">build loop</a></li>
+                    <li><a href="../../reporting/jsp/docs/index.html">results jsp</a></li>
+                    <li><p id="menuselected">config</p></li>
+                    <li><a href="../../docs/faq.html">faq</a></li>
+                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                </ul>
+            </li>
+            <li><h2>contributing</h2>
+                <ul>
+                    <li><a href="../../docs/developers.html">developers</a></li>
+                    <li><a href="../../docs/contact.html">mailing lists</a></li>
+                    <li><a href="../../docs/cvs.html">cvs repository</a></li>
+                </ul>
+            </li>
+            <li><p id="menubottom">&nbsp;</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Configuration Reference</h1>
 
+        <p>CruiseControl configuration files are written in XML. This document
+        describes the XML elements and attributes for a valid configuration
+        file.</p>
+        
+        <p>The use of <a href="plugins.html">plugins</a> means that other
+        elements not documented here can also be used in the configuration.
+        At a minimum, though, the config file contains a single top level
+        <code>&lt;cruisecontrol&gt;</code> element, with one or more child
+        <code>&lt;project&gt;</code> elements.</p>
 
-<body class="body" leftmargin="0" topmargin="0">
+        <h2>Alphabetical Index</h2>
+        
+        <pre style="white-space: normal; font-size: smaller;">
+            <a href="#ant">&lt;ant&gt;</a>
+            <a href="#artifactspublisher">&lt;artifactspublisher&gt;</a>
+            <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+            <a href="#buildstatus">&lt;buildstatus&gt;</a>
+            <a href="#clearcase">&lt;clearcase&gt;</a>
+            <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
+            <a href="#compound">&lt;compound&gt;</a>
+            <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+            <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
+            <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
+            <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
+            <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
+            <a href="#cvs">&lt;cvs&gt;</a>
+            <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
+            <a href="#dateformat">&lt;dateformat&gt;</a>
+            <a href="#email">&lt;email&gt;</a>
+            <a href="#execute">&lt;execute&gt;</a>
+            <a href="#filesystem">&lt;filesystem&gt;</a>
+            <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
+            <a href="#htmlemail">&lt;htmlemail&gt;</a>
+            <a href="#httpfile">&lt;httpfile&gt;</a>
+            <a href="#log">&lt;log&gt;</a>
+            <a href="#maven">&lt;maven&gt;</a>
+            <a href="#merge">&lt;merge&gt;</a>
+            <a href="#mks">&lt;mks&gt;</a>
+            <a href="#modificationset">&lt;modificationset&gt;</a>
+            <a href="#p4">&lt;p4&gt;</a>
+            <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
+            <a href="#pause">&lt;pause&gt;</a>
+            <a href="#plugin">&lt;plugin&gt;</a>
+            <a href="#plugin">&lt;plugin&gt;</a>
+            <a href="#project">&lt;project&gt;</a>
+            <a href="#publishers">&lt;publishers&gt;</a>
+            <a href="#pvcs">&lt;pvcs&gt;</a>
+            <a href="#schedule">&lt;schedule&gt;</a>
+            <a href="#scp">&lt;scp&gt;</a>
+            <a href="#starteam">&lt;starteam&gt;</a>
+            <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
+            <a href="#svn">&lt;svn&gt;</a>
+            <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
+            <a href="#targets">&lt;targets&gt;</a>
+            <a href="#triggers">&lt;triggers&gt;</a>
+            <a href="#vss">&lt;vss&gt;</a>
+            <a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
+            <a href="#vssjournal">&lt;vssjournal&gt;</a>
+        </pre>
 
-<table width="100%" cellpadding="0" cellspacing="0">
-   <tr>
-      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
-      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   <tr>
-</table>
+        <h2>Hierarchical Index</h2>
+        
+<pre style="font-size: smaller;">
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+    <a href="#plugin">&lt;plugin/&gt;</a>
+    <a href="#project">&lt;project&gt;</a>
+        <a href="#plugin">&lt;plugin/&gt;</a>
+        <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+            <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
+            <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
+            <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
+            <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
+            <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
+            <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
+            <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
+            <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
+        &lt;/bootstrappers&gt;
+        <a href="#modificationset">&lt;modificationset&gt;</a>
+            <a href="#buildstatus">&lt;buildstatus/&gt;</a>
+            <a href="#clearcase">&lt;clearcase/&gt;</a>
+            <a href="#compound">&lt;compound/&gt;</a>
+            <a href="#cvs">&lt;cvs/&gt;</a>
+            <a href="#filesystem">&lt;filesystem/&gt;</a>
+            <a href="#httpfile">&lt;httpfile/&gt;</a>
+            <a href="#mks">&lt;mks/&gt;</a>
+            <a href="#p4">&lt;p4/&gt;</a>
+            <a href="#pvcs">&lt;pvcs/&gt;</a>
+            <a href="#starteam">&lt;starteam/&gt;</a>
+            <a href="#svn">&lt;svn/&gt;</a>
+            <a href="#targets">&lt;targets/&gt;</a>
+            <a href="#triggers">&lt;triggers/&gt;</a>
+            <a href="#vss">&lt;vss/&gt;</a>
+            <a href="#vssjournal">&lt;vssjournal/&gt;</a>
+        &lt;/modificationset&gt;
+        <a href="#schedule">&lt;schedule&gt;</a>
+            <a href="#ant">&lt;ant/&gt;</a>
+            <a href="#maven">&lt;maven/&gt;</a>
+            <a href="#pause">&lt;pause/&gt;</a>
+        &lt;/schedule&gt;
+        <a href="#log">&lt;log&gt;</a>
+            <a href="#merge">&lt;merge/&gt;</a>
+        &lt;/log&gt;
+        <a href="#publishers">&lt;publishers&gt;</a>
+            <a href="#artifactspublisher">&lt;artifactspublisher/&gt;</a>
+            <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
+            <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
+            <a href="#email">&lt;email/&gt;</a>
+            <a href="#execute">&lt;execute/&gt;</a>
+            <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
+            <a href="#htmlemail">&lt;htmlemail/&gt;</a>
+            <a href="#scp">&lt;scp/&gt;</a>
+        &lt;/publishers&gt;
+        <a href="#dateformat">&lt;dateformat/&gt;</a>
+    &lt;/project&gt;
+&lt;/cruisecontrol&gt;</pre>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-   <tr>
-      <td valign="top" width="80">
-         <img src="menutop.gif" border="0"><br>
-         <a href="index.html"><img src="menubuildloop.gif" border="0"></a><br>
-         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
-         <img src="menublank.gif" border="0"><br>
-         <a href="../../docs/index.html"><img src="menuhome.gif" border="0"></a><br>
-         <img src="menubottom.gif" border="0">
-      </td>
-      <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%"><tr><td>
-         <!-- content begins here -->
+        <h2><a name="cruisecontrol">&lt;cruisecontrol&gt;</a></h2>
 
-         <span class="header">CruiseControl Configuration Guide</span>
-         <p>
+        <p>The <code>&lt;cruisecontrol&gt;</code> element is the root element
+        of the configuration, and acts as a container to the rest of the
+        configuration elements.</p>
 
-         <ul>
-            <li><a class="small" href="#project">Project</a>
-            <ul>
-               <li><a class="small" href="#bootstrappers">Bootstrappers</a>
-                  <ul>
-                     <li><a class="small" href="#clearcasebootstrapper">ClearCaseBootstrapper</a>
-                     <li><a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>
-                     <li><a class="small" href="#cvsbootstrapper">CVSBootstrapper</a>
-                     <li><a class="small" href="#p4bootstrapper">P4Bootstrapper</a>
-                     <li><a class="small" href="#starteambootstrapper">StarTeamBootstrapper</a>
-                     <li><a class="small" href="#svnbootstrapper">SVNBootstrapper</a>
-                     <li><a class="small" href="#vssbootstrapper">VssBootstrapper</a>
-                  </ul>
-               <li><a class="small" href="#modificationset">ModificationSet</a>
-                  <ul>
-                     <li><a class="small" href="#buildstatus">BuildStatus</a>
-                     <li><a class="small" href="#clearcase">ClearCase</a>
-                     <li><a class="small" href="#cvs">CVS</a>
-                     <li><a class="small" href="#filesystem">File System</a>
-                     <li><a class="small" href="#mks">MKS</a>
-                     <li><a class="small" href="#p4">Perforce</a>
-                     <li><a class="small" href="#pvcs">PVCS</a>
-                     <li><a class="small" href="#starteam">StarTeam</a>
-                     <li><a class="small" href="#svn">Subversion</a>
-                     <li><a class="small" href="#vss">Visual SourceSafe</a>
-                     <li><a class="small" href="#vssjournal">Visual SourceSafe, Journal File Implementation</a>
-                     <li><a class="small" href="#httpfile">HTTP File</a>
-                  </ul>
-               <li><a class="small" href="#schedule">Schedule</a>
-                  <ul>
-                     <li><a class="small" href="#antbuilder">AntBuilder</a>
-                     <li><a class="small" href="#mavenbuilder">MavenBuilder</a>
-                     <li><a class="small" href="#pausebuilder">PauseBuilder</a>
-                  </ul>
-               <li><a class="small" href="#log">Log</a>
-                  <ul>
-                     <li><a class="small" href="#merge">Merge</a>
-                  </ul>
-               <li><a class="small" href="#publishers">Publishers</a>
-                  <ul>
-                     <li><a class="small" href="#artifactspublisher">ArtifactsPublisher</a>
-                     <li><a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>
-                     <li><a class="small" href="#executepublisher">ExecutePublisher</a>
-                     <li><a class="small" href="#htmlemailpublisher">HTMLEmailPublisher</a></li>
-                     <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
-                     <li><a class="small" href="#scppublisher">SCPPublisher</a>
-                     <li><a class="small" href="#sametimeannouncementpublisher">SametimeAnnouncementPublisher</a>
-                     <li><a class="small" href="#xsltlogpublisher">XSLTLogPublisher</a>
-                  </ul>
-               <li><a class="small" href="#dateformat">DateFormat</a>
-               <li><a class="small" href="#plugin">Plugin</a>
-               <li><a class="small" href="#labelincrementers">LabelIncrementers</a>
-                  <ul>
-                     <li><a class="small" href="#defaultlabelincrementer">DefaultLabelIncrementer</a>
-                     <li><a class="small" href="#cvslabelincrementer">CVSLabelIncrementer</a>
-                     <li><a class="small" href="#emptylabelincrementer">EmptyLabelIncrementer</a>
-                  </ul>
-               <li><a class="small" href="#ftptasks">FTP Tasks</a>
-                  <ul>
-                     <li><a class="small" href="#currentbuildstatusftpbootstrapper">CurrentBuildStatusFTPBootstrapper</a>
-                     <li><a class="small" href="#currentbuildstatusftppublisher">CurrentBuildStatusFTPPublisher</a>
-                     <li><a class="small" href="#ftppublisher">FTPPublisher</a>
-                  </ul>
-            </ul>
-         </ul>
+        <h3>Child Elements</h3>
 
+        <table class="documentation">
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><a href="#project">&lt;project&gt;</a></td>
+                <td>1 .. *</td>
+                <td>Defines a basic unit of work.</td>
+            </tr>
+            <tr>
+                <td><a href="#plugin">&lt;plugin&gt;</a></td>
+                <td>0 .. 1</td>
+                <td>Registers a classname with an alias.</td>
+            </tr>
+        </table>
 
-<p>
-<span class="small">Sample config.xml file:</span>
-<table border="1" width="100%"><tr><td>
-<pre>
-&lt;cruisecontrol&gt;
-   &lt;project name="sampleproject"&gt;
-      &lt;bootstrappers&gt;
-         &lt;currentbuildstatusbootstrapper 
-             file="logs/currentbuildstatus.txt"/&gt;
-      &lt;/bootstrappers&gt;
-      &lt;modificationset  quietperiod=""&gt;
-         &lt;cvs cvsroot="" defaultbranchonly="" tag=""
-              localworkingcopy="" property="" propertyondelete=""/&gt;
-      &lt;/modificationset&gt;
-      &lt;schedule&gt;
-         &lt;ant buildfile="" target=""&gt;
-            &lt;jvmarg arg=""/&gt;
-         &lt;/ant&gt;
-      &lt;/schedule&gt;
-      &lt;log dir=""&gt;
-         &lt;merge file=""/&gt;
-         &lt;merge dir=""/&gt;
-      &lt;/log&gt;
-      &lt;publishers&gt;
-         &lt;currentbuildstatuspublisher 
-             file="logs/currentbuildstatus.txt"/&gt;
-         &lt;email mailhost="" returnaddress="" buildresultsurl=""
-               reportsuccess="" spamwhilebroken="" defaultsuffix=""&gt;
-            &lt;always address=""/&gt;
-            &lt;failure address="" reportWhenFixed="true"/&gt;
-            &lt;map alias="" address=""/&gt;
-         &lt;/email&gt;
-      &lt;/publishers&gt;
-      &lt;dateformat format=""/&gt;
-      &lt;plugin name="" classname=""/&gt;
-   &lt;/project&gt;
-&lt;/cruisecontrol&gt;
-</pre>
-</td></tr>
-</table>
+        <h3>Parent Element</h3>
 
-         <p><a name="project"><span class="small">Project</span><br>
-         A <code>Project</code> is the basic unit of work -- it will handle checking for modifications, building, and
-         publishing the results of your project.
+        <p>None, as <code>&lt;cruisecontrol&gt;</code> is the root element.</p>
 
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">name</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Unique identifier for this project</td>
-            </tr>
-            <tr>
-               <td class="tabledata">buildafterfailed</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Should CruiseControl keep on building even though it has failed and no new modifications are detected? 
-                  This feature is useful if you want CruiseControl to detect situations where a build fails because of outside 
-                  dependecies (like temporary failing database connection). Defaults to <em>true</em></td>
-            </tr>
-         </table>
+        <h2><a name="project">&lt;project&gt;</a></h2>
 
-         <hr>
+        <p>A <code>&lt;project&gt;</code> is the basic unit of work &mdash; it
+        will handle checking for modifications, building, and publishing the
+        results of your project.</p>
 
-         <p><a name="bootstrappers"><span class="small">Bootstrappers</span><br>
-         Bootstrappers are run before a build takes place, regardless of whether a build is necessary or not, but not if the build is paused. Each bootstrapper element is independent of the others so it is quite possible to have multiple bootstrappers of the same time, say 3 CVS or VssBootstrappers to update 3 different files.
+        <h3>Attributes</h3>
 
-         <p><a name="clearcasebootstrapper"><span class="small">ClearCaseBootstrapper</span><br>
-         Can be used to pull a single file (usually build.xml and/or build.properties) from ClearCase prior to building.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>name</td>
+                <td>Yes</td>
+                <td>Unique identifier for this project</td>
             </tr>
             <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The filename to write</td>
+                <td>buildafterfailed</td>
+                <td>No (defaults to true)</td>
+                <td>Should CruiseControl keep on building even though it has
+                failed and no new modifications are detected? This feature is
+                useful if you want CruiseControl to detect situations where a
+                build fails because of outside dependecies (like temporary
+                failing database connection).</td>
             </tr>
-            <tr>
-               <td class="tabledata">viewPath</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">local path to the file</td>
-            </tr>
-         </table>
+        </table>
 
-         <p><a name="currentbuildstatusbootstrapper"><span class="small">CurrentBuildStatusBootstrapper</span><br>
-         The CruiseControl Build Results JSP can indicate whether or not CruiseControl is currently building a project.
-         To get this information to the JSP, we can use the optional currentbuildstatusbootstrapper to write an HTML snippet to disk in a location where the JSP can read it.
-         This file will consist of the time the build was started with the formatting set by the <a href="#dateformat">dateformat</a> element.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The filename to write, including path</td>
-            </tr>
-         </table>
+        <h3>Child Elements</h3>
 
-	 <p><a name="cvsbootstrapper"><span class="small">CVSBootstrapper</span><br/>
-            Since there can be a reliance on the build.xml to handle updating the source code, there has always been a problem with what happens when the build.xml file itself changes.  The CVSBootstrapper can solve this problem either by pulling a single file (such as build.xml) or by updating the entire project. Allowing the bootstrapper to update the project makes for a simpler build.xml but allows a window where a file can be commited after the update and before the modification check.</p>
-            <p>CVSBootstrapper requires at least one of its attribute to be set.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#bootstrappers">&lt;bootstrappers&gt;</a></td>
+                <td>0 .. 1</td>
+                <td>Container element for Bootstrapper plugin instances.</td>
             </tr>
             <tr>
-               <td class="tabledata">localWorkingCopy</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path (absolute or relative to Build Loop execution directory) to the local copy of the CVS module which contains the target file. CVSBootstrapper will execute the update command from this directory if specified. Defaults to Build Loop execution directory.</td>
+                <td><a href="#modificationset">&lt;modificationset&gt;</a></td>
+                <td>1</td>
+                <td>Container element for SourceControl plugin instances.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#schedule">&lt;schedule&gt;</a></td>
+                <td>1</td>
+                <td>Specifies the SourceControl poll interval, and is a parent
+                element for Builder plugin instances.</td>
             </tr>
             <tr>
-               <td class="tabledata">cvsroot</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The CVSROOT. Not required if the current working directory is in the cvs project or if the localWorkingCopy attribute is set.</td>
+                <td><a href="#log">&lt;log&gt;</a></td>
+                <td>0 .. 1</td>
+                <td>Specifies where project log files are stored.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#publishers">&lt;publishers&gt;</a></td>
+                <td>0 .. 1</td>
+                <td>Container element for Publisher plugin instances.</td>
             </tr>
             <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The file to update from CVS, relative to localworkingcopy. If not specified either the current working directory must be in the local cvs project or the localWorkingCopy must be set.</td>
+                <td><a href="#dateformat">&lt;dateformat&gt;</a></td>
+                <td>0 .. 1</td>
+                <td>Overrides the default date format for presentation.</td>
             </tr>
-         </table>
+            <tr class="oddrow">
+                <td><a href="#plugin">&lt;plugin&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Registers a classname with an alias.</td>
+            </tr>
+        </table>
 
-	 <p><a name="p4bootstrapper"><span class="small">P4Bootstrapper</span><br/>
-	Syncs a single path from Perforce before the build begins. Useful if you want to leave all SCM up to CruiseControl. Allowing the bootstrapper to update the project makes for a simpler build.xml but allows a window where a file can be commited after the update and before the modification check.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">path</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Valid Perforce path (a.k.a. 'view')</td>
-            </tr>
-            <tr>
-               <td class="tabledata">p4Port</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Perforce Server connection to use (host:port)</td>
-            </tr>
-            <tr>
-               <td class="tabledata">p4User</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Perforce User name to use</td>
-            </tr>
-            <tr>
-               <td class="tabledata">p4Client</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Perforce Client name to use</td>
-            </tr>
-         </table>
+        <h3>Parent Element</h3>
 
-	 <p><a name="starteambootstrapper"><span class="small">StarTeamBootstrapper</span><br/>
-	Handles updating multiple files (space separated list) from StarTeam before the build begins.</p>
+        <p><a href="#cruisecontrol"><code>&lt;cruisecontrol&gt;</code></a></p>
 
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">files</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Space separated list of files to retrieve</td>
-            </tr>
-            <tr>
-               <td class="tabledata">folder</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The repository folder</td>
-            </tr>
-            <tr>
-               <td class="tabledata">localfolder</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to the folder on the local file system</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
-            </tr>
-            <tr>
-               <td class="tabledata">port</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Port StarTeam server is using</td>
-            </tr>
-            <tr>
-               <td class="tabledata">project</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">StarTeam project</td>
-            </tr>
-            <tr>
-               <td class="tabledata">server</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Hostname for StarTeam server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
-            </tr>
-            <tr>
-               <td class="tabledata">view</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">StarTeam view</td>
-            </tr>
-         </table>
+        <h2><a name="bootstrappers">&lt;bootstrappers&gt;</a></h2>
 
-	 <p><a name="svnbootstrapper"><span class="small">SVNBootstrapper</span><br/>
-	Handles updating a single file (typically build.xml and/or build.properties) from a Subversion repository before the build begins.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">localWorkingCopy</td>
-               <td class="tabledata" rowspan="2">One of these</td>
-               <td class="tabledata">the relative or absolute path to the local working copy of the Subversion repository on which to execute the update command.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">file to update from the Subversion repository.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">used for authentication.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">used for authentication.</td>
-            </tr>
-         </table>
+        <p>The <code>&lt;bootstrappers&gt;</code> element is a container element
+        for Bootstrapper plugin instances.</p>
 
-	 <p><a name="vssbootstrapper"><span class="small">VssBootstrapper</span><br/>
-	Handles updating a single file (typically build.xml and/or build.properties) from VSS before the build begins.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">vsspath</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Fully qualified VSS path to the target file.  If the leading dollar-sign ['$'] is omitted, one will be prepended automatically.<br><b>Example:</b> /Project/subproject/filename.ext</td>
-            </tr>
-            <tr>
-               <td class="tabledata">localdirectory</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Fully qualified path for the destination directory. <br><b>Example:</b> c:\directory\subdirectory\</td>
-            </tr>
-            <tr>
-               <td class="tabledata">login</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">VSS login information in the form <i>username,password</i></td>
-            </tr>
-            <tr>
-               <td class="tabledata">ssdir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to the directory containing ss.exe.  By default, ss.exe is assumed to be in the path.  <br>Note: should not contain whitespace.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">serverpath</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to the directory containing srcsafe.ini.</td>
-            </tr>
-         </table>
+        <p>Bootstrappers are run before a build takes place, regardless of
+        whether a build is necessary or not, but not if the build is paused.
+        Each bootstrapper element is independent of the others so it is quite
+        possible to have multiple bootstrappers of the same time, say 3 CVS or
+        VssBootstrappers to update 3 different files.</p>
 
-         <hr/>
+        <h3>Child Elements</h3>
 
-         <p><a name="modificationset"><span class="small">ModificationSet</span><br/>
-	 Set of modifications collected from all included SourceControl elements. ModificationSet can contain multiple elements which can be useful to check only parts of a large project rather than checking all files every time. Combined with the property/propertyOnDelete attributes -- when supported -- this can allow for conditional building that may greatly speed the feedback cycle.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from ClearCase</td>
             </tr>
             <tr>
-               <td class="tabledata">requiremodification</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Is a modification required for the build to continue? Default value is true. Useful to set to false when the schedule has only time based builds or if you want to run tests to verify an external resource (such as a database).</td>
+                <td><a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Writes a build status snippet to the filesystem</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Transfers a build status snippet via FTP</td>
             </tr>
             <tr>
-               <td class="tabledata">quietperiod</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Default value is 60 (seconds). This attribute is used to avoid starting a build while someone is in mid-checkin. If a modification is detected to be within the quiet period then CC will sleep until the quiet period is finished and then recheck for modificaitons. Small values recommended if you use a bootstrapper to sync files (as opposed to getting updates as part of the build). 0 is a valid value.</td>
+                <td><a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from CVS</td>
             </tr>
-         </table>
+            <tr class="oddrow">
+                <td><a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Perforce</td>
+            </tr>
+            <tr>
+                <td><a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Star Team</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Subversion</td>
+            </tr>
+            <tr>
+                <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Visual Source Safe</td>
+            </tr>
+        </table>
 
-         <p><a name="buildstatus"><span class="small">BuildStatus</span><br/>
-         Used to trigger a build when another CruiseControl project has a successful build.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">logdir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Path to CruiseControl log directory for the project to monitor.</td>
-            </tr>
-         </table>
+        <h3>Parent Element</h3>
 
-         <p><a name="clearcase"><span class="small">ClearCase</span></p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
+
+        <h2><a name="clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a></h2>
+
+        <p>Can be used to pull a single file (usually build.xml and/or
+        build.properties) from ClearCase prior to building.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>The filename to write</td>
             </tr>
             <tr>
-               <td class="tabledata">branch</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The ClearCase branch</td>
+                <td>viewPath</td>
+                <td>No</td>
+                <td>local path to the file</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></h2>
+
+        <p>The CruiseControl Build Results JSP can indicate whether or not
+        CruiseControl is currently building a project. To get this information
+        to the JSP, we can use the optional
+        <code>&lt;currentbuildstatusbootstrapper&lt;</code> to write an HTML
+        snippet to disk in a location where the JSP can read it. This file will
+        consist of the time the build was started with the formatting set by the
+        <a href="#dateformat">dateformat</a> element.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>The filename to write, including path</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></h2>
+
+        <p>This performs the same action as <a href="#currentbuildstatusbootstrapper"><code>&lt;currentbuildstatusbootstrapper&gt;</code></a>,
+        except that the status file is sent to the remote site via FTP, instead
+        of being stored locally.</p>
+
+        <h3>Attributes</h3>
+
+        <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
+        <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
+        attributes.</p>
+        
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>The filename to write.</td>
             </tr>
             <tr>
-               <td class="tabledata">recursive</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether to check sub-folders in the viewpath; defaults to true</td>
+                <td>destDir</td>
+                <td>Yes</td>
+                <td>The remote directory (relative to <code>targetDir</code>)
+                to write the file.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></h2>
+
+        <p>Since there can be a reliance on the build.xml to handle updating
+        the source code, there has always been a problem with what happens when
+        the build.xml file itself changes.  <code>&lt;cvsbootstrapper&gt;</code>
+        can solve this problem either by pulling a single file (such as
+        build.xml) or by updating the entire project. Allowing the bootstrapper
+        to update the project makes for a simpler build.xml but allows a window
+        where a file can be commited after the update and before the
+        modification check.</p>
+
+        <h3>Attributes</h3>
+
+        <p><code>&lt;cvsbootstrapper&gt;</code> requires at least one of its
+        attributes to be set.</p>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>localWorkingCopy</td>
+                <td>No</td>
+                <td>Path (absolute or relative to Build Loop execution
+                directory) to the local copy of the CVS module which contains
+                the target file. CVSBootstrapper will execute the update
+                command from this directory if specified. Defaults to Build
+                Loop execution directory.</td>
             </tr>
             <tr>
-               <td class="tabledata">viewpath</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Local working copy to use when making queries</td>
+                <td>cvsroot</td>
+                <td>No</td>
+                <td>The CVSROOT. Not required if the current working directory
+                is in the cvs project or if the localWorkingCopy attribute is
+                set.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>No</td>
+                <td>The file to update from CVS, relative to localworkingcopy.
+                If not specified either the current working directory must be
+                in the local cvs project or the localWorkingCopy must be
+                set.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="p4bootstrapper">&lt;p4bootstrapper&gt;</a></h2>
+
+        <p>Syncs a single path from Perforce before the build begins. Useful
+        if you want to leave all SCM up to CruiseControl. Allowing the
+        bootstrapper to update the project makes for a simpler build.xml but
+        allows a window where a file can be commited after the update and before
+        the modification check.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>path</td>
+                <td>Yes</td>
+                <td>Valid Perforce path (a.k.a. 'view')</td>
             </tr>
             <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Will set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
+                <td>p4Port</td>
+                <td>No</td>
+                <td>Perforce Server connection to use (host:port)</td>
+            </tr>
+            <tr class="oddrow">
+                <td>p4User</td>
+                <td>No</td>
+                <td>Perforce User name to use</td>
+            </tr>
+            <tr>
+                <td>p4Client</td>
+                <td>No</td>
+                <td>Perforce Client name to use</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="starteambootstrapper">&lt;starteambootstrapper&gt;</a></h2>
+
+        <p>Handles updating multiple files (space separated list) from StarTeam
+        before the build begins.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>files</td>
+                <td>Yes</td>
+                <td>Space separated list of files to retrieve</td>
+            </tr>
+            <tr>
+                <td>folder</td>
+                <td>Yes</td>
+                <td>The repository folder</td>
+            </tr>
+            <tr class="oddrow">
+                <td>localfolder</td>
+                <td>No</td>
+                <td>Path to the folder on the local file system</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr class="oddrow">
+                <td>port</td>
+                <td>Yes</td>
+                <td>Port StarTeam server is using</td>
+            </tr>
+            <tr>
+                <td>project</td>
+                <td>Yes</td>
+                <td>StarTeam project</td>
+            </tr>
+            <tr class="oddrow">
+                <td>server</td>
+                <td>Yes</td>
+                <td>Hostname for StarTeam server</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr class="oddrow">
+                <td>view</td>
+                <td>Yes</td>
+                <td>StarTeam view</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="svnbootstrapper">&lt;svnbootstrapper&gt;</a></h2>
+
+        <p>Handles updating a single file (typically build.xml and/or
+        build.properties) from a Subversion repository before the build
+        begins.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>localWorkingCopy</td>
+                <td rowspan="2">One of these</td>
+                <td>the relative or absolute path to the local working copy of
+                the Subversion repository on which to execute the update
+                command.</td>
+            </tr>
+            <tr>
+                <td>file</td>
+                <td>file to update from the Subversion repository.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>username</td>
+                <td>No</td>
+                <td>used for authentication.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>No</td>
+                <td>used for authentication.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="vssbootstrapper">&lt;vssbootstrapper&gt;</a></h2>
+
+        <p>Handles updating a single file (typically build.xml and/or
+        build.properties) from VSS before the build begins.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>vsspath</td>
+                <td>Yes</td>
+                <td>Fully qualified VSS path to the target file.  If the leading
+                dollar-sign ['$'] is omitted, one will be prepended
+                automatically.<br/>
+                <b>Example:</b> /Project/subproject/filename.ext</td>
+            </tr>
+            <tr>
+                <td>localdirectory</td>
+                <td>Yes</td>
+                <td>Fully qualified path for the destination directory.<br/>
+                <b>Example:</b> c:\directory\subdirectory\</td>
+            </tr>
+            <tr class="oddrow">
+                <td>login</td>
+                <td>No</td>
+                <td>VSS login information in the form <i>username,password</i></td>
+            </tr>
+            <tr>
+                <td>ssdir</td>
+                <td>No</td>
+                <td>Path to the directory containing ss.exe.  By default, ss.exe
+                is assumed to be in the path.<br/>
+                Note: should not contain whitespace.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>serverpath</td>
+                <td>No</td>
+                <td>Path to the directory containing srcsafe.ini.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
+
+        <h2><a name="modificationset">&lt;modificationset&gt;</a></h2>
+
+        <p>A container element for a set of modifications collected from all
+        included SourceControl elements. <code>&lt;modificationset&gt;</code>
+        can contain multiple elements which can be useful to check only parts
+        of a large project rather than checking all files every time. Combined
+        with the property/propertyOnDelete attributes &mdash; when supported
+        &mdash; this can allow for conditional building that may greatly speed
+        the feedback cycle.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>requiremodification</td>
+               <td>No (defaults to true)</td>
+               <td>Is a modification required for the build to continue?
+               Default value is true. Useful to set to false when the schedule
+               has only time based builds or if you want to run tests to verify
+               an external resource (such as a database).</td>
+            </tr>
+            <tr>
+               <td>quietperiod</td>
+               <td>No (defaults to 60)</td>
+               <td>The number of seconds required to have passed since the last
+               modification before a build can commence. This attribute is used
+               to avoid starting a build while someone is in mid-checkin. If a
+               modification is detected to be within the quiet period then CC
+               will sleep until the quiet period is finished and then recheck
+               for modificaitons. Small values recommended if you use a
+               bootstrapper to sync files (as opposed to getting updates as part
+               of the build). 0 is a valid value.</td>
+            </tr>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#buildstatus">&lt;buildstatus&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for a successful build in another project.</td>
+            </tr>
+            <tr>
+                <td><a href="#clearcase">&lt;clearcase&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a ClearCase repository.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#cvs">&lt;cvs&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a CVS repository.</td>
+            </tr>
+            <tr>
+                <td><a href="#filesystem">&lt;filesystem&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a file system.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#httpfile">&lt;httpfile&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a remote file via http.</td>
+            </tr>
+            <tr>
+                <td><a href="#mks">&lt;mks&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a MKS repository.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#p4">&lt;p4&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Perforce repository.</td>
+            </tr>
+            <tr>
+                <td><a href="#pvcs">&lt;pvcs&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a PVCS repository.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#starteam">&lt;starteam&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Star Team repository.</td>
+            </tr>
+            <tr>
+                <td><a href="#svn">&lt;svn&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Subversion repository.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#vss">&lt;vss&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Visual SourceSafe repository.</td>
+            </tr>
+            <tr>
+                <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Visual SourceSafe, Journal File
+                Implementation.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
+
+        <h2><a name="buildstatus">&lt;buildstatus&gt;</a></h2>
+
+        <p>Used to trigger a build when another CruiseControl project has a
+        successful build.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>logdir</td>
+               <td>Yes</td>
+               <td>Path to CruiseControl log directory for the project to
+               monitor.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="clearcase">&lt;clearcase&gt;</a></h2>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>branch</td>
+               <td>Yes</td>
+               <td>The ClearCase branch</td>
+            </tr>
+            <tr>
+               <td>recursive</td>
+               <td>No (defaults to true)</td>
+               <td>Whether to check sub-folders in the viewpath.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>viewpath</td>
+               <td>Yes</td>
+               <td>Local working copy to use when making queries</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Will set this property if a modification has occurred.  For
+               use in conditionally controlling the build later.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>propertyondelete</td>
+               <td>No</td>
+               <td>Will set this property if a file has been deleted.  For use
+               in conditionally controlling the build later.
                </td>
             </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="cvs">&lt;cvs&gt;</a></h2>
+
+        <p>A notable feature of the CVS element is that it will look for the
+        file CVSROOT/Users and, if the files exists, use the information in
+        that file to map cvs usernames to email addresses.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
             <tr>
-               <td class="tabledata">propertyondelete</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Will set this property if a file has been deleted.  For use in conditionally
-                  controlling the build later.
-               </td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>cvsroot</td>
+                <td>No</td>
+                <td>Required if localWorkingCopy isn't specified. cvsroot that
+                would be appropriate for the following command:<br/>
+                <i><code>cvs&nbsp;-d&nbsp;CVSROOT&nbsp;-q&nbsp;log&nbsp;-N&nbsp;-d&nbsp;"&gt;lastbuildtime"</code></i>
+                </td>
+            </tr>
+            <tr>
+                <td>localworkingcopy</td>
+                <td>No</td>
+                <td>Relative or absolute path to the local working copy.
+                Required if cvsroot isn't specified. Directory must exist and
+                should have files from a previous checkout.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>tag</td>
+                <td>No</td>
+                <td>Set the cvs tag.  Note this should work with names, numbers,
+                and anything else you can put on <i><code>log&nbsp;-rTAG</code></i></td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="filesystem">&lt;filesystem&gt;</a></h2>
+
+        <p>Returns all files beneath the specified folder than have been
+        modified since the last build time. Any modified files are reported as
+        modifications of type "changed" by user "User". Can also have folder
+        be just a single file. Only looks at timestamp, not for actual changes
+        to the file.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>folder</td>
+                <td>Yes</td>
+                <td>Root folder of the directories to scan, or path to file to
+                check for modifications.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="httpfile">&lt;httpfile&gt;</a></h2>
+
+        <p>Checks a single file on a web server supporting modification dates
+        (such as Apache). Intended to be used in a Compound mofication set as
+        a Trigger.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>url</td>
+                <td>Yes</td>
+                <td>The HTTP URL of a file to check the modification date of</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="mks">&lt;mks&gt;</a></h2>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>localworkingcopy</td>
+                <td>ignored</td>
+                <td>Path to the local working copy. This attribute is currently
+                ignored.</td>
+            </tr>
+            <tr>
+                <td>mksroot</td>
+                <td>Yes</td>
+                <td>Set MKSROOT</td>
+            </tr>
+            <tr class="oddrow">
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="p4">&lt;p4&gt;</a></h2>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>port</td>
+                <td>Yes</td>
+                <td>Perforce Server connection to use (host:port)</td>
+            </tr>
+            <tr>
+                <td>client</td>
+                <td>Yes</td>
+                <td>Perforce Client name to use</td>
+            </tr>
+            <tr class="oddrow">
+                <td>user</td>
+                <td>Yes</td>
+                <td>Perforce User name to use</td>
+            </tr>
+            <tr>
+                <td>view</td>
+                <td>Yes</td>
+                <td>Valid Perforce view (i.o.w a depot path)</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="pvcs">&lt;pvcs&gt;</a></h2>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>loginid</td>
+                <td>no</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>pvcsproject</td>
+                <td>Yes</td>
+                <td></td>
+            </tr>
+            <tr class="oddrow">
+                <td>pvcssubproject</td>
+                <td>Yes</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>pvcsbin</td>
+                <td>No</td>
+                <td>Path to directory with pcli.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>outdateformat</td>
+                <td>No (defaults to "MMM dd yyyy HH:mm:ss")</td>
+                <td>The format to use to parse the LastModified entry as
+                produced by your pvcs system (See vlog.txt for format)</td>
+            </tr>
+            <tr>
+                <td>indateformat</td>
+                <td>No (defaults to "MM/dd/yyyy/HH:mm")</td>
+                <td>The format used to parse the lastbuild date.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="starteam">&lt;starteam&gt;</a></h2>
+
+        <p>If logged on as SERVER ADMINISTRATOR it will look up the email
+        associated with the user account for each modification.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>folder</td>
+                <td>Yes</td>
+                <td>The repository folder</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password for the StarTeam user</td>
+            </tr>
+            <tr class="oddrow">
+                <td>starteamurl</td>
+                <td>Yes</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>StarTeam user name</td>
+            </tr>
+            <tr class="oddrow">
+                <td>preloadFileInformation</td>
+                <td>No (defaults to false)</td>
+                <td>When set to true can make the modification check much
+                faster.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="svn">&lt;svn&gt;</a></h2>
+
+        Checks for changes within a Subversion repository.
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>LocalWorkingCopy</td>
+                <td rowspan="2">One of these</td>
+                <td>Relative or absolute path to the local working copy of the
+                Subversion repository of which to find the log history.</td>
+            </tr>
+            <tr>
+                <td>RepositoryLocation</td>
+                <td>The url to the Subversion repository on which to find the
+                log history.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>username</td>
+                <td>No</td>
+                <td>used for authentication.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>No</td>
+                <td>used for authentication.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="vss">&lt;vss&gt;</a></h2>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>dateformat</td>
+                <td>No (defaults to default is <i>MM/dd/yy</i>)</td>
+                <td>The date format to use for querying VSS and processing
+                reports.  If your computer is set to a different region, you
+                may wish to use a format such as <i>dd/MM/yy</i>.</td>
+            </tr>
+            <tr>
+                <td>timeformat</td>
+                <td>No (default is <i>hh:mma</i>)</td>
+                <td>The time format to use for querying VSS and processing
+                reports. If your VSS is configured differnetly you may need a
+                different format such as <i>HH:mm:ss</i>.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>vsspath</td>
+                <td>Yes</td>
+                <td>The VSS project to get history from.<br/>
+                <b>Example:</b> /Project/subproject</td>
+            </tr>
+            <tr>
+                <td>login</td>
+                <td>Yes</td>
+                <td>The VSS login to use, in the form
+                <i><code>username,password</code></i></td>
+            </tr>
+            <tr class="oddrow">
+                <td>ssdir</td>
+                <td>No</td>
+                <td>Path to the directory containing ss.exe.  By default,
+                ss.exe is assumed to be in the path.<br/>
+                Note: should not contain whitespace.</td>
+            </tr>
+            <tr>
+                <td>serverpath</td>
+                <td>No</td>
+                <td>Path to the directory containing srcsafe.ini.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="vssjournal">&lt;vssjournal&gt;</a></h2>
+
+        <p>This implementation doesn't require the source safe executable making
+        it suitable for use on non-Windows machines.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>journalfile</td>
+                <td>Yes</td>
+                <td>Full path to journal file.  Example: <i>c:/vssdata/journal/journal.txt</i></td>
+            </tr>
+            <tr>
+                <td>ssdir</td>
+                <td>Yes</td>
+                <td>The VSS project to get history from</td>
+            </tr>
+            <tr class="oddrow">
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="schedule">&lt;schedule&gt;</a></h2>
+
+        <p>CruiseControl allows the user to schedule an arbitrary number of
+        builds, either on interval or triggered to run at a given date/time,
+        as well as pause intervals during which no builds will be run. Be aware
+        that builds will only run if modifications are found (or build is
+        forced from JMX interface). Because of this it is usually not a good
+        idea to mix time builds and multiple builds in the same project as the
+        multiple builds will "eat" all the changes before they can be detected
+        by the time based builds.</p>
+
+        <p><b>Note:</b> Only one builder is used for a given interval where
+        modifications are found. Builds using the time attribute take precidence
+        over builds using the multiple attribute. If no matching time builds are
+        found the multiple builds are evaluated <em>in the order they appear in
+        the file</em>, so a multiple='1' on the first builder will hide all the
+        subsequent builders.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>interval</td>
+                <td>No</td>
+                <td>Interval period in seconds. Default value is 300 (five
+                minutes). Maximum value is 31536000 (one year), but for the
+                bulders that ship with CruiseControl the maximum practical
+                value is 604800 (one week). Ignored if schedule only has time
+                based builders.</td>
+            </tr>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#ant">&lt;ant&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Ant.</td>
+            </tr>
+            <tr>
+                <td><a href="#maven">&lt;maven&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Maven.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#pause">&lt;pause&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Pauses the build.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
+
+        <h2><a name="ant">&lt;ant&gt;</a></h2>
+
+        <p>Specify an Ant build to be run at a given time or build number.
+        For instance, we can run a clean build every 5 builds, or run more
+        comprehensive (and time intensive) system tests every 10 builds.  We
+        can also schedule an official build to run every night at midnight,
+        if we so desire.  AntBuilder runs Ant in as a separate Java process
+        and you can specify settings for the virtual machine using the nested
+        jvmarg element.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>buildfile</td>
+                <td>No (defaults to build.xml)</td>
+                <td>Path to Ant build file.</td>
+            </tr>
+            <tr>
+                <td>target</td>
+                <td>No</td>
+                <td>Ant target(s) to run. Default is "", or the default target
+                for the build file.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>multiple</td>
+                <td>No</td>
+                <td>Build index used to run different builders.  For example,
+                if this is set to 3, the builder will be run every 3 builds.
+                Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>No</td>
+                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>day</td>
+                <td>No</td>
+                <td>Valid values are (case-insenstive) the english names for
+                the days of the week (Sunday, Monday, Tuesday, etc). Does not
+                support multiple days except for the default of every day.</td>
+            </tr>
+            <tr>
+                <td>tempfile</td>
+                <td>No</td>
+                <td>Name of temp file.  Defaults to log.xml</td>
+            </tr>
+            <tr class="oddrow">
+                <td>antscript</td>
+                <td>No</td>
+                <td>Absolute filename of ant script.  Uses ant via java if not
+                specified.</td>
+            </tr>
+            <tr>
+                <td>antWorkingDir</td>
+                <td>No</td>
+                <td>Will invoke ant in the specified directory.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>timeout</td>
+                <td>No</td>
+                <td>Ant build will be halted if it continues longer than the
+                specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
+                <td>uselogger</td>
+                <td>No</td>
+                <td>'true' if CruiseControl should call Ant's XmlLogger as a
+                Logger; 'false' to call it as a Listener. Logger will log
+                messages based on log4j setting which can make for smaller log
+                files. Listener will echo ant messages to console which is
+                useful when debugging your ant build. Defaults to 'false'</td>
+            </tr>
+            <tr class="oddrow">
+                <td>usedebug</td>
+                <td>No</td>
+                <td>If true will invoke ant with -debug -verbose, which can be
+                useful for debugging your ant build. Defaults to 'false'</td>
+            </tr>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>&lt;jvmarg&gt;</td>
+                <td>0 .. *</td>
+                <td>Pass specified arguement to the jvm used to invoke ant.
+                Ignored if using antscript. The element has a single required
+                attribute: "arg".<br/>
+                <b>Example:</b> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</td>
+            </tr>
+            <tr class="oddrow">
+                <td>&lt;property&gt;</td>
+                <td>0 .. *</td>
+                <td>Used to define properties for the ant build. The element
+                has a two required attributes: "name" and "value". These will
+                be passed on the ant command-line as "-Dname=value"<br/>
+                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#schedule"><code>&lt;schedule&gt;</code></a></p>
+
+        <h2><a name="maven">&lt;maven&gt;</a></h2>
+
+        <p>Specify a <a href="http://maven.apache.org">Maven</a> build to be
+        run at a given time or build number. Basically, it behaves like the
+        AntBuilder, with some differences noted below. MavenBuilder runs (an
+        already installed copy of) Maven over the specified project. Due to the
+        current status of Maven (in heavy development) only the "script" start
+        mode is supported.</p>
+
+        <p>The <code>goal</code> attribute has the following usage examples:</p>
+        <ul>
+            <li>"clean" will run 'clean' goal on the project</li>
+            <li>"clean java:compile" will run 'clean' goal then 'java:compile'
+            goal on the project, within the <b>same</b> Maven session run</li>
+            <li>"clean my-cvs-update|java:compile" will run 'clean' goal then
+            'my-cvs-update' goal on the project, within the <b>same</b> Maven
+            session run, then it will run Maven <b>again</b> with goal
+            'java:compile'. Handy behavior for running update goals that update
+            the "project.xml" itself (or the like). Arbitrary number of subsets
+            allowed . Subset separator is '|'.
+            </li>
+        </ul>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>mavenscript</td>
+               <td>Yes</td>
+               <td>Absolute filename of maven startup script (maven.bat or
+               maven.sh).</td>
+            </tr>
+            <tr>
+               <td>projectfile</td>
+               <td>Yes</td>
+               <td>Path to Maven's "project.xml" file</td>
+            </tr>
+            <tr class="oddrow">
+               <td>goal</td>
+               <td>Yes</td>
+               <td>Maven goal, "set of goals" or "set of set of goals" to run.
+               (see above Note2)</td>
+            </tr>
+            <tr>
+               <td>multiple</td>
+               <td>No</td>
+               <td>Build index used to run different builders.  For example,
+               if this is set to 3, the builder will be run every 3 builds.
+               Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>time</td>
+               <td>No</td>
+               <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr>
+               <td>day</td>
+               <td>No</td>
+               <td>Integer value of day when builds should take place.
+               Sunday&nbsp;=&nbsp;1.  Does not support multiple days except for
+               the default of every day.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#schedule"><code>&lt;schedule&gt;</code></a></p>
+
+        <h2><a name="pause">&lt;pause&gt;</a></h2>
+
+        <p>It may be necessary for CruiseControl to halt executing in some
+        circumstances.  A disk backup could lock the source control repository,
+        causing CruiseControl to return errors.  Rather than deal with these
+        errors all the time, we can specify a time period for CruiseControl to
+        not attempt any builds.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>day</td>
+               <td>No</td>
+               <td>Day when the pause should take place (sunday, monday, etc).
+               Does not support multiple days except for the default of every
+               day.</td>
+            </tr>
+            <tr>
+               <td>starttime</td>
+               <td>Yes</td>
+               <td>Start of the pause in HHmm format</td>
+            </tr>
+            <tr class="oddrow">
+               <td>endtime</td>
+               <td>Yes</td>
+               <td>End of the pause in HHmm format</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#schedule"><code>&lt;schedule&gt;</code></a></p>
+
+        <h2><a name="log">&lt;log&gt;</a></h2>
+
+        <p>Optional element specifies where cruisecontrol log files are stored
+        and, via the nested merge element, specifies what xml files created by
+        the build process should be merged into the CruiseControl build log.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>dir</td>
+                <td>No</td>
+                <td>The cruisecontrol log directory. Default is "logs/[projectname]".</td>
+            </tr>
+            <tr>
+                <td>encoding</td>
+                <td>No</td>
+                <td>Encoding for CruiseControl's XML log file.</td>
+            </tr>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#merge"><code>&lt;merge&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Merges log file together.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
+
+        <h2><a name="merge">&lt;merge&gt;</a></h2>
+
+        <p>After the build is complete, there may be other xml artifacts to
+        merge into the cruisecontrol log.  The most common of these is the
+        junit test results that the Ant &lt;junit&gt; task creates.  We can add
+        a merge entry for these files so that we have one comprehensive log at
+        the end of a cruisecontrol build.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>file</td>
+               <td rowspan="2">One of file or dir.</td>
+               <td>path to file to merge into build log</td>
+            </tr>
+            <tr>
+               <td>dir</td>
+               <td>all files with extension .xml will be merged into the build log.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>removeproperties</td>
+               <td>No (defaults to true)</td>
+               <td>when merging a JUnit xml file should the properties section be removed.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#log"><code>&lt;log&gt;</code></a></p>
+
+        <h2><a name="publishers">&lt;publishers&gt;</a></h2>
+
+        <p>Publishers are run after a build has completed.  They will be run
+        regardless of whether the build was successful or not.</p>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Copies build products to a directory</td>
+            </tr>
+            <tr>
+                <td><a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#email"><code>&lt;email&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><a href="#execute"><code>&lt;execute&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#htmlemail"><code>&lt;htmlemail&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#xsltlogpublisher"><code>&lt;xsltlogpublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
+
+        <h2><a name="artifactspublisher">&lt;artifactspublisher&gt;</a></h2>
+
+        <p>Copies build products to unique destination directory based on the
+        build timestamp.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>file</td>
+                <td rowspan="2">one of file or dir</td>
+                <td>will copy specified file</td>
+            </tr>
+            <tr>
+                <td>dir</td>
+                <td>will copy all files from this directory</td>
+            </tr>
+            <tr class="oddrow">
+                <td>dest</td>
+                <td>Yes</td>
+                <td>parent directory of actual destination directory; actual destination directory name will be the build timestamp.</td>
+            </tr>
+            <tr>
+                <td>subdirectory</td>
+                <td>No</td>
+                <td>subdirectory under the unique (timestamp) directory to contain artifacts</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a></h2>
+
+        <p>The CruiseControl Build Results JSP will indicate whether or not
+        CruiseControl is currently building a project. To get this information
+        to the JSP, we write an HTML snippet to disk in a location where the JSP
+        can read it. This file will consist of the time the next build attempt
+        will take place, so there is an optional attribute to customize the
+        dateformat.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>The filename to write</td>
+            </tr>
+            <tr>
+                <td>dateformat</td>
+                <td>No</td>
+                <td>Optionally customize the dateformat used in this file</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="execute">&lt;execute&gt;</a></h2>
+
+        <p>Execute a command as part of the publishing phase.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>command</td>
+                <td>Yes</td>
+                <td>The command to execute</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="scp">&lt;scp&gt;</a></h2>
+
+        <p>SCP a file as part of the publishing process.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>sourceuser</td>
+                <td>Yes if sourcehost is specified</td>
+                <td>Log in to the sourcemachine as this user.</td>
+            </tr>
+            <tr>
+                <td>sourcehost</td>
+                <td>Yes if sourceuser is specified</td>
+                <td>SCP from this machine.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>sourcedir</td>
+                <td>No (defaults to '.')</td>
+                <td>The directory to copy from.</td>
+            </tr>
+            <tr>
+                <td>targetuser</td>
+                <td>Yes if targethost is specified</td>
+                <td>Log in to the target machine as this user.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>targethost</td>
+                <td>Yes if targetuser is specified</td>
+                <td>SCP to this machine.</td>
+            </tr>
+            <tr>
+                <td>targetdir</td>
+                <td>No (defaults to '.')</td>
+                <td>The directory to copy to.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>targetseparator</td>
+                <td>No</td>
+                <td>The file separator on the target machine.  Defaults to
+                File.separator on the source machine.</td>
+            </tr>
+            <tr>
+                <td>ssh</td>
+                <td>No (defaults to 'ssh')</td>
+                <td>The ssh application.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>options</td>
+                <td>No</td>
+                <td>Additional options to pass to SCP.</td>
+            </tr>
+            <tr>
+                <td>file</td>
+                <td>No (defaults to the current logfile)</td>
+                <td>The filename to copy.</td>
+            </tr>
          </table>
 
-         <p><a name="cvs"><span class="small">CVS</span><br/>
-         A notable feature of the CVS element is that it will look for the file CVSROOT/Users and, if the files exists, use the information in that file to map cvs usernames to email addresses.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">cvsroot</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Required if localWorkingCopy isn't specified. cvsroot that would be appropriate for the following command: <i>cvs -d CVSROOT -q log -N -d "&gt;lastbuildtime"</i></td>
-            </tr>
-            <tr>
-               <td class="tabledata">localworkingcopy</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Relative or absolute path to the local working copy. Required if cvsroot isn't specified. Directory must exist and should have files from a previous checkout.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">tag</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Set the cvs tag.  Note this should work with names, numbers, and anything else you can put on <i>log -rTAG</i></td>
-            </tr>
-            <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-            <tr>
-               <td class="tabledata">propertyondelete</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a file has been deleted.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-         </table>
+        <h3>Parent Element</h3>
 
-         <p><a name="filesystem"><span class="small">FileSystem</span><br/>
-         Returns all files beneath the specified folder than have been modified since the last build time. Any modified files are reported as modifications of type "changed" by user "User". Can also have folder be just a single file. Only looks at timestamp, not for actual changes to the file.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">folder</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Root folder of the directories to scan, or path to file to check for modifications.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-         </table>
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
 
-         <p><a name="mks"><span class="small">MKS</span></p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">localworkingcopy</td>
-               <td class="tabledata">ignored</td>
-               <td class="tabledata">Path to the local working copy. This attribute is currently ignored.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">mksroot</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Set MKSROOT</td>
-            </tr>
-            <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-            <tr>
-               <td class="tabledata">propertyondelete</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a file has been deleted.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-         </table>
+        <h2><a name="email">&lt;email&gt;</a></h2>
 
-         <p><a name="p4"><span class="small">P4 (Perforce)</span></p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">port</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Perforce Server connection to use (host:port)</td>
-            </tr>
-            <tr>
-               <td class="tabledata">client</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Perforce Client name to use</td>
-            </tr>
-            <tr>
-               <td class="tabledata">user</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Perforce User name to use</td>
-            </tr>
-            <tr>
-               <td class="tabledata">view</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Valid Perforce view (i.o.w a depot path)</td>
-            </tr>
-         </table>
+        <p>Sends an email with a URL to the build results JSP.</p>
 
-         <p><a name="pvcs"><span class="small">PVCS</span></p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">loginid</td>
-               <td class="tabledata">no</td>
-               <td class="tabledata"></td>
-            </tr>
-            <tr>
-               <td class="tabledata">pvcsproject</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata"></td>
-            </tr>
-            <tr>
-               <td class="tabledata">pvcssubproject</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata"></td>
-            </tr>
-            <tr>
-               <td class="tabledata">pvcsbin</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to directory with pcli.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">outdateformat</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The format to use to parse the LastModified entry as produced by your pvcs system (See vlog.txt for format) Default is "MMM dd yyyy HH:mm:ss"</td>
-            </tr>
-            <tr>
-               <td class="tabledata">indateformat</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The format used to parse the lastbuild date. Default is "MM/dd/yyyy/HH:mm"</td>
-            </tr>
-         </table>
+        <h3>Attributes</h3>
 
-         <p><a name="starteam"><span class="small">StarTeam</span><br/>
-         If logged on as SERVER ADMINISTRATOR it will look up the email associated with the user account for each modification.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>buildresultsurl</td>
+                <td>Yes</td>
+                <td>URL to the build results JSP</td>
             </tr>
             <tr>
-               <td class="tabledata">folder</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The repository folder</td>
+                <td>defaultsuffix</td>
+                <td>No</td>
+                <td>Default e-mail suffix to append to user names to build
+                valid e-mail addresses.  This defaults to an empty string if
+                not specified.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>failasimportant</td>
+                <td>No</td>
+                <td>Flag emails about failed builds as important? Default is 'true'.</td>
             </tr>
             <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Password for the StarTeam user</td>
+                <td>mailhost</td>
+                <td>Yes</td>
+                <td>Mail server address</td>
+            </tr>
+            <tr class="oddrow">
+                <td>username</td>
+                <td>if password is specified</td>
+                <td>Username for smtp server</td>
             </tr>
             <tr>
-               <td class="tabledata">starteamurl</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata"></td>
+                <td>password</td>
+                <td>if username is specified</td>
+                <td>Password for smtp server</td>
+            </tr>
+            <tr class="oddrow">
+                <td>reportsuccess</td>
+                <td>No (defaults to <i>always</i></td>
+                <td>Valid values:
+                <dl>
+                    <dt>always:</dt>
+                    <dd>publishes (<i>i.e.</i>, e-mails) results on every
+                    successful build.</dd>
+                    <dt>fixes:</dt>
+                    <dd>publishes results only on the first successful build
+                    and the first successful build after a failed build.</dd>
+                    <dt>never:</dt>
+                    <dd>only publishes on failed builds</dd>
+                </ul></td>
             </tr>
             <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">StarTeam user name</td>
+                <td>returnaddress</td>
+                <td>Yes</td>
+                <td>E-mail address that will appear in the sent email's From field</td>
+            </tr>
+            <tr class="oddrow">
+                <td>returnname</td>
+                <td>No</td>
+                <td>A name to match to the return address</td>
             </tr>
             <tr>
-               <td class="tabledata">preloadFileInformation</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">When set to true can make the modification check much faster. Defaults to false.</td>
+                <td>skipusers</td>
+                <td>No (defaults to false)</td>
+                <td>Controls if the users who made changes in this build get
+                email. Useful to set to "true" while configuring or debugging
+                your system. Users specificed by the failure or always nested
+                elements will still recieve email.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>spamwhilebroken</td>
+                <td>No (defaults to true)</td>
+                <td>Whether or not e-mail reports on failed builds will continue
+                for subsequent failed builds.</td>
             </tr>
             <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
-               </td>
+                <td>subjectprefix</td>
+                <td>No</td>
+                <td>Prefix for subject line of email. Useful for easily
+                filtering email.</td>
             </tr>
-            <tr>
-               <td class="tabledata">propertyondelete</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a file has been deleted.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-         </table>
+        </table>
 
-         <p><a name="svn"><span class="small">Subversion</span><br/>
-         Uses the svn program to detect changes.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">LocalWorkingCopy</td>
-               <td class="tabledata" rowspan="2">One of these</td>
-               <td class="tabledata">Relative or absolute path to the local working copy of the Subversion repository of which to find the log history.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">RepositoryLocation</td>
-               <td class="tabledata">The url to the Subversion repository on which to find the log history.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">used for authentication.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">used for authentication.</td>
-            </tr>
-         </table>
+        <h3>Child Elements</h3>
 
-         <p><a name="vss"><span class="small">Visual Source Safe</span></p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td><a name="always"><code>&lt;always&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Mail address to be emailed notification after all builds.
+                    <code>&lt;always&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr class="oddrow">
+                            <td>address</td>
+                            <td>Yes</td>
+                            <td>e-mail address</td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
             <tr>
-               <td class="tabledata">dateformat</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The date format to use for querying VSS and processing reports; default is <i>MM/dd/yy</i>.  If your computer is set to a different region, you may wish to use a format such as <i>dd/MM/yy</i>.</td>
+                <td><a name="failure"><code>&lt;failure&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Mail address to be emailed notification after failed builds.
+                    <code>&lt;failure&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr class="oddrow">
+                            <td>address</td>
+                            <td>Yes</td>
+                            <td>e-mail address</td>
+                        </tr>
+                        <tr>
+                            <td>reportWhenFixed</td>
+                            <td>No</td>
+                            <td>either true or false; defaults to false</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="oddrow">
+                <td><a name="success"><code>&lt;success&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Mail address to be emailed notification after successful builds.
+                    <code>&lt;success&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr class="oddrow">
+                            <td>address</td>
+                            <td>Yes</td>
+                            <td>e-mail address</td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
             <tr>
-               <td class="tabledata">timeformat</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The time format to use for querying VSS and processing reports; default is <i>hh:mma</i>.  If your VSS is configured differnetly you may need a different format such as <i>HH:mm:ss</i>.</td>
+                <td><a name="map"><code>&lt;map&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Maps a source control user id to an email address.
+                    <code>&lt;map&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr class="oddrow">
+                            <td>alias</td>
+                            <td>Yes</td>
+                            <td>alias (username) as it appears on modifications</td>
+                        </tr>
+                        <tr>
+                            <td>address</td>
+                            <td>Yes</td>
+                            <td>e-mail address</td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
-            <tr>
-               <td class="tabledata">vsspath</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The VSS project to get history from.  <br><b>Example:</b> /Project/subproject</td>
+            <tr class="oddrow">
+                <td><a name="propertiesmapper"><code>&lt;propertiesmapper&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>map source control user names to either valid email names
+                or complete email addresses. <code>&lt;propertiesmapper&gt;</code>
+                has the following attributes:
+                    <table class="documentation">
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>file</td>
+                            <td>Yes</td>
+                            <td>Full path to a java properties file where each
+                            property key is assumed to be a user name that is
+                            mapped to the property value, which is assumed to
+                            be valid email name or a complete email address.</td>
+                        </tr>
+                    </table>
+                </td>
             </tr>
-            <tr>
-               <td class="tabledata">login</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The VSS login to use, in the form <i>username,password</i></td>
-           </tr>
-            <tr>
-               <td class="tabledata">ssdir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to the directory containing ss.exe.  By default, ss.exe is assumed to be in the path.  <br>Note: should not contain whitespace.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">serverpath</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to the directory containing srcsafe.ini.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-            <tr>
-               <td class="tabledata">propertyondelete</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a file has been deleted.  For use in conditionally
-                  controlling the build later.
-               </td>
-            </tr>
-         </table>
+        </table>
 
-         <p><a name="vssjournal"><span class="small">Visual Source Safe, Journal File Implementation</span><br/>
-         This implementation doesn't require the source safe executable making it suitable for use on non-Windows machines.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="htmlemail">&lt;htmlemail&gt;</a></h2>
+        
+        <p>Sends an email with the build results embedded as HTML. By default
+        the same information as the JSP build results page is sent.
+                
+        <h3>Attributes</h3>
+        <p>All of the attributes and child elements of <a href="#email"><code>&lt;email&gt;</code></a>
+        apply to <code>&lt;htmlemail&gt;</code> as well. The following table
+        specifies the additional or changed attributes.</p>
+        
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>buildresultsurl</td>
+                <td>No</td>
+                <td>Email will include link to the build results JSP if this
+                URL is provided.</td>
             </tr>
             <tr>
-               <td class="tabledata">journalfile</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Full path to journal file.  Example: <i>c:/vssdata/journal/journal.txt</i></td>
+                <td>css</td>
+                <td>unless xslfile specified</td>
+                <td>Path to cruisecontrol.css.  Used only if xsldir set and
+                not xslfile.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>logdir</td>
+                <td>Yes</td>
+                <td>Path to the log directory as set in the log element of
+                the configuration xml file.</td>
             </tr>
             <tr>
-               <td class="tabledata">ssdir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The VSS project to get history from</td>
+                <td>xsldir</td>
+                <td>unless xslfile specified</td>
+                <td>Directory where standard CruiseControl xsl files are
+                located.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>xslfile</td>
+                <td>No</td>
+                <td>If specified, both xsldir and css are ignored.  Must
+                handle the entire document.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="sametimeannouncement">&lt;sametimeannouncement&gt;</a></h2>
+        
+        <p>A publisher that sends Sametime announcements (optionally with a URL
+        to the build results JSP) with the overall result of the build. Almost
+        all of the attributes of <a href="#email"><code>&lt;email&gt;</code></a>
+        apply to <code>&lt;sametimeannouncement&gt;</code> as well.</p>
+        
+        <h3>Attributes</h3>
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>buildresultsurl</td>
+                <td>No</td>
+                <td>URL to include with the build results.</td>
             </tr>
             <tr>
-               <td class="tabledata">property</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a modification has occurred.  For use in conditionally
-                  controlling the build later.
-               </td>
+                <td>host</td>
+                <td>Yes</td>
+                <td>Synonym for mailHost.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>username</td>
+                <td>Yes</td>
+                <td>User name to login to the Sametime community.</td>
             </tr>
             <tr>
-               <td class="tabledata">propertyondelete</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">
-                  Set this property if a file has been deleted.  For use in conditionally
-                  controlling the build later.
-               </td>
+                <td>password</td>
+                <td>No</td>
+                <td>Password used to login to the Sametime community. If not
+                specified, an anonymous login (using username) will be
+                attempted.</td>
             </tr>
-         </table>
+            <tr class="oddrow">
+                <td>community</td>
+                <td>No</td>
+                <td>Sametime community to login to.  Default is null &mdash;
+                appropriate for single community servers.</td>
+            </tr>
+            <tr>
+                <td>resolveusers</td>
+                <td>No (defaults to true)</td>
+                <td>Whether addresses should be resolved as users.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>resolvegroups</td>
+                <td>No (defaults to true)</td>
+                <td>Whether addresses should be resolved as groups.</td>
+            </tr>
+            <tr>
+                <td>usegroupcontent</td>
+                <td>No (defaults to true)</td>
+                <td>Whether to send announcements to the content (members) of a
+                group instead of the group directly.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>handleresolveconflicts</td>
+                <td>No (defaults to recipient)</td>
+                <td>How to handle address resolution conflicts. Valid values:
+                <dl>
+                    <dt>error:</dt>
+                    <dd>abort the announcement</dd>
+                    <dt>warn:</dt>
+                    <dd>log a warning, ignoring the conflicting addresses</dd>
+                    <dt>ignore:</dt>
+                    <dd>ignore the conflicting addresses</dd>
+                    <dt>recipient:</dt>
+                    <dd>treat all conflicting addresses as recipients of the
+                    announcement</dd>
+                </ul></td>
+            </tr>
+            <tr>
+                <td>handleresolvefails</td>
+                <td>No (defaults to error)</td>
+                <td>How to handle address resolution failures.  Valid values:
+                <dl>
+                    <dt>error:</dt>
+                    <dd>abort the announcement</dd>
+                    <dt>warn:</dt>
+                    <dd>log a warning and proceed</dd>
+                    <dt>ignore:</dt>
+                    <dd>ignore the failure</dd>
+                </ul></td>
+            </tr>
+            <tr class="oddrow">
+                <td>handlequerygroupcontentfails</td>
+                <td>No (defaults to error)</td>
+                <td>How to handle group content query failures.  Valid values:
+                <dl>
+                    <dt>error:</dt>
+                    <dd>abort the announcement</dd>
+                    <dt>warn:</dt>
+                    <dd>log a warning and proceed</dd>
+                    <dt>ignore:</dt>
+                    <dd>ignore the failure</dd>
+                </ul></td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="xsltlogpublisher">&lt;xsltlogpublisher&gt;</a></h2>
+        
+        <p>Performs an transformation of the log file. The obvious use is to
+        generate HTML files to a website, but could be used to generate other
+        sorts of output files as well.</p>
+        
+        <h3>Attributes</h3>
+        
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>directory</td>
+                <td>Yes</td>
+                <td>Directory for output file</td>
+            </tr>
+            <tr>
+                <td>outfilename</td>
+                <td>No</td>
+                <td>Name for the output file. Default uses the build label, 'label.log'</td>
+            </tr>
+            <tr class="oddrow">
+                <td>publishonfail</td>
+                <td>No (defaults to true)</td>
+                <td>Generate file if the build failed?</td>
+            </tr>
+            <tr>
+                <td>xsltfile</td>
+                <td>Yes</td>
+                <td>XSL file to used for the transform.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="dateformat">&lt;dateformat&gt;</a></h2>
+        
+        <p>The optional <code>&lt;dateformat&gt;</code> element overrides the
+        default date format for presentation. If this element is not specified,
+        the default date format is "<code>MM/dd/yyyy HH:mm:ss</code>".</p>
+        
+        <h2>Attributes</h2>
          
-         <p><a name="httpfile"><span class="small">HTTP File</span><br/>
-         Checks a single file on a web server supporting modification dates (such as Apache). Intended to be used in a Compound mofication set as a Trigger.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
             </tr>
-            <tr>
-               <td class="tabledata">url</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The HTTP URL of a file to check the modification date of</i></td>
+            <tr class="oddrow">
+                <td>format</td>
+                <td>Yes</td>
+                <td>A DateFormat String that specifies the date format for
+                presentation.</td>
             </tr>
-         </table>
+        </table>
 
-         <hr/>
+        <h3>Parent Element</h3>
 
-         <p><a name="schedule"><span class="small">Schedule</span><br/>
-         CruiseControl allows the user to schedule an arbitrary number of builds, either on interval or triggered to run at a given date/time, as well as pause intervals during which no builds will be run. Be aware that builds will only run if modifications are found (or build is forced from JMX interface). Because of this it is usually not a good idea to mix time builds and multiple builds in the same project as the multiple builds will "eat" all the changes before they can be detected by the time based builds.</p>
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
 
-	<p><b>Note:</b> Only one builder is used for a given interval where modifications are found. Builds using the time attribute take precidence over builds using the multiple attribute. If no matching time builds are found the multiple builds are evaluated <u>in the order they appear in the file</u>, so a multiple='1' on the first builder will hide all the subsequent builders.</p>
+        <h2><a name="plugin">&lt;plugin&gt;</a></h2>
+        
+        <p>A <code>&lt;plugin&gt;</code> element registers a classname with an
+        alias for use within the configuration file.</p>
+        
+        <p>The <a href="plugins.html">plugins</a> page contains a discussion of
+        the plugin architecture used with CruiseControl.</p>
+        
+        <h3>Attributes</h3>
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>name</td>
+                <td>Yes</td>
+                <td>The alias used to refer to the plugin elsewhere in the
+                configuration file.</td>
+            </tr>
+            <tr>
+                <td>classname</td>
+                <td>Yes</td>
+                <td>The class that implements the plugin.</td>
+            </tr>
+        </table>
 
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">interval</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Interval period in seconds. Default value is 300 (five minutes). Maximum value is 31536000 (one year), but for the bulders that ship with CruiseControl the maximum practical value is 604800 (one week). Ignored if schedule only has time based builders.</td>
-            </tr>
-         </table>
+        <h3>Parent Element</h3>
 
-         <p><a name="antbuilder"><span class="small">AntBuilder</span><br/>
-	  Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
-         every 5 builds, or run more comprehensive (and time intensive) system tests every 10 builds.  We can also
-         schedule an official build to run every night at midnight, if we so desire.  AntBuilder runs Ant in as a
-         separate Java process and you can specify settings for the virtual machine using the nested jvmarg element.</p>
+        <p><code>&lt;plugin&gt;</code> can be a child of either
+        <a href="#project"><code>&lt;project&gt;</code></a> or
+        <a href="#cruisecontrol"><code>&lt;cruisecontrol&gt;</code></a></p>
 
-         <table cellpadding="3" cellspacing="1" border="0">
+        
+        <h2><a name="labelincrementer">&lt;labelincrementer&gt;</a></h2>
+        
+        <p>Handle incrementing the label used to tag each build.</p>
+        
+        <h3>Attributes</h3>
+        
+        <p>The following attributes are valid for the default label incrementer.
+        If the label incrementer plugin is overridden, other attributes may be
+        applicable.</p>
+        
+        <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>defaultLabel</td>
+                <td>No (default to "build.1")</td>
+                <td>set label to use if there is no saved label.</td>
             </tr>
             <tr>
-               <td class="tabledata">buildfile</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Path to Ant build file. Default is build.xml</td>
+                <td>preBuildIncrementer</td>
+                <td>No (defaults to false)</td>
+                <td>if <code>true</code> the build number will be incremented
+                prior to the build attempt and thus each build attempt will have
+                a unique build number.</td>
             </tr>
-            <tr>
-               <td class="tabledata">target</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Ant target(s) to run. Default is "", or the default target for the build file.</td>
+            <tr class="oddrow">
+                <td>separator</td>
+                <td>No (defaults to period <code>'.'</code>)</td>
+                <td>specifies the separator to use between label and build
+                count.</td>
             </tr>
-            <tr>
-               <td class="tabledata">multiple</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds. Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">time</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">day</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Valid values are (case-insenstive) the english names for the days of the week (Sunday, Monday, Tuesday, etc). Does not support multiple days except for the default of every day.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">tempfile</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Name of temp file.  Defaults to log.xml</td>
-            </tr>
-            <tr>
-               <td class="tabledata">antscript</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Absolute filename of ant script.  Uses ant via java if not specified.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">antWorkingDir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Will invoke ant in the specified directory.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">timeout</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Ant build will be halted if it continues longer than the specified timeout. Value in seconds.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">uselogger</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger; 'false' to call it as a Listener. Logger will log messages based on log4j setting which can make for smaller log files. Listener will echo ant messages to console which is useful when debugging your ant build. Defaults to 'false'</td>
-            </tr>
-            <tr>
-               <td class="tabledata">usedebug</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">If true will invoke ant with -debug -verbose, which can be useful for debugging your ant build. Defaults to 'false'</td>
-            </tr>
-         </table>
+        </table>
 
-         <ul>
-           <p><a name="jvmarg"><span class="small">JVMArg</span><br/>
-           Nested element of AntBuilder used to pass arguement to the jvm used to invoke ant. Ignored if using antscript.
-           </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">arg</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">value to pass to the jvm, such as "-Xmx120m".</td>
-            </tr>
-         </table>
-         </ul>
-         <ul>
-           <p><a name="property"><span class="small">Property</span><br/>
-           Used to define properties for the ant build.
-           </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">name</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata" rowspan="2">will be passed on the ant command-line as "-Dname=value"</td>
-            </tr>
-            <tr>
-               <td class="tabledata">value</td>
-               <td class="tabledata">Yes</td>
-            </tr>
-         </table>
-         </ul>
+        <h3>Overriding the Default Label Incrementer</h3>
+        
+        <p>If this element is not specified, the default label incrementer will
+        use the format <code>string.number</code>, providing the default label of
+        <code>build.1</code>.</p>
+        
+        <p>To override the label incrementer used in a given project all you
+        need to do is register a different class as a <a href="#plugin">plugin</a>
+        with the name <code>labelincrementer</code>. CVSLabelIncrementer and
+        EmptyLabelIncrementer are two alternate plugins distributed with 
+        CruiseControl.</p>
+        
+        <h4>CVSLabelIncrementer</h4>
+        
+        <p>An extension of the default label incrementer but with the separator
+        set to "-" by default. Provides default label of "build-1".</p>
+        
+        <pre>
+&lt;plugin&nbsp;name="labelincrementer"
+        class="net.sourceforge.cruisecontrol.labelincrementers.CVSLabelIncrementer"/&gt;</pre>
+        
+        <h4>EmptyLabelIncrementer</h4>
+        
+        <p>Always returns a label of "" (empty string).</p>
 
-         <p><a name="mavenbuilder"><span class="small">MavenBuilder</span><br/>
-	  Specify a <a href="http://maven.apache.org">Maven</a> build to be run at a given time or build number.  
-		Basically, it behaves like the AntBuilder, with some differences noted below. MavenBuilder runs (an already installed copy of) Maven 
-		over the specified project. Due to the current status of Maven (in heavy development) only the "script" start mode is supported.
-		</p>
-
-	<p>The <code>goal</code> attribute has the following usage examples:</p>
-							 		 <ul>
-									 		 <li>"clean" will run 'clean' goal on the project</li>
-									 		 <li>"clean java:compile" will run 'clean' goal then 'java:compile' goal on the project, within the <b>same</b> Maven session run</li>
-									 		 <li>"clean my-cvs-update|java:compile" will run 'clean' goal then 'my-cvs-update' goal on the project, within the <b>same</b> Maven session run,
-											 	    then it will run Maven <b>again</b> with goal 'java:compile'. Handy behavior for running update goals that update the "project.xml" itself (or the like).
-														Arbitrary number of subsets allowed . Subset separator is '|'.
-											 </li>
-									 </ul>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">mavenscript</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Absolute filename of maven startup script (maven.bat or maven.sh).</td>
-            </tr>
-            <tr>
-               <td class="tabledata">projectfile</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Path to Maven's "project.xml" file</td>
-            </tr>
-            <tr>
-               <td class="tabledata">goal</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Maven goal, "set of goals" or "set of set of goals" to run. (see above Note2)</td>
-            </tr>
-            <tr>
-               <td class="tabledata">multiple</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds. Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">time</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">day</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Integer value of day when builds should take place.  Sunday = 1.  Does not support multiple days except for the default of every day.</td>
-            </tr>
-         </table>
-
-         <p><a name="pausebuilder"><span class="small">PauseBuilder</span><br>
-         It may be necessary for CruiseControl to halt executing in some circumstances.  A disk backup could lock the
-         source control repository, causing CruiseControl to return errors.  Rather than deal with these errors all the
-         time, we can specify a time period for CruiseControl to not attempt any builds.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">day</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Day when the pause should take place (sunday, monday, etc).  Does not support multiple days except for the default of every day.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">starttime</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Start of the pause in HHmm format</td>
-            </tr>
-            <tr>
-               <td class="tabledata">endtime</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">End of the pause in HHmm format</td>
-            </tr>
-         </table>
-
-         <hr/>
-
-         <p><a name="log"><span class="small">Log</span><br>
-         Optional element specifies where cruisecontrol log files are stored and, via the nested merge element, specifies what xml files created by the build process should be merged into the CruiseControl build log.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The cruisecontrol log directory. Default is "logs/[projectname]".</td>
-            </tr>
-            <tr>
-               <td class="tabledata">encoding</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Encoding for CruiseControl's XML log file.</td>
-            </tr>
-         </table>
-
-<ul>
-         <p><a name="merge"><span class="small">Merge</span><br>
-         After the build is complete, there may be other xml artifacts to merge into the cruisecontrol log.  The most
-         common of these is the junit test results that the Ant &lt;junit&gt; task creates.  We can add a merge entry for
-         these files so that we have one comprehensive log at the end of a cruisecontrol build.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td rowspan="2" class="tabledata">One of These</td>
-               <td class="tabledata">path to file to merge into build log</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dir</td>
-               <td class="tabledata">all files with extension .xml will be merged into the build log.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">removeproperties</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">when merging a JUnit xml file should the properties section be removed. Default is true.</td>
-            </tr>
-         </table>
-</ul>
-         <hr>
-
-         <p><a name="publishers"><span class="small">Publishers</span><br>
-         <code>Publisher</code>s are run after a build has completed.  They will be run regardless of whether the build
-         was successful or not.
-
-         <p><a name="artifactspublisher"><span class="small">ArtifactsPublisher</span><br/>
-	 Copies build products to unique destination directory based on the build timestamp.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata" rowspan="2">one of these</td>
-               <td class="tabledata">will copy specified file</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dir</td>
-               <td class="tabledata">will copy all files from this directory</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dest</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">parent directory of actual destination directory; actual destination directory name will be the build timestamp.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">subdirectory</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">subdirectory under the unique (timestamp) directory to contain artifacts</td>
-            </tr>
-         </table>
-
-         <p><a name="currentbuildstatuspublisher"><span class="small">CurrentBuildStatusPublisher</span><br>
-         The CruiseControl Build Results JSP will indicate whether or not CruiseControl is currently building a project.
-         To get this information to the JSP, we write an HTML snippet to disk in a location where the JSP can read it.
-         This file will consist of the time the next build attempt will take place, so there is an optional attribute to
-         customize the dateformat.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The filename to write</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dateformat</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Optionally customize the dateformat used in this file</td>
-            </tr>
-         </table>
-
-         <p><a name="executepublisher"><span class="small">ExecutePublisher</span><br>
-         Execute a command as part of the publishing phase.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">command</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The command to execute</td>
-            </tr>
-         </table>
-
-         <p><a name="scppublisher"><span class="small">SCPPublisher</span><br>
-         SCP a file as part of the publishing process.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">sourceuser</td>
-               <td class="tabledata">Yes if sourcehost is specified</td>
-               <td class="tabledata">Log in to the sourcemachine as this user.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">sourcehost</td>
-               <td class="tabledata">Yes if sourceuser is specified</td>
-               <td class="tabledata">SCP from this machine.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">sourcedir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The directory to copy from.  Defaults to '.'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetuser</td>
-               <td class="tabledata">Yes if targethost is specified</td>
-               <td class="tabledata">Log in to the target machine as this user.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targethost</td>
-               <td class="tabledata">Yes if targetuser is specified</td>
-               <td class="tabledata">SCP to this machine.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetdir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The directory to copy to.  Defaults to '.'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetseparator</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The file separator on the target machine.  Defaults to File.separator on the source machine.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">ssh</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The ssh application, defaults to 'ssh'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">options</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Additional options to pass to SCP.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The filename to copy, defaults to the current logfile.</td>
-            </tr>
-         </table>
-
-         <p><a name="emailpublisher"><span class="small">EmailPublisher</span><br/>
-	 EmailPublisher can't be used directly but has basic functionality for sending email that can be extended by other publishers. See <a href="#linkemailpublisher">LinkEmailPublisher</a> and <a href="#htmlemailpublisher">HTMLEmailPublisher</a> for specific features they add to these core attributes.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">buildresultsurl</td>
-               <td class="tabledata">varies on publisher</td>
-               <td class="tabledata">URL to the build results JSP</td>
-            </tr>
-            <tr>
-               <td class="tabledata">defaultsuffix</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">failasimportant</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Flag emails about failed builds as important? Default is 'true'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">mailhost</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Mail server address</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">if password is specified</td>
-               <td class="tabledata">Username for smtp server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">if username is specified</td>
-               <td class="tabledata">Password for smtp server</td>
-            </tr>
-            <tr>
-               <td class="tabledata">reportsuccess</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Valid values are <i>always</i>, <i>fixes</i>, and <i>never</i>.  <i>always</i> publishes (<i>i.e.</i>, e-mails) results on every successful build.  <i>fixes</i> publishes results only on the first successful build and the first successful build after a failed build.  <i>fixes</i> does not publish on subsequent successful builds.  <i>never</i> only publishes on failed builds.  Default value is <i>always</i>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">returnaddress</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">E-mail address that will appear in the sent email's From field</td>
-            </tr>
-            <tr>
-               <td class="tabledata">returnname</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">A name to match to the return address</td>
-            </tr>
-            <tr>
-               <td class="tabledata">skipusers</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Controls if the users who made changes in this build get email. Useful to set to "true" while configuring or debugging your system. Users specificed by the failure or always nested elements will still recieve email. Defaults to 'false.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">spamwhilebroken</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether or not e-mail reports on failed builds will continue for subsequent failed builds.  Default value is true.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">subjectprefix</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Prefix for subject line of email. Useful for easily filtering email.</td>
-            </tr>
-         </table>
-
-<ul>
-         <p><span class="small">always</span><br/>
-	 All forms of the EmailPublisher allow always sub-elements.  These identify e-mail addresses that should always be sent mail upon build completion, both successful and failures.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">address</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">e-mail address</td>
-            </tr>
-         </table>
-
-         <p><span class="small">failure</span><br/>
-	 All forms of the EmailPublisher allow failure sub-elements.  These identify e-mail addresses that should be sent mail only on failed builds, and optionally on fixed builds depending on the value for the reportWhenFixed attribute.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">address</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">e-mail address</td>
-            </tr>
-            <tr>
-               <td class="tabledata">reportWhenFixed</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">either true or false; defaults to false</td>
-            </tr>
-         </table>
-
-         <p><span class="small">success</span><br/>
-	 All forms of the EmailPublisher allow success sub-elements.  These identify e-mail addresses that should be sent mail only on successful builds.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">address</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">e-mail address</td>
-            </tr>
-         </table>
-</ul>
-<ul>
-         <p><span class="small">map</span><br/>
-         Used to map a source control user name to either a valid email name or complete email address.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">alias</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">alias (username) as it appears on modifications</td>
-            </tr>
-            <tr>
-               <td class="tabledata">address</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">e-mail address</td>
-            </tr>
-         </table>
-</ul>
-<ul>
-         <p><span class="small">propertiesmapper</span><br/>
-         Used to map source control user names to either valid email names or complete email addresses.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Full path to a java properties file where each property key is assumed to be a user
-                name that is mapped to the property value, which is assumed to be valid email name or a complete email address</td>
-            </tr>
-         </table>
-</ul>
-
-         <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br/>
-	 A version of EmailPublisher that sends an email with a URL to the build results JSP. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the LinkEmailPublisher as well.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">buildresultsurl</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">URL used to create link to the build results JSP</td>
-            </tr>
-          </table>
-
-         <p><a name="htmlemailpublisher"><span class="small">HTMLEmailPublisher</span><br/>
-         A version of EmailPublisher that sends an email with an HTML version of the build results embedded. By default has the same information as the JSP build results page. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the HTMLEmailPublisher as well.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">buildresultsurl</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Email will include link to the build results JSP if this URL is provided.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">css</td>
-               <td class="tabledata">unless xslfile specified</td>
-               <td class="tabledata">Path to cruisecontrol.css.  Used only if xsldir set and not xslfile.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">logdir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Path to the log directory as set in the log element of the configuration xml file.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">xsldir</td>
-               <td class="tabledata">unless xslfile specified</td>
-               <td class="tabledata">Directory where standard CruiseControl xsl files are located.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">xslfile</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">If specified, both xsldir and css are ignored.  Must handle the entire document.</td>
-            </tr>
-         </table>
-
-
-         <p><a name="sametimeannouncementpublisher"><span class="small">SametimeAnnouncementPublisher</span><br/>
-	 A version of EmailPublisher that sends Sametime announcements (optionally with a URL to the build results JSP) with the overall result of the build. Almost all of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the SametimeAnnouncementPublisher as well.</p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">buildresultsurl</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">URL to include with the build results.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">host</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Synonym for mailHost.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">username</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">User name to login to the Sametime community.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">password</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Password used to login to the Sametime community. If not specified, an anonymous login (using username) will be attempted.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">community</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Sametime community to login to.  Default is null - appropriate for single community servers.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">resolveusers</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether addresses should be resolved as users. Default is 'true'</td>
-            </tr>
-            <tr>
-               <td class="tabledata">resolvegroups</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether addresses should be resolved as groups. Default is 'true'</td>
-            </tr>
-            <tr>
-               <td class="tabledata">usegroupcontent</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Whether to send announcements to the content (members) of a group instead of the group directly. Default is 'true'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">handleresolveconflicts</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">How to handle address resolution conflicts.  Valid values are 'error' (abort the announcement), 'warn' (log a warning, ignoring the conflicting addresses), 'ignore' (ignore the conflicting addresses), 'recipient' (treat all conflicting addresses as recipients of the announcement).  Default is 'recipient'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">handleresolvefails</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">How to handle address resolution failures.  Valid values are 'error' (abort the announcement), 'warn' (log a warning and proceed), 'ignore' (ignore the failure).  Default is 'error'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">handlequerygroupcontentfails</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">How to handle group content query failures.  Valid values are 'error' (abort the announcement), 'warn' (log a warning and proceed), 'ignore' (ignore the failure).  Default is 'error'.</td>
-            </tr>
-          </table>
-
-         <p><a name="xsltlogpublisher"><span class="small">XSLTLogPublisher</span><br/>
-	 Obvious use is to generate HTML files to a website, but could be used to generate other sorts of output files as well.
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">directory</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Directory for output file</td>
-            </tr>
-            <tr>
-               <td class="tabledata">outfilename</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Name for the output file. Default uses the build label, 'label.log'</td>
-            </tr>
-            <tr>
-               <td class="tabledata">publishonfail</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Generate file if the build failed? Default is 'true'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">xsltfile</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">XSL file to used for the transform.</td>
-            </tr>
-         </table>
-
-         <hr>
-
-
-         <p><a name="dateformat"><span class="small">Date Format</span><br>
-         An optional <code>&lt;dateformat&gt;</code> element overrides the default date format for presentation.
-         <p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">format</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">A DateFormat String that specifies the date format for presentation.  Defaults to MM/dd/yyyy HH:mm:ss</td>
-            </tr>
-         </table>
-
-         <hr>
-
-         <p><a name="plugin"><span class="small">Plugin</span><br>
-         A <code>&lt;plugin&gt;</code> element registers a classname with an alias for use within this project.
-         <p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">name</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
-            </tr>
-            <tr>
-               <td class="tabledata">classname</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
-            </tr>
-         </table>
-
-         <hr>
-
-         <p><a name="labelincrementers"><span class="small">Label Incrementers</span><br>
-         To switch the label incrementer used in a given project all you need to do is register a different class as a plugin with the name <code>labelincrementer</code>.
-         </p>
-
-         <p><a name="defaultlabelincrementer"><span class="small">DefaultLabelIncrementer</span><br>
-         A label incrementer that uses the format string.number. Provides default label of "build.1".
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">defaultLabel</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">set label to use if there is no saved label. Default is "build.1".</td>
-            </tr>
-            <tr>
-               <td class="tabledata">preBuildIncrementer</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">if <code>true</code> the build number will be incremented prior to the build attempt and thus each build attempt will have a unique build number. Default is <code>false</code>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">separator</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">specifies the separator to use between label and build count. Default is <code>'.'</code> (period).</td>
-            </tr>
-         </table>
-
-         <p><a name="cvslabelincrementer"><span class="small">CVSLabelIncrementer</span><br>
-         An extension of DefaultLabelIncrementer but with separator set to "-" by default. Provides default label of "build-1". Classname is <code>net.sourceforge.cruisecontrol.labelincrementers.CVSLabelIncrementer</code>
-         </p>
-
-         <p><a name="emptylabelincrementer"><span class="small">EmptyLabelIncrementer</span><br>
-         Always returns a label of "" (empty string). Class name is <code>net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer</code>
-         </p>
-
-         <hr>
+        <pre>
+&lt;plugin&nbsp;name="labelincrementer"
+        class="net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer"/&gt;</pre>
          
-         <p><a name="ftptasks"><span class="small">FTP Tasks</span><br>
-         To aid the creation of a distributed build system, there are FTP related plug-ins for the status update and build results publication stages in the build.
-         All FTP tasks have the following common attributes:
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetUser</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The user used for logging into the FTP site. Default is <code>anonymous</code>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetPasswd</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">The password used during FTP log in for the <code>targetUser</code>. Default is <code>eat@joes.com</code>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetHost</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Host name of the FTP server.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetPort</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Port number of the FTP server. Default is <code>21</code>.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetDir</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Base directory in the FTP server to put the files. Default is '<code>.</code>'.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">targetSeparator</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Directory separator character used by the FTP server. Default is '<code>/</code>'.</td>
-            </tr>
-         </table>
+        <h3>Parent Element</h3>
 
-         <p><a name="currentbuildstatusftpbootstrapper"><span class="small">CurrentBuildStatusFTPBootstrapper</span><br>
-         Include this in the <code>&lt;bootstrappers&gt;</code> portion of the <code>config.xml</code> file.
-         Class name is <code>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusFTPBootstrapper</code>.
-         This performs the same action as <a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>, except that the status file is sent to the remote site via FTP, instead of being stored locally.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The filename to write.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">destDir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The remote directory (relative to <code>targetDir</code>) to write the file.</td>
-            </tr>
-         </table>
+        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
 
          <p><a name="currentbuildstatusftppublisher"><span class="small">CurrentBuildStatusFTPPublisher</span><br>
          Include this in the <code>&lt;publishers&gt;</code> portion of the <code>config.xml</code> file.
          Class name is <code>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher</code>.
          This performs the same action as <a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>, except that the status file is sent to the remote site via FTP, instead of being stored locally.
          </p>
-         <table cellpadding="3" cellspacing="1" border="0">
+        
+        <h3>Attributes</h3>
+
+        <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
+        <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
+        attributes.</p>
+        
+         <table class="documentation">
             <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
             </tr>
             <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The filename to write.</td>
+               <td>file</td>
+               <td>Yes</td>
+               <td>The filename to write.</td>
             </tr>
             <tr>
-               <td class="tabledata">destDir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The remote directory (relative to <code>targetDir</code>) to write the file.</td>
+               <td>destDir</td>
+               <td>Yes</td>
+               <td>The remote directory (relative to <code>targetDir</code>) to write the file.</td>
             </tr>
          </table>
 
-         <p><a name="ftppublisher"><span class="small">FTPPublisher</span><br>
-         Include this in the <code>&lt;publishers&gt;</code> portion of the <code>config.xml</code> file.
-         Class name is <code>net.sourceforge.cruisecontrol.publishers.FTPPublisher</code>.
-         This copies the XML log file from the build, and all files published by <a class="small" href="#artifactspublisher">ArtifactsPublisher</a>, onto the FTP server.
-         To publish the artifacts, the ArtifactsPublisher must occur before this publisher in the <code>config.xml</code> file.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">destDir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The remote directory (relative to <code>targetDir</code>) to publish the files.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">srcDir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">To publish the XML log file, this must be the same as the <code>dir</code> attribute of the <a class="small" href="#log">Log</a>.
-               To publish the artifacts, this must be the same as the <a class="small" href="#artifactspublisher">ArtifactsPublisher</a> directory.</td>
-            </tr>
-            <tr>
-               <td class="tabledata">deleteArtifacts</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">If <code>yes</code>, then all files successfully sent to the FTP server will be deleted locally. Defaults to <code>no</code>.</td>
-            </tr>
-         </table>
+        <h2><a name="ftppublisher">&lt;ftppublisher&gt;</a></h2>
+        
+        <p>Copies the XML log file from the build, and all files published by
+        <a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a>,
+        onto the FTP server. To publish the artifacts, the
+        <code>&lt;artifactspublisher&gt;</code> element must occur before this
+        publisher in the configuration file.</p>
          
-         <!-- content ends here -->
-         </td></tr></table>
-      </td>
-   </tr>
-</table>
+        <h3>Attributes</h3>
+
+        <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
+        <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
+        attributes.</p>
+        
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>destDir</td>
+                <td>Yes</td>
+                <td>The remote directory (relative to <code>targetDir</code>)
+                to publish the files.</td>
+            </tr>
+            <tr>
+                <td>srcDir</td>
+                <td>Yes</td>
+                <td>To publish the XML log file, this must be the same as the <code>dir</code> attribute of the
+                <a href="#log"><code>&lt;log&gt;</code></a> element. To publish
+                the artifacts, this must be the same as the
+                <a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a>
+                directory.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>deleteArtifacts</td>
+                <td>No (defaults to no)</td>
+                <td>If <code>yes</code>, then all files successfully sent to
+                the FTP server will be deleted locally.</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="ftpattributes">Common FTP Attributes</a></h2>
+        
+        <p>The following attributes are common to the
+        <a href="#currentbuildstatusftpbootstrapper"><code>&lt;currentbuildstatusftpbootstrapper&gt;<code></a>,
+        <a href="#currentbuildstatusftppublisher"><code>&lt;currentbuildstatusftppublisher&gt;<code></a> and the
+        <a href="#ftppublisher"><code>&lt;ftppublisher&gt;<code></a>.</p>
+         
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>targetHost</td>
+                <td>Yes</td>
+                <td>Host name of the FTP server.</td>
+            </tr>
+            <tr>
+                <td>targetUser</td>
+                <td>No (defaults to <code>anonymous</code>)</td>
+                <td>The user used for logging into the FTP site.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>targetPasswd</td>
+                <td>No (default to <code>eat@joes.com</code>)</td>
+                <td>The password used during FTP log in for the
+                <code>targetUser</code>.</td>
+            </tr>
+            <tr>
+                <td>targetPort</td>
+                <td>No (defaults to 21)</td>
+                <td>Port number of the FTP server.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>targetDir</td>
+                <td>No (defaults to <code>'.'</code>)</td>
+                <td>Base directory in the FTP server to put the files.</td>
+            </tr>
+            <tr>
+                <td>targetSeparator</td>
+                <td>No (defaults to '<code>/</code>'.</td>
+                <td>Directory separator character used by the FTP server.</td>
+            </tr>
+        </table>
+
+    </div>
+</div>
 </body>
 </html>
-

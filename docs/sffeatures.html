@@ -1,66 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
    <title>CruiseControl and Sourceforge Features</title>
-   <style type="text/css">
-      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
-      .header { font-size:12pt; font-weight:bold; }
-      pre { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
-   </style>
+   <link href="cruisecontrol.css" type="text/css" rel="stylesheet"/>
 </head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+    </div>
+    <img alt="CruiseControl" src="banner.gif"/>
+    <style type="text/css">
+        dt {
+            font-weight: bold;
+            margin-top: 1em;
+        }
+    </style>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><a href="index.html">home</a></li>
+            <li><a href="download.html">download</a></li>
+            <li><h2>documentation</h2>
+                <ul>
+                    <li><a href="../main/docs/index.html">build loop</a></li>
+                    <li><a href="../reporting/jsp/docs/index.html">results jsp</a></li>
+                    <li><a href="../main/docs/configxml.html">config</a></li>
+                    <li><a href="faq.html">faq</a></li>
+                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                </ul>
+            </li>
+            <li><h2>contributing</h2>
+                <ul>
+                    <li><a href="developers.html">developers</a>
+                        <ul>
+                            <li><a href="roles.html">roles</a></li>
+                            <li><a href="contributions.html">contributions</a></li>
+                            <li><a href="decisions.html">decisions</a></li>
+                            <li><p id="menuselected">sf features</p></li>
+                        </ul>
+                    </li>
+                    <li><a href="contact.html">mailing lists</a></li>
+                    <li><a href="cvs.html">cvs repository</a></li>
+                </ul>
+            </li>
+            <li><p id="menubottom">&nbsp;</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>CruiseControl and Sourceforge Features</h1>
+
+        <p>Although SourceForge(SF) currently hosts the CruiseControl
+        open-source project, some of the features provided by SF are not going
+        to be used.</p>
+
+        <p><strong>Bugs</strong> should not be entered into the Bug Tracking System
+        provided by SF, but rather should be emailed to either the User or
+        Developer <a href="contact.html">mailing list</a>.</p>
 
 
-<body class="body" leftmargin="0" topmargin="0">
+        <p><strong>Feature Requests</strong> should not be entered into the Feature
+        Tracking System provided by SF, but rather should be emailed to either
+        the User or Developer <a href="contact.html">mailing list</a>. See
+        the <a href="decisions.html">decision</a> making document for more
+        information on Feature Requests.</p>
 
-<table width="100%" cellpadding="0" cellspacing="0">
-   <tr>
-      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
-      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   <tr>
-</table>
+        <p><strong>Patches</strong> to the CruiseControl source written by
+        <a href="roles.html#developer">Developers</a> should not be entered
+        into the Patch Manager System provided by SF, but rather should be
+        emailed to either to the Developer mailing list.</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-   <tr>
-      <td valign="top" width="80">
-         <img src="menutop.gif" border="0"><br>
-         <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
-         <a href="download.html"><img src="menudownload.gif" border="0"></a><br>
-         <a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
-         <a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
-         <a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
-         <img src="menublank.gif" border="0"><br>
-         <a href="../main/docs/index.html"><img src="menubuildloop.gif" border="0"></a><br>
-         <a href="../reporting/jsp/docs/index.html"><img src="menujsp.gif" border="0"></a><br>
-         <img src="menubottom.gif" border="0">
-      </td>
-      <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%"><tr><td>
-         <!-- content begins here -->
+        <p>Basically ALL project communication should occur on the mailing
+        lists.<p>
 
-<p>&nbsp;<p>
-Although SourceForge(SF) currently hosts the CruiseControl open-source project, some of the features provided by SF are not going to be used.<p>
-<b>Bugs</b> should not be entered into the Bug Tracking System provided by SF, but rather should be emailed to either the User or Developer mailing list.<p>
-<b>Feature Requests</b> should not be entered into the Feature Tracking System provided by SF, but rather should be emailed to either the User or Developer mailing list. See the <a href="decisions.html">decision</a> making document for more information on Feature Requests.<p>
-<b>Patches</b> to the CruiseControl source written by <a href="roles.html#developer">Developers</a> should not be entered into the Patch Manager System provided by SF, but rather should be emailed to either to the Developer mailing list.<p>
-Basically ALL project communication should occur on the mailing lists.<p>
-
-<p>
-<span class="small">Why not use the features provided by SourceForge?</span><br>
-<p>
-<ul>
-	<li><span class="small">Working Offline</span><br>
-Many of the CruiseControl contributors require the ability to work offline, i.e. behind strange firewalls or on the plane. Email is easy to replicate locally, but websites are not. Having all project communication occur in one place makes it simpler to work offline.<p>
-	<li><span class="small">Tight Coupling to SourceForge</span><br>
-CruiseControl may move to a different host. Remaining host agnostic makes the transition simpler. The tasks presented are easily accomplished without the use of these features, so there is no need to tightly couple the project process to the host.<p>
-	<li><span class="small">Push versus Pull</span><br>
-Using features on a website requires <a href="roles.html#committer">Committers</a> and <a href="roles.html#adminstrator">Administrators</a> to monitor the website, as well as their email. Monitoring email already occurs, whereas monitoring a website represents an added burden.<p>
-</ul>
-
-         <!-- content ends here -->
-         </td></tr></table>
-      </td>
-   </tr>
-</table>
+        <h2>Why not use the features provided by SourceForge?</h2>
+        <dl>
+            <dt>Working Offline:</dt>
+            <dd>Many of the CruiseControl contributors require the ability
+            to work offline, i.e. behind strange firewalls or on the plane.
+            Email is easy to replicate locally, but websites are not. Having
+            all project communication occur in one place makes it simpler to
+            work offline.</dd>
+            <dt>Tight Coupling to SourceForge:</dt>
+            <dd>CruiseControl may move to a different host. Remaining host
+            agnostic makes the transition simpler. The tasks presented are
+            easily accomplished without the use of these features, so there
+            is no need to tightly couple the project process to the host.<dd>
+            <dt>Push versus Pull:</dt>
+            <dd>Using features on a website requires
+            <a href="roles.html#committer">Committers</a> and
+            <a href="roles.html#adminstrator">Administrators</a> to monitor
+            the website, as well as their email. Monitoring email already
+            occurs, whereas monitoring a website represents an added burden.<dd>
+        </dl>
+    </div>
+</div>
 </body>
 </html>
