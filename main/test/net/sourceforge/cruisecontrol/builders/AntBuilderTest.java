@@ -244,13 +244,30 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("init");
         HashMap buildProperties = new HashMap();
         Element buildElement = builder.build(buildProperties);
+	int initCount = getInitCount(buildElement);
+        assertEquals(1, initCount);
+    }
 
+    public void testBuildWithMultipleTargets() throws Exception {
+        AntBuilder builder = new AntBuilder();
+        builder.setBuildFile("build.xml");
+        builder.setTarget("init init");
+        HashMap buildProperties = new HashMap();
+        Element buildElement = builder.build(buildProperties);
+	int initCount = getInitCount(buildElement);
+        assertEquals(2, initCount);
+    }
+
+    public int getInitCount(Element buildElement) {
+        int initFoundCount = 0;
         Iterator targetIterator = buildElement.getChildren("target").iterator();
+        String name;
         while (targetIterator.hasNext()) {
-            Element targetElement = (Element) targetIterator.next();
-            if (targetElement.getAttributeValue("name").equals("init")) {
-                assertTrue(true);
+            name = ((Element)targetIterator.next()).getAttributeValue("name");
+            if (name.equals("init")) {
+                initFoundCount++;
             }
         }
+	return initFoundCount;
     }
 }
