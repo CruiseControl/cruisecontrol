@@ -13,12 +13,14 @@
   <li>Paul Julius (<a href="mailto:pdjulius@thoughtworks.com">pdjulius@thoughtworks.com</a>)</li>
 </ul>
 
-<p>Version 1.01 - 05/31/2001</p>
+<p>Version 1.11 - 06/04/2001</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
   <li><a href="#modificationset">ModificationSet</a></li>
+  <li><a href="#clearcaseelement">ClearCaseElement</a></li>
   <li><a href="#cvselement">CvsElement</a></li>
+  <li><a href="#p4element">P4Element</a></li>
   <li><a href="#starteamelement">StarTeamElement</a></li>
   <li><a href="#vsselement">VssElement</a></li>
 </ul>
@@ -89,6 +91,32 @@ writing modifications. See examples below.
 
 Each vendor-specific nested element controls the interface specifc to its source-control tool.
 
+<a name="clearcaseelement"></a>
+<h3>ClearCaseElement</h3>
+<h4>Parameters</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">viewpath</td>
+    <td valign="top">Local working copy to use when making queries</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">branch</td>
+        <td valign="top"></td>
+    <td valign="top" align="center">no</td>
+  </tr>
+  <tr>
+    <td valign="top">recursive</td>
+        <td valign="top">"true" or "false"</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+</table>
+
 <a name="cvselement"></a>
 <h3>CvsElement</h3>
 
@@ -103,12 +131,43 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
   </tr>
   <tr>
     <td valign="top">cvsroot</td>
-    <td valign="top">The CVSROOT required to communicate with the CVS repository.</td>
-    <td valign="top" align="center">Yes</td>
+    <td valign="top">The CVSROOT required to communicate with the CVS repository.  Defaults to assume CVSROOT has been set in the environment.</td>
+    <td valign="top" align="center">No</td>
   </tr>
   <tr>
     <td valign="top">localworkingcopy</td>
-        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy)</td>
+        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy).  Defaults to current directory.</td>
+    <td valign="top" align="center">No</td>
+  </tr>
+</table>
+
+<a name="p4element"></a>
+<h3>P4Element</h3>
+<h4>Parameters</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">port</td>
+    <td valign="top"></td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">client</td>
+        <td valign="top"></td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">user</td>
+        <td valign="top"></td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">view</td>
+        <td valign="top"></td>
     <td valign="top" align="center">Yes</td>
   </tr>
 </table>
