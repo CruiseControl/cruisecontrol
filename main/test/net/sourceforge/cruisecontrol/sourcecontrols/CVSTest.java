@@ -213,7 +213,7 @@ public class CVSTest extends TestCase {
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
-        List modifications = cvs.parseStream(input);
+        cvs.parseStream(input);
         input.close();
 
         Hashtable table = cvs.getProperties();
@@ -227,7 +227,7 @@ public class CVSTest extends TestCase {
         //negative test
         CVS cvs2 = new CVS();
         input = new BufferedInputStream(new FileInputStream(testLog));
-        modifications = cvs2.parseStream(input);
+        cvs2.parseStream(input);
         input.close();
 
         table = cvs2.getProperties();
@@ -242,7 +242,7 @@ public class CVSTest extends TestCase {
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11noMods.txt");
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
-        List modifications = cvs.parseStream(input);
+        cvs.parseStream(input);
         input.close();
 
         Hashtable table = cvs.getProperties();
@@ -257,7 +257,7 @@ public class CVSTest extends TestCase {
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11mods.txt");
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
-        List modifications = cvs.parseStream(input);
+        cvs.parseStream(input);
         input.close();
 
         Hashtable table = cvs.getProperties();
@@ -270,7 +270,7 @@ public class CVSTest extends TestCase {
         CVS cvs2 = new CVS();
         cvs2.setPropertyOnDelete("propertyOnDelete");
         input = new BufferedInputStream(new FileInputStream(testLog));
-        modifications = cvs2.parseStream(input);
+        cvs2.parseStream(input);
         input.close();
 
         table = cvs2.getProperties();
@@ -284,7 +284,7 @@ public class CVSTest extends TestCase {
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11del.txt");
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
-        List modifications = cvs.parseStream(input);
+        cvs.parseStream(input);
         input.close();
 
         Hashtable table = cvs.getProperties();
@@ -296,7 +296,7 @@ public class CVSTest extends TestCase {
         //negative test
         CVS cvs2 = new CVS();
         input = new BufferedInputStream(new FileInputStream(testLog));
-        modifications = cvs2.parseStream(input);
+        cvs2.parseStream(input);
         input.close();
 
         table = cvs2.getProperties();
