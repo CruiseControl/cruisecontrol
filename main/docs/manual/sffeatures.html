@@ -1,40 +1,41 @@
 <html>
-
 <head>
-   <title>CruiseControl and SourceForge Features</title>
+   <title>CruiseControl and Sourceforge Features</title>
    <style type="text/css">
-      .body { background:#CCCCFF; font-family:arial,helvetica,sans-serif; color:#000066; }
-      .header { font-size:16pt; font-weight:bold; }
+      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
+      .header { font-size:12pt; font-weight:bold; }
       pre { font-family:courier,serif; }
       .small { font-size:8pt; font-weight:bold; }
+      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
    </style>
 </head>
 
-<body class="body">
-<img src="banner3.gif" border="0">
-<table width="800" cellpadding="3" cellspacing="0" border="0">
+
+<body class="body" leftmargin="0" topmargin="0">
+
+<table width="100%" cellpadding="0" cellspacing="0">
    <tr>
-      <td valign="top" width="150" class="body">
-      <!-- navigation begins here -->
+      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
+      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
+   <tr>
+</table>
 
-
-<a href="index.html"><img src="menuhome.gif" border="0"></a><br>
-<a href="news.html"><img src="menunews.gif" border="0"></a><br>
-<a href="download.html"><img src="menudownload.gif" border="0"></a><br>
-<a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
-<a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
-<a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
-<a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
-<p>
-<center>
-<span class="small">Hosted By:</span><br>
-<a href="http://sourceforge.net">
-   <img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a>
-
-      <!-- navigation ends here -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+   <tr>
+      <td valign="top" width="80">
+         <img src="menutop.gif" border="0"><br>
+         <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
+         <a href="news.html"><img src="menunews.gif" border="0"></a><br>
+         <a href="download.html"><img src="menudownload.gif" border="0"></a><br>
+         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
+         <a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
+         <a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
+         <a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
+         <img src="menubottom.gif" border="0">
       </td>
-      <td valign="top" align="left" width="650" class="body">
-      <!-- content begins here -->
+      <td valign="top" align="left" width="650">
+         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <!-- content begins here -->
 
 <p>&nbsp;<p>
 Although SourceForge(SF) currently hosts the CruiseControl open-source project, some of the features provided by SF are not going to be used.<p>
@@ -43,26 +44,22 @@ Although SourceForge(SF) currently hosts the CruiseControl open-source project, 
 <b>Patches</b> to the CruiseControl source written by <a href="roles.html#developer">Developers</a> should not be entered into the Patch Manager System provided by SF, but rather should be emailed to either to the Developer mailing list.<p>
 Basically ALL project communication should occur on the mailing lists.<p>
 
-<p>&nbsp;<p>
-<span class="header">Why not use the features provided by SourceForge?</span><br>
+<p>
+<span class="small">Why not use the features provided by SourceForge?</span><br>
 <p>
 <ul>
-	<li> Working Offline<p>
-
+	<li><span class="small">Working Offline</span><br>
 Many of the CruiseControl contributors require the ability to work offline, i.e. behind strange firewalls or on the plane. Email is easy to replicate locally, but websites are not. Having all project communication occur in one place makes it simpler to work offline.<p>
-
-	<li> Tight Coupling to SourceForge<p>
+	<li><span class="small">Tight Coupling to SourceForge</span><br>
 CruiseControl may move to a different host. Remaining host agnostic makes the transition simpler. The tasks presented are easily accomplished without the use of these features, so there is no need to tightly couple the project process to the host.<p>
-
-	<li> Push versus Pull<p>
+	<li><span class="small">Push versus Pull</span><br>
 Using features on a website requires <a href="roles.html#committer">Committers</a> and <a href="roles.html#adminstrator">Administrators</a> to monitor the website, as well as their email. Monitoring email already occurs, whereas monitoring a website represents an added burden.<p>
 </ul>
 
-      <!-- content ends here -->
+         <!-- content ends here -->
+         </td></tr></table>
       </td>
    </tr>
 </table>
-
 </body>
 </html>
-

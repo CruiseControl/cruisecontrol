@@ -1,310 +1,176 @@
-
 <html>
-
 <head>
-   <title>CruiseControl Installation Guide</title>
+   <title>CruiseControl Installation Instructions</title>
    <style type="text/css">
-      .body { background:#CCCCFF; font-family:arial,helvetica,sans-serif; color:#000066; }
-      .header { font-size:16pt; font-weight:bold; }
-      pre { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .sectionheader { font-size:12pt; font-weight:bold; }
+      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
+      .header { font-size:12pt; font-weight:bold; }
+      pre { font-family:courier,serif; background-color:#CCCCCC; border:1; }
       code { font-family:courier,serif; }
+      .small { font-size:8pt; font-weight:bold; }
+      .tabledata { font-size:8pt; }
+      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
+      .tableheader { font-size:8pt; font-weight:bold; color:#FFFFFF; background-color:#000033; }
    </style>
 </head>
 
-<body class="body">
 
-<img src="banner3.gif" border="0">
-<table width="800" cellpadding="3" cellspacing="0" border="0">
+<body class="body" leftmargin="0" topmargin="0">
+
+<table width="100%" cellpadding="0" cellspacing="0">
    <tr>
-      <td valign="top" width="150" class="body">
-      <!-- navigation begins here -->
+      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
+      <td bgcolor="#000033" align="center"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
+   <tr>
+</table>
 
-
-<a href="index.html"><img src="menuhome.gif" border="0"></a><br>
-<a href="news.html"><img src="menunews.gif" border="0"></a><br>
-<a href="download.html"><img src="menudownload.gif" border="0"></a><br>
-<a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
-<a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
-<a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
-<a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
-<p>
-<center>
-<span class="small">Hosted By:</span><br>
-<a href="http://sourceforge.net">
-   <img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a>
-
-      <!-- navigation ends here -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+   <tr>
+      <td valign="top" width="80">
+         <img src="menutop.gif" border="0"><br>
+         <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
+         <a href="news.html"><img src="menunews.gif" border="0"></a><br>
+         <a href="download.html"><img src="menudownload.gif" border="0"></a><br>
+         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
+         <a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
+         <a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
+         <a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
+         <img src="menubottom.gif" border="0">
       </td>
-      <td valign="top" align="left" width="650" class="body">
-      <!-- content begins here -->
-<p>&nbsp;<p>
-<span class="header">CruiseControl Installation Guide</span><p>
+      <td valign="top" align="left" width="650">
+         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <!-- content begins here -->
 
-Standard Usage:<p>
-<a href="#useant">1. Use Ant to build your project.</a><br>
-<a href="#addmodset">2. Add the ModificationSet target</a><br>
-<a href="#configprops">3. Configure cruisecontrol.properties</a><br>
-<a href="#installtomcat">4. Install a Servlet Engine</a><br>
-<a href="#configweb">5. Configure web.xml</a><br>
-<a href="#startservlet">6. Start Servlet Engine</a><br>
-<a href="#startcruisin">7. Start CruiseControl</a><br>
-<p>
-Optional/Advanced Usage:<p>
-<a href="#customlabel">8. Build Label Customization</a><br>
-<a href="#emailmap">9. Email Mapping and Aliasing</a><br>
 
-<p>&nbsp;<p>
-<span class="header">Standard Usage</span><p>
-<a name="useant"></a>
-<span class="sectionheader">1. Set up your project to build using Ant</span><p>
-There's extensive documentation on the Ant project <a href="http://jakarta.apache.org/ant/index.html">website</a>.
-Before <i>any</i> thought should be given to using CruiseControl, your project should have a fully functional ant build
-process which can be run by hand. This should include standard targets for compiling all the source, cleaning out
-directories created by the build process, and JARing up compiled files to create your project's
-distributables.
+<span class="header">Installing CruiseControl</span>
 
-Your targets should also include tasks to label elements of the source control repository and optionally
-checkin the newly created distributables. This is a matter of personal preference. Some believe that a
-source control management tool should only contain source, while others believe that checking in
-distributables allows easier access to previous application versions. Regardless, you should be able to
-build your project with Ant.
-<p>
-<a name="addmodset"></a>
-<span class="sectionheader">2. Add the modificationset target</span><p>
-The modificationset element looks something like this:
-<pre>
-     &lt;modificationset ...&gt;
-        &lt;vsselement ssdir="lib" .../&gt;
-        &lt;vsselement ssdir="src" .../&gt;
-        &lt;vsselement ssdir="tests" .../&gt;
-        &lt;vsselement ssdir="jsp" .../&gt;
-     &lt;/modificationset&gt;
+<ul>
+<li><a class="small" href="">Install main loop</a></li>
+<li><a class="small" href="">Install build results JSP</a><li>
+</ul>
 
-</pre>
-Further details about the modificationset and nested elements are available <a href="anttasks.html">here</a>.
-The modificationset element handles general duties, such as logging and enforcing the quiet period
-between checkins. Any nested elements will handle any repository specific details. If your repository
-isn't currently supported, it's pretty easy to extend our code to add a new repository; implementing a
-simple interface is all that's necessary.  Most recently, we wrote and tested a &lt;cvselement&gt;
-in a day.
+<span class="small">Installing the main build loop.</span>
+
+<ul>
+<li><a class="small" href="#downloadsource">1. Download src/build</a><li>
+<li><a class="small" href="#createconfigfile">2. Create config.xml file</a></li>
+<li><a class="small" href="#startupcruisecontrol">3. Startup cruisecontrol</a></li>
+</ul>
+
+
+<a name="downloadsource"/>
+<span class="small">1. Download Source/Build</span>
 <p>
-The whole functionality of the modificationset element is to poll a repository for changes. This will
-be the first task run from Ant during each build, so it's pretty straightforward: if there are any
-changes since the last successful build, then we'll log the modifications and carry on. If there were
-no changes, the build ends there and we'll wait and try again in ten minutes.
+
+Download the source from CVS.  If you have CVS installed, the command to download is:
 <p>
-When dealing with any automated process, logging becomes a more important issue. The
-&lt;modificationset&gt; task will write out an xml file detailing all the modifications that have
-occurred within the repository since the last successful build. This log will be merged into the xml
-log that Ant produces when the build is complete.
+<code>
+cvs -z3 -d:pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
+</code>
 <p>
-At this point, you should have an Ant file that will perform one full build cycle: checking whether a
-build is necessary, logging the modifications since the last good build, getting the latest source to
-your build machine, compiling, packaging your distributable, running unit tests, and labeling your
-source.
+When prompted for the password for <i>anonymous</i>, simply press the &lt;ENTER&gt; key.  If you examine the code you
+just downloaded, there will be a build.bat (for Windows users) and a build.sh (for UNIX users) present in the
+cruisecontrol directory.  Execute the appropriate script, and CruiseControl should compile.  Look in the dist directory,
+and you should find a cruisecontrol.jar file if the build was successful.
 
 <p>
-<a name="configprops"></a>
-<span class="sectionheader">3. Configure cruisecontrol.properties</span><p>
-Set the properties to match your project's needs. The properties file is heavily commented to provide
-the necessary instructions.
+<a name="createconfigfile"/>
+<span class="small">2. Create config.xml file / Upgrade previous version</span>
 <p>
-<a name="installtomcat"></a>
-<span class="sectionheader">4. Install the servlet engine</span><p>
-Tomcat is a freely available application server available from Apache. However, you're free to use the
-servlet engine of your choice.
-<p>
-<a name="configweb"></a>
-<span class="sectionheader">5. Configure web.xml</span><p>
-Follow the directions specific to your app server to install buildservlet.war. You'll need to configure
-the WEB-INF/web.xml to meet your project's needs. Again, this file is commented with further directions.
-<p>
-<a name="startservlet"></a>
-<span class="sectionheader">6. Start the servlet engine</span><p>
-Again, follow the directions to start your server. Until we've started to build, there are no log files
-for the servlet to process, so we'll have to wait until we have at least built
-once before viewing the servlet.
-<p>
-<a name="startcruisin"></a>
-<span class="sectionheader">7. Start CruiseControl</span><p>
-Your classpath will need to include all the jars required by CruiseControl. All the required jar files
-have been included in the lib directory, but you should occasionally check with the original jar
-vendors for updated versions. A batch script named setclasspath.bat has also been included. This script
-should add all the required jars to your existing classpath.
-<p>
-After setting the classpath appropriately run the CruiseControl process by executing:
-<pre>
-   java CruiseControl
-</pre>
-There are some command line arguments that you'll need to specify: the last good build time, the label,
-and the path to the properties file. Specify no arguments, and you'll get a usage message that will
-explain the exact arguments that you need. If, for some reason, you need to stop the build process,
-when restarting you need only specify the path to the properties file. The last good build time and
-label will be persisted for you.
-<p>&nbsp;<p>
-<span class="header">Advanced/Optional Usage</span><p>
 
-<a name="customlabel"></a>
-<span class="sectionheader">8. Build Label Customization</span><p>
-CruiseControl provides the ability to customize the incrementation of the build labels. Each successful
-build is given a unique build label. The beginning build label can be specified on the command line
-when starting the CruiseControl process. CruiseControl will then increment the label for each successful
-build.
-<p>
-CruiseControl provides a default label incrementer which will conform to many developent efforts needs. The default label incrementer expects a label in the form "x.y",
-where x is any String and y is an integer. For example, a label like 1.51, 1.51.4, or MyProjectX.2.5 can all be handled by the default label incrementer. The first successful
-build will be assigned the original label value provided, then the label will be incremented for the next successful build. The examples would be incremented as follows, 1.52,
-1.51.5, and MyProjectX.2.6 respectively.
-<p>
-However, this label incrementation scheme may not be suitable for all development efforts. For example, if your development effort wants to use a label like
-<code>builddate.buildnumberfortoday</code> the default incrementer will not know how to increment this label to match your specification. Labels following this scheme would look like
-03.21.2001.25. The default incrementer would simply continue to increment the integer after the last dot, never changing the builddate portion of the label. The following day
-the build label might be 03.21.2001.100 when it should be 03.22.2001.1 for the first build of the day.
-<p>
-To implement a custom label incrementation scheme like the one in this example, your development effort must provide a concrete implementation of the
-<code>net.sourceforge.cruisecontrol.LabelIncrementer</code> interface. This interface specifies a single method named <code>incrementLabel</code>. The full method
-signature is:
-<pre>
-    public String incrementLabel(String oldLabel);
-</pre>
-Once the concrete implementation has been written, place the compiled class in the classpath. Then edit the <code>labelIncrementerClass</code> property value in the
-cruisecontrol.properties file. The value for this method, as stated in the comments provided therein, should be the fully qualified class name for the <code>LabelIncrementer</code>
-implementation.
-<p>
-To implement the label incrementation scheme noted above, my development effort would write a class with the incrementLabel method as follows:
-<pre>
-    public String incrementLabel(String oldLabel) {
-        try {
-            //Get the current build number portion of the label.
-            int buildNumber = Integer.parseInt(oldLabel.substring(oldLabel.lastIndexOf(".") + 1));
-
-            //Get the current suffix, and what it should be.
-            SimpleDateFormat sdf = new SimpleDateFormat("MMdd");
-            String newPrefix = sdf.format(new Date());
-            String oldPrefix = oldLabel.substring(0, oldLabel.lastIndexOf("."));
-            String correctPrefix = null;
-
-            //If the new prefix and old prefix aren't the same, then
-            // a new day has started. We need to reset the build number to 1.
-            if (!newPrefix.equals(oldPrefix)) {
-                buildNumber = 1;
-                correctPrefix = newPrefix;
-            }
-            //Otherwise, we are still on the same day, so we can just increment the build number.
-            else {
-                buildNumber++;
-                correctPrefix = oldPrefix;
-            }
-            return correctPrefix + "." + buildNumber;
-
-        } catch (NumberFormatException ne) {
-            ne.printStackTrace();
-            return null;
-        }
-    }
-</pre>
-After compiling the class called <code>MyProjectLabelIncrementer</code> and adding it to my classpath, the value for <code>labelIncrementerClass</code> will be <code>myproject.MyProjectLabelIncrementer</code>.
-The CruiseControl process will attempt to dynamically load this class and call the incrementLabel method. My development effort has now changed the behavior of
-CruiseControl to conform to our label incrementation scheme.
-<p>
-In my build.xml file, which CruiseControl uses, the label given to the next successful build can be referenced using the Ant property ${label}. Some development efforts will
-want to use this property to tag, or label, source and binary elements controlled by their source control mechanism when a successful build occurs.
-
-<p>&nbsp;<p>
-<a name="emailmap"></a>
-<span class="sectionheader">9. Email Mapping and Aliasing</span>
+All of the cruisecontrol configuration exists in the config.xml file.  If you're new to cruisecontrol, you'll have
+to create this file.  If you have used a previous version of cruisecontrol, you can use the upgrader to convert your
+old setup to a config.xml file.
 
 <p>
-CruiseControl allows the user to specify a properties file which
-maps names provided from the source control mechanism to actual email
-addresses. This behavior is optional. If a properties map is not provided
-then CruiseControl will send the names provided from the source control
-mechanism directly to the SMTP server.
+New users should read the <a href="configxml.html">explanation</a> of the config.xml file format
 <p>
-If your project wants to map a source control user name to one or more actual email addresses, or
-would like to include email grouping information, then email aliasing and mapping
-will allow you to do this. This includes projects where CVS user names don't map one-to-one
-with actual email adresses. This also includes projects where people want to be notified
-of the build status at more than one email address.
+To run the upgrader, navigate to the dist directory and execute the following command:
 <p>
-Since StarTeam (and potentially other source control tools) includes a rich
-set of user information, including an actual email address for each user,
-StarTeam projects will most likely not want to include an email map. CVS
-though only provides the user's CVS logon name with each modification. Usually
-this name must be mapped to a real email address. Most projects follow the
-convention that the CVS user name maps one-to-one with the user's actual email
-address when the domain name is appended to the user name. Most smtp servers
-will also append the domain name to the end of a user name when the @domain.name
-portion of the email address is left off. If your project fits into either
-of these two categories then email mapping is not for you.
+<code>
+java -jar cruisecontrol.jar -upgrade <i>buildfile propertiesfile configfile projectname</i>
+</code>
 <p>
-cruisecontrol.properties includes a property named <code>emailmap</code>. To specify
-a properties file which will map source control user names to one or more actual
-email addresses, specify the absolute path to the file here. For example,
-my project is building on an NT machine and I put a properties map in the
-file located at "D:\projects\myfirstproject\emailmap.properties". I set the <code>emailmap</code> property in
-the cruisecontrol.properties file to read:
-<pre>
-   emailmap = D:\projects\myfirstproject\emailmap.properties
-</pre>
-The filename provided will be passed directly to the <code>java.io.File</code> class for handling
-and should conform to that class's specification, i.e. on a Windows machine a "\"
-should be used as a file seperator, and on a *Nix machine a "/" should be used.
+Where the command line attributes are as follows:
+<table cellpadding="3" cellspacing="1" border="0">
+   <tr>
+      <td class="tableheader">Flag</td>
+      <td class="tableheader">Required</td>
+      <td class="tableheader">Description</td>
+   </tr>
+   <tr>
+      <td class="tabledata">buildfile</td>
+      <td class="tabledata">Yes</td>
+      <td class="tabledata">build.xml file that contains the modificationset task.  The buildfile will not be modified.</td>
+   </tr>
+   <tr>
+      <td class="tabledata">propertiesfile</td>
+      <td class="tabledata">Yes</td>
+      <td class="tabledata">cruisecontrol.properties file from the previous installation.</td>
+   </tr>
+   <tr>
+      <td class="tabledata">configfile</td>
+      <td class="tabledata">Yes</td>
+      <td class="tabledata">New config file to be written.  Suggested naming convention of config.xml</td>
+   </tr>
+   <tr>
+      <td class="tabledata">projectname</td>
+      <td class="tabledata">Yes</td>
+      <td class="tabledata">Unique idenifier for this project.</td>
+   </tr>
+</table>
 <p>
-In my emailmap.properties file I include several lines to indicate the actual email
-addresses that correspond to the user names returned by my source control mechanism.
-For the user name "pauljulius" I want to send email to my regular work account and
-my cell phone, which is set up to receive email. I include a line in the emailmap.properties
-file like the following:
-<pre>
-   pauljulius=pdjulius@thoughtworks.com, 62872223@mycellphoneprovider.com
-</pre>
-Now, when CruiseControl encounters the user name pauljulius in the set of modifications
-for the current build, it will resolve that to the two email addresses I provided and send
-me a notification email at both addresses to let me know the status of the build.
+
+A config file should be written to disk, and we can proceed to the next installation step.
+
+
+
 <p>
-CruiseControl also allows for email aliasing. For example, a new developer, Joe Smith,
-joined our team and for the first week I am assigned to keep an eye on him. I want to
-know every time his modified files are included in the build. So, I add a line to the
-emailmap.properties like:
-<pre>
-   joesmith = joesmith@thoughtworks.com, pauljulius
-</pre>
-Now, when CruiseControl encounters the user name joesmith in the modification set it will
-resolve it to Joe's actual email address and the email alias pauljulius. Then CruiseControl
-will resolve pauljulius to the addresses listed above. CruiseControl will recursively attempt
-to resolve any alias until either the address is fully specified, i.e. includes the "@" symbol,
-or it can find no alias for the name given. Note that you could enter an infinite loop by
-changing the pauljulius alias to read:
-<pre>
-   pauljulius=pdjulius@thoughtworks.com, 62872223@mycellphoneprovider.com, pauljulius
-</pre>
-CruiseControl will recursively attempt to refine the alias pauljulius and never reach a stopping
-point. Other infinite loops include circular references such as:
-<pre>
-buildmasters = alldevelopers
-alldevelopers = buildmasters
-</pre>
-CruiseControl does not attempt to detect circular references in the email map.  Care should be given to avoid including any circular references in the email map.
+<a name="startupcruisecontrol"/>
+<span class="small">3. Startup CruiseControl</span>
 <p>
-CruiseControl will make sure that each email appears in the mailing list only once and should never
-send email to the same email address twice for the same
-build notification. For example, in the cruisecontrol.properties file a property exists called
-"buildmaster". I can either specify an actual email address or an email alias which is mapped
-in the email.properties file. If I set the buildmaster property to pauljulius, CruiseControl will
-resolve that to the two addresses I provided in the email map. If I also modify files that
-are included in the next build, CruiseControl will encounter pauljulius as a user name in the
-modifications and resolve it to the same two addresses. CruiseControl will not send me 4 emails
-though. CruiseControl will only send a single email to each of the two addresses I have listed.
-This allows me to include myself in as many different recursive email aliases as I wish. I can
-include myself on the "notifyOnFailure" list set in cruisecontrol.properties and on the
-"buildmaster" list and only receive a single notification for each actual email address I provide.
-      <!-- content ends here -->
+CruiseControl uses the executable jar format, so we can navigate to the <i>&lt;cruisecontrol&gt;</i>/dist dir and type:
+<p>
+<code>
+java -jar cruisecontrol.jar
+</code>
+<p>
+The following command line arguments can be specified:<br>
+<table cellpadding="3" cellspacing="1" border="0">
+   <tr>
+      <td class="tableheader">Flag</td>
+      <td class="tableheader">Required</td>
+      <td class="tableheader">Description</td>
+   </tr>
+   <tr>
+      <td class="tabledata">-projectname <i>name</i></td>
+      <td class="tabledata">Yes</td>
+      <td class="tabledata">Should match the name attribute of the &lt;project&gt; element in config.xml</td>
+   </tr>
+   <tr>
+      <td class="tabledata">-lastbuild <i>timestamp</i></td>
+      <td class="tabledata">First Time</td>
+      <td class="tabledata">Timestamp format is YYYYMMddHHmmss</td>
+   </tr>
+   <tr>
+      <td class="tabledata">-label <i>label</i></td>
+      <td class="tabledata">First Time</td>
+      <td class="tabledata">Label format depends on the labelincrementer used.</td>
+   </tr>
+   <tr>
+      <td class="tabledata">-config <i>filename</i></td>
+      <td class="tabledata">First Time</td>
+      <td class="tabledata">Relative path to config.xml file</td>
+   </tr>
+</table>
+<p>
+After the first build cycle, the values for<code>-lastbuild</code>, <code>-label</code> and <code>-config</code> will be saved.  If cruisecontrol should need to be
+restarted, the values for these arguments need not be specified, unless you would like to override the values that cruisecontrol has.  The only argument that is always required is
+<code>-projectname</code>.
+
+         <!-- content ends here -->
+         </td></tr></table>
       </td>
    </tr>
 </table>
-
 </body>
 </html>
