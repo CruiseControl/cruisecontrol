@@ -592,7 +592,7 @@ public class Project implements Serializable, Runnable {
         validateLabel(label, labelIncrementer);
 
         auxLogs = helper.getAuxLogs();
-        publishers = helper.getPublishers();
+        setPublishers(helper.getPublishers());
 
         buildAfterFailed = helper.getBuildAfterFailed();
 
@@ -616,6 +616,11 @@ public class Project implements Serializable, Runnable {
         debug("logFileName            = [" + logFileName + "]");
         debug("logXmlEncoding         = [" + logXmlEncoding + "]");
         debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
+    }
+
+    protected void setPublishers(List listOfPublishers) {
+        publishers = listOfPublishers;
+        
     }
 
     ProjectXMLHelper getProjectXMLHelper() throws CruiseControlException {
@@ -725,8 +730,19 @@ public class Project implements Serializable, Runnable {
      */
     protected void publish(Element logElement) throws CruiseControlException {
         Iterator publisherIterator = publishers.iterator();
+        Publisher publisher = null;
         while (publisherIterator.hasNext()) {
-            ((Publisher) publisherIterator.next()).publish(logElement);
+            try {
+                publisher = (Publisher) publisherIterator.next(); 
+                publisher.publish(logElement);
+            } catch (CruiseControlException e) {
+                StringBuffer message = new StringBuffer("exception publishing results");
+                if (publisher != null) {
+                    message.append(" with " + publisher.getClass().getName());
+                }
+                message.append(" for project " + name);
+                LOG.error(message.toString(), e);
+            }
         }
     }
 
