@@ -261,14 +261,31 @@ public class Project implements Serializable, Runnable {
     }
 
     void waitForNextBuild() throws InterruptedException {
-        Date now = new Date();
-        long waitTime = schedule.getTimeToNextBuild(now, getBuildInterval());
+        long waitTime = getTimeToNextBuild();
         if (needToWaitForNextBuild(waitTime)) {
             appLog("next build in " + Util.formatTime(waitTime));
             synchronized (waitMutex) {
                 waitMutex.wait(waitTime);
             }
         }
+    }
+
+    private long getTimeToNextBuild() {
+        Date now = new Date();
+        long waitTime = schedule.getTimeToNextBuild(now, getBuildInterval());
+        if (waitTime == 0) {
+            // check for the exceptional case that we're dealing with a
+            // project that has just built within a minute time
+            if (buildStartTime != null) {
+                long millisSinceLastBuild = now.getTime() - buildStartTime.getTime();
+                if (millisSinceLastBuild < 60000L) {
+                    debug("build finished within a minute, getting new time to next build");
+                    waitTime = schedule.getTimeToNextBuild(
+                        new Date(now.getTime() + 60000L), getBuildInterval());
+                }
+            }
+        }
+        return waitTime;          
     }
 
     static boolean needToWaitForNextBuild(long waitTime) {
