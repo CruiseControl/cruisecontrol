@@ -494,7 +494,7 @@ public class Commandline implements Cloneable {
      * Executes the command.
      */
     public Process execute() throws IOException {
-        Process process = null;
+        Process process;
 
         if (workingDir == null) {
             LOG.debug("Executing \"" + this + "\"");
@@ -504,7 +504,7 @@ public class Commandline implements Cloneable {
                 "Executing \""
                     + this
                     + "\" in directory "
-                    + (workingDir != null ? workingDir.getAbsolutePath() : null));
+                    + workingDir.getAbsolutePath());
             process = Runtime.getRuntime().exec(getCommandline(), null, workingDir);
         }
 
