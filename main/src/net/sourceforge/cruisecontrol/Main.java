@@ -73,17 +73,22 @@ public class Main {
         BuildQueue buildQueue = new BuildQueue(startQueue);
         Project[] projects = null;
         try {
-            project = main.configureProject(args);
-            // Init the project once, to check the current config file is ok
-            project.init();
+            String projectName = main.parseProjectName(args);
+            boolean multipleProjects = projectName == null;
+            if (multipleProjects) {
+                projects = main.getAllProjects(args);
+            } else {
+                project = main.configureProject(args);
+                // Init the project once, to check the current config file is ok
+                project.init();
 
-            if (shouldStartProjectController(args)) {
-                ProjectControllerAgent agent =
-                    new ProjectControllerAgent(project, parsePort(args));
-                agent.start();
+                if (shouldStartProjectController(args)) {
+                    ProjectControllerAgent agent =
+                        new ProjectControllerAgent(project, parsePort(args));
+                    agent.start();
+                }
+                projects = new Project[] { project };
             }
-
-            projects = main.getAllProjects(args, project);
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             usage();
@@ -102,26 +107,23 @@ public class Main {
         }
     }
 
-    Project[] getAllProjects(String[] args, Project namedProject)
-        throws CruiseControlException {
+    Project[] getAllProjects(String[] args) throws CruiseControlException {
         Vector allProjects = new Vector();
-        String configFileName = namedProject.getConfigFileName();
+        Project defaultProject = new Project();
+        String configFileName =
+            parseConfigFileName(args, defaultProject.getConfigFileName());
         File configFile = new File(configFileName);
         Element configRoot = Util.loadConfigFile(configFile);
         String[] projectNames = getProjectNames(configRoot);
         for (int i = 0; i < projectNames.length; i++) {
             String projectName = projectNames[i];
-            System.out.println("projectName = ["+projectName+"]");
-            if (projectName.equals(namedProject.getName())) {
-                System.out.println("equals namedProject");
-                allProjects.add(namedProject);
-                continue;
-            }
+            System.out.println("projectName = [" + projectName + "]");
             Project project = configureProject(args, projectName);
             project.init();
             allProjects.add(project);
         }
-        return (Project[]) allProjects.toArray(new Project[] {});
+        return (Project[]) allProjects.toArray(new Project[] {
+        });
     }
 
     /**
@@ -236,15 +238,12 @@ public class Main {
      * Parse projectname from arguments.  projectname should always be specified
      * in arguments.
      *
-     * @return project name; never null
-     * @throws CruiseControlException if projectname is not specified
+     * @return project name or null if unspecified
+     * @throws CruiseControlException if error in parsing argument
      */
     protected String parseProjectName(String args[])
         throws CruiseControlException {
         String projectName = parseArgument(args, "projectname", null);
-        if (projectName == null) {
-            throw new CruiseControlException("'projectname' is a required argument to CruiseControl.");
-        }
         return projectName;
     }
 
