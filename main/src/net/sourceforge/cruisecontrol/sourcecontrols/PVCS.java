@@ -64,7 +64,6 @@ import java.util.StringTokenizer;
 public class PVCS implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(PVCS.class);
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static final String DOUBLE_QUOTE = "\"";
 
     private Hashtable properties = new Hashtable();
