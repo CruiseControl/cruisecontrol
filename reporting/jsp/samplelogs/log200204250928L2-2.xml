@@ -1,0 +1,213 @@
+<build time="10 seconds">
+
+    <target name="clean" time="0 seconds">
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:46: " name="Mkdir" time="0 seconds"></task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:47: " name="Mkdir" time="0 seconds"></task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:48: " name="Mkdir" time="0 seconds"></task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:49: " name="Delete" time="0 seconds">
+            <message priority="info"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/dist]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/dist]]></message>
+        </task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:50: " name="Delete" time="0 seconds">
+            <message priority="info"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/AllTests.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTag$1.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTag.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTagExtraInfo.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTagTest.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/XSLTag$1.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/XSLTag.class]]></message>
+            <message priority="debug"><![CDATA[Deleting /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/XSLTagTest.class]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes]]></message>
+        </task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:51: " name="Delete" time="0 seconds">
+            <message priority="info"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/testresults]]></message>
+            <message priority="debug"><![CDATA[Deleting directory /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/testresults]]></message>
+        </task>
+    </target>
+    <target name="init" time="0 seconds">
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:55: " name="Mkdir" time="0 seconds">
+            <message priority="info"><![CDATA[Created dir: /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/dist]]></message>
+        </task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:56: " name="Mkdir" time="0 seconds">
+            <message priority="info"><![CDATA[Created dir: /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes]]></message>
+        </task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:57: " name="Mkdir" time="0 seconds">
+            <message priority="info"><![CDATA[Created dir: /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/testresults]]></message>
+        </task>
+    </target>
+    <target name="compile" time="2 seconds">
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:61: " name="Javac" time="2 seconds">
+            <message priority="debug"><![CDATA[net/sourceforge/cruisecontrol/taglib/NavigationTag.java added as /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTag.class doesn't exist.]]></message>
+            <message priority="debug"><![CDATA[net/sourceforge/cruisecontrol/taglib/NavigationTagExtraInfo.java added as /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTagExtraInfo.class doesn't exist.]]></message>
+            <message priority="debug"><![CDATA[net/sourceforge/cruisecontrol/taglib/XSLTag.java added as /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/XSLTag.class doesn't exist.]]></message>
+            <message priority="info"><![CDATA[Compiling 3 source files to /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes]]></message>
+            <message priority="debug"><![CDATA[Using modern compiler]]></message>
+            <message priority="debug"><![CDATA[Compilation args: -d /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes -classpath /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/servlet.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/xalan.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/ant.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/junit.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/optional.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/xerces.jar -sourcepath /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/src -g]]></message>
+            <message priority="debug"><![CDATA[Files to be compiled:
+    /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/src/net/sourceforge/cruisecontrol/taglib/NavigationTag.java
+    /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/src/net/sourceforge/cruisecontrol/taglib/NavigationTagExtraInfo.java
+    /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/src/net/sourceforge/cruisecontrol/taglib/XSLTag.java
+                ]]></message>
+        </task>
+    </target>
+    <target name="test" time="4 seconds">
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:70: " name="Javac" time="0 seconds">
+            <message priority="debug"><![CDATA[net/sourceforge/cruisecontrol/taglib/AllTests.java added as /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/AllTests.class doesn't exist.]]></message>
+            <message priority="debug"><![CDATA[net/sourceforge/cruisecontrol/taglib/NavigationTagTest.java added as /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/NavigationTagTest.class doesn't exist.]]></message>
+            <message priority="debug"><![CDATA[net/sourceforge/cruisecontrol/taglib/XSLTagTest.java added as /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes/net/sourceforge/cruisecontrol/taglib/XSLTagTest.class doesn't exist.]]></message>
+            <message priority="info"><![CDATA[Compiling 3 source files to /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes]]></message>
+            <message priority="debug"><![CDATA[Using modern compiler]]></message>
+            <message priority="debug"><![CDATA[Compilation args: -d /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes -classpath /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/servlet.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/xalan.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/junit.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/ant.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/optional.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/xerces.jar -sourcepath /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/test]]></message>
+            <message priority="debug"><![CDATA[Files to be compiled:
+    /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/test/net/sourceforge/cruisecontrol/taglib/AllTests.java
+    /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/test/net/sourceforge/cruisecontrol/taglib/NavigationTagTest.java
+    /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/test/net/sourceforge/cruisecontrol/taglib/XSLTagTest.java
+                ]]></message>
+        </task>
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:77: " name="JUnitTask" time="3 seconds">
+            <message priority="debug"><![CDATA[Executing: java -classpath /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/servlet.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/xalan.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/junit.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/ant.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/lib/optional.jar:/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/classes org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner net.sourceforge.cruisecontrol.taglib.AllTests haltOnError=false haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.PlainJUnitResultFormatter formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/testresults.xml]]></message>
+            <message priority="info"><![CDATA[Using latest log file: /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/testresults/log3.xml]]></message>
+            <message priority="info"><![CDATA[Using specified log file: /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/testresults/log1.xml]]></message>
+            <message priority="info"><![CDATA[Testsuite: net.sourceforge.cruisecontrol.taglib.AllTests]]></message>
+            <message priority="info"><![CDATA[Tests run: 7, Failures: 0, Errors: 0, Time elapsed: 2.539 sec]]></message>
+            <message priority="info"><![CDATA[]]></message>
+            <message priority="info"><![CDATA[Testcase: testGetUrl took 0.171 sec]]></message>
+            <message priority="info"><![CDATA[Testcase: testGetLinkText took 0.01 sec]]></message>
+            <message priority="info"><![CDATA[Testcase: testGetLatestLog took 0.025 sec]]></message>
+            <message priority="info"><![CDATA[Testcase: testTransform took 1.65 sec]]></message>
+            <message priority="info"><![CDATA[Testcase: testGetXmlFile took 0.004 sec]]></message>
+            <message priority="info"><![CDATA[Testcase: testGetCachedCopyFileName took 0 sec]]></message>
+            <message priority="info"><![CDATA[Testcase: testServeCachedCopy took 0.002 sec]]></message>
+        </task>
+    </target>
+    <target name="war" time="2 seconds">
+        <task location="/Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/build.xml:93: " name="War" time="2 seconds">
+            <message priority="info"><![CDATA[Building war: /Users/alden/cruisecontrol/cruisecontrol/reporting/jsp/dist/cruisecontrol.war]]></message>
+        </task>
+    </target>
+    <today>Wednesday, April 25, 2002</today>
+    <label>2-1</label>
+    <modifications>
+        <changelist type="p4" changelistNumber="9" user="non" client="non:all" dateOfSubmission="2002/04/23">
+            <description><![CDATA[Fixed support for db2. This is now the default database shipped with HPDoc. For now that is. Still has to be tested on PostgreSQL to see that it is still working there. The sea rch mechanism is also upgraded to now ALMOST support AND/OR expressions. There are thoughtsabout this, but not yet implemented (however prepared for)]]></description>
+            <affectedfile filename="//depot/hpdoc/main/build.xml" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/hpdoc.ipr" revision="1" action="add" />
+            <affectedfile filename="//depot/hpdoc/main/lib/ant.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/db2java.zip" revision="1" action="add" />
+            <affectedfile filename="//depot/hpdoc/main/lib/js.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/junit.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/libUnixSyslogAppender.so" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/libUnixSyslogAppender.so.1" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/log4j-core.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/log4j.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/mockobjects.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/NTEventLogAppender.dll" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/openorb-1.2.0.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/openorb_event-1.2.0.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/openorb_time-1.2.0.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/openorb_tools-1.2.0.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/postgresql2.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/servlet.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/xalan.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/lib/xerces.jar" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/java/com/ismobile/hpdoc/HpDocConnection.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/java/com/ismobile/hpdoc/util/DocumentSet.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/java/com/ismobile/hpdoc/util/HpDocument.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/java/com/ismobile/hpdoc/util/IndexPlan.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/sql/hpdoc_create.sql" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/sql/hpdoc_create_db2.sql" revision="1" action="add" />
+            <affectedfile filename="//depot/hpdoc/main/src/sql/new_search_for_index_plans.sql" revision="1" action="add" />
+            <affectedfile filename="//depot/hpdoc/main/src/test/com/ismobile/hpdoc/HpDocConnectionTest.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/test/com/ismobile/hpdoc/HpDocTestSuite.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/test/com/ismobile/hpdoc/test.xml" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/test/com/ismobile/hpdoc/test_assignment.xml" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/test/com/ismobile/hpdoc/test_task.xml" revision="2" action="edit" />
+            <affectedfile filename="//depot/hpdoc/main/src/test/com/ismobile/hpdoc/util/IndexPlanTest.java" revision="2" action="edit" />
+        </changelist>
+        <changelist type="p4" changelistNumber="11" user="non" client="non:all" dateOfSubmission="2002/04/30">
+            <description><![CDATA[ok, tests running smooth. Checking in mostly for backup. Not finished yet. CIMD is comming on great and I'm starting to see a framework developing.]]></description>
+            <affectedfile filename="//depot/k4j/main/docs/azindex.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/chiclet.row.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/cimd.pdf" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/docs/cimd_client_cpp.txt" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/docs/cimd_cpp.txt" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/docs/cimd_smart.pdf" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/docs/coffeecup13x10.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/developer.connection.header.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/Fig2Final.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/Fig3Final.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/Fig5Final.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/Fig6Final.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/figure1.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/figure4.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/help.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/javalogo52x88.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/lgsun.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/online-training.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/pixel.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/PrintPageServlet.html" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/stripelt.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/stripert.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/docs/T7.gif" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/k4j.ipr" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/k4j.iws" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/lib/junit.jar" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/lib/log4j.jar" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/io/CIMDInputStream.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/io/CIMDOutputStream.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/pdu/Data.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/pdu/Header.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/pdu/Parameter.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/pdu/PDU.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/pdu/PDUFactory.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/server/CIMDServer.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/type/Address.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/type/Hexadecimal.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/type/Integer.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/type/String.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/cimd/type/UserData.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/client/SMPPClient.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/io/SMPPInputStream.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/io/SMPPOutputStream.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitter.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitter.java.0" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitterResp.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitterResp.java.0" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/Body.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/Body.java.0" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/Header.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/Parameter.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/PDU.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/pdu/PDUFactory.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/server/SMPPDispatcher.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/server/SMPPServer.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/type/CString.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/type/Integer.java" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/java/com/ismobile/smpp/type/Parameter.java.0" revision="2" action="edit" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/cimd/CIMDTestSuite.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/cimd/pdu/DataTest.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/cimd/pdu/HeaderTest.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/cimd/pdu/ParameterTest.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/cimd/pdu/PDUFactoryTest.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/cimd/pdu/PDUTest.java" revision="1" action="add" />
+            <affectedfile filename="//depot/k4j/main/src/test/com/ismobile/IsMobileTestSuite.java" revision="1" action="add" />
+        </changelist>
+        <changelist type="p4" changelistNumber="15" user="non" client="non:all" dateOfSubmission="2002/05/02">
+            <description><![CDATA[Testing ..Some ..Linebreaks.]]></description>
+        </changelist>
+    </modifications>
+    <testsuite errors="0" failures="0" name="net.sourceforge.cruisecontrol.taglib.AllTests" tests="7" time="2.539">
+        <testcase name="testGetUrl" time="0.179"></testcase>
+        <testcase name="testGetLinkText" time="0.01"></testcase>
+        <testcase name="testGetLatestLog" time="0.025"></testcase>
+        <testcase name="testTransform" time="1.651"></testcase>
+        <testcase name="testGetXmlFile" time="0.005"></testcase>
+        <testcase name="testGetCachedCopyFileName" time="0"></testcase>
+        <testcase name="testServeCachedCopy" time="0.002"></testcase>
+    </testsuite>
+</build>
