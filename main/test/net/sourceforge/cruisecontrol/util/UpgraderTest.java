@@ -56,7 +56,7 @@ public class UpgraderTest extends TestCase {
 
     public void testCreateLabelIncrementer() throws Exception {
         String expectedIncrementerSpecified = "<plugin name=\"labelincrementer\" classname=\"somelabelincrementer\"/>";
-        String expectedIncrementerNotSpecified = "<plugin name=\"labelincrementer\" classname=\"net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer\"/>";
+        String expectedIncrementerNotSpecified = "";
         Properties propertiesIncrementerSpecified = new Properties();
         propertiesIncrementerSpecified.put("labelIncrementerClass", "somelabelincrementer");
 
@@ -71,11 +71,7 @@ public class UpgraderTest extends TestCase {
 
         assertEquals(outputter.outputString(expectedIncrementerSpecifiedElement), outputter.outputString(actualIncrementerSpecifiedElement));
 
-        Element expectedIncrementerNotSpecifiedElement = builder.build(new StringReader(expectedIncrementerNotSpecified)).getRootElement();
-        Element actualIncrementerNotSpecifiedElement = builder.build(new StringReader(upgrader.createLabelIncrementerPlugin(propertiesIncrementerNotSpecified))).getRootElement();
-
-        assertEquals(outputter.outputString(expectedIncrementerNotSpecifiedElement), outputter.outputString(actualIncrementerNotSpecifiedElement));
-
+        assertEquals("", upgrader.createLabelIncrementerPlugin(propertiesIncrementerNotSpecified));
     }
 
     public void testCreatePublishersNoEmailMap() throws Exception {
