@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,7 @@ public class ProjectXMLHelper {
     private String projectName;
 
     public ProjectXMLHelper() {
-        initDefaultPluginRegistry();
+        plugins = PluginRegistry.getDefaultPluginRegistry();
     }
 
     public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
@@ -315,53 +314,6 @@ public class ProjectXMLHelper {
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
-    }
-
-    protected void initDefaultPluginRegistry() {
-        plugins = new HashMap();
-        // bootstrappers
-        plugins.put(
-            "currentbuildstatusbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
-        plugins.put(
-            "cvsbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
-        plugins.put("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
-        plugins.put(
-            "vssbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
-        // sourcecontrols
-        plugins.put("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
-        plugins.put("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
-        plugins.put("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
-        plugins.put("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
-        plugins.put("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
-        plugins.put("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
-        plugins.put("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
-        plugins.put("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
-        plugins.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
-        // builders
-        plugins.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
-        plugins.put("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
-        plugins.put("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
-        // label incrementer -- only one!
-        plugins.put(
-            "labelincrementer",
-            "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
-        // publishers
-        plugins.put(
-            "artifactspublisher",
-            "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
-        plugins.put(
-            "currentbuildstatuspublisher",
-            "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
-        plugins.put("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
-        plugins.put("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
-        plugins.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
-        plugins.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
-        // other
-        plugins.put("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
-        plugins.put("schedule", "net.sourceforge.cruisecontrol.Schedule");
     }
 
     String getClassNameForPlugin(String pluginName) {
