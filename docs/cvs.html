@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-   <title>CruiseControl Developer Information</title>
+   <title>CruiseControl CVS Repository</title>
    <style type="text/css" media="all">
         @import "cruisecontrol.css";
    </style>
@@ -27,30 +27,38 @@
             <li><a href="faq.html">faq</a></li>
             <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
             <li><h2>contributing</h2></li>
-            <li><p id="menuselected" class="expandedmenu">developers</p>
-                <ul>
-                    <li><a href="roles.html">roles</a></li>
-                    <li><a href="contributions.html">contributions</a></li>
-                    <li><a href="decisions.html">decisions</a></li>
-                    <li><a href="sffeatures.html">sf features</a></li>
-                </ul>
-            </li>
+            <li><a class="expandmenu" href="developers.html">developers</a></li>
             <li><a href="contact.html">mailing lists</a></li>
-            <li><a href="cvs.html">cvs repository</a></li>
+            <li><p id="menuselected">cvs repository</p></li>
             <li><p id="menubottom">&nbsp;</p></li>
         </ul>
     </div>
     <div class="content">
-        <h1>Developer Information</h1>
+        <h1>CVS Repository</h1>
 
-        <h2>Project Process Information</h2>
-        <p>Project <a href="roles.html">roles</a>.</p>
-        <p>On making <a href="contributions.html">contributions</a>.</p>
-        <p>How project <a href="decisions.html">decisions</a> get made.</p>
-        <p>Why some <a href="sffeatures.html">SourceForge features</a> are not being used.</p>
+        <h2>Browse CvsWeb</h2>
+        Browse the <a class="external" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/cruisecontrol">
+        CruiseControl CVS tree</a>.
 
-        <h2>Issue Tracking</h2>
-        Browse the CruiseControl <a class="external" href="http://jira.public.thoughtworks.org/secure/BrowseProject.jspa?id=10020">issue tracking</a> site.
+        <h2>Anonymous CVS Access</h2>
+        <p>CruiseControl's SourceForge CVS repository can be checked out
+        through anonymous (pserver) CVS with the following instruction set.
+        When prompted for a password for <i>anonymous</i>, simply press the
+        Enter key.</p>
+        <pre>
+export CVS_ROOT=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol
+cvs login
+cvs -z3 co cruisecontrol</pre>
+
+        <h2>Committer CVS Access via SSH</h2>
+        <p>Only project <a href="roles.html#committer">Committers</a> can
+        access the CVS tree via this method. SSH1 must be installed on your
+        client machine. Substitute <i>developername</i> with the proper value.
+        Enter your site password when prompted.
+        <pre>
+export CVS_RSH=ssh
+export CVS_ROOT=:ext:developername@cvs.sourceforge.net:/cvsroot/cruisecontrol
+cvs -z3 co cruisecontrol</pre>
     </div>
 </div>
 </body>

@@ -2,42 +2,48 @@
 <html>
 <head>
    <title>CruiseControl Frequently Asked Questions</title>
-   <link href="cruisecontrol.css" type="text/css" rel="stylesheet"/>
+   <style type="text/css" media="all">
+        @import "cruisecontrol.css";
+   </style>
+   <link href="print.css" type="text/css" rel="stylesheet" media="print"/>
 </head>
 <body>
 <div class="header">
     <div class="hostedby">
         Hosted By:<br/>
-        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
     </div>
-    <img alt="CruiseControl" src="banner.gif"/>
+    <img alt="CruiseControl" src="banner.png"/>
 </div>
 <div class="container">&nbsp;
     <div id="menu">
         <ul id="menulist">
             <li><a href="index.html">home</a></li>
             <li><a href="download.html">download</a></li>
-            <li><h2>documentation</h2>
-                <ul>
-                    <li><a href="../main/docs/index.html">build loop</a></li>
-                    <li><a href="../reporting/jsp/docs/index.html">results jsp</a></li>
-                    <li><a href="../main/docs/configxml.html">config</a></li>
-                    <li><p id="menuselected">faq</p></li>
-                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
-                </ul>
-            </li>
-            <li><h2>contributing</h2>
-                <ul>
-                    <li><a href="developers.html">developers</a></li>
-                    <li><a href="contact.html">mailing lists</a></li>
-                    <li><a href="cvs.html">cvs repository</a></li>
-                </ul>
-            </li>
+            <li><h2>documentation</h2></li>
+            <li><a class="expandmenu" href="../main/docs/index.html">build loop</a></li>
+            <li><a class="expandmenu" href="../reporting/jsp/docs/index.html">results jsp</a></li>
+            <li><a href="../main/docs/configxml.html">config</a></li>
+            <li><p id="menuselected">faq</p></li>
+            <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+            <li><h2>contributing</h2></li>
+            <li><a class="expandmenu" href="developers.html">developers</a></li>
+            <li><a href="contact.html">mailing lists</a></li>
+            <li><a href="cvs.html">cvs repository</a></li>
             <li><p id="menubottom">&nbsp;</p></li>
         </ul>
     </div>
     <div class="content">
         <h1>Frequently Asked Questions</h1>
+        
+        <h2>Wiki FAQ</h2>
+        
+        The <a class="external"
+        href="http://confluence.public.thoughtworks.org/display/CC/Home">
+        CruiseControl Wiki</a> is an ever growing knowledge-base of the
+        CruiseControl community, with its own (longer) <a class="external"        
+        href="http://confluence.public.thoughtworks.org/display/CC/FrequentlyAskedQuestions">FAQ</a>,
+        which will generally be more up to date than this page.
 
         <h2>CruiseControl 2.0 FAQ</h2>
         <ul>
@@ -60,7 +66,6 @@
         <ul>
             <li><a class="small" href="#cantSearch">How can I search the mailing lists?</a></li>
             <li><a class="small" href="#howtohelp">How do I submit bugs/patches/features?</a></li>
-            <li><a class="small" href="#moreinformation">Where can I go for more information?</a></li>
         </ul>
 
         <h2>Answers</h2>
@@ -159,26 +164,25 @@ myself just fine.</pre>
 
         <h3><a name="cantSearch">How can I search the mailing lists?</a></h3>
 
-            <p>The GeoCrawler mailing list archive doesn't allow searching. However,
-            the SF Mail Archive does allow searching.</p>
+            <p>SF Mail Archive allows searching.</p>
             <ul>
-                <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2203">cruisecontrol-user</a></li>
-                <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2202">cruisecontrol-devel</a></li>
-                <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2204">cruisecontrol-announce</a></li>
+                <li><a class="external"
+                href="http://sourceforge.net/mailarchive/forum.php?forum_id=2203">cruisecontrol-user</a></li>
+                <li><a class="external"
+                href="http://sourceforge.net/mailarchive/forum.php?forum_id=2202">cruisecontrol-devel</a></li>
+                <li><a class="external"
+                href="http://sourceforge.net/mailarchive/forum.php?forum_id=2204">cruisecontrol-announce</a></li>
             </ul>
 
         <h3><a name="howtohelp">How do I submit bugs/patches/features?</a></h3>
 
             <p>
-        Send patches to the <a href="">cruisecontrol-devel</a> mailing list.  Ideally patches should be a diff
-        against the existing CVS version and should provide unit tests.  If you're adding new features, an informal
-        use case is useful so that others can quickly understand the utility of your patch.
-            </p>
-
-        <h3><a name="moreinformation">Where can I go for more information?</a></h3>
-
-            <p>
-        The <a href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl Wiki</a> is an ever growing knowledge-base of the CruiseControl community, with its own (longer) <a href="http://confluence.public.thoughtworks.org/display/CC/FrequentlyAskedQuestions">FAQ</a>.
+        Send patches to the <a class="external"
+        href="http://sourceforge.net/mailarchive/forum.php?forum_id=2202">
+        cruisecontrol-devel</a> mailing list.  Ideally patches should be a diff
+        against the existing CVS version and should provide unit tests.  If
+        you're adding new features, an informal use case is useful so that
+        others can quickly understand the utility of your patch.
             </p>
 
     </div>

@@ -70,6 +70,7 @@ testdetails.xsl
 website / documentation
 ----------------------
 * Rework navigation for feedback, completeness and consistency. Convert navigation from images to text. Convert to semantic markup. Address inconsistency of configxml.html. Patch by Joe Schmetzer
+* More documentation enhancements contributed by Joe Schmetzer. For more details, see http://sourceforge.net/mailarchive/forum.php?thread_id=5363380&forum_id=2202
 
 CruiseControl Release Notes - 2.1.6
 

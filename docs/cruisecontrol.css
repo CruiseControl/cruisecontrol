@@ -33,13 +33,13 @@ body {
 }
 
 #menu {
-    width: 12em;
+    width: 13em;
     margin: 0;
     padding: 0;
     position: absolute;
     top: 0;
     left: 0;
-    background: url(menubg.gif);
+    background: url(menubg.png);
     color: white;
     background-color: black;
     font-weight: bold;
@@ -55,7 +55,7 @@ body {
 #menu ul#menulist {
     padding: 12px 0 0 0;
     border-bottom: 1px solid white;
-    background: top right no-repeat url(menutopright.gif);
+    background: top right no-repeat url(menutopright.png);
 }
 
 #menu li {
@@ -63,17 +63,6 @@ body {
     margin: 0;
     padding: 0;
 }
-
-/*
-#menu li li a, #menu li li p, #menu li li h2 {
-    padding-left: 1.5em;
-}
-
-#menu li li li a, #menu li li li p, #menu li li li h2 {
-    padding-left: 2.5em;
-    font-style: italic;
-}
-*/
 
 #menu li li {
     padding-left: 0.75em;
@@ -84,26 +73,31 @@ body {
     font-style: italic;
 }
 
-#menu li p, #menu li h2 {
+#menu li p {
     margin: 0;
-    padding: 5px 5px 5px 0.5em;
-    border-left: 10px solid black;
+    padding: 5px 5px 5px 23px;
     border-right: 11px solid white;
     width: 100%;
 }
 
 #menu li h2 {
-    font-size: 1.1em;
+    margin: 0;
+    padding: 15px 15px 5px 13px;
+    border-right: 11px solid white;
+    border-left: 10px none;
+    font-size: 1.25em;
+    width: 100%;
 }
 
 #menu li p#menuselected {
+    padding: 5px 5px 5px 13px;
     border-left: 10px solid #1c64d1;
     background-color: #2586d7;
 }
 
 #menu li a {
     display: block;
-    padding: 5px 5px 5px 0.5em;
+    padding: 5px 5px 5px 13px;
     border-left: 10px solid #1958b7;
     border-right: 11px solid white;
     color: white;
@@ -111,7 +105,22 @@ body {
     width: 100%;
 }
 
-html>body #menu li a, html>body #menu li p, html>body #menu li h2 {
+#menu li a.external {
+    background-position: 95% 50%;
+}
+
+#menu li a.expandmenu {
+    background: 2px center no-repeat url(expandmenu.png);
+}
+
+#menu li a.expandedmenu,
+#menu li p.expandedmenu {
+    background: 2px center no-repeat url(expandedmenu.png);
+}
+
+html>body #menu li a,
+html>body #menu li p,
+html>body #menu li h2 {
     width: auto;
 }
 
@@ -122,34 +131,38 @@ html>body #menu li a, html>body #menu li p, html>body #menu li h2 {
 }
 
 #menu li p#menubottom {
-    background: bottom right no-repeat url(menubottomright.gif);
+    background: bottom right no-repeat url(menubottomright.png);
 }
 
 .content {
-    margin-left: 12em;
-    padding-left: 1em;
-    padding-bottom: 1em;
+    margin: 0;
+    padding: 0 1em 1em 17em;
+}
+
+html>body .content {
+    padding-left: 13em;
     max-width: 40em;
 }
 
 .content h1 {
-    font-size: 1.4em;
     font-weight: bold;
+    font-size: 1.4em;
     margin-bottom: 1em;
     border-bottom: 1px solid black;
 }
 
 .content h2 {
-    font-size: 1.2em;
     font-weight: bold;
-    margin-top: 1em;
+    font-size: 1.2em;
+    margin-top: 2em;
     border-bottom: 1px solid #cccccc;
 }
 
 .content h3 {
-    font-size: 1.1em;
     font-weight: bold;
+    font-size: 1.1em;
     font-style: italic;
+    clear: both;
 }
 
 
@@ -157,22 +170,27 @@ html>body #menu li a, html>body #menu li p, html>body #menu li h2 {
     border: 1px solid black;
     background-color: #cccccc;
     padding: 1em;
-    width: 100%;
+    width: auto;
 }
 
 table.documentation {
     font-size: small;
     border: 1px solid black;
-    margin-left: 1em;
-    background-color: #eeeeee;
     width: 100%;
+    padding: 0;
 }
+
+table.documentation tr {
+    background-color: #eeeeee;
+}
+
 
 table.documentation tr.oddrow {
     background-color: #dddddd;
 }
 
-table.documentation th, table.documentation td {
+table.documentation th,
+table.documentation td {
     padding: 0.25em;
 }
 
@@ -180,7 +198,8 @@ table.documentation th {
     text-align: left;
     font-weight: bold;
     color: white;
-    background-color: black;
+    background-color: #303060;
+    vertical-align: top;
 }
 
 table.documentation td {
@@ -193,4 +212,30 @@ table.documentation td dl {
 
 table.documentation td dl dt {
     font-weight: bold;
+}
+
+.hierarchy {
+    float: right;
+    border: 1px dashed black;
+    font-size: smaller;
+    margin: 0 0 0.5em 0.5em;
+    padding: 2px;
+    background-color: #eeeeee;
+}
+
+.hierarchy pre {
+    border: none;
+    margin: 0;
+    padding: 0.25em;
+    width: auto;
+    background-color: #dddddd;
+}
+
+a.external {
+    padding-right: 13px;
+    background: right center no-repeat url(external.png);
+}
+
+.printonly {
+    display: none;
 }
