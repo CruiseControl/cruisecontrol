@@ -364,7 +364,9 @@ public class CVSTest extends TestCase {
     }
 
     public void testBuildHistoryCommand() throws CruiseControlException {
-        Date lastBuildTime = new Date();
+        Date checkTime = new Date();
+        long tenMinutes = 10 * 60 * 1000;
+        Date lastBuildTime = new Date(checkTime.getTime() - tenMinutes);
 
         CVS element = new CVS();
         element.setCvsRoot("cvsroot");
@@ -377,11 +379,12 @@ public class CVSTest extends TestCase {
                     "cvsroot",
                     "-q",
                     "log",
-                    "-d>" + CVS.formatCVSDate(lastBuildTime),
+                    "-N",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(checkTime),
                     "-b"};
 
         String[] actualCommand =
-                element.buildHistoryCommand(lastBuildTime).getCommandline();
+                element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
 
         assertEquals(
                 "Mismatched lengths!",
@@ -408,11 +411,12 @@ public class CVSTest extends TestCase {
                     "cvsroot",
                     "-q",
                     "log",
-                    "-d>" + CVS.formatCVSDate(lastBuildTime),
+                    "-N",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-rsometag"};
 
         String[] actualCommand =
-                element.buildHistoryCommand(lastBuildTime).getCommandline();
+                element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
 
         assertEquals(
                 "Mismatched lengths!",
@@ -437,11 +441,12 @@ public class CVSTest extends TestCase {
                     "cvsroot",
                     "-q",
                     "log",
-                    "-d>" + CVS.formatCVSDate(lastBuildTime),
+                    "-N",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-b"};
 
         String[] actualCommand =
-                element.buildHistoryCommand(lastBuildTime).getCommandline();
+                element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
 
         assertEquals(
                 "Mismatched lengths!",
@@ -464,11 +469,12 @@ public class CVSTest extends TestCase {
                     "cvs",
                     "-q",
                     "log",
-                    "-d>" + CVS.formatCVSDate(lastBuildTime),
+                    "-N",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-b"};
 
         String[] actualCommand =
-                element.buildHistoryCommand(lastBuildTime).getCommandline();
+                element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
         assertEquals(
                 "Mismatched lengths!",
                 expectedCommand.length,

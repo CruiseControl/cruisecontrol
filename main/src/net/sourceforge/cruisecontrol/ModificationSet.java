@@ -155,7 +155,7 @@ public class ModificationSet {
                         : " modification has been detected."));
             }
             while (modificationIterator.hasNext()) {
-                Object object = (Object) modificationIterator.next();
+                Object object = modificationIterator.next();
                 if (object instanceof org.jdom.Element) {
                     modificationsElement.addContent(((Element) object).detach());
                 } else {
@@ -168,25 +168,18 @@ public class ModificationSet {
 
             if (isLastModificationInQuietPeriod(timeOfCheck, modifications)) {
                 LOG.info("A modification has been detected in the quiet period.  ");
-                LOG.debug(
-                        formatter.format(
-                                new Date(timeOfCheck.getTime() - quietPeriod))
+                LOG.debug(formatter.format(new Date(timeOfCheck.getTime() - quietPeriod))
                         + " <= Quiet Period <= "
                         + formatter.format(timeOfCheck));
-                LOG.debug(
-                        "Last modification: "
-                        + formatter.format(
-                                new Date(
-                                        getLastModificationMillis(modifications))));
-                LOG.info(
-                        "Sleeping for "
-                        + getQuietPeriodDifference(timeOfCheck, modifications)
-                        / 1000
-                        + " seconds before retrying.");
+                LOG.debug("Last modification: "
+                        + formatter.format(new Date(getLastModificationMillis(modifications))));
+                Date now = new Date();
+                long timeToSleep = getQuietPeriodDifference(now, modifications);
+                LOG.info("Sleeping for " + (timeToSleep / 1000) + " seconds before retrying.");
                 try {
-                    Thread.sleep(getQuietPeriodDifference(timeOfCheck, modifications));
+                    Thread.sleep(timeToSleep);
                 } catch (InterruptedException e) {
-                    LOG.error("", e);
+                    LOG.error(e);
                 }
             }
         } while (isLastModificationInQuietPeriod(timeOfCheck, modifications));

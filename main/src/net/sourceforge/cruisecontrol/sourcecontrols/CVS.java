@@ -240,7 +240,7 @@ public class CVS implements SourceControl {
         
         List mods = null;
         try {
-            mods = execHistoryCommand(buildHistoryCommand(lastBuild));
+            mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
         } catch (Exception e) {
             log.error("Log command failed to execute succesfully", e);
         }
@@ -322,10 +322,11 @@ public class CVS implements SourceControl {
     }
 
     /**
-     *@param lastBuildTime
-     *@return CommandLine for "cvs -d CVSROOT -q log -d ">lastbuildtime" "
+     * @param lastBuildTime
+     * @param checkTime
+     * @return CommandLine for "cvs -d CVSROOT -q log -N -dlastbuildtime<checktime "
      */
-    public Commandline buildHistoryCommand(Date lastBuildTime) throws CruiseControlException {
+    public Commandline buildHistoryCommand(Date lastBuildTime, Date checkTime) throws CruiseControlException {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cvs");
 
@@ -339,7 +340,8 @@ public class CVS implements SourceControl {
         commandLine.createArgument().setValue("-q");
 
         commandLine.createArgument().setValue("log");
-        String dateRange = ">" + formatCVSDate(lastBuildTime);
+        commandLine.createArgument().setValue("-N");
+        String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
         commandLine.createArgument().setValue("-d" + dateRange);
 
         if (tag != null) {
