@@ -129,7 +129,12 @@ public class BuildRunner {
 
     void loadProject(java.io.File buildFile) {
         _project = new CruiseProject();
-        _project.setBaseDir(buildFile.getParentFile());
+        try {
+            _project.setBaseDir(buildFile.getCanonicalFile().getParentFile());
+        }
+        catch (java.io.IOException e) {
+            throw new RuntimeException("Could not get the parent directory for " + buildFile.toString());
+        }
         org.apache.tools.ant.ProjectHelper.configureProject(_project, buildFile);
         _project.addBuildListener(_logger);
     }
