@@ -47,11 +47,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static final String XML_LOGGER_FILE = "log.xml";
     private final String DEFAULT_LABEL = "label.0";
     private final String DEFAULT_LASTBUILD = "20010101120000";
-    
+
+    // Needs to be static since new instance used each build
     //label/modificationset/build participants
-    private String  _label;
+    private static String  _label;
     private static String  _labelIncrementerClassName;
-    
     // Needs to be static since new instance used each build
     private static String  _lastGoodBuildTime;
     private static String  _lastBuildTime;
