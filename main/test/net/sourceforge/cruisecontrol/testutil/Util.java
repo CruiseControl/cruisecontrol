@@ -52,9 +52,12 @@ public class Util {
         for (int i = 1; i <= numMods; i++) {
             Element modificationElement = new Element("modification");
             Element userElement = new Element("user");
+            Element projectElement = new Element("project");
+            projectElement.addContent("basedir/subdirectory" + i);
             int userNumber = (i > 2) ? i - 1 : i;
             userElement.addContent("user" + userNumber);
             modificationElement.addContent(userElement);
+            modificationElement.addContent(projectElement);
             modificationsElement.addContent(modificationElement);
         }
         return modificationsElement;

@@ -63,6 +63,10 @@ public class VssTest extends TestCase {
         vss = new Vss();
     }
 
+    protected void tearDown() {
+        vss = null;
+    }
+
     public void testValidate() {
         try {
             vss.validate();
@@ -200,8 +204,55 @@ public class VssTest extends TestCase {
         assertEquals(mod.type, "checkin");
     }
 
+    public void testHandleEntryShared() {
+        List entry = new ArrayList();
+        vss.setVsspath("\\vsspath");
+        entry.add("*****  a  *****");
+        entry.add("Version 19");
+        entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
+        entry.add("$/Users/jfredrick/test1/b/move.file.2 shared");
+
+        Modification mod = vss.handleEntry(entry);
+        assertEquals(mod.fileName, "$/Users/jfredrick/test1/b/move.file.2");
+        assertEquals(mod.userName, "Etucker");
+        assertEquals(mod.folderName, "$\\vsspath\\a");
+        assertEquals(mod.type, "share");
+    }
+
+    public void testHandleEntryDirBranched() {
+
+        List entry = new ArrayList();
+        vss.setVsspath("\\vsspath");
+        entry.add("*****  core  *****");
+        entry.add("Version 19");
+        entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
+        entry.add("SessionIdGenerator.java branched");
+
+        Modification mod = vss.handleEntry(entry);
+        assertEquals(mod.fileName, "SessionIdGenerator.java");
+        assertEquals(mod.userName, "Etucker");
+        assertEquals(mod.folderName, "$\\vsspath\\core");
+        assertEquals(mod.type, "branch");
+    }
+
+    public void testHandleEntryFileBranched() {
+
+         List entry = new ArrayList();
+         vss.setVsspath("\\vsspath");
+         entry.add("*****  branch.file.1  *****");
+         entry.add("Version 19");
+         entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
+         entry.add("Branched");
+
+         Modification mod = vss.handleEntry(entry);
+         assertNull(mod);
+
+     }
+
+
     public void testHandleEntryAdded() {
         List entry = new ArrayList();
+        vss.setVsspath("\\vsspath");
         entry.add("*****  core  *****");
         entry.add("Version 19");
         entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
@@ -210,8 +261,29 @@ public class VssTest extends TestCase {
         Modification mod = vss.handleEntry(entry);
         assertEquals(mod.fileName, "SessionIdGenerator.java");
         assertEquals(mod.userName, "Etucker");
+        assertEquals(mod.folderName, "$\\vsspath\\core");
         assertEquals(mod.type, "add");
     }
+
+    public void testHandleEntryAddedInRoot() {
+/*        *****************  Version 9   *****************
+        User: Jfredrick     Date:  7/09/02   Time: 12:55p
+        branch.file.2 added
+*/
+
+           List entry = new ArrayList();
+           vss.setVsspath("\\vsspath");
+           entry.add("*****************  Version 19  *****************");
+           entry.add("User: MStave      Date:  7/03/01   Time: 11:16a");
+           entry.add("SessionIdGenerator.java added");
+
+           Modification mod = vss.handleEntry(entry);
+           assertEquals(mod.fileName, "SessionIdGenerator.java");
+           assertEquals(mod.userName, "MStave");
+           assertEquals(mod.folderName, "$\\vsspath");
+           assertEquals(mod.type, "add");
+       }
+
 
         public void testHandleEntryRename() {
             vss.setPropertyOnDelete("setThis");
@@ -247,6 +319,19 @@ public class VssTest extends TestCase {
         Hashtable properties = vss.getProperties();
         String setThisValue = (String) properties.get("setThis");
         assertEquals("true", setThisValue);
+    }
+
+    public void testHandleEntryLabel() {
+        List entry = new ArrayList();
+        entry.add("**********************");
+        entry.add("Label: \"KonaBuild_452\"");
+        entry.add("User: Cm           Date:  4/29/03   Time: 12:03a");
+        entry.add("Labeled");
+        entry.add("Label comment: AutoBuild KonaBuild_452");
+
+
+        Modification modification = vss.handleEntry(entry);
+        assertNull(modification);
     }
 
     public void testGetCommandLine() throws Exception {
@@ -320,7 +405,7 @@ public class VssTest extends TestCase {
         for (int i = 0; i < expectedCommandWithTimeFormat.length; i++) {
             assertEquals(expectedCommandWithTimeFormat[i], actualCommandWithTimeFormat[i]);
         }
-    }    
+    }
 
     /**
      *  Utility method to easily create a given date.
