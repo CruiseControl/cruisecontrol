@@ -133,18 +133,27 @@ public class XMLLogHelper {
     }
 
     /**
+     *  Looks in modifications/changelist/ or modifications/modification/user depending on SouceControl implementation.
      *  @return <code>Set</code> of usernames that have modified code since the last build
      */
     public Set getBuildParticipants() {
         Set results = new HashSet();
-        Iterator modificationIterator = _log.getChild("modifications").getChildren("modification").iterator();
-        while (modificationIterator.hasNext()) {
-            Element modification = (Element) modificationIterator.next();
-            Element emailElement = modification.getChild("email");
-            if (emailElement == null) {
-                emailElement = modification.getChild("user");
+        if(_log.getChild("modifications").getChildren("changelist") != null && !_log.getChild("modifications").getChildren("changelist").isEmpty()) {
+            Iterator changelistIterator = _log.getChild("modifications").getChildren("changelist").iterator();
+            while(changelistIterator.hasNext()) {
+                Element changelistElement = (Element) changelistIterator.next();
+                results.add(changelistElement.getAttributeValue("user"));
             }
-            results.add(emailElement.getText());
+        } else {
+            Iterator modificationIterator = _log.getChild("modifications").getChildren("modification").iterator();
+            while (modificationIterator.hasNext()) {
+                Element modification = (Element) modificationIterator.next();
+                Element emailElement = modification.getChild("email");
+                if (emailElement == null) {
+                    emailElement = modification.getChild("user");
+                }
+                results.add(emailElement.getText());
+            }
         }
         return results;
     }
