@@ -44,6 +44,7 @@ import org.jdom.Element;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
@@ -325,6 +326,7 @@ public abstract class EmailPublisher implements Publisher {
     protected Properties getMailProperties() {
         Properties props = System.getProperties();
         props.put("mail.smtp.host", mailHost);
+        props.put("mail.smtp.sendpartial", "true");
         if (mailPort != null) {
             props.put("mail.smtp.port", mailPort);
         }
@@ -369,6 +371,8 @@ public abstract class EmailPublisher implements Publisher {
             } else {
                 Transport.send(msg);
             }
+        } catch (SendFailedException e) {
+            LOG.warn(e.getMessage(), e);
         } catch (MessagingException e) {
             throw new CruiseControlException(e.getMessage());
         }
