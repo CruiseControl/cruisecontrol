@@ -39,11 +39,11 @@ public class CVSElementTest extends TestCase {
         Date currTime = new Date();
         CVSElement element = new CVSElement();
         element.setCvsroot("cvsroot");
-        element.setLocalWorkingCopy("local");
+        element.setLocalWorkingCopy(".");
         
         String[] expectedCommand = new String[] { "cvs", "-d", "cvsroot", "log", 
          "-N", "-d", CVSElement.formatCVSDate(lastBuildTime) + "<" 
-         + CVSElement.formatCVSDate(currTime), "local"};
+         + CVSElement.formatCVSDate(currTime), "."};
         
         String[] actualCommand = 
          element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();
@@ -82,11 +82,11 @@ public class CVSElementTest extends TestCase {
         Date currTime = new Date();
         CVSElement element = new CVSElement();
         element.setCvsroot(null);
-        element.setLocalWorkingCopy("local");
+        element.setLocalWorkingCopy(".");
 
         String[] expectedCommand = new String[] { "cvs", "log", 
          "-N", "-d", CVSElement.formatCVSDate(lastBuildTime) + "<" 
-         + CVSElement.formatCVSDate(currTime), "local"};
+         + CVSElement.formatCVSDate(currTime), "."};
         
         String[] actualCommand = 
          element.buildHistoryCommand(lastBuildTime, currTime).getCommandline();

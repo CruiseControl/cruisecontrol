@@ -27,6 +27,7 @@ import java.util.*;
 
 import net.sourceforge.cruisecontrol.util.*;
 
+import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
 
@@ -118,7 +119,7 @@ public class CVSElement extends SourceControlElement {
      * The caller must indicate where the local copy of
      * the repository exists.
      */
-    private File local;
+    private String local;
     
     /**
      * The tag to look for when running cvs log
@@ -160,9 +161,9 @@ public class CVSElement extends SourceControlElement {
      *               to find the log history.
      */
     public void setLocalWorkingCopy(String local) {
-        //(PENDING) stick with the string, throw exception if File does not exist
-        if (local != null) {
-            this.local = new File(local);
+        this.local = local;
+        if(local != null && !new File(local).exists()) {
+            throw new BuildException("File " + local + " does not exist!");
         }
     }
     
@@ -233,7 +234,6 @@ public class CVSElement extends SourceControlElement {
      * @return CommandLine for "cvs -d CVSROOT log -N -d "lastbuildtime<currtime" "
      */
     public Commandline buildHistoryCommand(Date lastBuildTime, Date currentTime) {
-        //(PENDING) OS check, if Linux setExecutable to be shell 
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cvs");
     
@@ -301,7 +301,7 @@ public class CVSElement extends SourceControlElement {
      *         as path separator.
      */
     private String getLocalPath() {
-        return local.getPath().replace('\\', '/');
+        return local.replace('\\', '/');
     }
     
     /**
