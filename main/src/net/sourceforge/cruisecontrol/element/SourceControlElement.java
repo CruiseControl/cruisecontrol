@@ -44,7 +44,7 @@ import org.apache.tools.ant.*;
  * gathering information about the changes made to whatever source control tool
  * that you choose.
  * 
- * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 
@@ -67,7 +67,7 @@ public abstract class SourceControlElement {
 	public abstract Set getEmails();
 
 	/**
-	 *  get a List of Modifications detailing all the changes between now and
+	 *  Get a List of Modifications detailing all the changes between now and
 	 *  the last build.
 	 *
 	 *@param  lastBuild
@@ -78,7 +78,7 @@ public abstract class SourceControlElement {
 	public abstract List getHistory(Date lastBuild, Date now, long quietPeriod);
 
 	/**
-	 *  get the last modified time for this set of files
+	 *  Get the last modified time for this set of files
 	 *
 	 *@return
 	 */

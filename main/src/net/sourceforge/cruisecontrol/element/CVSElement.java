@@ -216,7 +216,7 @@ public class CVSElement extends SourceControlElement {
 		try {
 			mods = execHistoryCommand(buildHistoryCommand(lastBuild));
 		} catch (Exception e) {
-			log("Log command failed to execute succesfully");
+			log("Log command failed to execute succesfully", Project.MSG_ERR);
 			e.printStackTrace();
 		}
 
@@ -441,7 +441,7 @@ public class CVSElement extends SourceControlElement {
 						 + timeStamp + " GMT");
 				updateLastModified(nextModification.modifiedTime);
 			} catch (ParseException pe) {
-                log("Error parsing cvs log for date and time!");
+                log("Error parsing cvs log for date and time!", Project.MSG_ERR);
 				pe.printStackTrace();
                 return null;
 			}
