@@ -43,11 +43,6 @@ EmailPublisher
 ----------------------
 * Send build notification emails to all valid recipients and not to fail build even if some of the email addresses were rejected by SMTP rely. Patch Igor Fredorenko
 
-ErrorTriggeringEventEvaluator
------------------------------
-* a log4j TriggeringEventEvaluator for errors, which can be used by log4j appenders.
-  JavaDoc includes sample of SMTPAppender for emailing errors. Contributed by Erik Romson
-
 FileServlet
 ----------------------
 * write(stream) now uses buffered IO. Patch by Garrick Olson
