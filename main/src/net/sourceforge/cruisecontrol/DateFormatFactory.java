@@ -43,6 +43,7 @@ public final class DateFormatFactory {
     private DateFormatFactory() {
     }
 
+    // TODO: return new SimpleDateFormat(dateFormatString)
     public static String getFormat() {
         return format;
     }
