@@ -75,8 +75,8 @@ public interface SourceControl {
     /**
      * Name of property to define if a modification is detected.
      * The property should be added to the set of properties returned by the getProperties() call.
-     * Allows the underlying build script to do conditional actions if the files watch by this 
-     * SourceControl have benn modified.
+     * Allows the underlying build script to do conditional actions if the files watched by this
+     * SourceControl have been modified.
      * @param property name of property to define
      */
     public void setProperty(String property);
