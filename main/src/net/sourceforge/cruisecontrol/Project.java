@@ -155,69 +155,71 @@ public class Project implements Serializable, Runnable {
      *  Unless paused, runs any bootstrappers and then the entire build.
      */
     protected void build() throws CruiseControlException {
-        buildStartTime = new Date();
-        if (schedule.isPaused(buildStartTime)) {
-            return; //we've paused
-        }
+        try {
+            buildStartTime = new Date();
+            if (schedule.isPaused(buildStartTime)) {
+                // a regularly scheduled paused
+                // is different than ProjectState.PAUSED
+                return;
+            }
 
-        bootstrap();
+            bootstrap();
 
-        Element modifications = getModifications();
-        if (modifications == null) {
+            Element modifications = getModifications();
+            if (modifications == null) {
+                return;
+            }
+
+            log.addContent(modifications);
+
+            Date now = modificationSet.getTimeOfCheck();
+
+            if (labelIncrementer.isPreBuildIncrementer()) {
+                label = labelIncrementer.incrementLabel(label, log.getContent());
+            }
+
+            // collect project information
+            log.addContent(getProjectPropertiesElement(now));
+
+            setState(ProjectState.BUILDING);
+            log.addContent(schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
+
+            boolean buildSuccessful = log.wasBuildSuccessful();
+            fireResultEvent(new BuildResultEvent(this, wasLastBuildSuccessful));
+
+            if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
+                label = labelIncrementer.incrementLabel(label, log.getContent());
+            }
+
+            setState(ProjectState.MERGING_LOGS);
+            log.writeLogFile(now);
+
+            // If we only want to build after a check in, even when broken, set the last build to now,
+            // regardless of success or failure (buildAfterFailed = false in config.xml)
+            if (!getBuildAfterFailed()) {
+                lastBuild = now;
+            }
+
+            // If this was a successful build, update both last build and last successful build
+            if (buildSuccessful) {
+                lastBuild = now;
+                lastSuccessfulBuild = now;
+                info("build successful");
+            } else {
+                info("build failed");
+            }
+
+            buildCounter++;
+            setWasLastBuildSuccessful(buildSuccessful);
+
+            serializeProject();
+
+            setState(ProjectState.PUBLISHING);
+            publish();
+            log.reset();
+        } finally {
             setState(ProjectState.IDLE);
-            return;
         }
-
-        log.addContent(modifications);
-
-        Date now = modificationSet.getTimeOfCheck();
-
-        if (labelIncrementer.isPreBuildIncrementer()) {
-            label = labelIncrementer.incrementLabel(label, log.getContent());
-        }
-
-        // collect project information
-        log.addContent(getProjectPropertiesElement(now));
-
-        setState(ProjectState.BUILDING);
-        log.addContent(
-                schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
-
-        boolean buildSuccessful = log.wasBuildSuccessful();
-        fireResultEvent(new BuildResultEvent(this, wasLastBuildSuccessful));
-
-        if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-            label = labelIncrementer.incrementLabel(label, log.getContent());
-        }
-
-        setState(ProjectState.MERGING_LOGS);
-        log.writeLogFile(now);
-
-        // If we only want to build after a check in, even when broken, set the last build to now,
-        // regardless of success or failure (buildAfterFailed = false in config.xml)
-        if (!getBuildAfterFailed()) {
-            lastBuild = now;
-        }
-
-        // If this was a successful build, update both last build and last successful build
-        if (buildSuccessful) {
-            lastBuild = now;
-            lastSuccessfulBuild = now;
-            info("build successful");
-        } else {
-            info("build failed");
-        }
-
-        buildCounter++;
-        setWasLastBuildSuccessful(buildSuccessful);
-
-        serializeProject();
-
-        setState(ProjectState.PUBLISHING);
-        publish();
-        log.reset();
-
-        setState(ProjectState.IDLE);
     }
 
     /**
