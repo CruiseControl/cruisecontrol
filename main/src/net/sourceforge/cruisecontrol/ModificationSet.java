@@ -4,34 +4,34 @@
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
+ *
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
- *     + Redistributions of source code must retain the above copyright 
- *       notice, this list of conditions and the following disclaimer. 
- *       
- *     + Redistributions in binary form must reproduce the above 
- *       copyright notice, this list of conditions and the following 
- *       disclaimer in the documentation and/or other materials provided 
- *       with the distribution. 
- *       
- *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the 
- *       names of its contributors may be used to endorse or promote 
- *       products derived from this software without specific prior 
- *       written permission. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
@@ -45,7 +45,7 @@ import org.apache.tools.ant.*;
 /**
  * This class is designed to record the modifications made to the source control
  * management system since the last build.
- * 
+ *
  * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
  * @author Suresh K Bathala
  */
@@ -59,7 +59,7 @@ public class ModificationSet extends Task {
     private DateFormat _formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
 
     private Set _emails = new HashSet();
-    
+
     private boolean _useServerTime = false;
 
     public final static String MODIFICATIONSET_INVOKED = "modificationset.invoked";
@@ -114,36 +114,36 @@ public class ModificationSet extends Task {
      */
     public void execute() throws BuildException {
         getProject().setProperty(MODIFICATIONSET_INVOKED, "true");
-        
+
         Date currentDate = new Date();
         List modifications = new ArrayList();
-        
+
         long currentTime = 0;
         try {
-            
+
             if (_lastBuild != null) {
                 _lastModified = _lastBuild.getTime();
             }  else {
                 _lastModified = currentDate.getTime();
             }
-            
+
             modifications = processSourceControlElements(currentDate, _lastBuild);
-            
+
             currentTime = currentDate.getTime();
             while (tooMuchRepositoryActivity(currentTime)) {
                 long sleepTime = calculateSleepTime(currentTime);
-                
+
                 log("[modificationset] Too much repository activity...sleeping for: "
                 + (sleepTime / 1000.0) + " seconds.");
                 Thread.sleep(sleepTime);
-                
+
                 modifications =
                 processSourceControlElements(currentDate, _lastBuild);
-                
+
                 currentDate = new Date();
                 currentTime = currentDate.getTime();
             }
-            
+
             //If there aren't any modifications, then a build is not necessary, so
             //  we will terminate this build by throwing a BuildException. That will
             //  kill the Ant process and return control to MasterBuild.
@@ -151,9 +151,9 @@ public class ModificationSet extends Task {
                 getProject().setProperty(BUILDUNNECESSARY, "true");
                 throw new BuildException("No Build Necessary");
             }
-            
+
             getProject().setProperty(USERS, emailsAsCommaDelimitedList());
-            
+
         } catch (InterruptedException ie) {
             throw new BuildException(ie);
         } finally {
@@ -164,7 +164,7 @@ public class ModificationSet extends Task {
                 getProject().setProperty(SNAPSHOTTIMESTAMP,
                 _simpleDateFormat.format(currentDate));
             }
-            
+
             try {
                 writeFile(modifications);
             } catch (IOException e) {
@@ -205,10 +205,10 @@ public class ModificationSet extends Task {
         FileSystemElement fse = new FileSystemElement();
         fse.setAntTask(this);
         sourceControlElements.add(fse);
-        
+
         return fse;
     }
-    
+
     /**
      * Add a nested element for MKS specific code.
      *
@@ -219,9 +219,20 @@ public class ModificationSet extends Task {
         me.setAntTask(this);
         //for logging in the sub elements
         sourceControlElements.add(me);
-
+        
         return me;
-    }    
+    }
+    
+    /**
+     * Add a nested element for PVCS
+     */
+    public PVCSElement createPVCSelement() {
+        PVCSElement pvcse = new PVCSElement();
+        pvcse.setAntTask(this);
+        sourceControlElements.add(pvcse);
+        
+        return pvcse;
+    }
     
     /**
      * add a nested element for p4 specific code.
@@ -233,10 +244,10 @@ public class ModificationSet extends Task {
         p4e.setAntTask(this);
         //for logging in the sub elements
         sourceControlElements.add(p4e);
-
+        
         return p4e;
     }
-
+    
     /**
      * add a nested element for star team specific code.
      *
@@ -247,10 +258,10 @@ public class ModificationSet extends Task {
         ste.setAntTask(this);
         //for logging in the sub elements
         sourceControlElements.add(ste);
-
+        
         return ste;
     }
-
+    
     /**
      * add a nested element for sourcesafe specific code.
      *
@@ -261,7 +272,7 @@ public class ModificationSet extends Task {
         ve.setAntTask(this);
         //for logging in the sub elements
         sourceControlElements.add(ve);
-
+        
         return ve;
     }
     
@@ -269,13 +280,13 @@ public class ModificationSet extends Task {
      * add a nested element for sourcesafe specific code that uses journal files.
      *
      * @return
-     */    
+     */
     public VssJournalElement createVssjournalelement() {
         VssJournalElement vje = new VssJournalElement();
         vje.setAntTask(this);
         //for logging in the sub elements
         sourceControlElements.add(vje);
-
+        
         return vje;
     }
     
@@ -285,7 +296,7 @@ public class ModificationSet extends Task {
         }
         return (_lastModified > (currentTime - _quietPeriod));
     }
-
+    
     private long calculateSleepTime(long currentTime) {
         if (_lastModified > currentTime) {
             return _lastModified - currentTime + _quietPeriod;
@@ -294,7 +305,7 @@ public class ModificationSet extends Task {
             return _quietPeriod - (currentTime - _lastModified);
         }
     }
-
+    
     /**
      * Loop over all nested source control elements and get modifications and
      * users that made modifications
@@ -305,24 +316,24 @@ public class ModificationSet extends Task {
      */
     private List processSourceControlElements(Date currentDate, Date lastBuild) {
         ArrayList mods = new ArrayList();
-
+        
         for (int i = 0; i < sourceControlElements.size(); i++) {
             SourceControlElement sce =
-                    (SourceControlElement) sourceControlElements.get(i);
+            (SourceControlElement) sourceControlElements.get(i);
             mods.addAll(sce.getHistory(lastBuild, currentDate, _quietPeriod));
-
+            
             if (!mods.isEmpty()) {
                 if (sce.getLastModified() > lastBuild.getTime()) {
                     _lastModified = sce.getLastModified();
                 }
-
+                
                 _emails.addAll(sce.getEmails());
             }
         }
-
+        
         return mods;
     }
-
+    
     /**
      * Write out file with all modifications. Filename is specified in the ant
      * property modificationset.file
@@ -337,7 +348,7 @@ public class ModificationSet extends Task {
             modFileName = "modificationset.xml";
             getProject().setProperty("modificationset.file", modFileName);
         }
-
+        
         BufferedWriter writer = new BufferedWriter(new FileWriter(modFileName));
         writer.write("<modifications>");
         writer.newLine();
@@ -350,7 +361,7 @@ public class ModificationSet extends Task {
         writer.flush();
         writer.close();
     }
-
+    
     /**
      * build up a string of emails of users to be notified about this build
      *
@@ -367,5 +378,5 @@ public class ModificationSet extends Task {
         }
         return sb.toString();
     }
-
+    
 }
