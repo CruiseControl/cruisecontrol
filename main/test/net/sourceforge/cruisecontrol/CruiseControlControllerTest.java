@@ -115,6 +115,7 @@ public class CruiseControlControllerTest extends TestCase {
         String tempDir = tempFile.getParent();
         Project project = test.readProject(tempDir);
         assertNotNull(project);
+        assertTrue(project.getBuildForced());
     }
 
     private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {
