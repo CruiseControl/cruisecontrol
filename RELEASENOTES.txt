@@ -5,6 +5,7 @@ AntBuilder
 * Added antWorkingDir attribute. - Patch by Brett Wooldridge
 * Added support for multiple targets. (target="clean build")  - Patch by Josh Knowles
 * Added useDebug attribute. This replaces test of log4j setting to get debug level ant output.  - Patch by Jeffrey Fredrick
+* Save ant log if it can't be read.  Handles case when ant log produces invalid XML. - Patch by Richard Burgess
 
 CVS
 ---------------------
