@@ -7,6 +7,7 @@ JSP
 EmailPublisher
 ----------------------
 * Allow optional subject line prefix on emails for easier filtering - Patch by Peter Mei
+* Added 'skipUsers' attribute to skip sending email to users who have checked in code - Patch by Jeffrey Fredrick
 
 Manifest
 ----------------------
@@ -19,6 +20,15 @@ Ant
 P4
 ----------------------
 * Correctly parse P4 changelist descriptions.  Patch by Mike Roberts.  Test by Tim Jones.
+
+VSS
+----------------------
+* Fix parsing when label is in the entry.  Patches by Jeffrey Fredrick.
+* Improved logging messages. Patch by Jeffrey Fredrick.
+
+ClearCase
+----------------------
+* Pass properties ${clearcaselastbuild} and ${clearcasenow} to Ant for use by clearcase Ant tasks - Patch by Jeffrey Fredrick
 
 
 
