@@ -73,6 +73,7 @@
             <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
             <a href="#htmlemail">&lt;htmlemail&gt;</a>
             <a href="#httpfile">&lt;httpfile&gt;</a>
+            <a href="#jabber">&lt;jabber&gt;</a>
             <a href="#log">&lt;log&gt;</a>
             <a href="#maven">&lt;maven&gt;</a>
             <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
@@ -151,6 +152,7 @@
             <a href="#execute">&lt;execute/&gt;</a>
             <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
             <a href="#htmlemail">&lt;htmlemail/&gt;</a>
+            <a href="#jabber">&lt;jabber/&gt;</a>
             <a href="#scp">&lt;scp/&gt;</a>
         &lt;/publishers&gt;
         <a href="#dateformat">&lt;dateformat/&gt;</a>
@@ -1756,6 +1758,11 @@
                 <td></td>
             </tr>
             <tr>
+                <td><a href="#jabber"><code>&lt;jabber&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr>
                 <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td></td>
@@ -2299,6 +2306,68 @@
                     <dt>ignore:</dt>
                     <dd>ignore the failure</dd>
                 </ul></td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
+
+        <h2><a name="jabber">&lt;jabber&gt;</a></h2>
+
+        <p>Sends an instant message with a link to the build results via a Jabber server
+        using XMPP.
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>host</td>
+                <td>Yes</td>
+                <td>The host of the Jabber server.</td>
+            </tr>
+            <tr>
+                <td>port</td>
+                <td>No</td>
+                <td>Port of the Jabber server. Defaults to 5222. Note: SSL typically
+                    runs on port 5223.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>username</td>
+                <td>Yes</td>
+                <td>Username of the account used to send the instant message. For individuals,
+                    this is typically of the form 'foo' as opposed to 'foo@bar.com'</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password of the sender account</td>
+            </tr>
+            <tr class="oddrow">
+                <td>recipient</td>
+                <td>Yes</td>
+                <td>Username of the recipient of the instant message. Reciepent username
+                    is typically fully qualified: foo@bar.com</td>
+            </tr>
+            <tr>
+                <td>chatroom</td>
+                <td>No</td>
+                <td>Whether the recipient is a group versus an individual.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>ssl</td>
+                <td>No</td>
+                <td>Whether the XMPP connection on host:port is using SSL.</td>
+            </tr>
+            <tr>
+                <td>buildresultsurl</td>
+                <td>Yes</td>
+                <td>Email will include link to the build results.</td>
             </tr>
         </table>
 
