@@ -162,7 +162,7 @@ public class MasterBuild {
                 startLog();
                 //Reload the properties file.
                 props = new CruiseControlProperties(_propsFileName);
-                performBuild();
+                performBuild(startTime);
                 long timeToSleep = getSleepTime(startTime);
                 endLog(timeToSleep);
                 Thread.sleep(timeToSleep);
@@ -177,10 +177,14 @@ public class MasterBuild {
     }
 
     protected void performBuild() throws Exception {
+        performBuild(new Date());
+    }
+
+    protected void performBuild(Date startTime) throws Exception {
         
         boolean previousBuildSuccessful = (info.getLastBuild() == info.getLastGoodBuild());       
 
-        logCurrentBuildStatus(true);
+        logCurrentBuildStatus(true, startTime);
 
         int messageLevel = props.isDebug() ? Project.MSG_DEBUG :
                                     (props.isVerbose() ? Project.MSG_VERBOSE : Project.MSG_INFO);
@@ -205,7 +209,7 @@ public class MasterBuild {
         
         boolean successful = runner.runBuild();
         
-        logCurrentBuildStatus(false);
+        logCurrentBuildStatus(false, startTime);
 
         checkModificationSetInvoked(runner.getProject());
         
@@ -349,14 +353,17 @@ public class MasterBuild {
      * @param isRunning true if the build is currently
      *                  running, otherwise false.
      */
-    private void logCurrentBuildStatus(boolean isRunning) {
+    private void logCurrentBuildStatus(boolean isRunning, Date startTime) {
         String currentlyRunning = "<br>&nbsp;<br><b>Current Build Started At:</b><br>";
         String notRunning = "<br>&nbsp;<br><b>Next Build Starts At:</b><br>";
         SimpleDateFormat numericDateFormatter 
-         = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-        Date buildTime = new Date();
-        if (!isRunning) {
-            buildTime = new Date(buildTime.getTime() + props.getBuildInterval());
+         = new SimpleDateFormat("dd/MMM/yyyy HH:mm");
+        Date buildTime;
+        if (isRunning) {
+            buildTime = startTime;
+        }
+        else {
+            buildTime = new Date(new Date().getTime() + getSleepTime(startTime));
         }
 
         try {        
