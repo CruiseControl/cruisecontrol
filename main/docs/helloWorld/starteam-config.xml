@@ -3,10 +3,10 @@
       <bootstrappers>
          <currentbuildstatusbootstrapper file="currentbuild.txt" />
       </bootstrappers>
-      <modificationset quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
+      <modificationset quietperiod="30" >
          <starteam username="REPLACE" password="REPLACE" folder="REPLACE" starteamurl="REPLACE WITH SERVER:PORT/PROJECT/VIEW" />
       </modificationset>
-      <schedule interval="30" intervaltype="relative">
+      <schedule interval="30" >
          <ant buildfile="starteam-build.xml" target="cleanbuild" multiple="5" />
          <ant buildfile="starteam-build.xml" target="masterbuild" multiple="1" />
       </schedule>
@@ -15,16 +15,10 @@
       </log>  
       <publishers>
          <currentbuildstatuspublisher file="currentbuild.txt" />
-         <email mailhost="REPLACE" returnaddress="REPLACE" defaultsuffix="" buildresultsurl="http://localhost:8080/cruisecontrol/buildresults">
-            <always address="REPLACE" />
-            <failure address="REPLACE" />
+         <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/cruisecontrol/buildresults">
+            <always address="REPLACE WITH BUILD MASTER EMAIL ADDRESS" />
+            <failure address="REPLACE WITH FAILURE EMAIL ADDRESS" />
          </email>
       </publishers>
-      <plugin name="starteam" classname="net.sourceforge.cruisecontrol.sourcecontrols.StarTeam" />
-      <plugin name="currentbuildstatusbootstrapper" classname="net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper" />
-      <plugin name="ant" classname="net.sourceforge.cruisecontrol.builders.AntBuilder" />
-      <plugin name="email" classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher" />
-      <plugin name="currentbuildstatuspublisher" classname="net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher" />
-      <plugin name="labelincrementer" classname="net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer" />
    </project>
 </cruisecontrol>
