@@ -150,8 +150,8 @@ public class MockCommandline extends Commandline {
 
     public void ensureCommandline() {
         if (!Arrays.equals(expectedCommandline, getCommandline())) { 
-            Assert.fail("Command line error expected: " + 
-                buildString(expectedCommandline) + " - got: " + buildString(getCommandline()));
+            Assert.fail("Command line error expected: "
+                + buildString(expectedCommandline) + " - got: " + buildString(getCommandline()));
         }
     }
 
@@ -159,10 +159,10 @@ public class MockCommandline extends Commandline {
         Assert.assertEquals("WorkingDirectory error", expectedWorkingDirectory, getWorkingDirectory());
     }
 
-    private static final String buildString(String[] array)
-    {
-        if (array == null) 
+    private static final String buildString(String[] array) {
+        if (array == null) {
             return "null";
+        }
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < array.length; i++) {
             sb.append(array[i]).append(" ");
