@@ -39,6 +39,8 @@ import org.apache.tools.ant.Task;
 public class VssElement extends SourceControlElement {
 
     private final String VSS_TEMP_FILE = "vsstempfile.txt";
+    public static final SimpleDateFormat VSS_OUT_FORMAT = 
+         new SimpleDateFormat("'Date: 'MM/dd/yy   'Time:  'hh:mma");        
     
 	private String _ssDir;
 	private String _login;
@@ -49,9 +51,6 @@ public class VssElement extends SourceControlElement {
 
 	private ArrayList _modifications = new ArrayList();
 	private Set _emails = new HashSet();
-
-	private SimpleDateFormat _vssOutFormat = 
-     new SimpleDateFormat("'Date:'MM/dd/yy   'Time: 'hh:mma");
 
 	/**
 	 *  Set the project to get history from
@@ -181,17 +180,30 @@ public class VssElement extends SourceControlElement {
 		return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
 	}
 
+  	/**
+	 *  pretty logging
+	 *
+	 *@param  mod
+	 */
+	private void logModification(Modification mod) {
+		log("Type: " + mod.type + " " + mod.fileName);
+		log("User: " + mod.userName + " Date: " + mod.modifiedTime);
+		log("");
+	}
+    
 	// ***** the rest of this is just parsing the vss output *****
 
+    //(PENDING) Extract class VSSEntryParser
 	/**
-	 *  parse individual vss history entry
+	 *  Parse individual VSS history entry
 	 *
 	 *@param  historyEntry
 	 */
 	private void handleEntry(ArrayList historyEntry) {
 		Modification mod = new Modification();
-		mod.userName = parseUser(historyEntry);
-		mod.modifiedTime = parseDate(historyEntry);
+        String nameAndDateLine = (String) historyEntry.get(2);
+		mod.userName = parseUser(nameAndDateLine);
+		mod.modifiedTime = parseDate(nameAndDateLine);
 
         String folderLine = (String) historyEntry.get(0);
         String fileLine = (String) historyEntry.get(3);
@@ -246,50 +258,38 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  parse date/time from vss file history
+	 *  Parse date/time from VSS file history
 	 *
-	 *@param  a
-	 *@return
+	 *@param  dateLine
+	 *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma"
 	 */
-	private Date parseDate(ArrayList a) {
-		String s = (String) a.get(2);
-
+	Date parseDate(String dateLine) {
 		try {
-			Date lastModifiedDate = _vssOutFormat.parse(s.substring(16).trim() + "m");
+			Date lastModifiedDate = 
+             VSS_OUT_FORMAT.parse(dateLine.substring(dateLine.indexOf("Date: ")).trim() + "m");
 			if (lastModifiedDate.getTime() < _lastModified) {
 				_lastModified = lastModifiedDate.getTime();
 			}
 			return lastModifiedDate;
-		}
-		catch (ParseException pe) {
+		} catch (ParseException pe) {
 			pe.printStackTrace();
 			return null;
 		}
 	}
 
 	/**
-	 *  parse username from vss file history
+	 *  Parse username from VSS file history
 	 *
-	 *@param  a
-	 *@return
+	 *@param  userLine
+	 *@return the user name who made the modification
 	 */
-	private String parseUser(ArrayList a) {
-		String userLine = (String) a.get(2);
-		String userName = userLine.substring(6, 16).trim();
+	String parseUser(String userLine) {
+        final int START_OF_USER_NAME = 6;
+		String userName = userLine.substring(
+         START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();
 		_emails.add(userName);
 
 		return userName;
-	}
-
-	/**
-	 *  pretty logging
-	 *
-	 *@param  mod
-	 */
-	private void logModification(Modification mod) {
-		log("Type: " + mod.type + " " + mod.fileName);
-		log("User: " + mod.userName + " Date: " + mod.modifiedTime);
-		log("");
 	}
 
 }
