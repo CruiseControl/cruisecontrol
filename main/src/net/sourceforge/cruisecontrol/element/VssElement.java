@@ -1,4 +1,25 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit                              *
+ * Copyright (C) 2001  ThoughtWorks, Inc.                                       *
+ * 651 W Washington Ave. Suite 500                                              *
+ * Chicago, IL 60661 USA                                                        *
+ *                                                                              *
+ * This program is free software; you can redistribute it and/or                *
+ * modify it under the terms of the GNU General Public License                  *
+ * as published by the Free Software Foundation; either version 2               *
+ * of the License, or (at your option) any later version.                       *
+ *                                                                              *
+ * This program is distributed in the hope that it will be useful,              *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
+ * GNU General Public License for more details.                                 *
+ *                                                                              *
+ * You should have received a copy of the GNU General Public License            *
+ * along with this program; if not, write to the Free Software                  *
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.element;
+
 import java.io.*;
 import java.text.*;
 
@@ -11,11 +32,14 @@ import org.apache.tools.ant.Task;
  *  This class handles all vss-related aspects of determining the modifications
  *  since the last good build.
  *
- *@author  alden almagro, ThoughtWorks, Inc. 2001, etucker, jchyip
- *@created  June 11, 2001
+ * @author Alden Almagro, ThoughtWorks, Inc. 2001
+ * @author Eli Tucker
+ * @author Jason Yip, jcyip@thoughtworks.com
  */
 public class VssElement extends SourceControlElement {
 
+    private final String VSS_TEMP_FILE = "vsstempfile.txt";
+    
 	private String _ssDir;
 	private String _login;
 	private String _property;
@@ -92,8 +116,8 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  do the work...i'm writing to a file since vss will start wrapping lines if
-	 *  i read directly from the stream.
+	 *  Do the work... I'm writing to a file since VSS will start wrapping lines 
+     * if I read directly from the stream.
 	 *
 	 *@param  lastBuild
 	 *@param  now
@@ -101,15 +125,17 @@ public class VssElement extends SourceControlElement {
 	 *@return
 	 */
 	public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+        //(PENDING) buildHistoryCommand, execHistoryCommand
 		//call vss, write output to intermediate file
 		try {
 			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", "-Vd" +
-					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild), "-Y" + _login, "-I-N",
-					"-Ovsstempfile.txt"};
+					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild), 
+                    "-Y" + _login, "-I-N", "-O" + VSS_TEMP_FILE};
 			Process p = Runtime.getRuntime().exec(cmdArray);
 			p.waitFor();
 
-			BufferedReader br = new BufferedReader(new FileReader(new File("vsstempfile.txt")));
+			BufferedReader br = new BufferedReader(new FileReader(
+             new File(VSS_TEMP_FILE)));
 
 			String s = br.readLine();
 			while (s != null) {
@@ -129,7 +155,7 @@ public class VssElement extends SourceControlElement {
 			}
 
 			br.close();
-			(new File("vsstempfile.txt")).delete();
+			(new File(VSS_TEMP_FILE)).delete();
 
 		}
 		catch (Exception e) {
@@ -173,8 +199,7 @@ public class VssElement extends SourceControlElement {
 			mod.comment = parseComment(historyEntry);
 			mod.fileName = ((String) historyEntry.get(0)).substring(7, ((String) historyEntry.get(0)).indexOf("  *"));
 			mod.folderName = ((String) historyEntry.get(3)).substring(12);
-		}
-		else {
+		} else {
 			String folderLine = (String) historyEntry.get(0);
 			String fileLine = (String) historyEntry.get(3);
 			mod.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
@@ -182,11 +207,9 @@ public class VssElement extends SourceControlElement {
 
 			if (fileLine.endsWith("added")) {
 				mod.type = "add";
-			}
-			else if (fileLine.endsWith("deleted")) {
+			} else if (fileLine.endsWith("deleted")) {
 				mod.type = "delete";
-			}
-			else if (fileLine.endsWith("recovered")) {
+			} else if (fileLine.endsWith("recovered")) {
 				mod.type = "recover";
 			}
 		}
