@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -383,8 +384,8 @@ public class CMSynergy implements SourceControl {
         Iterator tasks = format(cmd.getStdoutAsList()).iterator();
         while (tasks.hasNext()) {
             numTasks++;
-            String[] attributes = ((String) tasks.next()).split(CCM_ATTR_DELIMITER);
-            if (attributes == null || attributes.length < 4) {
+            String[] attributes = tokeniseEntry((String) tasks.next(), 5);
+            if (attributes == null) {
                 LOG.warn("Could not determine attributes for at least one "
                         + "discovered task! The modification set is suspect.");
                 continue;
@@ -394,11 +395,7 @@ public class CMSynergy implements SourceControl {
             mod.revision = attributes[1];
             mod.userName = attributes[2];
             mod.modifiedTime = getDateFromSynergy(attributes[3]);
-            if (attributes.length > 4) {
-                mod.comment = attributes[4];
-            } else {
-                mod.comment = "";
-            }
+            mod.comment = attributes[4];
             
             // Populate the included files by quering for objects in the task
             getModifiedObjects(mod);
@@ -413,6 +410,34 @@ public class CMSynergy implements SourceControl {
         return modificationList;
     }
 
+    private String[] tokeniseEntry(String line, int maxTokens) {
+        int minTokens = maxTokens - 1; // comment may be absent.
+        String[] tokens  = new String[maxTokens];
+        Arrays.fill(tokens, "");
+        int tokenIndex = 0;
+        for (int oldIndex = 0, index = line.indexOf(CCM_ATTR_DELIMITER, 0); 
+             true; 
+             oldIndex = index + CCM_ATTR_DELIMITER.length(), 
+                 index = line.indexOf(CCM_ATTR_DELIMITER, oldIndex), tokenIndex++) {
+            if (tokenIndex > maxTokens) {
+                LOG.debug("Too many tokens; skipping entry");
+                return null;
+            }
+            if (index == -1) {
+                tokens[tokenIndex] = line.substring(oldIndex);
+                break;
+            } else {
+                tokens[tokenIndex] = line.substring(oldIndex, index);
+            }
+        }
+        if (tokenIndex < minTokens) {
+            LOG.debug("Not enough tokens; skipping entry");
+            return null;
+        }
+        return tokens;
+    }
+    
+    
     /**
      * Populate the object list of a Modification by quering for objects
      * associated with the task.
@@ -454,19 +479,15 @@ public class CMSynergy implements SourceControl {
         while (objects.hasNext()) {
             numObjects++;
             String object = (String) objects.next();
-            String[] attributes = object.split(CCM_ATTR_DELIMITER);
-            if (attributes == null || attributes.length < 5) {
+            String[] attributes = tokeniseEntry(object, 6);
+            if (attributes == null) {
                 LOG.warn("Could not determine attributes for object associated "
                         + "with task \"" + mod.revision + "\".");
                 continue;
             }
             // Add each object to the CMSynergyModification
-            String comment = "";
-            if (attributes.length > 5) {
-                comment = attributes[5];
-            }
             mod.createModifiedObject(attributes[0], attributes[1],
-                    attributes[2], attributes[3], attributes[4], comment);
+                    attributes[2], attributes[3], attributes[4], attributes[5]);
         }   
     }
 
@@ -536,7 +557,7 @@ public class CMSynergy implements SourceControl {
         StringBuffer buff = new StringBuffer();
         while (it.hasNext()) {
             buff.append((String) it.next());
-            int index = buff.lastIndexOf(CCM_END_OBJECT);
+            int index = buff.toString().lastIndexOf(CCM_END_OBJECT);
             if (index > -1) {
                 buff.delete(index, buff.length());
                 out.add(buff.toString());
