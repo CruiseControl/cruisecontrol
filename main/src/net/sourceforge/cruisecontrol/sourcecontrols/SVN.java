@@ -95,8 +95,6 @@ public class SVN implements SourceControl {
     }
 
     private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
 
     /** Configuration parameters */
     private String repositoryLocation;
@@ -108,12 +106,12 @@ public class SVN implements SourceControl {
         return properties;
     }
 
-    public void setProperty(String property) {
-        this.property = property;
+    public void setProperty(String unused) {
+        throw new UnsupportedOperationException("attribute 'property' is not supported");
     }
 
-    public void setPropertyOnDelete(String property) {
-        propertyOnDelete = property;
+    public void setPropertyOnDelete(String unused) {
+        throw new UnsupportedOperationException("attribute 'propertyOnDelete' is not supported");
     }
 
     /**
@@ -182,7 +180,10 @@ public class SVN implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         List modifications = new ArrayList();
         try {
-            Commandline command = buildHistoryCommand(lastBuild);
+            String headRevision = getHeadRevision();
+            properties.put("svn.revision", headRevision);
+
+            Commandline command = buildHistoryCommand(lastBuild, headRevision);
             modifications = execHistoryCommand(command, lastBuild);
         } catch (Exception e) {
             LOG.error("Error executing svn log command", e);
@@ -190,14 +191,28 @@ public class SVN implements SourceControl {
         return modifications;
     }
 
+    private String getHeadRevision()
+            throws CruiseControlException, InterruptedException, IOException, ParseException, JDOMException {
+        String headRevision = "HEAD";
+        Commandline command = buildHistoryCommand(null, headRevision);
+        List revisionCheck = execHistoryCommand(command, null);
+
+        if (revisionCheck.size() == 0) {
+            LOG.error("Unable to determine HEAD revision (svn.revision will be set to 'HEAD')");
+        } else {
+            headRevision = ((Modification) revisionCheck.get(0)).revision;
+        }
+        return headRevision;
+    }
+
     /**
      * Generates the command line for the svn log command.
      *
      * For example:
      *
-     * 'svn log --non-interactive --xml -v -r {lastbuildTime}:HEAD repositoryLocation'
+     * 'svn log --non-interactive --xml -v -r {lastbuildTime}:headRevision repositoryLocation'
      */
-    Commandline buildHistoryCommand(Date lastBuild) throws CruiseControlException {
+    Commandline buildHistoryCommand(Date lastBuild, String headRevision) throws CruiseControlException {
         Commandline command = new Commandline();
         command.setExecutable("svn");
 
@@ -210,8 +225,12 @@ public class SVN implements SourceControl {
         command.createArgument().setValue("--xml");
         command.createArgument().setValue("-v");
         command.createArgument().setValue("-r");
-        command.createArgument().setValue(
-            "{" + SVN_DATE_FORMAT_IN.format(lastBuild) + "}" + ":HEAD");
+        if (lastBuild == null) {
+            command.createArgument().setValue("HEAD:COMMITTED");
+        } else {
+            command.createArgument().setValue(
+                "{" + SVN_DATE_FORMAT_IN.format(lastBuild) + "}" + ":" + headRevision);
+        }
         if (userName != null) {
             command.createArgument().setValue("--username");
             command.createArgument().setValue(userName);
@@ -364,7 +383,7 @@ public class SVN implements SourceControl {
             List filtered = new ArrayList();
             for (int i = 0; i < modifications.length; i++) {
                 Modification modification = modifications[i];
-                if (modification.modifiedTime.getTime() > lastBuild.getTime()) {
+                if (lastBuild == null || modification.modifiedTime.getTime() > lastBuild.getTime()) {
                     filtered.add(modification);
                 }
             }
