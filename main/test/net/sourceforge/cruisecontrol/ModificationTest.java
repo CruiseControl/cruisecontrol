@@ -89,5 +89,19 @@ public class ModificationTest extends TestCase {
         String expected = base + closingTag;
         assertEquals(expected, mod.toXml(formatter));
     }
-    
+
+	public void testToElementAndBack() throws Exception {
+		Date modifiedTime = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+		Modification mod = new Modification();
+		mod.fileName = "File\"Name&";
+		mod.folderName = "Folder'Name";
+		mod.modifiedTime = modifiedTime;
+		mod.userName = "User<>Name";
+		mod.comment = "Attempting to heal the wounded build.\0x18";
+
+		Modification modification = new Modification();
+		modification.fromElement(mod.toElement(formatter), formatter);
+		mod.equals(modification);
+	}
 }

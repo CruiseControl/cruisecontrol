@@ -38,43 +38,52 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 import org.jdom.Element;
 
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class XMLLogHelperTest extends TestCase {
 
     private Element successfulLogElement;
     private Element failedLogElement;
+	private Date date = new Date();
 
     public XMLLogHelperTest(String name) {
         super(name);
     }
 
-    private Element createModificationsElement(String username1, String username2) {
+	private Modification[] createModifications(String username1, String username2){
+		Modification[] mods = new Modification[3];
+		mods[0] = createModification(username1, false);
+		mods[1] = createModification(username2, false);
+		mods[2] = createModification("user3", true);
+		return mods;
+	}
+
+	private Modification createModification(String name, boolean addemail) {
+		Modification mod = new Modification();
+		mod.userName = name;
+		mod.comment = "This is the checkin for " + name;
+		if (addemail)
+			mod.emailAddress = name + "@host.com";
+		mod.fileName = "file.txt";
+		mod.folderName = "myfolder";
+		mod.modifiedTime = date;
+		mod.type = "checkin";
+		return mod;
+	}
+
+	private Element createModificationsElement(String username1, String username2) {
         Element modificationsElement = new Element("modifications");
-        Element modificationElement1 = new Element("modification");
-        Element userElement1 = new Element("user");
-        userElement1.addContent(username1);
-        modificationElement1.addContent(userElement1);
-        Element modificationElement2 = new Element("modification");
-        Element userElement2 = new Element("user");
-        userElement2.addContent(username2);
-        modificationElement2.addContent(userElement2);
-        Element modificationElement3 = new Element("modification");
-        Element userElement3 = new Element("user");
-        userElement3.addContent("user3");
-        Element emailElement = new Element("email");
-        emailElement.addContent("user3@host.com");
-        modificationElement3.addContent(userElement3);
-        modificationElement3.addContent(emailElement);
-
-        modificationsElement.addContent(modificationElement1);
-        modificationsElement.addContent(modificationElement2);
-        modificationsElement.addContent(modificationElement3);
-
+		Modification[] mods = createModifications(username1, username2);
+        modificationsElement.addContent(mods[0].toElement(new SimpleDateFormat("yyyyMMddHHmmss")));
+        modificationsElement.addContent(mods[1].toElement(new SimpleDateFormat("yyyyMMddHHmmss")));
+        modificationsElement.addContent(mods[2].toElement(new SimpleDateFormat("yyyyMMddHHmmss")));
         return modificationsElement;
     }
 
@@ -220,4 +229,35 @@ public class XMLLogHelperTest extends TestCase {
         assertEquals(true, p4Users.contains("user2"));
         assertEquals(false, p4Users.contains("notaperson"));
     }
+
+	public void testGetModifications(){
+		//NOTE:  There is an issue with dateformat if you convert
+		//a date to a string and parse it back to a date the milliseconds will
+		//be different.  Therefore the test gets all of the modifications
+		//and sets the date on all of them to account for this.
+		XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+		Set modifications = successHelper.getModifications();
+		Modification[] mods = createModifications("username1", "username2");
+		boolean found1 = false;
+		boolean found2 = false;
+		boolean found3 = false;
+		for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
+			Modification modification = (Modification) iterator.next();
+			modification.modifiedTime = date;
+
+			//NOTE:  HashSet contains() doesn't work properly therefore
+			//there is this horrible assert statement
+			if (modification.userName.equals("username1")){
+				found1 = true;
+				assertEquals(modification, mods[0]);
+			}if (modification.userName.equals("username2")){
+				found2 = true;
+				assertEquals(modification, mods[1]);
+			}if (modification.userName.equals("user3")){
+				found3 = true;
+				assertEquals(modification, mods[2]);
+			}
+		}
+		assertTrue("1: "+found1+" 2:"+found2+" 3:"+found3, found1 && found2 && found3);
+	}
 }
