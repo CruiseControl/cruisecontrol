@@ -33,6 +33,10 @@ BuildStatus:
 ----------------------
 * Modifications reported for BuildStatus will now be clickable and default username will now be "cc-" followed by the project name. Patch by Peter Buckner
 
+compile.xsl:
+----------------------
+* Add support for subant task. Patch by Yan-Fa Li
+
 contrib:
 ----------------------
 * Added build.xml for XmlLoggerWithStatus, minor change to readme. Patch by Brad Clarke
