@@ -55,11 +55,26 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
         File logDir = findLogDir();
 
         String currentBuildFileName = getContextParam("currentBuildStatusFile");
-        if (currentBuildFileName == null) {
-            throw new JspException("You need to declare the current build file");
+        if (currentBuildFileName == null || currentBuildFileName.equals("")) {
+            System.err.println("CruiseControl: currentBuildStatusFile not defined in the web.xml");
+            return;
         }
         File currentBuildFile = new File(logDir, currentBuildFileName);
+        if (currentBuildFile.isDirectory()) {
+            System.err.println(
+                "CruiseControl: currentBuildStatusFile "
+                    + currentBuildFile.getAbsolutePath()
+                    + " is a directory." 
+                    + " Edit the web.xml to provide the path to the correct file.");
+            return;
+        }
         if (!currentBuildFile.exists()) {
+            System.err.println(
+                "CruiseControl: currentBuildStatusFile "
+                    + currentBuildFile.getAbsolutePath()
+                    + "does not exist."
+                    + " You may need to update the value in the web.xml"
+                    + " or the location specified in your CruiseControl config.xml.");
             return;
         }
         try {
@@ -71,12 +86,13 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new JspException("Error reading status file: " + currentBuildFileName + " : " + e.getMessage());
+            throw new JspException(
+                "Error reading status file: " + currentBuildFileName + " : " + e.getMessage());
         } finally {
             try {
-               if (br != null) {
-                   br.close();
-               }
+                if (br != null) {
+                    br.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
