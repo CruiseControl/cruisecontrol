@@ -666,6 +666,11 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">No</td>
                <td class="tabledata">Absolute filename of ant script.  Uses ant via java if not specified.</td>
             </tr>
+            <tr>
+               <td class="tabledata">uselogger</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger.  'false' to call it as a Listener. Defaults to 'false'</td>
+            </tr>
          </table>
 
          <p><a name="pausebuilder"><span class="small">PauseBuilder</span><br>
