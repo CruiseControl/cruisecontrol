@@ -80,6 +80,8 @@ public class FileSystem implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(_folder == null)
+           throw new CruiseControlException("'folder' is a required attribute for FileSystem");
     }
 
     /**
