@@ -67,6 +67,10 @@ testdetails.xsl
 ----------------------
 * patch for JS-escape template so whole string is escaped and line feeds are dealt with properly. Patch by Han Wang and Roy O. Wright
 
+X10Publisher
+----------------------
+* A new publisher to controlling an X10 electronic device based on the build completion status, i.e. turn a light on when the build breaks and then turn it off when the build is successful.
+
 website / documentation
 ----------------------
 * Rework navigation for feedback, completeness and consistency. Convert navigation from images to text. Convert to semantic markup. Address inconsistency of configxml.html. Patch by Joe Schmetzer
