@@ -281,12 +281,12 @@ public class MasterBuild {
         // There might be a better way to do this, perhaps by quering the project for
         // a list of executed tasks??? For now, this will suffice, as this property
         // should always be set by the ModificationSet (even if there are no changes).
-        if (project.getProperty(ModificationSet.MODIFICATIONSET_INVOKED) == null) {
+        //if (project.getProperty(ModificationSet.MODIFICATIONSET_INVOKED) == null) {
             // This means that there was never a modification set task called.
             log.error("The specified Ant target did not result in a ModificationSet task being called.");
             log.error("Without a ModificationSet task, CruiseControl can not work correctly");
             throw new BuildException("No ModificationSet task invoked");
-        }
+        //}
     }
 
     private void sendBuildEmail(String message) {
@@ -376,8 +376,8 @@ public class MasterBuild {
         //If no build was required, because no changes were committed to the
         //  repository, then ModificationSet will have set a property on the
         //  project to indicate as such.
-        boolean buildUnnecessary =
-                proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null;
+        boolean buildUnnecessary = false;
+                //proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null;
         info.setBuildNotNecessary(buildUnnecessary);
 
         //And if no build was required, then we are done.
@@ -387,8 +387,8 @@ public class MasterBuild {
 
         //Otherwise, a build was required, so we need to setup some of the
         //  details on the BuildInfo instance.
-        info.setUserList(proj.getProperty(ModificationSet.USERS));
-        info.setLastBuild(proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP));
+        //info.setUserList(proj.getProperty(ModificationSet.USERS));
+        //info.setLastBuild(proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP));
         if (successful) {
             info.setLastBuildSuccessful(true);
             info.setLastGoodBuild(info.getLastBuild());
