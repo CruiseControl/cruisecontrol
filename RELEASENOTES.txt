@@ -27,6 +27,10 @@ logile.xsl
 ----------------------
 * Changed the logfile.xsl to have an output method (some Xalan versions gave an error on this). Patch from Matt Albrecht
 
+Modification Set
+----------------------
+* Changed to instruct CC to do a build if a modification occurs in the future. Patch by Geoff Krapf
+
 Project
 ----------------------
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht

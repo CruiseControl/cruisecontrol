@@ -58,15 +58,20 @@ import org.jdom.output.XMLOutputter;
 public class ModificationSetTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(ModificationSetTest.class);
-    
+
     private ModificationSet modSet;
-    
+
     public void testIsLastModificationInQuietPeriod() throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         Modification mod1 = new Modification();
         mod1.modifiedTime = formatter.parse("20020621140000");
         Modification mod2 = new Modification();
         mod2.modifiedTime = formatter.parse("20020621140100");
+
+        // When a change is put into source control with a bad date in the
+        // future, we should still build
+        Modification mod3 = new Modification();
+        mod3.modifiedTime = formatter.parse("20020731150000");
 
         List mods1 = new ArrayList();
         mods1.add(mod1);
@@ -75,12 +80,18 @@ public class ModificationSetTest extends TestCase {
         List mods2 = new ArrayList();
         mods2.add(mod1);
 
+        List mods3 = new ArrayList();
+        mods3.add(mod1);
+        mods3.add(mod2);
+        mods3.add(mod3);
+
         Date now = formatter.parse("20020621140103");
 
         modSet.setQuietPeriod(5);
 
         assertEquals(true, modSet.isLastModificationInQuietPeriod(now, mods1));
         assertEquals(false, modSet.isLastModificationInQuietPeriod(now, mods2));
+        assertEquals(false, modSet.isLastModificationInQuietPeriod(now, mods3));
     }
 
     public void testGetLastModificationMillis() throws ParseException {
@@ -142,13 +153,13 @@ public class ModificationSetTest extends TestCase {
         }
 
         XMLOutputter outputter = new XMLOutputter();
-        assertEquals("XML data differ", 
-                outputter.outputString(modificationsElement), 
+        assertEquals("XML data differ",
+                outputter.outputString(modificationsElement),
                 outputter.outputString(modSetResults));
     }
 
     /**
-     * This test will give modificationset two different types of 
+     * This test will give modificationset two different types of
      * modifications. One regular, based on the object, and one with Element data.
      * Uses inline sourcecontrol implementation instead of mock.
      */
@@ -201,8 +212,8 @@ public class ModificationSetTest extends TestCase {
         expectedModificationsElement.addContent(mod2.toElement(formatter));
 
         XMLOutputter outputter = new XMLOutputter();
-        assertEquals("XML data differ", 
-                outputter.outputString(expectedModificationsElement), 
+        assertEquals("XML data differ",
+                outputter.outputString(expectedModificationsElement),
                 outputter.outputString(modSetResults));
     }
 
@@ -254,18 +265,18 @@ public class ModificationSetTest extends TestCase {
         assertEquals("Properties should should have 1 entry.", 1, table.size());
         assertTrue("Property not found.", table.containsKey("property"));
     }
-    
+
     public void testValidate() throws CruiseControlException {
         try {
             modSet.validate();
             fail("modificationset should require at least one sourcecontrol");
         } catch (CruiseControlException e) {
         }
-        
+
         modSet.addSourceControl(new Vss());
         modSet.validate();
     }
-    
+
     public void testSetRequireModification() {
         modSet.getModifications(new Date());
         assertFalse(modSet.isModified());
@@ -276,7 +287,7 @@ public class ModificationSetTest extends TestCase {
     protected void setUp() throws Exception {
         modSet = new ModificationSet();
         modSet.setQuietPeriod(0);
-        
+
         // Turn off logging
         BasicConfigurator.configure();
         LOG.getLoggerRepository().setThreshold(Level.OFF);

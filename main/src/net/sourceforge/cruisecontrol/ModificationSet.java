@@ -71,13 +71,29 @@ public class ModificationSet {
     public void setQuietPeriod(int seconds) {
         quietPeriod = seconds * ONE_SECOND;
     }
-    
+
     public void addSourceControl(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
     }
 
     protected boolean isLastModificationInQuietPeriod(Date now, List modificationList) {
-        return (getLastModificationMillis(modificationList) + quietPeriod) >= now.getTime();
+        long lastModStart = getLastModificationMillis(modificationList);
+        long lastModEnd = lastModStart + quietPeriod;
+        if (now.getTime() > lastModEnd) {
+            LOG.warn("A modification has been detected beyond the end of the quiet period.  Building anyway.");
+            SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+            LOG.debug(
+                    formatter.format(
+                            new Date(now.getTime() - quietPeriod))
+                    + " <= Quiet Period <= "
+                    + formatter.format(now));
+            LOG.debug(
+                    "Last modification: "
+                    + formatter.format(
+                            new Date(
+                                    getLastModificationMillis(modifications))));
+        }
+        return (now.getTime() <= lastModEnd) && (now.getTime() >= lastModStart);
     }
 
     protected long getLastModificationMillis(List modificationList) {
@@ -86,7 +102,7 @@ public class ModificationSet {
             long temp = 0;
             if (modificationList.get(i) instanceof Modification) {
                 temp = ((Modification) modificationList.get(i)).modifiedTime.getTime();
-            } 
+            }
 //            else if (modifications.get(i) instanceof org.jdom.Element) {
 //                //set the temp date
 //            }
@@ -133,10 +149,10 @@ public class ModificationSet {
             Iterator modificationIterator = modifications.iterator();
             if (modifications.size() > 0) {
                 LOG.info(
-                    modifications.size()
+                        modifications.size()
                         + ((modifications.size() > 1)
-                            ? " modifications have been detected."
-                            : " modification has been detected."));
+                        ? " modifications have been detected."
+                        : " modification has been detected."));
             }
             while (modificationIterator.hasNext()) {
                 Object object = (Object) modificationIterator.next();
@@ -153,19 +169,19 @@ public class ModificationSet {
             if (isLastModificationInQuietPeriod(timeOfCheck, modifications)) {
                 LOG.info("A modification has been detected in the quiet period.  ");
                 LOG.debug(
-                    formatter.format(
-                        new Date(timeOfCheck.getTime() - quietPeriod))
+                        formatter.format(
+                                new Date(timeOfCheck.getTime() - quietPeriod))
                         + " <= Quiet Period <= "
                         + formatter.format(timeOfCheck));
                 LOG.debug(
-                    "Last modification: "
+                        "Last modification: "
                         + formatter.format(
-                            new Date(
-                                getLastModificationMillis(modifications))));
+                                new Date(
+                                        getLastModificationMillis(modifications))));
                 LOG.info(
-                    "Sleeping for "
+                        "Sleeping for "
                         + getQuietPeriodDifference(timeOfCheck, modifications)
-                            / 1000
+                        / 1000
                         + " seconds before retrying.");
                 try {
                     Thread.sleep(getQuietPeriodDifference(timeOfCheck, modifications));
@@ -190,7 +206,7 @@ public class ModificationSet {
     public void validate() throws CruiseControlException {
         if (sourceControls.size() == 0) {
             throw new CruiseControlException(
-                "modificationset element requires at least one nested source control element");
+                    "modificationset element requires at least one nested source control element");
         }
     }
 
