@@ -40,32 +40,45 @@
 <ul>
 	<li> <a href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></li>
 	<li> <a href="#cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></li>
+	<li> <a href="#servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></li>
 </ul>
 
 <p></p>
 
 <span class="header"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span>
 
-<p>Usually this problem manifests itself like:</p>
+	<p>Usually this problem manifests itself like:</p>
+	
+	<pre>My CruiseControl builds are failing because ant can't use the modern java
+	compiler and my project won't compile with the classic compiler.  But my
+	JAVA_HOME env var is set properly--in fact I can run the various ant targets
+	myself just fine.</pre>
+	
+	<p>Usually this is because tools.jar is not in the CLASSPATH. It's worth noting here 
+	that the Ant scripts pick up JAVA_HOME and add tools.jar to the classpath automatically. 
+	However, at the time of writing, CruiseControl does not.</p>
+	
+	<p>The main reason for this is that, if you are not using the classic or modern
+	compilers, you don't need it. Furthermore, due to problems with javac
+	locking JAR files, it is advisable to use a different compiler (such as
+	Jikes).</p>
 
-<pre>My CruiseControl builds are failing because ant can't use the modern java
-compiler and my project won't compile with the classic compiler.  But my
-JAVA_HOME env var is set properly--in fact I can run the various ant targets
-myself just fine.</pre>
+<span class="header"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span>
 
-<p>Usually this is because tools.jar is not in the CLASSPATH. It's worth noting here 
-that the Ant scripts pick up JAVA_HOME and add tools.jar to the classpath automatically. 
-However, at the time of writing, CruiseControl does not.</p>
+	<p>This solution requires Ant 1.4.  Set the property "build.compiler" to "extJavac".  
+	This tells Ant to fork a separate process for using Javac, which will release the lock when it terminates.
+	Alternatively, set the "fork" attribute of the javac task to true.</p>
 
-<p>The main reason for this is that, if you are not using the classic or modern
-compilers, you don't need it. Furthermore, due to problems with javac
-locking JAR files, it is advisable to use a different compiler (such as
-Jikes).</p>
+<span class="header"><a name="servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></span>
 
-<span class="header"><a name="cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></span>
+	<p>Usually this problem manifests itself with an Exception containing text similar to this:</p>
 
-<p>This solution requires Ant 1.4.  Set the property "build.compiler" to "extJavac".  This tells Ant to fork a separate process for using Javac, which will release the lock when it terminates.  Alternatively, set the "fork" attribute of the javac task to true.</p>
+	<pre>DefaultServletConfig does not implement interface javax.servlet.ServletConfig</pre>
 
+	<p>The solution to this is normaly very simple. Remove servlet.jar from your WEB-INF/lib directory.
+	The reason for it being there in the first place is probably because you copied all files in the lib
+	directory to your WEB-INF. Should be fixed later on with somewhat more organized release builds.</p>
+	
       <!-- content ends here -->
       </td>
    </tr>
