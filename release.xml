@@ -1,0 +1,59 @@
+<!-- build the release -->
+<project name="release" default="release">
+
+<target name="release">
+    <property name="website" value="website"/>
+    <property name="docs" value="docs"/>
+    <property name="main" value="main"/>
+    <property name="jsp" value="reporting/jsp"/>
+
+    <delete file="cruisecontrol-${label}.zip"/>
+    <delete dir="${website}"/>
+    <mkdir dir="${website}"/>
+    <mkdir dir="${website}/main"/>
+    <mkdir dir="${website}/reporting/jsp"/>
+
+    <copy todir="${website}">
+        <fileset dir="${docs}"/>
+    </copy>
+    <copy todir="${website}/main">
+        <fileset dir="${main}/docs"/>
+    </copy>
+    <copy todir="${website}/reporting/jsp">
+        <fileset dir="${jsp}/docs"/>
+    </copy>
+
+    <replace dir="${website}" token="main/docs/index.html" value="main/index.html">
+        <include name="**/*.html"/>
+    </replace>
+    <replace dir="${website}" token="reporting/jsp/docs/index.html" value="reporting/jsp/index.html">
+        <include name="**/*.html"/>
+    </replace>
+
+    <replace dir="${website}/main" token="../../docs/index.html" value="../index.html">
+        <include name="**/*.html"/>
+    </replace>
+
+    <replace dir="${website}/reporting/jsp" token="../../../docs/index.html" value="../../index.html">
+        <include name="**/*.html"/>
+    </replace>
+
+    <zip zipfile="../cruisecontrol-${label}.zip">
+        <zipfileset dir="../cruisecontrol" prefix="cruisecontrol-${label}">
+            <exclude name="website/**"/>
+            <exclude name="main/lib/starteam-sdk.jar"/>
+            <exclude name="main/dist/**"/>
+            <exclude name="main/classes/**"/>
+            <exclude name="main/test-results/**"/>
+            <exclude name="reporting/jsp/samplelogs/_cache/**"/>
+            <exclude name="reporting/jsp/classes/**"/>
+            <exclude name="reporting/jsp/dist/**"/>
+            <exclude name="reporting/jsp/testresults.xml"/>
+            <exclude name="../cruisecontrol-${label}.zip"/>
+            <exclude name="release*"/>
+        </zipfileset>
+    </zip>
+</target>
+
+
+</project>
