@@ -203,6 +203,9 @@ public class Project implements Serializable, Runnable {
         if (buildSuccessful) {
             lastBuild = now;
             lastSuccessfulBuild = now;
+            info("build successful");
+        } else {
+            info("build failed");
         }
 
         buildCounter++;
@@ -263,7 +266,7 @@ public class Project implements Serializable, Runnable {
     void waitForNextBuild() throws InterruptedException {
         long waitTime = getTimeToNextBuild();
         if (needToWaitForNextBuild(waitTime)) {
-            appLog("next build in " + Util.formatTime(waitTime));
+            info("next build in " + Util.formatTime(waitTime));
             synchronized (waitMutex) {
                 waitMutex.wait(waitTime);
             }
@@ -329,16 +332,16 @@ public class Project implements Serializable, Runnable {
         }
 
         if (!modificationSet.isModified()) {
-            appLog("No modifications found, build not necessary.");
+            info("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
             // modifications. This is in fact current default behaviour.
             // Set by <project buildafterfailed="true/false">
             if (buildAfterFailed && !wasLastBuildSuccessful) {
-                appLog("Building anyway, since buildAfterFailed is true and last build failed.");
+                info("Building anyway, since buildAfterFailed is true and last build failed.");
             } else {
                 if (buildForced) {
-                    appLog("Building anyway, since build was explicitly forced.");
+                    info("Building anyway, since build was explicitly forced.");
                 } else {
                     return null;
                 }
@@ -538,7 +541,7 @@ public class Project implements Serializable, Runnable {
 
     private void setState(ProjectState newState) {
         state = newState;
-        appLog(getStatus());
+        info(getStatus());
         fireProgressEvent(new BuildProgressEvent(this, newState));
     }
 
@@ -564,7 +567,7 @@ public class Project implements Serializable, Runnable {
         if (configFile == null) {
             throw new IllegalStateException("set config file on project before calling init()");
         }
-        appLog("reading settings from config file [" + configFile.getAbsolutePath() + "]");
+        info("reading settings from config file [" + configFile.getAbsolutePath() + "]");
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
 
         bootstrappers = helper.getBootstrappers();
@@ -778,7 +781,7 @@ public class Project implements Serializable, Runnable {
      * Logs a message to the application log, not to be confused with the
      * CruiseControl build log.
      */
-    private void appLog(String message) {
+    private void info(String message) {
         LOG.info("Project " + name + ":  " + message);
     }
 
