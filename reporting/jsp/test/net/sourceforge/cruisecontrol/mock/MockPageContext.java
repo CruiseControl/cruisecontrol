@@ -132,7 +132,6 @@ public class MockPageContext extends PageContext {
     }
 
     public ServletConfig getServletConfig() {
-        System.out.println("returning " + servletConfig);
         return servletConfig;
     }
 

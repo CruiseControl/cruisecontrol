@@ -25,6 +25,7 @@ NavigationTag
 ----------------------
 * Fixed bug to allow "L" in build label - Patch by Christopher Lenz
 * Added "startingBuildNumber" and "finalBuildNumber" attributes, to allow for ranges of builds to be output; useful for, say, creating a drop-down list after the first 10 links.
+* Now outputs the log file as a "logfile" variable.
 
 PVCS
 ----------------------
@@ -36,6 +37,9 @@ XSLTag
 * Fixed a bug where using an unexpanded WAR file caused a NullPointerException.
 * Added "xslRootContext" property, so that nested stylesheets know where the default directory is.
 
+buildresults.jsp
+----------------------
+* The list of builds is now limited to 10 hard links, with the rest being done via a drop-down list.
 
 CruiseControl Release Notes - 2.0.2
 
