@@ -35,48 +35,86 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
-<xsl:stylesheet
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-    xmlns:lxslt="http://xml.apache.org/xslt">
+<xsl:stylesheet 
+    version="1.0" 
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns="http://www.w3.org/TR/html4/strict.dtd" >
 
     <xsl:output method="html"/>
-    <xsl:variable name="tasklist" select="//target/task"/>
+
+    <xsl:variable name="tasklist" select="/cruisecontrol/build/target/task"/>
     <xsl:variable name="javac.tasklist" select="$tasklist[@name='Javac']"/>
     <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='EjbJar']"/>
 
     <xsl:template match="/">
-        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
-            <xsl:variable name="javac.error.messages" select="$javac.tasklist/message[@priority='error']"/>
-            <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn']"/>
-            <xsl:variable name="ejbjar.error.messages" select="$ejbjar.tasklist/message[@priority='error']"/>
-            <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn']"/>
-            <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages) + count($javac.error.messages) + count($ejbjar.error.messages)"/>
+        <xsl:variable name="javac.error.messages" select="$javac.tasklist/message[@priority='error']"/>
+        <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn']"/>
+        <xsl:variable name="ejbjar.error.messages" select="$ejbjar.tasklist/message[@priority='error']"/>
+        <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn']"/>
+        <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages) + count($javac.error.messages) + count($ejbjar.error.messages)"/>
 
-            <xsl:if test="$total.errorMessage.count > 0">
+        <xsl:if test="$total.errorMessage.count > 0">
+            <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
                 <tr>
-                <!-- NOTE: total.errorMessage.count is actually the number of lines of error
-                 messages. This accurately represents the number of errors ONLY if the Ant property
-                 build.compiler.emacs is set to "true" -->
+                    <!-- NOTE: total.errorMessage.count is actually the number of lines of error
+                     messages. This accurately represents the number of errors ONLY if the Ant property
+                     build.compiler.emacs is set to "true" -->
                     <td class="compile-sectionheader">
-                       &#160;Errors/Warnings: (<xsl:value-of select="$total.errorMessage.count"/>)
+                        &#160;Errors/Warnings: (
+                        <xsl:value-of select="$total.errorMessage.count"/>)
                     </td>
                 </tr>
-                <xsl:apply-templates select="$javac.error.messages"/>
-                <xsl:apply-templates select="$javac.warn.messages"/>
-                <xsl:apply-templates select="$ejbjar.error.messages"/>
-                <xsl:apply-templates select="$ejbjar.warn.messages"/>
-            </xsl:if>
+                <xsl:if test="count($javac.error.messages) > 0">
+                    <tr>
+                        <td class="compile-error-data">
+                            <pre>
+                                <xsl:apply-templates select="$javac.error.messages"/>
+                            </pre>
+                        </td>
+                    </tr>
+                </xsl:if>
+                <xsl:if test="count($javac.warn.messages) > 0">
+                    <tr>
+                        <td class="compile-data">
+                            <pre>
+                                <xsl:apply-templates select="$javac.warn.messages"/>
+                            </pre>
+                        </td>
+                    </tr>
+                </xsl:if>
+                <xsl:if test="count($ejbjar.error.messages) > 0">
+                    <tr>
+                        <td class="compile-error-data">
+                            <pre>
+                                <xsl:apply-templates select="$ejbjar.error.messages"/>
+                            </pre>
+                        </td>
+                    </tr>
+                </xsl:if>
+                <xsl:if test="count($ejbjar.warn.messages) > 0">
+                    <tr>
+                        <td class="compile-warn-data">
+                            <pre>
+                                <xsl:apply-templates select="$ejbjar.warn.messages"/>
+                            </pre>
+                        </td>
+                    </tr>
+                </xsl:if>
+            </table>
+        </xsl:if>
 
-        </table>
     </xsl:template>
 
     <xsl:template match="message[@priority='error']">
-        <tr><td class="compile-data"><xsl:value-of select="text()"/></td></tr>
+        <xsl:value-of select="text()"/>
+        <xsl:if test="count(./../message[@priority='error']) != position()">
+            <br/>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="message[@priority='warn']">
-        <tr><td class="compile-data"><xsl:value-of select="text()"/></td></tr>
+        <xsl:value-of select="text()"/><br/>
     </xsl:template>
-
+    
 </xsl:stylesheet>

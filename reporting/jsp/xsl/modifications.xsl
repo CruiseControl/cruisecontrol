@@ -36,12 +36,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <xsl:stylesheet
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-    xmlns:lxslt="http://xml.apache.org/xslt">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
     <xsl:output method="html"/>
-    <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="modification.list" select="build/modifications/modification"/>
+
+    <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
 
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
