@@ -151,27 +151,6 @@
     </target>
     
     <!-- **************************************************** -->
-    <!-- Builds the war                                       -->
-    <!-- **************************************************** -->    
-    <target name="war" depends="jar">
-        <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath"/>
-        <war warfile="${dist}\buildservlet.war" webxml="web.xml">
-           <lib dir="${lib}">
-              <include name="servlet.jar"/>
-              <include name="xerces.jar"/>
-              <include name="xalan.jar"/>
-           </lib>
-           <fileset dir=".">
-              <include name="${images}/**"/>
-              <include name="cruisecontrol.xsl"/>
-              <include name="templates/**"/>
-              <include name="buildservlet.properties"/>
-              <include name="cruise.jsp"/>
-           </fileset>
-        </war>
-    </target>
-    
-    <!-- **************************************************** -->
     <!-- Generates the javadocs                               -->
     <!-- **************************************************** -->
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
@@ -186,7 +165,7 @@
     <!-- **************************************************** -->
     <!-- Builds the release zip                               -->
     <!-- **************************************************** -->
-    <target name="release" depends="jar, war" description="Build release zip">
+    <target name="release" depends="jar" description="Build release zip">
         <fixcrlf srcdir="${dist}" eol="lf" includes="*.sh"/>
         <property name="release.zip" value="cruisecontrol.zip"/>
         <delete file="${release}\${release.zip}"/>
@@ -200,7 +179,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,compile,test,jar,war" description="Performs a clean build, runs tests, and builds jar/war" />
+    <target name="all" depends="clean,init,compile,test,jar" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- CRUISE EXAMPLES                                        -->
