@@ -37,9 +37,9 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.IOException;
+import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.JspException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
@@ -88,7 +88,9 @@ public class TabSheetTagTest extends TestCase {
         tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag()); // side effect of this should clear
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
-        assertEquals("<tr></tr><tr></tr>", pageContext.getOut().toString());
+        final String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
+                                + "<tr><th></th></tr></table>";
+        assertEquals(expected, pageContext.getOut().toString());
     }
 
     public void testClearTabsOnRelease() throws IOException, JspException {
@@ -96,7 +98,10 @@ public class TabSheetTagTest extends TestCase {
         tabSheet.release();
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag()); // wouldn't normally call this after a release
                                                           // but good enough way to test.
-        assertEquals("<tr></tr><tr></tr>", pageContext.getOut().toString());
+        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
+                          + "<tr><th></th></tr></table>";
+
+        assertEquals(expected, pageContext.getOut().toString());
     }
 
     // Let's put it all together...
@@ -114,12 +119,13 @@ public class TabSheetTagTest extends TestCase {
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
-        final String headerText = "<tr>"
-                + "<th>Tab Name 1</th>"
-                + "<th><a href=\"/context/servlet?tab=tabname2\">Tab Name 2</a></th>"
-                + "</tr>";
-        final String bodyText = "<tr><td>This is Tab 1</td></tr>";
-        assertEquals(headerText + bodyText, pageContext.getOut().toString());
+        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr><th>"
+                          + "<img border=\"0\" alt=\"Tab Name 1\" src=\"images/tabname1Tab-off.gif\" />"
+                          + "<a href=\"/context/servlet?tab=tabname2\">"
+                          + "<img border=\"0\" alt=\"Tab Name 2\" src=\"images/tabname2Tab-on.gif\" /></a>"
+                          + "</th></tr>This is Tab 1</table>";
+
+        assertEquals(expected, pageContext.getOut().toString());
     }
 
     public void testPrintTabSheetTab2Selected() throws JspException, IOException {
@@ -136,12 +142,12 @@ public class TabSheetTagTest extends TestCase {
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
-        final String headerText = "<tr>"
-                + "<th><a href=\"/context/servlet?tab=tabname1\">Tab Name 1</a></th>"
-                + "<th>Tab Name 2</th>"
-                + "</tr>";
-        final String bodyText = "<tr><td>This is Tab 2</td></tr>";
-        assertEquals(headerText + bodyText, pageContext.getOut().toString());
+        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
+                          + "<tr><th><a href=\"/context/servlet?tab=tabname1\">"
+                          + "<img border=\"0\" alt=\"Tab Name 1\" src=\"images/tabname1Tab-on.gif\" /></a>"
+                          + "<img border=\"0\" alt=\"Tab Name 2\" src=\"images/tabname2Tab-off.gif\" /></th></tr>"
+                          + "This is Tab 2</table>";
+        assertEquals(expected, pageContext.getOut().toString());
     }
 
     public void testPrintTabSheetNoTab() throws JspException {
@@ -150,10 +156,9 @@ public class TabSheetTagTest extends TestCase {
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
 
-        final String headerText = "<tr>"
-                + "</tr>";
-        final String bodyText = "<tr></tr>";
-        assertEquals(headerText + bodyText, pageContext.getOut().toString());
+        String expected = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
+                          + "<tr><th></th></tr></table>";
+        assertEquals(expected, pageContext.getOut().toString());
     }
 
 }

@@ -36,28 +36,44 @@
  ********************************************************************************--%>
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<table>
+<html>
+<head>
+  <title>CruiseControl Build Results</title>
+  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
+</head>
+<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
     <tr>
-      <td valign="top">
-        <img src="images/blank8.gif" border="0"><br>
-        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
-        <table border="0" align="center" width="98%">
-            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
-            <tr><td>&nbsp;</td></tr>
-            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
-                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
-            </cruisecontrol:nav>
-            <tr><td>
-              <form method="GET" action="<%=request.getContextPath() + request.getServletPath()%>" >
-                <select name="log" onchange="form.submit()">
-                  <cruisecontrol:nav startingBuildNumber="10">
-                    <option value="<%=logfile%>"><%= linktext %></option>
-                  </cruisecontrol:nav>
-                </select>
-              </form>
-            </td></tr>
-        </table>
+      <td>
+        <jsp:include page="navigation.jsp" />
       </td>
-      <td>&nbsp;</td>
+      <td valign="top">
+        <cruisecontrol:tabsheet>
+          <tr>
+            <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>
+          </tr>
+          <tr>
+            <td bgcolor="white" >
+              <cruisecontrol:tab name="buildResults" label="Build Results" >
+                <jsp:include page="buildresults.jsp" />
+              </cruisecontrol:tab>
+              <cruisecontrol:tab name="testResults" label="Test Results" >
+                <jsp:include page="testdetails.jsp" />
+              </cruisecontrol:tab>
+              <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
+                <jsp:include page="xmllog.jsp" />
+              </cruisecontrol:tab>
+              <cruisecontrol:tab name="controlPanel" label="Control Panel" >
+                <jsp:include page="controlpanel.jsp" />
+              </cruisecontrol:tab>
+            </td>
+          </tr>
+          <tr>
+            <td background="images/bluestripesbottom.gif"><img src="images/blank8.gif" border="0"></td>
+          </tr>
+        </cruisecontrol:tabsheet>
+      </td>
     </tr>
-</table>
+  </table>
+</body>
+</html>

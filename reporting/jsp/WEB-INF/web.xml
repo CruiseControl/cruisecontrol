@@ -54,36 +54,12 @@
 
     <servlet>
       <servlet-name>buildresults</servlet-name>
-      <jsp-file>/buildresults.jsp</jsp-file>
-    </servlet>
-    <servlet>
-      <servlet-name>controlpanel</servlet-name>
-      <jsp-file>/controlpanel.jsp</jsp-file>
-    </servlet>
-    <servlet>
-      <servlet-name>testdetails</servlet-name>
-      <jsp-file>/testdetails.jsp</jsp-file>
-    </servlet>
-    <servlet>
-      <servlet-name>xmllog</servlet-name>
-      <jsp-file>/xmllog.jsp</jsp-file>
+      <jsp-file>/main.jsp</jsp-file>
     </servlet>
 
     <servlet-mapping>
       <servlet-name>buildresults</servlet-name>
       <url-pattern>/buildresults</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>controlpanel</servlet-name>
-      <url-pattern>/controlpanel</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>testdetails</servlet-name>
-      <url-pattern>/testdetails</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>xmllog</servlet-name>
-      <url-pattern>/xmllog</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -97,7 +97,7 @@
     </tag>
     <tag>
         <name>tab</name>
-        <tag-class>net.sourceforge.cruisecontrol.taglib.TabTab</tag-class>
+        <tag-class>net.sourceforge.cruisecontrol.taglib.TabTag</tag-class>
         <body-content>JSP</body-content>
         <description>Creates a tab that selected content gets put into.</description>
         <attribute>
