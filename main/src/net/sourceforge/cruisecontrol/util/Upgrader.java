@@ -47,7 +47,7 @@ import org.jdom.output.XMLOutputter;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
@@ -368,15 +368,20 @@ public class Upgrader {
 
     protected void writeXMLFile(Element element) {
         XMLOutputter outputter = new XMLOutputter("   ", true);
-        FileWriter fw = null;
+        FileOutputStream fw = null;
         try {
-            fw = new FileWriter(configFile);
+            fw = new FileOutputStream(configFile);
             outputter.output(element, fw);
-            fw.close();
         } catch (IOException e) {
             LOG.fatal("", e);
         } finally {
-            fw = null;
+            if (fw != null) {
+                try {
+                    fw.close();
+                } catch (IOException ioe) {
+                    // Just ignore it
+                }
+            }
         }
     }
 
