@@ -116,7 +116,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
 
     private BuildInfo[] findLogFiles() throws JspException {
         File logDir = findLogDir();
-        return (BuildInfo[]) BuildInfo.loadFromDir(logDir).toArray(new BuildInfo[0]);
+        return (BuildInfo[]) BuildInfo.loadFromDir(logDir).asArray();
     }
 
     public void doInitBody() throws JspException {
