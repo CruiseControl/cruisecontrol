@@ -71,7 +71,7 @@
 
             <td class="modifications-data"><xsl:value-of select="@type"/></td>
             <td class="modifications-data"><xsl:value-of select="user"/></td>
-            <td class="modifications-data"><xsl:value-of select="project"/><xsl:value-of select="filename"/></td>
+            <td class="modifications-data"><xsl:value-of select="project"/>/<xsl:value-of select="filename"/></td>
             <td class="modifications-data"><xsl:value-of select="comment"/></td>
         </tr>
     </xsl:template>
