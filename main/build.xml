@@ -14,7 +14,7 @@
     </target>
     
     <target name="jar" depends="compile">
-        <jar jarfile="lib\masterbuild.jar" basedir="${classes.dir}"/>
+        <jar jarfile="lib\cruisecontrol.jar" basedir="${classes.dir}"/>
     </target>
     
     <target name="all" depends="jar" />
