@@ -19,6 +19,10 @@ BuildQueue
 ----------------------
 * Add support for multiple build threads (ThreadQueue). Patch by Jared Richardson
 
+ClearCaseBootstrapper
+----------------------
+* fixed /dev/nul to /dev/null (CC-76). Patch by Esa Laine 
+
 CruiseControl
 ----------------------
 * Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass (CC-56). Patch by Jerome Lacoste
@@ -33,7 +37,7 @@ cruisecontrol-jsp12.tld
 
 EmailPublisher & friends
 ----------------------
-* Uses new EmailMapperHelper to map addresses with EmailMappers. Patch by Esa Laine (Jira CC-2)
+* Uses new EmailMapperHelper to map addresses with EmailMappers (CC-2). Patch by Esa Laine
 
 HTMLEmailPublisher
 ----------------------
