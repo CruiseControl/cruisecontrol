@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -74,6 +73,8 @@ import java.util.TreeSet;
  */
 public abstract class EmailPublisher implements Publisher {
     private static final Logger LOG = Logger.getLogger(EmailPublisher.class);
+    private static final String DEFAULT_EMAILADDRESSMAPPER
+            = "net.sourceforge.cruisecontrol.publishers.EmailAddressMapper";
 
     private String mailHost;
     private String userName;
@@ -92,6 +93,7 @@ public abstract class EmailPublisher implements Publisher {
     private boolean skipUsers = false;
     private String subjectPrefix;
     private boolean failAsImportant = true;
+    private String emailAddressMapper = DEFAULT_EMAILADDRESSMAPPER;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -241,30 +243,45 @@ public abstract class EmailPublisher implements Publisher {
             }
         }
 
-        //move map to hashtable
-        Set emails = new TreeSet();
-        Hashtable emailMappings = new Hashtable();
-        for (int i = 0; i < emailMap.length; i++) {
-            EmailMapping mapping = emailMap[i];
-            LOG.debug(
-                "Mapping alias: " + mapping.getAlias() + " to address: " + mapping.getAddress());
-            emailMappings.put(mapping.getAlias(), mapping.getAddress());
+        EmailAddressMapper mapper = null;
+        Class cl = null;
+        try {
+            cl = Class.forName(getEmailAddressMapper());
+            mapper = (EmailAddressMapper) cl.newInstance();
+        } catch (InstantiationException ie) {
+            LOG.fatal("Could not instantiate class", ie);
+            throw new CruiseControlException("Could not instantiate class: "
+                + getEmailAddressMapper());
+        } catch (ClassNotFoundException cnfe) {
+            LOG.fatal("Could not find class", cnfe);
+            throw new CruiseControlException("Could not find class: "
+                + getEmailAddressMapper());
+        } catch (IllegalAccessException iae) {
+            LOG.fatal("Illegal Access", iae);
+            throw new CruiseControlException("Illegal Access class: "
+                + getEmailAddressMapper());
         }
 
+        mapper.open(this);
+
+        Set emails = new TreeSet();
         Iterator userIterator = users.iterator();
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
-            if (emailMappings.containsKey(user)) {
-                LOG.debug("User found in email map.  Mailing to: " + emailMappings.get(user));
-                emails.add(emailMappings.get(user));
+            String mappedUser = (mapper != null) ? mapper.mapUser(user) : null;
+            if (mappedUser != null) {
+                LOG.debug("User found in email map.  Mailing to: " + mappedUser);
             } else {
-                if (user.indexOf("@") < 0) {
-                    user = user + defaultSuffix;
-                }
-                LOG.debug("User not found in email map.  Mailing to: " + user);
-                emails.add(user);
+                mappedUser = user;
             }
+            if (mappedUser.indexOf("@") < 0) {
+                mappedUser = mappedUser + defaultSuffix;
+                LOG.debug("User not found in email map.  Mailing to: " + mappedUser);
+            }
+            emails.add(mappedUser);
         }
+
+        mapper.close();
 
         //return set of emails as a comma delimited string
         StringBuffer commaDelimitedString = new StringBuffer();
@@ -430,6 +447,18 @@ public abstract class EmailPublisher implements Publisher {
         buildResultsURL = url;
     }
 
+    public String getEmailAddressMapper() {
+        return emailAddressMapper;
+    }
+
+    public void setEmailAddressMapper(String classname) {
+        emailAddressMapper = classname;
+    }
+
+    public EmailMapping[] getEmailMapping() {
+        return emailMap;
+    }
+
     public String getReturnAddress() {
         return returnAddress;
     }
@@ -444,6 +473,10 @@ public abstract class EmailPublisher implements Publisher {
 
     public void setReturnName(String emailReturnName) {
         returnName = emailReturnName;
+    }
+
+    public String getDefaultSuffix() {
+        return defaultSuffix;
     }
 
     public void setDefaultSuffix(String defaultEmailSuffix) {
