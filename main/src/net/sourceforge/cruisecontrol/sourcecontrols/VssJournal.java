@@ -167,7 +167,10 @@ public class VssJournal implements SourceControl {
                     entry.add(s);
                     s = br.readLine();
                 }
-                handleEntry(entry);
+                Modification mod = handleEntry(entry);
+                if(mod != null)
+                    _modifications.add(mod);
+
                 if(s.equals("")) {
                     s = br.readLine();
                 }
@@ -192,7 +195,7 @@ public class VssJournal implements SourceControl {
      *
      *@param  historyEntry
      */
-    protected void handleEntry(List historyEntry) {
+    protected Modification handleEntry(List historyEntry) {
 
         Modification mod = new Modification();
         String nameAndDateLine = (String) historyEntry.get(2);
@@ -204,13 +207,13 @@ public class VssJournal implements SourceControl {
 
         if(!isInSsDir(folderLine)) {
             // We are only interested in modifications to files in the specified ssdir
-            return;
+            return null;
         } else if (isBeforeLastBuild(mod.modifiedTime)) {
             // We are only interested in modifications since the last build
-            return;
+            return null;
         } else if (fileLine.startsWith("Labeled")) {
             // We don't add labels.
-            return;
+            return null;
         } else if (fileLine.startsWith("Checked in")) {
             mod.type = "checkin";
             mod.comment = parseComment(historyEntry);
@@ -256,8 +259,7 @@ public class VssJournal implements SourceControl {
             _properties.put(_property, "true");
         }
 
-        // Add the modification and the user's email
-        _modifications.add(mod);
+        return mod;
     }
 
     /**
