@@ -1,5 +1,5 @@
 
-v 0.1.5.5
+v 0.1.5.7
 
 Modified Version of CC-Tray Icon for CruiseControl 2.2
 
@@ -11,15 +11,15 @@ http://www.python.org/ftp/python/2.4/python-2.4.msi
 
 http://prdownloads.sourceforge.net/wxpython/wxPython2.5-win32-ansi-2.5.3.1-py24.exe 
 
-Put the attached files in a directory and run "python ccTray.py  -u http://yourCruiseBuildPage.html" (replacing http://yourCruiseBuildPage.html with the url of your cruise build results page) 
-(You might have to add your python installation directory to your PATH.) Run "python ccTray.py  -help" to find out the other options. 
+Put the attached files in a directory and run "python ccTray_eng.py  -u http://yourCruiseBuildPage.html" (replacing http://yourCruiseBuildPage.html with the url of your cruise build results page) 
+(You might have to add your python installation directory to your PATH.) Run "python ccTray_eng.py  -help" to find out the other options. 
 Double left click opens the cruise build page. Double right click kills the icon. 
 
 If you want to package this as a .exe for distribution to people who don't want to install Python and wxPython, then install py2exe: 
 
 http://prdownloads.sourceforge.net/py2exe/py2exe-0.5.4.win32-py2.4.exe?download 
 
-and execute "python -OO setup.py py2exe" in the directory where these files are, you'll get a directory "dist" which includes the .exe and the stuff the .exe depends upon, which can then be used to run the system tray icon on machines that don't have python/wxPython installed.
+and execute "python -OO setup_eng.py py2exe" in the directory where these files are, you'll get a directory "dist" which includes the .exe and the stuff the .exe depends upon, which can then be used to run the system tray icon on machines that don't have python/wxPython installed.
 
 Note: The file "msvcr71.dll" is missed in the dist folder however, copy it from the Python installation folder to the dist folder, after this, the application works on other machines, which don't have python/wxPython installed!
 
@@ -39,16 +39,16 @@ example:
 
 
 
-c:\python ccTray.py -c property.ini
+c:\python ccTray_eng.py -c property.ini
 
 
 or if executable 
 
-c:\ccTray.exe -c property.ini
+c:\ccTray_eng.exe -c property.ini
 
 multiple options
 
-c:\ccTray.exe -s -p 8000
+c:\ccTray_eng.exe -s -p 8000
 
 
 if you don't use the option -c, the programm looks to a default initialisationfile

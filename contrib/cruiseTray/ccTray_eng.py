@@ -425,6 +425,9 @@ class CruiseWatchingTrayIconFrame(wx.Frame):
 # is more than one selected?
             if mTrue > 1:
                 self.configurationOptions.multipleOn=True
+            if mTrue == 1:
+                self.configurationOptions.multipleOn=False
+                self.projectNumber=self.projectPos[0]
 # are all projects selected?
             if mTrue == count :
                 evt.SetId(1999)                
@@ -518,7 +521,7 @@ class CruiseWatchingTrayIconFrame(wx.Frame):
                             start = cruisePage.index("<tr>",end)                            
                 except ValueError:
                     pass
-                
+            #if i == 0: return "unknown"    
             return cruisePage.count(self.configurationOptions.buildFailedString)
         except IOError:
             return "unknown"
@@ -1227,8 +1230,9 @@ class CruiseWatchingTrayIconFrame(wx.Frame):
             if self.projectNumber == -1:
                 previousIsBrokenStatus = self.buildIsBrokenStatus[0]
                 if previousIsBrokenStatus == "unknown":
+                    text = "INDEX PAGE: "+self.indexFailedProject
                     icon = wx.Icon('question.ico', wx.BITMAP_TYPE_ICO)            
-                    self.tbicon.SetIcon(icon,"STATUS of "+text+"is UNKNOWN")                    
+                    self.tbicon.SetIcon(icon,"STATUS of "+text+" is UNKNOWN")                    
                 self.buildIsBrokenStatus[0] = self.buildStatus()
                 test = self.buildIsBrokenStatus[0]
                 text = "INDEX PAGE: "+self.indexFailedProject
@@ -1236,8 +1240,9 @@ class CruiseWatchingTrayIconFrame(wx.Frame):
                 text = self.project[self.projectNumber]
                 previousIsBrokenStatus = self.buildIsBrokenStatus[self.projectNumber+1]
                 if previousIsBrokenStatus == "unknown":
+                    text = "INDEX PAGE: "+self.indexFailedProject
                     icon = wx.Icon('question.ico', wx.BITMAP_TYPE_ICO)            
-                    self.tbicon.SetIcon(icon,"STATUS of "+text+"is UNKNOWN")
+                    self.tbicon.SetIcon(icon,"STATUS of "+text+" is UNKNOWN")
                 self.buildIsBrokenStatus[self.projectNumber+1] = self.buildStatus()
                 test = self.buildIsBrokenStatus[self.projectNumber+1]        
         
@@ -1318,7 +1323,6 @@ class CruiseWatchingTrayIconFrame(wx.Frame):
                 icon = wx.Icon('green.ico', wx.BITMAP_TYPE_ICO)
                 self.tbicon.SetIcon(icon,text)
             self.icontimer.Start(self.configurationOptions.pollingDelay)
-            print text , brokenText
             return           
         
 
