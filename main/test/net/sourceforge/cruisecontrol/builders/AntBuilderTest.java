@@ -263,7 +263,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, true, false, false)));
     }
 
-    public void testGetCommandLineArgs_DebugAndQuiet() throws CruiseControlException {
+    public void testGetCommandLineArgs_DebugAndQuiet() {
         builder.setUseDebug(true);
         builder.setUseQuiet(true);
         try {
@@ -402,7 +402,7 @@ public class AntBuilderTest extends TestCase {
                 AntBuilder.getAntLogAsElement(logFile).toString());
     }
 
-    public void testGetAntLogAsElement_NoLogFile() throws IOException {
+    public void testGetAntLogAsElement_NoLogFile() {
         File doesNotExist = new File("blah blah blah does not exist");
         try {
             AntBuilder.getAntLogAsElement(doesNotExist);
