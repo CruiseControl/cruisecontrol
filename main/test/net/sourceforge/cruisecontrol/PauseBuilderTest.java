@@ -43,7 +43,7 @@ import java.util.Calendar;
 
 public class PauseBuilderTest extends TestCase {
 
-    Calendar _cal, _cal2;
+    private Calendar _cal, _cal2;
 
     public PauseBuilderTest(String name) {
         super(name);

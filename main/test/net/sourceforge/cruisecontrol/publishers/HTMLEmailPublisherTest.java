@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
@@ -45,21 +45,17 @@ import java.io.File;
 
 public class HTMLEmailPublisherTest extends TestCase {
 
-    public HTMLEmailPublisherTest(String name) {
-        super(name);
-    }
-
-    private HTMLEmailPublisher publisher;
+    private HTMLEmailPublisher _publisher;
 
     public void setUp() {
-        publisher = new HTMLEmailPublisher();
+        _publisher = new HTMLEmailPublisher();
     }
 
     private class BrokenTestPublisher extends HTMLEmailPublisher {
-        private String[] newXslFileNames = null;
+        private String[] _newXslFileNames = null;
 
         BrokenTestPublisher() {
-            setXSLFileNames(newXslFileNames);
+            setXSLFileNames(_newXslFileNames);
         }
     }
 
@@ -78,7 +74,7 @@ public class HTMLEmailPublisherTest extends TestCase {
 
     public void testSetLogDir() {
         try {
-            publisher.setLogDir(null);
+            _publisher.setLogDir(null);
             fail("setLogDir should fail when called with null");
         } catch (IllegalArgumentException e) {
             // should fail
@@ -87,7 +83,7 @@ public class HTMLEmailPublisherTest extends TestCase {
 
     public void testCreateLinkLine() {
         String serverURL = "http://myserver/context/servlet";
-        publisher.setBuildResultsURL(serverURL);
+        _publisher.setBuildResultsURL(serverURL);
         String path = "logs" + File.separator;
         String date = "20020607115519";
         String label = "mylabel.100";
@@ -97,49 +93,49 @@ public class HTMLEmailPublisherTest extends TestCase {
         String successLink = "View results here -> <a href=\"" + successURL + "\">" + successURL + "</a>";
         String successFile = successFilePrefix + ".xml";
         String successLogFileName = path + successFile;
-        assertEquals(successLink, publisher.createLinkLine(successLogFileName));
+        assertEquals(successLink, _publisher.createLinkLine(successLogFileName));
 
-		publisher.setBuildResultsURL(null);
-		assertEquals("", publisher.createLinkLine(successLogFileName));
-    	
-		publisher.setBuildResultsURL(serverURL);
+        _publisher.setBuildResultsURL(null);
+        assertEquals("", _publisher.createLinkLine(successLogFileName));
+
+        _publisher.setBuildResultsURL(serverURL);
         String failFilePrefix = "log" + date;
         String failURL = serverURL + "?log=" + failFilePrefix;
         String failLink = "View results here -> <a href=\"" + failURL + "\">" + failURL + "</a>";
         String failFile = failFilePrefix + ".xml";
         String failLogFileName = path + failFile;
-        assertEquals(failLink, publisher.createLinkLine(failLogFileName));
+        assertEquals(failLink, _publisher.createLinkLine(failLogFileName));
     }
 
     public void testValidate() {
-        setEmailPublisherVariables(publisher);
+        setEmailPublisherVariables(_publisher);
 
         try {
-            publisher.validate();
+            _publisher.validate();
             fail("should fail if log dir is not set");
         } catch (CruiseControlException ex) {
             // should fail
         }
-        publisher.setLogDir(".");
+        _publisher.setLogDir(".");
 
         try {
-            publisher.validate();
+            _publisher.validate();
             fail("should fail if xslDir is not set");
         } catch (CruiseControlException ex) {
             // should fail
         }
-        publisher.setXSLDir(".");
+        _publisher.setXSLDir(".");
 
         try {
-            publisher.validate();
+            _publisher.validate();
             fail("should fail if xslFileNames is null");
         } catch (CruiseControlException ex) {
             // should fail
         }
 
-        publisher.setXSLFile("this file doesn't exist");
+        _publisher.setXSLFile("this file doesn't exist");
         try {
-            publisher.validate();
+            _publisher.validate();
             fail("should fail if the specified xslFile doesn't exist");
         } catch (CruiseControlException ex) {
             // should fail
@@ -161,15 +157,11 @@ public class HTMLEmailPublisherTest extends TestCase {
         HTMLEmailPublisher publisher = new HTMLEmailPublisher();
         publisher.setLogDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\main");
         publisher.setXSLDir("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\xsl\\");
-        publisher.setCSS("c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\css\\cruisecontrol.css");
+        publisher.setCSS(
+            "c:\\vss\\users\\jfredrick\\sourceforge\\cruisecontrol\\reporting\\jsp\\css\\cruisecontrol.css");
         XMLLogHelper helper = new TestHelper();
         String message = publisher.createMessage(helper);
         System.out.print(message);
-    }
-
-    public static void main(String args[]) {
-        HTMLEmailPublisherTest test = new HTMLEmailPublisherTest("test");
-        test.generateMessage();
     }
 
     private class TestHelper extends XMLLogHelper {

@@ -52,7 +52,7 @@ public class Util {
         for (int i = 1; i <= numMods; i++) {
             Element modificationElement = new Element("modification");
             Element userElement = new Element("user");
-	    int userNumber = (i>2)?i-1:i;
+            int userNumber = (i > 2) ? i - 1 : i;
             userElement.addContent("user" + userNumber);
             modificationElement.addContent(userElement);
             modificationsElement.addContent(modificationElement);
@@ -60,18 +60,26 @@ public class Util {
         return modificationsElement;
     }
 
-    public static Element createElement(boolean success, boolean lastBuildSuccess, String time, int modCount, String failureReason ) {
+    public static Element createElement(
+        boolean success,
+        boolean lastBuildSuccess,
+        String time,
+        int modCount,
+        String failureReason) {
         Element cruisecontrolElement = new Element("cruisecontrol");
         Element buildElement = new Element("build");
         buildElement.setAttribute("time", time);
 
         if (!success) {
-            buildElement.setAttribute("error", (failureReason == null) ? "Compile failed" : failureReason );
+            buildElement.setAttribute(
+                "error",
+                (failureReason == null) ? "Compile failed" : failureReason);
         }
 
         cruisecontrolElement.addContent(createModsElement(modCount));
         cruisecontrolElement.addContent(buildElement);
-        cruisecontrolElement.addContent(createInfoElement("somelabel", lastBuildSuccess));
+        cruisecontrolElement.addContent(
+            createInfoElement("somelabel", lastBuildSuccess));
         return cruisecontrolElement;
     }
 

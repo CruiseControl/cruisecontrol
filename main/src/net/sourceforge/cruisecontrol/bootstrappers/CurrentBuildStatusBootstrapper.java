@@ -47,10 +47,10 @@ import java.util.Date;
 
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
 
-    private String _fileName;
+    private String fileName;
 
     public void setFile(String fileName) {
-        _fileName = fileName;
+        this.fileName = fileName;
     }
 
     public void bootstrap() throws CruiseControlException {
@@ -58,7 +58,7 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (_fileName == null) {
+        if (fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
         }
     }
@@ -71,11 +71,11 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
         sb.append("</span>");
         FileWriter fw = null;
         try {
-            fw = new FileWriter(_fileName);
+            fw = new FileWriter(fileName);
             fw.write(sb.toString());
             fw.close();
         } catch (IOException ioe) {
-            throw new CruiseControlException("Error Writing File: " + _fileName);
+            throw new CruiseControlException("Error Writing File: " + fileName);
         } finally {
             fw = null;
         }

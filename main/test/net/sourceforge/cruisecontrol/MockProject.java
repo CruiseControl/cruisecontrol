@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import java.util.Date;
@@ -43,43 +43,39 @@ import java.util.Date;
  */
 public class MockProject extends Project {
 
-    private int buildCount = 0;
-    private Date lastBuild;
+    private int _buildCount = 0;
+    private Date _lastBuild;
     private static final long ONE_SECOND = 1000;
-
+    private boolean _keepLooping = false;
+    private int _loopCount = 0;
+    
     public void execute() {
-        buildCount++;
-        lastBuild = new Date();
+        _buildCount++;
+        _lastBuild = new Date();
         try {
             Thread.sleep(ONE_SECOND);
-        }
-        catch (InterruptedException e) {
-            throw new RuntimeException(e);            
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
     
     public int getBuildCount() {
-        return buildCount;
+        return _buildCount;
     }
     
     public Date getLastBuildDate() {
-        return lastBuild;
+        return _lastBuild;
     }
 
-
-
-    boolean keepLooping = false;
-    int loopCount = 0;
     void loop() {
-        loopCount = 0;
-        keepLooping = true;
-        while(keepLooping) {
-            loopCount++;
+        _loopCount = 0;
+        _keepLooping = true;
+        while (_keepLooping) {
+            _loopCount++;
             try {
                 checkWait();
                 Thread.sleep(50);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -89,11 +85,11 @@ public class MockProject extends Project {
     }
     
     void stopLooping() {
-        keepLooping = false;
+        _keepLooping = false;
     }
     
     int getLoopCount() {
-        return loopCount;
+        return _loopCount;
     }
 
 }

@@ -67,24 +67,28 @@ public class LinkEmailPublisherTest extends TestCase {
 
     public void testCreateMessage() {
         EmailPublisher publisher = new LinkEmailPublisher();
-        publisher.setBuildResultsURL("http://mybuildserver.com:8080/buildservlet/BuildServlet");
-        assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000", publisher.createMessage(_successLogHelper));
+        publisher.setBuildResultsURL(
+            "http://mybuildserver.com:8080/buildservlet/BuildServlet");
+        assertEquals(
+            "View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000",
+            publisher.createMessage(_successLogHelper));
+    }
+
+    public void testValidate() {
+        EmailPublisher publisher = new LinkEmailPublisher();
+        publisher.setMailHost("mailhost");
+        publisher.setReturnAddress("returnaddress");
+        try {
+            publisher.validate();
+            fail("should throw exception if BuildResultURL not set");
+        } catch (CruiseControlException e) {
+        }
+        publisher.setBuildResultsURL("buildResultsURL");
+        try {
+            publisher.validate();
+        } catch (CruiseControlException e) {
+            fail("should NOT throw exception if BuildResultURL not set");
+        }
     }
     
-    public void testValidate() {
-    	EmailPublisher publisher = new LinkEmailPublisher();
-		publisher.setMailHost("mailhost");
-		publisher.setReturnAddress("returnaddress");
-    	try {
-			publisher.validate();
-			fail("should throw exception if BuildResultURL not set");
-		} catch (CruiseControlException e) {
-		}
-		publisher.setBuildResultsURL("buildResultsURL");
-		try {
-			publisher.validate();
-		} catch (CruiseControlException e) {
-			fail("should NOT throw exception if BuildResultURL not set");
-		}
-    }
 }

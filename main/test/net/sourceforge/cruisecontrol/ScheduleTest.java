@@ -46,42 +46,38 @@ import org.jdom.Element;
 public class ScheduleTest extends TestCase {
 
     private Schedule _schedule;
-    
+
     private Calendar _cal;
     private Calendar _cal2;
     private Calendar _cal3;
     private Calendar _cal4;
-    private Calendar timeBuildPreviousDay;
-    private Calendar atTimeBuilderTime;
-    
-    private MockBuilder timeBuilder;
-    private MockBuilder multipleOfFive;
-	private MockBuilder multipleOfOne;
-	
-    private static final long ONE_MINUTE = Schedule.ONE_MINUTE;
+    private Calendar _timeBuildPreviousDay;
+    private Calendar _atTimeBuilderTime;
 
-    public ScheduleTest(String name) {
-        super(name);
-    }
+    private MockBuilder _timeBuilder;
+    private MockBuilder _multipleOfFive;
+    private MockBuilder _multipleOfOne;
+
+    private static final long ONE_MINUTE = Schedule.ONE_MINUTE;
 
     public void setUp() {
         _schedule = new Schedule();
-        timeBuilder = new MockBuilder();
-        timeBuilder.setTime("1200");
-        timeBuilder.setBuildLogXML(new Element("builder1"));
-        multipleOfFive = new MockBuilder();
-        multipleOfFive.setMultiple(5);
-        multipleOfFive.setBuildLogXML(new Element("builder2"));
-        multipleOfOne = new MockBuilder();
-        multipleOfOne.setMultiple(1);
-        multipleOfOne.setBuildLogXML(new Element("builder3"));
+        _timeBuilder = new MockBuilder();
+        _timeBuilder.setTime("1200");
+        _timeBuilder.setBuildLogXML(new Element("builder1"));
+        _multipleOfFive = new MockBuilder();
+        _multipleOfFive.setMultiple(5);
+        _multipleOfFive.setBuildLogXML(new Element("builder2"));
+        _multipleOfOne = new MockBuilder();
+        _multipleOfOne.setMultiple(1);
+        _multipleOfOne.setBuildLogXML(new Element("builder3"));
         PauseBuilder pauseBuilder = new PauseBuilder();
         pauseBuilder.setStartTime(2300);
         pauseBuilder.setEndTime(2359);
 
-        _schedule.addBuilder(timeBuilder);
-        _schedule.addBuilder(multipleOfFive);
-        _schedule.addBuilder(multipleOfOne);
+        _schedule.addBuilder(_timeBuilder);
+        _schedule.addBuilder(_multipleOfFive);
+        _schedule.addBuilder(_multipleOfOne);
         _schedule.addPauseBuilder(pauseBuilder);
 
         //create a couple calendars/dates
@@ -93,23 +89,34 @@ public class ScheduleTest extends TestCase {
         _cal3.set(2001, Calendar.NOVEMBER, 22, 12, 01, 01);
         _cal4 = Calendar.getInstance();
         _cal4.set(2001, Calendar.NOVEMBER, 22, 23, 01, 01);
-        timeBuildPreviousDay = Calendar.getInstance();
-		timeBuildPreviousDay.set(2001, Calendar.NOVEMBER, 21, 12, 01, 01);
-		atTimeBuilderTime = Calendar.getInstance();
-		atTimeBuilderTime.set(2001, Calendar.NOVEMBER, 22, 12, 00, 00);
+        _timeBuildPreviousDay = Calendar.getInstance();
+        _timeBuildPreviousDay.set(2001, Calendar.NOVEMBER, 21, 12, 01, 01);
+        _atTimeBuilderTime = Calendar.getInstance();
+        _atTimeBuilderTime.set(2001, Calendar.NOVEMBER, 22, 12, 00, 00);
     }
 
     public void testSelectBuilder() throws CruiseControlException {
-		Builder buildIsMultipleOfOne = _schedule.selectBuilder(12, _cal.getTime(), _cal2.getTime());
-		assertEquals(multipleOfOne, buildIsMultipleOfOne);
-		Builder buildIsMultipleOfFive = _schedule.selectBuilder(10, _cal.getTime(), _cal2.getTime());
-		assertEquals(multipleOfFive, buildIsMultipleOfFive);
-		Builder timeBuild = _schedule.selectBuilder(11, _cal.getTime(), _cal3.getTime());
-		assertEquals(timeBuilder, timeBuild);
-		Builder timeBuildAcrossDays = _schedule.selectBuilder(11, timeBuildPreviousDay.getTime(), _cal3.getTime());
-		assertEquals(timeBuilder, timeBuildAcrossDays);
-		Builder atTimeBuild = _schedule.selectBuilder(11, timeBuildPreviousDay.getTime(), atTimeBuilderTime.getTime());
-		assertEquals(timeBuilder, atTimeBuild);
+        Builder buildIsMultipleOfOne =
+            _schedule.selectBuilder(12, _cal.getTime(), _cal2.getTime());
+        assertEquals(_multipleOfOne, buildIsMultipleOfOne);
+        Builder buildIsMultipleOfFive =
+            _schedule.selectBuilder(10, _cal.getTime(), _cal2.getTime());
+        assertEquals(_multipleOfFive, buildIsMultipleOfFive);
+        Builder timeBuild =
+            _schedule.selectBuilder(11, _cal.getTime(), _cal3.getTime());
+        assertEquals(_timeBuilder, timeBuild);
+        Builder timeBuildAcrossDays =
+            _schedule.selectBuilder(
+                11,
+                _timeBuildPreviousDay.getTime(),
+                _cal3.getTime());
+        assertEquals(_timeBuilder, timeBuildAcrossDays);
+        Builder atTimeBuild =
+            _schedule.selectBuilder(
+                11,
+                _timeBuildPreviousDay.getTime(),
+                _atTimeBuilderTime.getTime());
+        assertEquals(_timeBuilder, atTimeBuild);
     }
 
     public void testIsPaused() {
@@ -118,30 +125,43 @@ public class ScheduleTest extends TestCase {
     }
 
     public void testGetTimeToNextBuild() {
-    	long fiveSeconds = 5 * 1000;
+        long fiveSeconds = 5 * 1000;
         long oneHour = 60 * ONE_MINUTE;
-    	long elevenHours = 11 * oneHour;
-    	long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
-		long twelveHours = 12 * oneHour;
-		long twentyFourHours = 2 * twelveHours;
-    	
-    	// time till next time build > build interval
-    	assertEquals(fiveSeconds, _schedule.getTimeToNextBuild(_cal.getTime(),fiveSeconds));
-		// time till next time build < build interval
-    	assertEquals(oneHourFiftyNineMinutes, _schedule.getTimeToNextBuild(_cal.getTime(),elevenHours));
-		// next build would be in pause interval
-		assertEquals(twelveHours-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal3.getTime(),elevenHours));
-		// time till next time build is tomorrow
-		assertEquals(twentyFourHours-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal3.getTime(),twentyFourHours*2));
+        long elevenHours = 11 * oneHour;
+        long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
+        long twelveHours = 12 * oneHour;
+        long twentyFourHours = 2 * twelveHours;
+
+        // time till next time build > build interval
+        assertEquals(
+            fiveSeconds,
+            _schedule.getTimeToNextBuild(_cal.getTime(), fiveSeconds));
+        // time till next time build < build interval
+        assertEquals(
+            oneHourFiftyNineMinutes,
+            _schedule.getTimeToNextBuild(_cal.getTime(), elevenHours));
+        // next build would be in pause interval
+        assertEquals(
+            twelveHours - ONE_MINUTE,
+            _schedule.getTimeToNextBuild(_cal3.getTime(), elevenHours));
+        // time till next time build is tomorrow
+        assertEquals(
+            twentyFourHours - ONE_MINUTE,
+            _schedule.getTimeToNextBuild(_cal3.getTime(), twentyFourHours * 2));
         // time till end of pause that we're currently in
-        assertEquals(oneHour-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal4.getTime(),fiveSeconds));
-        
+        assertEquals(
+            oneHour - ONE_MINUTE,
+            _schedule.getTimeToNextBuild(_cal4.getTime(), fiveSeconds));
+
         PauseBuilder pauseBuilder = new PauseBuilder();
         pauseBuilder.setStartTime(0000);
         pauseBuilder.setEndTime(100);
         _schedule.addPauseBuilder(pauseBuilder);
-        
+
         // next build would be in a pause interval on the next day
-        assertEquals(2*oneHour, _schedule.getTimeToNextBuild(_cal4.getTime(),oneHour));
-	}
+        assertEquals(
+            2 * oneHour,
+            _schedule.getTimeToNextBuild(_cal4.getTime(), oneHour));
+    }
+
 }

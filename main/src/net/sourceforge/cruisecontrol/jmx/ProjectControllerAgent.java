@@ -56,13 +56,13 @@ public class ProjectControllerAgent {
 
     private static final Logger LOG = Logger.getLogger(ProjectControllerAgent.class);
 
-    private HtmlAdaptorServer _adaptor = new HtmlAdaptorServer();
-    private int _port;
-    private Project _project;
+    private HtmlAdaptorServer adaptor = new HtmlAdaptorServer();
+    private int port;
+    private Project project;
 
     public ProjectControllerAgent(Project project, int port) {
-        _port = port;
-        _project = project;
+        this.port = port;
+        this.project = project;
 
         MBeanServer server = MBeanServerFactory.createMBeanServer();
 
@@ -80,28 +80,28 @@ public class ProjectControllerAgent {
     }
 
     public void start() {
-        _adaptor.start();
+        adaptor.start();
     }
 
     public void stop() {
-        _adaptor.stop();
+        adaptor.stop();
     }
 
     private void createAndRegisterController(MBeanServer server)
             throws Exception {
 
-        ProjectController controller = new ProjectController(_project);
+        ProjectController controller = new ProjectController(project);
         ObjectName controllerName = new ObjectName(
-                "CruiseControl Manager:adminPort=" + _port);
+                "CruiseControl Manager:adminPort=" + port);
         server.registerMBean(controller, controllerName);
     }
 
     private void registerHTMLAdaptor(MBeanServer server) throws Exception {
-        _adaptor.setPort(_port);
+        adaptor.setPort(port);
 
         ObjectName adaptorName = new ObjectName("Adaptor:name=html,port="
-                + _port);
-        server.registerMBean(_adaptor, adaptorName);
+                + port);
+        server.registerMBean(adaptor, adaptorName);
     }
 
 }

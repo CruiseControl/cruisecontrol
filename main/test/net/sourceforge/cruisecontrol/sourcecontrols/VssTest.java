@@ -36,13 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.text.*;
-import java.util.*;
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
 
-import junit.framework.*;
-import net.sourceforge.cruisecontrol.Modification;
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -52,12 +56,8 @@ public class VssTest extends TestCase {
 
     private Vss _vss;
 
-    private final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
-    private final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36";
-
-    public VssTest(String name) {
-        super(name);
-    }
+    private static final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
+    private static final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36";
 
     protected void setUp() {
         _vss = new Vss();
@@ -180,7 +180,9 @@ public class VssTest extends TestCase {
         assertEquals("DateChooser.java", modification.fileName);
 
         assertEquals("/code/development/src/org/ets/cbtidg/common/gui", modification.folderName);
-        assertEquals("Comment: This is where I add a completely new, but alot nicer version of the date chooser.", modification.comment);
+        assertEquals(
+            "Comment: This is where I add a completely new, but alot nicer version of the date chooser.",
+            modification.comment);
         assertEquals("Arass", modification.userName);
         assertEquals("checkin", modification.type);
     }
@@ -214,22 +216,24 @@ public class VssTest extends TestCase {
         assertEquals(mod.type, "add");
     }
 
-		public void testHandleEntryRename() {
-			_vss.setPropertyOnDelete("setThis");
-			List entry = new ArrayList();
-			entry.add("*****  core  *****");
-			entry.add("Version 19");
-			entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
-			entry.add("SessionIdGenerator.java renamed to SessionId.java");
+        public void testHandleEntryRename() {
+            _vss.setPropertyOnDelete("setThis");
+            List entry = new ArrayList();
+            entry.add("*****  core  *****");
+            entry.add("Version 19");
+            entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
+            entry.add("SessionIdGenerator.java renamed to SessionId.java");
 
-			Modification modification = _vss.handleEntry(entry);
-			assertEquals("SessionIdGenerator.java renamed to SessionId.java", modification.fileName);
-			assertEquals("Etucker", modification.userName);
-			assertEquals("rename", modification.type);
-			Hashtable properties = _vss.getProperties();
-			String setThisValue = (String)properties.get("setThis");
-			assertEquals("true", setThisValue);
-		}
+            Modification modification = _vss.handleEntry(entry);
+            assertEquals(
+                "SessionIdGenerator.java renamed to SessionId.java",
+                modification.fileName);
+            assertEquals("Etucker", modification.userName);
+            assertEquals("rename", modification.type);
+            Hashtable properties = _vss.getProperties();
+            String setThisValue = (String) properties.get("setThis");
+            assertEquals("true", setThisValue);
+        }
 
     public void testHandleEntryDestroyed() {
         _vss.setPropertyOnDelete("setThis");
@@ -255,14 +259,32 @@ public class VssTest extends TestCase {
 
         Date lastBuild = createDate("2002/08/03 09:30:00"); //Set date to Aug 3, 2002 9:30am
         Date now = createDate("2002/08/04 13:15:00"); //Set date to Aug 4, 2002 1:15pm
-        String[] expectedCommand = {"ss.exe", "history", "$vsspath", "-R", "-Vd08/04/02;01:15P~08/03/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt"};
+        String[] expectedCommand =
+            {
+                "ss.exe",
+                "history",
+                "$vsspath",
+                "-R",
+                "-Vd08/04/02;01:15P~08/03/02;09:30A",
+                "-Ylogin,password",
+                "-I-N",
+                "-Ovsstempfile.txt" };
         String[] actualCommand = vss.getCommandLine(lastBuild, now);
         for (int i = 0; i < expectedCommand.length; i++) {
             assertEquals(expectedCommand[i], actualCommand[i]);
         }
 
         vss.setDateFormat("dd/MM/yy");
-        String[] expectedCommandWithDate = {"ss.exe", "history", "$vsspath", "-R", "-Vd04/08/02;01:15P~03/08/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt"};
+        String[] expectedCommandWithDate =
+            {
+                "ss.exe",
+                "history",
+                "$vsspath",
+                "-R",
+                "-Vd04/08/02;01:15P~03/08/02;09:30A",
+                "-Ylogin,password",
+                "-I-N",
+                "-Ovsstempfile.txt" };
         String[] actualCommandWithDate = vss.getCommandLine(lastBuild, now);
         for (int i = 0; i < expectedCommandWithDate.length; i++) {
             assertEquals(expectedCommandWithDate[i], actualCommandWithDate[i]);
@@ -271,14 +293,32 @@ public class VssTest extends TestCase {
         File execFile = new File("..", "ss.exe");
         vss.setSsDir("..");
         System.out.println(execFile.getCanonicalPath());
-        String[] expectedCommandWithSsdir = {execFile.getCanonicalPath(), "history", "$vsspath", "-R", "-Vd04/08/02;01:15P~03/08/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt"};
+        String[] expectedCommandWithSsdir =
+            {
+                execFile.getCanonicalPath(),
+                "history",
+                "$vsspath",
+                "-R",
+                "-Vd04/08/02;01:15P~03/08/02;09:30A",
+                "-Ylogin,password",
+                "-I-N",
+                "-Ovsstempfile.txt" };
         String[] actualCommandWithSsdir = vss.getCommandLine(lastBuild, now);
         for (int i = 0; i < expectedCommandWithSsdir.length; i++) {
             assertEquals(expectedCommandWithSsdir[i], actualCommandWithSsdir[i]);
         }
 
         vss.setTimeFormat("HH:mm");
-        String[] expectedCommandWithTimeFormat = { execFile.getCanonicalPath(), "history", "$vsspath", "-R", "-Vd04/08/02;13:15~03/08/02;09:30", "-Ylogin,password", "-I-N", "-Ovsstempfile.txt" };
+        String[] expectedCommandWithTimeFormat =
+            {
+                execFile.getCanonicalPath(),
+                "history",
+                "$vsspath",
+                "-R",
+                "-Vd04/08/02;13:15~03/08/02;09:30",
+                "-Ylogin,password",
+                "-I-N",
+                "-Ovsstempfile.txt" };
         String[] actualCommandWithTimeFormat = vss.getCommandLine(lastBuild, now);
 
         for (int i = 0; i < expectedCommandWithTimeFormat.length; i++) {

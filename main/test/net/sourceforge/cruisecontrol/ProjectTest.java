@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,25 +33,29 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
-    private static Logger log = Logger.getLogger(ProjectTest.class);
+    private static final Logger LOG = Logger.getLogger(ProjectTest.class);
 
-    private Project project;
+    private Project _project;
     private static final long ONE_MINUTE = 60 * 1000;
 
     public ProjectTest(String name) {
@@ -59,32 +63,32 @@ public class ProjectTest extends TestCase {
 
         // Turn off logging
         BasicConfigurator.configure();
-        log.getLoggerRepository().setThreshold(Level.OFF);
+        LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void setUp() {
-        project = new Project();
+        _project = new Project();
     }
 
     public void testBuild() throws Exception {
         assertEquals(
             "Default value of config file doesn't match",
             "config.xml",
-            project.getConfigFileName());
+            _project.getConfigFileName());
 
         Date now = new Date();
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
         MockSchedule sched = new MockSchedule();
-        project.setLabel("1.2.2");
-        project.setName("myproject");
-        project.setSchedule(sched);
-        project.setLogDir("test-results");
-        project.setLogXmlEncoding("ISO-8859-1");
-        project.addAuxiliaryLogFile("_auxLog1.xml");
-        project.addAuxiliaryLogFile("_auxLogs");
-        project.setLabelIncrementer(new DefaultLabelIncrementer());
-        project.setModificationSet(modSet);
+        _project.setLabel("1.2.2");
+        _project.setName("myproject");
+        _project.setSchedule(sched);
+        _project.setLogDir("test-results");
+        _project.setLogXmlEncoding("ISO-8859-1");
+        _project.addAuxiliaryLogFile("_auxLog1.xml");
+        _project.addAuxiliaryLogFile("_auxLogs");
+        _project.setLabelIncrementer(new DefaultLabelIncrementer());
+        _project.setModificationSet(modSet);
         writeFile("_auxLog1.xml", "<one/>");
         File auxLogsDirectory = new File("_auxLogs");
         auxLogsDirectory.mkdir();
@@ -93,27 +97,32 @@ public class ProjectTest extends TestCase {
             "<testsuite><properties><property/></properties><testcase/></testsuite>");
         writeFile("_auxLogs/_auxLog3.xml", "<testsuite/>");
 
-        project.build();
+        _project.build();
 
-        assertTrue(project.isLastBuildSuccessful());
+        assertTrue(_project.isLastBuildSuccessful());
 
         String expected =
-            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"projectname\" value=\"myproject\" /><property name=\"lastbuild\" value=\""
-                + project.getFormatedTime(now)
+            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
+                + "<modifications /><info><property name=\"projectname\""
+                + "value=\"myproject\" /><property name=\"lastbuild\" value=\""
+                + _project.getFormatedTime(now)
                 + "\" /><property name=\"lastsuccessfulbuild\" value=\""
-                + project.getLastSuccessfulBuild()
+                + _project.getLastSuccessfulBuild()
                 + "\" /><property name=\"builddate\" value=\""
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
-                + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
+                + "\" /><property name=\"label\" value=\"1.2.2\" /><property"
+                + "name=\"interval\" value=\"0\" /><property name=\""
+                + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
                 + File.separator
                 + "log"
-                + project.getFormatedTime(now)
-                + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
-        assertEquals(expected, readFileToString(project.getLogFileName()));
+                + _project.getFormatedTime(now)
+                + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase"
+                + "/></testsuite><testsuite /></cruisecontrol>";
+        assertEquals(expected, readFileToString(_project.getLogFileName()));
         assertEquals(
             "Didn't increment the label",
             "1.2.3",
-            project.getLabel().intern());
+            _project.getLabel().intern());
 
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
@@ -127,10 +136,9 @@ public class ProjectTest extends TestCase {
 
     public void testBadLabel() {
         try {
-            project.validateLabel("build_0", new DefaultLabelIncrementer());
+            _project.validateLabel("build_0", new DefaultLabelIncrementer());
             fail("Expected exception due to bad label");
-        }
-        catch (CruiseControlException expected) {
+        } catch (CruiseControlException expected) {
 
         }
     }
@@ -138,66 +146,64 @@ public class ProjectTest extends TestCase {
     public void testSetLastBuild() throws CruiseControlException {
         String lastBuild = "20000101120000";
 
-        project.setLastBuild(lastBuild);
+        _project.setLastBuild(lastBuild);
 
-        assertEquals(lastBuild, project.getLastBuild());
+        assertEquals(lastBuild, _project.getLastBuild());
     }
 
     public void testNullLastBuild() throws CruiseControlException {
         try {
-            project.setLastBuild(null);
+            _project.setLastBuild(null);
             fail("Expected an IllegalArgumentException for a null last build");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
     }
 
     public void testBadLastBuild() {
         try {
-            project.setLastBuild("af32455432");
+            _project.setLastBuild("af32455432");
             fail("Expected a CruiseControlException for a bad last build");
-        }
-        catch (CruiseControlException e) {
+        } catch (CruiseControlException e) {
         }
     }
 
     public void testGetModifications() throws CruiseControlException {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.getModifications(null);
-        project.setModificationSet(modSet);
+        _project.setModificationSet(modSet);
 
         modSet.setModified(true);
-        assertEquals(modifications, project.getModifications());
+        assertEquals(modifications, _project.getModifications());
         modSet.setModified(false);
-        assertEquals(null, project.getModifications());
+        assertEquals(null, _project.getModifications());
 
-        project.setBuildForced(true);
-        assertEquals(modifications, project.getModifications());
-        assertEquals(null, project.getModifications());
+        _project.setBuildForced(true);
+        assertEquals(modifications, _project.getModifications());
+        assertEquals(null, _project.getModifications());
 
-        project.setBuildForced(false);
-        assertEquals(null, project.getModifications());
+        _project.setBuildForced(false);
+        assertEquals(null, _project.getModifications());
 
         // TODO: need tests for when lastBuildSuccessful = false
     }
 
     public void testCheckOnlySinceLastBuild() throws CruiseControlException {
 
-        project.setLastBuild("20030218010101");
-        project.setLastSuccessfulBuild("20030218010101");
-        assertEquals(false, project.checkOnlySinceLastBuild());
+        _project.setLastBuild("20030218010101");
+        _project.setLastSuccessfulBuild("20030218010101");
+        assertEquals(false, _project.checkOnlySinceLastBuild());
 
-        project.setLastBuild("20030218020202");
-        assertEquals(false, project.checkOnlySinceLastBuild());
+        _project.setLastBuild("20030218020202");
+        assertEquals(false, _project.checkOnlySinceLastBuild());
 
-        project.setBuildAfterFailed(false);
-        assertEquals(true, project.checkOnlySinceLastBuild());
+        _project.setBuildAfterFailed(false);
+        assertEquals(true, _project.checkOnlySinceLastBuild());
 
-        project.setLastBuild("20030218010102");
-        assertEquals(false, project.checkOnlySinceLastBuild());
+        _project.setLastBuild("20030218010102");
+        assertEquals(false, _project.checkOnlySinceLastBuild());
 
-        project.setLastBuild("20020101010101");
-        assertEquals(false, project.checkOnlySinceLastBuild());
+        _project.setLastBuild("20020101010101");
+        assertEquals(false, _project.checkOnlySinceLastBuild());
     }
 
     public void testWaitIfPaused() throws InterruptedException {

@@ -50,25 +50,25 @@ public class ProjectController implements ProjectControllerMBean {
 
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
-    private Project _project;
+    private Project project;
 
     public ProjectController(Project project) {
-        _project = project;
+        this.project = project;
     }
 
     public void pause() {
         log("pausing");
-        _project.setPaused(true);
+        project.setPaused(true);
     }
 
     public void resume() {
         log("resuming");
-        _project.setPaused(false);
+        project.setPaused(false);
     }
 
     public void build() {
         log("forcing build");
-        _project.setBuildForced(true);
+        project.setBuildForced(true);
     }
 
 //    // TODO
@@ -82,25 +82,25 @@ public class ProjectController implements ProjectControllerMBean {
 //    }
 
     public boolean isPaused() {
-        return _project.isPaused();
+        return project.isPaused();
     }
 
     public void setConfigFileName(String fileName) {
         log("setting config file to [" + fileName + "]");
-        _project.setConfigFileName(fileName);
+        project.setConfigFileName(fileName);
     }
 
     public String getConfigFileName() {
-        return _project.getConfigFileName();
+        return project.getConfigFileName();
     }
 
     public void setLabel(String label) {
         log("setting label to [" + label + "]");
-        _project.setLabel(label);
+        project.setLabel(label);
     }
 
     public String getLabel() {
-        return _project.getLabel();
+        return project.getLabel();
     }
 
     public void setLabelIncrementer(String classname) {
@@ -117,60 +117,61 @@ public class ProjectController implements ProjectControllerMBean {
             incrementer = new DefaultLabelIncrementer();
         }
 
-        _project.setLabelIncrementer(incrementer);
+        project.setLabelIncrementer(incrementer);
     }
 
     public String getLabelIncrementer() {
-        return _project.getLabelIncrementer().getClass().getName();
+        return project.getLabelIncrementer().getClass().getName();
     }
 
     public void setLastBuild(String date) throws CruiseControlException {
         log("setting last build to [" + date + "]");
-        _project.setLastBuild(date);
+        project.setLastBuild(date);
     }
 
     public String getLastBuild() {
-        return _project.getLastBuild();
+        return project.getLastBuild();
     }
 
     public void setLastSuccessfulBuild(String date)
         throws CruiseControlException {
         log("setting last successful build to [" + date + "]");
-        _project.setLastSuccessfulBuild(date);
+        project.setLastSuccessfulBuild(date);
     }
 
     public String getLastSuccessfulBuild() {
-        return _project.getLastSuccessfulBuild();
+        return project.getLastSuccessfulBuild();
     }
 
     public void setLogDir(String logdir) {
         log("setting log dir to [" + logdir + "]");
-        _project.setLogDir(logdir);
+        project.setLogDir(logdir);
     }
 
     public String getLogDir() {
-        return _project.getLogDir();
+        return project.getLogDir();
     }
 
     public void setProjectName(String name) {
         log("setting project name to [" + name + "]");
-        _project.setName(name);
+        project.setName(name);
     }
 
     public String getProjectName() {
-        return _project.getName();
+        return project.getName();
     }
 
     public void setBuildInterval(long buildInterval) {
         log("setting build interval to [" + buildInterval + "]");
-        _project.setSleepMillis(buildInterval);
+        project.setSleepMillis(buildInterval);
     }
 
     public long getBuildInterval() {
-        return _project.getSleepMilliseconds();
+        return project.getSleepMilliseconds();
     }
 
     private void log(String message) {
-        LOG.info(_project.getName() + " Controller: " + message);
+        LOG.info(project.getName() + " Controller: " + message);
     }
+    
 }

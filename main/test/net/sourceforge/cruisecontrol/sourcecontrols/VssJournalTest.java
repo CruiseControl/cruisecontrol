@@ -36,10 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.*;
-import junit.framework.*;
-import net.sourceforge.cruisecontrol.Modification;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * @author Eli Tucker
@@ -107,7 +110,7 @@ public class VssJournalTest extends TestCase {
         long afterTime = beforeTime + 50000;
 
         element1.setLastBuildDate(new Date(beforeTime));
-        assertTrue( !element1.isBeforeLastBuild(new Date(afterTime)) );
+        assertTrue(!element1.isBeforeLastBuild(new Date(afterTime)));
     }
     
     public void testHandleEntryCheckin() {

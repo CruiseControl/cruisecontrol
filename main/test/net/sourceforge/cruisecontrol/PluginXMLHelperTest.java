@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,8 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
-
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
@@ -45,22 +44,22 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class PluginXMLHelperTest extends TestCase {
-    private static Logger log = Logger.getLogger(PluginXMLHelperTest.class);
-    private PluginXMLHelper helper;
+    private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
+    private PluginXMLHelper _helper;
 
-    private final int SOME_INT = 15;
-    private final int SOME_OTHER_INT = 16;
+    private static final int SOME_INT = 15;
+    private static final int SOME_OTHER_INT = 16;
 
     public PluginXMLHelperTest(String name) {
         super(name);
 
         // Turn off logging
         BasicConfigurator.configure();
-        log.getLoggerRepository().setThreshold(Level.OFF);
+        LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void setUp() {
-        helper = new PluginXMLHelper();
+        _helper = new PluginXMLHelper();
     }
 
     public void testConfigure() throws CruiseControlException {
@@ -73,7 +72,7 @@ public class PluginXMLHelperTest extends TestCase {
         childElement.setAttribute("someint", Integer.toString(SOME_OTHER_INT));
         testElement.addContent(childElement);
 
-        MockPublisher plugin = (MockPublisher) helper.configure(testElement,
+        MockPublisher plugin = (MockPublisher) _helper.configure(testElement,
                 "net.sourceforge.cruisecontrol.publishers.MockPublisher");
 
         assertEquals("expectedString", plugin.getSomeString());
@@ -85,7 +84,7 @@ public class PluginXMLHelperTest extends TestCase {
 
     public void testConfigureNoClass() {
         try {
-            helper.configure(new Element("irrelevant"), "noclass");
+            _helper.configure(new Element("irrelevant"), "noclass");
             fail("Expected an exception because noclass shouldn't exist");
         } catch (CruiseControlException expected) {
         }

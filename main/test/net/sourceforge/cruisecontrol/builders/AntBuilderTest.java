@@ -34,12 +34,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-
 package net.sourceforge.cruisecontrol.builders;
-
-import junit.framework.TestCase;
-import org.apache.log4j.*;
-import org.jdom.Element;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,13 +45,17 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-public class AntBuilderTest extends TestCase {
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.jdom.Element;
 
-    public AntBuilderTest(String name) {
-        super(name);
-    }
+public class AntBuilderTest extends TestCase {
 
     public void testValidate() {
         AntBuilder ab = new AntBuilder();
@@ -87,13 +86,103 @@ public class AntBuilderTest extends TestCase {
         Hashtable properties = new Hashtable();
         properties.put("label", "200.1.23");
         String classpath = System.getProperty("java.class.path");
-        String[] resultDebug = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
-        String[] resultInfo = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
-        String[] resultLogger = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-logger", "org.apache.tools.ant.XmlLogger", "-logfile", "log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
-        String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
-        String[] resultDebugWithMaxMemoryAndProperty = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-Dfoo=bar", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
-        String[] resultBatchFile = {"cmd.exe", "/C", "ant.bat", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
-        String[] resultShellScript = {"ant.sh", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
+        String[] resultDebug =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-debug",
+                "-verbose",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        String[] resultInfo =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        String[] resultLogger =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-logger",
+                "org.apache.tools.ant.XmlLogger",
+                "-logfile",
+                "log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        String[] resultDebugWithMaxMemory =
+            {
+                "java",
+                "-Xmx256m",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-debug",
+                "-verbose",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        String[] resultDebugWithMaxMemoryAndProperty =
+            {
+                "java",
+                "-Xmx256m",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-Dfoo=bar",
+                "-debug",
+                "-verbose",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        String[] resultBatchFile =
+            {
+                "cmd.exe",
+                "/C",
+                "ant.bat",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        String[] resultShellScript =
+            {
+                "ant.sh",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         Logger.getRoot().setLevel(Level.INFO);
@@ -111,12 +200,18 @@ public class AntBuilderTest extends TestCase {
 
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
-        assertTrue(Arrays.equals(resultDebugWithMaxMemory, builder.getCommandLineArgs(properties, false, false, false)));
+        assertTrue(
+            Arrays.equals(
+                resultDebugWithMaxMemory,
+                builder.getCommandLineArgs(properties, false, false, false)));
 
         AntBuilder.Property prop = builder.createProperty();
         prop.setName("foo");
         prop.setValue("bar");
-        assertTrue(Arrays.equals(resultDebugWithMaxMemoryAndProperty, builder.getCommandLineArgs(properties, false, false, false)));
+        assertTrue(
+            Arrays.equals(
+                resultDebugWithMaxMemoryAndProperty,
+                builder.getCommandLineArgs(properties, false, false, false)));
 
     }
 
@@ -130,7 +225,9 @@ public class AntBuilderTest extends TestCase {
             bw1.close();
             File logFile2 = new File("_tempAntLog141.xml");
             BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
-            bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
+            bw2.write(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
+                    + "type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
             bw2.flush();
             bw2.close();
 

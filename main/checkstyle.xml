@@ -13,9 +13,7 @@
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
-        <module name="MemberName">
-            <property name="format" value="^_[a-z][a-zA-Z0-9]*$"/>
-        </module>
+        <module name="MemberName"/>
         <module name="MethodName"/>
         <module name="PackageName">
             <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
@@ -71,7 +69,9 @@
         <module name="RightCurly"/>
 
         <!-- Miscellaneous -->
-        <module name="HiddenField"/>
+        <module name="HiddenField">
+            <property name="tokens" value="VARIABLE_DEF"/>
+        </module>
         <module name="InnerAssignment"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>

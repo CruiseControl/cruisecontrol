@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import java.util.Date;
@@ -46,14 +46,11 @@ import junit.framework.TestCase;
  */
 public class BuildQueueTest extends TestCase {
 
-    private BuildQueue queue;
+    private BuildQueue _queue;
 
-    /**
-     * @see TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         boolean startQueue = false;
-        queue = new BuildQueue(startQueue);
+        _queue = new BuildQueue(startQueue);
     }
 
     public void testServiceQueue() {
@@ -61,10 +58,10 @@ public class BuildQueueTest extends TestCase {
         for (int i = 0; i < queuedProjects.length; i++) {
             queuedProjects[i] = new MockProject();
             queuedProjects[i].setName("Build " + i);
-            queue.requestBuild(queuedProjects[i]);
+            _queue.requestBuild(queuedProjects[i]);
         }
 
-        queue.serviceQueue();
+        _queue.serviceQueue();
 
         for (int i = 0; i < queuedProjects.length - 1; i++) {
             MockProject thisBuild = queuedProjects[i];
@@ -82,34 +79,31 @@ public class BuildQueueTest extends TestCase {
     }
 
     public void testStartAndStop() throws InterruptedException {
-        queue.start();
+        _queue.start();
         MockProject project = new MockProject();
         project.setName("BuildQueueTest.testStartAndStop()");
-        queue.requestBuild(project);        
-        for (int sleepCount = 0; project.getBuildCount()==0; sleepCount++) {
-            if (sleepCount>5) {
+        _queue.requestBuild(project);        
+        for (int sleepCount = 0; project.getBuildCount() == 0; sleepCount++) {
+            if (sleepCount > 5) {
                 break;
             }
             Thread.sleep(500);
         }
-        assertEquals(1,project.getBuildCount());
+        assertEquals(1, project.getBuildCount());
 
-        queue.stop();
+        _queue.stop();
         Thread.sleep(1000);
-        assertTrue(!queue.isWaiting());
-        assertTrue(!queue.isAlive());
+        assertTrue(!_queue.isWaiting());
+        assertTrue(!_queue.isAlive());
         
-        queue.requestBuild(project);
-        for (int sleepCount = 0; project.getBuildCount()==1; sleepCount++) {
-            if (sleepCount>2) {
+        _queue.requestBuild(project);
+        for (int sleepCount = 0; project.getBuildCount() == 1; sleepCount++) {
+            if (sleepCount > 2) {
                 break;
             }
             Thread.sleep(500);
         }
-        assertEquals(1,project.getBuildCount());
+        assertEquals(1, project.getBuildCount());
     }
 
-    public BuildQueueTest(String name) {
-        super(name);
-    }
 }

@@ -63,15 +63,15 @@ public class CVSBootstrapper implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(CVSBootstrapper.class);
 
-    private String _filename;
-    private String _cvsroot;
+    private String filename;
+    private String cvsroot;
 
     public void setCvsroot(String cvsroot) {
-        _cvsroot = cvsroot;
+        this.cvsroot = cvsroot;
     }
 
     public void setFile(String filename) {
-        _filename = filename;
+        this.filename = filename;
     }
 
     /**
@@ -97,7 +97,7 @@ public class CVSBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (_filename == null) {
+        if (filename == null) {
             throw new CruiseControlException("'file' is required for CVSBootstrapper");
         }
     }
@@ -105,13 +105,13 @@ public class CVSBootstrapper implements Bootstrapper {
     protected Commandline buildUpdateCommand() {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cvs");
-        if (_cvsroot != null) {
+        if (cvsroot != null) {
             commandLine.createArgument().setValue("-d");
-            commandLine.createArgument().setValue(_cvsroot);
+            commandLine.createArgument().setValue(cvsroot);
         }
 
         commandLine.createArgument().setValue("update");
-        commandLine.createArgument().setValue(_filename);
+        commandLine.createArgument().setValue(filename);
 
         return commandLine;
     }

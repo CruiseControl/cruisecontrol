@@ -50,25 +50,25 @@ import org.apache.log4j.Logger;
 public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);
 
-    private LinkedList _queue = new LinkedList();
-    private boolean _alive = false;
-    private boolean _waiting = false;
+    private LinkedList queue = new LinkedList();
+    private boolean alive = false;
+    private boolean waiting = false;
 
     /**
      * @param project
      */
     public void requestBuild(Project project) {
-        synchronized (_queue) {
-            _queue.add(project);
-            _queue.notify();
+        synchronized (queue) {
+            queue.add(project);
+            queue.notify();
         }
     }
 
     void serviceQueue() {
-        while (!_queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             Project nextProject = null;
-            synchronized (_queue) {
-                nextProject = (Project) _queue.remove(0);
+            synchronized (queue) {
+                nextProject = (Project) queue.remove(0);
             }
             if (nextProject != null) {
                 LOG.info("now building: " + nextProject.getName());
@@ -79,17 +79,17 @@ public class BuildQueue implements Runnable {
 
     public void run() {
         try {
-            while (_alive) {
-                synchronized (_queue) {
-                    if (_queue.isEmpty()) {
+            while (alive) {
+                synchronized (queue) {
+                    if (queue.isEmpty()) {
                         try {
-                            _waiting = true;
-                            _queue.wait();
+                            waiting = true;
+                            queue.wait();
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                     }
-                    _waiting = false;
+                    waiting = false;
                 }
                 serviceQueue();
             }
@@ -109,22 +109,22 @@ public class BuildQueue implements Runnable {
                 throw new RuntimeException(e);
             }
         }
-        _alive = true;
+        alive = true;
     }
     
     void stop() {
-        _alive = false;
-        synchronized (_queue) {
-            _queue.notify();
+        alive = false;
+        synchronized (queue) {
+            queue.notify();
         }        
     }
     
     public boolean isAlive() {
-        return _alive;
+        return alive;
     }
     
     public boolean isWaiting() {
-        return _waiting;
+        return waiting;
     }
 
     BuildQueue(boolean startQueue) {

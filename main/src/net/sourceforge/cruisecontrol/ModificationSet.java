@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,6 +34,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+
 package net.sourceforge.cruisecontrol;
 
 import java.text.SimpleDateFormat;
@@ -55,10 +56,10 @@ public class ModificationSet {
 
     private static final Logger LOG = Logger.getLogger(ModificationSet.class);
 
-    private List _modifications = new ArrayList();
-    private List _sourceControls = new ArrayList();
-    private int _quietPeriod;
-    private Date _timeOfCheck;
+    private List modifications = new ArrayList();
+    private List sourceControls = new ArrayList();
+    private int quietPeriod;
+    private Date timeOfCheck;
 
     /**
      * Set the amount of time in which there is no source control activity
@@ -66,15 +67,15 @@ public class ModificationSet {
      * control system and initiate a build.
      */
     public void setQuietPeriod(int seconds) {
-        _quietPeriod = seconds * 1000;
+        quietPeriod = seconds * 1000;
     }
 
     public void addSourceControl(SourceControl sourceControl) {
-        _sourceControls.add(sourceControl);
+        sourceControls.add(sourceControl);
     }
 
     protected boolean isLastModificationInQuietPeriod(Date now, List modifications) {
-        return (getLastModificationMillis(modifications) + _quietPeriod) >= now.getTime();
+        return (getLastModificationMillis(modifications) + quietPeriod) >= now.getTime();
     }
 
     protected long getLastModificationMillis(List modifications) {
@@ -94,7 +95,7 @@ public class ModificationSet {
     }
 
     protected long getQuietPeriodDifference(Date now, List modifications) {
-        long diff = _quietPeriod - (now.getTime() - getLastModificationMillis(modifications));
+        long diff = quietPeriod - (now.getTime() - getLastModificationMillis(modifications));
         return Math.max(0, diff);
     }
 
@@ -105,7 +106,7 @@ public class ModificationSet {
      */
     public Hashtable getProperties() {
         Hashtable table = new Hashtable();
-        for (Iterator iter = _sourceControls.iterator(); iter.hasNext();) {
+        for (Iterator iter = sourceControls.iterator(); iter.hasNext();) {
             SourceControl control = (SourceControl) iter.next();
             table.putAll(control.getProperties());
         }
@@ -119,19 +120,19 @@ public class ModificationSet {
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Element modificationsElement = null;
         do {
-            _timeOfCheck = new Date();
-            _modifications = new ArrayList();
-            Iterator sourceControlIterator = _sourceControls.iterator();
+            timeOfCheck = new Date();
+            modifications = new ArrayList();
+            Iterator sourceControlIterator = sourceControls.iterator();
             while (sourceControlIterator.hasNext()) {
                 SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
-                _modifications.addAll(sourceControl.getModifications(lastBuild, _timeOfCheck));
+                modifications.addAll(sourceControl.getModifications(lastBuild, timeOfCheck));
             }
             modificationsElement = new Element("modifications");
-            Iterator modificationIterator = _modifications.iterator();
-            if (_modifications.size() > 0) {
+            Iterator modificationIterator = modifications.iterator();
+            if (modifications.size() > 0) {
                 LOG.info(
-                    _modifications.size()
-                        + ((_modifications.size() > 1)
+                    modifications.size()
+                        + ((modifications.size() > 1)
                             ? " modifications have been detected."
                             : " modification has been detected."));
             }
@@ -147,40 +148,40 @@ public class ModificationSet {
                 }
             }
 
-            if (isLastModificationInQuietPeriod(_timeOfCheck, _modifications)) {
+            if (isLastModificationInQuietPeriod(timeOfCheck, modifications)) {
                 LOG.info("A modification has been detected in the quiet period.  ");
                 LOG.debug(
                     formatter.format(
-                        new Date(_timeOfCheck.getTime() - _quietPeriod))
+                        new Date(timeOfCheck.getTime() - quietPeriod))
                         + " <= Quiet Period <= "
-                        + formatter.format(_timeOfCheck));
+                        + formatter.format(timeOfCheck));
                 LOG.debug(
                     "Last modification: "
                         + formatter.format(
                             new Date(
-                                getLastModificationMillis(_modifications))));
+                                getLastModificationMillis(modifications))));
                 LOG.info(
                     "Sleeping for "
-                        + getQuietPeriodDifference(_timeOfCheck, _modifications)
+                        + getQuietPeriodDifference(timeOfCheck, modifications)
                             / 1000
                         + " seconds before retrying.");
                 try {
-                    Thread.sleep(getQuietPeriodDifference(_timeOfCheck, _modifications));
+                    Thread.sleep(getQuietPeriodDifference(timeOfCheck, modifications));
                 } catch (InterruptedException e) {
                     LOG.error("", e);
                 }
             }
-        } while (isLastModificationInQuietPeriod(_timeOfCheck, _modifications));
+        } while (isLastModificationInQuietPeriod(timeOfCheck, modifications));
 
 
         return modificationsElement;
     }
 
     public Date getTimeOfCheck() {
-        return _timeOfCheck;
+        return timeOfCheck;
     }
 
     public boolean isModified() {
-        return _modifications.size() > 0;
+        return modifications.size() > 0;
     }
 }

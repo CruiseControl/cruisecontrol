@@ -37,7 +37,7 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.*;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class VssBootstrapperTest extends TestCase {
 
@@ -46,38 +46,40 @@ public class VssBootstrapperTest extends TestCase {
   public void testValidate() {
     VssBootstrapper bootstrapper = new VssBootstrapper();
     try {
-      bootstrapper.validate();
-      fail("VssBootstrapper should throw exception if required attributes not set");
-    }
-    catch (CruiseControlException ex) {
-      String message = ex.getMessage();
-      assertEquals("exception message when required attributes not set", "VssBootstrapper has required attributes vssPath and filePath", message);
+        bootstrapper.validate();
+        fail("VssBootstrapper should throw exception if required attributes not set");
+    } catch (CruiseControlException ex) {
+        String message = ex.getMessage();
+        assertEquals(
+            "exception message when required attributes not set",
+            "VssBootstrapper has required attributes vssPath and filePath",
+            message);
     }
 
     bootstrapper.setVssPath("$test/vss/path/file.ext");
     try {
-      bootstrapper.validate();
-      fail("VssBootstrapper should throw exception if required attributes not set");
-    }
-    catch (CruiseControlException ex) {
-      String message = ex.getMessage();
-      assertEquals("exception message when required attributes not set", "VssBootstrapper has required attributes vssPath and filePath", message);
+        bootstrapper.validate();
+        fail("VssBootstrapper should throw exception if required attributes not set");
+    } catch (CruiseControlException ex) {
+        String message = ex.getMessage();
+        assertEquals(
+            "exception message when required attributes not set",
+            "VssBootstrapper has required attributes vssPath and filePath",
+            message);
     }
 
     bootstrapper.setLocalDirectory(".");
     try {
-      bootstrapper.validate();
-    }
-    catch (CruiseControlException ex) {
-      fail("validate() shouldn't fail when required attributes have been set");
+        bootstrapper.validate();
+    } catch (CruiseControlException ex) {
+        fail("validate() shouldn't fail when required attributes have been set");
     }
 
     bootstrapper.setLocalDirectory("c:/not/an/existing/directory");
     try {
-      bootstrapper.validate();
-      fail("validate() should fail when given a file path that doesn't exist");
-    }
-    catch (CruiseControlException ex) {
+        bootstrapper.validate();
+        fail("validate() should fail when given a file path that doesn't exist");
+    } catch (CruiseControlException ex) {
     }
   }
 

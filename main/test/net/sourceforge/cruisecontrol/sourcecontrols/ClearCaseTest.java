@@ -36,10 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
@@ -47,63 +43,62 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+
 /**
  * @author Eric Lefevre
  */
 public class ClearCaseTest extends TestCase {
 
     private ClearCase _clearCase;
-    private String clearCaseStream;
+    private String _clearCaseStream;
 
-    private final static String USERID = "userid";
-    private final static String DATE = "20010808.023456";
-    private final static String FILENAME =
+    private static final String USERID = "userid";
+    private static final String DATE = "20010808.023456";
+    private static final String FILENAME =
             "c:" + File.separator + "path" + File.separator + "filename@@"
             + File.separator + "main" + File.separator + "vob";
-    private final static String CHECKIN = "checkin";
-    private final static String COMMENT = "This is a \nsample\n\ncomment";
-    private static Date date1;
+    private static final String CHECKIN = "checkin";
+    private static final String COMMENT = "This is a \nsample\n\ncomment";
+    private static Date _date1;
 
-    private final static String DATE2 = "20221218.143456";
-    private final static String COMMENT2 = "\n\n";
-    private static Date date2;
-
-
-    public ClearCaseTest(String name) {
-        super(name);
-    }
+    private static final String DATE2 = "20221218.143456";
+    private static final String COMMENT2 = "\n\n";
+    private static Date _date2;
 
     protected void setUp() {
         // Set up so that this element will match all tests.
         _clearCase = new ClearCase();
-        String DELIMITER = ClearCase.DELIMITER;
-        clearCaseStream = "";
-        clearCaseStream += USERID + DELIMITER + DATE + DELIMITER;
-        clearCaseStream += FILENAME + DELIMITER + CHECKIN + DELIMITER;
-        clearCaseStream += COMMENT + ClearCase.END_OF_STRING_DELIMITER + "\n";
-        clearCaseStream += USERID + DELIMITER + DATE2 + DELIMITER;
-        clearCaseStream += FILENAME + DELIMITER + CHECKIN + DELIMITER;
-        clearCaseStream += COMMENT2 + ClearCase.END_OF_STRING_DELIMITER + "\n";
+        String delimiter = ClearCase.DELIMITER;
+        _clearCaseStream = "";
+        _clearCaseStream += USERID + delimiter + DATE + delimiter;
+        _clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
+        _clearCaseStream += COMMENT + ClearCase.END_OF_STRING_DELIMITER + "\n";
+        _clearCaseStream += USERID + delimiter + DATE2 + delimiter;
+        _clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
+        _clearCaseStream += COMMENT2 + ClearCase.END_OF_STRING_DELIMITER + "\n";
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2001, 7, 8, 2, 34, 56);
         calendar.set(Calendar.MILLISECOND, 0);
-        date1 = calendar.getTime();
+        _date1 = calendar.getTime();
         calendar.set(2022, 11, 18, 14, 34, 56);
-        date2 = calendar.getTime();
+        _date2 = calendar.getTime();
     }
 
     /**
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
     public void testClearCaseStream() throws IOException {
-        StringBufferInputStream stream = new StringBufferInputStream(clearCaseStream);
+        StringBufferInputStream stream = new StringBufferInputStream(_clearCaseStream);
         List list = _clearCase.parseStream(stream);
         Modification mod = (Modification) list.get(0);
         assertEquals(CHECKIN, mod.type);
         assertEquals(File.separator + "filename", mod.fileName);
         assertEquals(File.separator + "path", mod.folderName);
-        assertEquals(date1, mod.modifiedTime);
+        assertEquals(_date1, mod.modifiedTime);
         assertEquals(USERID, mod.userName);
         assertEquals("This is a sample comment", mod.comment);
 
@@ -111,7 +106,7 @@ public class ClearCaseTest extends TestCase {
         assertEquals(CHECKIN, mod.type);
         assertEquals(File.separator + "filename", mod.fileName);
         assertEquals(File.separator + "path", mod.folderName);
-        assertEquals(date2, mod.modifiedTime);
+        assertEquals(_date2, mod.modifiedTime);
         assertEquals(USERID, mod.userName);
         assertEquals("", mod.comment);
     }

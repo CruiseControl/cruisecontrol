@@ -65,22 +65,22 @@ public class AntBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
-    private String _buildFile;
-    private String _target;
-    private String _tempFileName = "log.xml";
-    private String _antScript;
-    private boolean _useLogger;
-    private List _args = new ArrayList();
-    private List _properties = new ArrayList();
+    private String buildFile;
+    private String target;
+    private String tempFileName = "log.xml";
+    private String antScript;
+    private boolean useLogger;
+    private List args = new ArrayList();
+    private List properties = new ArrayList();
 
     public void validate() throws CruiseControlException {
         super.validate();
 
-        if (_buildFile == null) {
+        if (buildFile == null) {
             throw new CruiseControlException("'buildfile' is a required attribute on AntBuilder");
         }
 
-        if (_target == null) {
+        if (target == null) {
             throw new CruiseControlException("'target' is a required attribute on AntBuilder");
         }
     }
@@ -97,8 +97,8 @@ public class AntBuilder extends Builder {
                 Runtime.getRuntime().exec(
                     getCommandLineArgs(
                         buildProperties,
-                        _useLogger,
-                        _antScript != null,
+                        useLogger,
+                        antScript != null,
                         isWindows()));
         } catch (IOException e) {
             throw new CruiseControlException(
@@ -129,7 +129,7 @@ public class AntBuilder extends Builder {
         errorPumper.flush();
 
         //read in log file as element, return it
-        File logFile = new File(_tempFileName);
+        File logFile = new File(tempFileName);
         if (!logFile.exists()) {
             LOG.error("Ant logfile cannot be found");
         }
@@ -140,34 +140,34 @@ public class AntBuilder extends Builder {
     }
 
     public void setAntScript(String antScript) {
-        _antScript = antScript;
+        this.antScript = antScript;
     }
 
     public void setTempFile(String tempFileName) {
-        _tempFileName = tempFileName;
+        this.tempFileName = tempFileName;
     }
 
     public void setTarget(String target) {
-        _target = target;
+        this.target = target;
     }
 
     public void setBuildFile(String buildFile) {
-        _buildFile = buildFile;
+        this.buildFile = buildFile;
     }
 
     public void setUseLogger(boolean useLogger) {
-        _useLogger = useLogger;
+        this.useLogger = useLogger;
     }
 
     public Object createJVMArg() {
         JVMArg arg = new JVMArg();
-        _args.add(arg);
+        args.add(arg);
         return arg;
     }
 
     public Property createProperty() {
         Property property = new Property();
-        _properties.add(property);
+        properties.add(property);
         return property;
     }
 
@@ -191,13 +191,13 @@ public class AntBuilder extends Builder {
             if (isWindows) {
                 al.add("cmd.exe");
                 al.add("/C");
-                al.add(_antScript);
+                al.add(antScript);
             } else {
-                al.add(_antScript);
+                al.add(antScript);
             }
         } else {
             al.add("java");
-            Iterator argsIterator = _args.iterator();
+            Iterator argsIterator = args.iterator();
             while (argsIterator.hasNext()) {
                 String arg = ((JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
@@ -214,11 +214,11 @@ public class AntBuilder extends Builder {
             al.add("-logger");
             al.add("org.apache.tools.ant.XmlLogger");
             al.add("-logfile");
-            al.add(_tempFileName);
+            al.add(tempFileName);
         } else {
             al.add("-listener");
             al.add("org.apache.tools.ant.XmlLogger");
-            al.add("-DXmlLogger.file=" + _tempFileName);
+            al.add("-DXmlLogger.file=" + tempFileName);
         }
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
@@ -227,7 +227,7 @@ public class AntBuilder extends Builder {
             al.add("-D" + key + "=" + buildProperties.get(key));
         }
 
-        Iterator antPropertiesIterator = _properties.iterator();
+        Iterator antPropertiesIterator = properties.iterator();
         while (antPropertiesIterator.hasNext()) {
             Property property = (Property) antPropertiesIterator.next();
             al.add("-D" + property.getName() + "=" + property.getValue());
@@ -239,8 +239,8 @@ public class AntBuilder extends Builder {
         }
 
         al.add("-buildfile");
-        al.add(_buildFile);
-        al.add(_target);
+        al.add(buildFile);
+        al.add(target);
 
         StringBuffer sb = new StringBuffer();
         sb.append("Executing Command: ");
@@ -286,36 +286,39 @@ public class AntBuilder extends Builder {
 
     public class JVMArg {
 
-        private String _arg;
+        private String arg;
 
         public void setArg(String arg) {
-            _arg = arg;
+            this.arg = arg;
         }
 
         public String getArg() {
-            return _arg;
+            return arg;
         }
+        
     }
 
     public class Property {
 
-        private String _name;
-        private String _value;
+        private String name;
+        private String value;
 
         public void setName(String name) {
-            _name = name;
+            this.name = name;
         }
 
         public String getName() {
-            return _name;
+            return name;
         }
 
         public void setValue(String value) {
-            _value = value;
+            this.value = value;
         }
 
         public String getValue() {
-            return _value;
+            return value;
         }
+        
     }
+    
 }

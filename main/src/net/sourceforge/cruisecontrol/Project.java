@@ -90,38 +90,38 @@ public class Project implements Serializable, Runnable {
             "merging accumulated log files",
             "publishing build results" };
 
-    private transient int _state = IDLE_STATE;
-    private transient Schedule _schedule;
-    private transient List _bootstrappers = new ArrayList();
-    private transient ModificationSet _modificationSet;
-    private transient List _publishers = new ArrayList();
-    private transient LabelIncrementer _labelIncrementer;
-    private transient List _auxLogs = new ArrayList();
-    private transient String _logXmlEncoding = null;
-    private transient long _buildInterval;
-    private transient String _logFileName;
-    private transient String _logDir;
-    private transient Date _buildStartTime;
-    private transient Object _pausedMutex = new Object();
-    private transient Object _scheduleMutex = new Object();
-    private transient Object _waitMutex = new Object();
-    private transient BuildQueue _queue;
+    private transient int state = IDLE_STATE;
+    private transient Schedule schedule;
+    private transient List bootstrappers = new ArrayList();
+    private transient ModificationSet modificationSet;
+    private transient List publishers = new ArrayList();
+    private transient LabelIncrementer labelIncrementer;
+    private transient List auxLogs = new ArrayList();
+    private transient String logXmlEncoding = null;
+    private transient long buildInterval;
+    private transient String logFileName;
+    private transient String logDir;
+    private transient Date buildStartTime;
+    private transient Object pausedMutex = new Object();
+    private transient Object scheduleMutex = new Object();
+    private transient Object waitMutex = new Object();
+    private transient BuildQueue queue;
 
     private static final transient long ONE_SECOND = 1000;
     private static final transient long ONE_MINUTE = 60 * ONE_SECOND;
 
-    private int _buildCounter = 0;
-    private Date _lastBuild;
-    private Date _lastSuccessfulBuild;
-    private boolean _wasLastBuildSuccessful = true;
-    private String _label;
-    private String _configFileName = "config.xml";
-    private String _name;
-    private SimpleDateFormat _formatter =
+    private int buildCounter = 0;
+    private Date lastBuild;
+    private Date lastSuccessfulBuild;
+    private boolean wasLastBuildSuccessful = true;
+    private String label;
+    private String configFileName = "config.xml";
+    private String name;
+    private SimpleDateFormat formatter =
         new SimpleDateFormat("yyyyMMddHHmmss");
-    private boolean _buildForced = false;
-    private boolean _isPaused = false;
-    private boolean _buildAfterFailed = true;
+    private boolean buildForced = false;
+    private boolean isPaused = false;
+    private boolean buildAfterFailed = true;
 
     /**
      * <b>Note:</b> This means that the config file is re-parsed on every cycle.
@@ -129,8 +129,8 @@ public class Project implements Serializable, Runnable {
     public void execute() {
         checkMutex();
 
-        synchronized (_pausedMutex) {
-            if (_isPaused) {
+        synchronized (pausedMutex) {
+            if (isPaused) {
                 return;
             }
         }
@@ -139,21 +139,21 @@ public class Project implements Serializable, Runnable {
             init();
             build();
         } catch (CruiseControlException e) {
-            LOG.error("exception attempting build in project " + _name, e);
+            LOG.error("exception attempting build in project " + name, e);
         }
 
         buildFinished();
     }
 
     private void checkMutex() {
-        if (_pausedMutex == null) {
-            _pausedMutex = new Object();
+        if (pausedMutex == null) {
+            pausedMutex = new Object();
         }
-        if (_scheduleMutex == null) {
-            _scheduleMutex = new Object();
+        if (scheduleMutex == null) {
+            scheduleMutex = new Object();
         }
-        if (_waitMutex == null) {
-            _waitMutex = new Object();
+        if (waitMutex == null) {
+            waitMutex = new Object();
         }
     }
 
@@ -161,8 +161,8 @@ public class Project implements Serializable, Runnable {
      *  Unless paused, runs any bootstrappers and then the entire build.
      */
     public void build() throws CruiseControlException {
-        _buildStartTime = new Date();
-        if (_schedule.isPaused(_buildStartTime)) {
+        buildStartTime = new Date();
+        if (schedule.isPaused(buildStartTime)) {
             return; //we've paused
         }
 
@@ -178,11 +178,11 @@ public class Project implements Serializable, Runnable {
 
         cruisecontrolElement.addContent(modifications);
 
-        Date now = _modificationSet.getTimeOfCheck();
+        Date now = modificationSet.getTimeOfCheck();
 
-        if (_labelIncrementer.isPreBuildIncrementer()) {
-            _label =
-                _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
+        if (labelIncrementer.isPreBuildIncrementer()) {
+            label =
+                labelIncrementer.incrementLabel(label, cruisecontrolElement);
         }
 
         // collect project information
@@ -190,10 +190,10 @@ public class Project implements Serializable, Runnable {
 
         setState(BUILDING_STATE);
         cruisecontrolElement.addContent(
-            _schedule
+            schedule
                 .build(
-                    _buildCounter,
-                    _lastBuild,
+                    buildCounter,
+                    lastBuild,
                     now,
                     getProjectPropertiesMap(now))
                 .detach());
@@ -201,9 +201,9 @@ public class Project implements Serializable, Runnable {
         boolean buildSuccessful =
             new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
 
-        if (!_labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-            _label =
-                _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
+        if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
+            label =
+                labelIncrementer.incrementLabel(label, cruisecontrolElement);
         }
 
         setState(MERGING_LOGS_STATE);
@@ -218,7 +218,7 @@ public class Project implements Serializable, Runnable {
         logFileElement.setAttribute("name", "logfile");
         logFileElement.setAttribute(
             "value",
-            _logFileName.substring(_logFileName.lastIndexOf(File.separator)));
+            logFileName.substring(logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
 
         writeLogFile(cruisecontrolElement);
@@ -226,17 +226,17 @@ public class Project implements Serializable, Runnable {
         // If we only want to build after a check in, even when broken, set the last build to now,
         // regardless of success or failure (buildAfterFailed = false in config.xml)
         if (!getBuildAfterFailed()) {
-            _lastBuild = now;
+            lastBuild = now;
         }
 
         // If this was a successful build, update both last build and last successful build
         if (buildSuccessful) {
-            _lastBuild = now;
-            _lastSuccessfulBuild = now;
+            lastBuild = now;
+            lastSuccessfulBuild = now;
         }
 
-        _buildCounter++;
-        _wasLastBuildSuccessful = buildSuccessful;
+        buildCounter++;
+        wasLastBuildSuccessful = buildSuccessful;
 
         serializeProject();
 
@@ -254,7 +254,7 @@ public class Project implements Serializable, Runnable {
                 waitIfPaused();
                 waitForNextBuild();
                 setState(QUEUED_STATE);
-                _queue.requestBuild(this);
+                queue.requestBuild(this);
                 waitForBuildToFinish();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -263,37 +263,37 @@ public class Project implements Serializable, Runnable {
     }
 
     void waitIfPaused() throws InterruptedException {
-        synchronized (_pausedMutex) {
-            while (_isPaused) {
-                _pausedMutex.wait(10 * ONE_MINUTE);
+        synchronized (pausedMutex) {
+            while (isPaused) {
+                pausedMutex.wait(10 * ONE_MINUTE);
             }
         }
     }
 
     void waitForNextBuild() throws InterruptedException {
         Date now = new Date();
-        long waitTime = _schedule.getTimeToNextBuild(now, _buildInterval);
+        long waitTime = schedule.getTimeToNextBuild(now, buildInterval);
         log("next build in " + formatTime(waitTime));
-        synchronized (_waitMutex) {
-            _waitMutex.wait(waitTime);
+        synchronized (waitMutex) {
+            waitMutex.wait(waitTime);
         }
     }
 
     void forceBuild() {
-        synchronized (_waitMutex) {
-            _waitMutex.notify();
+        synchronized (waitMutex) {
+            waitMutex.notify();
         }
     }
 
     void waitForBuildToFinish() throws InterruptedException {
-        synchronized (_scheduleMutex) {
-            _scheduleMutex.wait();
+        synchronized (scheduleMutex) {
+            scheduleMutex.wait();
         }
     }
 
     void buildFinished() {
-        synchronized (_scheduleMutex) {
-            _scheduleMutex.notify();
+        synchronized (scheduleMutex) {
+            scheduleMutex.notify();
         }
     }
 
@@ -331,25 +331,25 @@ public class Project implements Serializable, Runnable {
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
         if (checkNewChangesFirst) {
             debug("getting changes since last build");
-            modifications = _modificationSet.getModifications(_lastBuild);
+            modifications = modificationSet.getModifications(lastBuild);
         } else {
             debug("getting changes since last successful build");
             modifications =
-                _modificationSet.getModifications(_lastSuccessfulBuild);
+                modificationSet.getModifications(lastSuccessfulBuild);
         }
 
-        if (!_modificationSet.isModified()) {
+        if (!modificationSet.isModified()) {
             log("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
             // modifications. This is in fact current default behaviour.
             // Set by <project buildafterfailed="true/false">
-            if (_buildAfterFailed && !_wasLastBuildSuccessful) {
+            if (buildAfterFailed && !wasLastBuildSuccessful) {
                 log("Building anyway, since buildAfterFailed is true and last build failed.");
             } else {
-                if (_buildForced) {
+                if (buildForced) {
                     log("Building anyway, since build was explicitly forced.");
-                    _buildForced = false;
+                    buildForced = false;
                 } else {
                     return null;
                 }
@@ -359,7 +359,7 @@ public class Project implements Serializable, Runnable {
         if (checkNewChangesFirst) {
             debug("new changes found; now getting complete set");
             modifications =
-                _modificationSet.getModifications(_lastSuccessfulBuild);
+                modificationSet.getModifications(lastSuccessfulBuild);
         }
 
         return modifications;
@@ -369,16 +369,15 @@ public class Project implements Serializable, Runnable {
      * @return boolean
      */
     boolean checkOnlySinceLastBuild() {
-        if (_lastBuild == null) {
+        if (lastBuild == null) {
             return false;
         }
 
-        long lastBuildLong = _lastBuild.getTime();
-        long lastSuccessfulBuild = _lastSuccessfulBuild.getTime();
-        long timeDifference = lastBuildLong - lastSuccessfulBuild;
+        long lastBuildLong = lastBuild.getTime();
+        long timeDifference = lastBuildLong - lastSuccessfulBuild.getTime();
         boolean moreThanASecond = timeDifference > ONE_SECOND;
 
-        boolean checkNewMods = !_buildAfterFailed && moreThanASecond;
+        boolean checkNewMods = !buildAfterFailed && moreThanASecond;
 
         return checkNewMods;
     }
@@ -389,63 +388,63 @@ public class Project implements Serializable, Runnable {
     public void serializeProject() {
         try {
             ObjectOutputStream s =
-                new ObjectOutputStream(new FileOutputStream(_name));
+                new ObjectOutputStream(new FileOutputStream(name));
             s.writeObject(this);
             s.flush();
             s.close();
-            debug("Serializing project to [" + _name + "]");
+            debug("Serializing project to [" + name + "]");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void setModificationSet(ModificationSet modSet) {
-        _modificationSet = modSet;
+        modificationSet = modSet;
     }
 
     public void setSchedule(Schedule schedule) {
-        _schedule = schedule;
+        this.schedule = schedule;
     }
 
     public void addAuxiliaryLogFile(String fileName) {
-        _auxLogs.add(fileName);
+        auxLogs.add(fileName);
     }
 
     public LabelIncrementer getLabelIncrementer() {
-        return _labelIncrementer;
+        return labelIncrementer;
     }
 
     public void setLabelIncrementer(LabelIncrementer incrementer) {
-        _labelIncrementer = incrementer;
+        labelIncrementer = incrementer;
     }
 
     public void setLogXmlEncoding(String logXmlEncoding) {
-        _logXmlEncoding = logXmlEncoding;
+        this.logXmlEncoding = logXmlEncoding;
     }
 
     public void setConfigFileName(String fileName) {
         debug("Config file set to [" + fileName + "]");
-        _configFileName = fileName;
+        configFileName = fileName;
     }
 
     public String getConfigFileName() {
-        return _configFileName;
+        return configFileName;
     }
 
     public void setName(String name) {
-        _name = name;
+        this.name = name;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 
     public void setLabel(String label) {
-        _label = label;
+        this.label = label;
     }
 
     public String getLabel() {
-        return _label;
+        return label;
     }
 
     /**
@@ -455,7 +454,7 @@ public class Project implements Serializable, Runnable {
      * input string
      */
     public void setLastBuild(String lastBuild) throws CruiseControlException {
-        _lastBuild = parseFormatedTime(lastBuild, "lastBuild");
+        this.lastBuild = parseFormatedTime(lastBuild, "lastBuild");
     }
 
     /**
@@ -466,165 +465,165 @@ public class Project implements Serializable, Runnable {
      */
     public void setLastSuccessfulBuild(String lastSuccessfulBuild)
         throws CruiseControlException {
-        _lastSuccessfulBuild =
+        this.lastSuccessfulBuild =
             parseFormatedTime(lastSuccessfulBuild, "lastSuccessfulBuild");
     }
 
     public String getLastBuild() {
-        if (_lastBuild == null) {
+        if (lastBuild == null) {
             return null;
         }
-        return getFormatedTime(_lastBuild);
+        return getFormatedTime(lastBuild);
     }
 
     public boolean getBuildForced() {
-        return _buildForced;
+        return buildForced;
     }
 
     public void setBuildForced(boolean buildForced) {
-        _buildForced = buildForced;
+        this.buildForced = buildForced;
         if (buildForced) {
             forceBuild();
         }
     }
 
     public String getLastSuccessfulBuild() {
-        if (_lastSuccessfulBuild == null) {
+        if (lastSuccessfulBuild == null) {
             return null;
         }
-        return getFormatedTime(_lastSuccessfulBuild);
+        return getFormatedTime(lastSuccessfulBuild);
     }
 
     public String getLogDir() {
-        return _logDir;
+        return logDir;
     }
 
     public void setLogDir(String logDir) {
-        _logDir = logDir;
+        this.logDir = logDir;
     }
 
     public long getSleepMilliseconds() {
-        return _buildInterval;
+        return buildInterval;
     }
 
     public void setSleepMillis(long sleepMillis) {
-        _buildInterval = sleepMillis;
+        buildInterval = sleepMillis;
     }
 
     protected String getLogFileName() {
-        return _logFileName;
+        return logFileName;
     }
 
     public boolean isPaused() {
-        return _isPaused;
+        return isPaused;
     }
 
     public void setPaused(boolean paused) {
         checkMutex();
-        synchronized (_pausedMutex) {
-            if (_isPaused && !paused) {
-                _pausedMutex.notifyAll();
+        synchronized (pausedMutex) {
+            if (isPaused && !paused) {
+                pausedMutex.notifyAll();
             }
-            _isPaused = paused;
+            isPaused = paused;
         }
     }
 
     public boolean getBuildAfterFailed() {
-        return _buildAfterFailed;
+        return buildAfterFailed;
     }
 
     public void setBuildAfterFailed(boolean buildAfterFailed) {
-        _buildAfterFailed = buildAfterFailed;
+        this.buildAfterFailed = buildAfterFailed;
     }
 
     public String getStatus() {
-        return STATE_DESCRIPTIONS[_state];
+        return STATE_DESCRIPTIONS[state];
     }
 
     public int getState() {
-        return _state;
+        return state;
     }
 
     private void setState(int newState) {
-        _state = newState;
+        state = newState;
         log(getStatus());
     }
 
     public void setBuildQueue(BuildQueue buildQueue) {
-        _queue = buildQueue;
+        queue = buildQueue;
     }
 
     public Date getBuildStartTime() {
-        return _buildStartTime;
+        return buildStartTime;
     }
 
     /**
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        log("reading settings from config file [" + _configFileName + "]");
+        log("reading settings from config file [" + configFileName + "]");
         ProjectXMLHelper helper =
-            new ProjectXMLHelper(new File(_configFileName), _name);
-        _buildInterval = ONE_SECOND * helper.getBuildInterval();
-        _logDir = helper.getLogDir();
-        _logXmlEncoding = helper.getLogXmlEncoding();
-        File logDir = new File(_logDir);
-        if (!logDir.exists()) {
+            new ProjectXMLHelper(new File(configFileName), name);
+        buildInterval = ONE_SECOND * helper.getBuildInterval();
+        logDir = helper.getLogDir();
+        logXmlEncoding = helper.getLogXmlEncoding();
+        File logDirectory = new File(logDir);
+        if (!logDirectory.exists()) {
             throw new CruiseControlException(
                 "Log Directory specified in config file does not exist: "
-                    + logDir.getAbsolutePath());
+                    + logDirectory.getAbsolutePath());
         }
-        if (!logDir.isDirectory()) {
+        if (!logDirectory.isDirectory()) {
             throw new CruiseControlException(
                 "Log Directory specified in config file is not a directory: "
-                    + logDir.getAbsolutePath());
+                    + logDirectory.getAbsolutePath());
         }
-        _bootstrappers = helper.getBootstrappers();
-        _schedule = helper.getSchedule();
-        _modificationSet = helper.getModificationSet();
+        bootstrappers = helper.getBootstrappers();
+        schedule = helper.getSchedule();
+        modificationSet = helper.getModificationSet();
 
-        _labelIncrementer = helper.getLabelIncrementer();
-        validateLabel(_label, _labelIncrementer);
+        labelIncrementer = helper.getLabelIncrementer();
+        validateLabel(label, labelIncrementer);
 
-        _auxLogs = helper.getAuxLogs();
-        _publishers = helper.getPublishers();
+        auxLogs = helper.getAuxLogs();
+        publishers = helper.getPublishers();
 
-        _buildAfterFailed = helper.getBuildAfterFailed();
+        buildAfterFailed = helper.getBuildAfterFailed();
 
-        debug("buildInterval          = [" + _buildInterval + "]");
-        debug("buildForced            = [" + _buildForced + "]");
-        debug("buildAfterFailed       = [" + _buildAfterFailed + "]");
-        debug("buildCounter           = [" + _buildCounter + "]");
-        debug("isPaused               = [" + _isPaused + "]");
-        debug("label                  = [" + _label + "]");
-        debug("lastBuild              = [" + getFormatedTime(_lastBuild) + "]");
+        debug("buildInterval          = [" + buildInterval + "]");
+        debug("buildForced            = [" + buildForced + "]");
+        debug("buildAfterFailed       = [" + buildAfterFailed + "]");
+        debug("buildCounter           = [" + buildCounter + "]");
+        debug("isPaused               = [" + isPaused + "]");
+        debug("label                  = [" + label + "]");
+        debug("lastBuild              = [" + getFormatedTime(lastBuild) + "]");
         debug(
             "lastSuccessfulBuild    = ["
-                + getFormatedTime(_lastSuccessfulBuild)
+                + getFormatedTime(lastSuccessfulBuild)
                 + "]");
-        debug("logDir                 = [" + _logDir + "]");
-        debug("logFileName            = [" + _logFileName + "]");
-        debug("logXmlEncoding         = [" + _logXmlEncoding + "]");
-        debug("wasLastBuildSuccessful = [" + _wasLastBuildSuccessful + "]");
+        debug("logDir                 = [" + logDir + "]");
+        debug("logFileName            = [" + logFileName + "]");
+        debug("logXmlEncoding         = [" + logXmlEncoding + "]");
+        debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
     }
 
     protected Element getProjectPropertiesElement(Date now) {
         Element infoElement = new Element("info");
         Element projectNameElement = new Element("property");
         projectNameElement.setAttribute("name", "projectname");
-        projectNameElement.setAttribute("value", _name);
+        projectNameElement.setAttribute("value", name);
         infoElement.addContent(projectNameElement);
 
         Element lastBuildPropertyElement = new Element("property");
         lastBuildPropertyElement.setAttribute("name", "lastbuild");
-        if (_lastBuild == null) {
+        if (lastBuild == null) {
             lastBuildPropertyElement.setAttribute(
                 "value",
                 getFormatedTime(now));
         } else {
             lastBuildPropertyElement.setAttribute(
                 "value",
-                getFormatedTime(_lastBuild));
+                getFormatedTime(lastBuild));
         }
         infoElement.addContent(lastBuildPropertyElement);
 
@@ -632,14 +631,14 @@ public class Project implements Serializable, Runnable {
         lastSuccessfulBuildPropertyElement.setAttribute(
             "name",
             "lastsuccessfulbuild");
-        if (_lastSuccessfulBuild == null) {
+        if (lastSuccessfulBuild == null) {
             lastSuccessfulBuildPropertyElement.setAttribute(
                 "value",
                 getFormatedTime(now));
         } else {
             lastSuccessfulBuildPropertyElement.setAttribute(
                 "value",
-                getFormatedTime(_lastSuccessfulBuild));
+                getFormatedTime(lastSuccessfulBuild));
         }
         infoElement.addContent(lastSuccessfulBuildPropertyElement);
 
@@ -652,12 +651,12 @@ public class Project implements Serializable, Runnable {
 
         Element labelPropertyElement = new Element("property");
         labelPropertyElement.setAttribute("name", "label");
-        labelPropertyElement.setAttribute("value", _label);
+        labelPropertyElement.setAttribute("value", label);
         infoElement.addContent(labelPropertyElement);
 
         Element intervalElement = new Element("property");
         intervalElement.setAttribute("name", "interval");
-        intervalElement.setAttribute("value", "" + (_buildInterval / 1000));
+        intervalElement.setAttribute("value", "" + (buildInterval / 1000));
         infoElement.addContent(intervalElement);
 
         Element lastBuildSuccessfulPropertyElement = new Element("property");
@@ -666,7 +665,7 @@ public class Project implements Serializable, Runnable {
             "lastbuildsuccessful");
         lastBuildSuccessfulPropertyElement.setAttribute(
             "value",
-            _wasLastBuildSuccessful + "");
+            wasLastBuildSuccessful + "");
         infoElement.addContent(lastBuildSuccessfulPropertyElement);
 
         return infoElement;
@@ -674,9 +673,9 @@ public class Project implements Serializable, Runnable {
 
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
-        buildProperties.put("label", _label);
+        buildProperties.put("label", label);
         buildProperties.put("cctimestamp", getFormatedTime(now));
-        buildProperties.putAll(_modificationSet.getProperties());
+        buildProperties.putAll(modificationSet.getProperties());
         return buildProperties;
     }
 
@@ -687,7 +686,7 @@ public class Project implements Serializable, Runnable {
      *  @param logElement JDOM Element representing the build log.
      */
     protected void publish(Element logElement) throws CruiseControlException {
-        Iterator publisherIterator = _publishers.iterator();
+        Iterator publisherIterator = publishers.iterator();
         while (publisherIterator.hasNext()) {
             ((Publisher) publisherIterator.next()).publish(logElement);
         }
@@ -699,7 +698,7 @@ public class Project implements Serializable, Runnable {
      */
     protected void bootstrap() throws CruiseControlException {
         setState(BOOTSTRAPPING_STATE);
-        Iterator bootstrapperIterator = _bootstrappers.iterator();
+        Iterator bootstrapperIterator = bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
         }
@@ -709,9 +708,9 @@ public class Project implements Serializable, Runnable {
         throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(logElement);
         if (helper.isBuildSuccessful()) {
-            _logFileName =
+            logFileName =
                 new File(
-                    _logDir,
+                    logDir,
                     "log"
                         + getFormatedTime(now)
                         + "L"
@@ -719,8 +718,8 @@ public class Project implements Serializable, Runnable {
                         + ".xml")
                     .getAbsolutePath();
         } else {
-            _logFileName =
-                new File(_logDir, "log" + getFormatedTime(now) + ".xml")
+            logFileName =
+                new File(logDir, "log" + getFormatedTime(now) + ".xml")
                     .getAbsolutePath();
         }
     }
@@ -734,21 +733,21 @@ public class Project implements Serializable, Runnable {
         throws CruiseControlException {
         BufferedWriter logWriter = null;
         try {
-            debug("Writing log file [" + _logFileName + "]");
+            debug("Writing log file [" + logFileName + "]");
             XMLOutputter outputter = null;
-            if (_logXmlEncoding == null) {
+            if (logXmlEncoding == null) {
                 outputter = new XMLOutputter("   ", true);
                 logWriter =
                     new BufferedWriter(
                         new OutputStreamWriter(
-                            new FileOutputStream(_logFileName)));
+                            new FileOutputStream(logFileName)));
             } else {
-                outputter = new XMLOutputter("   ", true, _logXmlEncoding);
+                outputter = new XMLOutputter("   ", true, logXmlEncoding);
                 logWriter =
                     new BufferedWriter(
                         new OutputStreamWriter(
-                            new FileOutputStream(_logFileName),
-                            _logXmlEncoding));
+                            new FileOutputStream(logFileName),
+                            logXmlEncoding));
             }
             outputter.output(new Document(logElement), logWriter);
             logWriter = null;
@@ -767,7 +766,7 @@ public class Project implements Serializable, Runnable {
      * auxilliary log files.
      */
     protected List getAuxLogElements() {
-        Iterator auxLogIterator = _auxLogs.iterator();
+        Iterator auxLogIterator = auxLogs.iterator();
         List auxLogElements = new ArrayList();
         while (auxLogIterator.hasNext()) {
             String fileName = (String) auxLogIterator.next();
@@ -841,11 +840,11 @@ public class Project implements Serializable, Runnable {
     }
 
     protected boolean isLastBuildSuccessful() {
-        return _wasLastBuildSuccessful;
+        return wasLastBuildSuccessful;
     }
 
     public String getFormatedTime(Date date) {
-        return _formatter.format(date);
+        return formatter.format(date);
     }
 
     public Date parseFormatedTime(String timeString, String label)
@@ -855,7 +854,7 @@ public class Project implements Serializable, Runnable {
             throw new IllegalArgumentException("Null date string for " + label);
         }
         try {
-            date = _formatter.parse(timeString);
+            date = formatter.parse(timeString);
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + label + "]", e);
             throw new CruiseControlException(
@@ -866,10 +865,10 @@ public class Project implements Serializable, Runnable {
     }
 
     private void log(String message) {
-        LOG.info("Project " + _name + ":  " + message);
+        LOG.info("Project " + name + ":  " + message);
     }
 
     private void debug(String message) {
-        LOG.debug("Project " + _name + ":  " + message);
+        LOG.debug("Project " + name + ":  " + message);
     }
 }
