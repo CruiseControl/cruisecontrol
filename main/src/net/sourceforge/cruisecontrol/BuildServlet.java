@@ -195,6 +195,7 @@ public class BuildServlet extends HttpServlet {
         File logDirFile = new File(_logDir);
         
         String[] prevBuildLogs = logDirFile.list();
+        
         Arrays.sort(prevBuildLogs);
         
         for (int i = prevBuildLogs.length - 1; i >= 0; i--) {

@@ -6,7 +6,6 @@ import junit.framework.*;
 /**
  *@author  Robert Watkins
  *@author  Jason Yip, jcyip@thoughtworks.com
- *@created  June 11, 2001
  */
 public class CVSElementTest extends TestCase {
 
