@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -114,6 +115,27 @@ public class ClearCaseTest extends TestCase {
         assertEquals(date2, mod.modifiedTime);
         assertEquals(USERID, mod.userName);
         assertEquals("", mod.comment);
+    }
+
+    public void testValidate() {
+        ClearCase cc = new ClearCase();
+
+        try {
+            cc.validate();
+            fail("ClearCase should throw exceptions when required attributes are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        cc.setViewpath("path");
+        cc.setBranch("branch");
+
+        try {
+            cc.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("ClearCase should not throw exceptions when required attributes are set.");
+        }
     }
 
     public static void main(java.lang.String[] args) {

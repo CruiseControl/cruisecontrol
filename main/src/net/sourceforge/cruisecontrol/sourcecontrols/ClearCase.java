@@ -132,6 +132,10 @@ public class ClearCase implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(_branch == null)
+           throw new CruiseControlException("'branch' is a required attribute for ClearCase.");
+        if(_viewPath == null)
+           throw new CruiseControlException("'viewpath' is a required attribute for ClearCase.");
     }
 
     /**
