@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
@@ -58,6 +59,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -468,6 +470,28 @@ public class ProjectTest extends TestCase {
         assertEquals(lastGoodBuild, map.get("cclastgoodbuildtimestamp"));
         assertEquals(lastBuild, map.get("cclastbuildtimestamp"));
         assertEquals("true", map.get("lastbuildsuccessful"));
+    }
+    
+    public void testGetTimeToNextBuild_AfterShortBuild() {
+        Schedule schedule = new Schedule();
+        MockBuilder noonBuilder = new MockBuilder();
+        noonBuilder.setTime("1200");
+        noonBuilder.setBuildLogXML(new Element("builder1"));
+        schedule.addBuilder(noonBuilder);
+        project.setSchedule(schedule);
+        
+        Calendar cal = Calendar.getInstance();
+        cal.set(2001, Calendar.NOVEMBER, 22);
+        cal.set(Calendar.HOUR_OF_DAY, 12);
+        cal.set(Calendar.MINUTE, 00);
+        Date noonBuild = cal.getTime();
+        project.setBuildStartTime(noonBuild);
+        
+        cal.set(Calendar.SECOND, 30);
+        Date postNoonBuild = cal.getTime();
+        
+        long time = project.getTimeToNextBuild(postNoonBuild);
+        assertEquals(Schedule.ONE_DAY, time);
     }
 
     private void writeFile(String fileName, String contents) throws IOException {

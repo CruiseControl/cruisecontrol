@@ -163,7 +163,7 @@ public class Project implements Serializable, Runnable {
      */
     protected void build() throws CruiseControlException {
         try {
-            buildStartTime = new Date();
+            setBuildStartTime(new Date());
             if (schedule.isPaused(buildStartTime)) {
                 // a regularly scheduled paused
                 // is different than ProjectState.PAUSED
@@ -231,6 +231,10 @@ public class Project implements Serializable, Runnable {
         }
     }
 
+    void setBuildStartTime(Date date) {
+        buildStartTime = date;
+    }
+
     /**
      * Returns just the filename from the File object, i.e. no path information
      * included. So if the File instance represents c:\java\ant\build.xml
@@ -275,7 +279,7 @@ public class Project implements Serializable, Runnable {
     }
 
     void waitForNextBuild() throws InterruptedException {
-        long waitTime = getTimeToNextBuild();
+        long waitTime = getTimeToNextBuild(new Date());
         if (needToWaitForNextBuild(waitTime)) {
             info("next build in " + Util.formatTime(waitTime));
             synchronized (waitMutex) {
@@ -285,17 +289,18 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    private long getTimeToNextBuild() {
-        Date now = new Date();
+    long getTimeToNextBuild(Date now) {
         long waitTime = schedule.getTimeToNextBuild(now, getBuildInterval());
         if (waitTime == 0) {
             // check for the exceptional case that we're dealing with a
             // project that has just built within a minute time
             if (buildStartTime != null) {
                 long millisSinceLastBuild = now.getTime() - buildStartTime.getTime();
-                if (millisSinceLastBuild < 60000L) {
+                if (millisSinceLastBuild < Schedule.ONE_MINUTE) {
                     debug("build finished within a minute, getting new time to next build");
-                    waitTime = schedule.getTimeToNextBuild(new Date(now.getTime() + 60000L), getBuildInterval());
+                    Date oneMinuteInFuture = new Date(now.getTime() + Schedule.ONE_MINUTE);
+                    waitTime = schedule.getTimeToNextBuild(oneMinuteInFuture, getBuildInterval());
+                    waitTime += Schedule.ONE_MINUTE;
                 }
             }
         }
