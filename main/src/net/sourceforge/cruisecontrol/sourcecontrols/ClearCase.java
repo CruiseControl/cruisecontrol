@@ -70,7 +70,7 @@ public class ClearCase implements SourceControl {
     private String _viewPath;
 
     /**  The branch to check for modifications */
-    private String _branch = null;
+    private String _branch;
     private boolean _recursive = true;
 
     /**  Date format required by commands passed to Clear Case */
@@ -93,7 +93,7 @@ public class ClearCase implements SourceControl {
     final static String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
 
     /**
-     *  Sets the local working copy to use when making queries.
+     * Sets the local working copy to use when making queries.
      *
      *@param  path
      */
@@ -103,7 +103,7 @@ public class ClearCase implements SourceControl {
     }
 
     /**
-     *  Sets the branch that we're concerned about checking files into.
+     * Sets the branch that we're concerned about checking files into.
      *
      *@param  branch
      */
@@ -111,6 +111,9 @@ public class ClearCase implements SourceControl {
         _branch = branch;
     }
 
+    /**
+     * Set whether to check against sub-folders in the view path
+     */
     public void setRecursive(boolean b) {
         _recursive = b;
     }

@@ -81,12 +81,6 @@ public class P4 implements SourceControl {
     private String _property;
     private String _propertyOnDelete;
 
-    /**
-     *  Constructor for P4Element. Doesn't do much.
-     */
-    public P4() {
-    }
-
     //Setters called by PluginXMLHelper
     public void setPort(String P4Port) {
         this._P4Port = P4Port;

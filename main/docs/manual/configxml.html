@@ -188,8 +188,8 @@
 
          <hr>
 
-         <p><a name="modificationset"><span class="small">ModificationSet</span></p>
-	 <p>Set of modifications collected from all included SourceControl elements</p>
+         <p><a name="modificationset"><span class="small">ModificationSet</span><br/>
+	 Set of modifications collected from all included SourceControl elements</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -208,8 +208,218 @@
             </tr>
          </table>
 
+         <p><a name="clearcase"><span class="small">ClearCase</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">branch</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The ClearCase branch</td>
+            </tr>
+            <tr>
+               <td class="tabledata">recursive</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether to check sub-folders in the viewpath; defaults to true</td>
+            </tr>
+            <tr>
+               <td class="tabledata">viewpath</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Local working copy to use when making queries</td>
+            </tr>
+         </table>
 
-         <hr>
+         <p><a name="cvs"><span class="small">CVS</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">cvsroot</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">cvsroot that would be appropriate for the following command: <i>cvs -d CVSROOT -q log -N -d "&gt;lastbuildtime"</i></td>
+            </tr>
+            <tr>
+               <td class="tabledata">defaultbranchonly</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Whether or not to check on the default branch only; defaults to false</td>
+            </tr>
+            <tr>
+               <td class="tabledata">localworkingcopy</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Relative or absolute path to the local working copy</td>
+            </tr>
+            <tr>
+               <td class="tabledata">tag</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Set the cvs tag.  Note this should work with names, numbers, and anything else you can put on <i>log -rTAG</i></td>
+            </tr>
+         </table>
+
+         <p><a name="filesystem"><span class="small">FileSystem</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">folder</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Root folder of the directories to scan</td>
+            </tr>
+         </table>
+
+         <p><a name="mks"><span class="small">MKS</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">localworkingcopy</td>
+               <td class="tabledata">No?</td>
+               <td class="tabledata">Path to the local working copy</td>
+            </tr>
+            <tr>
+               <td class="tabledata">mksroot</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Set MKSROOT</td>
+            </tr>
+         </table>
+
+         <p><a name="p4"><span class="small">Perforce</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">port</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+            <tr>
+               <td class="tabledata">client</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+            <tr>
+               <td class="tabledata">user</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+            <tr>
+               <td class="tabledata">view</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+         </table>
+
+         <p><a name="pvcs"><span class="small">PVCS</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">pvcsproject</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+            <tr>
+               <td class="tabledata">pvcssubproject</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+         </table>
+
+         <p><a name="starteam"><span class="small">StarTeam</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">folder</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The repository folder</td>
+            </tr>
+            <tr>
+               <td class="tabledata">password</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Password for the StarTeam user</td>
+            </tr>
+            <tr>
+               <td class="tabledata">starteamurl</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata"></td>
+            </tr>
+            <tr>
+               <td class="tabledata">username</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">StarTeam user name</td>
+            </tr>
+         </table>
+
+         <p><a name="vss"><span class="small">Visual Source Safe</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dateformat</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The date format to use for querying VSS and processing reports; default is <i>MM/dd/yy</i>.  If your computer is set to a different region, you may wish to use a format such as <i>dd/MM/yy</i>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">login</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The VSS login</td>
+            </tr>
+            <tr>
+               <td class="tabledata">ssdir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The VSS project to get history from</td>
+            </tr>
+         </table>
+
+         <p><a name="vssjournal"><span class="small">Visual Source Safe, Journal File Implementation</span></p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">journalfile</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Full path to journal file.  Example: <i>c:/vssdata/journal/journal.txt</i></td>
+            </tr>
+            <tr>
+               <td class="tabledata">lastbuilddate</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The last build date</td>
+            </tr>
+            <tr>
+               <td class="tabledata">ssdir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The VSS project to get history from</td>
+            </tr>
+         </table>
+
+         <hr/>
 
          <p><a name="schedule"><span class="small">Schedule</span><br>
          CruiseControl allows the user to schedule <i>n</i> different builds, either on interval or triggered to
@@ -227,8 +437,8 @@
             </tr>
          </table>
 
-         <a name="antbuilder"><span class="small">AntBuilder</span>
-         <p>Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
+         <p><a name="antbuilder"><span class="small">AntBuilder</span><br/>
+	  Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
          every 5 builds, or run more comprehensive (and time intensive) system tests every 10 builds.  We can also
          schedule an official build to run every night at midnight, if we so desire.  AntBuilder runs Ant in as a
          separate Java process and you can specify settings for the virtual machine using the nested jvmarg element.</p>
@@ -365,8 +575,8 @@
             </tr>
          </table>
 
-         <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span></p>
-	 <p>Publisher that sends an email with a URL to the build results JSP.</p>
+         <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br/>
+	 Publisher that sends an email with a URL to the build results JSP.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -405,8 +615,8 @@
             </tr>
          </table>
 
-         <p><a name="htmlemailpublisher"><span class="small">HTMLEmailPublisher</span></p>
-         <p>Publisher that sends an email with the build results embedded.</p>
+         <p><a name="htmlemailpublisher"><span class="small">HTMLEmailPublisher</span><br/>
+         Publisher that sends an email with the build results embedded.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
