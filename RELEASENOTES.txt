@@ -17,7 +17,11 @@ build.xml
 HTMLEmailPublisher
 ----------------------
 * xslFileNames now encapsulated to allow for easier overriding - Patch by Patrick Lisser
-* added checkstyle.xsl - Patch by Dan Rollo
+* Added checkstyle.xsl - Patch by Dan Rollo
+
+index.jsp
+----------------------
+* Added missing closing tag for unordered list - Patch by Esa Laine
 
 main.jsp
 ----------------------
