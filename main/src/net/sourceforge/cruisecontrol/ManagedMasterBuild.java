@@ -58,7 +58,7 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
         super(args);
         //When managed, the properties file will only be loaded once.
         try {
-            props = new CruiseControlProperties(_propsFileName);
+            props = new ProjectPropertiesHelper(_propsFileName);
         } catch (IOException ioe) {
             ioe.printStackTrace();
             System.err.println("Error loading properties file. Stopping.");
