@@ -1,30 +1,72 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 500
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import java.io.*;
 import java.util.*;
 
+/**
+ * @author <a href="mailto:pdjulius@thoughtworks.com">Paul Julius</a>
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author <a href="mailto:emeade@geekfarm.org">Erik Meade</a>
+ */
+
 public class CruiseControlProperties {
 
     public static final String PROPS_NAME_JVM_ARG = "cc.props";
-    
-    public static final String DEFAULT_PROPERTIES_FILENAME = 
+
+    public static final String DEFAULT_PROPERTIES_FILENAME =
         "cruisecontrol.properties";
 
     private  List auxLogProperties = new ArrayList();
     private  Set buildmaster;
     private  Set notifyOnFailure;
-    
+
     private  File currentBuildStatusFile;
 
     private  boolean debug;
-    private  boolean verbose;    
-    private  boolean useEmailMap;    
+    private  boolean verbose;
+    private  boolean useEmailMap;
     private  boolean isIntervalAbsolute;
     private  boolean mapSourceControlUsersToEmail;
     private  boolean spamWhileBroken = true;
     private  long buildInterval;
     private  int cleanBuildEvery;
-    
+
     private  String defaultEmailSuffix;
     private  String mailhost;
     private  String returnAddress;
@@ -38,18 +80,18 @@ public class CruiseControlProperties {
     private  String reportSuccess;
 
     public CruiseControlProperties(String propertiesFile) throws IOException {
-        
-        if (propertiesFile == null 
+
+        if (propertiesFile == null
             || propertiesFile.trim().length() <= 0) {
             propertiesFile = DEFAULT_PROPERTIES_FILENAME;
         }
-        
+
         //Try to load the actual properties file.
         loadProperties(propertiesFile);
     }
 
     /**
-     * Load properties file, see cruisecontrol.properties for descriptions of 
+     * Load properties file, see cruisecontrol.properties for descriptions of
      * properties.
      */
     private  void loadProperties(String propsFileName) throws IOException {
@@ -80,28 +122,28 @@ public class CruiseControlProperties {
         debug = getBooleanProperty(props, "debug");
         verbose = getBooleanProperty(props, "verbose");
         isIntervalAbsolute = getBooleanProperty(props, "absoluteInterval");
-        mapSourceControlUsersToEmail = 
+        mapSourceControlUsersToEmail =
             getBooleanProperty(props, "mapSourceControlUsersToEmail");
 
         defaultEmailSuffix = props.getProperty("defaultEmailSuffix");
-                
+
         mailhost = props.getProperty("mailhost");
-        
+
         servletURL = props.getProperty("servletURL");
-        if(servletURL.equals("")) {        
+        if(servletURL.equals("")) {
             throw new IllegalArgumentException(
             "servletURL not set correctly in " + propsFileName);
         }
-        
+
         returnAddress = props.getProperty("returnAddress");
-        if(returnAddress.equals("")) {        
+        if(returnAddress.equals("")) {
             throw new IllegalArgumentException(
             "returnAddress not set correctly in " + propsFileName);
         }
-        
+
         buildmaster = getSetFromString(props.getProperty("buildmaster"));
         notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
-        
+
         reportSuccess = props.getProperty("reportSuccess","always");
         if (!reportSuccess.equalsIgnoreCase("always") &&
             !reportSuccess.equalsIgnoreCase("fixes") &&
@@ -109,13 +151,13 @@ public class CruiseControlProperties {
                 throw new IllegalArgumentException(
                 "invalid value for reportSuccess in " + propsFileName);
         }
-        
+
         spamWhileBroken = getBooleanProperty(props, "spamWhileBroken");
 
-        logDir = props.getProperty("logDir"); 
+        logDir = props.getProperty("logDir");
         new File(logDir).mkdirs();
 
-        String buildStatusFileName = logDir + File.separator 
+        String buildStatusFileName = logDir + File.separator
                                      + props.getProperty("currentBuildStatusFile");
         currentBuildStatusFile = new File(buildStatusFileName);
         currentBuildStatusFile.createNewFile();
@@ -123,14 +165,14 @@ public class CruiseControlProperties {
         antFile = props.getProperty("antfile");
         antTarget = props.getProperty("target");
         cleanAntTarget = props.getProperty("cleantarget");
-        
+
         try {
             cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
         } catch (NumberFormatException nfe) {
             throw new IllegalArgumentException(
             "cleanBuildEvery not set correctly in " + propsFileName);
         }
-        
+
         labelIncrementerClassName = props.getProperty("labelIncrementerClass");
         if (labelIncrementerClassName == null) {
             labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
@@ -154,7 +196,7 @@ public class CruiseControlProperties {
     /**
      * Forms a set of unique words/names from the comma
      * delimited list provided. Maybe empty, never null.
-     * 
+     *
      * @param commaDelim String containing a comma delimited list of words,
      *                   e.g. "paul,Paul, Tim, Alden,,Frank".
      * @return Set of words; maybe empty, never null.
@@ -179,13 +221,13 @@ public class CruiseControlProperties {
      * map filename, whether or not the email map is being
      * used. For example, if the filename is blank
      * or null, then the map is not being used.
-     * 
+     *
      * @param emailMapFileName
      *               Name provided by the user.
      * @return true if the email map should be consulted, otherwise false.
      */
     private  boolean usingEmailMap(String emailMapFileName) {
-        //If the user specified name is null or blank or doesn't exist, then 
+        //If the user specified name is null or blank or doesn't exist, then
         //  the email map is not being used.
         if (emailMapFileName == null || emailMapFileName.trim().length() == 0) {
             return false;
