@@ -43,6 +43,7 @@ import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
 import org.apache.tools.ant.Task;
+import org.apache.log4j.Category;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -55,7 +56,10 @@ import org.apache.tools.ant.Task;
  */
 public class Vss extends SourceControlElement {
 
-    private final String VSS_TEMP_FILE = "vsstempfile.txt";    
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(Vss.class.getName());
+
+    private final String VSS_TEMP_FILE = "vsstempfile.txt";
     protected SimpleDateFormat vssDateTimeFormat;
     
 	private String ssdir;
@@ -228,17 +232,6 @@ public class Vss extends SourceControlElement {
 		return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
 	}
 
-  	/**
-	 *  pretty logging
-	 *
-	 *@param  mod
-	 */
-	private void logModification(Modification mod) {
-		log("Type: " + mod.type + " " + mod.fileName);
-		log("User: " + mod.userName + " Date: " + mod.modifiedTime);
-		log("");
-	}
-
 	// ***** the rest of this is just parsing the vss output *****
 
     //(PENDING) Extract class VSSEntryParser
@@ -299,7 +292,6 @@ public class Vss extends SourceControlElement {
         }
 
 		modifications.add(mod);
-		logModification(mod);
 	}
 
 	/**

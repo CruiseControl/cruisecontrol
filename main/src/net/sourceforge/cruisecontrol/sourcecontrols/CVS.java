@@ -48,6 +48,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
+import org.apache.log4j.Category;
 
 /**
  * This class implements the SourceControlElement methods for a CVS repository.
@@ -64,7 +65,10 @@ import org.apache.tools.ant.types.*;
  * @author <a href="mailto:mcclain@looneys.net">McClain Looney</a>
  */
 public class CVS extends SourceControlElement {
-    
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(CVS.class.getName());
+
     /**
      * The caller must provide the CVSROOT to use when calling CVS.
      */
@@ -265,8 +269,7 @@ public class CVS extends SourceControlElement {
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild));
         } catch (Exception e) {
-            log("Log command failed to execute succesfully", Project.MSG_ERR);
-            e.printStackTrace();
+            log.error("Log command failed to execute succesfully", e);
         }
         
         if (mods == null) {
@@ -347,7 +350,7 @@ public class CVS extends SourceControlElement {
         if (local != null) {
             if (System.getProperty("os.name").equalsIgnoreCase("Linux")
             && !(preJava13())) {
-                log("Executing: " + command + " in directory: "
+                log.debug("Executing: " + command + " in directory: "
                 + getLocalPath());
                 
                 // Use reflection to call this JDK 1.3 method
@@ -371,7 +374,7 @@ public class CVS extends SourceControlElement {
         }
         
         if (p == null) {
-            log("Executing: " + command);
+            log.debug("Executing: " + command);
             p = Runtime.getRuntime().exec(command.getCommandline());
         }
         
@@ -511,8 +514,7 @@ public class CVS extends SourceControlElement {
                 + timeStamp + " GMT");
                 updateLastModified(nextModification.modifiedTime);
             } catch (ParseException pe) {
-                log("Error parsing cvs log for date and time!", Project.MSG_ERR);
-                pe.printStackTrace();
+                log.error("Error parsing cvs log for date and time", pe);
                 return null;
             }
             

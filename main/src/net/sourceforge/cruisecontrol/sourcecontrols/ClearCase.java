@@ -43,6 +43,7 @@ import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
 import org.apache.tools.ant.Task;
+import org.apache.log4j.Category;
 
 /**
  *  This class implements the SourceControlElement methods for a Clear Case
@@ -54,6 +55,9 @@ import org.apache.tools.ant.Task;
  * @author Ralf Krakowski
  */
 public class ClearCase extends SourceControlElement {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(ClearCase.class.getName());
 
   /**
    * Set of the authors that modified files. With Clear Case, it corresponds
@@ -182,7 +186,7 @@ public class ClearCase extends SourceControlElement {
         command += " -nco -since " + lastBuildDate;
     command += " -fmt \"%u"+DELIMITER+"%Nd"+DELIMITER+"%n"+DELIMITER+"%o"+DELIMITER+"%Nc"+END_OF_STRING_DELIMITER+"\\n\" " + _viewPath;
 
-    log("Command to execute : " + command);
+    log.debug("Command to execute : " + command);
         List modifications = null;
     try {
       Process p = Runtime.getRuntime().exec(command);
@@ -195,8 +199,7 @@ public class ClearCase extends SourceControlElement {
 
       p.waitFor();
     } catch (Exception e) {
-      log("Error in executing the Clear Case command : " + e);
-      e.printStackTrace();
+      log.error("Error in executing the Clear Case command : ", e);
     }
 
     if (modifications == null) {

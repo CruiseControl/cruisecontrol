@@ -41,8 +41,7 @@ import java.text.*;
 
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
-
-import org.apache.tools.ant.Project;
+import org.apache.log4j.Category;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -62,6 +61,9 @@ import org.apache.tools.ant.Project;
  *  @author Jonny Boman
  */
 public class VssJournal extends SourceControlElement {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(VssJournal.class.getName());
 
     public static final SimpleDateFormat VSS_OUT_FORMAT =
         new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma");
@@ -207,19 +209,8 @@ public class VssJournal extends SourceControlElement {
             getAntTask().getProject().setProperty(_property, "true");
         }
 
-        log("Found "+_modifications.size()+" modified files");
+        log.info("Found "+_modifications.size()+" modified files");
         return _modifications;
-    }
-
-    /**
-     *  pretty logging
-     *
-     *@param  mod
-     */
-    private void logModification(Modification mod) {
-        log("Type: " + mod.type + " " + mod.fileName, Project.MSG_VERBOSE);
-        log("User: " + mod.userName + " Date: " + mod.modifiedTime, Project.MSG_VERBOSE);
-        log("", Project.MSG_VERBOSE);
     }
 
     /**
@@ -294,7 +285,6 @@ public class VssJournal extends SourceControlElement {
         // Add the modification and the user's email
         _modifications.add(mod);
         _emails.add(mod.userName);
-        logModification(mod);
     }
 
     /**
