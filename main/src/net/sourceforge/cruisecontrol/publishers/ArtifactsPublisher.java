@@ -139,7 +139,7 @@ public class ArtifactsPublisher implements Publisher {
 
     public void validate() throws CruiseControlException {
         if (destDir == null) {
-            throw new CruiseControlException("'destdir' not specified in configuration file.");
+            throw new CruiseControlException("'dest' not specified in configuration file.");
         }
 
         if (targetDirectory == null && targetFile == null) {
