@@ -64,6 +64,7 @@ public class AntBuilder extends Builder {
     private String _buildFile;
     private String _target;
     private String _tempFileName = "log.xml";
+    private String _antScript;
     List _args = new ArrayList();
 
 
@@ -84,7 +85,7 @@ public class AntBuilder extends Builder {
 
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties, isLoggerSupported()));
+            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties, isLoggerSupported(), _antScript != null, isWindows()));
         } catch (IOException e) {
             throw new CruiseControlException(
                     "Encountered an IO exception while attempting to execute Ant."
@@ -136,6 +137,10 @@ public class AntBuilder extends Builder {
         return buildLogElement;
     }
 
+    public void setAntScript(String antScript) {
+        _antScript = antScript;
+    }
+
     public void setTempFile(String tempFileName) {
         _tempFileName = tempFileName;
     }
@@ -179,21 +184,37 @@ public class AntBuilder extends Builder {
         }
     }
 
+    protected boolean isWindows() {
+        return System.getProperty("os.name").indexOf("Windows") > 0;
+    }
+
     /**
      *  construct the command that we're going to execute.
      *  @param buildProperties Map holding key/value pairs of arguments to the build process
      *  @return String[] holding command to be executed
      */
-    protected String[] getCommandLineArgs(Map buildProperties, boolean useLogger) {
+    protected String[] getCommandLineArgs(Map buildProperties, boolean useLogger, boolean useScript, boolean isWindows) {
         List al = new ArrayList();
-        al.add("java");
-        Iterator argsIterator = _args.iterator();
-        while(argsIterator.hasNext()) {
-            al.add(((JVMArg) argsIterator.next()).getArg());
+
+        if(useScript) {
+            if(isWindows) {
+                al.add("cmd.exe");
+                al.add("/C");
+                al.add(_antScript);
+            } else {
+                al.add(_antScript);
+            }
+        } else {
+            al.add("java");
+            Iterator argsIterator = _args.iterator();
+            while(argsIterator.hasNext()) {
+                al.add(((JVMArg) argsIterator.next()).getArg());
+            }
+            al.add("-classpath");
+            al.add(System.getProperty("java.class.path"));
+            al.add("org.apache.tools.ant.Main");
         }
-        al.add("-classpath");
-        al.add(System.getProperty("java.class.path"));
-        al.add("org.apache.tools.ant.Main");
+
         if(useLogger) {
             al.add("-logger");
             al.add("org.apache.tools.ant.XmlLogger");
