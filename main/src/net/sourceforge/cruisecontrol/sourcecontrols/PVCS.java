@@ -73,8 +73,6 @@ public class PVCS implements SourceControl {
     private static final String DOUBLE_QUOTE = "\"";
 
     private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
     private Date lastBuild;
 
     private String pvcsbin;
@@ -132,12 +130,16 @@ public class PVCS implements SourceControl {
         this.outDateFormat = new SimpleDateFormat(outDateFormat);
     }
 
+    /**
+     * Unsupported by PVCS.
+     */
     public void setProperty(String property) {
-        this.property = property;
     }
 
+    /**
+     * Unsupported by PVCS.
+     */
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
