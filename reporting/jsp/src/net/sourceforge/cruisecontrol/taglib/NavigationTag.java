@@ -43,17 +43,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
 
 import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
  *
  */
 public class NavigationTag extends CruiseControlBodyTagSupport {
     public static final String LABEL_SEPARATOR = "L";
-    public static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String URL_ATTR = "url";
     public static final String LOG_FILE_ATTR = "logfile";
@@ -63,11 +64,11 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
 
     private BuildInfo[] buildInfo; // the log files in the log directory.
     private int count;  // How many times around the loop have we gone.
-    private DateFormat dateFormat = US_DATE_FORMAT;
 
     private int startingBuildNumber = 0;
     private int finalBuildNumber = Integer.MAX_VALUE;
     private int endPoint;
+    private DateFormat dateFormat = null;
 
     private String extractLogNameFromFileName(String fileName) {
         return fileName.substring(0, fileName.lastIndexOf(".xml"));
@@ -97,7 +98,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
             err(e);
         }
 
-        return dateFormat.format(date) + label;
+        return getDateFormat().format(date) + label;
     }
 
     public int doStartTag() throws JspException {
@@ -170,6 +171,13 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
      */
     public void setDateFormat(String dateFormatString) {
         dateFormat = new SimpleDateFormat(dateFormatString);
+    }
+    
+    private DateFormat getDateFormat() {
+        if (dateFormat == null) {
+            dateFormat = DateUtil.createDateFormat(getLocale());
+        }
+        return dateFormat;
     }
 
 }

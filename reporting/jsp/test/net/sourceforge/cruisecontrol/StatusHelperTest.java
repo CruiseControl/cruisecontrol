@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 import java.util.Iterator;
 import java.io.File;
@@ -87,7 +88,7 @@ public class StatusHelperTest extends TestCase {
     }
 
     public void testGetLastBuildTimeString() throws IOException {
-        assertNull(helper.getLastBuildTimeString());
+        assertNull(helper.getLastBuildTimeString(Locale.US));
 
         helper.setProjectDirectory(logDir);
         assertEquals("failed", helper.getLastBuildResult());

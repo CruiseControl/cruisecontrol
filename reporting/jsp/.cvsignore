@@ -6,3 +6,7 @@ checkstyleResults.txt
 tmp
 testresults
 override.properties
+.classpath
+.project
+scrap.jpage
+bin

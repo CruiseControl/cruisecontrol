@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2003, ThoughtWorks, Inc.
+ * Copyright (c) 2004, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,63 +34,39 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.util;
 
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
-import net.sourceforge.cruisecontrol.taglib.CruiseControlTagSupport;
-import net.sourceforge.cruisecontrol.util.DateUtil;
+import junit.framework.TestCase;
 
 /**
- * @author Jared Richardson
- * User: jfredrick
- * Adapted from StatusPage.java, submitted by Jared to the cruisecontrol-devel mailing list.
+ * Test case for the utility date class.
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class StatusHelper {
-    private File newestLogfile;
-
-    private static final String PASSED = "passed";
-    private static final String FAILED = "failed";
-
-    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
-
-    public void setProjectDirectory(File directory) {
-        newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
+public class DateUtilTest extends TestCase {
+    
+    /** Create a formatter for US */
+    public void testCreateUsDateFormatter() {
+        String expectedPattern = "MM/dd/yyyy HH:mm:ss";
+        String actualPattern = DateUtil.createDateFormat(Locale.US).toPattern();
+        
+        assertEquals(expectedPattern, actualPattern);
     }
 
-    public String getLastBuildResult() {
-        if (newestLogfile == null) {
-            return null;
-        }
-        String filename = newestLogfile.getName();
-
-        // passing log file name is of form log20020102030405L.*.xml
-        // look for L
-        if (filename.length() > 16 && filename.charAt(17) == 'L') {
-            return PASSED;
-        }
-
-        return FAILED;
+    /** Create a formatter for UK */
+    public void testCreateUkDateFormatter() {
+        String expectedPattern = "dd/MM/yyyy HH:mm:ss";
+        String actualPattern = DateUtil.createDateFormat(Locale.UK).toPattern();
+        
+        assertEquals(expectedPattern, actualPattern);
     }
 
-    public String getLastBuildTimeString(Locale locale) {
-        if (newestLogfile == null) {
-            return null;
-        }
-        String filename = newestLogfile.getName();
-        String dateFromFilename = filename.substring(3, 17);
-        String dateString = "error";
-        try {
-            Date date = LOG_TIME_FORMAT_SECONDS.parse(dateFromFilename);
-            dateString = DateUtil.createDateFormat(locale).format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return dateString;
+    /** Create a formatter for Other */
+    public void testCreateOtherDateFormatter() {
+        String expectedPattern = "yyyy/MM/dd HH:mm:ss";
+        String actualPattern = DateUtil.createDateFormat(Locale.CANADA_FRENCH).toPattern();
+        
+        assertEquals(expectedPattern, actualPattern);
     }
-
 }

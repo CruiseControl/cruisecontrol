@@ -104,7 +104,7 @@
                    final String result = statusHelper.getLastBuildResult();
          %>        <tr><td><a href="buildresults/<%=project%>"><%=project%></a></td><%
                  %><td class="index-<%=result%>" align="center"><%=result%></td><%
-                 %><td align="center"><%=statusHelper.getLastBuildTimeString()%></td></tr>
+                 %><td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td></tr>
  <%
                }
          %>    </tbody>
