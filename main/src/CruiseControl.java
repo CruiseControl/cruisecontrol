@@ -50,7 +50,8 @@ import net.sourceforge.cruisecontrol.Main;
 
 public final class CruiseControl {
 
-    private CruiseControl() { }
+    private CruiseControl() { 
+    }
 
     public static void main(String[] args) {
         Main.main(args);
