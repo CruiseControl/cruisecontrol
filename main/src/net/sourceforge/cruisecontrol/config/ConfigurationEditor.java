@@ -177,11 +177,12 @@ public class ConfigurationEditor {
 
         //Traverse the elements and build tree nodes
         List children = rootElem.getChildren();
+        PluginRegistry registry = PluginRegistry.createRegistry();
         for (int i = 0; i < children.size(); i++) {
             Element nextElem = (Element) children.get(i);
 
             final String elemName = nextElem.getName();
-            final PluginEditorPane editorPane = new PluginEditorPane(getPluginClass(elemName));
+            final PluginEditorPane editorPane = new PluginEditorPane(registry.getPluginClass(elemName));
             DefaultMutableTreeNode nextNode =
                     new DefaultMutableTreeNode(
                             new PluginTreeNodeData(editorPane, elemName));
@@ -198,12 +199,6 @@ public class ConfigurationEditor {
 
             addChildrenToTree(nextElem, nextNode);
         }
-    }
-
-    private static Class getPluginClass(String elemName)
-            throws CruiseControlException {
-
-        return PluginRegistry.getDefaultPluginRegistry().getPluginClass(elemName);
     }
 
     /**
