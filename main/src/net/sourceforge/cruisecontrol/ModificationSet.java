@@ -80,7 +80,7 @@ public class ModificationSet extends Task {
             while (_lastModified > (_now.getTime() - _quietPeriod)) {
                 long sleepTime = _quietPeriod - (_now.getTime() - _lastModified);
 
-                getProject().log("[modificationset] Too much repository activity...sleeping for: " + (sleepTime/1000.0) + " seconds.");
+                log("[modificationset] Too much repository activity...sleeping for: " + (sleepTime/1000.0) + " seconds.");
                 Thread.sleep(sleepTime);
 
                 _now = new Date();

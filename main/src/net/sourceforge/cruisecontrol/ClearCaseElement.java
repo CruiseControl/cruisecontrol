@@ -33,17 +33,17 @@ import org.apache.tools.ant.Task;
  * @version May 25, 2001
  */
 
-public class ClearCaseElement implements SourceControlElement {
+public class ClearCaseElement extends SourceControlElement {
 
   /**
    * Date format required by commands passed to Clear Case
    */
-  public SimpleDateFormat _inDateFormat  = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+  static final SimpleDateFormat IN_DATE_FORMAT  = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
   /**
    * Date format returned in the output of Clear Case commands.
    */
-  public SimpleDateFormat _outDateFormat = new SimpleDateFormat("yyyyMMdd.HHmmss");
+  static final SimpleDateFormat OUT_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
   /**
    * Set of the authors that modified files.
@@ -57,11 +57,6 @@ public class ClearCaseElement implements SourceControlElement {
   private Date _lastModified;
 
   /**
-   * The task shoulb be provided by the caller.
-   */
-  private Task _task;
-
-  /**
    * The path of the clear case view
    */
   private String _viewPath;
@@ -71,13 +66,16 @@ public class ClearCaseElement implements SourceControlElement {
    */
   private String _branch = null;
   private boolean _recursive = true;
-  /**
-   * Allows the caller to set the task containing this element.
-   */
-  public void setTask(Task task) {
-    _task = task;
-  }
 
+   /**
+    * The String prepended to log messages from the source control element.
+    *
+    * @return prefix for log messages
+    */    
+  protected String logPrefix() {
+    return "[clearcaseelement]";
+  }
+  
   /**
    * Returns a Set of email addresses. since Clear Case doesn't track actual
    * email addresse, we just return the usernames, which may correspond to emails ids.
@@ -103,7 +101,7 @@ public class ClearCaseElement implements SourceControlElement {
    * Sets the local working copy to use when making queries.
    */
   public void setViewpath(String path) {
-    _viewPath = _task.getProject().resolveFile(path).getAbsolutePath();
+    _viewPath = getTask().getProject().resolveFile(path).getAbsolutePath();
   }
 
   /**
@@ -116,14 +114,7 @@ public class ClearCaseElement implements SourceControlElement {
   public void setRecursive(boolean b) {
   	_recursive = b;
   }
-
-  /**
-   * Logs a message
-   */
-  public void log(String message) {
-    _task.log("[clearcaseelement]" + message);
-  }
-
+  
   /**
    * Returns an {@link java.util.ArrayList ArrayList} of {@link Modification} detailing
    * all the changes between now and the last build.
@@ -136,7 +127,7 @@ public class ClearCaseElement implements SourceControlElement {
    */
   public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
     ArrayList modifications = null;
-    String lastBuildDate = _inDateFormat.format(lastBuild);
+    String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
     /* let's try a different clearcase command--this one just takes waaaaaaaay too long.
     String command = "cleartool find " + _viewPath +
       " -type f -exec \"cleartool lshistory" +
@@ -238,7 +229,7 @@ public class ClearCaseElement implements SourceControlElement {
 
 
     try {
-      mod.modifiedTime = _outDateFormat.parse(timeStamp);
+      mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
       updateLastModified(mod.modifiedTime);
     } catch (ParseException e) {
       mod.modifiedTime = null;
