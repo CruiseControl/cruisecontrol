@@ -92,4 +92,26 @@
             <required>false</required>
         </attribute>
     </tag>
+    <tag>
+        <name>tabsheet</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.TabSheetTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Creates a tab sheet that tabs can be placed into.
+        </info>
+    </tag>
+    <tag>
+        <name>tab</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.TabTab</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>Creates a tab that selected content gets put into.</info>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>label</name>
+            <required>true</required>
+        </attribute>
+    </tag>
 </taglib>
