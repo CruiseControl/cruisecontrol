@@ -219,14 +219,25 @@ public class ProjectXMLHelper {
         return modificationSet;
     }
 
-    public LabelIncrementer getLabelIncrementer() {
-        String classname = (String) plugins.get("labelincrementer");
-        try {
-            return (LabelIncrementer) Class.forName(classname).newInstance();
-        } catch (Exception e) {
-            LOG.error("Error instantiating label incrementer, using DefaultLabelIncrementer.", e);
-            return new DefaultLabelIncrementer();
+    public LabelIncrementer getLabelIncrementer() throws CruiseControlException {
+        LabelIncrementer incrementer;
+        Element labelIncrementerElement = projectElement.getChild("labelincrementer");
+        if (labelIncrementerElement != null) {
+            incrementer = (LabelIncrementer) configurePlugin(labelIncrementerElement, false);
+        } else {
+            String classname = (String) plugins.get("labelincrementer");
+            try {
+                incrementer = (LabelIncrementer) Class.forName(classname).newInstance();
+            } catch (Exception e) {
+                LOG.error(
+                    "Error instantiating label incrementer named "
+                        + classname
+                        + ". Using DefaultLabelIncrementer instead.",
+                    e);
+                incrementer = new DefaultLabelIncrementer();
+            }
         }
+        return incrementer;
     }
 
     /**

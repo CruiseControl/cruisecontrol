@@ -83,6 +83,7 @@ ProjectXMLHelper
 * 'pause' and 'maven' are now registered by default
 * Schedule is now pluggable.
 * bootstrapper, log, and publishers are no longer required elements.
+* can now set attributes on labelIncrementers (as opposed to just registering them). - Patch by Jeffrey Fredrick
 
 PVCS
 ----------------------

@@ -60,8 +60,8 @@ public class DefaultLabelIncrementerTest extends TestCase {
         assertTrue(incrementer.isValidLabel("x#88"));
         
         incrementer = new DefaultLabelIncrementer();
-        assertFalse(incrementer.isValidLabel("x.88"));
-        assertTrue(incrementer.isValidLabel("x#88"));
+        assertTrue(incrementer.isValidLabel("x.88"));
+        assertFalse(incrementer.isValidLabel("x#88"));
     }
 
     public void testIncrementLabel() {
@@ -74,7 +74,7 @@ public class DefaultLabelIncrementerTest extends TestCase {
         assertTrue(incrementer.isPreBuildIncrementer());
 
         incrementer = new DefaultLabelIncrementer();
-        assertTrue(incrementer.isPreBuildIncrementer());
+        assertFalse(incrementer.isPreBuildIncrementer());
     }
 
     protected void tearDown() throws Exception {

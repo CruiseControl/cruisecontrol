@@ -54,9 +54,9 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     private static final Logger LOG =
         Logger.getLogger(DefaultLabelIncrementer.class);
 
-    private static boolean preIncrement = false;
+    private boolean preIncrement = false;
 
-    private static String separator = ".";
+    private String separator = ".";
 
     /**
      * Increments the label when a successful build occurs.

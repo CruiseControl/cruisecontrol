@@ -42,6 +42,8 @@ import java.io.Writer;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+
 import org.jdom.Element;
 
 public class ProjectXMLHelperTest extends TestCase {
@@ -101,6 +103,16 @@ public class ProjectXMLHelperTest extends TestCase {
         helper = new ProjectXMLHelper(configFile, "project2");
         ModificationSet modSet = helper.getModificationSet();
         assertEquals(10 * ONE_SECOND, modSet.getQuietPeriod());
+    }
+
+    public void testGetLabelIncrementer() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project2");
+        DefaultLabelIncrementer incrementer = (DefaultLabelIncrementer) helper.getLabelIncrementer();
+        assertTrue(incrementer.isValidLabel("build#9"));
+        
+        helper = new ProjectXMLHelper(configFile, "project1");
+        incrementer = (DefaultLabelIncrementer) helper.getLabelIncrementer();
+        assertFalse(incrementer.isValidLabel("build#9"));
     }
 
     public void testGetLogDir() throws CruiseControlException {
@@ -193,6 +205,7 @@ public class ProjectXMLHelperTest extends TestCase {
                 + "    <log dir='c:/foo' encoding='utf-8' >"
                 + "      <merge file='blah' />"
                 + "    </log>"
+                + "    <labelincrementer separator='#' />"
                 + "  </project>"
                 + "</cruisecontrol>";
 
