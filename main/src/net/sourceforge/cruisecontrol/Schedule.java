@@ -152,6 +152,23 @@ public class Schedule {
      */
     protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now)
         throws CruiseControlException {
+        Builder builder = findBuilder(buildNumber, lastBuild, now);
+        
+        if (builder == null) {
+            long timeToNextBuild = getTimeToNextBuild(now, ONE_MINUTE);
+            Date futureDate = getFutureDate(now, timeToNextBuild);
+            builder = findBuilder(buildNumber, now, futureDate);
+        }
+        
+        if (builder == null) {
+            validate();
+            throw new CruiseControlException("configuration error not caught by validate? no builder selected");
+        }
+
+        return builder;
+    }
+
+    private Builder findBuilder(int buildNumber, Date lastBuild, Date now) throws CruiseControlException {
         Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
@@ -172,7 +189,8 @@ public class Schedule {
                 throw new CruiseControlException("The selected Builder is not properly configured");
             }
         }
-        throw new CruiseControlException("No Builder selected.");
+               
+        return null;
     }
 
     boolean builderDidntBuildToday(Date lastBuild, Date now, int buildTime) {
@@ -195,12 +213,12 @@ public class Schedule {
         return timeToNextBuild;
     }
 
-    private boolean ignoreIntervalSetting() {
+    private boolean hasOnlyTimeBuilders() {
         boolean onlyTimeBuilders = true;
         Iterator iterator = builders.iterator();
         while (iterator.hasNext()) {
             Builder builder = (Builder) iterator.next();
-            boolean isTimeBuilder = builder.getTime() > 0;
+            boolean isTimeBuilder = builder.getTime() != Builder.NOT_SET;
             if (!isTimeBuilder) {
                 onlyTimeBuilders = false;
                 break;
@@ -211,7 +229,7 @@ public class Schedule {
 
     long checkTimeBuilders(Date now, long proposedTime) {
         long timeToNextBuild = proposedTime;
-        if (ignoreIntervalSetting()) {
+        if (hasOnlyTimeBuilders()) {
             timeToNextBuild = Long.MAX_VALUE;
         }
         int nowTime = Util.getTimeFromDate(now);
@@ -219,7 +237,7 @@ public class Schedule {
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
             int thisBuildTime = builder.getTime();
-            boolean isTimeBuilder = thisBuildTime > 0;
+            boolean isTimeBuilder = thisBuildTime != Builder.NOT_SET;
             if (isTimeBuilder) {
                 long timeToThisBuild = Long.MAX_VALUE;
                 boolean isBeforeBuild = nowTime <= thisBuildTime;
@@ -307,7 +325,11 @@ public class Schedule {
 
         if (interval > ONE_YEAR) {
             throw new CruiseControlException(
-                "maximum interval value is " + MAX_INTERVAL_SECONDS + ", which is one year");
+                "maximum interval value is " + MAX_INTERVAL_SECONDS + " (one year)");
+        }
+        
+        if (hasOnlyTimeBuilders()) {
+            LOG.warn("schedule has all time based builders: interval value will be ignored.");
         }
     }
 
