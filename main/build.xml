@@ -312,7 +312,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
+    <target name="all" depends="clean,init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- Updates local code with cvs changes                    -->
