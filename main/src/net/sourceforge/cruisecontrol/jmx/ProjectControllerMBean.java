@@ -161,4 +161,10 @@ public interface ProjectControllerMBean {
     public void setBuildInterval(long buildInterval);
 
     public long getBuildInterval();
+    
+    /**
+     * Gets the human-readable version of the project status
+     * @return
+     */
+    public String getStatus();
 }
