@@ -78,21 +78,21 @@ public class Project implements Serializable {
 
     private int _buildCounter = 0;
     private Date _lastBuild;
-    private Date _lastSuccessfulBuild; // can differ from _lastBuild when _buildAfterFailed=false
+    //  can differ from _lastBuild when _buildAfterFailed=false
+    private Date _lastSuccessfulBuild;
     private boolean _wasLastBuildSuccessful = false;
     private String _label;
     private String _configFileName = "config.xml";
     private String _name;
     private SimpleDateFormat _formatter =
-            new SimpleDateFormat("yyyyMMddHHmmss");
+        new SimpleDateFormat("yyyyMMddHHmmss");
     private boolean _buildForced = false;
     private boolean _isPaused = false;
     private boolean _buildAfterFailed = true;
 
-	// this variable only exists at the moment for methods needed for 
-	// ProjectTest.testBuild()
-	private Date __now;
-
+    // this variable only exists at the moment for methods needed for 
+    // ProjectTest.testBuild()
+    private Date __now;
 
     /**
      * Enters an infinite loop that initializes the project from the config
@@ -103,7 +103,7 @@ public class Project implements Serializable {
         checkMutex();
         while (true) {
             try {
-                synchronized(mutex){
+                synchronized (mutex) {
                     while (_isPaused) {
                         mutex.wait(10 * ONE_MINUTE);
                     }
@@ -111,19 +111,24 @@ public class Project implements Serializable {
                 init();
                 build();
                 Date now = new Date();
-                long timeTillBuild = _schedule.getTimeToNextBuild(now, _sleepMillis);
-				_schedule.waitForNextBuild(timeTillBuild);
-            } catch (InterruptedException e) {
+                long timeTillBuild =
+                    _schedule.getTimeToNextBuild(now, _sleepMillis);
+                _schedule.waitForNextBuild(timeTillBuild);
+            }
+            catch (InterruptedException e) {
                 log.error("Interrupted while waiting:", e);
-            } catch (CruiseControlException e) {
+            }
+            catch (CruiseControlException e) {
                 log.error("", e);
             }
         }
     }
 
-	private void checkMutex() {
-		if (mutex==null) mutex = new Object();
-	}
+    private void checkMutex() {
+        if (mutex == null) {
+            mutex = new Object();
+        }
+    }
 
     /**
      *  Unless paused, runs any bootstrappers and then the entire build.
@@ -150,11 +155,15 @@ public class Project implements Serializable {
             // modifications. This is in fact current default behaviour.
             // Set by <project buildafterfailed="true/false">
             if (_buildAfterFailed && !_wasLastBuildSuccessful) {
-                log.info("Building anyway, since buildAfterFailed is true and last build failed.");
-            } else {
+                log.info(
+                    "Building anyway, since buildAfterFailed is true and last build failed.");
+            }
+            else {
                 if (_buildForced) {
-                    log.info("Building anyway, since build was explicitly forced.");
-                } else {
+                    log.info(
+                        "Building anyway, since build was explicitly forced.");
+                }
+                else {
                     return;
                 }
             }
@@ -162,15 +171,16 @@ public class Project implements Serializable {
 
         // Store modifications from last successful build, if they are different
         if (_lastBuild != null && !_lastBuild.equals(_lastSuccessfulBuild)) {
-            modifications = _modificationSet.getModifications(_lastSuccessfulBuild);
+            modifications =
+                _modificationSet.getModifications(_lastSuccessfulBuild);
         }
         cruisecontrolElement.addContent(modifications);
 
         now = _modificationSet.getNow();
 
         if (_labelIncrementer.isPreBuildIncrementer()) {
-            _label = _labelIncrementer.incrementLabel(_label,
-                    cruisecontrolElement);
+            _label =
+                _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
 
         // collect project information
@@ -178,15 +188,21 @@ public class Project implements Serializable {
 
         // BUILD
         _status = "Building";
-        cruisecontrolElement.addContent(_schedule.build(_buildCounter,
-                _lastBuild, now, getProjectPropertiesMap(now)).detach());
+        cruisecontrolElement.addContent(
+            _schedule
+                .build(
+                    _buildCounter,
+                    _lastBuild,
+                    now,
+                    getProjectPropertiesMap(now))
+                .detach());
 
         boolean buildSuccessful =
-                new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
+            new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
 
         if (!_labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-            _label = _labelIncrementer.incrementLabel(_label,
-                    cruisecontrolElement);
+            _label =
+                _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
 
         // collect log files and merge with CC log file
@@ -200,8 +216,9 @@ public class Project implements Serializable {
 
         Element logFileElement = new Element("property");
         logFileElement.setAttribute("name", "logfile");
-        logFileElement.setAttribute("value", _logFileName.substring(
-                _logFileName.lastIndexOf(File.separator)));
+        logFileElement.setAttribute(
+            "value",
+            _logFileName.substring(_logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
 
         writeLogFile(cruisecontrolElement);
@@ -228,7 +245,7 @@ public class Project implements Serializable {
         cruisecontrolElement = null;
 
         _status = "";
-        
+
         __now = now; // see comment on __now declaration
     }
 
@@ -237,13 +254,14 @@ public class Project implements Serializable {
      */
     public void serializeProject() {
         try {
-            ObjectOutputStream s = new ObjectOutputStream(
-                    new FileOutputStream(_name));
+            ObjectOutputStream s =
+                new ObjectOutputStream(new FileOutputStream(_name));
             s.writeObject(this);
             s.flush();
             s.close();
             log.debug("Serializing project to: " + _name);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -309,10 +327,11 @@ public class Project implements Serializable {
         }
         try {
             _lastBuild = _formatter.parse(lastBuild);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             log.error("Error parsing last build timestamp.", e);
-            throw new CruiseControlException("Cannot parse last build string: "
-                    + lastBuild);
+            throw new CruiseControlException(
+                "Cannot parse last build string: " + lastBuild);
         }
     }
 
@@ -322,22 +341,26 @@ public class Project implements Serializable {
      * @throws CruiseControlException if the date cannot be extracted from the
      * input string
      */
-    public void setLastSuccessfulBuild(String lastSuccessfulBuild) throws CruiseControlException {
+    public void setLastSuccessfulBuild(String lastSuccessfulBuild)
+        throws CruiseControlException {
         if (lastSuccessfulBuild == null) {
             throw new IllegalArgumentException("Null last successful build date string");
         }
         try {
             _lastSuccessfulBuild = _formatter.parse(lastSuccessfulBuild);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             log.error("Error parsing last successful build timestamp.", e);
-            throw new CruiseControlException("Cannot parse last successful build string: "
+            throw new CruiseControlException(
+                "Cannot parse last successful build string: "
                     + lastSuccessfulBuild);
         }
     }
 
     public String getLastBuild() {
-        if (_lastBuild == null)
+        if (_lastBuild == null) {
             return null;
+        }
         return _formatter.format(_lastBuild);
     }
 
@@ -347,12 +370,15 @@ public class Project implements Serializable {
 
     public void setBuildForced(boolean buildForced) {
         _buildForced = buildForced;
-        if (buildForced) _schedule.forceBuild();
+        if (buildForced) {
+            _schedule.forceBuild();
+        }
     }
 
     public String getLastSuccessfulBuild() {
-        if (_lastSuccessfulBuild == null)
+        if (_lastSuccessfulBuild == null) {
             return null;
+        }
         return _formatter.format(_lastSuccessfulBuild);
     }
 
@@ -377,14 +403,16 @@ public class Project implements Serializable {
     }
 
     public boolean isPaused() {
-		return _isPaused;
+        return _isPaused;
     }
 
     public void setPaused(boolean paused) {
         checkMutex();
-        synchronized(mutex) {
-        	_isPaused = paused;
-        	if (!paused) mutex.notifyAll();
+        synchronized (mutex) {
+            _isPaused = paused;
+            if (!paused) {
+                mutex.notifyAll();
+            }
         }
     }
 
@@ -408,18 +436,21 @@ public class Project implements Serializable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        ProjectXMLHelper helper = new ProjectXMLHelper(new File(_configFileName), _name);
+        ProjectXMLHelper helper =
+            new ProjectXMLHelper(new File(_configFileName), _name);
         _sleepMillis = 1000 * helper.getBuildInterval();
         _logDir = helper.getLogDir();
         _logXmlEncoding = helper.getLogXmlEncoding();
         File logDir = new File(_logDir);
         if (!logDir.exists()) {
             throw new CruiseControlException(
-                    "Log Directory specified in config file does not exist: " + logDir.getAbsolutePath());
+                "Log Directory specified in config file does not exist: "
+                    + logDir.getAbsolutePath());
         }
         if (!logDir.isDirectory()) {
             throw new CruiseControlException(
-                    "Log Directory specified in config file is not a directory: " + logDir.getAbsolutePath());
+                "Log Directory specified in config file is not a directory: "
+                    + logDir.getAbsolutePath());
         }
         _bootstrappers = helper.getBootstrappers();
         _schedule = helper.getSchedule();
@@ -444,28 +475,38 @@ public class Project implements Serializable {
         Element lastBuildPropertyElement = new Element("property");
         lastBuildPropertyElement.setAttribute("name", "lastbuild");
         if (_lastBuild == null) {
-            lastBuildPropertyElement.setAttribute("value",
-                    _formatter.format(now));
-        } else {
-            lastBuildPropertyElement.setAttribute("value",
-                    _formatter.format(_lastBuild));
+            lastBuildPropertyElement.setAttribute(
+                "value",
+                _formatter.format(now));
+        }
+        else {
+            lastBuildPropertyElement.setAttribute(
+                "value",
+                _formatter.format(_lastBuild));
         }
         infoElement.addContent(lastBuildPropertyElement);
 
         Element lastSuccessfulBuildPropertyElement = new Element("property");
-        lastSuccessfulBuildPropertyElement.setAttribute("name", "lastsuccessfulbuild");
+        lastSuccessfulBuildPropertyElement.setAttribute(
+            "name",
+            "lastsuccessfulbuild");
         if (_lastSuccessfulBuild == null) {
-            lastSuccessfulBuildPropertyElement.setAttribute("value",
-                    _formatter.format(now));
-        } else {
-            lastSuccessfulBuildPropertyElement.setAttribute("value",
-                    _formatter.format(_lastSuccessfulBuild));
+            lastSuccessfulBuildPropertyElement.setAttribute(
+                "value",
+                _formatter.format(now));
+        }
+        else {
+            lastSuccessfulBuildPropertyElement.setAttribute(
+                "value",
+                _formatter.format(_lastSuccessfulBuild));
         }
         infoElement.addContent(lastSuccessfulBuildPropertyElement);
 
         Element buildDateElement = new Element("property");
         buildDateElement.setAttribute("name", "builddate");
-        buildDateElement.setAttribute("value", new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
+        buildDateElement.setAttribute(
+            "value",
+            new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
         infoElement.addContent(buildDateElement);
 
         Element labelPropertyElement = new Element("property");
@@ -479,10 +520,12 @@ public class Project implements Serializable {
         infoElement.addContent(intervalElement);
 
         Element lastBuildSuccessfulPropertyElement = new Element("property");
-        lastBuildSuccessfulPropertyElement.setAttribute("name",
-                "lastbuildsuccessful");
-        lastBuildSuccessfulPropertyElement.setAttribute("value",
-                _wasLastBuildSuccessful + "");
+        lastBuildSuccessfulPropertyElement.setAttribute(
+            "name",
+            "lastbuildsuccessful");
+        lastBuildSuccessfulPropertyElement.setAttribute(
+            "value",
+            _wasLastBuildSuccessful + "");
         infoElement.addContent(lastBuildSuccessfulPropertyElement);
 
         return infoElement;
@@ -520,14 +563,25 @@ public class Project implements Serializable {
         }
     }
 
-    protected void createLogFileName(Element logElement, Date now) throws CruiseControlException {
+    protected void createLogFileName(Element logElement, Date now)
+        throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(logElement);
-        if (helper.isBuildSuccessful())
-            _logFileName = new File(_logDir, "log" + _formatter.format(now)
-                    + "L" + helper.getLabel() + ".xml").getAbsolutePath();
-        else
-            _logFileName = new File(_logDir, "log" + _formatter.format(now)
-                    + ".xml").getAbsolutePath();
+        if (helper.isBuildSuccessful()) {
+            _logFileName =
+                new File(
+                    _logDir,
+                    "log"
+                        + _formatter.format(now)
+                        + "L"
+                        + helper.getLabel()
+                        + ".xml")
+                    .getAbsolutePath();
+        }
+        else {
+            _logFileName =
+                new File(_logDir, "log" + _formatter.format(now) + ".xml")
+                    .getAbsolutePath();
+        }
     }
 
     /**
@@ -536,23 +590,33 @@ public class Project implements Serializable {
      *  @param logElement JDOM Element representing the build log.
      */
     protected void writeLogFile(Element logElement)
-            throws CruiseControlException {
+        throws CruiseControlException {
         BufferedWriter logWriter = null;
         try {
             log.debug("Writing log file: " + _logFileName);
             XMLOutputter outputter = null;
             if (_logXmlEncoding == null) {
                 outputter = new XMLOutputter("   ", true);
-                logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName)));
-            } else {
+                logWriter =
+                    new BufferedWriter(
+                        new OutputStreamWriter(
+                            new FileOutputStream(_logFileName)));
+            }
+            else {
                 outputter = new XMLOutputter("   ", true, _logXmlEncoding);
-                logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName), _logXmlEncoding));
+                logWriter =
+                    new BufferedWriter(
+                        new OutputStreamWriter(
+                            new FileOutputStream(_logFileName),
+                            _logXmlEncoding));
             }
             outputter.output(new Document(logElement), logWriter);
             logWriter = null;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new CruiseControlException(e);
-        } finally {
+        }
+        finally {
             logWriter = null;
         }
     }
@@ -571,18 +635,22 @@ public class Project implements Serializable {
             String fileName = (String) auxLogIterator.next();
             File auxLogFile = new File(fileName);
             if (auxLogFile.isDirectory()) {
-                String[] childFileNames = auxLogFile.list(new FilenameFilter() {
+                String[] childFileNames =
+                    auxLogFile.list(new FilenameFilter() {
                     public boolean accept(File dir, String name) {
                         return name.endsWith(".xml");
                     }
                 });
                 for (int i = 0; i < childFileNames.length; i++) {
-                    Element auxLogElement = getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]);
+                    Element auxLogElement =
+                        getElementFromAuxLogFile(
+                            fileName + File.separator + childFileNames[i]);
                     if (auxLogElement != null) {
                         auxLogElements.add(auxLogElement.detach());
                     }
                 }
-            } else {
+            }
+            else {
                 Element auxLogElement = getElementFromAuxLogFile(fileName);
                 if (auxLogElement != null) {
                     auxLogElements.add(auxLogElement.detach());
@@ -601,7 +669,7 @@ public class Project implements Serializable {
     protected Element getElementFromAuxLogFile(String fileName) {
         try {
             SAXBuilder builder =
-                    new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             Element element = builder.build(fileName).getRootElement();
             if (element.getName().equals("testsuite")) {
                 if (element.getChild("properties") != null) {
@@ -609,8 +677,11 @@ public class Project implements Serializable {
                 }
             }
             return element;
-        } catch (JDOMException e) {
-            log.debug("Could not read aux log: " + fileName + ".  Skipping...", e);
+        }
+        catch (JDOMException e) {
+            log.debug(
+                "Could not read aux log: " + fileName + ".  Skipping...",
+                e);
         }
 
         return null;
@@ -623,9 +694,10 @@ public class Project implements Serializable {
      * @param labelIncrementer target LabelIncrementer
      * @throws CruiseControlException if label is not valid
      */
-    protected void validateLabel(String label,
-                                 LabelIncrementer labelIncrementer)
-            throws CruiseControlException {
+    protected void validateLabel(
+        String label,
+        LabelIncrementer labelIncrementer)
+        throws CruiseControlException {
 
         if (!labelIncrementer.isValidLabel(label)) {
             throw new CruiseControlException(label + " is not a valid label");
@@ -636,9 +708,9 @@ public class Project implements Serializable {
         return _wasLastBuildSuccessful;
     }
 
-	public String getBuildTime() {
-		return _formatter.format(__now);
-	}
+    public String getBuildTime() {
+        return _formatter.format(__now);
+    }
 
     protected Date getNow() {
         return __now;

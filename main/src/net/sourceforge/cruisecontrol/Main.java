@@ -64,14 +64,16 @@ public class Main {
         Project project = null;
         try {
             project = main.configureProject(args);
-            project.init(); // Init the project once, to check the current config file is ok
+            // Init the project once, to check the current config file is ok
+            project.init();
 
             if (shouldStartProjectController(args)) {
                 ProjectControllerAgent agent =
-                        new ProjectControllerAgent(project, parsePort(args));
+                    new ProjectControllerAgent(project, parsePort(args));
                 agent.start();
             }
-        } catch (CruiseControlException e) {
+        }
+        catch (CruiseControlException e) {
             log.fatal(e.getMessage());
             usage();
         }
@@ -90,11 +92,16 @@ public class Main {
         log.info("java CruiseControl [options]");
         log.info("where options are:");
         log.info("");
-        log.info("   -port number           where number is the port of the Controller web site");
-        log.info("   -projectname name      where name is the name of the project");
-        log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-        log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-        log.info("   -configfile file       where file is the configuration file");
+        log.info(
+            "   -port number           where number is the port of the Controller web site");
+        log.info(
+            "   -projectname name      where name is the name of the project");
+        log.info(
+            "   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+        log.info(
+            "   -label label           where label is in x.y format, y being an integer.  x can be any string.");
+        log.info(
+            "   -configfile file       where file is the configuration file");
         System.exit(1);
     }
 
@@ -106,18 +113,18 @@ public class Main {
      * @throws CruiseControlException
      */
     public Project configureProject(String args[])
-            throws CruiseControlException {
+        throws CruiseControlException {
         Project project = readProject(parseProjectName(args));
 
         project.setLastBuild(parseLastBuild(args, project.getLastBuild()));
 
-        if (project.getLastSuccessfulBuild() == null){
-                project.setLastSuccessfulBuild(project.getLastBuild());
+        if (project.getLastSuccessfulBuild() == null) {
+            project.setLastSuccessfulBuild(project.getLastBuild());
         }
         project.setLabel(parseLabel(args, project.getLabel()));
         project.setName(parseProjectName(args));
-        project.setConfigFileName(parseConfigFileName(args,
-                project.getConfigFileName()));
+        project.setConfigFileName(
+            parseConfigFileName(args, project.getConfigFileName()));
 
         return project;
     }
@@ -131,7 +138,8 @@ public class Main {
      * @return final value of lastbuild; never null
      * @throws CruiseControlException if final lastbuild value is null
      */
-    protected String parseLastBuild(String args[], String lastBuild) throws CruiseControlException {
+    protected String parseLastBuild(String args[], String lastBuild)
+        throws CruiseControlException {
         lastBuild = parseArgument(args, "lastbuild", lastBuild);
         if (lastBuild == null) {
             throw new CruiseControlException("'lastbuild' is a required argument to CruiseControl.");
@@ -148,7 +156,8 @@ public class Main {
      * @return final value of label; never null
      * @throws CruiseControlException if final label value is null
      */
-    protected String parseLabel(String args[], String label) throws CruiseControlException {
+    protected String parseLabel(String args[], String label)
+        throws CruiseControlException {
         label = parseArgument(args, "label", label);
         if (label == null) {
             throw new CruiseControlException("'label' is a required argument to CruiseControl.");
@@ -165,7 +174,8 @@ public class Main {
      * @return final value of configFileName; never null
      * @throws CruiseControlException if final configfile value is null
      */
-    protected String parseConfigFileName(String args[], String configFileName) throws CruiseControlException {
+    protected String parseConfigFileName(String args[], String configFileName)
+        throws CruiseControlException {
         configFileName = parseArgument(args, "configfile", configFileName);
         if (configFileName == null) {
             throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
@@ -180,7 +190,8 @@ public class Main {
      * @return project name; never null
      * @throws CruiseControlException if projectname is not specified
      */
-    protected String parseProjectName(String args[]) throws CruiseControlException {
+    protected String parseProjectName(String args[])
+        throws CruiseControlException {
         String projectName = parseArgument(args, "projectname", null);
         if (projectName == null) {
             throw new CruiseControlException("'projectname' is a required argument to CruiseControl.");
@@ -191,11 +202,13 @@ public class Main {
     private static boolean shouldStartProjectController(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-port")) {
-                log.debug("Main: -port parameter found. will start ProjectControllerAgent.");
+                log.debug(
+                    "Main: -port parameter found. will start ProjectControllerAgent.");
                 return true;
             }
         }
-        log.debug("Main: -port parameter not found. will not start ProjectControllerAgent.");
+        log.debug(
+            "Main: -port parameter not found. will not start ProjectControllerAgent.");
         return false;
     }
 
@@ -207,19 +220,23 @@ public class Main {
      *          or invalid
      */
     static int parsePort(String args[])
-            throws IllegalArgumentException, CruiseControlException {
+        throws IllegalArgumentException, CruiseControlException {
 
         String portString = parseArgument(args, "port", null);
         if (portString == null) {
-            throw new IllegalStateException("Should not reach this point " +
-                    " without returning or throwing CruiseControlException");
+            throw new IllegalStateException(
+                "Should not reach this point "
+                    + " without returning or throwing CruiseControlException");
         }
         int port;
         try {
             port = Integer.parseInt(portString);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("-port parameter, specified as '"
-                    + portString + "', requires integer argument");
+        }
+        catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                "-port parameter, specified as '"
+                    + portString
+                    + "', requires integer argument");
         }
         return port;
     }
@@ -235,21 +252,28 @@ public class Main {
      */
     private Project readProject(String fileName) {
         File serializedProjectFile = new File(fileName);
-        log.debug("Reading serialized project from: "
+        log.debug(
+            "Reading serialized project from: "
                 + serializedProjectFile.getAbsolutePath());
         if (!serializedProjectFile.exists()
-                || !serializedProjectFile.canRead()) {
-            log.warn("No previously serialized project found: "
+            || !serializedProjectFile.canRead()) {
+            log.warn(
+                "No previously serialized project found: "
                     + serializedProjectFile.getAbsolutePath());
-        } else {
+        }
+        else {
             try {
-                ObjectInputStream s = new ObjectInputStream(
+                ObjectInputStream s =
+                    new ObjectInputStream(
                         new FileInputStream(serializedProjectFile));
                 Project project = (Project) s.readObject();
                 return project;
-            } catch (Exception e) {
-                log.warn("Error deserializing project file from "
-                        + serializedProjectFile.getAbsolutePath(), e);
+            }
+            catch (Exception e) {
+                log.warn(
+                    "Error deserializing project file from "
+                        + serializedProjectFile.getAbsolutePath(),
+                    e);
             }
         }
 
@@ -264,7 +288,8 @@ public class Main {
         Properties props = new Properties();
         try {
             props.load(getClass().getResourceAsStream("/version.properties"));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             log.error("Error reading version properties", e);
         }
         log.info("CruiseControl Version " + props.getProperty("version"));
@@ -291,9 +316,11 @@ public class Main {
      *      but didn't include the argument, as in "-port" when it should most
      *      likely be "-port 8080".
      */
-    public static String parseArgument(String[] args, String argName,
-                                        String defaultArgValue)
-            throws CruiseControlException {
+    public static String parseArgument(
+        String[] args,
+        String argName,
+        String defaultArgValue)
+        throws CruiseControlException {
 
         //Init to default value.
         String returnArgValue = defaultArgValue;
@@ -302,11 +329,16 @@ public class Main {
             if (args[i].equals("-" + argName)) {
                 try {
                     returnArgValue = args[i + 1];
-                    log.debug("Main: value of parameter " + argName + " is ["
-                            + returnArgValue + "]");
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'" + argName
-                            + "' argument was not specified.");
+                    log.debug(
+                        "Main: value of parameter "
+                            + argName
+                            + " is ["
+                            + returnArgValue
+                            + "]");
+                }
+                catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                        "'" + argName + "' argument was not specified.");
                 }
             }
         }
