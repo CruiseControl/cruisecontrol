@@ -354,16 +354,18 @@ public class AntBuilder extends Builder {
             cmdLine.createArgument().setValue(getLoggerClassName());
             cmdLine.createArgument().setValue("-logfile");
             cmdLine.createArgument().setValue(tempFileName);
-            // -debug and -quiet have no effect when using a listener instead of a logger
-            if (useDebug) {
-                cmdLine.createArgument().setValue("-debug");
-            } else if (useQuiet) {
-                cmdLine.createArgument().setValue("-quiet");
-            }
         } else {
             cmdLine.createArgument().setValue("-listener");
             cmdLine.createArgument().setValue(getLoggerClassName());
             cmdLine.createArgument().setValue("-DXmlLogger.file=" + tempFileName);
+        }
+
+        // -debug and -quiet only affect loggers, not listeners: when we use the loggerClassName as
+        // a listener, they will affect the default logger that writes to the console
+        if (useDebug) {
+            cmdLine.createArgument().setValue("-debug");
+        } else if (useQuiet) {
+            cmdLine.createArgument().setValue("-quiet");
         }
         
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
