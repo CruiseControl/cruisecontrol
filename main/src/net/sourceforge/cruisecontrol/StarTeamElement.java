@@ -81,10 +81,10 @@ public class StarTeamElement extends SourceControlElement {
         
         // Visit all files in the snapshots and add to Hashtables
         nowFiles = visit(StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(),
-        this.folderName), nowFiles, nowDate);
+         this.folderName), nowFiles, nowDate);
         
         lastBuildFiles = visit(StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(),
-        this.folderName), lastBuildFiles, lastBuildDate);
+         this.folderName), lastBuildFiles, lastBuildDate);
         
         // Compare old and new file lists to determine what happened
         for (Enumeration e = nowFiles.elements() ; e.hasMoreElements() ;) {
@@ -204,6 +204,10 @@ public class StarTeamElement extends SourceControlElement {
     }
     
     private Hashtable visit(Folder folder, Hashtable fileList, OLEDate snapshotDate) {
+        if (folder == null) {
+            return fileList;
+        }
+        
         try {
             Thread.sleep(100);
         } catch(InterruptedException ignoredInterruptedException) {}
