@@ -38,12 +38,13 @@
 ################################################################################
 
 # The root of the CruiseControl directory.  The key requirement is that this is the parent
-# directory of CruiseControl's lib directory.
+# directory of CruiseControl's lib and dist directories.
 # By default assume they are using the batch file from the local directory.
 CCDIR=..
-
 LIBDIR=$CCDIR/lib
-CRUISE_PATH=$JAVA_HOME/lib/tools.jar:cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant.jar:$LIBDIR/xerces.jar:$LIBDIR/mail.jar:$LIBDIR/optional.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:.$/LIBDIR/starteam-sdk-interfaceonly.jar
+DISTDIR=$CCDIR/dist
+
+CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant.jar:$LIBDIR/xerces.jar:$LIBDIR/mail.jar:$LIBDIR/optional.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:.$/LIBDIR/starteam-sdk-interfaceonly.jar
 
 EXEC="java -cp $CRUISE_PATH CruiseControl $@"
 echo $EXEC
