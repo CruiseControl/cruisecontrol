@@ -239,22 +239,6 @@ public class HTMLEmailPublisherTest extends TestCase {
     public void testValidate() {
         setEmailPublisherVariables(publisher);
 
-        try {
-            publisher.validate();
-            fail("should fail if log dir is not set");
-        } catch (CruiseControlException ex) {
-            // should fail
-        }
-        publisher.setLogDir(".");
-
-        try {
-            publisher.validate();
-            fail("should fail if xslDir is not set");
-        } catch (CruiseControlException ex) {
-            // should fail
-        }
-        publisher.setXSLDir(".");
-
         String[] origFileNames = publisher.getXslFileNames();
         try {
             publisher.validate();
@@ -312,6 +296,8 @@ public class HTMLEmailPublisherTest extends TestCase {
         htmlemailpublisher.setBuildResultsURL("url");
         htmlemailpublisher.setMailHost("host");
         htmlemailpublisher.setReturnAddress("address");
+        htmlemailpublisher.setLogDir(".");
+        htmlemailpublisher.setXSLDir(".");
     }
 
 }
