@@ -176,7 +176,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * If xslFile is set then both xslDir and css are ignored. Specified xslFile
      * must take care of entire document -- html open/close, body tags, styles,
      * etc.
-     * @param xslFile
      */
     public void setXSLFile(String fullPathToXslFile) {
         xslFile = fullPathToXslFile;
@@ -184,7 +183,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     /**
      * Directory where xsl files are located.
-     * @param xslDir
      */
     public void setXSLDir(String xslDirectory) {
         xslDir = xslDirectory;
@@ -222,7 +220,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     /**
      * Path to cruisecontrol.css.  Only used with xslDir, not xslFile.
-     * @param css
      */
     public void setCSS(String cssFilename) {
         css = cssFilename;
@@ -231,7 +228,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
     /**
      * Path to the log file as set in the log element of the configuration
      * xml file.
-     * @param logDir
      */
     public void setLogDir(String directory) {
         if (directory == null) {
