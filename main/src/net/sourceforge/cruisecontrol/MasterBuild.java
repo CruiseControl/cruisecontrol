@@ -69,7 +69,7 @@ public class MasterBuild {
     private final String DEFAULT_CLEAN_TARGET = "cleanbuild";
 
     //build properties
-    private String _propsFileName;
+    protected String _propsFileName;
 
     //xml merge stuff
     private Vector _auxLogFiles = new Vector();
@@ -77,27 +77,43 @@ public class MasterBuild {
 
     private String _projectName;
     
-    private BuildInfo info;
-    private CruiseControlProperties props;
+    protected BuildInfo info;
+    protected CruiseControlProperties props;
 
-    private int _buildCounter;
+    protected int _buildCounter;
     
     /**
      * Entry point.  Verifies that all command line arguments are correctly 
      * specified.
      */
     public static void main(String[] args) {
-        MasterBuild mb = new MasterBuild();
-        mb.log("***** Starting automated build process *****\n");
+        MasterBuild mb = new MasterBuild(args);
+        mb.execute();
+    }
 
-        mb.readBuildInfo();
-        mb.overwriteWithUserArguments(args);
+    /**
+     * Constructs a new MasterBuild instance, performing required initialization steps.
+     * 
+     * @param args   User specified arguments to MasterBuild.
+     */
+    public MasterBuild(String[] args) {
+        log("***** Starting automated build process *****\n");
 
-        if (mb.buildInfoSpecified()) {
-            mb.execute();
-        } else {
-            mb.usage();
-        }
+        readBuildInfo();
+        overwriteWithUserArguments(args);
+
+        if (!buildInfoSpecified()) {
+            usage();
+        }    
+    }
+
+    /**
+     * Returns the properties instance controlling this process.
+     * 
+     * @return CruiseControlProperties being used by this process.
+     */
+    public CruiseControlProperties getProperties() {
+        return props;
     }
 
     /**
@@ -144,6 +160,8 @@ public class MasterBuild {
             while (true) {
                 Date startTime = new Date();
                 startLog();
+                //Reload the properties file.
+                props = new CruiseControlProperties(_propsFileName);
                 performBuild();
                 long timeToSleep = getSleepTime(startTime);
                 endLog(timeToSleep);
@@ -158,12 +176,9 @@ public class MasterBuild {
         }
     }
 
-    private void performBuild() throws Exception {
+    protected void performBuild() throws Exception {
         
-        boolean previousBuildSuccessful = (info.getLastBuild() == info.getLastGoodBuild());        
-        
-        //Reload the properties file.
-        props = new CruiseControlProperties(_propsFileName);
+        boolean previousBuildSuccessful = (info.getLastBuild() == info.getLastGoodBuild());       
 
         logCurrentBuildStatus(true);
 
@@ -246,7 +261,7 @@ public class MasterBuild {
                            info.getLogfile(), info.isLastBuildSuccessful());
     }
     
-    private long getSleepTime(Date startTime) {
+    protected long getSleepTime(Date startTime) {
         if (props.isIntervalAbsolute()) {
             // We need to sleep up until startTime + buildInterval.
             // Therefore, we need startTime + buildInterval - now.
@@ -277,7 +292,7 @@ public class MasterBuild {
     /**
      *  Print header for each build attempt.
      */
-    private void startLog() {
+    protected void startLog() {
         log("***** Starting Build Cycle");
         log("***** Label: " + info.getLabel());
         log("***** Last Good Build: " + info.getLastGoodBuild());
@@ -287,7 +302,7 @@ public class MasterBuild {
     /**
      *  Print footer for each build attempt.
      */
-    private void endLog(long sleepTime) {
+    protected void endLog(long sleepTime) {
         log("\n");
         log("***** Ending Build Cycle, sleeping " + (sleepTime/1000.0) + " seconds until next build.\n\n\n");
         log("***** Label: " + info.getLabel());
