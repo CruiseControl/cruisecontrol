@@ -2149,8 +2149,13 @@
             <tr class="oddrow">
                 <td>antscript</td>
                 <td>No</td>
-                <td>Absolute filename of ant script.  Uses ant via java if not
-                specified.</td>
+                <td>Absolute filename of script (shell script or bat file)
+				to start Ant. The AntBuilder uses Ant's Main class via 
+				the java executable if this is not specified. You can provide a 
+				custom script, to set some environment variables for example, but you
+				can also specify a script that comes with the Ant distribution: under
+				Windows, a valid setting might be 
+				<code>C:\Java\apache-ant-1.6.2\bin\ant.bat</code>.</td>
             </tr>
             <tr>
                 <td>antWorkingDir</td>
@@ -2175,7 +2180,7 @@
             <tr class="oddrow">
                 <td>usedebug</td>
                 <td>No</td>
-                <td>If true will invoke ant with -debug -verbose, which can be
+                <td>If true will invoke ant with -debug, which can be
                 useful for debugging your ant build. Defaults to 'false'</td>
             </tr>
             </tbody>
