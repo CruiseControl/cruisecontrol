@@ -116,7 +116,7 @@ public class P4Element extends SourceControlElement {
 		return _lastModified.getTime();
 	}
 
-	public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
 
 		ArrayList mods = null;
 		final Perl5Util util = new Perl5Util();

@@ -51,7 +51,7 @@ public abstract class SourceControlElement {
 	public abstract Set getEmails();
 
 	/**
-	 *  get an ArrayList of Modifications detailing all the changes between now and
+	 *  get a List of Modifications detailing all the changes between now and
 	 *  the last build.
 	 *
 	 *@param  lastBuild
@@ -59,7 +59,7 @@ public abstract class SourceControlElement {
 	 *@param  quietPeriod
 	 *@return
 	 */
-	public abstract ArrayList getHistory(Date lastBuild, Date now, long quietPeriod);
+	public abstract List getHistory(Date lastBuild, Date now, long quietPeriod);
 
 	/**
 	 *  get the last modified time for this set of files

@@ -133,7 +133,7 @@ public class StarTeamElement extends SourceControlElement {
      * @param quietPeriod
      * @return
      */
-    public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+    public List getHistory(Date lastBuild, Date now, long quietPeriod) {
         try {
 
             // The Starteam SDK does not like the NoExitSecurityManager that comes
@@ -198,7 +198,7 @@ public class StarTeamElement extends SourceControlElement {
             e.printStackTrace();
         }
 
-        return (ArrayList) modificationList;
+        return modificationList;
     }
 
     /**

@@ -89,7 +89,7 @@ public class ModificationSet extends Task {
      * @throws BuildException
      */
     public void execute() throws BuildException {
-        ArrayList modifications = new ArrayList();
+        List modifications = new ArrayList();
         long currentTime = 0;
         try {
             Date currentDate = new Date();
@@ -230,7 +230,7 @@ public class ModificationSet extends Task {
      * @param lastBuild
      * @return
      */
-    private ArrayList processSourceControlElements(Date currentDate, Date lastBuild) {
+    private List processSourceControlElements(Date currentDate, Date lastBuild) {
         ArrayList mods = new ArrayList();
 
         for (int i = 0; i < _sourceControlElements.size(); i++) {
@@ -257,7 +257,7 @@ public class ModificationSet extends Task {
      * @param modifications
      * @exception IOException
      */
-    private void writeFile(ArrayList modifications) throws IOException {
+    private void writeFile(List modifications) throws IOException {
         Project p = getProject();
         String modFileName = getProject().getProperty("modificationset.file");
         if (modFileName == null) {

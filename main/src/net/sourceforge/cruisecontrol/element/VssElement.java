@@ -106,12 +106,12 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  Returns an ArrayList of modifications to this project since the last good
+	 *  Returns a List of modifications to this project since the last good
 	 *  build.
 	 *
 	 *@return
 	 */
-	public ArrayList getModifications() {
+	public List getModifications() {
 		return _modifications;
 	}
 
@@ -124,7 +124,7 @@ public class VssElement extends SourceControlElement {
 	 *@param  quietPeriod
 	 *@return
 	 */
-	public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
         //(PENDING) buildHistoryCommand, execHistoryCommand
 		//call vss, write output to intermediate file
 		try {
@@ -199,7 +199,7 @@ public class VssElement extends SourceControlElement {
 	 *
 	 *@param  historyEntry
 	 */
-	private void handleEntry(ArrayList historyEntry) {
+	private void handleEntry(List historyEntry) {
 		Modification mod = new Modification();
         String nameAndDateLine = (String) historyEntry.get(2);
 		mod.userName = parseUser(nameAndDateLine);
@@ -247,7 +247,7 @@ public class VssElement extends SourceControlElement {
 	 *@param  a
 	 *@return
 	 */
-	private String parseComment(ArrayList a) {
+	private String parseComment(List a) {
 		StringBuffer comment = new StringBuffer();
 		comment.append(((String) a.get(4)) + " ");
 		for (int i = 5; i < a.size(); i++) {

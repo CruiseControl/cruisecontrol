@@ -181,21 +181,21 @@ public class CVSElement extends SourceControlElement {
      * Delegate to getHistory(Date lastBuild) since now and quietPeriod are not
      * used.
      */
-    public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+    public List getHistory(Date lastBuild, Date now, long quietPeriod) {
         return getHistory(lastBuild);
     }
     
 	/**
-	 *  Returns an ArrayList of Modifications detailing all the changes between the
+	 *  Returns a List of Modifications detailing all the changes between the
 	 *  last build and the latest revision at the repository
 	 *
 	 *@param  lastBuild last build time
 	 *@return  maybe empty, never null.
 	 */
-	public ArrayList getHistory(Date lastBuild) {
+	public List getHistory(Date lastBuild) {
 		setLastModified(lastBuild);
 
-		ArrayList mods = null;
+		List mods = null;
 		try {
 			mods = execHistoryCommand(buildHistoryCommand(lastBuild));
 		} catch (Exception e) {
@@ -258,7 +258,7 @@ public class CVSElement extends SourceControlElement {
 		return local.replace('\\', '/');
 	}
 
-	private ArrayList execHistoryCommand(Commandline command) throws Exception {
+	private List execHistoryCommand(Commandline command) throws Exception {
         Process p = null;
         
         if (
@@ -277,7 +277,7 @@ public class CVSElement extends SourceControlElement {
         
 		logErrorStream(p);
 		InputStream cvsLogStream = p.getInputStream();
-		ArrayList mods = parseStream(cvsLogStream);
+		List mods = parseStream(cvsLogStream);
 
 		getRidOfLeftoverData(cvsLogStream);
 		p.waitFor();
@@ -300,7 +300,7 @@ public class CVSElement extends SourceControlElement {
 	 *@return  List of Modification elements, maybe empty never null.
 	 *@exception  IOException
 	 */
-	private ArrayList parseStream(InputStream input) throws IOException {
+	private List parseStream(InputStream input) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
 		// Read to the first RCS file name. The first entry in the log
@@ -311,7 +311,7 @@ public class CVSElement extends SourceControlElement {
 
 		while (line != null) {
 			//Parse the single file entry, which may include several modifications.
-			ArrayList returnList = parseEntry(reader);
+			List returnList = parseEntry(reader);
 
 			//Add all the modifications to the local list.
 			mods.addAll(returnList);
@@ -334,7 +334,7 @@ public class CVSElement extends SourceControlElement {
 	 *@return  modifications found in this entry; maybe empty, never null.
 	 *@exception  IOException
 	 */
-	private ArrayList parseEntry(BufferedReader reader) throws IOException {
+	private List parseEntry(BufferedReader reader) throws IOException {
 		ArrayList mods = new ArrayList();
 
 		String nextLine = "";
