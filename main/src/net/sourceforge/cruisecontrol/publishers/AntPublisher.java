@@ -47,6 +47,7 @@ import org.jdom.Element;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 /**
  * A thin wrapper around the AntBuilder class, this class allows you to call an
@@ -66,19 +67,12 @@ public class AntPublisher extends AntBuilder implements Publisher {
      */
     public void publish(Element log) throws CruiseControlException {
         
-        Map map = new HashMap();
+        Map properties = new HashMap();
 
-        // Add CC properties to the AntBuilder
-        Iterator propertyIterator = log.getChild("info").getChildren("property")
-                .iterator();
-        while (propertyIterator.hasNext()) {
-            Element property = (Element) propertyIterator.next();
-            map.put(property.getAttributeValue("name"), 
-                    property.getAttributeValue("value"));
-        }
+        populatePropertesForAntBuilder(log, properties);
         
         // Run Ant
-        Element result = build(map);
+        Element result = build(properties);
         if (result == null) {
             LOG.error("Publisher failed.\n\n");
         } else {
@@ -90,6 +84,22 @@ public class AntPublisher extends AntBuilder implements Publisher {
                         + error.getValue() 
                         + "\n");
             }         
+        }
+    }
+
+    void populatePropertesForAntBuilder(Element log, Map properties) {
+        XMLLogHelper helper = new XMLLogHelper(log);
+        if (helper.isBuildSuccessful()) {
+            properties.put("thisbuildsuccessful", "true");
+        } else {
+            properties.put("thisbuildsuccessful", "false");
+        }
+
+        Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
+        while (propertyIterator.hasNext()) {
+            Element property = (Element) propertyIterator.next();
+            properties.put(property.getAttributeValue("name"), 
+                    property.getAttributeValue("value"));
         }
     }
 }

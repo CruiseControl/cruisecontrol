@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+AntPublisher:
+----------------------
+* Will now pass the property "thisbuildsuccessful" to the ant script.
+
 contrib:
 ----------------------
 * Add support for distributed building (CC-137). Submitted by Jeff Ramsdale
