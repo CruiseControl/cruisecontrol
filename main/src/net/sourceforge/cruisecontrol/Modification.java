@@ -30,7 +30,7 @@ import java.text.DateFormat;
  */
 public class Modification {
 
-  public String type;
+  public String type = "unknown";
   public String fileName;
   public String folderName;
   public Date modifiedTime;
