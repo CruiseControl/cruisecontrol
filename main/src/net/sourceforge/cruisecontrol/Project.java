@@ -109,6 +109,8 @@ public class Project implements Serializable, Runnable {
 
     private static final transient long ONE_SECOND = 1000;
     private static final transient long ONE_MINUTE = 60 * ONE_SECOND;
+    private static SimpleDateFormat formatter =
+        new SimpleDateFormat("yyyyMMddHHmmss");
 
     private int buildCounter = 0;
     private Date lastBuild;
@@ -117,8 +119,6 @@ public class Project implements Serializable, Runnable {
     private String label;
     private String configFileName = "config.xml";
     private String name;
-    private SimpleDateFormat formatter =
-        new SimpleDateFormat("yyyyMMddHHmmss");
     private boolean buildForced = false;
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
@@ -651,6 +651,12 @@ public class Project implements Serializable, Runnable {
             new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
         infoElement.addContent(buildDateElement);
 
+        if (now != null) {
+            Element ccTimeStampPropertyElement =
+                createBuildTimestampElement(now);
+            infoElement.addContent(ccTimeStampPropertyElement);
+        }
+
         Element labelPropertyElement = new Element("property");
         labelPropertyElement.setAttribute("name", "label");
         labelPropertyElement.setAttribute("value", label);
@@ -671,6 +677,13 @@ public class Project implements Serializable, Runnable {
         infoElement.addContent(lastBuildSuccessfulPropertyElement);
 
         return infoElement;
+    }
+
+    public static Element createBuildTimestampElement(Date now) {
+        Element ccTimeStampPropertyElement = new Element("property");
+        ccTimeStampPropertyElement.setAttribute("name", "cctimestamp");
+        ccTimeStampPropertyElement.setAttribute("value", getFormatedTime(now));
+        return ccTimeStampPropertyElement;
     }
 
     protected Map getProjectPropertiesMap(Date now) {
@@ -845,12 +858,13 @@ public class Project implements Serializable, Runnable {
         return wasLastBuildSuccessful;
     }
 
-    public String getFormatedTime(Date date) {
+    public static String getFormatedTime(Date date) {
         return formatter.format(date);
     }
 
     public Date parseFormatedTime(String timeString, String label)
         throws CruiseControlException {
+
         Date date = null;
         if (timeString == null) {
             throw new IllegalArgumentException("Null date string for " + label);
