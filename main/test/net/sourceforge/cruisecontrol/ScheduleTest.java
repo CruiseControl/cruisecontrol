@@ -87,8 +87,8 @@ public class ScheduleTest extends TestCase {
         schedule.addBuilder(multipleOfOne);
         schedule.addPauseBuilder(pauseBuilder);
 
-        //create a couple calendars/dates
         cal = Calendar.getInstance();
+        // Nov 22, 2001 was a Thursday
         cal.set(2001, Calendar.NOVEMBER, 22, 10, 01, 01);
         cal2 = Calendar.getInstance();
         cal2.set(2001, Calendar.NOVEMBER, 22, 11, 01, 01);
@@ -97,6 +97,7 @@ public class ScheduleTest extends TestCase {
         cal4 = Calendar.getInstance();
         cal4.set(2001, Calendar.NOVEMBER, 22, 23, 01, 01);
         cal5 = Calendar.getInstance();
+        // Nov 23, 2001 was a Friday
         cal5.set(2001, Calendar.NOVEMBER, 23, 00, 00, 01);
         timeBuildPreviousDay = Calendar.getInstance();
         timeBuildPreviousDay.set(2001, Calendar.NOVEMBER, 21, 12, 01, 01);
@@ -182,6 +183,50 @@ public class ScheduleTest extends TestCase {
         assertEquals(
             2 * oneHour,
             schedule.getTimeToNextBuild(cal4.getTime(), oneHour));
+
+        pauseBuilder = new PauseBuilder();
+        pauseBuilder.setStartTime(100);
+        pauseBuilder.setEndTime(200);
+        schedule.addPauseBuilder(pauseBuilder);
+
+        // next build would be in a pause interval on the next day
+        assertEquals(
+            3 * oneHour,
+            schedule.getTimeToNextBuild(cal4.getTime(), oneHour));
+
+        schedule = new Schedule();
+
+        pauseBuilder = new PauseBuilder();
+        pauseBuilder.setStartTime(0000);
+        pauseBuilder.setEndTime(1100);
+        schedule.addPauseBuilder(pauseBuilder);
+
+        // pause gives time > than 1 day
+        assertEquals(
+            twentyFourHours + oneHour,
+            schedule.getTimeToNextBuild(cal.getTime(), twentyFourHours));
+
+        pauseBuilder = new PauseBuilder();
+        pauseBuilder.setStartTime(0000);
+        pauseBuilder.setEndTime(2359);
+        pauseBuilder.setDay("friday");
+        schedule.addPauseBuilder(pauseBuilder);
+
+        // chained pauses
+        assertEquals(
+            (2 * twentyFourHours) + oneHour,
+            schedule.getTimeToNextBuild(cal.getTime(), twentyFourHours));
+            
+        schedule = new Schedule();
+        
+        pauseBuilder = new PauseBuilder();
+        pauseBuilder.setStartTime(0000);
+        pauseBuilder.setEndTime(2359);
+        schedule.addPauseBuilder(pauseBuilder);
+        
+        assertEquals(
+            Schedule.MAX_INTERVAL_MILLISECONDS,
+            schedule.getTimeToNextBuild(cal.getTime(), twentyFourHours));
     }
     
     public void testInterval() {
