@@ -56,10 +56,9 @@ package net.sourceforge.cruisecontrol.util;
 import java.io.*;
 
 /**
- *  Class to pump the error stream during Process's runtime. Copied from
- *  the Ant built-in task.
- *
- * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * Class to pump the error stream during Process's runtime. Copied from
+ * the Ant built-in task.
+ * 
  * @created  June 11, 2001
  */
 public class StreamPumper implements Runnable {
@@ -107,4 +106,5 @@ public class StreamPumper implements Runnable {
         flush();
         _out.close();
     }
+    
 }

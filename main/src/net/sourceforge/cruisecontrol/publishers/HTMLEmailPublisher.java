@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,12 +33,15 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Logger;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Date;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -53,8 +56,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
-import java.util.Date;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  * Used to publish an HTML e-mail that includes the build report
@@ -65,16 +71,15 @@ import java.util.Date;
  */
 public class HTMLEmailPublisher extends EmailPublisher {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(HTMLEmailPublisher.class);
+    private static final Logger LOG = Logger.getLogger(HTMLEmailPublisher.class);
 
-    protected String xslFile;
-    protected String xslDir;
-    protected String css;
-    protected String logDir;
-    protected String messageMimeType = "text/html";
+    private String _xslFile;
+    private String _xslDir;
+    private String _css;
+    private String _logDir;
+    private String _messageMimeType = "text/html";
 
-    private String[] xslFileNames = {"header.xsl",
+    private String[] _xslFileNames = {"header.xsl",
 
                                      "compile.xsl",
 
@@ -95,22 +100,22 @@ public class HTMLEmailPublisher extends EmailPublisher {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        verifyDirectory("HTMLEmailPublisher.logDir", this.logDir);
+        verifyDirectory("HTMLEmailPublisher.logDir", this._logDir);
 
-        if (this.xslFile == null) {
-            verifyDirectory("HTMLEmailPublisher.xslDir", this.xslDir);
-            verifyFile("HTMLEmailPublisher.css", this.css);
+        if (this._xslFile == null) {
+            verifyDirectory("HTMLEmailPublisher.xslDir", this._xslDir);
+            verifyFile("HTMLEmailPublisher.css", this._css);
 
-            if (xslFileNames == null) {
+            if (_xslFileNames == null) {
                 throw new CruiseControlException("HTMLEmailPublisher.xslFileNames can't be null");
             }
 
-            for (int i = 0; i < this.xslFileNames.length; i++) {
-                String fileName = this.xslFileNames[i];
-                verifyFile("HTMLEmailPublisher.xslDir/" + fileName, new File(this.xslDir, fileName));
+            for (int i = 0; i < this._xslFileNames.length; i++) {
+                String fileName = this._xslFileNames[i];
+                verifyFile("HTMLEmailPublisher.xslDir/" + fileName, new File(this._xslDir, fileName));
             }
         } else {
-            verifyFile("HTMLEmailPublisher.xslFile", this.xslFile);
+            verifyFile("HTMLEmailPublisher.xslFile", this._xslFile);
         }
     }
 
@@ -151,9 +156,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
      */
     protected void sendMail(String toList, String subject, String message)
             throws CruiseControlException {
-        log.info("Sending mail notifications.");
+        LOG.info("Sending mail notifications.");
         Session session = Session.getDefaultInstance(getMailProperties(), null);
-        session.setDebug(log.isDebugEnabled());
+        session.setDebug(LOG.isDebugEnabled());
 
         try {
             Message msg = new MimeMessage(session);
@@ -165,7 +170,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
             MimeMultipart attachments = new MimeMultipart();
             MimeBodyPart textbody = new MimeBodyPart();
-            textbody.setContent(message, messageMimeType);
+            textbody.setContent(message, _messageMimeType);
             attachments.addBodyPart(textbody);
 
             msg.setContent(attachments);
@@ -183,7 +188,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @param xslFile
      */
     public void setXSLFile(String xslFile) {
-        this.xslFile = xslFile;
+        this._xslFile = xslFile;
     }
 
     /**
@@ -191,7 +196,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @param xslDir
      */
     public void setXSLDir(String xslDir) {
-        this.xslDir = xslDir;
+        this._xslDir = xslDir;
     }
 
     /**
@@ -214,7 +219,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         if (fileNames == null) {
             throw new IllegalArgumentException("xslFileNames can't be null (but can be empty)");
         }
-        this.xslFileNames = fileNames;
+        this._xslFileNames = fileNames;
     }
 
     /**
@@ -222,7 +227,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * @param css
      */
     public void setCSS(String css) {
-        this.css = css;
+        this._css = css;
     }
 
     /**
@@ -235,7 +240,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             throw new IllegalArgumentException("logDir cannot be null!");
         }
 
-        this.logDir = logDir;
+        this._logDir = logDir;
     }
 
     /**
@@ -251,16 +256,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
         String message = "";
 
         try {
-            File logDir = new File(this.logDir);
+            File logDir = new File(this._logDir);
             File inFile = new File(logDir, logHelper.getLogFileName());
             message = transform(inFile);
         } catch (Exception ex) {
-            log.error("", ex);
+            LOG.error("", ex);
             try {
                 String logFileName = logHelper.getLogFileName();
                 message = createLinkLine(logFileName);
             } catch (CruiseControlException ccx) {
-                log.error("exception getting logfile name", ccx);
+                LOG.error("exception getting logfile name", ccx);
             }
         }
 
@@ -273,16 +278,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         TransformerFactory tFactory = TransformerFactory.newInstance();
 
-        if (xslFile != null) {
-            File xslFile = new File(this.xslFile);
+        if (_xslFile != null) {
+            File xslFile = new File(this._xslFile);
             appendTransform(inFile, messageBuffer, tFactory, xslFile);
         } else {
             appendHeader(messageBuffer);
             messageBuffer.append(createLinkLine(inFile.getName()));
 
-            File xslDir = new File(this.xslDir);
-            for (int i = 0; i < xslFileNames.length; i++) {
-                String fileName = xslFileNames[i];
+            File xslDir = new File(this._xslDir);
+            for (int i = 0; i < _xslFileNames.length; i++) {
+                String fileName = _xslFileNames[i];
                 File xsl = new File(xslDir, fileName);
                 appendTransform(inFile, messageBuffer, tFactory, xsl);
             }
@@ -321,7 +326,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             transformer.transform(new StreamSource(inFile),
                     new StreamResult(outFile));
         } catch (Exception e) {
-            log.error("error transforming with xslFile " + xslFile.getName(), e);
+            LOG.error("error transforming with xslFile " + xslFile.getName(), e);
             return;
         }
         FileReader outfileReader = new FileReader(outFile);
@@ -336,7 +341,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
         messageBuffer.append("<html><head>\n<style>\n");
 
-        File cssFile = new File(css);
+        File cssFile = new File(_css);
         FileReader cssFileReader = new FileReader(cssFile);
         BufferedReader reader = new BufferedReader(cssFileReader);
         String line = reader.readLine();

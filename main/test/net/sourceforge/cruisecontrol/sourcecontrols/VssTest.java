@@ -93,7 +93,7 @@ public class VssTest extends TestCase {
         String testName = "1";
         try {
             assertEquals(
-             _vss.vssDateTimeFormat.parse(DATE_TIME_STRING.trim() + "m"),
+             _vss.getVssDateTimeFormat().parse(DATE_TIME_STRING.trim() + "m"),
              _vss.parseDate(createVSSLine(testName, DATE_TIME_STRING)));
 
         } catch (ParseException e) {
@@ -111,7 +111,7 @@ public class VssTest extends TestCase {
         vss.setTimeFormat("HH:mm");
         try {
             assertEquals(
-              vss.vssDateTimeFormat.parse(ALTERNATE_DATE_TIME_STRING.trim()),
+              vss.getVssDateTimeFormat().parse(ALTERNATE_DATE_TIME_STRING.trim()),
               vss.parseDate(createVSSLine(testName, ALTERNATE_DATE_TIME_STRING)));
         } catch (ParseException e) {
             fail("Could not parse date string: " + e.getMessage());
@@ -128,7 +128,7 @@ public class VssTest extends TestCase {
         String strangeDateLine = "User: Aaggarwa     Date:  6/20/:1   Time: 10:36a";
         try {
             assertEquals(
-             _vss.vssDateTimeFormat.parse(DATE_TIME_STRING.trim() + "m"),
+             _vss.getVssDateTimeFormat().parse(DATE_TIME_STRING.trim() + "m"),
              _vss.parseDate(strangeDateLine));
         } catch (ParseException e) {
             fail("Could not parse strange date string: " + e.getMessage());

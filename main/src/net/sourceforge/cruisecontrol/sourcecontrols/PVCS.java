@@ -1,48 +1,59 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
+ *
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
- *     + Redistributions of source code must retain the above copyright 
- *       notice, this list of conditions and the following disclaimer. 
- *       
- *     + Redistributions in binary form must reproduce the above 
- *       copyright notice, this list of conditions and the following 
- *       disclaimer in the documentation and/or other materials provided 
- *       with the distribution. 
- *       
- *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the 
- *       names of its contributors may be used to endorse or promote 
- *       products derived from this software without specific prior 
- *       written permission. 
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.StringTokenizer;
 
-import java.text.*;
-import java.util.*;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
@@ -55,47 +66,42 @@ import org.apache.log4j.Logger;
  */
 public class PVCS implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(PVCS.class);
+    private static final Logger LOG = Logger.getLogger(PVCS.class);
 
     private Hashtable _properties = new Hashtable();
     private String _property;
     private String _propertyOnDelete;
-    private Date lastBuild;
+    private Date _lastBuild;
 
-        private String _pvcsProject;
-        // i.e. "esa";
-        // i.e. "esa/uihub2";
-        private String _pvcsSubProject;
-        
-	/**
-	 *  Date format required by commands passed to PVCS
-         */
-     	private SimpleDateFormat _inDateFormat = new SimpleDateFormat("MM/dd/yyyy/HH:mm");
-        
-      	/**
-	 *  Date format returned in the output of PVCS commands.
-	 */
-        private SimpleDateFormat _outDateFormat = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
-        
+    private String _pvcsProject;
+    // i.e. "esa";
+    // i.e. "esa/uihub2";
+    private String _pvcsSubProject;
 
+    /**
+     * Date format required by commands passed to PVCS
+     */
+    private SimpleDateFormat _inDateFormat =
+        new SimpleDateFormat("MM/dd/yyyy/HH:mm");
 
-	/**
-	 *  Some constants used in file-based PVCS interactions.
-         */
-     	final static String PVCS_INSTRUCTIONS_FILE = "CruiseControlPVCS.pcli";
-        final static String PVCS_TEMP_WORK_FILE = "files.tmp";
-        final static String PVCS_RESULTS_FILE = "";
-        
-        
-        
+    /**
+     * Date format returned in the output of PVCS commands.
+     */
+    private SimpleDateFormat _outDateFormat =
+        new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
 
-	public void setPvcsproject(String project) {
-		_pvcsProject = project;
-	}
-	public void setPvcssubproject(String subproject) {
-		_pvcsSubProject = subproject;
-	}
+    private static final String PVCS_INSTRUCTIONS_FILE =
+        "CruiseControlPVCS.pcli";
+    private static final String PVCS_TEMP_WORK_FILE = "files.tmp";
+    private static final String PVCS_RESULTS_FILE = "";
+
+    public void setPvcsproject(String project) {
+        _pvcsProject = project;
+    }
+
+    public void setPvcssubproject(String subproject) {
+        _pvcsSubProject = subproject;
+    }
 
     public void setInDateFormat(String inDateFormat) {
         _inDateFormat = new SimpleDateFormat(inDateFormat);
@@ -118,215 +124,223 @@ public class PVCS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(_pvcsProject == null)
+        if (_pvcsProject == null) {
             throw new CruiseControlException("'pvcsproject' is a required attribute on PVCS");
-        if(_pvcsSubProject == null)
+        }
+        if (_pvcsSubProject == null) {
             throw new CruiseControlException("'pvcssubproject' is a required attribute on PVCS");
+        }
     }
 
-	/**
-	 *  Returns an {@link java.util.List List} of {@link Modification}
-	 *  detailing all the changes between now and the last build.
-	 *
-	 *@param  lastBuild the last build time
-	 *@param  now time now, or time to check
-	 *@return  the list of modifications, an empty (not null) list if no
-	 *      modifications or if developer had checked in files since quietPeriod seconds ago.
-         *
-         *  Note:  Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
-	 */
-	public List getModifications(Date lastBuild, Date now) {
-                this.lastBuild = lastBuild;
-                // build file of PVCS command line instructions
-                String lastBuildDate = _inDateFormat.format(lastBuild);
-                String nowDate = _inDateFormat.format(now);
-                buildExecFile(lastBuildDate, nowDate);
-                String command = "pcli run -sCruiseControlPVCS.pcli";
-		List modifications = null;
-                try {
-      			Process p = Runtime.getRuntime().exec(command);
-                        StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-			new Thread(errorPumper).start();
-                        InputStream input = p.getInputStream();
-                        p.waitFor();
-                p.getOutputStream();
-                p.getInputStream();
-                p.getErrorStream();
-		}
-		catch (Exception e) {
-			log.error("Error in executing the PVCS command : ", e);
+    /**
+     *  Returns an {@link java.util.List List} of {@link Modification}
+     *  detailing all the changes between now and the last build.
+     *
+     *@param  lastBuild the last build time
+     *@param  now time now, or time to check
+     *@return  the list of modifications, an empty (not null) list if no
+     *      modifications or if developer had checked in files since quietPeriod seconds ago.
+     *
+     *  Note:  Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
+     */
+    public List getModifications(Date lastBuild, Date now) {
+        _lastBuild = lastBuild;
+        // build file of PVCS command line instructions
+        String lastBuildDate = _inDateFormat.format(lastBuild);
+        String nowDate = _inDateFormat.format(now);
+        buildExecFile(lastBuildDate, nowDate);
+        String command = "pcli run -sCruiseControlPVCS.pcli";
+        List modifications = null;
+        try {
+            Process p = Runtime.getRuntime().exec(command);
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
+            new Thread(errorPumper).start();
+            InputStream input = p.getInputStream();
+            p.waitFor();
+            p.getOutputStream();
+            p.getInputStream();
+            p.getErrorStream();
+        } catch (Exception e) {
+            LOG.error("Error in executing the PVCS command : ", e);
             return new ArrayList();
-		}
-                modifications = makeModificationsList();
-                                         
-		if (modifications == null) {
-			modifications = new ArrayList();
-		}
-                
-                return modifications;
-	}
-
-
-	/**
-         *  Read the file produced by PCLI listing all changes to the source repository 
-         *  Once we've read the file, produce a list of changes.
-         */        
-       private List makeModificationsList(){
-           List theList = new ArrayList();       
-           File inputFile = new File("vlog.txt");
-           BufferedReader brIn;
-           ModificationBuilder modificationBuilder = new ModificationBuilder();
-           try{
-                 brIn = new BufferedReader(new FileReader(inputFile));
-                 String line;
-                 while ((line = brIn.readLine()) != null){
-                    modificationBuilder.addLine(line);
-                 }
-                 brIn.close();
-           }
-           catch(IOException e){ 
-                log.error("Error in reading vlog file of PVCS modifications : ", e);
-           }
-           theList = modificationBuilder.getList();
-           return theList;
-      }
-
-	/**
-         *  Builds a file of PVCS instructions to execute.  The format should be roughly:
-         *
-         *  set -vProject "-prv:\esa"
-         *  set -vSubProject "/esa/uihub2"
-         *  Echo Getting list of files
-         *  run ->files.tmp listversionedfiles -z -aw $Project $SubProject
-         *  Echo Getting History
-         *  run -e vlog  "-xo+evlog.txt" "-d07/20/2001/10:49*07/30/2001" "@files.tmp"
-         *
-         */        
-        private void buildExecFile(String lastBuild,String now){
-          File outputFile = new File(PVCS_INSTRUCTIONS_FILE);
-
-          String doubleQuotes = "\"";
-          String atSign = "@";
-          
-          String line1 = "set -vProject " + doubleQuotes + "-pr" + _pvcsProject + doubleQuotes;  
-          String line2 = "set -vSubProject " + doubleQuotes + _pvcsSubProject + doubleQuotes;
-          String line3 = "run ->files.tmp listversionedfiles -z -aw $Project $SubProject";
-          String line4Subline1 = "run -e vlog " + doubleQuotes + "-xo+evlog.txt" + doubleQuotes + " ";
-          String line4Subline2 =  doubleQuotes + "-d" + lastBuild + "*" + now + doubleQuotes + " ";
-          String line4Subline3 =  doubleQuotes + atSign + PVCS_TEMP_WORK_FILE + doubleQuotes; 
-          String line4 = line4Subline1 + line4Subline2 + line4Subline3;
-          
-          log.debug("#### PVCSElement about to write this line:\n " + line4Subline2);
-          
-          BufferedWriter bwOut;  
-          try{
-              bwOut = new BufferedWriter(new FileWriter(outputFile));
-	      bwOut.write(line1);
-              bwOut.write("\n");
-              bwOut.write(line2);
-              bwOut.write("\n");
-	      bwOut.write(line3);
-              bwOut.write("\n");
-	      bwOut.write(line4);	
-              bwOut.write("\n");
-              bwOut.close();
-          }
-          catch(IOException e){ 
-            log.error("Error in building PVCS pcli file : ", e);
-          }
         }
-        
-	/**
-	 *  Inner class to build Modifications and verify the order of the lines
-         *   used to build them. 
-	 */
-	class ModificationBuilder {
-        
-            private Modification modification; 
-            private ArrayList modifications = null;
-            private String lastLine = null;
-            private boolean firstModifiedTime = true;
-            private boolean firstUserName     = true;
-            private boolean nextLineIsComment = false;
-            private boolean waitingForNextValidStart = false;
-            
-            public ArrayList getList(){
-                return modifications;
+        modifications = makeModificationsList();
+
+        if (modifications == null) {
+            modifications = new ArrayList();
+        }
+
+        return modifications;
+    }
+
+    /**
+     * Read the file produced by PCLI listing all changes to the source repository
+     * Once we've read the file, produce a list of changes.
+     */
+    private List makeModificationsList() {
+        List theList = new ArrayList();
+        File inputFile = new File("vlog.txt");
+        BufferedReader brIn;
+        ModificationBuilder modificationBuilder = new ModificationBuilder();
+        try {
+            brIn = new BufferedReader(new FileReader(inputFile));
+            String line;
+            while ((line = brIn.readLine()) != null) {
+                modificationBuilder.addLine(line);
             }
-            
-            private void initializeModification(){
-                if (modifications == null){
-                    modifications = new ArrayList();
-                }
-                modification = new Modification();
-                firstModifiedTime = true;
-                firstUserName = true;
-                nextLineIsComment = false;
-                waitingForNextValidStart = false;
+            brIn.close();
+        } catch (IOException e) {
+            LOG.error("Error in reading vlog file of PVCS modifications : ", e);
+        }
+        theList = modificationBuilder.getList();
+        return theList;
+    }
+
+    /**
+     * Builds a file of PVCS instructions to execute.  The format should be roughly:
+     *
+     * set -vProject "-prv:\esa"
+     *  set -vSubProject "/esa/uihub2"
+     *  Echo Getting list of files
+     *  run ->files.tmp listversionedfiles -z -aw $Project $SubProject
+     *  Echo Getting History
+     *  run -e vlog  "-xo+evlog.txt" "-d07/20/2001/10:49*07/30/2001" "@files.tmp"
+     *
+     */
+    private void buildExecFile(String lastBuild, String now) {
+        File outputFile = new File(PVCS_INSTRUCTIONS_FILE);
+
+        String doubleQuotes = "\"";
+        String atSign = "@";
+
+        String line1 =
+            "set -vProject "
+                + doubleQuotes
+                + "-pr"
+                + _pvcsProject
+                + doubleQuotes;
+        String line2 =
+            "set -vSubProject " + doubleQuotes + _pvcsSubProject + doubleQuotes;
+        String line3 =
+            "run ->files.tmp listversionedfiles -z -aw $Project $SubProject";
+        String line4Subline1 =
+            "run -e vlog "
+                + doubleQuotes
+                + "-xo+evlog.txt"
+                + doubleQuotes
+                + " ";
+        String line4Subline2 =
+            doubleQuotes + "-d" + lastBuild + "*" + now + doubleQuotes + " ";
+        String line4Subline3 =
+            doubleQuotes + atSign + PVCS_TEMP_WORK_FILE + doubleQuotes;
+        String line4 = line4Subline1 + line4Subline2 + line4Subline3;
+
+        LOG.debug(
+            "#### PVCSElement about to write this line:\n " + line4Subline2);
+
+        BufferedWriter bwOut;
+        try {
+            bwOut = new BufferedWriter(new FileWriter(outputFile));
+            bwOut.write(line1);
+            bwOut.write("\n");
+            bwOut.write(line2);
+            bwOut.write("\n");
+            bwOut.write(line3);
+            bwOut.write("\n");
+            bwOut.write(line4);
+            bwOut.write("\n");
+            bwOut.close();
+        } catch (IOException e) {
+            LOG.error("Error in building PVCS pcli file : ", e);
+        }
+    }
+
+    /**
+     * Inner class to build Modifications and verify the order of the lines
+     * used to build them. 
+     */
+    class ModificationBuilder {
+
+        private Modification _modification;
+        private ArrayList _modifications;
+        private String _lastLine;
+        private boolean _firstModifiedTime = true;
+        private boolean _firstUserName = true;
+        private boolean _nextLineIsComment = false;
+        private boolean _waitingForNextValidStart = false;
+
+        public ArrayList getList() {
+            return _modifications;
+        }
+
+        private void initializeModification() {
+            if (_modifications == null) {
+                _modifications = new ArrayList();
             }
-            
-            public void addLine(String line){
-                if (line.startsWith("Archive:")){
-                   initializeModification();
+            _modification = new Modification();
+            _firstModifiedTime = true;
+            _firstUserName = true;
+            _nextLineIsComment = false;
+            _waitingForNextValidStart = false;
+        }
+
+        public void addLine(String line) {
+            if (line.startsWith("Archive:")) {
+                initializeModification();
+            } else if (_waitingForNextValidStart) {
+                // we're in this state after we've got the last useful line
+                // from the previous item, but haven't yet started a new one
+                // -- we should just skip these lines till we start a new one
+                return;
+            } else if (line.startsWith("Workfile:")) {
+                _modification.fileName = line.substring(18);
+            } else if (line.startsWith("Archive created:")) {
+                try {
+                    String createdDate = line.substring(18);
+                    Date createTime = _outDateFormat.parse(createdDate);
+                    if (createTime.after(_lastBuild)) {
+                        _modification.type = "added";
+                    } else {
+                        _modification.type = "modified";
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    LOG.error("Error parsing create date : ", e);
                 }
-                else if (waitingForNextValidStart){ 
-                    // we're in this state after we've got the last useful line
-                    // from the previous item, but haven't yet started a new one
-                    // -- we should just skip these lines till we start a new one
-                    return;
-                }
-                else if (line.startsWith("Workfile:")){ 
-                    modification.fileName = line.substring(18);
-                }
-                else if (line.startsWith("Archive created:")) {
+            } else if (line.startsWith("Last modified:")) {
+                // if this is the newest revision...
+                if (_firstModifiedTime) {
+                    _firstModifiedTime = false;
                     try {
-                        String createdDate = line.substring(18);
-                        Date createTime = _outDateFormat.parse(createdDate);
-                        if (createTime.after(lastBuild)) {
-                            modification.type = "added";
-                        } else {
-                            modification.type = "modified";
-                        }
+                        String lastMod = line.substring(16);
+                        _modification.modifiedTime =
+                            _outDateFormat.parse(lastMod);
                     } catch (ParseException e) {
-                        e.printStackTrace();
-                        log.error("Error parsing create date : ", e);
+                        _modification.modifiedTime = null;
+                        LOG.error("Error parsing modification time : ", e);
                     }
                 }
-                else if (line.startsWith("Last modified:")){
-                    // if this is the newest revision...
-                    if (firstModifiedTime){
-                        firstModifiedTime = false;
-              		try {
-                                String lastMod = line.substring(16);
-                        	modification.modifiedTime = _outDateFormat.parse(lastMod);
-                        }
-                        catch (ParseException e) {
-                            modification.modifiedTime = null;
-                            log.error("Error parsing modification time : ", e);
-                        }
-                    }
+            } else if (_nextLineIsComment) {
+                // used boolean because don't know what comment will startWith....
+                _modification.comment = line;
+                // comment is last line we need, so add this mod to list,
+                //  then set indicator to ignore future lines till next new item
+                _modifications.add(_modification);
+                _waitingForNextValidStart = true;
+            } else if (line.startsWith("Author id:")) {
+                // if this is the newest revision...
+                if (_firstUserName) {
+                    String sub = line.substring(11);
+                    StringTokenizer st = new StringTokenizer(sub, " ");
+                    String username = st.nextToken().trim();
+                    _modification.userName = username;
+                    _firstUserName = false;
+                    _nextLineIsComment = true;
                 }
-                else if (nextLineIsComment == true){
-                    // used boolean because don't know what comment will startWith....
-                    modification.comment = line;
-                    // comment is last line we need, so add this mod to list,
-                    //  then set indicator to ignore future lines till next new item
-                    modifications.add(modification);
-                    waitingForNextValidStart = true;
-                }
-                else if (line.startsWith("Author id:")){
-                    // if this is the newest revision...
-                    if (firstUserName){
-                        String sub = line.substring(11);
-                        StringTokenizer st = new StringTokenizer(sub, " ");
-     		        String username = st.nextToken().trim();
-                        modification.userName = username;
-                        firstUserName = false;
-                        nextLineIsComment = true;
-                    }
-                }  // end of Author id
-                
-                
-            }   // end of addLine  
-  }  // end of class ModificationBuilder
-}  // end class PVCSElement
+            } // end of Author id
+
+        } // end of addLine
+          
+    } // end of class ModificationBuilder
+    
+} // end class PVCSElement

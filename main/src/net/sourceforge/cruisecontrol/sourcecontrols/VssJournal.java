@@ -36,13 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.*;
-import java.text.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
-import java.util.*;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -64,8 +72,7 @@ import org.apache.log4j.Logger;
  */
 public class VssJournal implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(VssJournal.class);
+    private static final Logger LOG = Logger.getLogger(VssJournal.class);
 
     public static final SimpleDateFormat VSS_OUT_FORMAT =
         new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma");
@@ -80,7 +87,7 @@ public class VssJournal implements SourceControl {
     private Date _lastBuild;
 
     private ArrayList _modifications = new ArrayList();
-    private List moListVssJournalDateFormat = new ArrayList();
+    private List _moListVssJournalDateFormat = new ArrayList();
 
     public VssJournal() {
         // Add the default date format
@@ -95,7 +102,7 @@ public class VssJournal implements SourceControl {
      */
     public VssJournalDateFormat createVssjournaldateformat() {
         VssJournalDateFormat oVssJournalDateFormat = new VssJournalDateFormat();
-        moListVssJournalDateFormat.add(oVssJournalDateFormat);
+        _moListVssJournalDateFormat.add(oVssJournalDateFormat);
         return oVssJournalDateFormat;
     }
 
@@ -144,10 +151,12 @@ public class VssJournal implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(_journalFile == null)
+        if (_journalFile == null) {
             throw new CruiseControlException("'journalfile' is a required attribute on VssJournal");
-        if(_ssDir == null)
+        }
+        if (_ssDir == null) {
             throw new CruiseControlException("'ssdir' is a required attribute on VssJournal");
+        }
     }
 
     /**
@@ -175,10 +184,11 @@ public class VssJournal implements SourceControl {
                     s = br.readLine();
                 }
                 Modification mod = handleEntry(entry);
-                if(mod != null)
+                if (mod != null) {
                     _modifications.add(mod);
+                }
 
-                if(s.equals("")) {
+                if (s.equals("")) {
                     s = br.readLine();
                 }
             }
@@ -193,7 +203,7 @@ public class VssJournal implements SourceControl {
             _properties.put(_property, "true");
         }
 
-        log.info("Found "+_modifications.size()+" modified files");
+        LOG.info("Found " + _modifications.size() + " modified files");
         return _modifications;
     }
 
@@ -203,7 +213,6 @@ public class VssJournal implements SourceControl {
      *@param  historyEntry
      */
     protected Modification handleEntry(List historyEntry) {
-
         Modification mod = new Modification();
         String nameAndDateLine = (String) historyEntry.get(2);
         mod.userName = parseUser(nameAndDateLine);
@@ -212,7 +221,7 @@ public class VssJournal implements SourceControl {
         String folderLine = (String) historyEntry.get(0);
         String fileLine = (String) historyEntry.get(3);
 
-        if(!isInSsDir(folderLine)) {
+        if (!isInSsDir(folderLine)) {
             // We are only interested in modifications to files in the specified ssdir
             return null;
         } else if (isBeforeLastBuild(mod.modifiedTime)) {
@@ -277,7 +286,7 @@ public class VssJournal implements SourceControl {
      */
     private String parseComment(List a) {
         StringBuffer comment = new StringBuffer();
-        if(a.size() > 4) {
+        if (a.size() > 4) {
             comment.append(((String) a.get(4)) + " ");
             for (int i = 5; i < a.size(); i++) {
                 comment.append(((String) a.get(i)) + " ");
@@ -305,10 +314,15 @@ public class VssJournal implements SourceControl {
         String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: ")).trim();
         // Fixup for weird format
         int indexOfColon = dateAndTime.indexOf("/:");
-        if(indexOfColon != -1) {
-            dateAndTime = dateAndTime.substring(0, indexOfColon)
-            + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
-            + dateAndTime.substring(indexOfColon + 2);
+        if (indexOfColon != -1) {
+            dateAndTime =
+                dateAndTime.substring(0, indexOfColon)
+                    + dateAndTime.substring(
+                        indexOfColon,
+                        indexOfColon + 2).replace(
+                        ':',
+                        '0')
+                    + dateAndTime.substring(indexOfColon + 2);
         }
         try {
             Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime + "m");
@@ -319,12 +333,16 @@ public class VssJournal implements SourceControl {
             // on how to interpret the date, but first we extract date and time into one
             // string with just one space separating the date from the time
             dateAndTime = dateAndTime.substring(5);
-            String sDate = dateAndTime.substring(0, dateAndTime.indexOf("Time:")).trim();;
-            String sTime = dateAndTime.substring(dateAndTime.indexOf("Time:")+5).trim();;
-            dateAndTime = sDate+" "+sTime;
+            String sDate = dateAndTime.substring(0, dateAndTime.indexOf("Time:")).trim();
+            String sTime =
+                dateAndTime.substring(dateAndTime.indexOf("Time:") + 5).trim();
+            dateAndTime = sDate + " " + sTime;
             Date oDate = null;
-            for (Iterator oIterator = moListVssJournalDateFormat.iterator();oIterator.hasNext();) {
-                VssJournalDateFormat oVssJournalDateFormat = (VssJournalDateFormat)oIterator.next();
+            for (Iterator oIterator = _moListVssJournalDateFormat.iterator();
+                oIterator.hasNext();
+                ) {
+                VssJournalDateFormat oVssJournalDateFormat =
+                    (VssJournalDateFormat) oIterator.next();
                 try {
                     oDate = oVssJournalDateFormat.getDateFormat().parse(dateAndTime);
                 } catch (ParseException e) {
@@ -332,7 +350,7 @@ public class VssJournal implements SourceControl {
                 }
             }
             if (oDate == null) {
-                log.error("Could not parse date in VssJournal file");
+                LOG.error("Could not parse date in VssJournal file");
             }
             return oDate;
         }
@@ -345,10 +363,11 @@ public class VssJournal implements SourceControl {
      *@return the user name who made the modification
      */
     public String parseUser(String userLine) {
-        final int START_OF_USER_NAME = 6;
+        final int startOfUserName = 6;
+        
         try {
             String userName = userLine.substring(
-            START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();
+            startOfUserName, userLine.indexOf("Date: ") - 1).trim();
 
             return userName;
         } catch (StringIndexOutOfBoundsException e) {
@@ -365,7 +384,7 @@ public class VssJournal implements SourceControl {
      */
     public String substringFromLastSlash(String input) {
         int lastSlashPos = input.lastIndexOf("/");
-        if (lastSlashPos > 0 && lastSlashPos+1 <= input.length()) {
+        if (lastSlashPos > 0 && lastSlashPos + 1 <= input.length()) {
             return input.substring(lastSlashPos + 1);
         } else {
             return input;
@@ -389,11 +408,7 @@ public class VssJournal implements SourceControl {
      *  Determines if the given folder is in the ssdir specified for this VssJournalElement.
      */
     protected boolean isInSsDir(String path) {
-        if (path.toLowerCase().indexOf(_ssDir.toLowerCase()) == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (path.toLowerCase().indexOf(_ssDir.toLowerCase()) != -1);
     }
 
     /**
@@ -405,17 +420,22 @@ public class VssJournal implements SourceControl {
 
 
     public static class VssJournalDateFormat {
-        private DateFormat moDateFormat = null;
-        private String msFormat = null;
+        private DateFormat _moDateFormat;
+        private String _msFormat;
+        
         public void setFormat(String psFormat) {
-            moDateFormat = new SimpleDateFormat(psFormat);
-            msFormat = psFormat;
+            _moDateFormat = new SimpleDateFormat(psFormat);
+            _msFormat = psFormat;
         }
+        
         public String getFormat() {
-            return msFormat;
+            return _msFormat;
         }
+        
         public final DateFormat getDateFormat() {
-            return moDateFormat;
+            return _moDateFormat;
         }
+        
     }
+    
 }

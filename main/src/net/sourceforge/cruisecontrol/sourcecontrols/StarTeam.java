@@ -38,14 +38,29 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import com.starbase.starteam.*;
 import com.starbase.util.OLEDate;
+
+import java.io.File;
+import java.rmi.ServerException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.mail.Folder;
+import javax.swing.text.View;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 
-import java.util.*;
-
 import org.apache.log4j.Logger;
+
+import com.sun.corba.se.ActivationIDL.Server;
+import com.sun.mail.imap.protocol.Item;
 
 /**
  * This class logs into StarTeam and collects information on any modifications
@@ -57,14 +72,13 @@ import org.apache.log4j.Logger;
  */
 public class StarTeam implements SourceControl {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(StarTeam.class);
+    private static final Logger LOG = Logger.getLogger(StarTeam.class);
 
-    private String username;
-    private String password;
-    private String folder;
-    private String url;
-    private List modifications = new ArrayList();
+    private String _userName;
+    private String _password;
+    private String _folder;
+    private String _url;
+    private List _modifications = new ArrayList();
     private OLEDate nowDate;
 
     private Hashtable _properties = new Hashtable();
@@ -78,21 +92,21 @@ public class StarTeam implements SourceControl {
      * Set StarTeam user name
      */
     public void setUsername(String username) {
-        this.username = username;
+        _userName = username;
     }
 
     /**
      * Set password for StarTeam user
      */
     public void setPassword(String password) {
-        this.password = password;
+        _password = password;
     }
 
     /**
      * Set repository folder
      */
     public void setFolder(String folder) {
-        this.folder = folder;
+        _folder = folder;
     }
 
     public void setPreloadFileInformation(boolean preloadFileInformation) {
@@ -100,7 +114,7 @@ public class StarTeam implements SourceControl {
     }
 
     public void setStarteamurl(String url) {
-        this.url = url;
+        _url = url;
     }
 
     public void setProperty(String property) {
@@ -116,14 +130,18 @@ public class StarTeam implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(folder == null)
+        if (_folder == null) {
            throw new CruiseControlException("'folder' is a required attribute on StarTeam.");
-        if(url == null)
+        }
+        if (_url == null) {
            throw new CruiseControlException("'url' is a required attribute on StarTeam.");
-        if(username == null)
+        }
+        if (_userName == null) {
            throw new CruiseControlException("'username' is a required attribute on StarTeam.");
-        if(password == null)
+        }
+        if (_password == null) {
            throw new CruiseControlException("'password' is a required attribute on StarTeam.");
+        }
     }
 
     /**
@@ -139,7 +157,7 @@ public class StarTeam implements SourceControl {
         // when this function is called more than once in a quiet period breach
         // We normally would need to clean out the email list as well, except we
         // know that all entries in current list will still be required
-        modifications.clear();
+        _modifications.clear();
 
         // Store OLEDate equivalents of now and lastbuild for performance
         nowDate = new OLEDate(now.getTime());
@@ -151,8 +169,8 @@ public class StarTeam implements SourceControl {
         Server server = null;
         try {
             // Set up two view snapshots, one at lastbuild time, one now
-            View view = StarTeamFinder.openView(this.username + ":"
-             + this.password + "@" + this.url);
+            View view = StarTeamFinder.openView(_userName + ":"
+             + _password + "@" + _url);
             server = view.getServer();
 
 
@@ -162,15 +180,20 @@ public class StarTeam implements SourceControl {
             Map nowFiles = new HashMap();
             Map lastBuildFiles = new HashMap();
 
-            Folder nowRoot = StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(), this.folder);
+            Folder nowRoot = StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(), _folder);
 
             PropertyNames stPropertyNames = server.getPropertyNames();
             // properties to fetch immediately and cache
-            final String[] propertiesToCache = new String[] {stPropertyNames.FILE_CONTENT_REVISION, stPropertyNames.MODIFIED_TIME,
-                                                             stPropertyNames.FILE_FILE_TIME_AT_CHECKIN, stPropertyNames.COMMENT,
-                                                             stPropertyNames.MODIFIED_USER_ID, stPropertyNames.FILE_NAME};
+            final String[] propertiesToCache =
+                new String[] {
+                    stPropertyNames.FILE_CONTENT_REVISION,
+                    stPropertyNames.MODIFIED_TIME,
+                    stPropertyNames.FILE_FILE_TIME_AT_CHECKIN,
+                    stPropertyNames.COMMENT,
+                    stPropertyNames.MODIFIED_USER_ID,
+                    stPropertyNames.FILE_NAME };
 
-            if (this._preloadFileInformation) {
+            if (_preloadFileInformation) {
                 // cache information for now
                 nowRoot.populateNow(server.getTypeNames().FILE, propertiesToCache, -1);
             }
@@ -179,7 +202,7 @@ public class StarTeam implements SourceControl {
             addFolderModsToList(nowFiles, nowRoot);
 
             try {
-                Folder lastBuildRoot = StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), this.folder);
+                Folder lastBuildRoot = StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), _folder);
 
                 if (_preloadFileInformation) {
                     // cache information for last build
@@ -188,7 +211,7 @@ public class StarTeam implements SourceControl {
 
                 addFolderModsToList(lastBuildFiles, lastBuildRoot);
             } catch (ServerException se) {
-                log.error("Server Exception occurred visiting last build view: ", se);
+                LOG.error("Server Exception occurred visiting last build view: ", se);
             }
 
             compareFileLists(nowFiles, lastBuildFiles);
@@ -199,18 +222,19 @@ public class StarTeam implements SourceControl {
             try {
                 snapshotAtLastBuild.getRootFolder().discardItems(server.getTypeNames().FILE, -1);
             } catch (ServerException se) {
-                log.error("Server Exception occurred discarding last build file cache: ", se);
+                LOG.error("Server Exception occurred discarding last build file cache: ", se);
             }
 
-            log.info(modifications.size() + " modifications in " + this.folder);
-            return modifications;
+            LOG.info(_modifications.size() + " modifications in " + _folder);
+            return _modifications;
         } catch (Exception e) {
-            log.error("Problem looking up modifications in StarTeam.", e);
-            modifications.clear();
-            return modifications;
+            LOG.error("Problem looking up modifications in StarTeam.", e);
+            _modifications.clear();
+            return _modifications;
         } finally {
-            if(server != null)
+            if (server != null) {
                 server.disconnect();
+            }
             System.setSecurityManager(new NoExitSecurityManager());
         }
     }
@@ -316,18 +340,19 @@ public class StarTeam implements SourceControl {
                 // Return the modifying user's name instead. Then use the
                 // email.properties file to map the name to an email address
                 // outside of StarTeam
-                log.info("Error looking up user email address." , sx);
+                LOG.info("Error looking up user email address." , sx);
                 _canLookupEmails = false;
             }
         }
 
 
-        modifications.add(mod);
-        if(status.equals("deleted")) {
-            if(_propertyOnDelete != null)
+        _modifications.add(mod);
+        if (status.equals("deleted")) {
+            if (_propertyOnDelete != null) {
                 _properties.put(_propertyOnDelete, "true");
+            }
         }
-        if(_property != null) {
+        if (_property != null) {
             _properties.put(_property, "true");
         }
     }

@@ -80,8 +80,9 @@ public class FileSystem implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if(_folder == null)
+        if (_folder == null) {
            throw new CruiseControlException("'folder' is a required attribute for FileSystem");
+        }
     }
 
     /**
@@ -115,8 +116,9 @@ public class FileSystem implements SourceControl {
         mod.comment = "";
         _modifications.add(mod);
 
-        if (_property != null)
+        if (_property != null) {
             _properties.put(_property, "true");
+        }
     }
 
     /**
