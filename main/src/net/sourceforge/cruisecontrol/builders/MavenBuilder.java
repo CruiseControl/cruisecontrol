@@ -299,7 +299,10 @@ public class MavenBuilder extends Builder implements StreamConsumer {
             // The BAT never returns errors, so I'll catch it like this. Brrr.
             if (line.startsWith("BUILD FAILED")) {
                 buildLogElement.setAttribute("error", "BUILD FAILED detected");
-            } else if (line.endsWith(":")) { // heuristically a goal marker
+            } else if (
+                line.endsWith(":") // heuristically this is a goal marker,
+                    && !line.startsWith(" ") // but debug lines might look like that
+                    && !line.startsWith("\t")) {
                 makeNewCurrentElement(line.substring(0, line.lastIndexOf(':')));
                 return; // Do not log the goal itself
             }
