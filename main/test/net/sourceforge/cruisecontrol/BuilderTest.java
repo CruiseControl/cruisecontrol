@@ -67,9 +67,8 @@ public class BuilderTest extends TestCase {
     public void testValidate() throws CruiseControlException {
         try {
             builder.validate();
-            fail("time or multiple must be set");
         } catch (CruiseControlException e) {
-            // should throw exception
+            fail("no required attributes");
         }
 
         builder.setTime("0000");
@@ -97,6 +96,12 @@ public class BuilderTest extends TestCase {
 
         builder.setDay("thursday");
         assertTrue(builder.isValidDay(thursday));
+    }
+    
+    public void testGetMultiple() {
+        assertEquals(1, builder.getMultiple());
+        builder.setTime("0100");
+        assertEquals(-1, builder.getMultiple());
     }
 
     class TestBuilder extends Builder {

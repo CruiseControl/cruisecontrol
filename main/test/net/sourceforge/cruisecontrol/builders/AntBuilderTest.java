@@ -72,20 +72,26 @@ public class AntBuilderTest extends TestCase {
 
         try {
             ab.validate();
-            fail("AntBuilder should throw exceptions when required fields are not set.");
         } catch (CruiseControlException e) {
-            assertTrue(true);
+            fail("antbuilder has no required attributes");
         }
 
-        ab.setMultiple(1);
+        ab.setTime("0100");
         ab.setBuildFile("buildfile");
         ab.setTarget("target");
 
         try {
             ab.validate();
-            assertTrue(true);
         } catch (CruiseControlException e) {
-            fail("AntBuilder should not throw exceptions when required fields are set.");
+            fail("validate should not throw exceptions when options are set.");
+        }
+        
+        ab.setMultiple(2);
+
+        try {
+            ab.validate();
+            fail("validate should throw exceptions when multiple and time are both set.");
+        } catch (CruiseControlException e) {
         }
     }
 
