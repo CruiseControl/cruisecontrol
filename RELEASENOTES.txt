@@ -72,6 +72,10 @@ CurrentBuildStatusBootstrapper & Publisher
 ----------------------
 * Checks parent directory of file exists as part of validation rather than failing later.
 
+CurrentBuildStatusListener
+----------------------
+* Listens for ProjectStateChangedEvents and the updates a file with the state and timestamp. Makes CurrentBuildStatusBootstrapper & Publisher obsolete.
+
 EmailPublisher & friends
 ----------------------
 * Uses new EmailMapperHelper to map addresses with EmailMappers (CC-2). Patch by Esa Laine
@@ -87,6 +91,10 @@ HTMLEmailPublisher
 JMX Support
 ----------------------
 * Upgraded to MX4J 2.0.1 (including support for JSR 160)
+
+Listener
+----------------------
+* new plug-in type "Listener". Listeners registered with a Project will be notified of ProjectEvents.
 
 Log
 ----------------------

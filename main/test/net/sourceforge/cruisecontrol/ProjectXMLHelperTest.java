@@ -131,6 +131,16 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals("utf-8", helper.getLog().getLogXmlEncoding());
     }
 
+    public void testGetListeners() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
+        List listeners = helper.getListeners();
+        assertEquals(0, listeners.size());
+
+        helper = new ProjectXMLHelper(configFile, "project2");
+        listeners = helper.getListeners();
+        assertEquals(1, listeners.size());
+    }
+
     protected void setUp() throws Exception {
         configFile = File.createTempFile("tempConfig", "xml");
         configFile.deleteOnExit();
@@ -161,6 +171,9 @@ public class ProjectXMLHelperTest extends TestCase {
                 + "      <merge file='blah' />"
                 + "    </log>"
                 + "    <labelincrementer separator='#' />"
+                + "    <listeners>"
+                + "      <currentbuildstatuslistener file='status.txt'/>"
+                + "    </listeners>"
                 + "  </project>"
                 + "  <project name='project3' >"
                 + "    <log/>"

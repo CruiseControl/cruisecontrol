@@ -36,21 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
+import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.ObjectInputStream;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -77,6 +77,7 @@ public class Project implements Serializable, Runnable {
     private transient Log log;
     private transient List publishers;
     private transient LabelIncrementer labelIncrementer;
+    private transient List listeners;
 
     /**
      * If this attribute is set, then it means that the user has overriden
@@ -152,7 +153,7 @@ public class Project implements Serializable, Runnable {
     }
 
     /**
-     *  Unless paused, runs any bootstrappers and then the entire build.
+     * Unless paused, runs any bootstrappers and then the entire build.
      */
     protected void build() throws CruiseControlException {
         try {
@@ -270,6 +271,7 @@ public class Project implements Serializable, Runnable {
         if (needToWaitForNextBuild(waitTime)) {
             info("next build in " + Util.formatTime(waitTime));
             synchronized (waitMutex) {
+                setState(ProjectState.WAITING);
                 waitMutex.wait(waitTime);
             }
         }
@@ -285,12 +287,11 @@ public class Project implements Serializable, Runnable {
                 long millisSinceLastBuild = now.getTime() - buildStartTime.getTime();
                 if (millisSinceLastBuild < 60000L) {
                     debug("build finished within a minute, getting new time to next build");
-                    waitTime = schedule.getTimeToNextBuild(
-                        new Date(now.getTime() + 60000L), getBuildInterval());
+                    waitTime = schedule.getTimeToNextBuild(new Date(now.getTime() + 60000L), getBuildInterval());
                 }
             }
         }
-        return waitTime;          
+        return waitTime;
     }
 
     static boolean needToWaitForNextBuild(long waitTime) {
@@ -406,8 +407,12 @@ public class Project implements Serializable, Runnable {
         return labelIncrementer;
     }
 
-    public void setLabelIncrementer(LabelIncrementer incrementer) {
+    public void setLabelIncrementer(LabelIncrementer incrementer) throws CruiseControlException {
         labelIncrementer = incrementer;
+        if (label == null) {
+            label = labelIncrementer.getDefaultLabel();
+        }
+        validateLabel(label, labelIncrementer);
     }
 
     public void setLogXmlEncoding(String encoding) {
@@ -441,9 +446,9 @@ public class Project implements Serializable, Runnable {
 
     /**
      * @param newLastBuild string containing the build date in the format
-     * yyyyMMddHHmmss
+     *                     yyyyMMddHHmmss
      * @throws CruiseControlException if the date cannot be extracted from the
-     * input string
+     *                                input string
      */
     public void setLastBuild(String newLastBuild) throws CruiseControlException {
         lastBuild = parseFormatedTime(newLastBuild, "lastBuild");
@@ -451,9 +456,9 @@ public class Project implements Serializable, Runnable {
 
     /**
      * @param newLastSuccessfulBuild string containing the build date in the format
-     * yyyyMMddHHmmss
+     *                               yyyyMMddHHmmss
      * @throws CruiseControlException if the date cannot be extracted from the
-     * input string
+     *                                input string
      */
     public void setLastSuccessfulBuild(String newLastSuccessfulBuild)
             throws CruiseControlException {
@@ -572,23 +577,15 @@ public class Project implements Serializable, Runnable {
         info("reading settings from config file [" + configFile.getAbsolutePath() + "]");
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
 
+        setListeners(helper.getListeners());
         bootstrappers = helper.getBootstrappers();
-        schedule = helper.getSchedule();
-
+        setSchedule(helper.getSchedule());
         log = helper.getLog();
-
-        modificationSet = helper.getModificationSet();
-
-        labelIncrementer = helper.getLabelIncrementer();
-        if (label == null) {
-            label = labelIncrementer.getDefaultLabel();
-        }
-        validateLabel(label, labelIncrementer);
-
-
+        setModificationSet(helper.getModificationSet());
+        setLabelIncrementer(helper.getLabelIncrementer());
         setPublishers(helper.getPublishers());
 
-        buildAfterFailed = helper.getBuildAfterFailed();
+        setBuildAfterFailed(helper.getBuildAfterFailed());
 
         if (lastBuild == null) {
             lastBuild = Util.getMidnight();
@@ -637,16 +634,14 @@ public class Project implements Serializable, Runnable {
         if (lastSuccessfulBuild == null) {
             lastSuccessfulBuildPropertyElement.setAttribute("value", getFormatedTime(now));
         } else {
-            lastSuccessfulBuildPropertyElement.setAttribute(
-                    "value",
+            lastSuccessfulBuildPropertyElement.setAttribute("value",
                     getFormatedTime(lastSuccessfulBuild));
         }
         infoElement.addContent(lastSuccessfulBuildPropertyElement);
 
         Element buildDateElement = new Element("property");
         buildDateElement.setAttribute("name", "builddate");
-        buildDateElement.setAttribute(
-                "value",
+        buildDateElement.setAttribute("value",
                 new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
         infoElement.addContent(buildDateElement);
 
@@ -697,7 +692,6 @@ public class Project implements Serializable, Runnable {
     /**
      * Iterate over all of the registered <code>Publisher</code>s and call
      * their respective <code>publish</code> methods.
-     *
      */
     protected void publish() throws CruiseControlException {
         Iterator publisherIterator = publishers.iterator();
@@ -730,15 +724,14 @@ public class Project implements Serializable, Runnable {
     /**
      * Ensure that label is valid for the specified LabelIncrementer
      *
-     * @param oldLabel target label
+     * @param oldLabel    target label
      * @param incrementer target LabelIncrementer
      * @throws CruiseControlException if label is not valid
      */
     protected void validateLabel(String oldLabel, LabelIncrementer incrementer)
             throws CruiseControlException {
         if (!incrementer.isValidLabel(oldLabel)) {
-            throw new CruiseControlException(
-                    oldLabel
+            throw new CruiseControlException(oldLabel
                     + " is not a valid label for labelIncrementer "
                     + incrementer.getClass().getName());
         }
@@ -770,8 +763,7 @@ public class Project implements Serializable, Runnable {
             date = formatter.parse(timeString);
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + description + "]", e);
-            throw new CruiseControlException(
-                    "Cannot parse string for " + description + ":" + timeString);
+            throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
         }
 
         return date;
@@ -840,6 +832,26 @@ public class Project implements Serializable, Runnable {
             for (Iterator i = resultListeners.iterator(); i.hasNext();) {
                 BuildResultListener listener = (BuildResultListener) i.next();
                 listener.handleBuildResult(event);
+            }
+        }
+    }
+
+    protected void setListeners(List listeners) {
+        this.listeners = listeners;
+    }
+
+    public void notifyListeners(ProjectEvent event) {
+        Iterator listenerIterator = listeners.iterator();
+        Listener listener;
+        while (listenerIterator.hasNext()) {
+            listener = (Listener) listenerIterator.next();
+            try {
+                listener.handleEvent(event);
+            } catch (CruiseControlException e) {
+                StringBuffer message = new StringBuffer("exception notifying listener ");
+                message.append(listener.getClass().getName());
+                message.append(" for project " + name);
+                LOG.error(message.toString(), e);
             }
         }
     }

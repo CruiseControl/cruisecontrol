@@ -168,6 +168,8 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("clearcasebootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper");
         verifyPluginClass("xsltlogpublisher", "net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher");
         verifyPluginClass("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
+        verifyPluginClass("currentbuildstatuslistener",
+                "net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener");
     }
 
     static void verifyPluginClass(String pluginName, String expectedName)
