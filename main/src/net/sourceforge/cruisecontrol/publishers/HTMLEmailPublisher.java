@@ -79,6 +79,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         {
             "header.xsl",
             "maven.xsl",
+            "checkstyle.xsl",
             "compile.xsl",
             "javadoc.xsl",
             "unittests.xsl",
@@ -195,10 +196,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * standard CruseControl xsl files: <br>
      * <ul>
      *   header.xsl
-     *   compile.xsl
-     *   unittests.xsl
-     *   modifications.xsl
-     *   distributables.xsl
+     *   maven.xsl
+     *   etc ...
      * </ul>
      * I expect this to be used by a derived class to allow someone to
      * change the order of xsl files or to add/remove one to/from the list
@@ -209,7 +208,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
         if (fileNames == null) {
             throw new IllegalArgumentException("xslFileNames can't be null (but can be empty)");
         }
-        setXslFileNames(fileNames);
+        xslFileNames = fileNames;
+    }
+
+    /**
+     * Provided as an alternative to setXSLFileNames for changing the list of 
+     * files to use.
+     * @return xsl files to use in generating the email
+     */
+    protected String[] getXslFileNames() {
+        return xslFileNames;
     }
 
     /**
@@ -363,14 +371,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     protected void appendFooter(StringBuffer messageBuffer) {
         messageBuffer.append("\n</body></html>");
-    }
-
-    private void setXslFileNames(String[] xslFileNames) {
-        this.xslFileNames = xslFileNames;
-    }
-
-    private String[] getXslFileNames() {
-        return xslFileNames;
     }
 
 }
