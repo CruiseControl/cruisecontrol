@@ -170,7 +170,9 @@
         <tr>
             <td colspan="2" class="unittests-error">
                 <PRE>
-                    <xsl:value-of select="error" />
+                    <xsl:call-template name="br-replace">
+                        <xsl:value-of name="word" select="error" />
+                    </xsl:call-template>
                 </PRE>
             </td>
         </tr>
@@ -221,5 +223,5 @@
         </xsl:choose>
     </xsl:template>
 
-    
+
 </xsl:stylesheet>
