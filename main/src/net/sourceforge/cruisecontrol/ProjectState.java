@@ -60,6 +60,8 @@ public final class ProjectState {
             new ProjectState(7, "paused", "paused");
     public static final ProjectState STOPPED =
             new ProjectState(8, "stopped", "stopped");
+    public static final ProjectState WAITING =
+            new ProjectState(9, "waiting", "waiting for next time to build");
 
     private String description;
     private String name;

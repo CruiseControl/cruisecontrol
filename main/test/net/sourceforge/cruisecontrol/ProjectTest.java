@@ -50,12 +50,12 @@ import org.jdom.Element;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,8 +64,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ProjectTest extends TestCase {
-    private static final org.apache.log4j.Logger LOG4J =
-            org.apache.log4j.Logger.getLogger(ProjectTest.class);
+    private static final org.apache.log4j.Logger LOG4J = org.apache.log4j.Logger.getLogger(ProjectTest.class);
 
     private static final String TEST_DIR = "tmp";
 
@@ -95,6 +94,17 @@ public class ProjectTest extends TestCase {
         }
     }
 
+    public void testNotifyListeners() {
+        MockListener listener = new MockListener();
+        List listeners = new ArrayList();
+        listeners.add(listener);
+        project.setListeners(listeners);
+        ProjectEvent event = new ProjectEvent("foo") {
+        };
+        project.notifyListeners(event);
+        assertTrue(listener.wasNotified());
+    }
+
     public void testBuild() throws Exception {
         Date now = new Date();
         MockModificationSet modSet = new MockModificationSet();
@@ -103,29 +113,28 @@ public class ProjectTest extends TestCase {
         project.setSchedule(sched);
         project.setLabel("1.2.2");
         project.setName("myproject");
-        File logDir = new File(TEST_DIR  + File.separator + "test-results");
+        File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
-        project.getLog().setLogDir(TEST_DIR  + File.separator + "test-results");
+        project.getLog().setLogDir(TEST_DIR + File.separator + "test-results");
         project.setLogXmlEncoding("ISO-8859-1");
         MergeLogger logger = new MergeLogger();
-        logger.setFile(TEST_DIR  + File.separator + "_auxLog1.xml");
+        logger.setFile(TEST_DIR + File.separator + "_auxLog1.xml");
         project.getLog().addLogger(logger);
 
         logger = new MergeLogger();
-        logger.setDir(TEST_DIR  + File.separator + "_auxLogs");
+        logger.setDir(TEST_DIR + File.separator + "_auxLogs");
         project.getLog().addLogger(logger);
 
         project.setLabelIncrementer(new DefaultLabelIncrementer());
         project.setModificationSet(modSet);
         project.setLastBuild(formatTime(now));
         project.setLastSuccessfulBuild(formatTime(now));
-        writeFile(TEST_DIR  + File.separator + "_auxLog1.xml", "<one/>");
-        File auxLogsDirectory = new File(TEST_DIR  + File.separator + "_auxLogs");
+        writeFile(TEST_DIR + File.separator + "_auxLog1.xml", "<one/>");
+        File auxLogsDirectory = new File(TEST_DIR + File.separator + "_auxLogs");
         auxLogsDirectory.mkdir();
-        writeFile(
-            TEST_DIR  + File.separator + "_auxLogs/_auxLog2.xml",
-            "<testsuite><properties><property/></properties><testcase/></testsuite>");
-        writeFile(TEST_DIR  + File.separator + "_auxLogs/_auxLog3.xml", "<testsuite/>");
+        writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog2.xml",
+                "<testsuite><properties><property/></properties><testcase/></testsuite>");
+        writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog3.xml", "<testsuite/>");
 
         final ArrayList resultEvents = new ArrayList();
         project.addBuildResultListener(new BuildResultListener() {
@@ -146,7 +155,7 @@ public class ProjectTest extends TestCase {
         assertTrue(project.isLastBuildSuccessful());
 
         String expected =
-            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
+                "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
                 + "<modifications /><info><property name=\"projectname\" "
                 + "value=\"myproject\" /><property name=\"lastbuild\" value=\""
                 + Project.getFormatedTime(now)
@@ -295,6 +304,7 @@ public class ProjectTest extends TestCase {
             public void run() {
                 loop();
             }
+
             void checkWait() throws InterruptedException {
                 waitIfPaused();
             }
@@ -327,6 +337,7 @@ public class ProjectTest extends TestCase {
             public void run() {
                 loop();
             }
+
             void checkWait() throws InterruptedException {
                 waitForNextBuild();
             }
@@ -353,6 +364,7 @@ public class ProjectTest extends TestCase {
             public void run() {
                 loop();
             }
+
             void checkWait() throws InterruptedException {
                 waitForBuildToFinish();
             }
@@ -421,13 +433,11 @@ public class ProjectTest extends TestCase {
         assertNotNull("Read object must not be null", p);
         assertTrue("Object must be instanceof Project class", p instanceof Project);
         Project deserializedProject = (Project) p;
-        deserializedProject.addBuildProgressListener(
-            new BuildProgressListener() {
-                public void handleBuildProgress(BuildProgressEvent event) {
+        deserializedProject.addBuildProgressListener(new BuildProgressListener() {
+            public void handleBuildProgress(BuildProgressEvent event) {
 
-                }
             }
-        );
+        });
     }
 
     public void testGetProjectPropertiesMap() throws CruiseControlException {
@@ -464,12 +474,31 @@ public class ProjectTest extends TestCase {
 
     class MockPublisher implements Publisher {
         private int publishCount = 0;
-        public void validate() { }
+
+        public void validate() {
+        }
+
         public void publish(Element log) throws CruiseControlException {
             publishCount++;
         }
+
         int getPublishCount() {
             return publishCount;
+        }
+    }
+
+    class MockListener implements Listener {
+        private boolean notified = false;
+
+        public boolean wasNotified() {
+            return notified;
+        }
+
+        public void handleEvent(ProjectEvent event) throws CruiseControlException {
+            notified = true;
+        }
+
+        public void validate() throws CruiseControlException {
         }
     }
 }

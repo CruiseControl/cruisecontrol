@@ -156,7 +156,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getLabel();
     }
 
-    public void setLabelIncrementer(String classname) {
+    public void setLabelIncrementer(String classname) throws CruiseControlException {
         log("setting label incrementer to [" + classname + "]");
         LabelIncrementer incrementer;
         try {

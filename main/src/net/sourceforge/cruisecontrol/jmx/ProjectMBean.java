@@ -109,7 +109,7 @@ public interface ProjectMBean {
      *
      * @param classname fully qualified class name of the new label incrementer
      */
-    public void setLabelIncrementer(String classname);
+    public void setLabelIncrementer(String classname) throws CruiseControlException;
 
     /**
      * @return name of the current label incrementer

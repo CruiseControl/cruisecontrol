@@ -297,4 +297,21 @@ public class ProjectXMLHelper {
     PluginRegistry getPlugins() {
         return plugins;
     }
+
+    public List getListeners() throws CruiseControlException {
+        List listeners = new ArrayList();
+        Element element = projectElement.getChild("listeners");
+        if (element != null) {
+            Iterator listenerIterator = element.getChildren().iterator();
+            while (listenerIterator.hasNext()) {
+                Element listenerElement = (Element) listenerIterator.next();
+                Listener listener = (Listener) configurePlugin(listenerElement, false);
+                listener.validate();
+                listeners.add(listener);
+            }
+        } else {
+            LOG.debug("Project " + projectName + " has no listeners");
+        }
+        return listeners;
+    }
 }
