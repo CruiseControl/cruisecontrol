@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.jmx;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-public interface ProjectControllerMBean {
+public interface ProjectMBean {
 
     /**
      * Pauses the controlled project.

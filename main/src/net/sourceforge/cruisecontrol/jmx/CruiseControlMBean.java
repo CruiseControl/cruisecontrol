@@ -43,7 +43,7 @@ import java.util.List;
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public interface CruiseControlControllerJMXAdaptorMBean {
+public interface CruiseControlMBean {
 
     String getConfigFileName();
     void setConfigFileName(String fileName) throws InvalidAttributeValueException;
