@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
 
@@ -63,12 +64,10 @@ public class CurrentBuildStatusPublisher implements Publisher {
         if (_fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
         }
-        try {
-            long interval = cruisecontrolLog.getChild("cruisecontrol").getChild("properties").getChild("interval").getAttribute("seconds").getLongValue();
-            writeFile(new Date(), interval);
-        } catch (DataConversionException dce) {
-            throw new CruiseControlException("");
-        }
+
+        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+        long interval = Long.parseLong(helper.getCruiseControlInfoProperty("interval"));
+        writeFile(new Date(), interval);
     }
 
     protected void writeFile(Date date, long interval) throws CruiseControlException {
