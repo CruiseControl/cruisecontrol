@@ -94,6 +94,11 @@ public class CVSElement extends SourceControlElement {
     private String tag;
     
     /**
+     * Should we look only on the default branch?
+     */
+    private boolean _defaultBranchOnly = false;
+
+    /**
      * This is the date format required by commands passed to CVS.
      */
     final static SimpleDateFormat CVSDATE =
@@ -182,6 +187,13 @@ public class CVSElement extends SourceControlElement {
         this.cvsroot = cvsroot;
     }
     
+    /**
+     * Set whether or not we check only the default branch.
+     */
+    public void setDefaultBranchOnly(boolean defaultOnly) {
+       _defaultBranchOnly = defaultOnly;
+    }
+
     /**
      * Sets the local working copy to use when making calls to CVS.
      *
@@ -277,6 +289,9 @@ public class CVSElement extends SourceControlElement {
         commandLine.createArgument().setValue("-q");
         
         commandLine.createArgument().setValue("log");
+        if (_defaultBranchOnly) {
+            commandLine.createArgument().setValue("-b");
+        }
         commandLine.createArgument().setValue("-N");
         String dateRange = ">" + formatCVSDate(lastBuildTime);
         commandLine.createArgument().setValue("-d"+dateRange);
@@ -427,8 +442,8 @@ public class CVSElement extends SourceControlElement {
         // Read to the working file name line to get the filename. It is ASSUMED
         // that a line will exist with the working file name on it.
         String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
-        String workingFileName = workingFileLine.substring(
-        CVS_WORKINGFILE_LINE.length());
+        String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
+
         while (reader.ready() && nextLine != null
         && !nextLine.startsWith(CVS_FILE_DELIM)) {
             
@@ -484,7 +499,9 @@ public class CVSElement extends SourceControlElement {
             }
             
             Modification nextModification = new Modification();
-            nextModification.fileName = workingFileName;
+            File workingFile = new File(workingFileName);
+            File localFile = new File(local);
+            nextModification.fileName = workingFile.getAbsolutePath().substring(localFile.getAbsolutePath().length());
             //CVS doesn't provide specific project or "folder" information.
             nextModification.folderName = "";
             
