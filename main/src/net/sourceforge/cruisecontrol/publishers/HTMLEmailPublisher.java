@@ -51,7 +51,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.stream.*;
 
 
-public class HTMLEmailPublisher extends LinkEmailPublisher {
+public class HTMLEmailPublisher extends EmailPublisher {
 
   /** enable logging for this class */
   private static Category log = Category.getInstance(HTMLEmailPublisher.class.getName());
@@ -161,10 +161,28 @@ public class HTMLEmailPublisher extends LinkEmailPublisher {
       message = transform( inFile );
     } catch (Exception ex) {
       log.error("", ex);
-      message = super.createMessage(logHelper);
+      try {
+        String logFileName = logHelper.getLogFileName();
+        message = createLinkLine(logFileName);
+      }
+      catch (CruiseControlException ccx) {
+        log.error("exception getting logfile name", ccx);
+      }
     }
 
     return message;
+  }
+
+  private String createLinkLine(String logFileName) {
+    StringBuffer messageBuffer = new StringBuffer();
+
+    String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(File.separator) + 1,
+          logFileName.lastIndexOf("."));
+    String url = _servletUrl + "?log=" + baseLogFileName;
+
+    messageBuffer.append("View results here -> <a href=\"" + url + "\">" + url + "</a>");
+
+    return messageBuffer.toString();
   }
 
   protected String transform(File inFile) throws TransformerException, FileNotFoundException, IOException {
@@ -184,12 +202,7 @@ public class HTMLEmailPublisher extends LinkEmailPublisher {
       File distributablesxsl = new File(xslDir, "distributables.xsl");
 
       appendHeader(messageBuffer);
-      String logFileName = inFile.getName();
-      String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(File.separator) + 1,
-              logFileName.lastIndexOf("."));
-      String url = _servletUrl + "?log=" + baseLogFileName;
-
-      messageBuffer.append("View results here -> <a href=\"" + url + "\">" + url + "</a>");
+      messageBuffer.append(createLinkLine(inFile.getName()));
       messageBuffer.append("<p>\n");
       appendTransform(inFile, messageBuffer, tFactory, headerxsl);
       messageBuffer.append("<p>\n");
