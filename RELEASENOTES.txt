@@ -1,8 +1,16 @@
 CruiseControl Release Notes - Latest CVS
 
+build.xml
+----------------------
+* update version to 2.1
+
 cruisecontrol-jsp12.tld
 ----------------------
 * Fixed closing tag-class, tei-class and body-content tags for ArtifactsLinkTag. - Found by Dan Rollo
+
+Project
+----------------------
+* Fixed bug where a paused build would never resume.
 
 CruiseControl Release Notes - 2.1
 
