@@ -160,7 +160,7 @@ public class SVNTest extends TestCase {
         assertArraysEquals(expectedCmd, actualCmd);
     }
 
-    public void testParseModifications() throws JDOMException, ParseException {
+    public void testParseModifications() throws JDOMException, ParseException, IOException {
         String svnLog =
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
                 + "<log>\n"
@@ -251,7 +251,7 @@ public class SVNTest extends TestCase {
         assertEquals(modification, modifications[4]);
     }
 
-    public void testParseEmptyModifications() throws JDOMException, ParseException {
+    public void testParseEmptyModifications() throws JDOMException, ParseException, IOException {
         String svnLog =
             "<?xml version=\"1.0\" encoding = \"ISO-8859-1\"?>\n " + "<log>\n" + "</log>";
 
@@ -259,7 +259,7 @@ public class SVNTest extends TestCase {
         assertEquals(0, modifications.length);
     }
 
-    public void testParseAndFilter() throws ParseException, JDOMException {
+    public void testParseAndFilter() throws ParseException, JDOMException, IOException {
         String svnLog =
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
                 + "<log>\n"

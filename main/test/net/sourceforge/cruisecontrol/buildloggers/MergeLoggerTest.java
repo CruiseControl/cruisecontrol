@@ -158,7 +158,7 @@ public class MergeLoggerTest extends TestCase {
         assertEquals(withProperties, actualWith);
     }
 
-    private Element getBasicLog() throws JDOMException {
+    private Element getBasicLog() throws JDOMException, IOException {
         SAXBuilder saxBuilder = new SAXBuilder();
         return saxBuilder.build(new StringReader(BASIC_LOG_CONTENT)).getRootElement();
     }

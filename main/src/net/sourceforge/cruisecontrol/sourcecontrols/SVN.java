@@ -253,7 +253,7 @@ public class SVN implements SourceControl {
     }
 
     private List parseStream(InputStream svnStream, Date lastBuild)
-        throws JDOMException, ParseException, UnsupportedEncodingException {
+        throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
 
         return SVNLogXMLParser.parseAndFilter(svnStream, lastBuild);
     }
@@ -265,29 +265,31 @@ public class SVN implements SourceControl {
         }
         
         static List parseAndFilter(InputStream inputStream, Date lastBuild)
-            throws JDOMException, ParseException, UnsupportedEncodingException {
+            throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
 
             Modification[] modifications = parse(inputStream);
             return filterModifications(modifications, lastBuild);
         }
 
         static List parseAndFilter(String xmlContent, Date lastBuild)
-            throws JDOMException, ParseException {
-                
+            throws JDOMException, ParseException, IOException {
+            // TODO: why isn't this delegating to the InputStream version?
             Modification[] modifications = parse(xmlContent);
             return filterModifications(modifications, lastBuild);
         }
 
         static Modification[] parse(InputStream inputStream)
-            throws JDOMException, ParseException, UnsupportedEncodingException {
+            throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
                 
             SAXBuilder builder = new SAXBuilder(false);
             Document document = builder.build(new InputStreamReader(inputStream, "UTF-8"));
             return parseDOMTree(document);
         }
 
-        static Modification[] parse(String xmlContent) throws JDOMException, ParseException {
+        static Modification[] parse(String xmlContent) throws JDOMException, ParseException, IOException {
+            // TODO: why isn't this delegating to the inputStream version?
             SAXBuilder builder = new SAXBuilder(false);
+            // getBytes()?!? TODO: write the test to show how this is broken for i18n
             Document document = builder.build(new ByteArrayInputStream(xmlContent.getBytes()));
             return parseDOMTree(document);
         }
