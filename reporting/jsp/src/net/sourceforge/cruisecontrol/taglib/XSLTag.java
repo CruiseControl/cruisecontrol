@@ -164,25 +164,17 @@ public class XSLTag extends CruiseControlTagSupport implements Tag, BodyTag {
     /**
      *  Gets the correct log file, based on the query string and the log directory.
      *
-     *  @param queryString The query string from the request, which should contain a name value pair log=LOG_FILE_NAME
+     *  @param logName The name of the log file.
      *  @param logDir The directory where the log files reside.
      *  @return The specifed log file or the latest log, if nothing is specified
      */
-    protected File getXMLFile(String queryString, File logDir) {
+    protected File getXMLFile(String logName, File logDir) {
         File xmlFile = null;
-        if (queryString == null || queryString.trim().equals("")) {
+        if (logName == null || logName.trim().equals("")) {
             xmlFile = getLatestLogFile(logDir);
             info("Using latest log file: " + xmlFile.getAbsolutePath());
         } else {
-            String logFile = null;
-            StringTokenizer tokenizer = new StringTokenizer(queryString, "&");
-            while (tokenizer.hasMoreTokens()) {
-                String token = tokenizer.nextToken();
-                if (token.startsWith("log")) {
-                    logFile = token.substring(token.lastIndexOf('=') + 1);
-                }
-            }
-            xmlFile = new File(logDir, logFile + ".xml");
+            xmlFile = new File(logDir, logName + ".xml");
             info("Using specified log file: " + xmlFile.getAbsolutePath());
         }
         return xmlFile;
@@ -270,8 +262,8 @@ public class XSLTag extends CruiseControlTagSupport implements Tag, BodyTag {
 
     private File findLogFile(File logDir) {
         info("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
-        String queryString = ((HttpServletRequest) getPageContext().getRequest()).getQueryString();
-        File xmlFile = getXMLFile(queryString, logDir);
+        String logFile = getPageContext().getRequest().getParameter("log");
+        File xmlFile = getXMLFile(logFile, logDir);
         return xmlFile;
     }
 
