@@ -143,20 +143,27 @@ public class CruiseControlController {
      * reading the serialized Project; should never return null
      */
     private Project readProject(String fileName) {
-        File serializedProjectFile = new File(fileName);
+        //look for fileName.ser first
+        File serializedProjectFile = new File(fileName + ".ser");
         LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
+
         if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
-            LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
-            return new Project();
-        } else {
-            try {
-                ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
-                Project project = (Project) s.readObject();
-                return project;
-            } catch (Exception e) {
-                LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
-                return new Project();
+            //filename.ser doesn't exist, try finding fileName
+            serializedProjectFile = new File(fileName);
+            LOG.debug(fileName + ".ser not found, looking for serialized project file: " + fileName);
+            if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
+               LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
+               return new Project();
             }
+        }
+
+        try {
+            ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
+            Project project = (Project) s.readObject();
+            return project;
+        } catch (Exception e) {
+            LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
+            return new Project();
         }
     }
 
