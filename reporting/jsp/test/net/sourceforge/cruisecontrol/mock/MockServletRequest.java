@@ -68,7 +68,7 @@ public class MockServletRequest implements HttpServletRequest {
         this.servletPath = servletPath;
     }
 
-    public Object getAttribute(String s) {
+    public Object getAttribute(String name) {
         return null;
     }
 
@@ -269,5 +269,10 @@ public class MockServletRequest implements HttpServletRequest {
             params.put(paramName, values);
         }
         values.add(paramValue);
+    }
+    
+    public ArrayList removeParameter(String paramName) {
+        ArrayList values = (ArrayList) params.remove(paramName);
+        return values;
     }
 }

@@ -36,25 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
+import javax.servlet.jsp.tagext.TagData;
+import javax.servlet.jsp.tagext.TagExtraInfo;
+import javax.servlet.jsp.tagext.VariableInfo;
 
-public class AllTests extends TestCase {
+/**
+ * @author jfredrick
+ */
+public class ArtifactsLinkTagExtraInfo extends TagExtraInfo {
 
-    public AllTests(String name) {
-        super(name);
+    public VariableInfo[] getVariableInfo(TagData data) {
+        return new VariableInfo[] {
+            new VariableInfo(ArtifactsLinkTag.URL_ATTRIBUTE,
+                             "java.lang.String",
+                             true,
+                             VariableInfo.NESTED)
+        };
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(NavigationTagTest.class);
-        suite.addTestSuite(XSLTagTest.class);
-        suite.addTestSuite(TabSheetTagTest.class);
-        suite.addTestSuite(TabTagTest.class);
-        suite.addTestSuite(CruiseControlTagSupportTest.class);
-        suite.addTestSuite(LinkTagTest.class);
-        suite.addTestSuite(ArtifactsLinkTagTest.class);
-        return suite;
-    }
 }

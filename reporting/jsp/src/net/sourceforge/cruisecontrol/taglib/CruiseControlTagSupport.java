@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Enumeration;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -82,13 +83,18 @@ public class CruiseControlTagSupport extends TagSupport {
         return value;
     }
 
-    private String getProject() {
+    protected String getProject() {
         String singleProjectMode = getContextParam("singleProject");
         if (Boolean.valueOf(singleProjectMode).booleanValue()) {
+            info("in singleProjectMode");
             return "";
         }
         String pathInfo = getRequest().getPathInfo();
-        return (pathInfo == null ? "" : pathInfo);
+        if (pathInfo == null) {
+            info("pathInfo is null");
+            return "";
+        }
+        return pathInfo;
     }
 
     public void setPageContext(PageContext pageContext) {
@@ -147,5 +153,21 @@ public class CruiseControlTagSupport extends TagSupport {
 
     protected String createUrl(String paramToExclude) {
         return createUrl(paramToExclude, null);
+    }
+
+    /**
+     *  Gets the latest log file in a given directory.  Since all of our logs contain a date/time string, this method
+     *  is actually getting the log file that comes last alphabetically.
+     *
+     *  @return The latest log file.
+     */
+    protected File getLatestLogFile(File logDir) {
+        File[] logs = logDir.listFiles(new CruiseControlLogFileFilter());
+        if (logs != null && logs.length > 0) {
+            Arrays.sort(logs, new ReversedComparator());
+            return logs[0];
+        } else {
+            return null;
+        }
     }
 }
