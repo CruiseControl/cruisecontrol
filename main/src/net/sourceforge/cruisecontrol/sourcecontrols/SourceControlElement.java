@@ -51,8 +51,6 @@ import org.apache.tools.ant.*;
 //(PENDING) pull up buildCommandLine
 public abstract class SourceControlElement {
 
-	private Task _task;
-
 	/**
 	 *  Get a Set of email addresses. Depends on the source control tool. StarTeam
 	 *  has a field for email addresses, so we would return a set of full email
@@ -84,23 +82,4 @@ public abstract class SourceControlElement {
 	 */
 	public abstract long getLastModified();    
 
-    // Logging stuff 
-    // (PENDING) Extract this to class that can be delegated to and change 
-    // SourceControlElement to an interface
-	/**
-	 *  Sets Ant task which is used for logging. Also sets the task name to be
-	 *  equivalent to the class name of the particular source control element
-	 *  implementation.
-	 *
-	 *@param  task
-	 */
-	public void setAntTask(Task task) {
-		_task = task;
-		String classname = this.getClass().getName();
-		_task.setTaskName(classname.substring(classname.lastIndexOf(".") + 1));
-	}
-
-	protected Task getAntTask() {
-		return _task;
-	}
 }

@@ -206,7 +206,7 @@ public class VssJournal extends SourceControlElement {
         }
 
         if (_property != null && _modifications.size() > 0) {
-            getAntTask().getProject().setProperty(_property, "true");
+            //TO DO: set properties getAntTask().getProject().setProperty(_property, "true");
         }
 
         log.info("Found "+_modifications.size()+" modified files");
@@ -275,11 +275,11 @@ public class VssJournal extends SourceControlElement {
         }
 
         if (_propertyOnDelete != null && "delete".equals(mod.type)) {
-            getAntTask().getProject().setProperty(_propertyOnDelete, "true");
+            //TO DO: set properties getAntTask().getProject().setProperty(_propertyOnDelete, "true");
         }
 
         if (_property != null) {
-            getAntTask().getProject().setProperty(_property, "true");
+            //TO DO: set properties getAntTask().getProject().setProperty(_property, "true");
         }
 
         // Add the modification and the user's email

@@ -42,7 +42,6 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
-import org.apache.tools.ant.Task;
 import org.apache.log4j.Category;
 
 /**
@@ -211,7 +210,7 @@ public class Vss extends SourceControlElement {
 		}
 
 		if (property != null && modifications.size() > 0) {
-			getAntTask().getProject().setProperty(property, "true");
+			//TO DO: set properties getAntTask().getProject().setProperty(property, "true");
 		}
 
 		return modifications;
@@ -284,11 +283,11 @@ public class Vss extends SourceControlElement {
 		}
 
 		if (propertyOnDelete != null && "delete".equals(mod.type)) {
-			getAntTask().getProject().setProperty(propertyOnDelete, "true");
+			//TO DO: set properties getAntTask().getProject().setProperty(propertyOnDelete, "true");
 		}
 
         if (property != null) {
-    		getAntTask().getProject().setProperty(property, "true");
+    		//TO DO: set properties getAntTask().getProject().setProperty(property, "true");
         }
 
 		modifications.add(mod);
