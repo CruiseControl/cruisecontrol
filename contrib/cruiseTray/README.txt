@@ -1,3 +1,5 @@
+Note: If you want to have english messages in place of german, use cruiseTrayIcon_english.py instead of cruiseTrayIcon.py.
+
 Install python and wxPython: 
 
 http://www.python.org/ftp/python/2.3.4/Python-2.3.4.exe 
