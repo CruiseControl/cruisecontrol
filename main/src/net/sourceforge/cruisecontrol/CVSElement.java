@@ -31,7 +31,7 @@ import java.util.*;
  * any setup. This implies that if the authentication type is pserver
  * the call to cvs login should be done prior to calling this class.
  *
- * @author Paul Julius ThoughtWorks Inc., robertdw, Frederic Lavigne, jchyip
+ * @author Paul Julius ThoughtWorks Inc., robertdw, Frederic Lavigne, jchyip, marcpa
  */
 public class CVSElement extends SourceControlElement {
     
@@ -196,60 +196,103 @@ public class CVSElement extends SourceControlElement {
         }
         return lastModified.getTime();
     }
-    
+
     /**
      * Returns an ArrayList of Modifications detailing all
      * the changes between the last build and the latest revision
      * at the repository
      *
      * @param lastBuild last build time
-     * @param now NOT USED
+     * @param now current time
      * @param quietPeriod NOT USED.
      * @return maybe empty, never null.
      */
     public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
-        
-        //Init last modified to last build date.
-        lastModified = lastBuild;
+        initLastModified(lastBuild);
 
-        // Build command "cvs -d CVSROOT log -d"lastbuildtime<currtime" "
-        String[] commandArray = {"cvs",
-                                 "-d", cvsroot,
-                                 "log",
-                                 "-d" + "\"" + CVSDATE.format(lastBuild) + "<" 
-                                 + CVSDATE.format(now) + "\" " + getLocalPath() };
-        String logCommand = "";
-        for (int i = 0; i < commandArray.length; i++) {
-            logCommand += commandArray[i] + " ";
-        }
-        log(logCommand);
+        String[] commandArray = buildLogCommand(now);
+        log(prepareCommandForDisplay(commandArray));
         
         ArrayList mods = null;
         try {
-            Process p = Runtime.getRuntime().exec(logCommand);
-            
-            //Logging the error stream.
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), null,
-              new PrintWriter(System.err, true));
-            errorPumper.start();
-            
-            //The input stream has the log information that we want to parse.
-            InputStream input = p.getInputStream();
-            mods = parseStream(input);
-            
-            //Using another stream pumper here will get rid of any leftover data in the stream.
-            StreamPumper outPumper = new StreamPumper(input, null, null);
-            outPumper.start();
-            
-            p.waitFor();
-        } catch (Exception ioe) {
-            ioe.printStackTrace();
+            mods = new ArrayList(execLogCommand(commandArray));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         
         if (mods == null) {
             return new ArrayList();
         }
         return mods;
+    }
+
+    private void initLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    /**
+     * Build command "cvs -d CVSROOT log -d lastbuildtime<currtime "
+     */
+    private String[] buildLogCommand(Date currentTime) {
+        //(PENDING) get rid of this duplication somehow
+        if (cvsroot == null) {
+	    // omit -d CVSROOT
+	    return new String[] {"cvs", "log", "-d", 
+                CVSDATE.format(lastModified) + "<" + CVSDATE.format(currentTime), 
+                getLocalPath() };
+	} else {
+	    return new String[] {"cvs", "-d", cvsroot, "log", "-d", 
+                CVSDATE.format(lastModified) + "<" + CVSDATE.format(currentTime), 
+                getLocalPath() };
+	}
+    }
+
+    /**
+     * This is simply to show what command we run, with the added benefit 
+     * that you can cut&paste the displayed string in a shell and don't 
+     * have to worry about quoting
+     */
+    private String prepareCommandForDisplay(String[] commandArray) {
+        String logCommand = "";
+        for (int i = 0; i < commandArray.length; i++) {
+	    // Quote element if necessary.  Since we've programatically made that
+	    // array above, we can keep it simple : look for ' ', '<' or '>'.
+	    // These 3 are command-line separator characters in command interpreters.
+	    if (commandArray[i].indexOf(" ") >= 0
+		|| commandArray[i].indexOf("<") >= 0
+		|| commandArray[i].indexOf(">") >= 0) {
+		logCommand += "\"" + commandArray[i] + "\"" + " ";
+	    } else {
+		// no need to quote
+		logCommand += commandArray[i] + " ";
+	    }        
+        }
+        
+        return logCommand;
+    }
+
+    private List execLogCommand(String[] commandArray) throws Exception {
+        Process p = Runtime.getRuntime().exec(commandArray);            
+ 
+        logErrorStream(p);
+        InputStream cvsLogStream = p.getInputStream();
+        List mods = parseStream(cvsLogStream);
+
+        getRidOfLeftoverData(cvsLogStream);
+        p.waitFor();
+        
+        return mods;
+    }
+    
+    private void logErrorStream(Process p) {
+        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), null,
+          new PrintWriter(System.err, true));
+        errorPumper.start();
+    }
+    
+    private void getRidOfLeftoverData(InputStream stream) {
+        StreamPumper outPumper = new StreamPumper(stream, null, null);
+        outPumper.start();
     }
     
     /**
@@ -263,6 +306,11 @@ public class CVSElement extends SourceControlElement {
      *         as path separator.
      */
     private String getLocalPath() {
+        //(PENDING) use NullFileObject
+        if (local == null) {
+            return " ";
+        }
+        
         String basicPath = local.getPath();
         String formattedPath = basicPath.replace('\\', '/');
         return formattedPath;
@@ -277,7 +325,7 @@ public class CVSElement extends SourceControlElement {
      * @param input  InputStream to get log data from.
      * @return List of Modification elements, maybe empty never null.
      */
-    private ArrayList parseStream(InputStream input) throws IOException {
+    private List parseStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         
         // Read to the first RCS file name. The first entry in the log
