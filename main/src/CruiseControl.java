@@ -37,7 +37,6 @@
 
 import net.sourceforge.cruisecontrol.*;
 import net.sourceforge.cruisecontrol.util.Upgrader;
-import net.sourceforge.cruisecontrol.jmx.ProjectController;
 
 /**
  * This class wraps the MasterBuild process to
@@ -47,18 +46,15 @@ import net.sourceforge.cruisecontrol.jmx.ProjectController;
  *
  * @author <a href="mailto:alden@mac.com">alden almagro</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 
 public class CruiseControl {
 
     public static void main(String[] args) {
         boolean upgrader = false;
-        boolean controller = false;
 
         for(int i=0; i<args.length; i++) {
-            if(args[i].equalsIgnoreCase("-port")) {
-                controller = true;
-            }
             if(args[i].equalsIgnoreCase("-upgrade")) {
                 upgrader = true;
             }
@@ -68,8 +64,6 @@ public class CruiseControl {
             String[] upgraderArgs = new String[args.length - 1];
             System.arraycopy(args, 1, upgraderArgs, 0, upgraderArgs.length);
             Upgrader.main(upgraderArgs);
-        } else if(controller) {
-            ProjectController.main(args);
         } else {
             Main.main(args);
         }

@@ -36,12 +36,10 @@
  ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -62,14 +60,22 @@ public class Main {
     public static void main(String args[]) {
         Main main = new Main();
         main.printVersion();
+
         Project project = null;
         try {
             project = main.configureProject(args);
             project.init(); // Init the project once, to check the current config file is ok
+
+            if (shouldStartProjectController(args)) {
+                ProjectControllerAgent agent =
+                        new ProjectControllerAgent(project, parsePort(args));
+                agent.start();
+            }
         } catch (CruiseControlException e) {
             log.fatal(e.getMessage());
             usage();
         }
+
         project.execute();
     }
 
@@ -222,6 +228,39 @@ public class Main {
         }
         throw new CruiseControlException(
                 "'projectname' is a required argument to CruiseControl.");
+    }
+
+    private static boolean shouldStartProjectController(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equalsIgnoreCase("-port")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Parse port number from arguments.
+     *
+     * @return port number
+     * @throws CruiseControlException if port argument is not specified
+     */
+    private static int parsePort(String args[])
+            throws CruiseControlException {
+
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-port")) {
+                try {
+                    return Integer.parseInt(args[i + 1]);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                            "'port' argument was not specified.");
+                }
+            }
+        }
+        throw new IllegalStateException("Should not reach this point "
+                + " without returning or throwing CruiseControlException");
     }
 
     /**
