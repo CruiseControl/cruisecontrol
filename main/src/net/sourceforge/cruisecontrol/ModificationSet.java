@@ -62,6 +62,7 @@ public class ModificationSet {
     private List sourceControls = new ArrayList();
     private int quietPeriod = 60 * ONE_SECOND;
     private Date timeOfCheck;
+    private final SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
 
     /**
      * Set the amount of time in which there is no source control activity
@@ -76,40 +77,39 @@ public class ModificationSet {
         sourceControls.add(sourceControl);
     }
 
-    protected boolean isLastModificationInQuietPeriod(Date now, List modificationList) {
-        long lastModStart = getLastModificationMillis(modificationList);
-        long lastModEnd = lastModStart + quietPeriod;
-        if (now.getTime() > lastModEnd) {
-            LOG.warn("A modification has been detected beyond the end of the quiet period.  Building anyway.");
-            SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
-            LOG.debug(
-                    formatter.format(
-                            new Date(now.getTime() - quietPeriod))
-                    + " <= Quiet Period <= "
-                    + formatter.format(now));
-            LOG.debug(
-                    "Last modification: "
-                    + formatter.format(
-                            new Date(
-                                    getLastModificationMillis(modifications))));
+    protected boolean isLastModificationInQuietPeriod(Date timeOfCheck, List modificationList) {
+        long lastModificationTime = getLastModificationMillis(modificationList);
+        final long quietPeriodStart = timeOfCheck.getTime() - quietPeriod;
+        final boolean modificationInFuture = new Date().getTime() < lastModificationTime;
+        if (modificationInFuture) {
+            LOG.warn("A modification has been detected in the future.  Building anyway.");
         }
-        return (now.getTime() <= lastModEnd) && (now.getTime() >= lastModStart);
+        return (quietPeriodStart <= lastModificationTime) && !modificationInFuture;
     }
 
     protected long getLastModificationMillis(List modificationList) {
-        long lastBuildMillis = 0;
-        for (int i = 0; i < modificationList.size(); i++) {
-            long temp = 0;
-            if (modificationList.get(i) instanceof Modification) {
-                temp = ((Modification) modificationList.get(i)).modifiedTime.getTime();
+        Date timeOfLastModification = new Date(0);
+        Iterator iterator = modificationList.iterator();
+        while (iterator.hasNext()) {
+            Object object = iterator.next();
+            Modification modification = null;
+            if (object instanceof Modification) {
+                modification = (Modification) object;
             }
-//            else if (modifications.get(i) instanceof org.jdom.Element) {
-//                //set the temp date
-//            }
-            lastBuildMillis = Math.max(lastBuildMillis, temp);
+            if (object instanceof Element) {
+                Element element = (Element) object;
+                modification = new Modification();
+                modification.fromElement(element, formatter);
+            }
+            if (modification != null) {
+                Date modificationDate = modification.modifiedTime;
+                if (modificationDate.after(timeOfLastModification)) {
+                    timeOfLastModification = modificationDate;
+                }
+            }
         }
-
-        return lastBuildMillis;
+        LOG.debug("Last modification: " + formatter.format(timeOfLastModification));
+        return timeOfLastModification.getTime();
     }
 
     protected long getQuietPeriodDifference(Date now, List modificationList) {
@@ -135,7 +135,6 @@ public class ModificationSet {
      *
      */
     public Element getModifications(Date lastBuild) {
-        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Element modificationsElement = null;
         do {
             timeOfCheck = new Date();
@@ -168,11 +167,8 @@ public class ModificationSet {
 
             if (isLastModificationInQuietPeriod(timeOfCheck, modifications)) {
                 LOG.info("A modification has been detected in the quiet period.  ");
-                LOG.debug(formatter.format(new Date(timeOfCheck.getTime() - quietPeriod))
-                        + " <= Quiet Period <= "
-                        + formatter.format(timeOfCheck));
-                LOG.debug("Last modification: "
-                        + formatter.format(new Date(getLastModificationMillis(modifications))));
+                final Date quietPeriodStart = new Date(timeOfCheck.getTime() - quietPeriod);
+                LOG.debug(formatter.format(quietPeriodStart) + " <= Quiet Period <= " + formatter.format(timeOfCheck));
                 Date now = new Date();
                 long timeToSleep = getQuietPeriodDifference(now, modifications);
                 LOG.info("Sleeping for " + (timeToSleep / 1000) + " seconds before retrying.");

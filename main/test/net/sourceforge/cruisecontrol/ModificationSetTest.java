@@ -70,8 +70,8 @@ public class ModificationSetTest extends TestCase {
 
         // When a change is put into source control with a bad date in the
         // future, we should still build
-        Modification mod3 = new Modification();
-        mod3.modifiedTime = formatter.parse("20020731150000");
+        Modification modInFuture = new Modification();
+        modInFuture.modifiedTime = formatter.parse("30020731150000");
 
         List mods1 = new ArrayList();
         mods1.add(mod1);
@@ -80,10 +80,10 @@ public class ModificationSetTest extends TestCase {
         List mods2 = new ArrayList();
         mods2.add(mod1);
 
-        List mods3 = new ArrayList();
-        mods3.add(mod1);
-        mods3.add(mod2);
-        mods3.add(mod3);
+        List hasModInFuture = new ArrayList();
+        hasModInFuture.add(mod1);
+        hasModInFuture.add(mod2);
+        hasModInFuture.add(modInFuture);
 
         Date now = formatter.parse("20020621140103");
 
@@ -91,7 +91,7 @@ public class ModificationSetTest extends TestCase {
 
         assertEquals(true, modSet.isLastModificationInQuietPeriod(now, mods1));
         assertEquals(false, modSet.isLastModificationInQuietPeriod(now, mods2));
-        assertEquals(false, modSet.isLastModificationInQuietPeriod(now, mods3));
+        assertEquals(false, modSet.isLastModificationInQuietPeriod(now, hasModInFuture));
     }
 
     public void testGetLastModificationMillis() throws ParseException {
@@ -163,7 +163,7 @@ public class ModificationSetTest extends TestCase {
      * modifications. One regular, based on the object, and one with Element data.
      * Uses inline sourcecontrol implementation instead of mock.
      */
-    public void testGetMixedModifications() {
+    public void testGetMixedModifications() throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
 
         Modification mod1 = new Modification();
@@ -171,7 +171,7 @@ public class ModificationSetTest extends TestCase {
         mod1.fileName = "file3";
         mod1.folderName = "dir3";
         mod1.userName = "user3";
-        mod1.modifiedTime = new Date();
+        mod1.modifiedTime = formatter.parse("04/04/2004 17:23:50");
         mod1.comment = "comment3";
 
         Modification mod2 = new Modification();
@@ -179,42 +179,29 @@ public class ModificationSetTest extends TestCase {
         mod2.fileName = "file4";
         mod2.folderName = "dir4";
         mod2.userName = "user4";
-        mod2.modifiedTime = new Date();
+        mod2.modifiedTime = formatter.parse("02/02/2002 17:23:50");
         mod2.comment = "comment4";
         final List result = new ArrayList();
         result.add(mod1.toElement(formatter));
         result.add(mod2);
 
-        modSet.addSourceControl(new SourceControl() {
+        assertEquals(mod1.modifiedTime.getTime(), modSet.getLastModificationMillis(result));
+
+        modSet.addSourceControl(new MockSourceControl() {
             public List getModifications(Date lastBuild, Date now) {
                 return result;
             }
-
-            // None of the below is used
-            public void validate() throws CruiseControlException {
-            }
-
-            public Hashtable getProperties() {
-                return null;
-            }
-
-            public void setProperty(String property) {
-            }
-
-            public void setPropertyOnDelete(String property) {
-            }
         });
 
-        Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+        Element actual = modSet.getModifications(new Date());
 
-        Element expectedModificationsElement = new Element("modifications");
-        expectedModificationsElement.addContent(mod1.toElement(formatter));
-        expectedModificationsElement.addContent(mod2.toElement(formatter));
+        Element expected = new Element("modifications");
+        expected.addContent(mod1.toElement(formatter));
+        expected.addContent(mod2.toElement(formatter));
 
         XMLOutputter outputter = new XMLOutputter();
-        assertEquals("XML data differ",
-                outputter.outputString(expectedModificationsElement),
-                outputter.outputString(modSetResults));
+        assertEquals("XML data differ", outputter.outputString(expected), outputter.outputString(actual));
+
     }
 
     public void testGetProperties() throws Exception {
