@@ -31,21 +31,25 @@ BuildStatus:
 
 contrib:
 ----------------------
-* added build.xml for XmlLoggerWithStatus, minor change to readme. Patch by Brad Clarke
-* cruiseTray:  can change properties at runtime, refresh manually and make a config file to store settings. (And new icons!) Patch by Ali Eyertas
-* edit wrapper.template.conf for NtServiceWrapper to add javax.management.builder.initial property
+* Added build.xml for XmlLoggerWithStatus, minor change to readme. Patch by Brad Clarke
+* CruiseTray:  can change properties at runtime, refresh manually and make a config file to store settings. (And new icons!) Patch by Ali Eyertas
+* Edit wrapper.template.conf for NtServiceWrapper to add javax.management.builder.initial property
 
 CMSynergy:
 ----------------------
-* add support for CM Synergy as a sourcecontrol and bootstrapper. Patch by Robert Smith
+* Add support for CM Synergy as a sourcecontrol and bootstrapper. Patch by Robert Smith
 
 cruisecontrol.sh:
 ----------------------
-* handle path conversion under cygwin. Patch by John Woodward
+* Handle path conversion under cygwin. Patch by John Woodward
+
+CVS:
+----------------------
+* Will now work without a localworkingcopy. Patch by Jeff Ramsdale
 
 CVSBootstrapper:
 ----------------------
-* add resetStickyTags attribute
+* Add resetStickyTags attribute
 
 errors.xsl:
 ----------------------
@@ -57,7 +61,7 @@ FileServlet:
 
 HTMLEmailPublisher:
 ----------------------
-* add xslFileList attribute as a mechanism to customize the list of .xsl files used. Patch by Peter Buckner
+* Add xslFileList attribute as a mechanism to customize the list of .xsl files used. Patch by Peter Buckner
 
 JabberPublisher:
 ----------------------
