@@ -41,53 +41,39 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
+import java.io.Writer;
 import javax.servlet.jsp.JspException;
 
 public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
     public int doEndTag() throws JspException {
-        writeStatus(getPageContext().getOut());
+        File logDir = findLogDir();
+
+        String currentBuildFileName = getFileName();
+        if (currentBuildFileName != null) {
+            File currentBuildFile = getFile(logDir, currentBuildFileName);
+            if (currentBuildFile != null) {
+                writeStatus(currentBuildFile, getPageContext().getOut());
+            }
+        }
+
         return EVAL_PAGE;
     }
 
-    private void writeStatus(java.io.Writer out) throws JspException {
+    private void writeStatus(File currentBuildFile, Writer out) throws JspException {
         BufferedReader br = null;
-        File logDir = findLogDir();
-
-        String currentBuildFileName = getContextParam("currentBuildStatusFile");
-        if (currentBuildFileName == null || currentBuildFileName.equals("")) {
-            System.err.println("CruiseControl: currentBuildStatusFile not defined in the web.xml");
-            return;
-        }
-        File currentBuildFile = new File(logDir, currentBuildFileName);
-        if (currentBuildFile.isDirectory()) {
-            System.err.println(
-                "CruiseControl: currentBuildStatusFile "
-                    + currentBuildFile.getAbsolutePath()
-                    + " is a directory." 
-                    + " Edit the web.xml to provide the path to the correct file.");
-            return;
-        }
-        if (!currentBuildFile.exists()) {
-            System.err.println(
-                "CruiseControl: currentBuildStatusFile "
-                    + currentBuildFile.getAbsolutePath()
-                    + " does not exist."
-                    + " You may need to update the value in the web.xml"
-                    + " or the location specified in your CruiseControl config.xml.");
-            return;
-        }
         try {
             br = new BufferedReader(new FileReader(currentBuildFile));
-            String s = br.readLine();
-            while (s != null) {
-                out.write(s);
-                s = br.readLine();
+            String line = br.readLine();
+            while (line != null) {
+                out.write(line);
+                out.write('\n');
+                line = br.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
             throw new JspException(
-                "Error reading status file: " + currentBuildFileName + " : " + e.getMessage());
+                "Error reading status file: " + currentBuildFile.getName() + " : " + e.getMessage());
         } finally {
             try {
                 if (br != null) {
@@ -98,5 +84,36 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             }
             br = null;
         }
+    }
+
+    private File getFile(File logDir, String currentBuildFileName) {
+        File currentBuildFile = new File(logDir, currentBuildFileName);
+        if (currentBuildFile.isDirectory()) {
+            System.err.println(
+                "CruiseControl: currentBuildStatusFile "
+                    + currentBuildFile.getAbsolutePath()
+                    + " is a directory." 
+                    + " Edit the web.xml to provide the path to the correct file.");
+            return null;
+        }
+        if (!currentBuildFile.exists()) {
+            System.err.println(
+                "CruiseControl: currentBuildStatusFile "
+                    + currentBuildFile.getAbsolutePath()
+                    + " does not exist."
+                    + " You may need to update the value in the web.xml"
+                    + " or the location specified in your CruiseControl config.xml.");
+            return null;
+        }
+        return currentBuildFile;
+    }
+
+    private String getFileName() {
+        String currentBuildFileName = getContextParam("currentBuildStatusFile");
+        if (currentBuildFileName == null || currentBuildFileName.equals("")) {
+            System.err.println("CruiseControl: currentBuildStatusFile not defined in the web.xml");
+            return null;
+        }
+        return currentBuildFileName;
     }
 }
