@@ -57,7 +57,8 @@ public class ConfigurationFileMapper {
 	
 	private static final String SCHEDULE = "schedule";
 	private static final String[] SCHEDULE_TYPES = { "Ant", 
-	                                                 "Maven", 
+	                                                 "Maven",
+													 "Nant",
 												     "Pause" };
 	
 	private static final String LOG = "log";
@@ -71,6 +72,7 @@ public class ConfigurationFileMapper {
 													  "Execute",
 													  "FtpPublisher",
 													  "Jabber",
+													  "HtmlEmail",
 													  "SametimeAnnouncement",
 													  "SCP",
 													  "X10",

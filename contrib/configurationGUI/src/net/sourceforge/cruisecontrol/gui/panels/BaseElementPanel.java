@@ -60,6 +60,31 @@ public class BaseElementPanel  extends PropertiesPanel implements EditorPanel {
 		return element;
 	}
 	
+	/**
+	 * Set the attribute on the element we are associated with.
+	 * 
+	 * @param anAttributeName	The name of the attribute to set
+	 * @param aValue			The Value to set the attribute to.
+	 */
+	public void setAttribute( String anAttributeName, String aValue ) {
+
+		// hack for JDOM case sensitivity issue
+		element.removeAttribute( anAttributeName.toLowerCase() );
+		element.setAttribute( anAttributeName, aValue );
+	}
+
+	/**
+	 * Set the attribute on the element we are associated with.
+	 * 
+	 * @param anAttributeName	The name of the attribute to set
+	 * @param aValue			The Value to set the attribute to.
+	 */
+	public void setAttribute( String anAttributeName, boolean aValue ) {
+		
+		element.removeAttribute( anAttributeName );
+		element.setAttribute( anAttributeName, String.valueOf( aValue ) );
+	}
+	
 	public boolean getBooleanAttributeValue( Element anElement, String anAttributeName ) {
 		
 		String theElementValue = anElement.getAttributeValue( anAttributeName );

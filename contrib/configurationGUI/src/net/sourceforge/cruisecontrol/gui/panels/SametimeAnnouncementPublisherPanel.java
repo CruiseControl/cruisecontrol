@@ -1,8 +1,5 @@
 /*
  * Created on Jan 22, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package net.sourceforge.cruisecontrol.gui.panels;
 
@@ -44,7 +41,7 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 		buildResultsUrlText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "buildresultsurl", buildResultsUrlText.getText() );
+						setAttribute( "buildresultsurl", buildResultsUrlText.getText() );
 					}
 				});
 		
@@ -54,7 +51,7 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 		hostText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "host", hostText.getText() );
+						setAttribute( "host", hostText.getText() );
 					}
 				});
 		
@@ -64,7 +61,7 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 		usernameText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "username", usernameText.getText() );
+						setAttribute( "username", usernameText.getText() );
 					}
 				});
 		
@@ -74,7 +71,7 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 		passwordText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "password", passwordText.getText() );
+						setAttribute( "password", passwordText.getText() );
 					}
 				});
 		
@@ -84,7 +81,7 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 		communityText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "community", communityText.getText() );
+						setAttribute( "community", communityText.getText() );
 					}
 				});
 		
@@ -96,8 +93,8 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "resolveusers", 
-								                   String.valueOf( resolveUsersBox.isSelected() ) );						
+						setAttribute( "resolveusers", 
+								      resolveUsersBox.isSelected() );						
 					}
 				});
 		
@@ -109,8 +106,8 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "resovegroups", 
-								                   String.valueOf( resolveGroupsBox.isSelected() ) );						
+						setAttribute( "resovegroups", 
+							          resolveGroupsBox.isSelected() );						
 					}
 				});
 		
@@ -122,8 +119,8 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "usegroupcontent", 
-								                   String.valueOf( useGroupContentBox.isSelected() ) );						
+						setAttribute( "usegroupcontent", 
+						              useGroupContentBox.isSelected() );						
 					}
 				});	
 		
@@ -138,8 +135,8 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "handleresolveconflicts", 
-								                   (String) handleResolveConflicsBox.getSelectedItem() );						
+						setAttribute( "handleresolveconflicts", 
+								      (String) handleResolveConflicsBox.getSelectedItem() );						
 					}
 				});
 		
@@ -154,8 +151,8 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "handleresolvefails", 
-								                   (String) handleResolveFailsBox.getSelectedItem() );						
+						setAttribute( "handleresolvefails", 
+						              (String) handleResolveFailsBox.getSelectedItem() );						
 					}
 				});
 		
@@ -169,8 +166,8 @@ public class SametimeAnnouncementPublisherPanel extends BaseElementPanel {
 					
 					public void focusLost(FocusEvent anEvent ) {
 						
-						getElement().setAttribute( "handlequerygroupcontentfails", 
-								                   (String) handleQueryGroupContentFailsBox.getSelectedItem() );						
+						setAttribute( "handlequerygroupcontentfails", 
+						             (String) handleQueryGroupContentFailsBox.getSelectedItem() );						
 					}
 				});
 		

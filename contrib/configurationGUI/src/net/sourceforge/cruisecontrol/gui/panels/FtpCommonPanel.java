@@ -17,9 +17,6 @@ import org.jdom.Element;
 
 /**
  * @author alwick
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class FtpCommonPanel extends BaseElementPanel  {
 
@@ -41,7 +38,7 @@ public class FtpCommonPanel extends BaseElementPanel  {
 		targetHostText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "targetHost", targetHostText.getText() );
+						setAttribute( "targetHost", targetHostText.getText() );
 						
 						getBrowser().updateNodeText( targetHostText.getText() );
 					}
@@ -54,7 +51,7 @@ public class FtpCommonPanel extends BaseElementPanel  {
 		targetUserText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "targetUser", targetUserText.getText() );
+						setAttribute( "targetUser", targetUserText.getText() );
 					}
 				});
 		
@@ -65,7 +62,7 @@ public class FtpCommonPanel extends BaseElementPanel  {
 		targetPasswdText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "targetPasswd", targetPasswdText.getText() );
+						setAttribute( "targetPasswd", targetPasswdText.getText() );
 					}
 				});
 		
@@ -76,7 +73,7 @@ public class FtpCommonPanel extends BaseElementPanel  {
 		targetPortText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "targetPort", targetPortText.getText() );
+						setAttribute( "targetPort", targetPortText.getText() );
 					}
 				});
 		
@@ -87,7 +84,7 @@ public class FtpCommonPanel extends BaseElementPanel  {
 		targetDirText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "targetDir", targetDirText.getText() );
+						setAttribute( "targetDir", targetDirText.getText() );
 					}
 				});
 		
@@ -98,7 +95,7 @@ public class FtpCommonPanel extends BaseElementPanel  {
 		targetSeparatorText.addFocusListener(
 				new FocusAdapter() {
 					public void focusLost(FocusEvent e) {
-						getElement().setAttribute( "targetSeparator", targetSeparatorText.getText() );
+						setAttribute( "targetSeparator", targetSeparatorText.getText() );
 					}
 				});
 		

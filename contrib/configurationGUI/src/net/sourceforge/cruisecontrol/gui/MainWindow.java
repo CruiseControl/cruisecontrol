@@ -202,6 +202,10 @@ public class MainWindow extends CruiseControlApplication {
 		getProjectBrowser().delete();
 	}
 
+	public void addProject() {
+		getProjectBrowser().addProject();
+    }
+	
 	public void addPlugin() {
 		getProjectBrowser().addPlugin();
     }

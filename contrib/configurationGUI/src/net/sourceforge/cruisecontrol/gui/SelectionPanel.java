@@ -59,12 +59,17 @@ public class SelectionPanel extends PropertiesPanel {
 			theGroup.add( theOption );
 		}
 		
+		positionToNextLine();
+		
 		addOkCancelButtons();
 	}
 
 	public int getPanelHeight() {
 		
-		int size = selections.size() * 30;
+		int size = selections.size() * yIncrement;
+		
+		// add some room for buttons
+		size += 100;
 		
 		return size < 300?300:size;
 	}

@@ -85,7 +85,26 @@ public class ProjectBrowser extends TreeBrowser {
     public void showControllerPanel() {
     	
     }
-   
+
+    public void addProject() {
+    	
+    	// get the node to add project to
+    	Element theSelectedElement = (Element) getSelectedObject();
+    	
+    	// create new element(s)
+    	Element theProjectElement = ConfigurationFileMapper.getInstance().createNewProject();
+    	
+    	// add the new project
+    	theSelectedElement.addContent( theProjectElement );
+    	
+    	// create/insert new tree node
+    	BrowserTreeNode theProjectNode = createNodeFor( theProjectElement );
+    	insertNode( theProjectNode, getSelectedNode() );
+    	
+    	// add children nodes
+    	addChildrenToTree( theProjectElement, theProjectNode );
+    }
+    
     public void addPlugin() {
     	
     	Element theSelectedElement = (Element) getSelectedObject();
@@ -460,12 +479,16 @@ public class ProjectBrowser extends TreeBrowser {
     	// create new root node and set it on the model
 		BrowserTreeNode top = new BrowserTreeNode();
 		getTreeModel().setRoot( top );
+
+		BrowserTreeNode rootNode = createNodeFor( rootElement );
+		insertNode( rootNode, top );
 		
 		// add new nodes back
-		addChildrenToTree(rootElement, top);
+		addChildrenToTree(rootElement, rootNode);
 		
+		// notify the model to update
 		getTreeModel().nodeChanged( top );
-		
+        
         // select the root node.
         selectNode( (BrowserTreeNode) top.children().nextElement() );
         tree.expandRow(0);
