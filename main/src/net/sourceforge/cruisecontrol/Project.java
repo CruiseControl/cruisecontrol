@@ -532,6 +532,7 @@ public class Project implements Serializable, Runnable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
+        log("reading settings from config file ["+_configFileName+"]");
         ProjectXMLHelper helper =
             new ProjectXMLHelper(new File(_configFileName), _name);
         buildInterval = ONE_SECOND * helper.getBuildInterval();
@@ -559,6 +560,19 @@ public class Project implements Serializable, Runnable {
         _publishers = helper.getPublishers();
 
         _buildAfterFailed = helper.getBuildAfterFailed();
+
+        debug("buildInterval          = [" + buildInterval + "]");
+        debug("buildForced            = [" + _buildForced + "");
+        debug("buildAfterFailed       = [" + _buildAfterFailed + "]");
+        debug("buildCounter           = [" + _buildCounter + "");
+        debug("isPaused               = [" + _isPaused + "");
+        debug("label                  = [" + _label + "");
+        debug("lastBuild              = [" + _lastBuild + "");
+        debug("lastSuccessfulBuild    = [" + _lastSuccessfulBuild + "");
+        debug("logDir                 = [" + _logDir + "]");
+        debug("logFileName            = [" + _logFileName + "]");
+        debug("logXmlEncoding         = [" + _logXmlEncoding + "]");
+        debug("wasLastBuildSuccessful = [" + _wasLastBuildSuccessful + "");
     }
 
     protected Element getProjectPropertiesElement(Date now) {
