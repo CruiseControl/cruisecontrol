@@ -108,7 +108,7 @@ public class ConfigurationEditor {
 
         mainFrame.getContentPane().add(splitPane);
 
-        mainFrame.show();
+        mainFrame.setVisible(true);
     }
 
     private void refreshSplitPane() throws IntrospectionException {
