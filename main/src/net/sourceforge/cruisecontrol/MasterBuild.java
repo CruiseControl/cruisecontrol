@@ -197,7 +197,7 @@ public class MasterBuild {
 
         int messageLevel = props.isDebug() ? Project.MSG_DEBUG :
                                     (props.isVerbose() ? Project.MSG_VERBOSE : Project.MSG_INFO);
-        CruiseLogger logger = new CruiseLogger(messageLevel);
+        //CruiseLogger logger = new CruiseLogger(messageLevel);
         
         log.debug("Opening build file: " + props.getAntFile());
         String target = null; // remember: Null target means default target.
