@@ -43,6 +43,10 @@ errors.xsl:
 ----------------------
 * Added errors.xsl to replace compile.xsl. Similar logic, but shows errors and warnings from all tasks.
 
+FileServlet:
+----------------------
+* Added missing quotes around href attribute, which caused problems for filenames that contain spaces
+
 HTMLEmailPublisher:
 ----------------------
 * add xslFileList attribute as a mechanism to customize the list of .xsl files used. Patch by Peter Buckner
