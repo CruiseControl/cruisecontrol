@@ -68,6 +68,7 @@ public class Vss implements SourceControl {
 	private String serverPath;
 	private String login;
 	private String dateFormat;
+    private String timeFormat;
 
 	private Hashtable _properties = new Hashtable();
 	private String _property;
@@ -78,6 +79,7 @@ public class Vss implements SourceControl {
      */
     public Vss() {
         dateFormat = "MM/dd/yy";
+        timeFormat = "hh:mma";
         constructVssDateTimeFormat();
     }
 
@@ -150,6 +152,22 @@ public class Vss implements SourceControl {
         dateFormat = format;
         constructVssDateTimeFormat();
      }
+
+
+    /**
+     * Sets the time format to use for querying VSS and processing reports.
+     *
+     * The default time format is <code>hh:mma</code> .  If your computer
+     * is set to a different region, you may wish to use a format such
+     * as <code>HH:mm</code> .
+     *
+     * @see java.text.SimpleDateFormat
+     */
+    public void setTimeFormat(String format) {
+       timeFormat = format;
+       constructVssDateTimeFormat();
+    }
+
 
     public Hashtable getProperties() {
         return _properties;
@@ -261,9 +279,13 @@ public class Vss implements SourceControl {
      *  @see #setDateFormat
 	 */
 	private String formatDateForVSS(Date d) {
-        SimpleDateFormat sdf = new SimpleDateFormat(this.dateFormat + ";hh:mma");
+        SimpleDateFormat sdf = new SimpleDateFormat(this.dateFormat + ";" + this.timeFormat);
 		String vssFormattedDate = sdf.format(d);
-		return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
+		if (this.timeFormat.endsWith("a")) {
+		  return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
+		} else {
+		  return vssFormattedDate;
+		}
 	}
 
 	// ***** the rest of this is just parsing the vss output *****
@@ -381,8 +403,13 @@ public class Vss implements SourceControl {
         }
 
         try {
-            Date lastModifiedDate = this.vssDateTimeFormat.parse(
-             dateAndTime.trim() + "m");
+            Date lastModifiedDate = null;
+            if (this.timeFormat.endsWith("a")) {
+				lastModifiedDate = this.vssDateTimeFormat.parse(dateAndTime.trim() + "m");
+			} else {
+				lastModifiedDate = this.vssDateTimeFormat.parse(dateAndTime.trim());
+			}
+
 
             return lastModifiedDate;
         } catch (ParseException pe) {
