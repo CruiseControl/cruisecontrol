@@ -223,11 +223,13 @@
             </tr>
          </table>
 
-         <p><a name="antbuilder"><span class="small">AntBuilder</span><br>
-         Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
+         <a name="antbuilder"><span class="small">AntBuilder</span>
+         <p>Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
          every 5 builds, or run more comprehensive (and time intensive) system tests every 10 builds.  We can also
          schedule an official build to run every night at midnight, if we so desire.  AntBuilder runs Ant in as a
-         separate Java process and you can specify settings for the virtual machine using the nested jvmarg element.
+         separate Java process and you can specify settings for the virtual machine using the nested jvmarg element.</p>
+
+	<p><b>Note:</b> Only the first ant entry for a particular interval will be run.  Any subsequent duplicate entries are ignored.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
