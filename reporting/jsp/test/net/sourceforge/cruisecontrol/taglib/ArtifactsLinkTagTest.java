@@ -44,10 +44,13 @@ import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
 
 import junit.framework.TestCase;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletRequest;
+import net.sourceforge.cruisecontrol.LogFileSetupDecorator;
 
 /**
  * @author jfredrick
@@ -58,70 +61,44 @@ public class ArtifactsLinkTagTest extends TestCase {
     private MockPageContext pageContext;
     private MockServletRequest request;
 
-    private File logDir;
-    private File log1;
-    private File log2;
-    private File log3;
-    private File log4;
-
-    public ArtifactsLinkTagTest(String name) {
-        super(name);
+    public static Test suite() {
+        return new LogFileSetupDecorator(new TestSuite(ArtifactsLinkTagTest.class));
     }
 
     protected void setUp() throws Exception {
-        tag = new ArtifactsLinkTag();
+        request = new MockServletRequest("context", "servlet");
 
         pageContext = new MockPageContext();
-        request = new MockServletRequest("context", "servlet");
         pageContext.setHttpServletRequest(request);
 
+        tag = new ArtifactsLinkTag();
         tag.setPageContext(pageContext);
 
-        logDir = new File("testresults/ArtifactsLinkTagTest");
-        if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdir());
-        }
-        log1 = new File(logDir, "log19920330120000.xml");
-        log2 = new File(logDir, "log19930925120000.xml");
-        log3 = new File(logDir, "log20020731220000.xml");
-        log4 = new File(logDir, "log20030611123100.xml");
+        final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
+        servletConfig.setInitParameter("logDir", LogFileSetupDecorator.LOG_DIR.getAbsolutePath());
     }
 
     protected void tearDown() {
+        tag.release();
         tag = null;
+        pageContext.release();
         pageContext = null;
-
-        log1.delete();
-        log2.delete();
-        log3.delete();
-        logDir.delete();
-        
-        log1 = null;
-        log2 = null;
-        log3 = null;
-        log4 = null;        
     }
-    
+
     public void testGetTimeFromLogParam() {
         assertEquals("", tag.getTimeFromLogParam());
 
-        request.addParameter("log", "log20030611123100");
-        assertEquals("20030611123100", tag.getTimeFromLogParam());
-
+        request.addParameter("log", "log20020224120000");
+        assertEquals("20020224120000", tag.getTimeFromLogParam());
         request.removeParameter("log");
-        request.addParameter("log", "log20030611123100Lbuild.1");
-        assertEquals("20030611123100", tag.getTimeFromLogParam());
+
+        request.addParameter("log", "log20020223120000LBuild.1");
+        assertEquals("20020223120000", tag.getTimeFromLogParam());
+        request.removeParameter("log");
     }
     
     public void testGetTimeFromLatestLogFile() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
-        writeFile(log4, "");
-
-        MockServletConfig config = (MockServletConfig) pageContext.getServletConfig();
-        config.setInitParameter("logDir", logDir.getAbsolutePath());
-        assertEquals("20030611123100", tag.getTimeFromLatestLogFile());
+        assertEquals("20020225120000", tag.getTimeFromLatestLogFile());
     }
 
     public void testDoStartTag() throws JspException {
@@ -133,18 +110,13 @@ public class ArtifactsLinkTagTest extends TestCase {
         tag.setBodyContent(content);
         assertEquals(Tag.SKIP_BODY, tag.doAfterBody());
     }
-    
+
     public void testDoInitBody() throws JspException {
         request.addParameter("log", "log20030611123100");
         tag.doInitBody();
         String url = (String) pageContext.getAttribute(ArtifactsLinkTag.URL_ATTRIBUTE);
         assertEquals("artifacts/20030611123100", url);
-    }
-    
-    private void writeFile(File file, String body) throws Exception {
-        FileWriter writer = new FileWriter(file);
-        writer.write(body);
-        writer.close();
+        request.removeParameter("log");
     }
 
 }
