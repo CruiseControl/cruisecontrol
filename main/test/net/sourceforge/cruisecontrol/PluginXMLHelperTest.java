@@ -80,7 +80,7 @@ public class PluginXMLHelperTest extends TestCase {
         testElement.addContent(childMapper);
 
         PluginRegistry registry = projectXmlHelper.getPlugins();
-        registry.register("mockMapper", "net.sourceforge.cruisecontrol.publishers.MockMapping");
+        registry.register("mockMapper", "net.sourceforge.cruisecontrol.publishers.email.MockMapping");
 
         MockPublisher plugin = (MockPublisher) helper.configure(testElement,
                 Class.forName("net.sourceforge.cruisecontrol.publishers.MockPublisher"), false);

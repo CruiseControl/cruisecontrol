@@ -41,9 +41,15 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
+import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
+import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
 import net.sourceforge.cruisecontrol.testutil.Util;
 
 import java.io.StringReader;
+import java.io.File;
+import java.io.FileOutputStream;
+
+import java.util.Properties;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -59,6 +65,7 @@ public class EmailPublisherTest extends TestCase {
     private XMLLogHelper failureLogHelper;
     private XMLLogHelper firstFailureLogHelper;
     private EmailPublisher emailPublisher;
+    private File tmpFile;
 
     public EmailPublisherTest(String s) {
         super(s);
@@ -71,11 +78,19 @@ public class EmailPublisherTest extends TestCase {
     }
 
     public void setUp() throws Exception {
+        PropertiesMapper propertiesMapper = new PropertiesMapper();
+        // create a temp file to test propertiesmapper
+        Properties props = new Properties();
+        tmpFile = File.createTempFile("cruise", "Test");
+        tmpFile.deleteOnExit();
+        props.setProperty("always1", "always1");
+        props.store(new FileOutputStream(tmpFile), null);
         //pass in some xml and create the publisher
         StringBuffer xml = new StringBuffer();
         xml.append("<email defaultsuffix=\"@host.com\">");
         xml.append("<always address=\"always1\"/>");
         xml.append("<always address=\"always2@host.com\"/>");
+        xml.append("<always address=\"dropletteruser1\"/>");
         xml.append("<failure address=\"failure1\"/>");
         xml.append("<failure address=\"failure2@host.com\" reportWhenFixed=\"true\"/>");
         xml.append("<success address='success1' />");
@@ -94,6 +109,9 @@ public class EmailPublisherTest extends TestCase {
                 emailPublisherElement,
                 Class.forName("net.sourceforge.cruisecontrol.publishers.MockEmailPublisher"),
                 false);
+        emailPublisher.add(new DropLetterEmailAddressMapper());
+        propertiesMapper.setFile(tmpFile.getPath());
+        emailPublisher.add(propertiesMapper);
 
         successLogHelper = createLogHelper(true, true);
         failureLogHelper = createLogHelper(false, false);
@@ -202,42 +220,35 @@ public class EmailPublisherTest extends TestCase {
     public void testCreateUserList() throws Exception {
         PropertyConfigurator.configure("log4j.properties");
         assertEquals(
-            "always1@host.com,always2@host.com,"
+                "always1@host.com,always2@host.com,ropletteruser1@host.com,"
                 + "success1@host.com,success2@host.com,"
                 + "user1@host.com,user2@host.com,user3@host2.com",
             emailPublisher.createUserList(successLogHelper));
         assertEquals(
             "always1@host.com,always2@host.com,failure1@host.com,"
-                + "failure2@host.com,user1@host.com,user2@host.com,user3@host2.com",
+                + "failure2@host.com,ropletteruser1@host.com,user1@host.com,user2@host.com,user3@host2.com",
             emailPublisher.createUserList(failureLogHelper));
         assertEquals(
             "always1@host.com,always2@host.com,"
-                + "failure2@host.com,"
+                + "failure2@host.com,ropletteruser1@host.com,"
                 + "success1@host.com,success2@host.com,"
                 + "user1@host.com,user2@host.com,user3@host2.com",
             emailPublisher.createUserList(fixedLogHelper));
 
         emailPublisher.setSkipUsers(true);
         assertEquals(
-            "always1@host.com,always2@host.com,success1@host.com,success2@host.com",
+                "always1@host.com,always2@host.com,ropletteruser1@host.com,success1@host.com,success2@host.com",
             emailPublisher.createUserList(successLogHelper));
         assertEquals(
-            "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com",
+                "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com,ropletteruser1@host.com",
             emailPublisher.createUserList(failureLogHelper));
 
         emailPublisher.setSkipUsers(false);
-        emailPublisher.setEmailAddressMapper("this.class.does.not.exist");
-        try {
-            emailPublisher.createUserList(fixedLogHelper);
-            fail("EmailPublisher should throw exceptions when configured emailaddressmapper class does not exist.");
-        } catch (CruiseControlException expected) {
-        }
 
-        emailPublisher.setEmailAddressMapper("net.sourceforge.cruisecontrol.publishers.DropLetterEmailAddressMapper");
         assertEquals(
-            "ailure2@host.com,lways1@host.com,lways2@host.com,"
-                + "ser1@host.com,ser2@host.com,ser3@host2.com,"
-                + "uccess1@host.com,uccess2@host.com",
+                "always1@host.com,always2@host.com,failure2@host.com,"
+                + "ropletteruser1@host.com,success1@host.com,success2@host.com,"
+                + "user1@host.com,user2@host.com,user3@host2.com",
             emailPublisher.createUserList(fixedLogHelper));
     }
 

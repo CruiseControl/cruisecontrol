@@ -1232,11 +1232,6 @@
                <td class="tabledata">Default e-mail suffix to append to user names to build valid e-mail addresses.  This defaults to an empty string if not specified.</td>
             </tr>
             <tr>
-               <td class="tabledata">emailaddressmapper</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Name of class used to map user names to email addresses, defaults to net.sourceforge.cruisecontrol.publishers.EmailAddressMapper. If this parameter is set, the class used must extend the default class.</td>
-            </tr>
-            <tr>
                <td class="tabledata">failasimportant</td>
                <td class="tabledata">No</td>
                <td class="tabledata">Flag emails about failed builds as important? Default is 'true'.</td>
@@ -1358,6 +1353,24 @@
                <td class="tabledata">address</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">e-mail address</td>
+            </tr>
+         </table>
+</ul>
+<ul>
+         <p><span class="small">propertiesmapper</span><br/>
+         Used to map source control user names to either valid email names or complete email addresses.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Full path to a java properties file where each property key is assumed to be a user
+                name that is mapped to the property value, which is assumed to be valid email name or a complete email address</td>
             </tr>
          </table>
 </ul>
