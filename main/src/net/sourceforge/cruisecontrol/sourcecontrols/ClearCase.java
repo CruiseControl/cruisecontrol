@@ -277,8 +277,9 @@ public class ClearCase implements SourceControl {
         mod.userName = username;
 
         elementName = elementName.substring(elementName.indexOf(File.separator));
-        String fileName = elementName.substring(0, elementName.indexOf("@@"));
-
+		int branchIndex = elementName.indexOf("@@");
+		String fileName = branchIndex > 0 ? elementName.substring(0, branchIndex) : elementName;
+		
         mod.fileName = fileName.substring(fileName.lastIndexOf(File.separator));
         mod.folderName = fileName.substring(0, fileName.lastIndexOf(File.separator));
 
