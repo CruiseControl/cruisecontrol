@@ -51,15 +51,17 @@ public class PauseBuilderTest extends TestCase {
 
     public void setUp() {
         _cal = Calendar.getInstance();
-        _cal.set(2001, Calendar.NOVEMBER, 22, 12, 01, 01); //Thursday, November 22, 2001, 12:01:01
+        _cal.clear();
+        _cal.set(2001, Calendar.NOVEMBER, 22); //Thursday, November 22, 2001
         _cal2 = Calendar.getInstance();
-        _cal.set(2001, Calendar.NOVEMBER, 23, 12, 01, 01); //Friday, November 23, 2001, 12:01:01
+        _cal2.clear();
+        _cal.set(2001, Calendar.NOVEMBER, 23); //Friday, November 23, 2001
     }
 
     public void testIsValidDay() {
         PauseBuilder pb = new PauseBuilder();
         pb.setDay("Thursday");
-        assertEquals(pb.isValidDay(_cal.getTime()), true);
-        assertEquals(pb.isValidDay(_cal2.getTime()), false);
+        assertEquals(true, pb.isValidDay(_cal.getTime()));
+        assertEquals(false, pb.isValidDay(_cal2.getTime()));
     }
 }
