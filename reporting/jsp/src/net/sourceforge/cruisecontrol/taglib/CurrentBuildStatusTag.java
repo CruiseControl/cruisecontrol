@@ -70,7 +70,7 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
                     + currentBuildFileName + " : " + e.getMessage());
         } finally {
             try {
-                br.close();
+               if(br != null) br.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
