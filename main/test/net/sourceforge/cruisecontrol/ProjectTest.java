@@ -110,6 +110,8 @@ public class ProjectTest extends TestCase {
                 + project.getLastSuccessfulBuild()
                 + "\" /><property name=\"builddate\" value=\""
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
+                + "\" /><property name=\"cctimestamp\" value=\""
+                + project.getFormatedTime(now)
                 + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
                 + "name=\"interval\" value=\"0\" /><property name=\""
                 + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""

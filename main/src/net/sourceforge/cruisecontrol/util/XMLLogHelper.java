@@ -100,6 +100,10 @@ public class XMLLogHelper {
         return getCruiseControlInfoProperty("label");
     }
 
+    public String getBuildTimestamp() throws CruiseControlException {
+        return getCruiseControlInfoProperty("cctimestamp");
+    }
+
     /**
      *  @return true if the previous build was successful, false if it was not
      */
