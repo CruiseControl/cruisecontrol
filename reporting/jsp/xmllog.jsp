@@ -51,7 +51,7 @@
             <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
             <tr><td>&nbsp;</td></tr>
             <cruisecontrol:nav>
-                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
+                <tr><td><nobr><a class="link" href="<%= url %>"><%= linktext %></a></nobr></td></tr>
             </cruisecontrol:nav>
         </table>
       </td>
@@ -59,24 +59,14 @@
     </tr>
     <tr>
       <% String queryString = (request.getQueryString() != null) ? request.getQueryString() : ""; %>
-      <td><img src="images/blank35.gif"><img src="images/buildResultsTab-on.gif" border="0"><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/xmllog?<%= queryString %>" border="0"><img src="images/xmlLogFileTab-off.gif" border="0"></a><a href="/cruisecontrol/controlpanel?<%= queryString %>" border="0"><img src="images/controlPanelTab-off.gif" border="0"></a></td>
+      <td><img src="images/blank35.gif"><a href="/cruisecontrol/buildresults?<%= queryString %>" border="0"><img src="images/buildResultsTab-off.gif" border="0"></a><a href="/cruisecontrol/testdetails?<%= queryString %>" border="0"><img src="images/testResultsTab-off.gif" border="0"></a><img src="images/xmlLogFileTab-on.gif" border="0"><a href="/cruisecontrol/controlpanel?<%= queryString %>" border="0"><img src="images/controlPanelTab-off.gif" border="0"></a></td>
     </tr>
     <tr>
       <td background="images/bluestripestop.gif"><img src="images/blank8.gif" border="0"></td>
     </tr>
     <tr>
       <td valign="top" bgcolor="#FFFFFF">
-         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
+        <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/rawlog.xsl"/></pre>
       </td>
     </tr>
     <tr>
