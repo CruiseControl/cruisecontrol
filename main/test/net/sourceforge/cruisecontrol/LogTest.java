@@ -38,6 +38,9 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 
+import java.util.Calendar;
+import java.util.Date;
+
 
 public class LogTest extends TestCase {
 
@@ -50,5 +53,14 @@ public class LogTest extends TestCase {
         } catch (NullPointerException npe) {
             //Good, expected this exception.
         }
+    }
+
+    public void testFormatLogFileName() {
+        Calendar augTweleveCalendar = Calendar.getInstance();
+        augTweleveCalendar.set(2004, 7, 12, 1, 1, 1);
+        Date augTweleve = augTweleveCalendar.getTime();
+
+        assertEquals("log20040812010101.xml", Log.formatLogFileName(augTweleve));
+        assertEquals("log20040812010101Lbuild.1.xml", Log.formatLogFileName(augTweleve, "build.1"));
     }
 }
