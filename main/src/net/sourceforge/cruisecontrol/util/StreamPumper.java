@@ -69,8 +69,7 @@ public class StreamPumper implements Runnable {
 
     private BufferedReader in;
     private PrintWriter out = new PrintWriter(System.out);
-    private static final int SIZE = 128;
-    private static final int SLEEP = 0;
+    private static final int SIZE = 1024;
 
     public StreamPumper(InputStream in, PrintWriter writer) {
         this.in = new BufferedReader(new InputStreamReader(in), SIZE);
@@ -85,20 +84,19 @@ public class StreamPumper implements Runnable {
         try {
             String s = in.readLine();
             while (s != null) {
-
                 out.println(s);
                 out.flush();
 
                 s = in.readLine();
-                if (s == null) {
-                    try {
-                        Thread.sleep(SLEEP);
-                    } catch (InterruptedException e) {
-                    }
-                }
-
             }
         } catch (IOException e) {
+            // do nothing
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                // do nothing
+            }
         }
     }
 
