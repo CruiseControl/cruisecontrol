@@ -30,6 +30,9 @@ ClearCase
 ----------------------
 * Pass properties ${clearcaselastbuild} and ${clearcasenow} to Ant for use by clearcase Ant tasks - Patch by Jeffrey Fredrick
 
+HTMLEmailPublisher
+----------------------
+* Added to the default plugin registry as <htmlemail> - Patch by Alden Almagro.
 
 
 CruiseControl Release Notes - 2.0.1
