@@ -44,6 +44,8 @@ import java.io.File;
 import java.io.Writer;
 import javax.servlet.jsp.JspException;
 
+import net.sourceforge.cruisecontrol.util.CCTagException;
+
 public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
     public int doEndTag() throws JspException {
@@ -71,16 +73,16 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
                 line = br.readLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new JspException(
-                "Error reading status file: " + currentBuildFile.getName() + " : " + e.getMessage());
+            err(e);
+            throw new CCTagException(
+                "Error reading status file: " + currentBuildFile.getName() + " : " + e.getMessage(), e);
         } finally {
             try {
                 if (br != null) {
                     br.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                err(e);
             }
             br = null;
         }

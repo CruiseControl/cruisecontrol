@@ -40,7 +40,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
+
+import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
  * @author jfredrick
@@ -59,12 +62,14 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
         getPageContext().setAttribute(URL_ATTRIBUTE, url);
     }
     
-    public int doAfterBody() {
+    public int doAfterBody() throws JspTagException {
         try {
             BodyContent out = getBodyContent();
             out.writeOut(out.getEnclosingWriter());
         } catch (IOException e) {
             err(e);
+            throw new CCTagException("IO Error: " + e.getMessage(), e);
+
         }
         return SKIP_BODY;
     }

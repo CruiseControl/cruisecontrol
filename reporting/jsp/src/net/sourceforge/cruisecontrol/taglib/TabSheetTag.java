@@ -41,13 +41,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
 
+import net.sourceforge.cruisecontrol.util.CCTagException;
+
 /**
+ * A sheet of navigation tabs.
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
@@ -105,7 +107,7 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
      * @return  EVAL_PAGE
      * @throws JspException if there's an error, like an IO error.
      */
-    public int doEndTag() throws JspException {
+    public int doEndTag() throws JspTagException {
         try {
             final JspWriter out = getPageContext().getOut();
             startTable(out);
@@ -114,7 +116,8 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
             endTable(out);
             return Tag.EVAL_PAGE;
         } catch (IOException e) {
-            throw new JspTagException("IO Error: " + e.getMessage());
+            err(e);
+            throw new CCTagException("IO Error: " + e.getMessage(), e);
         }
     }
 

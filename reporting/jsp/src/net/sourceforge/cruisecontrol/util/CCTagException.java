@@ -1,6 +1,6 @@
-<%--********************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2004, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,25 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************--%>
-<%@page errorPage="/error.jsp"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol.util;
+
+import javax.servlet.jsp.JspTagException;
+
+/**
+ * A JspTagException with an initial cause.
+ *
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
+ */
+public class CCTagException extends JspTagException {
+
+    /**
+     * Constructs an instance of <code>CCTagException</code> with the specified detail message.
+     * @param msg the detail message
+     * @param cause the initial cause
+     */
+    public CCTagException(String msg, Throwable cause) {
+        super(msg);
+        initCause(cause);
+    }
+}
