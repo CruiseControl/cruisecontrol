@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
@@ -47,11 +47,14 @@ public class MainTest extends TestCase {
     }
 
     public void testConfigureProject() throws Exception {
-        
-        String[] correctArgs = new String[]{"-lastbuild", "20020310120000", "-label", "1.2.2", "-projectname", "myproject", "-configfile", "config.xml"};
-        
+
+        String[] correctArgs = new String[]{"-lastbuild", "20020310120000",
+                                            "-label", "1.2.2", "-projectname",
+                                            "myproject", "-configfile",
+                                            "config.xml"};
+
         File myProjFile = new File("myproject");
-        if(myProjFile.exists()) {
+        if (myProjFile.exists()) {
             myProjFile.delete();
         }
         Main main = new Main();
@@ -72,7 +75,8 @@ public class MainTest extends TestCase {
             project.setName("myproject");
             project.write();
 
-            Project newProject = main.configureProject(new String[]{"-projectname", "myproject"});
+            Project newProject = main.configureProject(
+                    new String[]{"-projectname", "myproject"});
             assertEquals(newProject.getConfigFileName(), "config.xml");
             assertEquals(newProject.getLabel(), "1.2.2");
             assertEquals(newProject.getLastBuild(), "20020310120000");
@@ -86,7 +90,8 @@ public class MainTest extends TestCase {
             project.setName("myproject");
             project.write();
 
-            Project newProject = main.configureProject(new String[]{"-projectname", "myproject"});
+            Project newProject = main.configureProject(
+                    new String[]{"-projectname", "myproject"});
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
@@ -102,7 +107,8 @@ public class MainTest extends TestCase {
 
         assertEquals(main.parseLastBuild(correctArgs, null), "20020310120000");
 
-        assertEquals(main.parseLastBuild(missingArgs, "20020310000000"), "20020310000000");
+        assertEquals(main.parseLastBuild(missingArgs, "20020310000000"),
+                "20020310000000");
 
         try {
             main.parseLastBuild(incorrectArgs, null);
@@ -153,7 +159,8 @@ public class MainTest extends TestCase {
 
         assertEquals(main.parseConfigFileName(correctArgs, null), "config.xml");
 
-        assertEquals(main.parseConfigFileName(missingArgs, "config.xml"), "config.xml");
+        assertEquals(main.parseConfigFileName(missingArgs, "config.xml"),
+                "config.xml");
 
         try {
             main.parseConfigFileName(incorrectArgs, null);
