@@ -111,8 +111,8 @@ public class ProjectTest extends TestCase {
         logDir.mkdir();
         project.getLog().setLogDir("test-results");
         project.setLogXmlEncoding("ISO-8859-1");
-        project.addAuxiliaryLogFile("_auxLog1.xml");
-        project.addAuxiliaryLogFile("_auxLogs");
+        project.getLog().addOtherLog("_auxLog1.xml");
+        project.getLog().addOtherLog("_auxLogs");
         project.setLabelIncrementer(new DefaultLabelIncrementer());
         project.setModificationSet(modSet);
         project.setLastBuild(formatTime(now));
@@ -224,7 +224,7 @@ public class ProjectTest extends TestCase {
         midnight.set(Calendar.SECOND, 0);
         midnight.set(Calendar.MILLISECOND, 0);
         Date midnightToday = midnight.getTime();
-        assertEquals(midnightToday, Project.getMidnight());
+        assertEquals(midnightToday, Util.getMidnight());
     }
 
     public void testGetFormattedTime() {

@@ -36,19 +36,23 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
-import java.io.File;
 import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Date;
-
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import java.util.List;
 
 /**
  * Handles the Log element, and subelements, of the CruiseControl configuration
@@ -60,6 +64,7 @@ public class Log {
     private transient String logDir;
     private transient String logXmlEncoding;
     private transient File lastLogFile;
+    private transient List otherLogFilenames = new ArrayList();
     private final transient String projectName;
 
     public Log(String projectName) {
@@ -68,6 +73,25 @@ public class Log {
                     + " with a null Project name.");
         }
         this.projectName = projectName;
+    }
+
+    /**
+     * These are other log files that should be incorporated into the
+     * main CruiseControl build file.
+     */
+    public void addOtherLog(String filename) {
+        otherLogFilenames.add(filename);
+    }
+
+    public void addOtherLogs(List auxLogs) {
+        for (int i = 0; i < auxLogs.size(); i++) {
+            String nextFilename = (String) auxLogs.get(i);
+            addOtherLog(nextFilename);
+        }
+    }
+
+    public String[] getOtherLogFilenames() {
+        return (String[]) otherLogFilenames.toArray(new String[0]);
     }
 
     public String getLogXmlEncoding() {
@@ -123,6 +147,10 @@ public class Log {
     public void writeLogFile(Element buildLog, Date now)
             throws CruiseControlException {
 
+        //Merge the other logs into the build log.
+        mergeOtherLogContents(buildLog);
+
+        //Figure out what the log filename will be.
         XMLLogHelper helper = new XMLLogHelper(buildLog);
 
         String logFilename = null;
@@ -142,6 +170,7 @@ public class Log {
         LOG.debug("Project " + projectName + ":  Writing log file ["
                 + lastLogFile.getAbsolutePath() + "]");
 
+        //Write the log file out using the proper encoding.
         BufferedWriter logWriter = null;
         try {
             XMLOutputter outputter = null;
@@ -162,5 +191,63 @@ public class Log {
         } finally {
             logWriter = null;
         }
+    }
+
+    /**
+     * Merges all of the other auxilliary log
+     * files.  If any of the other logs is a directory, all the XML files
+     * in that directory will be merged.
+     */
+    private void mergeOtherLogContents(Element buildLog) {
+        for (int i = 0; i < otherLogFilenames.size(); i++) {
+            String nextLogFilename = (String) otherLogFilenames.get(i);
+
+            File auxLogFile = new File(nextLogFilename);
+            if (auxLogFile.isDirectory()) {
+                String[] childFileNames = auxLogFile.list(new FilenameFilter() {
+                    public boolean accept(File dir, String filename) {
+                        return filename.endsWith(".xml");
+                    }
+                });
+                for (int j = 0; j < childFileNames.length; j++) {
+                    String nextChildFilename = childFileNames[j];
+
+                    Element auxLogElement =
+                            getElementFromAuxLogFile(nextLogFilename + File.separator + nextChildFilename);
+                    if (auxLogElement != null) {
+                        buildLog.addContent(auxLogElement.detach());
+                    }
+                }
+            } else {
+                Element auxLogElement = getElementFromAuxLogFile(nextLogFilename);
+                if (auxLogElement != null) {
+                    buildLog.addContent(auxLogElement.detach());
+                }
+            }
+        }
+    }
+
+
+    /**
+     *  Get a JDOM <code>Element</code> from an XML file.
+     *
+     *  @param fileName The file name to read.
+     *  @return JDOM <code>Element</code> representing that xml file.
+     */
+    private Element getElementFromAuxLogFile(String fileName) {
+        try {
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            Element element = builder.build(fileName).getRootElement();
+            if (element.getName().equals("testsuite")) {
+                if (element.getChild("properties") != null) {
+                    element.getChild("properties").detach();
+                }
+            }
+            return element;
+        } catch (JDOMException e) {
+            LOG.warn("Could not read aux log: " + fileName + ".  Skipping...", e);
+        }
+
+        return null;
     }
 }

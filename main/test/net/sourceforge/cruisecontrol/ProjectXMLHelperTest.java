@@ -130,9 +130,9 @@ public class ProjectXMLHelperTest extends TestCase {
 
     public void testGetAuxLogs() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
-        assertEquals(0, helper.getAuxLogs().size());
+        assertEquals(0, helper.getLog().getOtherLogFilenames().length);
         helper = new ProjectXMLHelper(configFile, "project2");
-        assertEquals(1, helper.getAuxLogs().size());
+        assertEquals(1, helper.getLog().getOtherLogFilenames().length);
     }
 
     protected void setUp() throws Exception {

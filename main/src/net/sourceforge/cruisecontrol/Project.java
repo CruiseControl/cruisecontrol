@@ -36,22 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,14 +63,14 @@ public class Project implements Serializable, Runnable {
     static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 
-    private transient ProjectState state = ProjectState.STOPPED_STATE;
-    private transient Schedule schedule;
-    private transient Log log;
+    private transient ProjectState state = ProjectState.STOPPED;
+
     private transient List bootstrappers = new ArrayList();
     private transient ModificationSet modificationSet;
+    private transient Schedule schedule;
+    private transient Log log;
     private transient List publishers = new ArrayList();
     private transient LabelIncrementer labelIncrementer;
-    private transient List auxLogs = new ArrayList();
 
     /**
      * If this attribute is set, then it means that the user has overriden
@@ -92,7 +88,7 @@ public class Project implements Serializable, Runnable {
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private int buildCounter = 0;
-    private Date lastBuild = getMidnight();
+    private Date lastBuild = Util.getMidnight();
     private Date lastSuccessfulBuild = lastBuild;
     private boolean wasLastBuildSuccessful = true;
     private String label;
@@ -154,7 +150,7 @@ public class Project implements Serializable, Runnable {
 
         Element modifications = getModifications();
         if (modifications == null) {
-            setState(ProjectState.IDLE_STATE);
+            setState(ProjectState.IDLE);
             return;
         }
 
@@ -169,9 +165,9 @@ public class Project implements Serializable, Runnable {
         // collect project information
         buildLog.addContent(getProjectPropertiesElement(now));
 
-        setState(ProjectState.BUILDING_STATE);
+        setState(ProjectState.BUILDING);
         buildLog.addContent(
-            schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
+                schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
 
         boolean buildSuccessful = new XMLLogHelper(buildLog).isBuildSuccessful();
 
@@ -179,12 +175,7 @@ public class Project implements Serializable, Runnable {
             label = labelIncrementer.incrementLabel(label, buildLog);
         }
 
-        setState(ProjectState.MERGING_LOGS_STATE);
-        Iterator auxLogIterator = getAuxLogElements().iterator();
-        while (auxLogIterator.hasNext()) {
-            buildLog.addContent((Element) auxLogIterator.next());
-        }
-
+        setState(ProjectState.MERGING_LOGS);
         log.writeLogFile(buildLog, now);
 
         // If we only want to build after a check in, even when broken, set the last build to now,
@@ -204,11 +195,11 @@ public class Project implements Serializable, Runnable {
 
         serializeProject();
 
-        setState(ProjectState.PUBLISHING_STATE);
+        setState(ProjectState.PUBLISHING);
         publish(buildLog);
         buildLog = null;
 
-        setState(ProjectState.IDLE_STATE);
+        setState(ProjectState.IDLE);
     }
 
     /**
@@ -229,7 +220,7 @@ public class Project implements Serializable, Runnable {
                 try {
                     waitIfPaused();
                     waitForNextBuild();
-                    setState(ProjectState.QUEUED_STATE);
+                    setState(ProjectState.QUEUED);
                     synchronized (scheduleMutex) {
                         queue.requestBuild(this);
                         waitForBuildToFinish();
@@ -249,7 +240,7 @@ public class Project implements Serializable, Runnable {
     void waitIfPaused() throws InterruptedException {
         synchronized (pausedMutex) {
             while (isPaused) {
-                setState(ProjectState.PAUSED_STATE);
+                setState(ProjectState.PAUSED);
                 pausedMutex.wait(10 * Util.ONE_MINUTE);
             }
         }
@@ -294,7 +285,7 @@ public class Project implements Serializable, Runnable {
      * @return Element
      */
     Element getModifications() {
-        setState(ProjectState.MODIFICATIONSET_STATE);
+        setState(ProjectState.MODIFICATIONSET);
         Element modifications = null;
 
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
@@ -322,7 +313,7 @@ public class Project implements Serializable, Runnable {
                 }
             }
         }
-        
+
         if (buildForced) {
             buildForced = false;
         }
@@ -373,10 +364,6 @@ public class Project implements Serializable, Runnable {
 
     public void setSchedule(Schedule newSchedule) {
         schedule = newSchedule;
-    }
-
-    public void addAuxiliaryLogFile(String fileName) {
-        auxLogs.add(fileName);
     }
 
     public LabelIncrementer getLabelIncrementer() {
@@ -433,7 +420,7 @@ public class Project implements Serializable, Runnable {
      * input string
      */
     public void setLastSuccessfulBuild(String newLastSuccessfulBuild)
-        throws CruiseControlException {
+            throws CruiseControlException {
         lastSuccessfulBuild = parseFormatedTime(newLastSuccessfulBuild, "lastSuccessfulBuild");
     }
 
@@ -532,6 +519,13 @@ public class Project implements Serializable, Runnable {
         return buildStartTime;
     }
 
+    public Log getLog() {
+        if (this.log == null) {
+            this.log = new Log(getName());
+        }
+        return this.log;
+    }
+
     /**
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
@@ -541,6 +535,7 @@ public class Project implements Serializable, Runnable {
 
         bootstrappers = helper.getBootstrappers();
         schedule = helper.getSchedule();
+
         log = helper.getLog();
 
         modificationSet = helper.getModificationSet();
@@ -551,13 +546,13 @@ public class Project implements Serializable, Runnable {
         }
         validateLabel(label, labelIncrementer);
 
-        auxLogs = helper.getAuxLogs();
+
         setPublishers(helper.getPublishers());
 
         buildAfterFailed = helper.getBuildAfterFailed();
 
         if (lastBuild == null) {
-            lastBuild = getMidnight();
+            lastBuild = Util.getMidnight();
         }
 
         if (lastSuccessfulBuild == null) {
@@ -579,7 +574,7 @@ public class Project implements Serializable, Runnable {
 
     protected void setPublishers(List listOfPublishers) {
         publishers = listOfPublishers;
-        
+
     }
 
     protected Element getProjectPropertiesElement(Date now) {
@@ -604,16 +599,16 @@ public class Project implements Serializable, Runnable {
             lastSuccessfulBuildPropertyElement.setAttribute("value", getFormatedTime(now));
         } else {
             lastSuccessfulBuildPropertyElement.setAttribute(
-                "value",
-                getFormatedTime(lastSuccessfulBuild));
+                    "value",
+                    getFormatedTime(lastSuccessfulBuild));
         }
         infoElement.addContent(lastSuccessfulBuildPropertyElement);
 
         Element buildDateElement = new Element("property");
         buildDateElement.setAttribute("name", "builddate");
         buildDateElement.setAttribute(
-            "value",
-            new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
+                "value",
+                new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
         infoElement.addContent(buildDateElement);
 
         if (now != null) {
@@ -665,7 +660,7 @@ public class Project implements Serializable, Runnable {
         Publisher publisher = null;
         while (publisherIterator.hasNext()) {
             try {
-                publisher = (Publisher) publisherIterator.next(); 
+                publisher = (Publisher) publisherIterator.next();
                 publisher.publish(logElement);
             } catch (CruiseControlException e) {
                 StringBuffer message = new StringBuffer("exception publishing results");
@@ -683,70 +678,11 @@ public class Project implements Serializable, Runnable {
      * their respective <code>bootstrap</code> methods.
      */
     protected void bootstrap() throws CruiseControlException {
-        setState(ProjectState.BOOTSTRAPPING_STATE);
+        setState(ProjectState.BOOTSTRAPPING);
         Iterator bootstrapperIterator = bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
         }
-    }
-
-    /**
-     * Builds a list of <code>Element</code>s of all of the auxilliary log
-     * files.  If the file is a directory, it will
-     *
-     * @return <code>List</code> of <code>Element</code>s of all of the
-     * auxilliary log files.
-     */
-    protected List getAuxLogElements() {
-        Iterator auxLogIterator = auxLogs.iterator();
-        List auxLogElements = new ArrayList();
-        while (auxLogIterator.hasNext()) {
-            String fileName = (String) auxLogIterator.next();
-            File auxLogFile = new File(fileName);
-            if (auxLogFile.isDirectory()) {
-                String[] childFileNames = auxLogFile.list(new FilenameFilter() {
-                    public boolean accept(File dir, String filename) {
-                        return filename.endsWith(".xml");
-                    }
-                });
-                for (int i = 0; i < childFileNames.length; i++) {
-                    Element auxLogElement =
-                        getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]);
-                    if (auxLogElement != null) {
-                        auxLogElements.add(auxLogElement.detach());
-                    }
-                }
-            } else {
-                Element auxLogElement = getElementFromAuxLogFile(fileName);
-                if (auxLogElement != null) {
-                    auxLogElements.add(auxLogElement.detach());
-                }
-            }
-        }
-        return auxLogElements;
-    }
-
-    /**
-     *  Get a JDOM <code>Element</code> from an XML file.
-     *
-     *  @param fileName The file name to read.
-     *  @return JDOM <code>Element</code> representing that xml file.
-     */
-    protected Element getElementFromAuxLogFile(String fileName) {
-        try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Element element = builder.build(fileName).getRootElement();
-            if (element.getName().equals("testsuite")) {
-                if (element.getChild("properties") != null) {
-                    element.getChild("properties").detach();
-                }
-            }
-            return element;
-        } catch (JDOMException e) {
-            LOG.warn("Could not read aux log: " + fileName + ".  Skipping...", e);
-        }
-
-        return null;
     }
 
     /**
@@ -757,10 +693,10 @@ public class Project implements Serializable, Runnable {
      * @throws CruiseControlException if label is not valid
      */
     protected void validateLabel(String oldLabel, LabelIncrementer incrementer)
-        throws CruiseControlException {
+            throws CruiseControlException {
         if (!incrementer.isValidLabel(oldLabel)) {
             throw new CruiseControlException(
-                oldLabel
+                    oldLabel
                     + " is not a valid label for labelIncrementer "
                     + incrementer.getClass().getName());
         }
@@ -778,7 +714,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public Date parseFormatedTime(String timeString, String description)
-        throws CruiseControlException {
+            throws CruiseControlException {
 
         Date date = null;
         if (timeString == null) {
@@ -789,12 +725,16 @@ public class Project implements Serializable, Runnable {
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + description + "]", e);
             throw new CruiseControlException(
-                "Cannot parse string for " + description + ":" + timeString);
+                    "Cannot parse string for " + description + ":" + timeString);
         }
 
         return date;
     }
 
+    /**
+     * Logs a message to the application log, not to be confused with the
+     * CruiseControl build log.
+     */
     private void appLog(String message) {
         LOG.info("Project " + name + ":  " + message);
     }
@@ -808,13 +748,13 @@ public class Project implements Serializable, Runnable {
         projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
         projectSchedulingThread.start();
         LOG.info("Project " + name + " starting");
-        setState(ProjectState.IDLE_STATE);
+        setState(ProjectState.IDLE);
     }
 
     public void stop() {
         LOG.info("Project " + name + " stopping");
         stopped = true;
-        setState(ProjectState.STOPPED_STATE);
+        setState(ProjectState.STOPPED);
     }
 
     public String toString() {
@@ -826,24 +766,5 @@ public class Project implements Serializable, Runnable {
             sb.append(" (paused)");
         }
         return sb.toString();
-    }
-
-    /**
-     * @return midnight on today's date
-     */
-    public static Date getMidnight() {
-        Calendar midnight = Calendar.getInstance();
-        midnight.set(Calendar.HOUR, 0);
-        midnight.set(Calendar.MINUTE, 0);
-        midnight.set(Calendar.SECOND, 0);
-        midnight.set(Calendar.MILLISECOND, 0);
-        return midnight.getTime();
-    }
-
-    public Log getLog() {
-        if (this.log == null) {
-            this.log = new Log(getName());
-        }
-        return this.log;
     }
 }

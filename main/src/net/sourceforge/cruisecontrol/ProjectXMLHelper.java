@@ -148,19 +148,6 @@ public class ProjectXMLHelper {
         return publishers;
     }
 
-    public List getAuxLogs() throws CruiseControlException {
-        List auxLogs = new ArrayList();
-        Element logElement = projectElement.getChild("log");
-        if (logElement != null) {
-            Iterator additionalLogIterator = logElement.getChildren("merge").iterator();
-            while (additionalLogIterator.hasNext()) {
-                Element additionalLogElement = (Element) additionalLogIterator.next();
-                auxLogs.add(parseMergeElement(additionalLogElement));
-            }
-        }
-        return auxLogs;
-    }
-
     public Schedule getSchedule() throws CruiseControlException {
         Element scheduleElement = getRequiredElement(projectElement, "schedule");
         Schedule schedule = (Schedule) configurePlugin(scheduleElement, true);
@@ -300,6 +287,8 @@ public class ProjectXMLHelper {
         log.setLogDir(getLogDir());
         log.setLogXmlEncoding(getLogXmlEncoding());
 
+        log.addOtherLogs(getAuxLogs());
+
         return log;
     }
 
@@ -324,5 +313,18 @@ public class ProjectXMLHelper {
             encoding = logElement.getAttributeValue("encoding");
         }
         return encoding;
+    }
+
+    private List getAuxLogs() throws CruiseControlException {
+        List auxLogs = new ArrayList();
+        Element logElement = projectElement.getChild("log");
+        if (logElement != null) {
+            Iterator additionalLogIterator = logElement.getChildren("merge").iterator();
+            while (additionalLogIterator.hasNext()) {
+                Element additionalLogElement = (Element) additionalLogIterator.next();
+                auxLogs.add(parseMergeElement(additionalLogElement));
+            }
+        }
+        return auxLogs;
     }
 }
