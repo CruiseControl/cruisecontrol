@@ -320,11 +320,22 @@ public class MasterBuild {
         System.out.println("");
         System.out.println("java MasterBuild [options]");
         System.out.println("where options are:");
-        System.out.println("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-        System.out.println("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-        System.out.println("   -properties file       where file is the masterbuild properties file, and is available in the classpath");
+        printOptions(System.out, "    ");
         System.out.println("");
         System.exit(0);
+    }
+
+    /**
+     * Prints the options required by this class. This method can be called by other classes
+     * which want to append their own options to a command line client.
+     */
+    public static void printOptions(PrintStream out, String indent) {
+        if (indent == null) {
+            indent = "";
+        }
+        out.println(indent + "-lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+        out.println(indent + "-label label           where label is in x.y format, y being an integer.  x can be any string.");
+        out.println(indent + "-properties file       where file is the masterbuild properties file, and is available in the classpath");
     }
 
     /**
