@@ -71,7 +71,7 @@ public class BuildQueue implements Runnable {
                 nextProject = (Project) queue.remove(0);
             }
             if (nextProject != null) {
-                LOG.info("now building: " + nextProject.getName());
+                LOG.info("processing project: " + nextProject.getName());
                 nextProject.execute();
             }
         }
