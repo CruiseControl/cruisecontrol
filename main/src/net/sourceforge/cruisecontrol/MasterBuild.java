@@ -122,7 +122,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      * serialize the label and timestamp of the last good build
      */
-    public void writeBuildInfo() {
+    private void writeBuildInfo() {
         try {
             BuildInfo info = new BuildInfo(_lastGoodBuildTime, _label);
             ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(BUILDINFO_FILENAME));
@@ -137,7 +137,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      * deserialize the label and timestamp of the last good build.
      */
-    public void readBuildInfo() {
+    private void readBuildInfo() {
         File infoFile = new File(BUILDINFO_FILENAME);
         log("Reading build information from : " + infoFile.getAbsolutePath());
         if (!infoFile.exists() || !infoFile.canRead()) {
@@ -615,7 +615,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      *	Print footer for each build attempt.
      */
-    public void endLog() {
+    private void endLog() {
         log("\n");
         log("***** Ending Build Cycle, sleeping " + (_buildInterval/1000.0) + " seconds until next build.\n\n\n");
         log("***** Label: " + _label);
@@ -626,7 +626,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      *	Print usage instructions if command line arguments are not correctly specified.
      */
-    public void usage() {
+    private void usage() {
         System.out.println("Usage:");
         System.out.println("");
         System.out.println("Starts a continuous integration loop");
