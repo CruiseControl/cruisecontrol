@@ -89,8 +89,10 @@ public class CruiseControlProperties {
 
 
     /**
-     *  Since we'll be storing everything in the build log, we need the build info in an XML representation.  The
-     *  XML format is as follows:<br>
+     *  Since we'll be storing everything in the build log, we need the build
+     * info in an XML representation.
+     *
+     * The XML format is as follows:<br>
      *
      *  <pre>
      *  <properties>
@@ -112,8 +114,9 @@ public class CruiseControlProperties {
     }
 
     /**
-     *  Factory method for creating an <code>LabelIncrementer</code> from the properties file, rather than making repeated calls
-     *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     * Factory method for creating an <code>LabelIncrementer</code> from the
+     * properties file, rather than making repeated calls to
+     * <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
      *  @return LabelIncrementer that is fully configured
      */
@@ -132,70 +135,84 @@ public class CruiseControlProperties {
 
 
     /**
-     *  Factory method for creating an <code>EmailPublisher</code> from the properties file, rather than making repeated calls
-     *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     * Factory method for creating an <code>EmailPublisher</code> from the
+     * properties file, rather than making repeated calls to
+     * <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
      *  @return EmailPublisher that is fully configured
      */
     public LinkEmailPublisher createLinkEmailPublisher() {
-        LinkEmailPublisher result = new LinkEmailPublisher();
-        result.setDefaultSuffix(defaultEmailSuffix);
-        result.setMailHost(mailhost);
-        result.setReportSuccess(reportSuccess);
-        result.setReturnAddress(returnAddress);
-        result.setServletUrl(servletURL);
-        result.setSpamWhileBroken(spamWhileBroken);
-        result.setEmailMap(emailmapFilename);
+        LinkEmailPublisher pub = new LinkEmailPublisher();
+        pub.setDefaultSuffix(defaultEmailSuffix);
+        pub.setMailHost(mailhost);
+        pub.setReportSuccess(reportSuccess);
+        pub.setReturnAddress(returnAddress);
+        pub.setServletUrl(servletURL);
+        pub.setSpamWhileBroken(spamWhileBroken);
+        pub.setEmailMap(emailmapFilename);
 
         Iterator alwaysEmailIterator = buildmaster.iterator();
         while(alwaysEmailIterator.hasNext()) {
-            result.addAlwaysAddress((String) alwaysEmailIterator.next());
+            pub.addAlwaysAddress((String) alwaysEmailIterator.next());
         }
 
         Iterator failureEmailIterator = notifyOnFailure.iterator();
         while(failureEmailIterator.hasNext()) {
-            result.addFailureAddress((String) failureEmailIterator.next());
+            pub.addFailureAddress((String) failureEmailIterator.next());
         }
-        return result;
+        return pub;
     }
 
     /**
-     *  Factory method for creating an <code>AntBuilder</code> from the properties file, rather than making repeated calls
-     *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     * Factory method for creating an <code>AntBuilder</code> from the
+     * properties file, rather than making repeated calls to
+     * <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
-     *  @param buildCounter internal counter for cruisecontrol to determine the build behavior
-     *  @return AntBuilder that is fully configured for the appropriate build target
+     * @param buildCounter internal counter for cruisecontrol to determine the
+     *      build behavior
+     * @return AntBuilder that is fully configured for the appropriate build
+     *      target
      */
     public AntBuilder createAntBuilder(int buildCounter) {
         AntBuilder builder = new AntBuilder();
         builder.setBuildFile(antFile);
 
-        if (((buildCounter % cleanBuildEvery) == 0) && !cleanAntTarget.equals("")) {
+        //Is it time for a clean build? This requires that a clean build
+        //  target was specified and the number of builds performed is
+        //  equal to the clean build interval.
+        boolean isTimeForClean = (buildCounter % cleanBuildEvery) == 0;
+        boolean cleanTargetIsSpecified = !cleanAntTarget.equals("");
+
+        if (isTimeForClean && cleanTargetIsSpecified) {
             builder.setTarget(cleanAntTarget);
         } else {
             builder.setTarget(antTarget);
         }
-        builder.setTarget(antTarget);
+
         return builder;
     }
 
     /**
-     *  Factory method for creating an <code>CurrentBuildStatusBootstrapper</code> from the properties file, rather
-     *  than making repeated calls to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     * Factory method for creating an <code>CurrentBuildStatusBootstrapper</code>
+     * from the properties file, rather than making repeated calls to
+     * <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
      *  @return CurrentBuildStatusBootstrapper that is fully configured
      */
     public CurrentBuildStatusBootstrapper createCurrentBuildStatusBootstrapper() {
-        CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
+        CurrentBuildStatusBootstrapper bootstrapper =
+                new CurrentBuildStatusBootstrapper();
         bootstrapper.setFile(currentBuildStatusFile.getAbsolutePath());
+
         return bootstrapper;
     }
 
     /**
-     *  Factory method for creating an <code>CurrentBuildStatusPublisher</code> from the properties file, rather
-     *  than making repeated calls to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     * Factory method for creating an <code>CurrentBuildStatusPublisher</code>
+     * from the properties file, rather than making repeated calls to
+     * <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
-     *  @return CurrentBuildStatusPublisher that is fully configured
+     * @return CurrentBuildStatusPublisher that is fully configured
      */
     public CurrentBuildStatusPublisher createCurrentBuildStatusPublisher() {
         CurrentBuildStatusPublisher publisher = new CurrentBuildStatusPublisher();
@@ -204,6 +221,10 @@ public class CruiseControlProperties {
     }
 
 
+    /**
+     * Creates a instance populating the attributes from the properties
+     * file specified.
+     */
     public CruiseControlProperties(String propertiesFile) throws IOException {
         if (propertiesFile == null
             || propertiesFile.trim().length() <= 0) {
@@ -213,6 +234,9 @@ public class CruiseControlProperties {
         loadProperties(propertiesFile);
     }
 
+    /**
+     * Creates an instance, not setting of the attributes.
+     */
     public CruiseControlProperties() {
     }
 
@@ -311,6 +335,12 @@ public class CruiseControlProperties {
             props.list(System.out);
     }
 
+    /**
+     * Reads a "boolean" property from the props. Boolean properties are
+     * only true when they are equal to the string "true", without regard
+     * for the case. If they are blank, null, or any string other than that,
+     * the property is assumed to be false.
+     */
     private  boolean getBooleanProperty(Properties props, String key) {
         try {
             return props.getProperty(key).equals("true");
@@ -327,7 +357,7 @@ public class CruiseControlProperties {
      *                   e.g. "paul,Paul, Tim, Alden,,Frank".
      * @return Set of words; maybe empty, never null.
      */
-    private  Set getSetFromString(String commaDelim) {
+    private Set getSetFromString(String commaDelim) {
         Set elements = new TreeSet();
         if (commaDelim == null) {
             return elements;
@@ -352,7 +382,7 @@ public class CruiseControlProperties {
      *               Name provided by the user.
      * @return true if the email map should be consulted, otherwise false.
      */
-    private  boolean usingEmailMap(String emailMapFileName) {
+    private boolean usingEmailMap(String emailMapFileName) {
         //If the user specified name is null or blank or doesn't exist, then
         //  the email map is not being used.
         if (emailMapFileName == null || emailMapFileName.trim().length() == 0) {
