@@ -44,10 +44,13 @@ import java.util.Date;
 import java.util.Map;
 
 public abstract class Builder implements Comparable {
-
-    private int day = -1;
-    private int time = -1;
-    private int multiple = -1;
+    
+    public static final int NOT_SET = -1;
+    
+    private int day = NOT_SET;
+    private int time = NOT_SET;
+    private int multiple = 1;
+    private boolean multipleSet = false;
     private String group = "default";
 
     private boolean buildAfterFailed = false;
@@ -57,14 +60,12 @@ public abstract class Builder implements Comparable {
         throws CruiseControlException;
 
     public void validate() throws CruiseControlException {
-        boolean timeSet = time >= 0;
-        boolean multipleSet = multiple > 0;
+        boolean timeSet = time != NOT_SET;
 
-        boolean neitherSet = !timeSet && !multipleSet;
         boolean bothSet = timeSet && multipleSet;
 
-        if (bothSet || neitherSet) {
-            throw new CruiseControlException("One of 'time' or 'multiple' are required on builders.");
+        if (bothSet) {
+            throw new CruiseControlException("Only one of 'time' or 'multiple' are allowed on builders.");
         }
     }
 
@@ -86,11 +87,24 @@ public abstract class Builder implements Comparable {
         }
     }
 
+    /**
+     * can use Builder.NOT_SET to reset.
+     * @param timeString
+     */
     public void setTime(String timeString) {
         time = Integer.parseInt(timeString);
     }
 
+    /**
+     * can use Builder.NOT_SET to reset.
+     * @param multiple
+     */
     public void setMultiple(int multiple) {
+        if (multiple == NOT_SET) {
+            multipleSet = false;
+        } else {
+            multipleSet = true;
+        }
         this.multiple = multiple;
     }
 
@@ -99,6 +113,10 @@ public abstract class Builder implements Comparable {
     }
 
     public int getMultiple() {
+        boolean timeSet = time != NOT_SET;
+        if (timeSet && !multipleSet) {
+            return NOT_SET;
+        }
         return multiple;
     }
 
