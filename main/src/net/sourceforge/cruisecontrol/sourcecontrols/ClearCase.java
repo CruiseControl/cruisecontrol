@@ -284,7 +284,7 @@ public class ClearCase implements SourceControl {
             return null;
         }
 
-        String username = transformUsername(st.nextToken().trim());
+        String username = st.nextToken().trim();
 
         String timeStamp = st.nextToken().trim();
         String elementName = st.nextToken().trim();
@@ -367,18 +367,5 @@ public class ClearCase implements SourceControl {
         // TODO: check if operation type is a delete
 
         return mod;
-    }
-
-    private String transformUsername(String username) {
-        String transform = username;
-        if ((username.substring(0, 2)).indexOf("\"\"") == 0) {
-            transform = username.substring(2, username.length());
-        } else {
-            if ((username.substring(0, 1)).indexOf("\"") == 0) {
-                transform = username.substring(1, username.length());
-            }
-        }
-
-        return transform;
     }
 }
