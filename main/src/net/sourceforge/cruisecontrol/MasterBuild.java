@@ -44,6 +44,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static final String BUILDINFO_FILENAME = "buildcycleinfo";
     private static final String DEFAULT_MAP = "emailmap.properties";
     private static final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
+    private static final String XML_LOGGER_FILE = "log.xml";
     
     //label/modificationset/build participants
     private static String  _label;
@@ -850,7 +851,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         //  value. This will short circuit XmlLogger from setting the default value.
         String prop = proj.getProperty("XmlLogger.file");
         if (prop == null || prop.trim().length() == 0) {
-            proj.setProperty("XmlLogger.file", "log.xml");
+            proj.setProperty("XmlLogger.file", XML_LOGGER_FILE);
         }
 
         super.buildFinished(buildevent);
@@ -862,10 +863,23 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      *	specifying the start time of the running build, so that the build servlet can pick this up.
      */
     public void buildStarted(BuildEvent buildevent) {
+        if (!canWriteXMLLoggerFile()) {
+            throw new BuildException("No write access to " + XML_LOGGER_FILE);
+        }
+
         logCurrentBuildStatus(true);
         super.buildStarted(buildevent);
     }
 
+    boolean canWriteXMLLoggerFile() {
+        File logFile = new File(XML_LOGGER_FILE);
+        if (logFile.exists() && logFile.canWrite()) {
+            return true;
+        }
+        
+        return false;
+    }
+    
     /**
      * Wraps the XmlLogger's method with a logging level check
      */
