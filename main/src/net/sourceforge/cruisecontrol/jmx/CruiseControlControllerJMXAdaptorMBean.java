@@ -50,6 +50,9 @@ public interface CruiseControlControllerJMXAdaptorMBean {
 
     List getProjects();
 
-    void start();
-    void stop();
+    void pause();
+    void resume();
+    void halt();
+    String getBuildQueueStatus();
+
 }

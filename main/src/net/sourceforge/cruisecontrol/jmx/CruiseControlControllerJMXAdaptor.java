@@ -80,12 +80,20 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
         return controller.getProjects();
     }
 
-    public void start() {
-        controller.start();
+    public void resume() {
+        controller.resume();
     }
 
-    public void stop() {
-        controller.stop();
+    public void pause() {
+        controller.pause();
+    }
+
+    public String getBuildQueueStatus() {
+        return controller.getBuildQueueStatus();
+    }
+
+    public void halt() {
+        controller.halt();
     }
 
     public void register(MBeanServer server) throws JMException {

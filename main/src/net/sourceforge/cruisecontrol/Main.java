@@ -69,7 +69,7 @@ public class Main {
                 CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller, parsePort(args));
                 agent.start();
             }
-            controller.start();
+            controller.resume();
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             usage();
