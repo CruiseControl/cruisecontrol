@@ -97,8 +97,9 @@ public class MavenBuilderTest extends TestCase {
 
     /**
      * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
+     * @throws CruiseControlException
      */
-    public void testGetCommandLineArgs() {
+    public void testGetCommandLineArgs() throws CruiseControlException {
         MavenBuilder builder = new MavenBuilder();
         // none should exist for this test
         builder.setMavenScript("testmaven.sh");
@@ -133,8 +134,6 @@ public class MavenBuilderTest extends TestCase {
         compareArrays(
             "Windows:",
             new String[] {
-                "cmd.exe",
-                "/C",
                 "testmaven.sh",
                 "-Dlabel=200.1.23",
                 "-b",

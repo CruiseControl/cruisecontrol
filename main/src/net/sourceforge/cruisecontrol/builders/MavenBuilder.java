@@ -172,6 +172,18 @@ public class MavenBuilder extends Builder implements StreamConsumer {
      */
     public void setMavenScript(String mavenScript) {
         this.mavenScript = mavenScript;
+        if (!mavenScript.endsWith(".bat") && isWindows()) {
+            File file = new File(mavenScript);
+            if (!file.exists()) {
+                // check if we need to add a '.bat' extension
+                file = new File(mavenScript + ".bat");
+                if (file.exists()) {
+                    this.mavenScript = mavenScript + ".bat";
+                }
+                // we're not going to solve other problems here:
+                // just let the execution fail
+            }
+        }
     }
 
     /**
@@ -201,20 +213,17 @@ public class MavenBuilder extends Builder implements StreamConsumer {
      *  @param buildProperties Map holding key/value pairs of arguments to the build process
      *  @param goalset A set of goals to run (list, separated by emptyspace)
      *  @return String[] holding command to be executed
+     * @throws CruiseControlException
      */
-    protected String[] getCommandLineArgs(Map buildProperties, boolean isWindows, String goalset) {
+    protected String[] getCommandLineArgs(Map buildProperties, boolean isWindows, String goalset) 
+        throws CruiseControlException {
+
         List al = new ArrayList();
 
         if (mavenScript != null) {
-            if (isWindows) {
-                al.add("cmd.exe");
-                al.add("/C");
-                al.add(mavenScript);
-            } else {
-                al.add(mavenScript);
-            }
+            al.add(quote(mavenScript));
         } else {
-            throw new RuntimeException(
+            throw new CruiseControlException(
                 "Non-script running is not implemented yet.\n"
                     + "As of 1.0-beta-10 Maven startup mechanism is still changing...");
         }
@@ -222,7 +231,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
             String key = (String) propertiesIterator.next();
-            al.add("-D" + key + "=" + buildProperties.get(key));
+            al.add(quote("-D" + key + "=" + buildProperties.get(key)));
         }
 
         if (LOG.isDebugEnabled()) {
@@ -234,7 +243,7 @@ public class MavenBuilder extends Builder implements StreamConsumer {
             // we need only the name of the file
             File pFile = new File(projectFile);
             al.add("-p");
-            al.add(pFile.getName());
+            al.add(quote(pFile.getName()));
         }
         if (goalset != null) {
             StringTokenizer stok = new StringTokenizer(goalset, " \t\r\n");

@@ -206,6 +206,18 @@ public class AntBuilder extends Builder {
      */
     public void setAntScript(String antScript) {
         this.antScript = antScript;
+        if (!antScript.endsWith(".bat") && isWindows()) {
+            File file = new File(antScript);
+            if (!file.exists()) {
+                // check if we need to add a '.bat' extension
+                file = new File(antScript + ".bat");
+                if (file.exists()) {
+                    this.antScript = antScript + ".bat";
+                }
+                // we're not going to solve other problems here:
+                // just let the execution fail
+            }
+        }
     }
 
     /**
@@ -275,19 +287,16 @@ public class AntBuilder extends Builder {
      *
      * @param buildProperties Map holding key/value pairs of arguments to the build process
      * @return String[] holding command to be executed
+     * @throws CruiseControlException on unquotable attributes
      */
     protected String[] getCommandLineArgs(Map buildProperties,
                                           boolean useLogger,
                                           boolean useScript,
-                                          boolean isWindows) {
+                                          boolean isWindows) throws CruiseControlException {
         List arguments = new ArrayList();
 
         if (useScript) {
-            if (isWindows) {
-                arguments.add("cmd.exe");
-                arguments.add("/C");
-            }
-            arguments.add(antScript);
+            arguments.add(quote(antScript));
         } else {
             arguments.add("java");
             Iterator argsIterator = args.iterator();
@@ -295,11 +304,11 @@ public class AntBuilder extends Builder {
                 String arg = ((JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
-                    arguments.add(arg);
+                    arguments.add(quote(arg));
                 }
             }
             arguments.add("-classpath");
-            arguments.add(System.getProperty("java.class.path"));
+            arguments.add(quote(System.getProperty("java.class.path")));
             arguments.add("org.apache.tools.ant.Main");
         }
 
@@ -307,11 +316,11 @@ public class AntBuilder extends Builder {
             arguments.add("-logger");
             arguments.add(getLoggerClassName());
             arguments.add("-logfile");
-            arguments.add(tempFileName);
+            arguments.add(quote(tempFileName));
         } else {
             arguments.add("-listener");
             arguments.add(getLoggerClassName());
-            arguments.add("-DXmlLogger.file=" + tempFileName);
+            arguments.add(quote("-DXmlLogger.file=" + tempFileName));
         }
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
@@ -319,14 +328,14 @@ public class AntBuilder extends Builder {
             String key = (String) propertiesIterator.next();
             final String value = (String) buildProperties.get(key);
             if (value != null & !value.equals("")) {
-                arguments.add("-D" + key + "=" + value);
+                arguments.add(quote("-D" + key + "=" + value));
             }
         }
 
         Iterator antPropertiesIterator = properties.iterator();
         while (antPropertiesIterator.hasNext()) {
             Property property = (Property) antPropertiesIterator.next();
-            arguments.add("-D" + property.getName() + "=" + property.getValue());
+            arguments.add(quote("-D" + property.getName() + "=" + property.getValue()));
         }
 
         if (useDebug) {
@@ -335,11 +344,11 @@ public class AntBuilder extends Builder {
         }
 
         arguments.add("-buildfile");
-        arguments.add(buildFile);
+        arguments.add(quote(buildFile));
 
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
-            arguments.add(targets.nextToken());
+            arguments.add(quote(targets.nextToken()));
         }
 
         return (String[]) arguments.toArray(new String[arguments.size()]);

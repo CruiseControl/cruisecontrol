@@ -156,4 +156,27 @@ public abstract class Builder implements Comparable {
         Integer integer2 = new Integer(builder.getMultiple());
         return integer2.compareTo(integer); //descending order
     }
+
+    /**
+     * Put quotes around the given String if necessary.
+     *
+     * <p>If the argument doesn't include spaces or quotes, return it
+     * as is. If it contains double quotes, use single quotes - else
+     * surround the argument by double quotes.</p>
+     * 
+     * @throws CruiseControlExceptionn if the argument contains both, single and double quotes.
+     */
+    protected  String quote(String argument) throws CruiseControlException {
+        if (argument.indexOf("\"") > -1) {
+            if (argument.indexOf("\'") > -1) {
+                throw new CruiseControlException("Can\'t handle single and double quotes in same argument");
+            } else {
+                return '\'' + argument + '\'';
+            }
+        } else if (argument.indexOf("\'") > -1 || argument.indexOf(" ") > -1) {
+            return '\"' + argument + '\"';
+        } else {
+            return argument;
+        }
+    }
 }

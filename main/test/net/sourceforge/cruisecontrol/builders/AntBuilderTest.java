@@ -116,7 +116,7 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
-    public void testGetCommandLineArgs() {
+    public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
             {
                 "java",
@@ -155,7 +155,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, true, false, false)));
     }
 
-    public void testGetCommandLineArgs_EmptyLogger() {
+    public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
         String[] resultInfo =
             {
                 "java",
@@ -193,7 +193,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, true, false, false)));
     }
 
-    public void testGetCommandLineArgs_Debug() {
+    public void testGetCommandLineArgs_Debug() throws CruiseControlException {
         String[] resultDebug =
             {
                 "java",
@@ -216,7 +216,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
-    public void testGetCommandLineArgs_DebugMaxMemory() {
+    public void testGetCommandLineArgs_DebugMaxMemory() throws CruiseControlException {
         String[] resultDebugWithMaxMemory =
             {
                 "java",
@@ -242,7 +242,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
-    public void testGetCommandLineArgs_DebugMaxMemoryAndProperty() {
+    public void testGetCommandLineArgs_DebugMaxMemoryAndProperty() throws CruiseControlException {
         String[] resultDebugWithMaxMemoryAndProperty =
             {
                 "java",
@@ -272,11 +272,9 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
-    public void testGetCommandLineArgs_BatchFile() {
+    public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
         String[] resultBatchFile =
             {
-                "cmd.exe",
-                "/C",
                 "ant.bat",
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
@@ -292,7 +290,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, true, true)));
     }
 
-    public void testGetCommandLineArgs_ShellScript() {
+    public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
         String[] resultShellScript =
             {
                 "ant.sh",
@@ -310,7 +308,7 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, true, false)));
     }
     
-    public void testGetCommandLineArgs_AlternateLogger() {
+    public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
         String[] args =
             {
                 "java",
