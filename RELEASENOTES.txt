@@ -8,6 +8,10 @@ ModificationSet:
 ----------------------
 * Fix for possible NPE when using ignoreFiles
 
+navigation.jsp:
+----------------------
+* New combo box for project selection (including link to status page). Contribution by Gerd Zanker
+
 Project:
 ----------------------
 * Catch Throwable during publishing, so errors don't propagate to build()
