@@ -165,14 +165,13 @@ public abstract class EmailPublisher implements Publisher {
         Iterator emailMapIterator = _emailMap.iterator();
         while(emailMapIterator.hasNext()) {
             Map map = (Map) emailMapIterator.next();
-            System.out.println(map.getAlias() + "->" + map.getAddress());
+            log.debug("Mapping alias: " + map.getAlias() + " to address: " + map.getAddress());
             emailMap.put(map.getAlias(), map.getAddress());
         }
 
         Iterator userIterator = users.iterator();
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
-            System.out.println(user);
             if (emailMap.containsKey(user)) {
                 log.debug("User found in email map.  Mailing to: " + emailMap.get(user));
                 emails.add(emailMap.get(user));
@@ -223,6 +222,7 @@ public abstract class EmailPublisher implements Publisher {
      *  @param message body of the message
      */
     protected void sendMail(String toList, String subject, String message) throws CruiseControlException {
+        log.info("Sending mail notifications.");
         Properties props = System.getProperties();
         props.put("mail.smtp.host", _mailHost);
         Session session = Session.getDefaultInstance(props, null);
@@ -245,7 +245,7 @@ public abstract class EmailPublisher implements Publisher {
         _mailHost = mailHost;
     }
 
-    public void setServletUrl(String servletUrl) {
+    public void setBuildResultsUrl(String servletUrl) {
         _servletUrl = servletUrl;
     }
 
