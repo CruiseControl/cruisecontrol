@@ -41,11 +41,13 @@
         <table border="0" align="center" width="98%">
             <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
             <tr><td>&nbsp;</td></tr>
+            <% String baseUrl = request.getContextPath() + request.getServletPath(); %>
+            <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
             <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
                 <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
             </cruisecontrol:nav>
             <tr><td>
-              <form method="GET" action="<%=request.getContextPath() + request.getServletPath()%>" >
+              <form method="GET" action="<%=baseUrl%>" >
                 <select name="log" onchange="form.submit()">
                   <cruisecontrol:nav startingBuildNumber="10">
                     <option value="<%=logfile%>"><%= linktext %></option>
