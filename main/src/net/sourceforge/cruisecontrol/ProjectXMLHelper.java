@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Util;
+
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.io.File;
@@ -50,15 +52,14 @@ import java.util.List;
  */
 public class ProjectXMLHelper {
 
-    private static final org.apache.log4j.Logger LOG4J =
-            org.apache.log4j.Logger.getLogger(ProjectXMLHelper.class);
+    private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
 
     private PluginRegistry plugins;
     private Element projectElement;
     private String projectName;
 
     public ProjectXMLHelper() throws CruiseControlException {
-        plugins = PluginRegistry.getDefaultPluginRegistry();
+        plugins = PluginRegistry.createRegistry();
     }
 
     public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
@@ -87,9 +88,10 @@ public class ProjectXMLHelper {
             if (pluginName == null || pluginClassName == null) {
                 throw new CruiseControlException("name and classname are required on <plugin>");
             }
-            LOG4J.debug("Registering plugin: " + pluginName);
-            LOG4J.debug("to classname: " + pluginClassName);
-            LOG4J.debug("");
+            LOG.debug("Registering plugin '" + pluginName 
+                    + "' to classname '" + pluginClassName
+                    + "' for project " + projectName);
+            LOG.debug("");
             plugins.register(pluginName, pluginClassName);
         }
     }
@@ -109,7 +111,7 @@ public class ProjectXMLHelper {
             buildAfterFailedAttr = "true";
         }
         boolean buildafterfailed = Boolean.valueOf(buildAfterFailedAttr).booleanValue();
-        LOG4J.debug("Setting BuildAfterFailed to " + buildafterfailed);
+        LOG.debug("Setting BuildAfterFailed to " + buildafterfailed);
         return buildafterfailed;
     }
 
@@ -126,7 +128,7 @@ public class ProjectXMLHelper {
                 bootstrappers.add(bootstrapper);
             }
         } else {
-            LOG4J.debug("Project " + projectName + " has no bootstrappers");
+            LOG.debug("Project " + projectName + " has no bootstrappers");
         }
         return bootstrappers;
     }
@@ -143,7 +145,7 @@ public class ProjectXMLHelper {
                 publishers.add(publisher);
             }
         } else {
-            LOG4J.debug("Project " + projectName + " has no publishers");
+            LOG.debug("Project " + projectName + " has no publishers");
         }
         return publishers;
     }
@@ -196,7 +198,7 @@ public class ProjectXMLHelper {
             try {
                 incrementer = (LabelIncrementer) labelIncrClass.newInstance();
             } catch (Exception e) {
-                LOG4J.error(
+                LOG.error(
                         "Error instantiating label incrementer named "
                         + labelIncrClass.getName()
                         + ". Using DefaultLabelIncrementer instead.",
