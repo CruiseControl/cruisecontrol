@@ -1,3 +1,9 @@
+CruiseControl Release Notes - Latest CVS
+
+AntBuilder
+----------------------
+* Fixed problem when antscript attribute contained a space.
+
 CruiseControl Release Notes - 2.1.6
 
 AlwaysBuild

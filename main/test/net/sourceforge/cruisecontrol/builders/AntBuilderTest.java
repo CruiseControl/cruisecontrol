@@ -277,7 +277,7 @@ public class AntBuilderTest extends TestCase {
             {
                 "cmd.exe",
                 "/C",
-                "ant.bat",
+                "\"ant.bat\"",
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -295,7 +295,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetCommandLineArgs_ShellScript() {
         String[] resultShellScript =
             {
-                "ant.sh",
+                "\"ant.sh\"",
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
