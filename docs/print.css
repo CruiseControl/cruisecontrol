@@ -8,7 +8,14 @@ body {
 }
 
 .content {
-    margin: 5%;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    max-width: none;
+}
+
+html>body .content {
+    margin: 0;
     padding: 0;
     width: auto;
     max-width: none;
