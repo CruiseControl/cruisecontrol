@@ -182,9 +182,9 @@
         <property name="release.zip" value="cruisecontrol.zip"/>
         <delete file="release\${release.zip}"/>
         <zip zipfile="release\${release.zip}">
-            <fileset dir="${dist}" includes="*.jar, *.war"/>
+            <fileset dir="${dist}" includes="*.*"/>
             <fileset dir="." 
-             includes="${docs}/**, ${lib}/**"/>
+             includes="${docs}/**, ${lib}/**, *.txt" />
         </zip>
     </target>
                   
