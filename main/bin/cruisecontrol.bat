@@ -63,7 +63,7 @@ set DISTDIR=%CCDIR%\dist
 
 set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\xerces.jar;%LIBDIR%\mail.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;.
 
-set EXEC=java -cp %CRUISE_PATH% CruiseControl %1 %2 %3 %4 %5 %6 %7 %8
+set EXEC=java -cp %CRUISE_PATH% CruiseControl %*
 echo %EXEC%
 %EXEC%
 
