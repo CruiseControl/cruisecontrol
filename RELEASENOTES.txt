@@ -3,6 +3,7 @@ CruiseControl Release Notes - Latest CVS
 AntBuilder
 ---------------------
 added antWorkingDir attribute. - Patch by Brett Wooldridge
+added support for multiple targets. (target="clean build")  - Patch by Josh Knowles
 
 Multiple Classes
 ---------------------
