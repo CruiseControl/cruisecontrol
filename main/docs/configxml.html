@@ -90,10 +90,10 @@
             <a href="#pvcs">&lt;pvcs&gt;</a>
             <a href="#schedule">&lt;schedule&gt;</a>
             <a href="#scp">&lt;scp&gt;</a>
-            <a href="#sscm">&lt;sscm&gt;</a>
-            <a href="#sscmbootstrapper">&lt;sscmbootstrapper&gt;</a>
             <a href="#starteam">&lt;starteam&gt;</a>
             <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
+            <a href="#surround">&lt;surround&gt;</a>
+            <a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a>
             <a href="#svn">&lt;svn&gt;</a>
             <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
             <a href="#targets">&lt;targets&gt;</a>
@@ -116,7 +116,7 @@
             <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
             <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
             <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
-            <a href="#sscmbootstrapper">&lt;sscmbootstrapper/&gt;</a>
+            <a href="#surroundbootstrapper">&lt;surroundbootstrapper/&gt;</a>
             <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
             <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
             <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
@@ -132,7 +132,7 @@
             <a href="#mks">&lt;mks/&gt;</a>
             <a href="#p4">&lt;p4/&gt;</a>
             <a href="#pvcs">&lt;pvcs/&gt;</a>
-            <a href="#sscm">&lt;sscm/&gt;</a>
+            <a href="#surround">&lt;surround/&gt;</a>
             <a href="#starteam">&lt;starteam/&gt;</a>
             <a href="#svn">&lt;svn/&gt;</a>
             <a href="#targets">&lt;targets/&gt;</a>
@@ -318,14 +318,14 @@
                 <td>Bootstraps resources from Perforce</td>
             </tr>
             <tr>
-                <td><a href="#sscmbootstrapper">&lt;sscmbootstrapper&gt;</a></td>
-                <td>0 .. *</td>
-                <td>Bootstraps resources from Surround SCM</td>
-            </tr>
-            <tr class="oddrow">
                 <td><a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Star Team</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Surround SCM</td>
             </tr>
             <tr>
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
@@ -530,7 +530,7 @@
 
         <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
 
-        <h2><a name="sscmbootstrapper">&lt;sscmbootstrapper&gt;</a></h2>
+        <h2><a name="surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></h2>
 
         <p>Fetches a single repository (and optionally it's sub-repositories) 
         from Surround SCM before starting the build.</p>
@@ -849,7 +849,7 @@
                 <td>Checks for changes in a PVCS repository.</td>
             </tr>
             <tr class="oddrow">
-                <td><a href="#sscm">&lt;sscm&gt;</a></td>
+                <td><a href="#surround">&lt;surround&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Surround SCM repository.</td>
             </tr>
@@ -1229,7 +1229,7 @@
 
         <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
 
-        <h2><a name="sscm">&lt;sscm&gt;</a></h2>
+        <h2><a name="surround">&lt;surround&gt;</a></h2>
 
         <h3>Attributes</h3>
 
