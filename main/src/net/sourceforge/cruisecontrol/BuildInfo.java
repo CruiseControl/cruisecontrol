@@ -54,6 +54,8 @@ public class BuildInfo implements Serializable {
      * the class DefaultLabelIncrementer will be used.
      *
      */
+    /*REDTAG - PAUL JULIUS - Temporarily taking this method out. Need to get
+        the CruiseControl properties issue cleared up first.
     public void incrementLabel() {
         try {
             Class incrementerClass = Class.forName(CruiseControlProperties.getLabelIncrementerClassName());
@@ -64,7 +66,7 @@ public class BuildInfo implements Serializable {
             e.printStackTrace();
         }
 
-    }
+    }*/
     
     /** Getter for property lastBuildAttemptTime.
      * @return Value of property lastBuildAttemptTime.
