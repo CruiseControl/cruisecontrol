@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import org.apache.tools.ant.*;
+
 /**
  * Wraps an Ant project so it can be used outside of Ant's Main class.
  *
@@ -62,4 +64,47 @@ public class CruiseProject extends org.apache.tools.ant.Project {
     public void fireBuildFinished(Throwable error) {
         super.fireBuildFinished(error);
     }
+
+    // Need to re-implement a bunch of stuff from Ant because their Project doesn't like being subclassed.
+
+    public Object createDataType(String typeName) throws BuildException {
+        Class c = (Class) getDataTypeDefinitions().get(typeName);
+
+        if (c == null)
+            return null;
+
+        try {
+            java.lang.reflect.Constructor ctor = null;
+            boolean noArg = false;
+            // DataType can have a "no arg" constructor or take a single 
+            // Project argument.
+            try {
+                ctor = c.getConstructor(new Class[0]);
+                noArg = true;
+            } catch (NoSuchMethodException nse) {
+                ctor = c.getConstructor(new Class[] {Project.class});
+                noArg = false;
+            }
+
+            Object o = null;
+            if (noArg) {
+                 o = ctor.newInstance(new Object[0]);
+            } else {
+                 o = ctor.newInstance(new Object[] {this});
+            }
+            String msg = "   +DataType: " + typeName;
+            log (msg, MSG_DEBUG);
+            return o;
+        } catch (java.lang.reflect.InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            String msg = "Could not create datatype of type: "
+                 + typeName + " due to " + t;
+            throw new BuildException(msg, t);
+        } catch (Throwable t) {
+            String msg = "Could not create datatype of type: "
+                 + typeName + " due to " + t;
+            throw new BuildException(msg, t);
+        }
+    }
+
 }
