@@ -109,6 +109,10 @@ public class PVCS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(_pvcsProject == null)
+            throw new CruiseControlException("'pvcsproject' is a required attribute on PVCS");
+        if(_pvcsSubProject == null)
+            throw new CruiseControlException("'pvcssubproject' is a required attribute on PVCS");
     }
 
 	/**
