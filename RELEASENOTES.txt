@@ -7,6 +7,7 @@ BuildLogger
 build.xml (jsp)
 ----------------------
 * will build war w/out jars in WEB-INF/lib if property jdk1.4 is defined.
+* removed files from war that shouldn't be included. Patch by Matt Albrecht
 
 CruiseControlTagSupport
 ----------------------
@@ -21,6 +22,10 @@ JMX Interface
 * Added a halt operation on the CruiseControl process JMX interface. Patch from Matt Albrecht
 * Renamed start operation to resume.
 * Renamed stop operation to pause.
+
+logile.xsl
+----------------------
+* Changed the logfile.xsl to have an output method (some Xalan versions gave an error on this). Patch from Matt Albrecht
 
 Project
 ----------------------
