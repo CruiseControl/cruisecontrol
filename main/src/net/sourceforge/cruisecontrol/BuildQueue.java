@@ -79,23 +79,20 @@ public class BuildQueue implements Runnable {
 
     public void run() {
         try {
-          LOG.info("BuildQueue started");
+            LOG.info("BuildQueue started");
             while (true) {
                 synchronized (queue) {
                     if (queue.isEmpty()) {
-                        try {
-                            waiting = true;
-                            queue.wait();
-                        } catch (InterruptedException e) {
-                            String message = "BuildQueue.run() interrupted";
-                            LOG.error(message, e);
-                            throw new RuntimeException(message);
-                        }
+                        waiting = true;
+                        queue.wait();
                     }
                     waiting = false;
                 }
                 serviceQueue();
             }
+        } catch (InterruptedException e) {
+            String message = "BuildQueue.run() interrupted. Stopping?";
+            LOG.debug(message, e);
         } catch (Throwable e) {
             LOG.error("BuildQueue.run()", e);
         } finally {
@@ -119,15 +116,15 @@ public class BuildQueue implements Runnable {
     }
 
     void stop() {
-      LOG.info("Stopping BuildQueue", new Exception("stacktrace"));
-      buildQueueThread.interrupt();
+        LOG.info("Stopping BuildQueue");
+        buildQueueThread.interrupt();
         synchronized (queue) {
             queue.notify();
         }
     }
 
     public boolean isAlive() {
-      return buildQueueThread != null ? buildQueueThread.isAlive() : false;
+        return buildQueueThread != null ? buildQueueThread.isAlive() : false;
     }
 
     public boolean isWaiting() {
