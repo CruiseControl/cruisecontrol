@@ -13,6 +13,10 @@ AntBuilder:
   so SAXBuilder can build from a File using the right Stream/Reader and encoding. Patch by Hack Kampbjørn
 * Various code cleanups
 
+ArtifactsPublisher
+----------------------
+* Added publishOnFailure attribute to control the behavior on a failed build. Idea by James Nichols
+
 build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.

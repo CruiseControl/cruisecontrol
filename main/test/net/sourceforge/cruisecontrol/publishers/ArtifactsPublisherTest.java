@@ -62,8 +62,24 @@ public class ArtifactsPublisherTest extends TestCase {
             tempFile.delete();
         }
         tempFile = null;
-    }    
-    
+    }
+
+    public void testShouldPublish() {
+        //By default, should publish on both broken and successful builds.
+        assertTrue(publisher.shouldPublish(true));
+        assertTrue(publisher.shouldPublish(false));
+
+        //Set "publishOnFailure" to true should be the same result.
+        publisher.setPublisherOnFailure(true);
+        assertTrue(publisher.shouldPublish(true));
+        assertTrue(publisher.shouldPublish(false));
+
+        //Set "publishOnFailure" to false should NOT publish on a broken build.
+        publisher.setPublisherOnFailure(false);
+        assertTrue(publisher.shouldPublish(true));
+        assertFalse(publisher.shouldPublish(false));
+    }
+
     public void testPublishDirectory() {
         File tempDir = tempFile.getParentFile();
         Project project = new Project();
@@ -77,7 +93,7 @@ public class ArtifactsPublisherTest extends TestCase {
         }
     }
 
-    public void testPublishFile() {
+    public void testPublishFileWhenTargetFileNotExist() {
         File tempDir = tempFile.getParentFile();
         publisher.setFile(tempFile.getName());
         try {
