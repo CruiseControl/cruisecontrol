@@ -527,6 +527,9 @@ public class Project implements Serializable, Runnable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
+        if (configFile == null) {
+            throw new IllegalStateException("set config file on project before calling init()");
+        }
         appLog("reading settings from config file [" + configFile.getAbsolutePath() + "]");
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
 
