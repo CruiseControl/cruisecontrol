@@ -245,11 +245,13 @@ public class Modification implements Comparable {
     }
 
     public void log(DateFormat formatter) {
-        LOG.debug("Last Modified: " + formatter.format(modifiedTime));
-        LOG.debug("UserName: " + userName);
-        LOG.debug("EmailAddress: " + emailAddress);
-        LOG.debug("Comment: " + comment);
-        LOG.debug("");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Last Modified: " + formatter.format(modifiedTime));
+            LOG.debug("UserName: " + userName);
+            LOG.debug("EmailAddress: " + emailAddress);
+            LOG.debug("Comment: " + comment);
+            LOG.debug("");
+        }
     }
 
     /**
