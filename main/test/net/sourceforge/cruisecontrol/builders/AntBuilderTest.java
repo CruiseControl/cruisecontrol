@@ -41,6 +41,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.log4j.*;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,6 +49,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class AntBuilderTest extends TestCase {
 
@@ -64,15 +67,16 @@ public class AntBuilderTest extends TestCase {
         builder.setBuildFile("buildfile");
         Hashtable properties = new Hashtable();
         properties.put("label", "200.1.23");
-        String[] resultDebug = { "java","org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-debug","-verbose","-buildfile","buildfile","target"};
-        String[] resultInfo = { "java","org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-buildfile","buildfile","target"};
+        String classpath = System.getProperty("java.class.path");
+        String[] resultDebug = { "java", "-classpath", classpath, "org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-debug","-verbose","-buildfile","buildfile","target"};
+        String[] resultInfo = { "java","-classpath", classpath, "org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-buildfile","buildfile","target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         log.getRoot().setPriority(Priority.INFO);
-        Assert.assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties)));
+        assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties)));
 
         log.getRoot().setPriority(Priority.DEBUG);
-        Assert.assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties)));
+        assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties)));
     }
 
     public void testGetAntLogAsElement() {
@@ -84,9 +88,34 @@ public class AntBuilderTest extends TestCase {
             bw1.flush();
             bw1.close();
             AntBuilder builder = new AntBuilder();
-            Assert.assertEquals(buildLogElement.toString(), builder.getAntLogAsElement(logFile).toString());
+            assertEquals(buildLogElement.toString(), builder.getAntLogAsElement(logFile).toString());
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        }
+    }
+
+    public void testBuild() {
+        AntBuilder builder = new AntBuilder();
+        builder.setBuildFile("build.xml");
+        builder.setTarget("init");
+        HashMap buildProperties = new HashMap();
+        Element buildElement = builder.build(buildProperties);
+
+        Iterator targetIterator = buildElement.getChildren("target").iterator();
+        while(targetIterator.hasNext()) {
+            Element targetElement = (Element) targetIterator.next();
+            if(targetElement.getAttributeValue("name").equals("init")) {
+                assertTrue(true);
+            }
+        }
+
+        Element propertiesElement = buildElement.getChild("properties");
+        Iterator propertyIterator = propertiesElement.getChildren("property").iterator();
+        while(propertyIterator.hasNext()) {
+            Element propertyElement = (Element) propertyIterator.next();
+            if(propertyElement.getAttributeValue("name").equals("src")) {
+                assertEquals("src", propertyElement.getAttributeValue("value"));
+            }
         }
     }
 }

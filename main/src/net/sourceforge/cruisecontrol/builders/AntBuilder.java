@@ -70,7 +70,9 @@ public class AntBuilder extends Builder {
         try {
             Process p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties));
             StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
+            StreamPumper outPumper = new StreamPumper(p.getInputStream());
             new Thread(errorPumper).start();
+            new Thread(outPumper).start();
             InputStream input = p.getInputStream();
             p.waitFor();
         } catch (Exception e) {
@@ -92,6 +94,9 @@ public class AntBuilder extends Builder {
         }
 
         buildLogElement.addContent(propertiesElement.detach());
+        File propertiesLog = new File("propertylogger.xml");
+        propertiesLog.delete();
+
         return buildLogElement;
     }
 
@@ -111,6 +116,8 @@ public class AntBuilder extends Builder {
     protected String[] getCommandLineArgs(Map buildProperties) {
         List al = new ArrayList();
         al.add("java");
+        al.add("-classpath");
+        al.add(System.getProperty("java.class.path"));
         al.add("org.apache.tools.ant.Main");
         al.add("-listener");
         al.add("org.apache.tools.ant.XmlLogger");
@@ -159,28 +166,5 @@ public class AntBuilder extends Builder {
             ee.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     *  temporarily for testing
-     */
-    public static void main(String[] args) {
-        PropertyConfigurator.configure("log4j.properties");
-
-        AntBuilder ab = new AntBuilder();
-        ab.setTarget("init");
-        ab.setBuildFile("build.xml");
-
-        Element log = ab.build(new HashMap());
-        BufferedWriter bw = null;
-        try {
-            bw = new BufferedWriter(new FileWriter("log.xml"));
-            XMLOutputter output = new XMLOutputter();
-            output.output(log, bw);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } finally {
-            bw = null;
-        }
     }
 }
