@@ -49,6 +49,10 @@ HTMLEmailPublisher
 ----------------------
 * Added charset attribute.
 
+LabelIncrementer
+----------------------
+* Added getDefaultLabel()
+
 Main
 ----------------------
 * Use current time if lastbuildtime isn't specified - Patch by Josh Knowles
@@ -76,6 +80,7 @@ Project
 ----------------------
 * Project will create log directory if it doesn't exist. - Patch by Mark Richters
 * Serialized file now uses .ser extension
+* Will now get a default label from the LabelIncrementer if it doesn't already have one.
 
 ProjectXMLHelper
 ----------------------

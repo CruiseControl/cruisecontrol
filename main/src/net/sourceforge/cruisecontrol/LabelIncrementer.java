@@ -80,4 +80,10 @@ public interface LabelIncrementer {
      *  @return true if it is a valid label.
      */
     public boolean isValidLabel(String label);
+
+    /**
+     * Called by Project when there is no previously serialized label.
+     * @return defaultLabel
+     */
+    public String getDefaultLabel();
 }

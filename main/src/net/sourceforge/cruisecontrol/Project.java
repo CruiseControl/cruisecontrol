@@ -94,8 +94,6 @@ public class Project implements Serializable, Runnable {
             "stopped"
         };
 
-    private static final String DEFAULT_LABEL = "build.1";
-
     private transient int state = STOPPED_STATE;
     private transient Schedule schedule;
     private transient List bootstrappers = new ArrayList();
@@ -129,7 +127,7 @@ public class Project implements Serializable, Runnable {
     }
     private Date lastSuccessfulBuild = lastBuild;
     private boolean wasLastBuildSuccessful = true;
-    private String label = DEFAULT_LABEL;
+    private String label;
     private File configFile;
     private String name;
     private boolean buildForced = false;
@@ -604,6 +602,9 @@ public class Project implements Serializable, Runnable {
         modificationSet = helper.getModificationSet();
 
         labelIncrementer = helper.getLabelIncrementer();
+        if (label == null) {
+            label = labelIncrementer.getDefaultLabel();
+        }
         validateLabel(label, labelIncrementer);
 
         auxLogs = helper.getAuxLogs();
