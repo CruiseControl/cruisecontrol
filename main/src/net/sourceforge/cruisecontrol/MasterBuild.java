@@ -131,7 +131,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
         mb.readBuildInfo();
         mb.overwriteWithUserArguments(args);
-        mb.setDefaultPropsFileIfNecessary()();
+        mb.setDefaultPropsFileIfNecessary();
 
         if (mb.buildInfoSpecified()) {
             mb.execute();
