@@ -41,6 +41,7 @@ import java.text.*;
 
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 import org.apache.log4j.Category;
 
@@ -53,7 +54,7 @@ import org.apache.log4j.Category;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Arun Aggarwal
  */
-public class Vss extends SourceControlElement {
+public class Vss implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(Vss.class.getName());
@@ -63,13 +64,13 @@ public class Vss extends SourceControlElement {
     
 	private String ssdir;
 	private String login;
-	private String property;
-	private String propertyOnDelete;
     private String dateFormat;
-	private long lastModified;    
-    
+
+    private Hashtable _properties = new Hashtable();
+	private String _property;
+	private String _propertyOnDelete;
+
 	private ArrayList modifications = new ArrayList();
-	private Set emails = new HashSet();
 
     /** 
      * Sets default values.
@@ -105,7 +106,7 @@ public class Vss extends SourceControlElement {
 	 *@param  property
 	 */
 	public void setProperty(String property) {
-		this.property = property;
+		_property = property;
 	}
 
   	/**
@@ -113,8 +114,8 @@ public class Vss extends SourceControlElement {
 	 *
 	 *@param  property
 	 */
-     public void setPropertyOnDelete(String property) {
-		propertyOnDelete = property;
+     public void setPropertyOnDelete(String propertyOnDelete) {
+		propertyOnDelete = propertyOnDelete;
      }
 
      /**
@@ -130,36 +131,10 @@ public class Vss extends SourceControlElement {
         dateFormat = format;
         constructVssDateTimeFormat();
      }
-     
-	/**
-	 *  For parent modificationset to find out the time of last modification for
-	 *  this project
-	 *
-	 *@return
-	 */
-	public long getLastModified() {
-		return lastModified;
-	}
 
-	/**
-	 *  Returns a Set of usernames that made any modification since the last good
-	 *  build.
-	 *
-	 *@return
-	 */
-	public Set getEmails() {
-		return emails;
-	}
-
-	/**
-	 *  Returns a List of modifications to this project since the last good
-	 *  build.
-	 *
-	 *@return
-	 */
-	public List getModifications() {
-		return modifications;
-	}
+    public Hashtable getProperties() {
+        return _properties;
+    }
 
 	/**
 	 * Calls 
@@ -172,7 +147,7 @@ public class Vss extends SourceControlElement {
 	 *@param  quietPeriod
 	 *@return List of modifications
 	 */
-	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
         //(PENDING) extract buildHistoryCommand, execHistoryCommand
         // See CVSElement
         
@@ -209,8 +184,8 @@ public class Vss extends SourceControlElement {
 			e.printStackTrace();
 		}
 
-		if (property != null && modifications.size() > 0) {
-			//TO DO: set properties getAntTask().getProject().setProperty(property, "true");
+		if (_property != null && modifications.size() > 0) {
+            _properties.put(_property, "true");
 		}
 
 		return modifications;
@@ -282,12 +257,12 @@ public class Vss extends SourceControlElement {
             }
 		}
 
-		if (propertyOnDelete != null && "delete".equals(mod.type)) {
-			//TO DO: set properties getAntTask().getProject().setProperty(propertyOnDelete, "true");
+		if (_propertyOnDelete != null && "delete".equals(mod.type)) {
+            _properties.put(_propertyOnDelete, "true");
 		}
 
-        if (property != null) {
-    		//TO DO: set properties getAntTask().getProject().setProperty(property, "true");
+        if (_property != null) {
+    		_properties.put(_property,  "true");
         }
 
 		modifications.add(mod);
@@ -336,12 +311,7 @@ public class Vss extends SourceControlElement {
         try {
             Date lastModifiedDate = this.vssDateTimeFormat.parse(
              dateAndTime.trim() + "m");
-            
-            //(PENDING) This seems out of place
-            if (lastModifiedDate.getTime() < lastModified) {
-                lastModified = lastModifiedDate.getTime();
-            }
-            
+
             return lastModifiedDate;
         } catch (ParseException pe) {
             pe.printStackTrace();
@@ -359,7 +329,6 @@ public class Vss extends SourceControlElement {
         final int START_OF_USER_NAME = 6;
 		String userName = userLine.substring(
          START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();
-		emails.add(userName);
 
 		return userName;
 	}
