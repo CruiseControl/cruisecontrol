@@ -43,7 +43,7 @@ import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
 import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
-import net.sourceforge.cruisecontrol.testutil.Util;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import java.io.StringReader;
 import java.io.File;
@@ -68,7 +68,7 @@ public class EmailPublisherTest extends TestCase {
     private File tmpFile;
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
-        Element cruisecontrolElement = Util.createElement(success, lastBuildSuccess);
+        Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess);
 
         return new XMLLogHelper(cruisecontrolElement);
     }

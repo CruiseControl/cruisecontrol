@@ -42,9 +42,9 @@ import org.jdom.Element;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-public final class Util {
+public final class TestUtil {
     
-    private Util() {
+    private TestUtil() {
         
     }
     
