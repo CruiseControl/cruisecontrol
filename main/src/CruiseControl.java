@@ -49,7 +49,9 @@ import net.sourceforge.cruisecontrol.util.Upgrader;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 
-public class CruiseControl {
+public final class CruiseControl {
+    
+    private CruiseControl() { }
 
     public static void main(String[] args) {
         boolean upgrader = false;
