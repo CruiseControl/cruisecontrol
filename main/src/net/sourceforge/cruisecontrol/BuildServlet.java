@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
- 
+
 package net.sourceforge.cruisecontrol;
 
 import java.io.*;
@@ -157,7 +157,9 @@ public class BuildServlet extends HttpServlet {
 
         String[] prevBuildLogs = logDirFile.list();
         for (int i=prevBuildLogs.length-1; i >=0; i--) {
-            if (prevBuildLogs[i].startsWith("log") && prevBuildLogs[i].endsWith(".xml"))
+            if (prevBuildLogs[i].startsWith("log") &&
+                prevBuildLogs[i].endsWith(".xml") &&
+                prevBuildLogs[i].length() > 7)
                 return prevBuildLogs[i];
         }
         return null;
@@ -166,7 +168,7 @@ public class BuildServlet extends HttpServlet {
     /**
      *
      */
-    private void printCurrentBuildStatus(PrintWriter out) 
+    private void printCurrentBuildStatus(PrintWriter out)
         throws FileNotFoundException, IOException {
 
         File buildStatusFile = new File(_logDir + File.separator + _currentBuildStatusFile);
