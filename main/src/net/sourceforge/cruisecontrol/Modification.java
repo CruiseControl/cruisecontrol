@@ -92,6 +92,17 @@ public class Modification implements Comparable {
         return outputter.outputString(toElement(formatter));
     }
 
+    public String toString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        StringBuffer sb = new StringBuffer();
+        sb.append("FileName: " + fileName + "\n");
+        sb.append("FolderName: " + folderName + "\n");
+        sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
+        sb.append("UserName: " + userName + "\n");
+        sb.append("Comment: " + comment + "\n");
+        return sb.toString();
+    }
+
     public void log(DateFormat formatter) {
         log.info("FileName: " + fileName);
         log.info("FolderName: " + folderName);
@@ -104,6 +115,23 @@ public class Modification implements Comparable {
     public int compareTo(Object o) {
         Modification modification = (Modification) o;
         return modifiedTime.compareTo(modification.modifiedTime);
+    }
+
+    public boolean equals(Object o) {
+        if(o == null)
+            return false;
+
+        if(!(o instanceof Modification))
+            return false;
+
+        Modification mod = (Modification) o;
+
+        return (type.equals(mod.type) &&
+            fileName.equals(mod.fileName) &&
+            folderName.equals(mod.folderName) &&
+            modifiedTime.equals(mod.modifiedTime) &&
+            userName.equals(mod.userName) &&
+            comment.equals(mod.comment));
     }
 
     //for brief testing only
