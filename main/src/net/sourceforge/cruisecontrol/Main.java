@@ -51,7 +51,8 @@ import java.util.Properties;
  */
 public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class);
-    private static final int NOT_FOUND = -1;
+    public static final int NOT_FOUND = -1;
+    private static final String NOT_FOUND_STRING = String.valueOf(NOT_FOUND);
 
     /**
      * Print the version, configure the project with serialized build info
@@ -121,17 +122,8 @@ public class Main {
         return configFileName;
     }
 
-    private static boolean shouldStartController(String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-port")) {
-                LOG.debug(
-                    "Main: -port parameter found. will start ProjectControllerAgent.");
-                return true;
-            }
-        }
-        LOG.debug(
-            "Main: -port parameter not found. will not start ProjectControllerAgent.");
-        return false;
+    static boolean shouldStartController(String[] args) {
+        return findIndex(args, "port") != NOT_FOUND || findIndex(args, "rmiport") != NOT_FOUND;
     }
 
     /**
@@ -142,18 +134,17 @@ public class Main {
      *          or invalid
      */
     static int parseHttpPort(String[] args) throws CruiseControlException {
-        return parseInt(args, "port", null);
+        return parseInt(args, "port", NOT_FOUND_STRING);
     }
 
     static int parseRmiPort(String[] args) throws CruiseControlException {
-        return parseInt(args, "rmiport", null);
+        return parseInt(args, "rmiport", NOT_FOUND_STRING);
     }
 
     private static int parseInt(String[] args, String argName, String defaultValue) throws CruiseControlException {
         String intString = parseArgument(args, argName, defaultValue);
         if (intString == null) {
-            throw new IllegalStateException(
-                "Should not reach this point without returning or throwing CruiseControlException");
+            throw new IllegalStateException("Should not reach this point");
         }
         int intValue;
         try {

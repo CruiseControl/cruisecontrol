@@ -70,14 +70,8 @@ public class MainTest extends TestCase {
         String[] incorrectArgs = new String[] {"-port"};
         String[] invalidArgs = new String[] {"-port", "ABC"};
 
-        assertEquals(Main.parseHttpPort(correctArgs), 123);
-
-        try {
-            Main.parseHttpPort(missingArgs);
-            fail("Expected exception");
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        assertEquals(123, Main.parseHttpPort(correctArgs));
+        assertEquals(Main.NOT_FOUND, Main.parseHttpPort(missingArgs));
 
         try {
             Main.parseHttpPort(incorrectArgs);
@@ -100,14 +94,8 @@ public class MainTest extends TestCase {
         String[] incorrectArgs = new String[] {"-rmiport"};
         String[] invalidArgs = new String[] {"-rmiport", "ABC"};
 
-        assertEquals(Main.parseRmiPort(correctArgs), 123);
-
-        try {
-            Main.parseRmiPort(missingArgs);
-            fail("Expected exception");
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        assertEquals(123, Main.parseRmiPort(correctArgs));
+        assertEquals(Main.NOT_FOUND, Main.parseRmiPort(missingArgs));
 
         try {
             Main.parseRmiPort(incorrectArgs);
@@ -194,5 +182,18 @@ public class MainTest extends TestCase {
         String[] notusage = {"-port", "8000"};
         assertTrue(Main.printUsage(usage));
         assertFalse(Main.printUsage(notusage));
+    }
+
+    public void testshouldStartController() throws Exception {
+        String[] bothArgs = new String[]{"-port", "8085",
+                                            "-rmiport", "8086"};
+        String[] rmiPort = new String[]{"-rmiport", "8086"};
+        String[] httpPort = new String[]{"-port", "8085"};
+        String[] neitherArg = new String[]{"-foo", "blah"};
+
+        assertTrue(Main.shouldStartController(bothArgs));
+        assertTrue(Main.shouldStartController(rmiPort));
+        assertTrue(Main.shouldStartController(httpPort));
+        assertFalse(Main.shouldStartController(neitherArg));
     }
 }

@@ -42,6 +42,7 @@ import mx4j.adaptor.rmi.jrmp.JRMPAdaptorMBean;
 import mx4j.tools.naming.NamingServiceMBean;
 import mx4j.util.StandardMBeanProxy;
 import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.Main;
 import org.apache.log4j.Logger;
 
 import javax.management.Attribute;
@@ -95,78 +96,99 @@ public class CruiseControlControllerAgent {
     }
 
     public void start() {
-        try {
-            LOG.info("starting httpAdaptor");
-            httpAdaptor.start();
-        } catch (IOException e) {
-            LOG.error("Exception starting httpAdaptor", e);
+        if (useHttpAdaptor()) {
+            try {
+                LOG.info("starting httpAdaptor");
+                httpAdaptor.start();
+            } catch (IOException e) {
+                LOG.error("Exception starting httpAdaptor", e);
+            }
         }
-        try {
-            LOG.info("starting rmiRegistry");
-            rmiRegistry.start();
-        } catch (RemoteException e) {
-            LOG.error("Exception starting rmiRegistry", e);
-        }
-        try {
-            LOG.info("starting rmiAdaptor");
-            rmiAdaptor.start();
-        } catch (Exception e) {
-            LOG.error("Exception starting rmiAdaptor", e);
+        if (useRmiAdaptor()) {
+            try {
+                LOG.info("starting rmiRegistry");
+                rmiRegistry.start();
+            } catch (RemoteException e) {
+                LOG.error("Exception starting rmiRegistry", e);
+            }
+            try {
+                LOG.info("starting rmiAdaptor");
+                rmiAdaptor.start();
+            } catch (Exception e) {
+                LOG.error("Exception starting rmiAdaptor", e);
+            }
         }
     }
 
     public void stop() {
-        httpAdaptor.stop();
-        try {
-            LOG.info("stopping rmiAdaptor");
-            rmiAdaptor.stop();
-        } catch (Exception e) {
-            LOG.error("Exception stopping rmiAdaptor", e);
+        if (useHttpAdaptor()) {
+            httpAdaptor.stop();
         }
-        try {
-            LOG.info("stopping rmiRegistry");
-            rmiRegistry.stop();
-        } catch (NoSuchObjectException e) {
-            LOG.error("Exception stopping rmiRegistry", e);
+        if (useRmiAdaptor()) {
+            try {
+                LOG.info("stopping rmiAdaptor");
+                rmiAdaptor.stop();
+            } catch (Exception e) {
+                LOG.error("Exception stopping rmiAdaptor", e);
+            }
+            try {
+                LOG.info("stopping rmiRegistry");
+                rmiRegistry.stop();
+            } catch (NoSuchObjectException e) {
+                LOG.error("Exception stopping rmiRegistry", e);
+            }
         }
     }
 
     private void registerHttpAdaptor(MBeanServer server) throws Exception {
-        httpAdaptor.setPort(httpPort);
-        httpAdaptor.setHost("0.0.0.0");
-        ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,httpPort=" + httpPort);
-        server.registerMBean(httpAdaptor, adaptorName);
-        ObjectName processorName = new ObjectName("Http:name=XSLTProcessor");
-        server.createMBean("mx4j.adaptor.http.XSLTProcessor", processorName, null);
-        String pathInJar = "net/sourceforge/cruisecontrol/jmx/xsl";
-        if (path != null && !path.equals("")) {
-            LOG.info("Starting HttpAdaptor with customized Stylesheets");
-            server.setAttribute(processorName, new Attribute("File", path));
-        } else {
-            LOG.info("Starting HttpAdaptor with CC-Stylesheets");
-            server.setAttribute(processorName, new Attribute("PathInJar", pathInJar));
+        if (useHttpAdaptor()) {
+            httpAdaptor.setPort(httpPort);
+            httpAdaptor.setHost("0.0.0.0");
+            ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,httpPort=" + httpPort);
+            server.registerMBean(httpAdaptor, adaptorName);
+            ObjectName processorName = new ObjectName("Http:name=XSLTProcessor");
+            server.createMBean("mx4j.adaptor.http.XSLTProcessor", processorName, null);
+            String pathInJar = "net/sourceforge/cruisecontrol/jmx/xsl";
+            if (path != null && !path.equals("")) {
+                LOG.info("Starting HttpAdaptor with customized Stylesheets");
+                server.setAttribute(processorName, new Attribute("File", path));
+            } else {
+                LOG.info("Starting HttpAdaptor with CC-Stylesheets");
+                server.setAttribute(processorName, new Attribute("PathInJar", pathInJar));
+            }
+            server.setAttribute(adaptorName, new Attribute("ProcessorName", processorName));
         }
-        server.setAttribute(adaptorName, new Attribute("ProcessorName", processorName));
+    }
+
+    private boolean useHttpAdaptor() {
+        return httpPort != Main.NOT_FOUND;
     }
 
     private void registerRmiAdaptor(MBeanServer server) throws Exception {
-        // Create and start the naming service
-        ObjectName naming = new ObjectName("Naming:type=rmiregistry");
-        server.createMBean("mx4j.tools.naming.NamingService", naming, null);
-        rmiRegistry = (NamingServiceMBean) StandardMBeanProxy.create(NamingServiceMBean.class, server, naming);
+        if (useRmiAdaptor()) {
+            // Create and start the naming service
+            ObjectName naming = new ObjectName("Naming:type=rmiregistry");
+            server.createMBean("mx4j.tools.naming.NamingService", naming, null);
+            rmiRegistry = (NamingServiceMBean) StandardMBeanProxy.create(NamingServiceMBean.class, server, naming);
 
-        // Create the JRMP adaptor
-        ObjectName adaptor = new ObjectName("Adaptor:protocol=JRMP");
-        server.createMBean("mx4j.adaptor.rmi.jrmp.JRMPAdaptor", adaptor, null);
-        rmiAdaptor = (JRMPAdaptorMBean) StandardMBeanProxy.create(JRMPAdaptorMBean.class, server, adaptor);
+            // Create the JRMP adaptor
+            ObjectName adaptor = new ObjectName("Adaptor:protocol=JRMP");
+            server.createMBean("mx4j.adaptor.rmi.jrmp.JRMPAdaptor", adaptor, null);
+            rmiAdaptor = (JRMPAdaptorMBean) StandardMBeanProxy.create(JRMPAdaptorMBean.class, server, adaptor);
 
-        // Set the JNDI name with which it will be registered
-        String jndiName = "jrmp";
-        rmiAdaptor.setJNDIName(jndiName);
+            // Set the JNDI name with which it will be registered
+            String jndiName = "jrmp";
+            rmiAdaptor.setJNDIName(jndiName);
 
-        // Optionally, you can specify the JNDI properties,
-        // instead of having in the classpath a jndi.properties file
-        rmiAdaptor.putJNDIProperty(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        rmiAdaptor.putJNDIProperty(Context.PROVIDER_URL, "rmi://localhost:" + rmiPort);
+            // Optionally, you can specify the JNDI properties,
+            // instead of having in the classpath a jndi.properties file
+            final String registryContextFactory = "com.sun.jndi.rmi.registry.RegistryContextFactory";
+            rmiAdaptor.putJNDIProperty(Context.INITIAL_CONTEXT_FACTORY, registryContextFactory);
+            rmiAdaptor.putJNDIProperty(Context.PROVIDER_URL, "rmi://localhost:" + rmiPort);
+        }
+    }
+
+    private boolean useRmiAdaptor() {
+        return rmiPort != Main.NOT_FOUND;
     }
 }
