@@ -43,12 +43,73 @@ import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 public class ModificationSetTest extends TestCase {
 
     public ModificationSetTest(String name) {
         super(name);
+    }
+
+    public void testIsLastModificationInQuietPeriod() throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        Modification mod1 = new Modification();
+        mod1.modifiedTime = formatter.parse("20020621140000");
+        Modification mod2 = new Modification();
+        mod2.modifiedTime = formatter.parse("20020621140100");
+
+        List mods1 = new ArrayList();
+        mods1.add(mod1);
+        mods1.add(mod2);
+
+        List mods2 = new ArrayList();
+        mods2.add(mod1);
+
+        Date now = formatter.parse("20020621140103");
+
+        ModificationSet modSet = new ModificationSet();
+        modSet.setQuietPeriod(5);
+
+        assertEquals(true, modSet.isLastModificationInQuietPeriod(now, mods1));
+        assertEquals(false, modSet.isLastModificationInQuietPeriod(now, mods2));
+    }
+
+    public void testGetLastModificationMillis() throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        Modification mod1 = new Modification();
+        mod1.modifiedTime = formatter.parse("20020621140000");
+        Modification mod2 = new Modification();
+        mod2.modifiedTime = formatter.parse("20020621140100");
+
+        List mods1 = new ArrayList();
+        mods1.add(mod2);
+        mods1.add(mod1);
+
+        ModificationSet modSet = new ModificationSet();
+
+        assertEquals(mod2.modifiedTime.getTime(), modSet.getLastModificationMillis(mods1));
+    }
+
+    public void testGetQuietPeriodDifference() throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date now = formatter.parse("20020621140103");
+        Modification mod1 = new Modification();
+        mod1.modifiedTime = formatter.parse("20020621140000");
+        Modification mod2 = new Modification();
+        mod2.modifiedTime = formatter.parse("20020621140100");
+
+        List mods1 = new ArrayList();
+        mods1.add(mod1);
+
+        List mods2 = new ArrayList();
+        mods2.add(mod2);
+
+        ModificationSet modSet = new ModificationSet();
+        modSet.setQuietPeriod(5);
+
+        assertEquals(0, modSet.getQuietPeriodDifference(now, mods1));
+        assertEquals(2000, modSet.getQuietPeriodDifference(now, mods2));
     }
 
     public void testGetModifications() throws Exception {
