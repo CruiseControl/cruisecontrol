@@ -101,6 +101,10 @@ SametimeAnnouncementPublisher
 ----------------------
 * New publisher implementation to publish build results to IBM/Lotus Sametime server. Contributed by Richard Lewis-Shell.
 
+Schedule
+----------------------
+* Fixed a bug when there was more than a day between builds (like having only a weekly build).
+
 StarTeam
 ----------------------
 * remove use of NoExitSecurityManager. Makes StarTeam source control compatible with Halt command. Patch by Lee Marlow
