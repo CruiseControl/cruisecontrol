@@ -114,17 +114,18 @@ public class ProjectXMLHelper {
         return buildafterfailed;
     }
 
-    public long getBuildInterval() {
-        return Long.parseLong(projectElement.getChild("schedule").getAttributeValue("interval"));
+    public long getBuildInterval() throws CruiseControlException {
+        Element scheduleElement = getRequiredElement(projectElement, "schedule");
+        return Long.parseLong(getRequiredAttribute(scheduleElement, "interval"));
     }
 
     public String getLogDir() throws CruiseControlException {
-        return getRequiredAttribute(projectElement.getChild("log"), "dir");
+        return getRequiredAttribute(getRequiredElement(projectElement, "log"), "dir");
     }
 
     public List getBootstrappers() throws CruiseControlException {
         List bootstrappers = new ArrayList();
-        Iterator bootstrapperIterator = projectElement.getChild("bootstrappers").getChildren().iterator();
+        Iterator bootstrapperIterator = getRequiredElement(projectElement, "bootstrappers").getChildren().iterator();
         while (bootstrapperIterator.hasNext()) {
             Element bootstrapperElement = (Element) bootstrapperIterator.next();
             Bootstrapper bootstrapper = (Bootstrapper) configurePlugin(bootstrapperElement);
@@ -136,7 +137,7 @@ public class ProjectXMLHelper {
 
     public List getPublishers()  throws CruiseControlException {
         List publishers = new ArrayList();
-        Iterator publisherIterator = projectElement.getChild("publishers").getChildren().iterator();
+        Iterator publisherIterator = getRequiredElement(projectElement, "publishers").getChildren().iterator();
         while (publisherIterator.hasNext()) {
             Element publisherElement = (Element) publisherIterator.next();
             Publisher publisher = (Publisher) configurePlugin(publisherElement);
@@ -191,13 +192,10 @@ public class ProjectXMLHelper {
                     "Couldn't create ModificationSet plugin", e);
         }
 
-        int quietPeriod =
-            Integer.parseInt(
-                getRequiredAttribute(
-                    projectElement.getChild("modificationset"),
-                    "quietperiod"));
+        final Element modificationSetElement = getRequiredElement(projectElement, "modificationset");
+        int quietPeriod = Integer.parseInt(getRequiredAttribute(modificationSetElement, "quietperiod"));
         modificationSet.setQuietPeriod(quietPeriod);
-        Iterator sourceControlIterator = projectElement.getChild("modificationset").getChildren().iterator();
+        Iterator sourceControlIterator = modificationSetElement.getChildren().iterator();
         while (sourceControlIterator.hasNext()) {
             Element sourceControlElement = (Element) sourceControlIterator.next();
             SourceControl sourceControl = (SourceControl) configurePlugin(sourceControlElement);
@@ -226,6 +224,16 @@ public class ProjectXMLHelper {
         } else {
             throw new CruiseControlException("Attribute " + attributeName + " is required on " + element.getName());
         }
+    }
+
+    private Element getRequiredElement(final Element parentElement, final String childName)
+            throws CruiseControlException {
+        final Element scheduleElement = parentElement.getChild(childName);
+        if (scheduleElement == null) {
+            throw new CruiseControlException("<" + parentElement.getName() + "> requires a <" + childName
+                                             + "> element");
+        }
+        return scheduleElement;
     }
 
     /**

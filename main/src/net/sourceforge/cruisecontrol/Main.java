@@ -36,21 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Date;
-import java.util.Iterator;
+import java.io.File;
 import java.util.Properties;
-import java.util.Vector;
-import java.text.SimpleDateFormat;
 
-import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
-import net.sourceforge.cruisecontrol.util.Util;
-
+import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * Command line entry point.
@@ -59,7 +50,6 @@ import org.jdom.Element;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class Main {
-
     private static final Logger LOG = Logger.getLogger(Main.class);
 
     /**
@@ -70,62 +60,21 @@ public class Main {
         Main main = new Main();
         main.printVersion();
 
-        Project project = null;
-        boolean startQueue = false;
-        BuildQueue buildQueue = new BuildQueue(startQueue);
-        Project[] projects = null;
         try {
-            String projectName = main.parseProjectName(args);
-            boolean multipleProjects = projectName == null;
-            if (multipleProjects) {
-                projects = main.getAllProjects(args);
-            } else {
-                project = main.configureProject(args);
-                // Init the project once, to check the current config file is ok
-                project.init();
+            CruiseControlController controller = new CruiseControlController();
+            String configFileName = parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
+            controller.setConfigFile(new File(configFileName));
 
-                if (shouldStartProjectController(args)) {
-                    ProjectControllerAgent agent =
-                        new ProjectControllerAgent(project, parsePort(args));
-                    agent.start();
-                }
-                projects = new Project[] { project };
+            if (shouldStartController(args)) {
+                CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller, parsePort(args));
+                agent.start();
             }
+            controller.start();
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             usage();
         }
 
-        buildQueue.start();
-
-        for (int i = 0; i < projects.length; i++) {
-            Project currentProject = projects[i];
-            currentProject.setBuildQueue(buildQueue);
-            Thread projectSchedulingThread =
-                new Thread(
-                    currentProject,
-                    "Project " + currentProject.getName() + " thread");
-            projectSchedulingThread.start();
-        }
-    }
-
-    Project[] getAllProjects(String[] args) throws CruiseControlException {
-        Vector allProjects = new Vector();
-        Project defaultProject = new Project();
-        String configFileName =
-            parseConfigFileName(args, defaultProject.getConfigFileName());
-        File configFile = new File(configFileName);
-        Element configRoot = Util.loadConfigFile(configFile);
-        String[] projectNames = getProjectNames(configRoot);
-        for (int i = 0; i < projectNames.length; i++) {
-            String projectName = projectNames[i];
-            System.out.println("projectName = [" + projectName + "]");
-            Project project = configureProject(args, projectName);
-            project.init();
-            allProjects.add(project);
-        }
-        return (Project[]) allProjects.toArray(new Project[] {
-        });
     }
 
     /**
@@ -141,82 +90,15 @@ public class Main {
         LOG.info("");
         LOG.info(
             "   -port number           where number is the port of the Controller web site");
-        LOG.info(
-            "   -projectname name      where name is the name of the project");
-        LOG.info(
-            "   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-        LOG.info(
-            "   -label label           where label is in x.y format, y being an integer.  x can be any string.");
+//        LOG.info(
+//            "   -projectname name      where name is the name of the project");
+//        LOG.info(
+//            "   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+//        LOG.info(
+//            "   -label label           where label is in x.y format, y being an integer.  x can be any string.");
         LOG.info(
             "   -configfile file       where file is the configuration file");
         System.exit(1);
-    }
-
-    /**
-     * Set Project attributes from previously serialized project if it exists
-     * and then overrides attributes using command line arguments if they exist.
-     *
-     * @return configured Project; should never return null
-     * @throws CruiseControlException
-     */
-    public Project configureProject(String args[])
-        throws CruiseControlException {
-        String projectName = parseProjectName(args);
-        Project project = configureProject(args, projectName);
-        return project;
-    }
-
-    Project configureProject(String[] args, String projectName)
-        throws CruiseControlException {
-        Project project = readProject(projectName);
-
-        project.setLastBuild(parseLastBuild(args, project.getLastBuild()));
-
-        if (project.getLastSuccessfulBuild() == null) {
-            project.setLastSuccessfulBuild(project.getLastBuild());
-        }
-        project.setLabel(parseLabel(args, project.getLabel()));
-        project.setName(projectName);
-        project.setConfigFileName(
-            parseConfigFileName(args, project.getConfigFileName()));
-        return project;
-    }
-
-    /**
-     * Parse lastbuild from arguments and override any existing lastbuild value
-     * from reading serialized Project info.
-     *
-     * @param lastBuild existing lastbuild value read from serialized Project
-     * info
-     * @return final value of lastbuild; never null
-     * @throws CruiseControlException if final lastbuild value is null
-     */
-    protected String parseLastBuild(String args[], String lastBuild)
-        throws CruiseControlException {
-        return parseArgument(
-            args,
-            "lastbuild",
-            (lastBuild != null
-                ? lastBuild
-                : new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())));
-    }
-
-    /**
-     * Parse label from arguments and override any existing lastbuild value
-     * from reading serialized Project info.
-     *
-     * @param label existing label value read from serialized Project
-     * info
-     * @return final value of label; never null
-     * @throws CruiseControlException if final label value is null
-     */
-    protected String parseLabel(String args[], String label)
-        throws CruiseControlException {
-        label = parseArgument(args, "label", label);
-        if (label == null) {
-            throw new CruiseControlException("'label' is a required argument to CruiseControl.");
-        }
-        return label;
     }
 
     /**
@@ -228,7 +110,7 @@ public class Main {
      * @return final value of configFileName; never null
      * @throws CruiseControlException if final configfile value is null
      */
-    protected String parseConfigFileName(String args[], String configFileName)
+    static String parseConfigFileName(String args[], String configFileName)
         throws CruiseControlException {
         configFileName = parseArgument(args, "configfile", configFileName);
         if (configFileName == null) {
@@ -237,20 +119,7 @@ public class Main {
         return configFileName;
     }
 
-    /**
-     * Parse projectname from arguments.  projectname should always be specified
-     * in arguments.
-     *
-     * @return project name or null if unspecified
-     * @throws CruiseControlException if error in parsing argument
-     */
-    protected String parseProjectName(String args[])
-        throws CruiseControlException {
-        String projectName = parseArgument(args, "projectname", null);
-        return projectName;
-    }
-
-    private static boolean shouldStartProjectController(String[] args) {
+    private static boolean shouldStartController(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-port")) {
                 LOG.debug(
@@ -292,43 +161,6 @@ public class Main {
     }
 
     /**
-     * Reads project configuration from a previously serialized Project.  The
-     * name of the serialized project file is equivalent to the name of the
-     * project.
-     *
-     * @param fileName name of the serialized project file
-     * @return Deserialized Project or a new Project if there are any problems
-     * reading the serialized Project; should never return null
-     */
-    private Project readProject(String fileName) {
-        File serializedProjectFile = new File(fileName);
-        LOG.debug(
-            "Reading serialized project from: "
-                + serializedProjectFile.getAbsolutePath());
-        if (!serializedProjectFile.exists()
-            || !serializedProjectFile.canRead()) {
-            LOG.warn(
-                "No previously serialized project found: "
-                    + serializedProjectFile.getAbsolutePath());
-        } else {
-            try {
-                ObjectInputStream s =
-                    new ObjectInputStream(
-                        new FileInputStream(serializedProjectFile));
-                Project project = (Project) s.readObject();
-                return project;
-            } catch (Exception e) {
-                LOG.warn(
-                    "Error deserializing project file from "
-                        + serializedProjectFile.getAbsolutePath(),
-                    e);
-            }
-        }
-
-        return new Project();
-    }
-
-    /**
      * Writes the current version information, as indicated in the
      * version.properties file, to the logging information stream.
      */
@@ -363,50 +195,20 @@ public class Main {
      *      but didn't include the argument, as in "-port" when it should most
      *      likely be "-port 8080".
      */
-    public static String parseArgument(
-        String[] args,
-        String argName,
-        String defaultArgValue)
-        throws CruiseControlException {
-
+    public static String parseArgument(String[] args, String argName, String defaultArgValue)
+            throws CruiseControlException {
         //Init to default value.
         String returnArgValue = defaultArgValue;
-
         for (int i = 0; i <= args.length - 1; i++) {
             if (args[i].equals("-" + argName)) {
                 try {
                     returnArgValue = args[i + 1];
-                    LOG.debug(
-                        "Main: value of parameter "
-                            + argName
-                            + " is ["
-                            + returnArgValue
-                            + "]");
+                    LOG.debug("Main: value of parameter " + argName + " is [" + returnArgValue + "]");
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                        "'" + argName + "' argument was not specified.");
+                    throw new CruiseControlException("'" + argName + "' argument was not specified.");
                 }
             }
         }
         return returnArgValue;
-    }
-
-    String[] getProjectNames(Element rootElement) {
-        Vector projectNames = new Vector();
-        Iterator projectIterator =
-            rootElement.getChildren("project").iterator();
-        while (projectIterator.hasNext()) {
-            Element projectElement = (Element) projectIterator.next();
-            String projectName = projectElement.getAttributeValue("name");
-            if (projectName == null) {
-                LOG.warn(
-                    "configuration file contains project element with no name");
-            } else {
-                projectNames.add(projectName);
-            }
-        }
-
-        return (String[]) projectNames.toArray(new String[] {
-        });
     }
 }
