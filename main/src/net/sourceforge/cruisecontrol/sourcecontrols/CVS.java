@@ -410,7 +410,7 @@ public class CVS implements SourceControl {
         String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
         String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
 
-        while (reader.ready() && nextLine != null
+        while (nextLine != null
                 && !nextLine.startsWith(CVS_FILE_DELIM)) {
 
             // Read to the revision date. It is ASSUMED that each revision
@@ -450,6 +450,7 @@ public class CVS implements SourceControl {
             nextLine = reader.readLine();
             boolean multiLine = false;
             boolean addedOnBranch = false;
+
             while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)
                     && !nextLine.startsWith(CVS_REVISION_DELIM)) {
 
