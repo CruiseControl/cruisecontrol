@@ -346,6 +346,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
             messageBuffer.append(line);
             line = reader.readLine();
         }
+        reader.close();
+        outFile.delete();
     }
 
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
