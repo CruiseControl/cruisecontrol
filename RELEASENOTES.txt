@@ -74,6 +74,8 @@ PVCS
 SVN
 ----------------------
 * Revert to using date instead of guessing at revision. Patch by Etienne Studer
+* Add to plugin registry. Patch by Gerd Zanker
+* Add initial documentation in configxml.html and plugins.html. Patch by Gerd Zanker
 
 testdetails.xsl
 ----------------------

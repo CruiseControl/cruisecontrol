@@ -51,6 +51,7 @@
                      <li><a class="small" href="#cvsbootstrapper">CVSBootstrapper</a>
                      <li><a class="small" href="#p4bootstrapper">P4Bootstrapper</a>
                      <li><a class="small" href="#starteambootstrapper">StarTeamBootstrapper</a>
+                     <li><a class="small" href="#svnbootstrapper">SVNBootstrapper</a>
                      <li><a class="small" href="#vssbootstrapper">VssBootstrapper</a>
                   </ul>
                <li><a class="small" href="#modificationset">ModificationSet</a>
@@ -63,6 +64,7 @@
                      <li><a class="small" href="#p4">Perforce</a>
                      <li><a class="small" href="#pvcs">PVCS</a>
                      <li><a class="small" href="#starteam">StarTeam</a>
+                     <li><a class="small" href="#vss">Subversion</a>
                      <li><a class="small" href="#vss">Visual SourceSafe</a>
                      <li><a class="small" href="#vssjournal">Visual SourceSafe, Journal File Implementation</a>
                   </ul>
@@ -323,6 +325,35 @@
                <td class="tabledata">view</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">StarTeam view</td>
+            </tr>
+         </table>
+
+	 <p><a name="svnbootstrapper"><span class="small">SVNBootstrapper</span><br/>
+	Handles updating a single file (typically build.xml and/or build.properties) from a Subversion repository before the build begins.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">localWorkingCopy</td>
+               <td class="tabledata" rowspan="2">One of these</td>
+               <td class="tabledata">the relative or absolute path to the local working copy of the Subversion repository on which to execute the update command.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">file to update from the Subversion repository.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">username</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">used for authentication.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">password</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">used for authentication.</td>
             </tr>
          </table>
 
@@ -652,6 +683,35 @@
                   Set this property if a file has been deleted.  For use in conditionally
                   controlling the build later.
                </td>
+            </tr>
+         </table>
+
+         <p><a name="vss"><span class="small">Subversion</span>
+         Uses the svn program to detect changes.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">LocalWorkingCopy</td>
+               <td class="tabledata" rowspan="2">One of these</td>
+               <td class="tabledata">Relative or absolute path to the local working copy of the Subversion repository of which to find the log history.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">RepositoryLocation</td>
+               <td class="tabledata">The url to the Subversion repository on which to find the log history.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">username</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">used for authentication.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">password</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">used for authentication.</td>
             </tr>
          </table>
 
