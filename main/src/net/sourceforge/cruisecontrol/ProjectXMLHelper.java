@@ -309,6 +309,7 @@ public class ProjectXMLHelper {
                 listener.validate();
                 listeners.add(listener);
             }
+            LOG.debug("Project " + projectName + " has " + listeners.size() + " listeners");
         } else {
             LOG.debug("Project " + projectName + " has no listeners");
         }
