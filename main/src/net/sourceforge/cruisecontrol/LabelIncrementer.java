@@ -37,6 +37,8 @@
  
 package net.sourceforge.cruisecontrol;
 
+import org.jdom.Element;
+
 import java.util.Date;
 
 /**
@@ -53,10 +55,22 @@ public interface LabelIncrementer {
     /**
      * Increments the label when a successful build occurs.
      * The oldLabel should be transformed and returned as
-     * the new label.
-     * 
+     * the new label.  The build log is also passed in so that some
+     * more complex label incrementing can be handled.  For example, a
+     * label incrementer could find the ant target that was called and increment based on that
+     * information.
+     *
+     * @param buildLog JDOM <code>Element</code> representation of the build.
      * @param oldLabel Label from previous successful build.
      * @return Label to use for most recent successful build.
      */
-    public String incrementLabel(String oldLabel);
+    public String incrementLabel(String oldLabel, Element buildLog);
+
+    /**
+     *  Some implementations of <code>LabelIncrementer</code>, such as those involving
+     *  dates, are better suited to being incremented before building rather
+     *  than after building.  This method determines whether to increment before
+     *  building or after building.
+     */
+    public boolean isPreBuildIncrementer();
 }
