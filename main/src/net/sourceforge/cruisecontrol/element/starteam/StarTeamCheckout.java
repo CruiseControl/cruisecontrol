@@ -18,19 +18,15 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.element;
+package net.sourceforge.cruisecontrol.element.starteam;
 
 import com.starbase.starteam.*;
 import com.starbase.starteam.vts.comm.CommandException;
-import com.starbase.util.OLEDate;
 import java.io.FileNotFoundException;
-import java.lang.NullPointerException;
-import java.lang.RuntimeException;
-import java.text.SimpleDateFormat;
+import com.starbase.util.OLEDate;
 
 import java.util.*;
-import net.sourceforge.cruisecontrol.NoExitSecurityManager;
-import org.apache.tools.ant.*;
+import org.apache.tools.ant.Project;
 
 /**
  * This class logs into StarTeam checks out any changes that have occurred since
@@ -44,21 +40,11 @@ import org.apache.tools.ant.*;
  * @author Christopher Charlier, ThoughtWorks, Inc. 2001
  * @author Jason Yip, jcyip@thoughtworks.com
  */
-public class StarTeamCheckout extends org.apache.tools.ant.Task {
+public class StarTeamCheckout extends StarTeamTask {
     /**
      * The root folder in the StarTeam directory passed in by Ant.
      */
     private Folder rootFolder;
-
-    /**
-     * The username for the Starteam repository.
-     */
-    private String username;
-
-    /**
-     * The password for this user in the Starteam repository.
-     */
-    private String password;
 
     /**
      * Set the folder in the Starteam repository to check out the code from. All
@@ -67,100 +53,43 @@ public class StarTeamCheckout extends org.apache.tools.ant.Task {
     private String folder;
 
     /**
-     * The url of the Starteam repository to connect to.
-     */
-    private String url;
-
-    /**
      * Set the boolean value that tells us if we want to create all directories
      * that are in the Starteam repository regardless if they are empty.
      */
-    private String createDirs;
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    private boolean createDirs;
 
     public void setFolder(String folder) {
         this.folder = folder;
     }
 
-    public void setStarteamurl(String url) {
-        this.url = url;
-    }
-
-    public void setCreateWorkingDirectories(String createWorkingDirectories) {
-        this.createDirs = createWorkingDirectories;
+    public void setCreateWorkingDirectories(String create) {
+        createDirs = (create == "true") || (create == "yes");
     }
 
     /**
      * This method does the work of creating the new view and checking it into
      * Starteam.
      *
-     * @exception BuildException
+     * @exception java.io.FileNotFoundException
+     * @throws CommandException
+     * @throws FileNotFoundException
+     * @throws ServerException
      */
-    public void execute() throws BuildException {
-        try {
-            // The Starteam SDK does not like the NoExitSecurityManager that comes
-            // with Cruise Control. It throws a runtime error if it is still the
-            // current security manager, so we set it to null here and then set it
-            // back when Starteam is done.
-            System.setSecurityManager(null);
+    public void taskExecute() throws CommandException, FileNotFoundException, ServerException {
+        // Get view as of the current time?
+        View view = StarTeamFinder.openView(getUserName() + ":" + getPassword()
+                 + "@" + getURL());
+        View snapshot = new View(view, ViewConfiguration.createFromTime(
+                new OLEDate()));
+        rootFolder = StarTeamFinder.findFolder(snapshot.getRootFolder(),
+                this.folder);
 
-            // Get view as of the last successful build time.
-            View view = StarTeamFinder.openView(this.username + ":" + this.password + "@" + this.url);
-            View snapshot = new View(view, ViewConfiguration.createFromTime(new OLEDate()));
-            rootFolder = StarTeamFinder.findFolder(snapshot.getRootFolder(), this.folder);
+        if (rootFolder == null) {
+            throw new FileNotFoundException();
+        }
 
-            if (rootFolder == null) {
-                throw new FileNotFoundException();
-            }
-
-            // Inspect everything in the root folder
-            visit(rootFolder);
-
-            System.setSecurityManager(new NoExitSecurityManager());
-
-        }
-        catch (ServerException e) {
-            // username or password are wrong
-            log("ERROR: StarTeam is returning a ServerException.");
-            log("       This is most likely caused by by a failed logon.");
-            log("       Please verify the spelling of the user name and password and try again.");
-            e.printStackTrace();
-        }
-        catch (FileNotFoundException e) {
-            // Folder is wrong
-            log("ERROR: Unable to open the folder.");
-            log("       Please verify the spelling of the folder and try again.");
-            e.printStackTrace();
-        }
-        catch (NullPointerException e) {
-            // Project name or view name is wrong
-            log("ERROR: StarTeam is returning a NullPointerException.");
-            log("       This is most likely caused by unsuccessfully opening the project or the");
-            log("       view. Please verify the spelling of the url and try again.");
-            e.printStackTrace();
-        }
-        catch (CommandException e) {
-            // port number is wrong
-            log("ERROR: StarTeam is returning a CommandException.");
-            log("       This is most likely caused by unsuccessfully attempting to read from");
-            log("       socket or Connection to server lost.Please verify the spelling of the");
-            log("       url and try again.");
-            e.printStackTrace();
-        }
-        catch (RuntimeException e) {
-            // Server Name is wrong
-            log("ERROR: StarTeam is returning a RuntimeException.");
-            log("       This is most likely caused by not finding the server name specified.");
-            log("       Please verify the spelling of the server and try again.");
-            e.printStackTrace();
-        }
+        // Inspect everything in the root folder
+        visit(rootFolder);
     }
 
     /**
@@ -175,11 +104,11 @@ public class StarTeamCheckout extends org.apache.tools.ant.Task {
             Set localFiles = getLocalFiles(folder);
 
             // If we have been told to create the working folders
-            if ((createDirs == "true") || (createDirs == "yes")) {
+            if (createDirs) {
                 // Create if it doesn't exist
-                java.io.File f = new java.io.File(folder.getPath());
-                if (!f.exists()) {
-                    f.mkdir();
+                java.io.File workingFolder = new java.io.File(folder.getPath());
+                if (!workingFolder.exists()) {
+                    workingFolder.mkdir();
                 }
             }
 
@@ -207,7 +136,7 @@ public class StarTeamCheckout extends org.apache.tools.ant.Task {
                 // Unfortunately, the sdk doesn't really work, and we cant actually see
                 // anything with a status of NEW. That is why we can just checkout everything
                 // here and we don't need to worry about losing anything.
-                System.out.println("Checking Out: " + (eachFile.getFullName()));
+                log("Checking Out: " + (eachFile.getFullName()), Project.MSG_INFO);
                 eachFile.checkout(Item.LockType.UNCHANGED, true, true, true);
             }
 
@@ -224,7 +153,7 @@ public class StarTeamCheckout extends org.apache.tools.ant.Task {
             }
         }
         catch (java.io.IOException e) {
-            System.out.println("ERROR: Error occurred while reading file.");
+            log("Error occurred while reading file: " + e, Project.MSG_ERR);
         }
     }
 
@@ -244,7 +173,7 @@ public class StarTeamCheckout extends org.apache.tools.ant.Task {
 
         }
         catch (SecurityException e) {
-            System.out.println("Error deleting file: " + e);
+            log("Error deleting file: " + e, Project.MSG_ERR);
         }
     }
 
@@ -263,7 +192,7 @@ public class StarTeamCheckout extends org.apache.tools.ant.Task {
             }
         }
 
-        System.out.println("Deleting: " + file.getAbsolutePath());
+        log("Deleting: " + file.getAbsolutePath(), Project.MSG_INFO);
         return file.delete();
     }
 
