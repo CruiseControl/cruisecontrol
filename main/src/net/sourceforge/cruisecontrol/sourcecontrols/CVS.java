@@ -269,13 +269,16 @@ public class CVS implements SourceControl {
                 commandLine.createArgument().setValue("-d");
                 commandLine.createArgument().setValue(cvsroot);
             }
-
+            
             commandLine.createArgument().setLine("-q co -p CVSROOT/users");
-            log.debug("Executing: " + commandLine);
 
             Process p = null;
             try {
-                p = Runtime.getRuntime().exec(commandLine.getCommandline());
+                if (local != null) {
+                    commandLine.setWorkingDirectory(local);
+                }
+            
+                p = commandLine.execute();
                 logErrorStream(p);
                 InputStream is = p.getInputStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(is));
