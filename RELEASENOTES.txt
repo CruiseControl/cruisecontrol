@@ -105,6 +105,10 @@ StarTeam
 ----------------------
 * remove use of NoExitSecurityManager. Makes StarTeam source control compatible with Halt command. Patch by Lee Marlow
 
+StarTeamBootstrapper
+----------------------
+* added to plug-in registry. Patch by Lee Marlow
+
 SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer

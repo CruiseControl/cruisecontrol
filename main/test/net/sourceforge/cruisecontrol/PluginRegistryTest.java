@@ -154,7 +154,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("xsltlogpublisher", "net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher");
     }
 
-    private void verifyPluginClass(String pluginName, String expectedName)
+    static void verifyPluginClass(String pluginName, String expectedName)
             throws Exception {
         PluginRegistry registry = PluginRegistry.getDefaultPluginRegistry();
 
