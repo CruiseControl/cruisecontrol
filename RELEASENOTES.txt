@@ -72,6 +72,10 @@ Project
 ----------------------
 * Fixed bug where a paused build would never resume.
 
+unittests.xsl
+----------------------
+* Added classname for the failing unit test - Patch by Prakash Tirumalareddy
+
 CruiseControl Release Notes - 2.1
 
 ArtifactsPublisher
