@@ -118,13 +118,21 @@ public class NavigationTag implements Tag, BodyTag {
 
     public int doStartTag() throws JspException {
         _logDir = new File(_pageContext.getServletConfig().getInitParameter("logDir"));
-        System.out.println("Scanning directory: " + _logDir.getAbsolutePath() + " for log files.");
+        String logDirPath = _logDir.getAbsolutePath();
+
+        System.out.println("Scanning directory: " + logDirPath + " for log files.");
 
         _fileNames = _logDir.list(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.startsWith("log") && name.endsWith(".xml") && !(new File(dir, name).isDirectory());
             }
         });
+
+        if(_fileNames == null) {
+            throw new JspException(
+                    "Configuration problem? No logs found in logDir: "
+                    + logDirPath);
+        }
 
         //sort links...
         Arrays.sort(_fileNames, new Comparator() {
