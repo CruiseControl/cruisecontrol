@@ -183,10 +183,8 @@ public class ModificationSet {
             }
 
             // Postfilter all modifications of ignored files
-            filterIgnoredModifications (modifications);
+            filterIgnoredModifications(modifications);
 
-            modificationsElement = new Element("modifications");
-            Iterator modificationIterator = modifications.iterator();
             if (modifications.size() > 0) {
                 LOG.info(
                         modifications.size()
@@ -194,6 +192,8 @@ public class ModificationSet {
                         ? " modifications have been detected."
                         : " modification has been detected."));
             }
+            modificationsElement = new Element("modifications");
+            Iterator modificationIterator = modifications.iterator();
             while (modificationIterator.hasNext()) {
                 Object object = modificationIterator.next();
                 if (object instanceof Element) {
@@ -232,46 +232,54 @@ public class ModificationSet {
      * Remove all Modifications that match any of the ignoreFiles-patterns
      */
     protected void filterIgnoredModifications (List modifications) {
-        for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
-            Object object = iterator.next();
-            Modification modification = null;
-            if (object instanceof Modification) {
-                modification = (Modification) object;
-            }
-            if (object instanceof Element) {
-                Element element = (Element) object;
-                modification = new Modification();
-                modification.fromElement(element, formatter);
-            }
-
-            if (isIgnoredModification(modification)) {
-                iterator.remove();
+        if (this.ignoreFiles != null) {
+            for (Iterator iterator = modifications.iterator(); iterator.hasNext(); ) {
+                Object object = iterator.next();
+                Modification modification = null;
+                if (object instanceof Modification) {
+                    modification = (Modification) object;
+                } else if (object instanceof Element) {
+                    Element element = (Element) object;
+                    modification = new Modification();
+                    modification.fromElement(element, formatter);
+                }
+    
+                if (isIgnoredModification(modification)) {
+                    iterator.remove();
+                }
             }
         }
     }
 
     private boolean isIgnoredModification(Modification modification) {
-        boolean isIgnored = false;
-        if (this.ignoreFiles != null) {
-
-            File file = new File (modification.getFolderName(), modification.getFileName());
-            String path = file.toString();
-
-            // On systems with a '\' as pathseparator convert it to a forward slash '/'
-            // That makes patterns platform independent
-            if (File.separatorChar == '\\') {
-                path = path.replace('\\', '/');
+        File file;
+        if (modification.getFolderName() == null) {
+            if (modification.getFileName() == null) {
+                return false;
+            } else {
+                file = new File(modification.getFileName());
             }
+        } else {
+            file = new File(modification.getFolderName(), modification.getFileName());
+        }
+        String path = file.toString();
 
-            for (Iterator iterator = this.ignoreFiles.iterator(); iterator.hasNext() && !isIgnored;) {
-                GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
+        // On systems with a '\' as pathseparator convert it to a forward slash '/'
+        // That makes patterns platform independent
+        if (File.separatorChar == '\\') {
+            path = path.replace('\\', '/');
+        }
 
-                // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
-                // the path, so we use the complete path as the 'filename'-argument.
-                isIgnored = pattern.accept(file, path);
+        for (Iterator iterator = ignoreFiles.iterator(); iterator.hasNext(); ) {
+            GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
+
+            // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
+            // the path, so we use the complete path as the 'filename'-argument.
+            if (pattern.accept(file, path)) {
+                return true;
             }
         }
-        return isIgnored;
+        return false;
     }
 
     public Date getTimeOfCheck() {
@@ -279,11 +287,11 @@ public class ModificationSet {
     }
 
     public boolean isModified() {
-        return (modifications.size() > 0) || lieOnIsModified;
+        return (!modifications.isEmpty()) || lieOnIsModified;
     }
 
     public void validate() throws CruiseControlException {
-        if (sourceControls.size() == 0) {
+        if (sourceControls.isEmpty()) {
             throw new CruiseControlException(
                     "modificationset element requires at least one nested source control element");
         }
