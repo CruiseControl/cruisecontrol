@@ -36,6 +36,7 @@
  ********************************************************************************/
 
 import net.sourceforge.cruisecontrol.*;
+import net.sourceforge.cruisecontrol.util.Upgrader;
 
 /**
  * This class wraps the MasterBuild process to
@@ -50,6 +51,17 @@ import net.sourceforge.cruisecontrol.*;
 public class CruiseControl {
 
     public static void main(String[] args) {
-        Main.main(args);
+        boolean upgrader = false;
+        for(int i=0; i<args.length; i++) {
+            if(args[i].equalsIgnoreCase("-upgrade")) {
+                upgrader = true;
+            }
+        }
+
+        if(upgrader) {
+            Upgrader.main(args);
+        } else {
+            Main.main(args);
+        }
     }
 }
