@@ -58,12 +58,16 @@ public class PluginXMLHelperTest extends TestCase {
 
         // Turn off logging
         BasicConfigurator.configure();
-        LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void setUp() throws CruiseControlException {
         projectXmlHelper = new ProjectXMLHelper();
         helper = new PluginXMLHelper(projectXmlHelper);
+        LOG.getLoggerRepository().setThreshold(Level.OFF);
+    }
+
+    protected void tearDown() throws Exception {
+        LOG.getLoggerRepository().setThreshold(Level.ALL);
     }
 
     public void testConfigure() throws Exception {

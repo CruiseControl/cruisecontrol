@@ -116,7 +116,8 @@ public class MainTest extends TestCase {
         String[] correctArgs = new String[] {"-xslpath", "xsl"};
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-xslpath"};
-        String[] invalidArgs = new String[] {"-xslpath", "does_Not_Exist"};
+        final String invalidXsl = "does_Not_Exist";
+        String[] invalidArgs = new String[] {"-xslpath", invalidXsl};
 
         assertEquals("xsl", Main.parseXslPath(correctArgs));
         assertNull(Main.parseXslPath(missingArgs));
@@ -132,7 +133,8 @@ public class MainTest extends TestCase {
             Main.parseXslPath(invalidArgs);
             fail();
         } catch (IllegalArgumentException expected) {
-            assertEquals("'xslpath' argument must specify an existing directory.", expected.getMessage());
+            assertEquals("'xslpath' argument must specify an existing directory but was " + invalidXsl,
+                         expected.getMessage());
         }
     }
 

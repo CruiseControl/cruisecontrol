@@ -75,17 +75,18 @@ public class ProjectTest extends TestCase {
 
         // Turn off logging
         BasicConfigurator.configure();
-        LOG4J.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void setUp() {
         project = new Project();
         project.setName("TestProject");
+        LOG4J.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void tearDown() {
         project = null;
-        
+
+        LOG4J.getLoggerRepository().setThreshold(Level.ALL);
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
             File file = (File) iterator.next();
             Util.deleteFile(file);
@@ -187,7 +188,7 @@ public class ProjectTest extends TestCase {
 
         }
     }
-    
+
     public void testPublish() throws CruiseControlException {
         MockSchedule sched = new MockSchedule();
         project.setSchedule(sched);
@@ -198,18 +199,18 @@ public class ProjectTest extends TestCase {
                 throw new CruiseControlException("exception");
             }
         };
-        
+
         List publishers = new ArrayList();
         publishers.add(publisher);
         publishers.add(exceptionThrower);
         publishers.add(publisher);
-        
+
         project.setPublishers(publishers);
         project.setName("projectName");
         project.setLabel("label");
         //Element element = project.getProjectPropertiesElement(new Date());
         project.publish();
-        
+
         assertEquals(2, publisher.getPublishCount());
     }
 

@@ -47,7 +47,7 @@ import java.io.IOException;
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
 public class CruiseControlControllerTest extends TestCase {
-    
+
     private File configFile = new File("_tempConfigFile");
     private CruiseControlController test;
 
@@ -73,7 +73,7 @@ public class CruiseControlControllerTest extends TestCase {
             test.setConfigFile(configFile);
             fail("Allowed to not set a config file");
         } catch (CruiseControlException expected) {
-            assertEquals("No config file", expected.getMessage());
+            assertEquals("Config file not found: " + configFile, expected.getMessage());
         }
     }
 
@@ -118,12 +118,12 @@ public class CruiseControlControllerTest extends TestCase {
         assertNotNull(project);
         assertTrue(project.getBuildForced());
     }
-    
+
     public void testRegisterPlugins() throws Exception {
         FileWriter configOut = new FileWriter(configFile);
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
-        configOut.write("  <plugin name=\"testname\" " 
+        configOut.write("  <plugin name=\"testname\" "
                         + "classname=\"net.sourceforge.cruisecontrol.CruiseControllerTest\"/>\n");
         configOut.write("  <plugin name=\"labelincrementer\" classname=\"my.global.Incrementer\"/>\n");
         configOut.write("</cruisecontrol>\n");

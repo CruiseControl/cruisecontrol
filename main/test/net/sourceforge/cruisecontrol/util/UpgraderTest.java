@@ -62,7 +62,12 @@ public class UpgraderTest extends TestCase {
 
     private final List filesToClear = new ArrayList();
 
+    protected void setUp() throws Exception {
+        LOG.getLoggerRepository().setThreshold(Level.OFF);
+    }
+
     public void tearDown() {
+        LOG.getLoggerRepository().setThreshold(Level.ALL);
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
             File file = (File) iterator.next();
             if (file.exists()) {
@@ -76,7 +81,6 @@ public class UpgraderTest extends TestCase {
 
         // Turn off logging
         BasicConfigurator.configure();
-        LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void testCreateBootstappers() throws Exception {
@@ -339,7 +343,7 @@ public class UpgraderTest extends TestCase {
         }
         writeFile("_tempPropertiesFile");
         upgrader.setPropertiesFile(new File("_tempPropertiesFile"));
-        
+
         // we create this file because the assertion is that it doesn't exist.
         writeFile(tempConfigFile.getName());
         try {

@@ -74,7 +74,7 @@ public class PluginRegistryTest extends TestCase {
         assertEquals(antBuilderClassname, registry.getPluginClassname("ant"));
         assertEquals(antBuilderClass, registry.getPluginClass("ant"));
     }
-    
+
     public void testRootRegistry() throws Exception {
         PluginRegistry registry = PluginRegistry.createRegistry();
         String antClassName = registry.getPluginClassname("ant");
@@ -87,7 +87,7 @@ public class PluginRegistryTest extends TestCase {
         registry.register("ant", antClassName);
         // does it mask the parent definition?
         assertEquals(antClassName, registry.getPluginClassname("ant"));
-        
+
         // restore the root definition, or we'll wreck the other tests
         PluginRegistry.registerToRoot("ant", antClassName);
     }
@@ -172,7 +172,7 @@ public class PluginRegistryTest extends TestCase {
 
     static void verifyPluginClass(String pluginName, String expectedName)
             throws Exception {
-        PluginRegistry registry = PluginRegistry.createRegistry();
+        PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();
 
         assertTrue(registry.isPluginRegistered(pluginName));
 

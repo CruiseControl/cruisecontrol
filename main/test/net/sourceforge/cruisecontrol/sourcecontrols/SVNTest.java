@@ -58,13 +58,17 @@ import java.util.ArrayList;
  */
 public class SVNTest extends TestCase {
     private SVN svn;
+    private TimeZone originalTimeZone;
 
     protected void setUp() throws Exception {
         svn = new SVN();
+        originalTimeZone = TimeZone.getDefault();
     }
 
     protected void tearDown() throws Exception {
+        TimeZone.setDefault(originalTimeZone);
         svn = null;
+        originalTimeZone = null;
     }
 
     public void testValidate() throws CruiseControlException, IOException {

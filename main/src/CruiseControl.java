@@ -37,6 +37,8 @@
 
 import net.sourceforge.cruisecontrol.Main;
 import net.sourceforge.cruisecontrol.util.Upgrader;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 /**
  * This class wraps the MasterBuild process to
@@ -50,7 +52,7 @@ import net.sourceforge.cruisecontrol.util.Upgrader;
  */
 
 public final class CruiseControl {
-    
+
     private CruiseControl() { }
 
     public static void main(String[] args) {
@@ -59,6 +61,12 @@ public final class CruiseControl {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equalsIgnoreCase("-upgrade")) {
                 upgrader = true;
+            }
+            else if (args[i].equalsIgnoreCase("-debug")) {
+                Logger.getRoot().setLevel(Level.ALL);
+            }
+            else if (args[i].equalsIgnoreCase("-verbose")) {
+                Logger.getRoot().setLevel(Level.DEBUG);
             }
         }
 
@@ -70,5 +78,5 @@ public final class CruiseControl {
             Main.main(args);
         }
     }
-    
+
 }
