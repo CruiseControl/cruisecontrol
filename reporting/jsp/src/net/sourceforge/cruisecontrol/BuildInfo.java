@@ -59,11 +59,13 @@ public class BuildInfo implements Comparable {
     private static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat(LOG_DATE_PATTERN);
     private final Date buildDate;
     private final String label;
+    private final String fileName;
     
     
     public BuildInfo(String infoText) throws ParseException {
         buildDate = deriveDate(infoText);
         label = deriveLabel(infoText);
+        fileName = infoText;
         
     }
     
@@ -116,6 +118,13 @@ public class BuildInfo implements Comparable {
     
     public boolean isSuccessful() {
         return getLabel() != null;
+    }
+
+    /**
+     * @return Returns the fileName.
+     */
+    public String getFileName() {
+        return fileName;
     }
 
     /**
