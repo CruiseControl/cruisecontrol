@@ -150,6 +150,10 @@
         DateFormat targetFormat =  DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
         for (int i = prevBuildLogs.length - 1; i >= 0; i--) {
             String currFileName = prevBuildLogs[i];
+						
+						if (currFileName.length() < END_TSTAMP) {
+							  continue;
+						}
             
             if (!(currFileName.startsWith("log") && currFileName.endsWith(".xml"))) {
                 continue;
