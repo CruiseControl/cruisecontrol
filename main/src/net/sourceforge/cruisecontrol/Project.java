@@ -467,7 +467,10 @@ public class Project implements Serializable {
                     }
                 });
                 for (int i = 0; i < childFileNames.length; i++) {
-                    auxLogElements.add(getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]).detach());
+                    Element auxLogElement = getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]).detach();
+                    if(auxLogElement != null) {
+                        auxLogElements.add(auxLogElement);
+                    }
                 }
             } else {
                 Element auxLogElement = getElementFromAuxLogFile(fileName);
@@ -497,8 +500,7 @@ public class Project implements Serializable {
             }
             return element;
         } catch (JDOMException e) {
-            log.debug("Could not read aux log: " + fileName + ".  Skipping...");
-            e.printStackTrace();
+            log.debug("Could not read aux log: " + fileName + ".  Skipping...", e);
         }
 
         return null;
