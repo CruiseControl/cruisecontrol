@@ -83,7 +83,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         final String dateString = formatter.format(date);
         final String description = state.getDescription();
-        String expected = "<span class=\"link\">" + description + " as of:<br>" + dateString + "</span>";
+        String expected = "<span class=\"link\">" + description + " since<br>" + dateString + "</span>";
         assertEquals(expected, readFileToString(fileName));
     }
 

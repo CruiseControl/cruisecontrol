@@ -24,7 +24,7 @@ public class CurrentBuildStatusListener implements Listener {
             final ProjectStateChangedEvent stateChanged = (ProjectStateChangedEvent) event;
             final ProjectState newState = stateChanged.getNewState();
             LOG.debug("updating status to " + newState.getName()  + " for project " + stateChanged.getProjectName());
-            final String text = "<span class=\"link\">" + newState.getDescription() + " as of:<br>";
+            final String text = "<span class=\"link\">" + newState.getDescription() + " since<br>";
             CurrentBuildFileWriter.writefile(text, new Date(), fileName);
         } else {
             // ignore other ProjectEvents
