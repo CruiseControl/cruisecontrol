@@ -467,9 +467,9 @@ public class Project implements Serializable {
                     }
                 });
                 for (int i = 0; i < childFileNames.length; i++) {
-                    Element auxLogElement = getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]).detach();
+                    Element auxLogElement = getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]);
                     if(auxLogElement != null) {
-                        auxLogElements.add(auxLogElement);
+                        auxLogElements.add(auxLogElement.detach());
                     }
                 }
             } else {
