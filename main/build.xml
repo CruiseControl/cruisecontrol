@@ -1,21 +1,51 @@
 <project name="continuous integration" default="all">
     <target name="init">
         <property name="build.compiler" value="jikes"/>
-        <property name="classes.dir" value="classes"/>
-        <mkdir dir="${classes.dir}"/>
-        <property name="classpath" value="lib\mail.jar;lib\activation.jar"/>
+        <property name="classes" value="classes"/>
+        <mkdir dir="${classes}"/>
+        <property name="classpath" value="lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar"/>
+        <property name="webinfclasses" value="web-inf\classes"/>
+        <property name="dist" value="dist"/>
+        <property name="lib" value="lib"/>
+        <property name="src" value="src"/>
+        <property name="images" value="images"/>
+        <mkdir dir="${dist}"/>
     </target>
     
-    <target name="compile" depends="init">
-        <javac srcdir="src" destdir="${classes.dir}" classpath="${classpath}"/>
-        <copy todir="${classes.dir}">
-            <fileset dir="src" includes="**/*.java, **/*.properties"/>
+    <target name="clean">
+       <delete dir="${dist}"/>
+       <mkdir dir="${dist}"/>
+       <delete dir="${classes}"/>
+       <mkdir dir="${classes}"/>
+    </target>
+    
+    <target name="compile">
+        <javac srcdir="${src}" destdir="${classes}" classpath="${classpath}"/>
+        <copy todir="${classes}">
+            <fileset dir="${src}" includes="**/*.java, **/*.properties"/>
         </copy>
     </target>
     
-    <target name="jar" depends="compile">
-        <jar jarfile="lib\cruisecontrol.jar" basedir="${classes.dir}"/>
+    <target name="jar">
+        <jar jarfile="${dist}\cruisecontrol.jar" basedir="${classes}"/>
     </target>
     
-    <target name="all" depends="jar" />
+    <target name="buildwar">
+        <javac srcdir="${src}" destdir="${classes}" classpath="${classpath}"/>
+        <war warfile="${dist}\buildservlet.war" webxml="web-inf\web.xml">
+           <lib dir="${lib}">
+              <include name="servlet.jar"/>
+              <include name="xerces.jar"/>
+              <include name="xalan.jar"/>
+           </lib>
+           <classes dir="${classes}">
+              <include name="net/sourceforge/cruisecontrol/BuildServlet*"/>
+           </classes>
+           <fileset dir=".">
+              <include name="${images}/**"/>
+           </fileset>
+        </war>
+    </target>
+    
+    <target name="all" depends="init,clean,compile,jar,buildwar" />
 </project>                                                                       
