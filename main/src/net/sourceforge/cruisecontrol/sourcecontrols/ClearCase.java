@@ -244,7 +244,7 @@ public class ClearCase implements SourceControl {
      */
     List parseStream(InputStream input) throws IOException {
         ArrayList modifications = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input, "ISO-8859-1"));
         String ls = System.getProperty("line.separator");
 
         String line;
