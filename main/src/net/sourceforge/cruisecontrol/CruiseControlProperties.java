@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+
 import java.io.*;
 import java.util.*;
 
