@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.element;
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.*;
 import net.sourceforge.cruisecontrol.Modification;
 
 /**
@@ -50,8 +50,6 @@ import net.sourceforge.cruisecontrol.Modification;
 public class FileSystemElement extends SourceControlElement {
 
 	private List _modifications;
-	private long _lastBuild;
-	private long _now;
 	private File _folder;
 	private long _mostRecent;
 
@@ -74,14 +72,14 @@ public class FileSystemElement extends SourceControlElement {
 	/**
 	 * For this case, we don't care about the quietperiod, only that
      * one user is modifying the build.
+     *
+     * @param lastBuild date of last build
+     * @param now IGNORED
+     * @param quietPeriod IGNORED
 	 */
 	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
-		_lastBuild = lastBuild.getTime();
-		_now = now.getTime();
-
 		_modifications = new ArrayList();
-
-		visit(_folder);
+		visit(_folder, lastBuild.getTime());
 
 		return _modifications;
 	}
@@ -123,24 +121,24 @@ public class FileSystemElement extends SourceControlElement {
      * Recursively visit all files below the specified one.  Check for newer 
      * timestamps 
      */
-    private void visit(File file) {
-        if((!file.isDirectory()) && (file.lastModified() > _lastBuild)) {
+    private void visit(File file, long lastBuild) {
+        if((!file.isDirectory()) && (file.lastModified() > lastBuild)) {
             addRevision(file);
         }
 
         if(file.isDirectory()) {
             String[] children = file.list();
             for(int i = 0; i < children.length; i++) {
-                visit(new File(file, children[i]));
+                visit(new File(file, children[i]), lastBuild);
             }
         }
     }
 
     private void logModification(Modification mod) {
-	       log("Type: " + mod.type + " " + mod.fileName);
+	       log("Type: " + mod.type + " " + mod.fileName, Project.MSG_VERBOSE);
 	       log("User: " + mod.userName + " Date: " 
-            + _format.format(mod.modifiedTime));
-	       log("");
+            + _format.format(mod.modifiedTime) 
+            + System.getProperty("line.separator"), Project.MSG_VERBOSE);
     }
 
 }

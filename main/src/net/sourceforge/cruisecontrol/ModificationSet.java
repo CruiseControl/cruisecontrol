@@ -316,13 +316,17 @@ public class ModificationSet extends Task {
             getProject().setProperty("modificationset.file", modFileName);
         }
 
-        FileWriter fw = new FileWriter(new File(modFileName));
-        fw.write("<modifications>\n");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(modFileName));
+        writer.write("<modifications>");
+        writer.newLine();
         for (int i = 0; i < modifications.size(); i++) {
-            fw.write(((Modification) modifications.get(i)).toXml(_formatter));
+            writer.write(((Modification) modifications.get(i)).toXml(_formatter));
         }
-        fw.write("</modifications>\n");
-        fw.close();
+        writer.write("</modifications>");
+        writer.newLine();
+        
+        writer.flush();
+        writer.close();
     }
 
     /**
