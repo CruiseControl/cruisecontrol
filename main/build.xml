@@ -54,18 +54,13 @@
     <property file="cruise-build.properties" />
     <property file="${user.home}/build.properties" />
 
-    <!-- **************************************************** -->
-    <!-- Define the project classpath references              -->
-    <!-- **************************************************** -->
+    <!-- ****************************************************
+    Define the project classpath references.  Any jar found
+    in lib directory will be included in CLASSPATH 
+    **************************************************** -->
     <path id="project.classpath" >
         <fileset dir="lib">
-            <include name="**/jakarta-oro*.jar"/>
-            <include name="**/servlet*.jar"/>
-            <include name="**/xalan*.jar"/>
-            <include name="**/starteam-sdk*.jar"/>
-            <include name="**/mail*.jar"/>
-            <include name="**/activation*.jar"/>
-            <include name="**/xerces*.jar"/>
+            <include name="**/*.jar"/>
         </fileset>
     </path>
 
@@ -78,7 +73,7 @@
             <include name="**/activation*.jar"/>
         </fileset>
         <pathelement location="${classes}" />
-   <pathelement path="${java.class.path}"/>
+        <pathelement path="${java.class.path}"/>
     </path>
 
     <!-- **************************************************** -->
