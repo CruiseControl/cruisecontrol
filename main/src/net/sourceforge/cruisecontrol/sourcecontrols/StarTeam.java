@@ -117,6 +117,14 @@ public class StarTeam implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(folder == null)
+           throw new CruiseControlException("'folder' is a required attribute on StarTeam.");
+        if(url == null)
+           throw new CruiseControlException("'url' is a required attribute on StarTeam.");
+        if(username == null)
+           throw new CruiseControlException("'username' is a required attribute on StarTeam.");
+        if(password == null)
+           throw new CruiseControlException("'password' is a required attribute on StarTeam.");
     }
 
     /**
