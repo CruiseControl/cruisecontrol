@@ -114,6 +114,7 @@ public final class PluginRegistry {
         try {
             pluginClass = Class.forName(pluginClassname);
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             throw new CruiseControlException(
                     "Attemping to load plugin named [" + pluginName
                     + "], but couldn't load corresponding class ["
@@ -190,6 +191,7 @@ public final class PluginRegistry {
         registry.register("schedule", "net.sourceforge.cruisecontrol.Schedule");
         registry.register("log", "net.sourceforge.cruisecontrol.Log");
         registry.register("merge", "net.sourceforge.cruisecontrol.buildloggers.MergeLogger");
+        registry.register("map", "net.sourceforge.cruisecontrol.publishers.EmailMapping");
 
         return registry;
     }
