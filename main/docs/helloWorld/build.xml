@@ -1,17 +1,49 @@
 <?xml version="1.0"?>
 
+<!--********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit                              *
+ * Copyright (C) 2001  ThoughtWorks, Inc.                                       *
+ * 651 W Washington Ave. Suite 500                                              *
+ * Chicago, IL 60661 USA                                                        *
+ *                                                                              *
+ * This program is free software; you can redistribute it and/or                *
+ * modify it under the terms of the GNU General Public License                  *
+ * as published by the Free Software Foundation; either version 2               *
+ * of the License, or (at your option) any later version.                       *
+ *                                                                              *
+ * This program is distributed in the hope that it will be useful,              *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
+ * GNU General Public License for more details.                                 *
+ *                                                                              *
+ * You should have received a copy of the GNU General Public License            *
+ * along with this program; if not, write to the Free Software                  *
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
+ *****************************************************************************-->
+
 <project name="HelloWorld" basedir="." default="all">
 
     <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
-
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
+    
     <property name="build.compiler" value="jikes"/>
-    <property name="masterbuild.logdir" value="logs"/>
+
     <property name="build.dir" value="classes"/>
+    <property name="masterbuild.logdir" value="logs"/>
     <property name="source.dir" value="src"/>
+
+    <property name="junit.results" value="test-results.xml" />
+
     <property name="alltest.class" value="test.hello.HelloWorldTest"/>
     <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
-    <property name="cvs.workingcopy" value="d:\projects\CruiseControlTest"/>
+    <property name="cvs.workingcopy" value=""/>
     <property name="cvs.package" value="CruiseControlTest/src"/>
+
+    <path id="classpath" >
+        <fileset dir="${ccdir}/lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
 
     <target name="init" description="Prepare for build">
         <tstamp/>
@@ -19,41 +51,51 @@
         <mkdir dir="${masterbuild.logdir}"/>
     </target>
 
-    <target name="compile" depends="init" description="Compile application without cleaning">
-        <javac srcdir="${source.dir}" classpath="${build.classpath}" destdir="${build.dir}" includes="**/*.java" debug="true" deprecation="true"/>
-    </target>
-
-    <target name="test" description="Run unit tests">
-        <java classname="${alltest.class}" classpath="${build.dir};${build.classpath}" fork="yes"/>
-        <!-- <junit fork="true" haltonfailure="true">
-            <test name="${alltest.class}"/>
-        </junit> -->
-    </target>
-
     <target name="clean" description="Clean all build products">
         <delete dir="${build.dir}"/>
         <mkdir dir="${build.dir}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compile application without cleaning">
+        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" includes="**/*.java" debug="true" deprecation="true"/>
+    </target>
+
+    <target name="test" depends="init" description="Run unit tests">
+        <mkdir dir="test-results" />
+        <echo message="Running unit tests..."/>
+        <junit fork="true" haltonfailure="true">
+            <classpath >
+                <path refid="classpath" />
+                <pathelement location="${build.dir}" />
+            </classpath>
+            <formatter type="plain" usefile="false" />
+            <formatter type="xml" usefile="true" />
+            <test name="${alltest.class}"/>
+        </junit>
+        
+        <junitreport tofile="${junit.results}" >
+            <fileset dir="./test-results" />
+        </junitreport>
+        <delete dir="test-results" />
     </target>
 
     <target name="all" depends="init,clean,compile,test" description="Build application">
         <echo message="Application built!"/>
     </target>
 
+    <target name="cvs-update" description="Update package from CVS">
+        <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".." />
+    </target>
+
     <target name="modificationset" depends="init" description="Check modifications since last build">
         <echo message="Checking for modifications..."/>
-        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30"
-            dateformat="yyyy-MMM-dd HH:mm:ss">
-
-            <cvselement cvsroot="${cvs.repository}"
-                localworkingcopy="${cvs.workingcopy}"/>
+        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30" 
+          dateformat="yyyy-MMM-dd HH:mm:ss">
+            <cvselement cvsroot="${cvs.repository}" localworkingcopy="${cvs.workingcopy}"/>
         </modificationset>
     </target>
 
-    <target name="get" description="Checkout package from CVS">
-        <cvs cvsRoot="${cvs.repository}" package="${cvs.package}" dest=".." />
-    </target>
-
-    <target name="masterbuild" depends="modificationset,get,compile,test" description="Cruise control master build"/>
+    <target name="masterbuild" depends="modificationset,cvs-update,compile,test" description="Cruise control master build"/>
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
     
 </project>

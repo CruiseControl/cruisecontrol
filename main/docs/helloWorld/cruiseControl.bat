@@ -21,18 +21,10 @@ REM  * along with this program; if not, write to the Free Software              
 REM  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
 REM  ********************************************************************************/
 
-set OLDCLASSPATH=%CLASSPATH%
-set CLASSPATH=
- 
 set CCDIR=d:\projects\cruisecontrol
-set LIBDIR=%CCDIR%\lib
+set CCLIB=%CCDIR%\lib
+set CRUISE_PATH=%CCDIR%\dist\cruisecontrol.jar;%CCLIB%\ant.jar;%CCLIB%\xerces.jar;%CCLIB%\mail.jar;%CCLIB%\optional.jar;%CCLIB%\junit.jar;%CCLIB%\activation.jar;.
 
-set CLASSPATH=%CCDIR%\dist\cruisecontrol.jar;%LIBDIR%\activation.jar;%LIBDIR%\mail.jar;%LIBDIR%\ant.jar;%LIBDIR%\jaxp.jar;%LIBDIR%\parser.jar;.
-
-set BUILDCLASSPATH=d:\junit3.6\junit.jar
-
-set EXEC=java -cp %CLASSPATH% -Dbuild.classpath=%BUILDCLASSPATH% net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
+set EXEC=java -cp %CRUISE_PATH% -Dccdir=%CCDIR% net.sourceforge.cruisecontrol.MasterBuild %1 %2 %3 %4 %5 %6
 echo %EXEC%
 %EXEC%
-
-set CLASSPATH=%OLDCLASSPATH%
