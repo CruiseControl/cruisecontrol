@@ -83,10 +83,10 @@ public class Main {
         log.info("java CruiseControl [options]");
         log.info("where options are:");
         log.info("");
-        log.info("   -configfile timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+        log.info("   -projectname name      where name is the name of the project");
+        log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
         log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
         log.info("   -configfile file       where file is the configuration file");
-        log.info("   -projectname name      where name is the name of the project");
         System.exit(1);
     }
 
