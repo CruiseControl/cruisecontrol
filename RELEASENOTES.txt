@@ -30,6 +30,10 @@ JDOM support:
 ----------------------
 * Upgraded from version b9 to version 1.0
 
+JMX interface:
+----------------------
+* Fixed bug where pausing a project would keep all projects from building.
+
 Log(Test):
 ----------------------
 * Small patch (CC-121) for new JDOM version by Mark Doliner

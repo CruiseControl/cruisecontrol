@@ -48,7 +48,20 @@ public class MockProject extends Project {
     private static final long ONE_SECOND = 1000;
     private boolean keepLooping = false;
     private int loopCount = 0;
-    
+    private ProjectState mockState;
+
+    public ProjectState getState() {
+        if (mockState == null) {
+            return super.getState();
+        }
+
+        return mockState;
+    }
+
+    void setMockState(ProjectState newState) {
+        mockState = newState;
+    }
+
     public void execute() {
         buildCount++;
         lastBuild = new Date();
@@ -60,11 +73,11 @@ public class MockProject extends Project {
             throw new RuntimeException(message);
         }
     }
-    
+
     public int getBuildCount() {
         return buildCount;
     }
-    
+
     public Date getLastBuildDate() {
         return lastBuild;
     }
@@ -83,19 +96,21 @@ public class MockProject extends Project {
             }
         }
     }
-    
-    void checkWait()  throws InterruptedException {
+
+    void checkWait() throws InterruptedException {
     }
-    
+
     void stopLooping() {
         keepLooping = false;
     }
-    
+
     int getLoopCount() {
         return loopCount;
     }
 
-    /* don't do anything
+    /*
+     * don't do anything
+     * 
      * @see net.sourceforge.cruisecontrol.Project#checkLogDirectory()
      */
     protected void checkLogDirectory() throws CruiseControlException {
