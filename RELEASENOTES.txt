@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+contrib:
+----------------------
+* Add support for distributed building (CC-137). Submitted by Jeff Ramsdale
+
 CVSBootstrapper:
 ----------------------
 * Add overwriteChanges attribute.

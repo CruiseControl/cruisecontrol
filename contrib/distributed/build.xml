@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+<!--****************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************-->
+
+<!-- ====================================================================== 
+     Dec 17, 2004 1:09:40 PM                                                        
+
+     This Ant script builds the distributed extensions to CruiseControl and
+     prepares a set of files for running Jini on the master. In addition
+     it prepares a zip file for installation on build agent machines. See
+     the README.html in this directory for details.
+                   
+     jramsdale                                                                
+     ====================================================================== -->
+
+<project name="project" default="build" basedir=".">
+
+	<target name="build" depends="clean, init, compile-agent, test, jar-agent, zip-agent" />
+
+	<target name="clean" description="Deletes 'bin' and 'dist' directories">
+		<delete dir="bin" />
+		<delete dir="dist" />
+	</target>
+
+	<target name="init" description="Initializes master and agent directories">
+		<mkdir dir="bin" />
+		<mkdir dir="dist" />
+		<antcall target="init-master" />
+		<antcall target="init-agent" />
+	</target>
+
+	<target name="init-master" description="Prepares directory structure for master files and copies property file in">
+		<mkdir dir="dist/master" />
+		<mkdir dir="dist/master/lib" />
+		<mkdir dir="dist/master/conf" />
+		<copy file="conf/master-build.xml" tofile="dist/master/build.xml" />
+		<copy todir="dist/master/conf">
+			<fileset dir="conf">
+				<include name="cruise.properties" />
+				<include name="insecure.policy" />
+				<include name="jini.logging" />
+				<include name="log4j.properties" />
+				<include name="start-jini.config" />
+			</fileset>
+		</copy>
+		<copy todir="dist/master/lib">
+			<fileset dir="lib">
+				<include name="reggie.jar" />
+				<include name="reggie-dl.jar" />
+				<include name="jini-core.jar" />
+				<include name="jini-ext.jar" />
+				<include name="jsk-platform.jar" />
+				<include name="jsk-resources.jar" />
+				<include name="tools.jar" />
+				<include name="start.jar" />
+				<include name="reggie.jar" />
+				<include name="reggie-dl.jar" />
+				<include name="fiddler.jar" />
+				<include name="fiddler-dl.jar" />
+				<include name="mahalo.jar" />
+				<include name="mahalo-dl.jar" />
+				<include name="mercury.jar" />
+				<include name="mercury-dl.jar" />
+				<include name="norm.jar" />
+				<include name="norm-dl.jar" />
+				<include name="outrigger.jar" />
+				<include name="outrigger-dl.jar" />
+				<include name="phoenix.jar" />
+				<include name="phoenix-dl.jar" />
+				<include name="holowaa.jar" />
+				<include name="holowaa-dl.jar" />
+			</fileset>
+			<fileset dir="../../main/lib">
+				<include name="log4j.jar" />
+				<include name="jdom.jar" />
+			</fileset>
+			<fileset dir="../../main/dist">
+				<include name="cruisecontrol.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="init-agent" description="Prepares directory structure for agent files and copies property file in">
+		<mkdir dir="dist/agent" />
+		<mkdir dir="dist/agent/lib" />
+		<mkdir dir="dist/agent/conf" />
+		<copy file="conf/agent-build.xml" tofile="dist/agent/build.xml" />
+		<copy todir="dist/agent/conf">
+			<fileset dir="conf">
+				<include name="agent.properties" />
+				<include name="user-defined.properties" />
+				<include name="insecure.policy" />
+				<include name="jini.logging" />
+				<include name="log4j.properties" />
+			</fileset>
+		</copy>
+		<copy todir="dist/agent/lib">
+			<fileset dir="lib">
+				<include name="reggie-dl.jar" />
+				<include name="jini-core.jar" />
+				<include name="jini-ext.jar" />
+				<include name="jsk-platform.jar" />
+				<include name="jsk-resources.jar" />
+				<include name="tools.jar" />
+				<include name="start.jar" />
+			</fileset>
+			<fileset dir="../../main/lib">
+				<include name="log4j.jar" />
+				<include name="jdom.jar" />
+				<include name="xerces.jar" />
+			</fileset>
+			<fileset dir="../../main/dist">
+				<include name="cruisecontrol.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="compile-agent" depends="init" description="Compiles distributed extension code required for build agent">
+		<javac destdir="bin" debug="on">
+			<classpath>
+				<fileset dir="lib">
+					<include name="jini-core.jar" />
+					<include name="jini-ext.jar" />
+					<include name="reggie-dl.jar" />
+					<include name="fiddler-dl.jar" />
+					<include name="mahalo-dl.jar" />
+					<include name="mercury-dl.jar" />
+					<include name="norm-dl.jar" />
+					<include name="outrigger-dl.jar" />
+					<include name="phoenix-dl.jar" />
+					<include name="holowaa-dl.jar" />
+				</fileset>
+				<fileset dir="../../main/lib">
+					<include name="log4j.jar" />
+					<include name="jdom.jar" />
+					<include name="junit.jar" />
+				</fileset>
+				<fileset dir="../../main/dist">
+					<include name="cruisecontrol.jar" />
+				</fileset>
+				<fileset dir="bin" />
+			</classpath>
+			<src path="src" />
+			<src path="test" />
+		</javac>
+	</target>
+
+	<target name="test" depends="compile-agent" description="Runs unit tests for distributed extensions to Cruise Control">
+		<!--
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" >
+            <classpath >
+            	<pathelement path="bin"/>
+				<fileset dir="../../main/dist">
+					<include name="cruisecontrol.jar" />
+				</fileset>
+				<fileset dir="../../main/lib">
+					<include name="log4j.jar" />
+					<include name="jdom.jar" />
+				</fileset>
+				<fileset dir="lib">
+					<include name="reggie-dl.jar" />
+					<include name="jini-core.jar" />
+					<include name="jini-ext.jar" />
+				</fileset>
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <batchtest todir="dist">
+                <fileset dir="bin" includes="**/*Test.class" />
+            </batchtest>
+        </junit>
+-->
+	</target>
+
+	<target name="jar-agent" depends="compile-agent" description="Creates cc-agent.jar and cc-agent-dl.jar">
+		<jar destfile="dist/agent/lib/cc-agent.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.BuildAgent" />
+			</manifest>
+			<fileset dir="bin">
+				<include name="**/*" />
+				<exclude name="**/*Test.class" />
+			</fileset>
+		</jar>
+		<jar destfile="dist/master/lib/cc-agent-dl.jar">
+			<fileset dir="bin">
+				<include name="**/BuildAgentService.class" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="zip-agent" depends="jar-agent" description="Creates zip file for agent to be installed on build machines">
+		<zip destfile="dist/cc-agent.zip">
+			<zipfileset dir="dist/agent" />
+		</zip>
+	</target>
+
+</project>
+
