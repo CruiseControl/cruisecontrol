@@ -99,11 +99,6 @@ public class ProjectTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        //        assertEquals(
-        //            "Default value of config file doesn't match",
-        //            "config.xml",
-        //            project.getConfigFile());
-
         Date now = new Date();
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
@@ -220,8 +215,15 @@ public class ProjectTest extends TestCase {
 
         project.setBuildForced(true);
         assertEquals(modifications, project.getModifications());
+        assertFalse(project.getBuildForced());
         assertEquals(null, project.getModifications());
 
+        project.setBuildForced(true);
+        modSet.setModified(true);
+        assertEquals(modifications, project.getModifications());
+        assertFalse(project.getBuildForced());
+
+        modSet.setModified(false);
         project.setBuildForced(false);
         assertEquals(null, project.getModifications());
 

@@ -363,11 +363,14 @@ public class Project implements Serializable, Runnable {
             } else {
                 if (buildForced) {
                     log("Building anyway, since build was explicitly forced.");
-                    buildForced = false;
                 } else {
                     return null;
                 }
             }
+        }
+        
+        if (buildForced) {
+            buildForced = false;
         }
 
         if (checkNewChangesFirst) {
