@@ -65,6 +65,9 @@ public class ProjectXMLHelper {
             if(projectElement.getAttributeValue("name") != null && projectElement.getAttributeValue("name").equals(projectName))
                 _projectElement = projectElement;
         }
+        if(_projectElement == null) {
+            throw new CruiseControlException("Project not found in config file: " + projectName);
+        }
 
         Iterator pluginIterator = _projectElement.getChildren("plugin").iterator();
         while (pluginIterator.hasNext()) {
