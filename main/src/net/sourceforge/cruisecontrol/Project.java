@@ -144,6 +144,7 @@ public class Project implements Serializable, Runnable {
 
         synchronized (pausedMutex) {
             if (isPaused) {
+                buildFinished();
                 return;
             }
         }
@@ -271,8 +272,10 @@ public class Project implements Serializable, Runnable {
                     waitIfPaused();
                     waitForNextBuild();
                     setState(QUEUED_STATE);
-                    queue.requestBuild(this);
-                    waitForBuildToFinish();
+                    synchronized (scheduleMutex) {
+                        queue.requestBuild(this);
+                        waitForBuildToFinish();
+                    }
                 } catch (InterruptedException e) {
                     String message = "Project " + name + ".run() interrupted";
                     LOG.error(message, e);
@@ -317,12 +320,14 @@ public class Project implements Serializable, Runnable {
 
     void waitForBuildToFinish() throws InterruptedException {
         synchronized (scheduleMutex) {
+            debug("waiting for build to finish");
             scheduleMutex.wait();
         }
     }
 
     void buildFinished() {
         synchronized (scheduleMutex) {
+            debug("build finished");
             scheduleMutex.notify();
         }
     }
@@ -592,7 +597,7 @@ public class Project implements Serializable, Runnable {
      */
     protected void init() throws CruiseControlException {
         log("reading settings from config file [" + configFile.getAbsolutePath() + "]");
-        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
+        ProjectXMLHelper helper = getProjectXMLHelper();
         logDir = helper.getLogDir();
         checkLogDirectory();
         logXmlEncoding = helper.getLogXmlEncoding();
@@ -627,6 +632,11 @@ public class Project implements Serializable, Runnable {
         debug("logFileName            = [" + logFileName + "]");
         debug("logXmlEncoding         = [" + logXmlEncoding + "]");
         debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
+    }
+
+    ProjectXMLHelper getProjectXMLHelper() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
+        return helper;
     }
 
     /**
