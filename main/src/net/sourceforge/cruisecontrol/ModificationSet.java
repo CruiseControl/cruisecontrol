@@ -86,15 +86,14 @@ public class ModificationSet {
             SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
             _modifications.addAll(sourceControl.getModifications(lastBuild, now, _quietPeriod));
         }
-        
+
         //(REFACT) I took this out, and it is now handled by stylesheets instead.
         // The reason is because it is screwed up by the Element node
         //Collections.sort(_modifications);
         Element modificationsElement = new Element("modifications");
         Iterator modificationIterator = _modifications.iterator();
-        if (modificationIterator.hasNext()) {
-            log.info("A number of modifications (" + _modifications.size()
-                    + ") have been detected");
+        if(_modifications.size() > 0) {
+            log.info(_modifications.size() + ((_modifications.size() > 1) ? " modifications have been detected." : " modification has been detected."));
         }
         while (modificationIterator.hasNext()) {
             Object object = (Object) modificationIterator.next();
