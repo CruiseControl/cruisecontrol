@@ -38,9 +38,14 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import com.jpeterson.x10.module.CM11A;
+import com.jpeterson.x10.module.CM17A;
 
 public class X10PublisherTest extends TestCase {
 
+//    These tests are only useful if you actually have a x10 computer interface connected to the computer.
+//    PJ - Sept 1, 2004
+//    
 //    public void testHandleBuild()
 //            throws CruiseControlException {
 //        X10Publisher x10Publisher = new X10Publisher();
@@ -221,5 +226,76 @@ public class X10PublisherTest extends TestCase {
                 assertTrue("Expected this exception", true);
             }
         }
+    }
+
+    public void testInterfaceModelValidation() throws CruiseControlException {
+        X10Publisher x10Publisher = new X10Publisher();
+
+        x10Publisher.setHouseCode("A"); //Legal
+        x10Publisher.setDeviceCode("3"); //Legal
+        x10Publisher.setInterfaceModel(null); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("CM11A"); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("CM17A"); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel(""); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("cm11a"); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("cm17a"); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("cM11A"); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("cM17A"); //Legal
+        x10Publisher.validate();
+
+        x10Publisher.setInterfaceModel("jibberish"); //NOT Legal
+        try {
+            x10Publisher.validate();
+            fail("Expected an exception");
+        } catch (CruiseControlException e) {
+            assertTrue("Expected this exception", true);
+        }
+
+        x10Publisher.setInterfaceModel("firecraker"); //NOT Legal
+        try {
+            x10Publisher.validate();
+            fail("Expected an exception");
+        } catch (CruiseControlException e) {
+            assertTrue("Expected this exception", true);
+        }
+    }
+
+    public void testGetTransmitter() throws CruiseControlException {
+        X10Publisher x10Publisher = new X10Publisher();
+
+        x10Publisher.setHouseCode("A"); //Legal
+        x10Publisher.setDeviceCode("3"); //Legal
+
+        x10Publisher.setInterfaceModel(null); //Legal
+        assertTrue(x10Publisher.getTransmitter() instanceof CM11A);
+
+        x10Publisher.setInterfaceModel(""); //Legal
+        assertTrue(x10Publisher.getTransmitter() instanceof CM11A);
+
+        x10Publisher.setInterfaceModel("cm11a"); //Legal
+        assertTrue(x10Publisher.getTransmitter() instanceof CM11A);
+
+        x10Publisher.setInterfaceModel("cm11A"); //Legal
+        assertTrue(x10Publisher.getTransmitter() instanceof CM11A);
+
+        x10Publisher.setInterfaceModel("cm17a"); //Legal
+        assertTrue(x10Publisher.getTransmitter() instanceof CM17A);
+
+        x10Publisher.setInterfaceModel("cm17A"); //Legal
+        assertTrue(x10Publisher.getTransmitter() instanceof CM17A);
     }
 }
