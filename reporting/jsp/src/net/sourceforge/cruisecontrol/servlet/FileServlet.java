@@ -43,9 +43,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 
 public class FileServlet extends HttpServlet {
@@ -159,14 +163,16 @@ class WebFile {
     }
 
     public void write(ServletOutputStream stream) throws IOException {
-        FileInputStream input = new FileInputStream(file);
+        InputStream input = new BufferedInputStream(new FileInputStream(file));
+        OutputStream output = new BufferedOutputStream(stream);
         try {
             int i;
             while ((i = input.read()) != -1) {
-                stream.write(i);
+                output.write(i);
             }
         } finally {
             input.close();
+            output.flush();
         }
     }
 
