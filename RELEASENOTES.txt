@@ -12,6 +12,10 @@ buildresults.jsp
 ----------------------
 * The list of builds is now limited to 10 hard links, with the rest being done via a drop-down list.
 
+ClearCaseBootstrapper
+----------------------
+* ClearCaseBootstrapper - by Stefan Hedtfeld
+
 CVS
 ---------------------
 * CVS sets the revision number when building lists of Modifications for showing diffs in ViewCVS or cvsWeb - Patch contributed by Christopher Lenz.
