@@ -54,6 +54,10 @@ StarTeamBootstrapper
 ----------------------
 * StarTeamBootstrapper submitted by Lee Marlow
 
+testdetails.xsl
+----------------------
+* Added testdetails.xsl to generate content for the Test Details tab - Patch by Antoine Bonavita
+
 CruiseControl Release Notes - 2.1.1
 
 main/build.xml
