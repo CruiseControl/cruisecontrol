@@ -362,7 +362,7 @@ public class CVS implements SourceControl {
      *@return List of Modification elements, maybe empty never null.
      *@exception IOException
      */
-    private List parseStream(InputStream input) throws IOException {
+    protected List parseStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         
         // Read to the first RCS file name. The first entry in the log
@@ -462,11 +462,13 @@ public class CVS implements SourceControl {
             }
             
             Modification nextModification = new Modification();
-            File workingFile = new File(workingFileName);
-            File localFile = new File(local);
-            nextModification.fileName = workingFile.getAbsolutePath().substring(localFile.getAbsolutePath().length());
+            //File workingFile = new File(workingFileName);
+            //File localFile = new File(local);
+            //nextModification.fileName = workingFile.getAbsolutePath().substring(localFile.getAbsolutePath().length());
             //CVS doesn't provide specific project or "folder" information.
-            nextModification.folderName = "";
+
+            nextModification.fileName = workingFileName.substring(workingFileName.lastIndexOf("/")+1);
+            nextModification.folderName = workingFileName.substring(0, workingFileName.lastIndexOf("/"));
             
             try {
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " "
