@@ -126,6 +126,8 @@
 <a href="#scp">&lt;scp&gt;</a>
 <a href="#starteam">&lt;starteam&gt;</a>
 <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
+<a href="#surround">&lt;surround&gt;</a>
+<a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a>
 <a href="#svn">&lt;svn&gt;</a>
 <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
 <a href="#compound">&lt;targets&gt;</a>
@@ -163,6 +165,7 @@
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
          <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
          <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
+         <a href="#surroundbootstrapper">&lt;surroundbootstrapper/&gt;</a>
          <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
       &lt;/bootstrappers&gt;
       <a href="#modificationset">&lt;modificationset&gt;</a>
@@ -180,6 +183,7 @@
          <a href="#p4">&lt;p4/&gt;</a>
          <a href="#pvcs">&lt;pvcs/&gt;</a>
          <a href="#starteam">&lt;starteam/&gt;</a>
+         <a href="#surround">&lt;surround/&gt;</a>
          <a href="#svn">&lt;svn/&gt;</a>
          <a href="#vss">&lt;vss/&gt;</a>
          <a href="#vssjournal">&lt;vssjournal/&gt;</a>
@@ -405,11 +409,16 @@
                 <td>Bootstraps resources from Star Team</td>
             </tr>
             <tr class="oddrow">
+                <td><a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Surround SCM</td>
+            </tr>
+            <tr>
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Visual Source Safe</td>
@@ -737,6 +746,92 @@
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;surroundbootstrapper&gt;</pre>
+        </div>
+
+        <p>Fetches a single repository (and optionally it's sub-repositories)
+            from Surround SCM before starting the build.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                 <td>branch</td>
+                 <td>No</td>
+                 <td>Surround SCM branch name. The default is pulled from the local working directory.</td>
+             </tr>
+             <tr>
+                 <td>repository</td>
+                 <td>No</td>
+                 <td>Surround SCM repository path. The default is pulled from the local working directory.</td>
+             </tr>
+             <tr class="oddrow">
+                 <td>label</td>
+                 <td>No</td>
+                 <td>Enter a label to search for when getting files.</td>
+             </tr>
+             <tr>
+                 <td>includeremovedfiles</td>
+                 <td>No</td>
+                 <td>Include removed files when getting files by label or timestamp. Default is true.
+                     Ignored if a label is not specified. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
+             </tr>
+             <tr class="oddrow">
+                 <td>overwrite</td>
+                 <td>No</td>
+                 <td>Enter how to handle a local writable file.
+                     Options are <strong>1</strong> to overwrite or <strong>0</strong> (default) to skip.</td>
+             </tr>
+             <tr>
+                 <td>recursive</td>
+                 <td>No</td>
+                 <td>Recursively get files and sub-repositories. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
+             </tr>
+             <tr class="oddrow">
+                 <td>forcefetch</td>
+                 <td>No</td>
+                 <td>Force file retrieval from server regardless of the local copy status.
+                     Options are <strong>1</strong> or <strong>0</strong> (default).</td>
+             </tr>
+             <tr>
+                 <td>makewritable</td>
+                 <td>No</td>
+                 <td>Make local file editable or writable. Default is read-only.
+                     Options are <strong>1</strong> or <strong>0</strong> (default).</td>
+             </tr>
+             <tr class="oddrow">
+                 <td>serverconnect</td>
+                 <td>No</td>
+                 <td>Enter the address and port number of the Surround SCM server host computer.
+                     Format is server:port. If not entered, the last saved connection parameters are used.</td>
+             </tr>
+             <tr>
+                <td>serverlogin</td>
+                 <td>No</td>
+                 <td>Enter the username and password used to login to the Surround SCM server.
+                     Format is username:password. If not entered, the last saved login parameters are used.</td>
+              </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="svnbootstrapper">&lt;svnbootstrapper&gt;</a></h2>
 
         <div class="hierarchy">
@@ -964,17 +1059,21 @@
                 <td>0 .. *</td>
                 <td>Checks for changes in a Star Team repository.</td>
             </tr>
-            <tr>
+                 <td><a href="#surround">&lt;surround&gt;</a></td>
+                 <td>0 .. *</td>
+                 <td>Checks for changes in a Surround SCM repository.</td>
+             </tr>
+             <tr class="oddrow">
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vss">&lt;vss&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe, Journal File
@@ -1616,6 +1715,68 @@
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="surround">&lt;surround&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;surround&gt;</pre>
+        </div>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+             <tr class="oddrow">
+                 <td>branch</td>
+                 <td>No</td>
+                 <td>Surround SCM branch name. The default is pulled from the local working directory.</td>
+             </tr>
+             <tr>
+                 <td>repository</td>
+                 <td>No</td>
+                 <td>Surround SCM repository path. The default is pulled from the local working directory.</td>
+             </tr>
+             <tr class="oddrow">
+                 <td>file</td>
+                 <td>No</td>
+                 <td>Enter a file or repository name or a searchable pattern. Can be / or empty, which means the repository specified by the repository option or the default repository.</td>
+             </tr>
+             <tr>
+                 <td>searchregexp</td>
+                 <td>No</td>
+                 <td>If set to <strong>1</strong>, the <strong>file</strong> parameter will be interpreted as a regular expression. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
+             </tr>
+             <tr class="oddrow">
+                 <td>recursive</td>
+                 <td>No</td>
+                 <td>Recursively check files and sub-repositories. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
+             </tr>
+             <tr>
+                 <td>serverconnect</td>
+                 <td>No</td>
+                 <td>Enter the address and port number of the Surround SCM server host computer. Format is server:port. If not entered, the last saved connection parameters are used.</td>
+             </tr>
+             <tr class="oddrow">
+                <td>serverlogin</td>
+                 <td>No</td>
+                 <td>Enter the username and password used to login to the Surround SCM server. Format is username:password. If not entered, the last saved login parameters are used.</td>
+              </tr>
             </tbody>
         </table>
         </div>
@@ -2845,9 +3006,10 @@
             </tr>
             <tr class="oddrow">
                 <td>logdir</td>
-                <td>Yes</td>
+                <td>No (Yes for versions &lt; 2.1.7)</td>
                 <td>Path to the log directory as set in the log element of
-                the configuration xml file.</td>
+                the configuration xml file.
+                Follows default of <a href="#log">log</a>'s dir-attribute since version 2.1.7.</td>
             </tr>
             <tr>
                 <td>xsldir</td>
