@@ -4,6 +4,10 @@ P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.
 
+SCPPublisher:
+----------------------
+* No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
+
 CruiseControl Release Notes - 2.2.1
 
 AlwaysBuild:

@@ -44,8 +44,10 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Used to scp a file to a remote location
@@ -140,22 +142,40 @@ public class SCPPublisher implements Publisher {
         }
     }
 
-    public void publish(Element cruisecontrolLog)
-        throws CruiseControlException {
+    public void publish(Element cruisecontrolLog) throws CruiseControlException {
 
-        if (file == null) {
-            XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-            file = helper.getLogFileName().substring(1);
-        }
+    if (file == null) {
+        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+        file = helper.getLogFileName();
+        LOG.debug(file);
+    }
 
-        Commandline command = createCommandline(file);
-        LOG.info("executing command: " + command);
+    Commandline command = createCommandline(file);
+    LOG.info("executing command: " + command);
+    try {
+        Process p = Runtime.getRuntime().exec(command.getCommandline());
+        LOG.debug("Runtime after.");
+        p.waitFor();
+        LOG.debug("waitfor() ended with exit code " + p.exitValue());
+
         try {
-            Runtime.getRuntime().exec(command.getCommandline());
+            BufferedReader commandErrorResult = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String outputLine;
+            while ((outputLine = commandErrorResult.readLine()) != null) {
+                LOG.warn("Runtime.exec error returned: " + outputLine);
+            }
+
         } catch (IOException e) {
+            LOG.warn("Runtime.exec: reading errorStream failed");
             throw new CruiseControlException(e);
         }
+
+    } catch (Exception e) {
+        LOG.warn("Runtime.exec exception.");
+        throw new CruiseControlException(e);
     }
+
+}
 
     public Commandline createCommandline(String file) {
         String sourcefile = File.separator + file;
