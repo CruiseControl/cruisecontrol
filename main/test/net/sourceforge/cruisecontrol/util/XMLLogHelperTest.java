@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +46,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.jdom.Element;
 
@@ -104,39 +104,14 @@ public class XMLLogHelperTest extends TestCase {
         return buildElement;
     }
 
-    private Element createInfoElement(String label, boolean lastSuccessful) {
-        Element infoElement = new Element("info");
-
-        Hashtable properties = new Hashtable();
-        properties.put("projectname", "someproject");
-        properties.put("label", label);
-        properties.put("lastbuildtime", "");
-        properties.put("lastgoodbuildtime", "");
-        properties.put("lastbuildsuccessful", lastSuccessful + "");
-        properties.put("buildfile", "");
-        properties.put("target", "");
-        properties.put("logfile", "log20020313120000.xml");
-
-        Iterator propertyIterator = properties.keySet().iterator();
-        while (propertyIterator.hasNext()) {
-            String propertyName = (String) propertyIterator.next();
-            Element propertyElement = new Element("property");
-            propertyElement.setAttribute("name", propertyName);
-            propertyElement.setAttribute("value", (String) properties.get(propertyName));
-            infoElement.addContent(propertyElement);
-        }
-
-        return infoElement;
-    }
-
     public void setUp() {
         successfulLogElement = new Element("cruisecontrol");
-        successfulLogElement.addContent(createInfoElement("1.0", false));
+        successfulLogElement.addContent(TestUtil.createInfoElement("1.0", false));
         successfulLogElement.addContent(createBuildElement(true));
         successfulLogElement.addContent(createModificationsElement("username1", "username2"));
 
         failedLogElement = new Element("cruisecontrol");
-        failedLogElement.addContent(createInfoElement("1.1", true));
+        failedLogElement.addContent(TestUtil.createInfoElement("1.1", true));
         failedLogElement.addContent(createBuildElement(false));
         failedLogElement.addContent(createModificationsElement("username3", "username4"));
     }

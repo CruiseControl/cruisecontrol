@@ -178,39 +178,39 @@ public class EmailPublisherTest extends TestCase {
     public void testCreateSubject() throws Exception {
         emailPublisher.setReportSuccess("always");
         assertEquals(
-            "TestProject somelabel Build Successful",
+            "someproject somelabel Build Successful",
             emailPublisher.createSubject(successLogHelper));
         emailPublisher.setReportSuccess("fixes");
         assertEquals(
-            "TestProject somelabel Build Fixed",
+            "someproject somelabel Build Fixed",
             emailPublisher.createSubject(fixedLogHelper));
 
-        assertEquals("TestProject Build Failed",
+        assertEquals("someproject Build Failed",
                 emailPublisher.createSubject(failureLogHelper));
 
         emailPublisher.setSubjectPrefix("[CC]");
         emailPublisher.setReportSuccess("always");
         assertEquals(
-            "[CC] TestProject somelabel Build Successful",
+            "[CC] someproject somelabel Build Successful",
             emailPublisher.createSubject(successLogHelper));
         emailPublisher.setReportSuccess("fixes");
         assertEquals(
-            "[CC] TestProject somelabel Build Fixed",
+            "[CC] someproject somelabel Build Fixed",
             emailPublisher.createSubject(fixedLogHelper));
 
         assertEquals(
-            "[CC] TestProject Build Failed",
+            "[CC] someproject Build Failed",
             emailPublisher.createSubject(failureLogHelper));
 
         //Anytime it is a "fixed" build, the subject should read "fixed".
         emailPublisher.setReportSuccess("always");
         assertEquals(
-            "[CC] TestProject somelabel Build Fixed",
+            "[CC] someproject somelabel Build Fixed",
             emailPublisher.createSubject(fixedLogHelper));
 
         emailPublisher.setReportSuccess("failures");
         assertEquals(
-            "[CC] TestProject somelabel Build Fixed",
+            "[CC] someproject somelabel Build Fixed",
             emailPublisher.createSubject(fixedLogHelper));
 
     }
