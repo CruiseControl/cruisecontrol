@@ -279,20 +279,16 @@ public class AntBuilderTest extends TestCase {
     public void testBuild() throws Exception {
         AntBuilder builder = new AntBuilder();
         builder.setBuildFile("build.xml");
+        builder.setTempFile("notLog.xml");
         builder.setTarget("init");
         HashMap buildProperties = new HashMap();
         Element buildElement = builder.build(buildProperties);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
-    }
 
-    public void testBuildWithMultipleTargets() throws Exception {
-        AntBuilder builder = new AntBuilder();
-        builder.setBuildFile("build.xml");
         builder.setTarget("init init");
-        HashMap buildProperties = new HashMap();
-        Element buildElement = builder.build(buildProperties);
-        int initCount = getInitCount(buildElement);
+        buildElement = builder.build(buildProperties);
+        initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
     }
 
