@@ -157,24 +157,32 @@ public class ProjectTest extends TestCase {
         assertTrue(project.isLastBuildSuccessful());
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
-                + "<modifications /><info><property name=\"projectname\" "
-                + "value=\"myproject\" /><property name=\"lastbuild\" value=\""
+                "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications />"
+                + "<info>"
+                + "<property name=\"projectname\" value=\"myproject\" />"
+                + "<property name=\"lastbuild\" value=\""
                 + Project.getFormatedTime(now)
-                + "\" /><property name=\"lastsuccessfulbuild\" value=\""
+                + "\" />"
+                + "<property name=\"lastsuccessfulbuild\" value=\""
                 + project.getLastSuccessfulBuild()
-                + "\" /><property name=\"builddate\" value=\""
+                + "\" />"
+                + "<property name=\"builddate\" value=\""
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
-                + "\" /><property name=\"cctimestamp\" value=\""
+                + "\" />"
+                + "<property name=\"cctimestamp\" value=\""
                 + Project.getFormatedTime(now)
-                + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
-                + "name=\"interval\" value=\"300\" /><property name=\""
-                + "lastbuildsuccessful\" value=\"false\" /><property name=\"logfile\" value=\""
-                + File.separator
+                + "\" />"
+                + "<property name=\"label\" value=\"1.2.2\" />"
+                + "<property name=\"interval\" value=\"300\" />"
+                + "<property name=\"lastbuildsuccessful\" value=\"false\" />"
+                + "<property name=\"logdir\" value=\""
+                + logDir.getAbsolutePath()
+                + "\" />"
+                + "<property name=\"logfile\" value=\""
                 + "log"
                 + Project.getFormatedTime(now)
-                + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
-                + "/></testsuite><testsuite /></cruisecontrol>";
+                + "L1.2.2.xml\" />"
+                + "</info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, Util.readFileToString(project.getLog().getLastLogFile()));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 

@@ -88,6 +88,8 @@
         <pre style="font-size: smaller;">
 <a href="#alwaysbuild">&lt;alwaysbuild&gt;</a>
 <a href="#ant">&lt;ant&gt;</a>
+<a href="#antbootstrapper">&lt;antbootstrapper&gt;</a>
+<a href="#antpublisher">&lt;antpublisher&gt;</a>
 <a href="#artifactspublisher">&lt;artifactspublisher&gt;</a>
 <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
 <a href="#buildstatus">&lt;buildstatus&gt;</a>
@@ -182,6 +184,7 @@
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
       <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+         <a href="#antbootstrapper">&lt;antbootstrapper&gt;</a>
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
          <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
@@ -227,6 +230,7 @@
          <a href="#merge">&lt;merge/&gt;</a>
       &lt;/log&gt;
       <a href="#publishers">&lt;publishers&gt;</a>
+         <a href="#antpublisher">&lt;antpublisher&gt;</a>
          <a href="#artifactspublisher">&lt;artifactspublisher/&gt;</a>
          <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
          <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
@@ -543,56 +547,61 @@
             </thead>
             <tbody>
             <tr class="oddrow">
+                <td><a href="#antbootstrapper">&lt;antbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Executes an Ant script which implements a custom bootstrapper</td>
+            </tr>
+            <tr>
                 <td><a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from ClearCase</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CM Synergy</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Transfers a build status snippet via FTP</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CVS</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Perforce</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from SnapshotCM</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Star Team</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Surround SCM</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Visual Source Safe</td>
@@ -600,6 +609,54 @@
             </tbody>
         </table>
         </div>
+		
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="antbootstrapper">&lt;antbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;antbootstrapper&gt;</pre>
+        </div>
+
+        <p>Executes an Ant script which implements a custom bootstrapper.</p>
+
+        <h3>Attributes</h3>
+		
+        The antbootstrapper uses the same <a href="#ant-attributes">attributes</a>
+        as the <a href="#ant">&lt;ant&gt;</a> builder.
+
+        <h3>Child Elements</h3>
+
+        The antbootstrapper supports the same set of 
+        <a href="#ant-elements">child elements</a> as the
+        <a href="#ant">&lt;ant&gt;</a> builder.
+
+        <h3>Examples</h3>
+
+        <ol>
+            <li>Invoke the ant.bat script distributed with ant, specifying the
+            working directory as <code>D:\workspace\MyProject</code> and the
+            ant build file as <code>MyProject-nightlybuild.xml</code> and the 
+            ant target as <code>bootstrap</code>.
+            <pre>&lt;bootstrappers&gt;
+    &lt;antbootstrapper antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
+         antworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml" 
+         uselogger="true" 
+         usedebug="false"
+         target="bootstrap"/&gt;
+&lt;bootstrappers&gt;</pre>
+            </li>
+        </ol>
+		
+		For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder. 
+
+        </div>	
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -2749,7 +2806,7 @@
         <p>See below for <a href="#ant-examples">examples</a> of the
         <code>&lt;ant&gt;</code> element.</p>
 
-        <h3>Attributes</h3>
+        <h3><a name="ant-attributes">Attributes</a></h3>
 
         <table class="documentation">
             <thead>
@@ -2859,7 +2916,7 @@
             </tbody>
         </table>
 
-        <h3>Child Elements</h3>
+        <h3><a name="ant-elements">Child Elements</a></h3>
 
         <table class="documentation">
             <thead>
@@ -3220,57 +3277,62 @@ endlocal</pre>
             </thead>
             <tbody>
             <tr class="oddrow">
+                <td><a href="#antpublisher"><code>&lt;antpublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Executes an Ant script which implements a custom publisher.</td>
+            </tr>
+            <tr>
                 <td><a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies build products to a directory</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Writes the time of the next build to a file</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#email"><code>&lt;email&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends an email with a URL to the build results JSP</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#execute"><code>&lt;execute&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Execute a command as part of the publishing phase</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#ftppublisher"><code>&lt;ftppublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies the log file and build artifacts to an FTP server</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#htmlemail"><code>&lt;htmlemail&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends an email with the build results embedded as HTML</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#jabber"><code>&lt;jabber&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends an instant message with a link to the build results
                 via a Jabber server using XMPP</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#sametimeannouncement"><code>&lt;sametimeannouncement&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends Sametime announcements with the result of the build</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies a file using SCP</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#x10"><code>&lt;x10&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Controls an x10 electronic device</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#xsltlogpublisher"><code>&lt;xsltlogpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Performs a transformation of the log file</td>
@@ -3278,6 +3340,115 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="antpublisher">&lt;antpublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;antpublisher&gt;</pre>
+        </div>
+
+        <p>Executes an Ant script which implements a custom publisher.</p>
+
+        <h3>Attributes</h3>
+		
+        The antpublisher uses the same <a href="#ant-attributes">attributes</a>
+        as the <a href="#ant">&lt;ant&gt;</a> builder.
+
+        <h3>Child Elements</h3>
+
+        The antpublisher supports the same set of 
+        <a href="#ant-elements">child elements</a> as the
+        <a href="#ant">&lt;ant&gt;</a> builder.
+		
+        <h3>Properties Passed to the Publisher</h3>
+        
+        <p>In addition to the standard CruiseControl <a href="#buildproperties">
+        properties</a>, &lt;antpublisher&gt; passes the following properties to Ant,
+        which can be accessed in your script like any other property, using the
+        syntax ${propertyname}.
+		</p>
+        
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>projectname</td>
+                <td>The name of the CruiseControl project.</td>
+            </tr>
+            <tr>
+                <td>lastbuild</td>
+                <td>The timestamp of the last attempted build.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>lastsuccessfulbuild</td>
+                <td>The timestamp of the last successful build.</td>
+            </tr>
+            <tr>
+                <td>builddate</td>
+                <td>The date of the last build.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>interval</td>
+                <td>The time interval between builds.</td>
+            </tr>
+            <tr>
+                <td>logdir</td>
+                <td>The directory containing the log file from the last build.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>logfile</td>
+                <td>The name of the log file from the last build.</td>
+            </tr>
+            </tbody>
+        </table>		
+
+        <h3>Examples</h3>
+
+        <ol>
+            <li>Invoke the ant.bat script distributed with ant, specifying the
+            working directory as <code>D:\workspace\MyProject</code> and the
+            ant build file as <code>MyProject-nightlybuild.xml</code> and the 
+            ant target as <code>publish</code>. Pass in the property "custom"
+            with a value of "true".
+            <pre>&lt;publishers&gt;
+    &lt;antpublisher antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
+         antworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml" 
+         uselogger="true" 
+         usedebug="false"
+         target="publish"&gt;
+        &lt;property name="custom" value="true"/&gt;
+    &lt;/antpublisher&gt;
+&lt;/publishers&gt;</pre>
+           
+            <p>You could then do something like the following in 
+            <code>MyProject-nightlybuild.xml</code>:</p>
+			<pre>&lt;project name="MyProject-nightlybuild" default="publish"&gt;
+    &lt;target name="publish"&gt;
+        &lt;echo&gt;custom is set to ${custom}&lt;/echo&gt;
+        &lt;concat&gt;
+            &lt;filelist dir="${logdir}" files="${logfile}"/&gt;
+        &lt;/concat&gt;
+    &lt;/target&gt;
+&lt;/project&gt;</pre>
+            </li>
+        </ol>
+		
+		For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder. 
+
+        </div>	
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>

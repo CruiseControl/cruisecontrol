@@ -117,6 +117,7 @@ public class LogTest extends TestCase {
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         for (int i = 0;  i < encodings.length; i++) {
             Log log = new Log("testXMLEncoding");
+            log.setLogDir("target");
             if (encodings[i] != null) {
                 log.setLogXmlEncoding(encodings[i]);
             }

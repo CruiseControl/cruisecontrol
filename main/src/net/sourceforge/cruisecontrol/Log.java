@@ -163,16 +163,23 @@ public class Log {
             logFilename = formatLogFileName(now);
         }
 
-        Element logFileElement = new Element("property");
-        logFileElement.setAttribute("name", "logfile");
-        logFileElement.setAttribute("value", File.separator + logFilename);
-        buildLog.getChild("info").addContent(logFileElement);
-
         this.lastLogFile = new File(logDir, logFilename);
         if (LOG4J.isDebugEnabled()) {
             LOG4J.debug("Project " + projectName + ":  Writing log file ["
                 + lastLogFile.getAbsolutePath() + "]");
         }
+
+        // Add the logDir as an info element
+        Element logDirElement = new Element("property");
+        logDirElement.setAttribute("name", "logdir");
+        logDirElement.setAttribute("value", new File(logDir).getAbsolutePath());
+        buildLog.getChild("info").addContent(logDirElement);
+
+        // Add the logFile as an info element
+        Element logFileElement = new Element("property");
+        logFileElement.setAttribute("name", "logfile");
+        logFileElement.setAttribute("value", logFilename);
+        buildLog.getChild("info").addContent(logFileElement);
 
         //Write the log file out, let jdom care about the encoding by using
         //an OutputStream instead of a Writer.
