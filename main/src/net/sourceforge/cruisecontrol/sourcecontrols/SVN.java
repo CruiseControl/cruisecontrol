@@ -82,7 +82,7 @@ public class SVN implements SourceControl {
 
     /** Date format expected by Subversion */
     static final SimpleDateFormat SVN_DATE_FORMAT_IN =
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss 'GMT'");
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     /** Date format returned by Subversion in XML output */
     static final SimpleDateFormat SVN_DATE_FORMAT_OUT =

@@ -325,13 +325,13 @@ public class SVNTest extends TestCase {
         Date maySeventeenSixPM2001 =
             new GregorianCalendar(2001, Calendar.MAY, 17, 18, 0, 0).getTime();
         assertEquals(
-            "2001/05/17 08:00:00 GMT",
+            "2001-05-17T08:00:00Z",
             SVN.SVN_DATE_FORMAT_IN.format(maySeventeenSixPM2001));
 
         Date maySeventeenEightAM2001 =
             new GregorianCalendar(2001, Calendar.MAY, 17, 8, 0, 0).getTime();
         assertEquals(
-            "2001/05/16 22:00:00 GMT",
+            "2001-05-16T22:00:00Z",
             SVN.SVN_DATE_FORMAT_IN.format(maySeventeenEightAM2001));
 
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
@@ -339,12 +339,12 @@ public class SVNTest extends TestCase {
         Date marchTwelfFourPM2003 =
             new GregorianCalendar(2003, Calendar.MARCH, 12, 16, 0, 0).getTime();
         assertEquals(
-            "2003/03/13 02:00:00 GMT",
+            "2003-03-13T02:00:00Z",
             SVN.SVN_DATE_FORMAT_IN.format(marchTwelfFourPM2003));
 
         Date marchTwelfTenAM2003 =
             new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
-        assertEquals("2003/03/12 20:00:00 GMT", SVN.SVN_DATE_FORMAT_IN.format(marchTwelfTenAM2003));
+        assertEquals("2003-03-12T20:00:00Z", SVN.SVN_DATE_FORMAT_IN.format(marchTwelfTenAM2003));
     }
 
     private static Modification createModification(

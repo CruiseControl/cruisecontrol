@@ -13,6 +13,10 @@ build.xml (jsp)
 * will build war w/out jars in WEB-INF/lib if property jdk1.4 is defined.
 * removed files from war that shouldn't be included. Patch by Matt Albrecht
 
+ClearCaseBootstrapper
+----------------------
+* Added ClearCaseBootstrapper to plug-in registry under the name "clearcasebootstrapper". - Patch by Esa Laine
+
 ClearCase Sourcecontrol
 ----------------------
 * Fixed bug with ClearCase version 2002.05.00 that hindered sending email. Patch by Ian Colledge and Esa Laine
@@ -67,6 +71,7 @@ SametimeAnnouncementPublisher
 SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
+* updated to use new date format (Subversion 0.37 and later) Patch by Garrick Olson
 
 TabSheetTag
 ----------------------
