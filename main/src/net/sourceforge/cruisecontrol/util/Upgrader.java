@@ -25,6 +25,7 @@ public class Upgrader {
     private File _buildFile = null;
     private File _configFile = null;
     private File _propertiesFile = null;
+    private String _projectName;
 
     public void setBuildFile(File buildFile) {
         _buildFile = buildFile;
@@ -38,6 +39,10 @@ public class Upgrader {
         _propertiesFile = propertiesFile;
     }
 
+    public void setProjectName(String projectName) {
+        _projectName = projectName;
+    }
+
     protected void validate() throws CruiseControlException {
         if (_buildFile == null) {
             throw new CruiseControlException("No build file specified.");
@@ -47,6 +52,9 @@ public class Upgrader {
         }
         if (_configFile == null) {
             throw new CruiseControlException("No configuration file specified.");
+        }
+        if(_projectName == null) {
+            throw new CruiseControlException("No project name specified.");
         }
 
         if (!_buildFile.exists()) {
@@ -143,7 +151,7 @@ public class Upgrader {
      */
     public String createLog(Properties properties) {
         StringBuffer logString = new StringBuffer();
-        logString.append("<log logdir=\"" + properties.getProperty("logDir") + "\">");
+        logString.append("<log dir=\"" + properties.getProperty("logDir") + "\">");
         logString.append("</log>");
         return logString.toString();
     }
@@ -224,7 +232,7 @@ public class Upgrader {
 
     public Element createXML(Properties properties, Element modificationsetElement) throws JDOMException {
         StringBuffer config = new StringBuffer();
-        config.append("<cruisecontrol><project>");
+        config.append("<cruisecontrol><project name=\"" + _projectName + "\">");
         config.append(createBootstrappers(properties));
         config.append(createModificationSet(modificationsetElement));
         config.append(createSchedule(properties));
@@ -292,10 +300,11 @@ public class Upgrader {
             upgrader.setBuildFile(new File(args[0]));
             upgrader.setPropertiesFile(new File(args[1]));
             upgrader.setConfigFile(new File(args[2]));
+            upgrader.setProjectName(args[3]);
             try {
                 upgrader.validate();
             } catch (CruiseControlException e) {
-                log.fatal("Usage: java -jar cruisecontrol.jar -upgrade <build file> <properties file> <config file>");
+                log.fatal("Usage: java -jar cruisecontrol.jar -upgrade <build file> <properties file> <config file> <projectname>");
             }
             upgrader.execute();
             log.info("upgrader finished");
