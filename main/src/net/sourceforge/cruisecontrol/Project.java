@@ -195,7 +195,7 @@ public class Project implements Serializable, Runnable {
             log.addContent(schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
 
             boolean buildSuccessful = log.wasBuildSuccessful();
-            fireResultEvent(new BuildResultEvent(this, wasLastBuildSuccessful));
+            fireResultEvent(new BuildResultEvent(this, buildSuccessful));
 
             if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
                 label = labelIncrementer.incrementLabel(label, log.getContent());

@@ -113,6 +113,7 @@ public class ProjectTest extends TestCase {
         project.setSchedule(sched);
         project.setLabel("1.2.2");
         project.setName("myproject");
+        project.setWasLastBuildSuccessful(false);
         File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
         project.getLog().setLogDir(TEST_DIR + File.separator + "test-results");
@@ -168,7 +169,7 @@ public class ProjectTest extends TestCase {
                 + Project.getFormatedTime(now)
                 + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
                 + "name=\"interval\" value=\"300\" /><property name=\""
-                + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
+                + "lastbuildsuccessful\" value=\"false\" /><property name=\"logfile\" value=\""
                 + File.separator
                 + "log"
                 + Project.getFormatedTime(now)
@@ -189,6 +190,8 @@ public class ProjectTest extends TestCase {
 
         // check that the proper events were fired
         assertEquals("Should be exactly one build result event", 1, resultEvents.size());
+        BuildResultEvent resultEvent = (BuildResultEvent) resultEvents.get(0);
+        assertTrue("Should be successful build result event", resultEvent.isBuildSuccessful());
         assertEquals("Should be exactly 6 build progress events", 6, progressEvents.size());
     }
 
