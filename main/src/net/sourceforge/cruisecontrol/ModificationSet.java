@@ -55,7 +55,7 @@ public class ModificationSet {
     protected List _modifications = new ArrayList();
     protected List _sourceControls = new ArrayList();
     protected int _quietPeriod;
-    protected Date _now;
+    protected Date timeOfCheck;
 
     /**
      * Set the amount of time in which there is no source control activity
@@ -115,12 +115,12 @@ public class ModificationSet {
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Element modificationsElement = null;
         do {
-            _now = new Date();
+            timeOfCheck = new Date();
             _modifications = new ArrayList();
             Iterator sourceControlIterator = _sourceControls.iterator();
             while (sourceControlIterator.hasNext()) {
                 SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
-                _modifications.addAll(sourceControl.getModifications(lastBuild, _now));
+                _modifications.addAll(sourceControl.getModifications(lastBuild, timeOfCheck));
             }
             modificationsElement = new Element("modifications");
             Iterator modificationIterator = _modifications.iterator();
@@ -139,25 +139,25 @@ public class ModificationSet {
                 }
             }
 
-            if(isLastModificationInQuietPeriod(_now, _modifications)) {
+            if(isLastModificationInQuietPeriod(timeOfCheck, _modifications)) {
                 log.info("A modification has been detected in the quiet period.  ");
-                log.debug(formatter.format(new Date(_now.getTime() - _quietPeriod)) + " <= Quiet Period <= " + formatter.format(_now));
+                log.debug(formatter.format(new Date(timeOfCheck.getTime() - _quietPeriod)) + " <= Quiet Period <= " + formatter.format(timeOfCheck));
                 log.debug("Last modification: " + formatter.format(new Date(getLastModificationMillis(_modifications))));
-                log.info("Sleeping for " + getQuietPeriodDifference(_now, _modifications)/1000 + " seconds before retrying.");
+                log.info("Sleeping for " + getQuietPeriodDifference(timeOfCheck, _modifications)/1000 + " seconds before retrying.");
                 try {
-                    Thread.sleep(getQuietPeriodDifference(_now, _modifications));
+                    Thread.sleep(getQuietPeriodDifference(timeOfCheck, _modifications));
                 } catch (InterruptedException e) {
                     log.error("", e);
                 }
             }
-        } while (isLastModificationInQuietPeriod(_now, _modifications));
+        } while (isLastModificationInQuietPeriod(timeOfCheck, _modifications));
 
 
         return modificationsElement;
     }
 
-    public Date getNow() {
-        return _now;
+    public Date getTimeOfCheck() {
+        return timeOfCheck;
     }
 
     public boolean isModified() {
