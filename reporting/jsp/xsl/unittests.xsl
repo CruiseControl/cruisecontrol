@@ -41,7 +41,7 @@
 
     <xsl:output method="html"/>
 
-    <xsl:variable name="testsuite.list" select="build//testsuite"/>
+    <xsl:variable name="testsuite.list" select="cruisecontrol/testsuite"/>
     <xsl:variable name="testsuite.error.count" select="count($testsuite.list/error)"/>
     <xsl:variable name="testcase.list" select="$testsuite.list/testcase"/>
     <xsl:variable name="testcase.error.list" select="$testcase.list/error"/>
@@ -103,11 +103,11 @@
 
               <!-- (PENDING) Why doesn't this work if set up as variables up top? -->
               <xsl:call-template name="testdetail">
-                <xsl:with-param name="detailnodes" select="build//testsuite/testcase[.//error]"/>
+                <xsl:with-param name="detailnodes" select="//testsuite/testcase[.//error]"/>
               </xsl:call-template>
 
               <xsl:call-template name="testdetail">
-                <xsl:with-param name="detailnodes" select="build//testsuite/testcase[.//failure]"/>
+                <xsl:with-param name="detailnodes" select="//testsuite/testcase[.//failure]"/>
               </xsl:call-template>
 
 
@@ -182,8 +182,6 @@
             </td>
         </tr>
 
-        <tr/><tr/><tr/>
-
         <tr>
             <td colspan="10">
                 <PRE>
@@ -211,22 +209,40 @@
             </td>
         </tr>
 
-        <tr/><tr/><tr/>
-
         <tr>
             <td colspan="10">
-                <PRE>
-                    <font face="arial" size="1" color="{$detailcolor}">
-                        <xsl:value-of select="failure" />
-                    </font>
-                </PRE>
+                <pre>
+                   <font face="arial" size="1" color="{$detailcolor}">
+                       <xsl:call-template name="br-replace">
+                           <xsl:with-param name="word" select="failure"/>
+                       </xsl:call-template>
+                   </font>
+                </pre>
             </td>
         </tr>
         </xsl:if>
 
-        <tr/><tr/><tr/>
-
       </xsl:for-each>
     </xsl:template>
 
+    <xsl:template name="br-replace">
+        <xsl:param name="word"/>
+<!-- </xsl:text> on next line on purpose to get newline -->
+<xsl:variable name="cr"><xsl:text>
+</xsl:text></xsl:variable>
+        <xsl:choose>
+            <xsl:when test="contains($word,$cr)">
+                <xsl:value-of select="substring-before($word,$cr)"/>
+                <br/>
+                <xsl:call-template name="br-replace">
+                <xsl:with-param name="word" select="substring-after($word,$cr)"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$word"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    
 </xsl:stylesheet>
