@@ -407,8 +407,7 @@ public class Vss implements SourceControl {
                 } else {
                     fileName = fileLine;
                     if (fileName.equals("Branched")) {
-                        LOG.debug(
-                            "Branched file, ignoring as branch directory is handled separately");
+                        LOG.debug("Branched file, ignoring as branch directory is handled separately");
                         return null;
                     }
                 }
