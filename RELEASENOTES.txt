@@ -18,6 +18,10 @@ distributables.xsl
 ----------------------
 * Added info for the ejbjar and ear tasks. Patch by Joris Kuipers
 
+HTMLEmailBuilder
+----------------------
+* Delete temp files after they've been used. Patch by Joris Kuipers
+
 index.jsp
 ----------------------
 * Sort projects. Patch by Brad Clarke
