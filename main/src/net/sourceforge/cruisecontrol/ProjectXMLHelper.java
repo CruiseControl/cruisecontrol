@@ -57,7 +57,7 @@ public class ProjectXMLHelper {
     private Element projectElement;
     private String projectName;
 
-    public ProjectXMLHelper() {
+    public ProjectXMLHelper() throws CruiseControlException {
         plugins = PluginRegistry.getDefaultPluginRegistry();
     }
 
@@ -228,13 +228,13 @@ public class ProjectXMLHelper {
         if (labelIncrementerElement != null) {
             incrementer = (LabelIncrementer) configurePlugin(labelIncrementerElement, false);
         } else {
-            String classname = plugins.getPluginClassname("labelincrementer");
+            Class labelIncrClass = plugins.getPluginClass("labelincrementer");
             try {
-                incrementer = (LabelIncrementer) Class.forName(classname).newInstance();
+                incrementer = (LabelIncrementer) labelIncrClass.newInstance();
             } catch (Exception e) {
                 LOG.error(
                     "Error instantiating label incrementer named "
-                        + classname
+                        + labelIncrClass.getName()
                         + ". Using DefaultLabelIncrementer instead.",
                     e);
                 incrementer = new DefaultLabelIncrementer();
@@ -307,7 +307,7 @@ public class ProjectXMLHelper {
         if (plugins.isPluginRegistered(pluginName)) {
             return pluginHelper.configure(
                 pluginElement,
-                plugins.getPluginClassname(pluginName),
+                plugins.getPluginClass(pluginName),
                 skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");

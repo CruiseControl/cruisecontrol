@@ -51,7 +51,7 @@ public class ProjectXMLHelperTest extends TestCase {
 
     private static final int ONE_SECOND = 1000;
 
-    public void testDateFormat() {
+    public void testDateFormat() throws Exception {
         String originalFormat = DateFormatFactory.getFormat();
         assertEquals("MM/dd/yyyy HH:mm:ss", originalFormat);
 

@@ -43,6 +43,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
+import java.util.Map;
+
 public class PluginXMLHelperTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
     private PluginXMLHelper helper;
@@ -62,7 +64,7 @@ public class PluginXMLHelperTest extends TestCase {
         helper = new PluginXMLHelper();
     }
 
-    public void testConfigure() throws CruiseControlException {
+    public void testConfigure() throws Exception {
         Element testElement = new Element("test");
         testElement.setAttribute("somestring", "expectedString");
         testElement.setAttribute("someint", Integer.toString(SOME_INT));
@@ -73,7 +75,7 @@ public class PluginXMLHelperTest extends TestCase {
         testElement.addContent(childElement);
 
         MockPublisher plugin = (MockPublisher) helper.configure(testElement,
-                "net.sourceforge.cruisecontrol.publishers.MockPublisher", false);
+                Class.forName("net.sourceforge.cruisecontrol.publishers.MockPublisher"), false);
 
         assertEquals("expectedString", plugin.getSomeString());
         assertEquals(SOME_INT, plugin.getSomeInt());
@@ -84,10 +86,29 @@ public class PluginXMLHelperTest extends TestCase {
 
     public void testConfigureNoClass() {
         try {
-            helper.configure(new Element("irrelevant"), "noclass", false);
+            helper.configure(new Element("irrelevant"), MockBadBuilder.class, false);
             fail("Expected an exception because noclass shouldn't exist");
         } catch (CruiseControlException expected) {
         }
+    }
+}
+
+/**
+ * Used to test an exception that gets thrown while instantiating a builder.
+ */
+class MockBadBuilder extends Builder {
+
+    /**
+     * A constructor that violates the rules for a Builder.
+     */
+    public MockBadBuilder(String ruleBreakingArg) {
+
+    }
+
+    //should return log from build
+    public Element build(Map properties)
+            throws CruiseControlException {
+        return null;
     }
 
 }
