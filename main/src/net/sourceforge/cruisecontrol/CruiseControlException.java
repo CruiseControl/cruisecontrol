@@ -55,5 +55,10 @@ public class CruiseControlException extends Exception {
 		// q&d implementation.
 		super(cause.getMessage());
 	}
+
+    public CruiseControlException(String message, Throwable cause) {
+        // q&d implementation.
+        super(message + " : " + cause.getMessage());
+    }
 }
 

@@ -84,7 +84,7 @@ public class AntBuilderTest extends TestCase {
         assertTrue(Arrays.equals(resultDebugWithMaxMemory, builder.getCommandLineArgs(properties)));
     }
 
-    public void testGetAntLogAsElement() {
+    public void testGetAntLogAsElement() throws Exception {
         try {
             Element buildLogElement = new Element("build");
             File logFile = new File("_tempAntLog14.xml");
@@ -106,7 +106,7 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
-    public void testBuild() {
+    public void testBuild() throws Exception {
         AntBuilder builder = new AntBuilder();
         builder.setBuildFile("build.xml");
         builder.setTarget("init");

@@ -53,7 +53,7 @@ public abstract class Builder implements Comparable {
     private int _multiple = -1;
 
     //should return log from build
-    public abstract Element build(Map properties);
+    public abstract Element build(Map properties) throws CruiseControlException;
 
     public void setDay(String dayString) {
         if (dayString.equalsIgnoreCase("sunday")) {

@@ -37,6 +37,7 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Category;
@@ -59,6 +60,7 @@ public class AntBuilder extends Builder {
     /** enable logging for this class */
     private static Category log = Category.getInstance(AntBuilder.class.getName());
 
+    private static final String PROPERTY_LOGGER_FILE_NAME = "propertylogger.xml";
     private String _buildFile;
     private String _target;
     List _args = new ArrayList();
@@ -68,13 +70,13 @@ public class AntBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) {
+    public Element build(Map buildProperties) throws CruiseControlException {
 
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties));
         } catch (IOException e) {
-            log.error(
+            throw new CruiseControlException(
                     "Encountered an IO exception while attempting to execute Ant."
                     + " CruiseControl cannot continue.",
                     e);
@@ -104,13 +106,13 @@ public class AntBuilder extends Builder {
         Element propertiesElement = null;
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            propertiesElement = builder.build("propertylogger.xml").getRootElement();
+            propertiesElement = builder.build(PROPERTY_LOGGER_FILE_NAME).getRootElement();
+            buildLogElement.addContent(propertiesElement.detach());
         } catch (Exception ee) {
-            ee.printStackTrace();
+            throw new CruiseControlException("Error reading " + PROPERTY_LOGGER_FILE_NAME, ee);
         }
 
-        buildLogElement.addContent(propertiesElement.detach());
-        File propertiesLog = new File("propertylogger.xml");
+        File propertiesLog = new File(PROPERTY_LOGGER_FILE_NAME);
         propertiesLog.delete();
 
         return buildLogElement;
@@ -175,14 +177,14 @@ public class AntBuilder extends Builder {
         }
         log.debug(sb.toString());
 
-        return (String[]) al.toArray(new String[0]);
+        return (String[]) al.toArray(new String[al.size()]);
     }
 
     /**
      *  JDOM doesn't like the <?xml:stylesheet ?> tag.  we don't need it, so we'll skip it.
      *  TO DO: make sure that we are only skipping this string and not something else
      */
-    protected static Element getAntLogAsElement(File f) {
+    protected static Element getAntLogAsElement(File f) throws CruiseControlException {
         try {
             FileReader fr = new FileReader(f);
             StringBuffer sb = new StringBuffer();
@@ -197,9 +199,8 @@ public class AntBuilder extends Builder {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             return builder.build(bufferedStream).getRootElement();
         } catch (Exception ee) {
-            ee.printStackTrace();
+            throw new CruiseControlException("Error reading : " + f.getAbsolutePath(), ee);
         }
-        return null;
     }
 
     public class JVMArg {
