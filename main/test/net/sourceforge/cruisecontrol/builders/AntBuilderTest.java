@@ -72,11 +72,11 @@ public class AntBuilderTest extends TestCase {
         String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
-        log.getRoot().setPriority(Priority.INFO);
+        log.getRoot().setLevel(Level.INFO);
         assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties, false)));
         assertTrue(Arrays.equals(resultLogger, builder.getCommandLineArgs(properties, true)));
 
-        log.getRoot().setPriority(Priority.DEBUG);
+        log.getRoot().setLevel(Level.DEBUG);
         assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties, false)));
 
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
