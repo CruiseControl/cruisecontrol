@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+build.xml
+----------------------
+* Constrain checkstyle to only run against cruisecontrol code; ignore other packages.
+
 ModificationSet
 ----------------------
 * Added requiremodification attribute. Useful for building even when no modifications are found.

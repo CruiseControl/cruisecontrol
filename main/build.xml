@@ -155,8 +155,8 @@
         <checkstyle config="checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
             <formatter type="plain"/>
             <formatter type="plain" tofile="checkstyleResults.txt"/>
-            <fileset dir="src" includes="**/*.java"/>
-            <fileset dir="test" includes="**/*.java"/>
+            <fileset dir="src" includes="net/sourceforge/cruisecontrol/**/*.java"/>
+            <fileset dir="test" includes="net/sourceforge/cruisecontrol/**/*.java"/>
         </checkstyle>
     </target>
 
