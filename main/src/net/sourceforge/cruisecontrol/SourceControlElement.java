@@ -33,6 +33,7 @@ import org.apache.tools.ant.*;
  */
 
 //(PENDING) move all source control elements to net.sourceforge.cruisecontrol.element
+//(PENDING) pull up buildCommandLine
 public abstract class SourceControlElement {
 
     private Task _task;
