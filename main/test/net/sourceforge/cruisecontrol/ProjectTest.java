@@ -71,6 +71,7 @@ public class ProjectTest extends TestCase {
         project.setName("myproject");
         project.setSchedule(sched);
         project.setLogDir("test-results");
+		project.setLogXmlEncoding("ISO-8859-1");
         project.addAuxiliaryLogFile("_auxLog1.xml");
         project.addAuxiliaryLogFile("_auxLogs");
         project.setLabelIncrementer(new DefaultLabelIncrementer());
@@ -83,7 +84,7 @@ public class ProjectTest extends TestCase {
 
         project.build();
 
-        String expected = "<cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><two /><three /></cruisecontrol>";
+        String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><two /><three /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
         assertEquals("Didn't increment the label", "1.2.3",
                 project.getLabel().intern());
