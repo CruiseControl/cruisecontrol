@@ -50,8 +50,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     //label/modificationset/build participants
     private String  _label;
     private static String  _labelIncrementerClassName;
-    private String  _lastGoodBuildTime;
-    private String  _lastBuildTime;
+    
+    // Needs to be static since new instance used each build
+    private static String  _lastGoodBuildTime;
+    private static String  _lastBuildTime;
+    
     private static boolean _lastBuildSuccessful;
     private static boolean _buildNotNecessary;
     private static String  _logDir;
@@ -102,7 +105,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * Entry point.  Verifies that all command line arguments are correctly 
      * specified.
      */
-    //(PENDING) Add --help/--usage
     public static void main(String[] args) {
         MasterBuild mb = new MasterBuild();
         mb.log("***** Starting automated build process *****\n");
@@ -333,7 +335,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                 SecurityManager oldSecMgr = System.getSecurityManager();
                 System.setSecurityManager(new NoExitSecurityManager());
                 try {
-
                     Main.main(getCommandLine(buildcounter));
                 } catch (ExitException ee) {
                     //Ignoring the exit exception from Main.
