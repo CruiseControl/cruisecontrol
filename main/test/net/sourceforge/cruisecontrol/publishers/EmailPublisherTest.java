@@ -67,10 +67,6 @@ public class EmailPublisherTest extends TestCase {
     private EmailPublisher emailPublisher;
     private File tmpFile;
 
-    public EmailPublisherTest(String s) {
-        super(s);
-    }
-
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = Util.createElement(success, lastBuildSuccess);
 
