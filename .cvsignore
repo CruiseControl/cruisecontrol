@@ -8,4 +8,6 @@ CruiseControl.ipr
 test-results
 _auxLogs
 logs
+myproject.ser
+
 
