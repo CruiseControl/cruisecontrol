@@ -277,6 +277,10 @@ public abstract class EmailPublisher implements Publisher {
         _mailHost = mailHost;
     }
 
+    public String getMailHost() {
+        return _mailHost;
+    }
+
     public void setBuildResultsUrl(String servletUrl) {
         _servletUrl = servletUrl;
     }
