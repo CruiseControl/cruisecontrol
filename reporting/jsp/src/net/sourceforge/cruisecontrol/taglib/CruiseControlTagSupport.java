@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -52,6 +53,8 @@ import javax.servlet.jsp.tagext.TagSupport;
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class CruiseControlTagSupport extends TagSupport {
+
+    private static final CruiseControlLogFileFilter FILTER = new CruiseControlLogFileFilter();
     protected void info(String message) {
         System.out.println(message);
     }
@@ -164,10 +167,9 @@ public class CruiseControlTagSupport extends TagSupport {
      *  @return The latest log file.
      */
     public static File getLatestLogFile(File logDir) {
-        File[] logs = logDir.listFiles(new CruiseControlLogFileFilter());
+        File[] logs = logDir.listFiles(FILTER);
         if (logs != null && logs.length > 0) {
-            Arrays.sort(logs, new ReversedComparator());
-            return logs[0];
+            return (File) Collections.max(Arrays.asList(logs));
         } else {
             return null;
         }
