@@ -123,11 +123,7 @@ public class Modification implements Comparable {
         }
 
         public boolean equals(Object o) {
-            if (o == null) {
-                return false;
-            }
-
-            if (!(o instanceof ModifiedFile)) {
+            if (o == null || !(o instanceof ModifiedFile)) {
                 return false;
             }
 
@@ -147,8 +143,22 @@ public class Modification implements Comparable {
                     && revisionsAreEqual);
         }
 
-
-
+        public int hashCode() {
+            int code = 1;
+            if (fileName != null) {
+                code += fileName.hashCode() * 2;
+            }
+            if (revision != null) {
+                code += revision.hashCode() * 3;
+            }
+            if (folderName != null) {
+                code += folderName.hashCode() * 5;
+            }
+            if (action != null) {
+                code += action.hashCode() * 7;
+            }
+            return code;
+        }
     }
 
     public String type = "unknown";
@@ -285,11 +295,7 @@ public class Modification implements Comparable {
     }
 
     public boolean equals(Object o) {
-        if (o == null) {
-            return false;
-        }
-
-        if (!(o instanceof Modification)) {
+        if (o == null || !(o instanceof Modification)) {
             return false;
         }
 
@@ -305,10 +311,7 @@ public class Modification implements Comparable {
 
         boolean filesAreEqual = files.size() == mod.files.size();
         for (int i = 0; filesAreEqual && i < files.size(); i++) {
-            Modification.ModifiedFile modfile1 = (Modification.ModifiedFile) files.get(i);
-            Modification.ModifiedFile modfile2 = (Modification.ModifiedFile) mod.files.get(i);
-            filesAreEqual = filesAreEqual
-                    && modfile1.equals(modfile2);
+            filesAreEqual = mod.files.get(i).equals(files.get(i));
         }
 
         return (
@@ -320,15 +323,39 @@ public class Modification implements Comparable {
                 && comment.equals(mod.comment));
     }
 
-    //for brief testing only
-    public static void main(String[] args) {
-        Date now = new Date();
-        Modification mod = new Modification("unknown");
-        mod.modifiedTime = now;
-        mod.userName = "User<>Name";
-        mod.comment = "Comment";
-        System.out.println(
-            mod.toXml(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")));
+    public int hashCode() {
+        int code = 1;
+        if (type != null) {
+            code += type.hashCode() * 2;
+        }
+        if (modifiedTime != null) {
+            code += modifiedTime.getTime();
+        }
+        if (userName != null) {
+            code += userName.hashCode() * 5;
+        }
+        if (emailAddress != null) {
+            code += emailAddress.hashCode() * 7;
+        }
+        if (comment != null) {
+            code += comment.hashCode() * 11;
+        }
+        if (revision != null) {
+            code += revision.hashCode() * 13;
+        }
+        if (files != null) {
+            code += fileHashComponent();
+        }
+        return code;
+    }
+    
+    private int fileHashComponent() {
+        int code = 1;
+        for (int i = 0; i < files.size(); i++) {
+            Modification.ModifiedFile file = (ModifiedFile) files.get(i);
+            code += file.hashCode();
+        }
+        return code;
     }
 
     public void fromElement(Element modification, DateFormat formatter) {
