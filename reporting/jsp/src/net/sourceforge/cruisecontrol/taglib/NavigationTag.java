@@ -46,6 +46,8 @@ import java.util.Date;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
 
+import net.sourceforge.cruisecontrol.BuildInfo;
+
 /**
  *
  */
@@ -59,7 +61,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
-    private String[] fileNames; // the log files in the log directory.
+    private BuildInfo[] buildInfo; // the log files in the log directory.
     private int count;  // How many times around the loop have we gone.
     private DateFormat dateFormat = US_DATE_FORMAT;
 
@@ -99,12 +101,12 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     }
 
     public int doStartTag() throws JspException {
-        String [] logFileNames = findLogFiles();
+        BuildInfo [] logFileNames = findLogFiles();
         //sort links...
         Arrays.sort(logFileNames, new ReversedComparator());
-        setFileNames(logFileNames);
+        buildInfo = logFileNames;
         count = Math.max(0, startingBuildNumber);
-        endPoint = Math.min(finalBuildNumber, fileNames.length - 1) + 1;
+        endPoint = Math.min(finalBuildNumber, buildInfo.length - 1) + 1;
         if (count < endPoint) {
             return EVAL_BODY_TAG;
         } else {
@@ -112,21 +114,9 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
         }
     }
 
-    private String[] findLogFiles() throws JspException {
+    private BuildInfo[] findLogFiles() throws JspException {
         File logDir = findLogDir();
-        String logDirPath = logDir.getAbsolutePath();
-        info("Scanning directory: " + logDirPath + " for log files.");
-        String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
-        if (logFileNames == null) {
-            throw new JspException("Could not access the directory " + logDirPath);
-        } else if (logFileNames.length == 0) {
-            throw new JspException("Configuration problem? No logs found in logDir: " + logDirPath);
-        }
-        return logFileNames;
-    }
-
-    void setFileNames(String [] logFileNames) {
-        fileNames = logFileNames;
+        return (BuildInfo[]) BuildInfo.loadFromDir(logDir).toArray(new BuildInfo[0]);
     }
 
     public void doInitBody() throws JspException {
@@ -134,7 +124,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     }
 
     void setupLinkVariables() {
-        final String fileName = fileNames[count];
+        final String fileName = buildInfo[count].getFileName();
         String logName = extractLogNameFromFileName(fileName);
         getPageContext().setAttribute(URL_ATTR, createUrl("log", logName));
         getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(logName));
