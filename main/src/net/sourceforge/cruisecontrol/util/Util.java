@@ -37,6 +37,9 @@
 package net.sourceforge.cruisecontrol.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -52,7 +55,7 @@ public final class Util {
     static final long ONE_HOUR = 60 * ONE_MINUTE;
 
     private Util() {
-        
+
     }
 
     /**
@@ -84,7 +87,7 @@ public final class Util {
 
     /**
      * Convert a time represented by the format "HHmm" into milliseconds.
-     * 
+     *
      * @param hhmm where hh are hours and mm are minutes
      * @return hhmm in milliseconds
      */
@@ -96,18 +99,18 @@ public final class Util {
     }
 
     public static Element loadConfigFile(File configFile)
-        throws CruiseControlException {
+            throws CruiseControlException {
         Element cruisecontrolElement = null;
         try {
             SAXBuilder builder =
-                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+                    new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             cruisecontrolElement = builder.build(configFile).getRootElement();
         } catch (Exception e) {
             throw new CruiseControlException(
-                "failed to load config file [" + (configFile != null
+                    "failed to load config file [" + (configFile != null
                     ? configFile.getName()
                     : "") + "]",
-                e);
+                    e);
         }
         return cruisecontrolElement;
     }
@@ -146,6 +149,38 @@ public final class Util {
         midnight.set(Calendar.SECOND, 0);
         midnight.set(Calendar.MILLISECOND, 0);
         return midnight.getTime();
+    }
+
+    public static String readFileToString(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        StringBuffer result = new StringBuffer();
+
+        String s = reader.readLine();
+        while (s != null) {
+            result.append(s.trim());
+            s = reader.readLine();
+        }
+        reader.close();
+
+        return result.toString();
+    }
+
+    /**
+     * Deletes a File instance. If the file represents a directory, all
+     * the subdirectories and files within.
+     */
+    public static void deleteFile(File file) {
+        if (file == null || !file.exists()) {
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            for (int i = 0; i < children.length; i++) {
+                File child = children[i];
+                deleteFile(child);
+            }
+        }
+        file.delete();
     }
 
 }

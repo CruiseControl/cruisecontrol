@@ -36,26 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.BufferedReader;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.Util;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.jdom.Element;
+
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
     private static final org.apache.log4j.Logger LOG4J =
@@ -83,22 +79,8 @@ public class ProjectTest extends TestCase {
         
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
             File file = (File) iterator.next();
-            deleteFile(file);
+            Util.deleteFile(file);
         }
-    }
-
-    private void deleteFile(File file) {
-        if (!file.exists()) {
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            for (int i = 0; i < children.length; i++) {
-                File child = children[i];
-                deleteFile(child);
-            }
-        }
-        file.delete();
     }
 
     public void testBuild() throws Exception {
@@ -156,7 +138,7 @@ public class ProjectTest extends TestCase {
                 + Project.getFormatedTime(now)
                 + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
                 + "/></testsuite><testsuite /></cruisecontrol>";
-        assertEquals(expected, readFileToString(project.getLog().getLastLogFile()));
+        assertEquals(expected, Util.readFileToString(project.getLog().getLastLogFile()));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 
         //look for sourcecontrol properties
@@ -223,16 +205,6 @@ public class ProjectTest extends TestCase {
             fail("Expected a CruiseControlException for a bad last build");
         } catch (CruiseControlException e) {
         }
-    }
-
-    public void testGetMidnight() {
-        Calendar midnight = Calendar.getInstance();
-        midnight.set(Calendar.HOUR, 0);
-        midnight.set(Calendar.MINUTE, 0);
-        midnight.set(Calendar.SECOND, 0);
-        midnight.set(Calendar.MILLISECOND, 0);
-        Date midnightToday = midnight.getTime();
-        assertEquals(midnightToday, Util.getMidnight());
     }
 
     public void testGetFormattedTime() {
@@ -397,20 +369,6 @@ public class ProjectTest extends TestCase {
         assertEquals("Project foo: stopped", project.toString());
         project.setPaused(true);
         assertEquals("Project foo: stopped (paused)", project.toString());
-    }
-
-    private static String readFileToString(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuffer result = new StringBuffer();
-
-        String s = reader.readLine();
-        while (s != null) {
-            result.append(s.trim());
-            s = reader.readLine();
-        }
-        reader.close();
-
-        return result.toString();
     }
 
     private void writeFile(String fileName, String contents) throws IOException {
