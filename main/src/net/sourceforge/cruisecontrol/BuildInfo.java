@@ -1,6 +1,46 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 500
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import org.jdom.Element;
+
 import java.io.*;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Inner class to hold the build information elements
@@ -10,8 +50,7 @@ import java.io.*;
 public class BuildInfo implements Serializable {
     
     public static final String DEFAULT_BUILDINFO_FILENAME = "buildcycleinfo";
-    private static final int COMPLETE_TIME_LENGTH = 
-     new String("YYYYMMDDHHmmss").length();
+    private static final int COMPLETE_TIME_LENGTH = new String("YYYYMMDDHHmmss").length();
     
     private String  label;
     private String  lastGoodBuild;
@@ -21,7 +60,57 @@ public class BuildInfo implements Serializable {
     private transient String logfile;
     private transient boolean lastBuildSuccessful = true;
     private transient boolean buildNotNecessary;
-    
+
+    /**
+     *  Since we'll be storing everything in the build log, we need the build info in an XML representation.  The
+     *  XML format is as follows:<br>
+     *
+     *  <pre>
+     *  <info>
+     *      <label value=""/>
+     *      <lastgoodbuild value=""/>
+     *      <lastbuild value=""/>
+     *      <previousbuildsuccessful value=""/>
+     *      <logfile value=""/>
+     *  </info>
+     *  </pre>
+     *
+     *  @return JDOM <code>Element</code> of all of the build info.
+     */
+    public Element toElement() {
+        Element infoElement = new Element("info");
+
+        Element labelElement = new Element("label");
+        labelElement.setAttribute("value", label);
+        Element lastGoodBuildElement = new Element("lastgoodbuild");
+        lastGoodBuildElement.setAttribute("value", lastGoodBuild);
+        Element lastBuildElement = new Element("lastbuild");
+        lastBuildElement.setAttribute("value", lastBuild);
+        Element previousBuildSuccessfulElement = new Element("previousbuildsuccessful");
+        previousBuildSuccessfulElement.setAttribute("value", "" + lastBuildSuccessful);
+
+        infoElement.addContent(labelElement);
+        infoElement.addContent(lastGoodBuildElement);
+        infoElement.addContent(lastBuildElement);
+        infoElement.addContent(previousBuildSuccessfulElement);
+
+        return infoElement;
+    }
+
+    /**
+     *  Ant is going to require a subset of data stored here to be passed in as Ant properties.  This is a convenience
+     *  method to populate a map of these key/value pairs.
+     *
+     *  @return Map consisting of key/value pairs of properties that need to be set for Ant to run correctly.
+     */
+    public Map toMap() {
+        Map result = new HashMap();
+        result.put("label", label);
+        result.put("lastGoodBuildTime", lastGoodBuild);
+        result.put("lastBuildAttemptTime", lastBuild);
+        return result;
+    }
+
     /** Getter for property buildNotNecessary.
      * @return Value of property buildNotNecessary.
      */
