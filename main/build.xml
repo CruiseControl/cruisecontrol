@@ -92,6 +92,7 @@
         <mkdir dir="${junit.results}"/>
         <mkdir dir="${clover.results}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
+        <available file="lib/STComm.jar" property="sametime-sdk-present"/>
         <tstamp/>
         <property name="label" value="2.1 Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
@@ -139,6 +140,7 @@
            <src path="${src}"/>
            <exclude name="**/element/"/>
            <exclude name="**/StarTeam*"/>
+           <exclude name="**/Sametime*"/>
         </javac>
         <copy todir="${classes}">
             <fileset dir="." includes="log4j.properties"/>
@@ -158,11 +160,20 @@
         </javac>
     </target>
 
-    <target name="compile-test" depends="compile" 
+    <target name="compile-sametime" if="sametime-sdk-present" depends="init">
+        <javac destdir="${classes}" debug="true" deprecation="true">
+            <classpath refid="project.classpath"/>
+            <src path="${src}"/>
+            <include name="**/Sametime*"/>
+            <exclude name="**/element/"/>
+        </javac>
+    </target>
+
+    <target name="compile-test" depends="compile"
         description="Compile test code">
 
         <javac debug="on" deprecation="true" srcdir="${test}" 
-            destdir="${classes}" excludes="**/element/,**/*StarTeam*" 
+            destdir="${classes}" excludes="**/element/,**/*StarTeam*,**/*Sametime*"
             classpathref="project.classpath" />
 
         <copy todir="${classes}">
@@ -235,7 +246,7 @@
         </junit>
     </target>
 
-    <target name="test-starteam" depends="init" if="starteam-sdk-present">
+    <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present">
         <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}" classpathref="project.classpath">
             <classpath refid="project.classpath"/>
             <src path="${test}"/>
@@ -249,6 +260,26 @@
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
                 <fileset dir="${classes}" includes="**/StarTeamTest.class" />
+            </batchtest>
+        </junit>
+
+    </target>
+
+    <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present">
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}"
+                classpathref="project.classpath">
+            <classpath refid="project.classpath"/>
+            <src path="${test}"/>
+            <include name="**/Sametime*"/>
+        </javac>
+        <junit fork="yes" haltonfailure="yes" printsummary="on" >
+            <classpath >
+                <path refid="project.runtime.classpath" />
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <batchtest todir="${junit.results}" >
+                <fileset dir="${classes}" includes="**/Sametime*Test.class" />
             </batchtest>
         </junit>
 
@@ -281,7 +312,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="clean,init,compile,compile-starteam,checkstyle,check-duplication,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
+    <target name="all" depends="clean,init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,jar,clean-testresults" description="Performs a clean build, runs tests, and builds jar" />
 
     <!-- ****************************************************** -->
     <!-- Updates local code with cvs changes                    -->
