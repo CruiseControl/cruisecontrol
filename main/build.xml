@@ -120,7 +120,7 @@
     <!-- **************************************************** -->
     <target name="compile" depends="init" description="Compiles source code">
         <javac srcdir="${src}" destdir="${classes}" classpathref="project.classpath" debug="true"
-         deprecation="true"/>
+         excludes="**/element/" deprecation="true"/>
         <copy todir="${classes}">
             <fileset dir="${src}" includes="**/*.properties"/>
         </copy>
@@ -135,7 +135,7 @@
     <target name="test" depends="init" description="Executes the unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}" />
-        <javac debug="on" srcdir="${test}" destdir="${classes}" classpathref="project.classpath" />
+        <javac debug="on" srcdir="${test}" destdir="${classes}" excludes="**/element/" classpathref="project.classpath" />
         <copy todir="${classes}">
             <fileset dir="${test}" includes="**/*.xml"/>
         </copy>
@@ -147,7 +147,7 @@
             <formatter type="plain" usefile="false" />
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${classes}" includes="**/*Test.class" />
+                <fileset dir="${classes}" includes="**/*Test.class" excludes="**/element/" />
             </batchtest>
         </junit>
     </target>
