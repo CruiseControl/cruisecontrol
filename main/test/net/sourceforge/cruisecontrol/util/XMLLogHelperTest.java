@@ -200,5 +200,24 @@ public class XMLLogHelperTest extends TestCase {
         assertEquals(true, successHelperParticipants.contains("username2"));
         assertEquals(false, successHelperParticipants.contains("notaperson"));
         assertEquals(true, successHelperParticipants.contains("user3@host.com"));
+
+        //test P4 changelist structure
+        Element ccElement = new Element("cruisecontrol");
+        Element modsElement = new Element("modifications");
+        Element cl1Element = new Element("changelist");
+        cl1Element.setAttribute("user", "user1");
+        Element cl2Element = new Element("changelist");
+        cl2Element.setAttribute("user", "user2");
+
+        modsElement.addContent(cl1Element);
+        modsElement.addContent(cl2Element);
+        ccElement.addContent(modsElement);
+
+        XMLLogHelper helper = new XMLLogHelper(ccElement);
+        Set p4Users = helper.getBuildParticipants();
+
+        assertEquals(true, p4Users.contains("user1"));
+        assertEquals(true, p4Users.contains("user2"));
+        assertEquals(false, p4Users.contains("notaperson"));
     }
 }
