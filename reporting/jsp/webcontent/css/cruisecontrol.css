@@ -15,9 +15,9 @@
 .tabs-selected { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; font-weight:bold; padding: 0em 2em; }
 .tabs-selected { border: inset; }
 
-.header-title { font-family:arial,helvetica,sans-serif; font-size:12pt; color:#000000; font-weight:bold; }
-.header-label { font-weight:bold; }
-.header-data { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#000000; }
+table.header { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#000000; }
+table.header th { text-align:left; vertical-align:top; white-space:nowrap; }
+table.header th.big { font-size:12pt; }
 
 .modifications-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .modifications-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
