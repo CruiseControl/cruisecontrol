@@ -8,6 +8,10 @@ Schedule
 ----------------------
 * Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
 
+NavigationTag
+----------------------
+* Fixed bug to allow "L" in build label - Patch by Christopher Lenz
+
 CruiseControl Release Notes - 2.0.2
 
 JMX/PROJECT CONTROLLER
