@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * @author jfredrick
@@ -97,17 +96,7 @@ public class UtilTest extends TestCase {
             Util.convertToMillis(elevenFifteenPM));
     }
 
-    public void testGetMidnight() {
-        Calendar midnight = Calendar.getInstance();
-        midnight.set(Calendar.HOUR, 0);
-        midnight.set(Calendar.MINUTE, 0);
-        midnight.set(Calendar.SECOND, 0);
-        midnight.set(Calendar.MILLISECOND, 0);
-        Date midnightToday = midnight.getTime();
-        assertEquals(midnightToday, Util.getMidnight());
-    }
-
-  public void testFormatTime() {
+    public void testFormatTime() {
       long fiveSeconds = 5 * 1000;
       long oneHour = 60 * Util.ONE_MINUTE;
       long oneHourFiftyNineMinutes = 2 * oneHour - Util.ONE_MINUTE;
@@ -123,5 +112,5 @@ public class UtilTest extends TestCase {
       assertEquals(
           negativeTime,
           Util.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
-  }
+    }
 }
