@@ -36,14 +36,33 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.text.ParseException;
+import java.util.Iterator;
+import java.util.List;
+import junit.framework.TestCase;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 
 public class LogTest extends TestCase {
+    private final List filesToClear = new ArrayList();
+
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+    }
 
     public void testCreatingLog() {
         //Cannot create a Log instance with a null project name
@@ -87,5 +106,57 @@ public class LogTest extends TestCase {
     public void testParseLabelFromLogFileName() {
         assertEquals("build.1", Log.parseLabelFromLogFileName("log20040812010101Lbuild.1.xml"));
         assertEquals("", Log.parseLabelFromLogFileName("log20040812010101.xml"));
+    }
+
+    public void testXMLEncoding()
+            throws CruiseControlException, IOException, JDOMException {
+        String[] encodings = { "UTF-8", "ISO-8859-1", null };
+
+        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        //XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+        XMLOutputter outputter = new XMLOutputter("  ", true);
+        outputter.setTrimAllWhite(true);
+        for (int i = 0;  i < encodings.length; i++) {
+            Log log = new Log("testXMLEncoding");
+            if (encodings[i] != null) {
+                log.setLogXmlEncoding(encodings[i]);
+            }
+
+            // Add a minimal buildLog
+            log.addContent(getBuildLogInfo());
+            Element build = new Element("build");
+            log.addContent(build);
+            log.addContent(new Element("modifications"));
+
+            // Add 8-bit characters 
+            build.setText("Something with special characters: ÆØÅ");
+
+            // Write and read the file
+            log.writeLogFile(new Date());
+            File logFile = log.getLastLogFile();
+            filesToClear.add(logFile);
+            Element actualContent = builder.build(logFile).getRootElement();
+
+            // content.toString() only returns the root element but not the
+            // children: [Element: <cruisecontrol/>] 
+            // Use an XMLOutputter (that trims whitespace) instead.
+            String expected = outputter.outputString(log.getContent());
+            String actual = outputter.outputString(actualContent);
+            assertEquals(expected, actual);
+        }
+    }
+
+    // Get a minimal info element for the buildLog
+    private Element getBuildLogInfo() throws JDOMException, IOException {
+        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        String infoXML = "<info><property name=\"label\" value=\"\"/>"
+                + "<property name=\"lastbuildtime\" value=\"\"/>"
+                + "<property name=\"lastgoodbuildtime\" value=\"\"/>"
+                + "<property name=\"lastbuildsuccessful\" value=\"\"/>"
+                + "<property name=\"buildfile\" value=\"\"/>"
+                + "<property name=\"buildtarget\" value=\"\"/>"
+                + "</info>";
+        Element info = builder.build(new StringReader(infoXML)).getRootElement();
+        return (Element) info.clone();
     }
 }
