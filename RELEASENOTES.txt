@@ -16,6 +16,7 @@ Multiple Classes
 ---------------------
 * added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.
 * Add an EmptyLabelIncrementer - Patch by Josh Knowles
+* New functionality to allow for creation of a "build artifacts" directory. This directory can have artifacts published to it - things like jars that were built, documents that were published, etc. Then, these artifacts can be linked to from the CC webapp. 
 
 DefaultLabelIncrementer & CVSLabelIncrementer
 ----------------------
@@ -30,6 +31,10 @@ Schedule
 ----------------------
 * Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
 * Fixed a bug where a time builder wouldn't run if the time was set to midnight. - Patch by Richard Lewis-Shell
+
+ProjectXMLHelper
+----------------------
+* ModificationSet is now pluggable. Defaults to the standard modification set, but a different implementation could be specified in your config.xml, so long as it extends ModificationSet. Thanks to Mike Royal, via Mike Mason.
 
 NavigationTag
 ----------------------
