@@ -58,8 +58,8 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
 
     private String separator = ".";
     
-    private static String defaultPrefix = "build";
-    private static int defaultSuffix = 1;
+    private String defaultPrefix = "build";
+    private int defaultSuffix = 1;
 
     /**
      * Increments the label when a successful build occurs.
@@ -124,6 +124,13 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
 
     public String getDefaultLabel() {
         return defaultPrefix + separator + defaultSuffix;
+    }
+
+    public void setDefaultLabel(String label) {
+        final int separatorIndex = label.lastIndexOf(separator);
+        defaultPrefix = label.substring(0, separatorIndex);
+        String suffix = label.substring( separatorIndex + 1, label.length());
+        defaultSuffix = Integer.parseInt(suffix);
     }
 
 }

@@ -26,6 +26,10 @@ CruiseControlTagSupport
 ----------------------
 * minor change for compatibility with jdk 1.3 - Patch by Thai Thanh Ha
 
+DefaultLabelIncrementer
+----------------------
+* added ability to set a default label - Patch by Garrick Olson
+
 Email Publishers (LinkEmailPublisher and HTMLEmailPublisher)
 ----------------------
 * failure subelements now contain an optional attribute "reportWhenFixed" to specify if the email address should be sent mail when the build is fixed.
