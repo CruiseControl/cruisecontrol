@@ -76,10 +76,6 @@ public class MasterBuild {
     //build properties
     protected String _propsFileName;
 
-    //xml merge stuff
-    private Vector _auxLogFiles = new Vector();
-    private String _today;
-
     private String _projectName;
     
     protected BuildInfo info;
@@ -361,8 +357,6 @@ public class MasterBuild {
             return;
         }
 
-        _today = proj.getProperty("TODAY");
-
         info.setUserList(proj.getProperty(ModificationSet.USERS));
 
         info.setLastBuildSuccessful(false);
@@ -371,20 +365,6 @@ public class MasterBuild {
         if (successful == true) {
             info.setLastBuildSuccessful(true);
             info.setLastGoodBuild(info.getLastBuild());
-        }
-
-        //get the exact filenames from the ant properties that tell us what aux xml files we have...
-        _auxLogFiles = new Vector();
-        for (Iterator e = props.getAuxLogProperties().iterator(); 
-             e.hasNext();) {
-            String propertyName = (String)e.next();
-            String fileName = proj.getProperty(propertyName);
-            if (fileName == null) {
-                log.error("Auxillary Log File Property '" + propertyName + "' not set.");
-            } else {
-                _auxLogFiles.add(fileName);
-            }            
-
         }
 
         FileMerger merger = new FileMerger(proj,props.getAuxLogProperties());
