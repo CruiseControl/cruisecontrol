@@ -47,6 +47,10 @@ cruisecontrol.sh:
 ----------------------
 * Handle path conversion under cygwin. Patch by John Woodward
 
+CurrentBuildStatus*:
+----------------------
+* Change all the CurrentBuildStatus plug-ins to create the directory if it doesn't exist. (CC-129/CC-133) Patch by Eric Pugh
+
 CVS:
 ----------------------
 * Will now work without a localworkingcopy. Patch by Jeff Ramsdale

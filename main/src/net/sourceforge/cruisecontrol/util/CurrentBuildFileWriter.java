@@ -81,7 +81,10 @@ public final class CurrentBuildFileWriter {
         File file = new File(fileName);
         File dir = file.getParentFile();
         if (dir != null && !dir.isDirectory()) {
-            throw new CruiseControlException("directory for file " + fileName + " doesn't exist.");
+            if (!dir.mkdirs()) {
+                String message = "directory for file " + fileName + " doesn't exist and couldn't be created.";
+                throw new CruiseControlException(message);
+            }
         }
     }
 }

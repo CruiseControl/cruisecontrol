@@ -75,11 +75,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         bootstrapper.validate();
 
         bootstrapper.setFile("holycowbatman" + File.separator + "filename");
-        try {
-            bootstrapper.validate();
-            fail("validate should fail if parent directory doesn't exist");
-        } catch (CruiseControlException cce) {
-        }
+        bootstrapper.validate();
     }
 
     public void testBootstrap() throws CruiseControlException, IOException {

@@ -75,11 +75,7 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
         publisher.validate();
 
         publisher.setFile("holycowbatman" + File.separator + "filename");
-        try {
-            publisher.validate();
-            fail("validate should fail if parent directory doesn't exist");
-        } catch (CruiseControlException cce) {
-        }
+        publisher.validate();
     }
 
     public void testWriteFile() throws CruiseControlException, IOException {
