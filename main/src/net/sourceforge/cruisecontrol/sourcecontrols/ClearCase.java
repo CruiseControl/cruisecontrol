@@ -41,6 +41,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 import org.apache.log4j.Category;
 
@@ -53,42 +54,29 @@ import org.apache.log4j.Category;
  * @author Eric Lefevre
  * @author Ralf Krakowski
  */
-public class ClearCase extends SourceControlElement {
+public class ClearCase implements SourceControl {
 
-    /** enable logging for this class */
-    private static Category log = Category.getInstance(ClearCase.class.getName());
+  /** enable logging for this class */
+  private static Category log = Category.getInstance(ClearCase.class.getName());
 
-  /**
-   * Set of the authors that modified files. With Clear Case, it corresponds
-     * to the user names.
-   */
-  private Set _emailNames = new HashSet();
+  private Hashtable _properties = new Hashtable();
 
-  /**
-   *  This date indicates the most recent modification time.
-   */
-  private Date _lastModified;
+  private String _property;
 
-  /**
-   *  The path of the clear case view
-   */
+  private String _propertyOnDelete;
+
+  /**  The path of the clear case view */
   private String _viewPath;
 
-  /**
-   *  The branch to check for modifications
-   */
+  /**  The branch to check for modifications */
   private String _branch = null;
   private boolean _recursive = true;
 
-  /**
-   *  Date format required by commands passed to Clear Case
-   */
+  /**  Date format required by commands passed to Clear Case */
   final static SimpleDateFormat IN_DATE_FORMAT =
      new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
-  /**
-   *  Date format returned in the output of Clear Case commands.
-   */
+  /**  Date format returned in the output of Clear Case commands. */
   final static SimpleDateFormat OUT_DATE_FORMAT =
      new SimpleDateFormat("yyyyMMdd.HHmmss");
 
@@ -126,28 +114,16 @@ public class ClearCase extends SourceControlElement {
     _recursive = b;
   }
 
-  /**
-   *  Returns a Set of email addresses. since Clear Case doesn't track actual
-   *  email addresse, we just return the usernames, which may correspond to
-   *  emails ids.
-   *
-   *@return
-   */
-  public Set getEmails() {
-    return _emailNames;
+  public void setProperty(String property) {
+    _property = property;
   }
 
-  /**
-   *  Gets the last modified time for the set of files queried in the {@link
-   *  #getHistory} method.
-   *
-   *@return  the lastest revision time.
-   */
-  public long getLastModified() {
-    if (_lastModified == null) {
-      return 0;
-    }
-    return _lastModified.getTime();
+  public void setPropertyOnDelete(String propertyOnDelete) {
+    _propertyOnDelete = propertyOnDelete;
+  }
+
+  public Hashtable getProperties() {
+    return _properties;
   }
 
   /**
@@ -160,7 +136,7 @@ public class ClearCase extends SourceControlElement {
    *@return  the list of modifications, an empty (not null) list if no
    *      modifications.
    */
-  public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+  public List getModifications(Date lastBuild, Date now, long quietPeriod) {
     String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
     /*
      * let's try a different clearcase command--this one just takes
@@ -281,7 +257,6 @@ public class ClearCase extends SourceControlElement {
     Modification mod = new Modification();
 
     mod.userName = username;
-    _emailNames.add(mod.userName);
 
     elementName = elementName.substring(elementName.indexOf(File.separator));
     String fileName = elementName.substring(0, elementName.indexOf("@@"));
@@ -291,7 +266,6 @@ public class ClearCase extends SourceControlElement {
 
     try {
       mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
-      updateLastModified(mod.modifiedTime);
     } catch (ParseException e) {
       mod.modifiedTime = null;
     }
@@ -300,19 +274,12 @@ public class ClearCase extends SourceControlElement {
 
     mod.comment = comment;
 
-    return mod;
-  }
+    if(_property != null)
+        _properties.put(_property, "true");
 
-  /**
-   *  Updates the lastModified date if necessary (new date is after the current
-   *  lastModified date).
-   *
-   *@param  newPossible the new possible lastModified date
-   */
-  private void updateLastModified(Date newPossible) {
-    if (_lastModified == null || _lastModified.before(newPossible)) {
-      _lastModified = newPossible;
-    }
+    //TO DO: check if operation type is a delete
+
+    return mod;
   }
 
   /**
