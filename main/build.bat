@@ -39,9 +39,9 @@ REM ############################################################################
 set ANT_CLASSPATH=lib/ant.jar;lib/optional.jar;lib/junit.jar;lib/xerces.jar
 echo %ANT_CLASSPATH%
 
-if "%JAVA_HOME%" == "" goto noJavaFound
+if not defined JAVA_HOME goto noJavaFound
 
-if not "%JIKESPATH%" == "" goto useJikes
+if defined JIKESPATH goto useJikes
 
 echo Using Javac!
 if exist "%JAVA_HOME%\lib\tools.jar" goto useModern
@@ -64,7 +64,7 @@ echo Using Jikes!
 goto exec
 
 :exec
-java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.Main %1 %2 %3 %4 %5 %6 %7 %8 %9
+"%JAVA_HOME%\bin\java" -classpath "%ANT_CLASSPATH%" -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.Main %*
 goto end
 
 :noJavaFound
