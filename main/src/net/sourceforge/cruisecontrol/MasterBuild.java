@@ -294,10 +294,12 @@ public class MasterBuild {
     }
 
     private void sendBuildEmail(String message) {
+/*
         CruiseControlMailer mailer = new CruiseControlMailer(props.getMailhost(),
                                                              props.getReturnAddress());
         mailer.emailReport(props, info.getUserList(), message,
                            info.getLogfile(), info.isLastBuildSuccessful());
+*/
     }
 
     protected long getSleepTime(Date startTime) {
