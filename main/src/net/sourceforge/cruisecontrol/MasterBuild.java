@@ -43,11 +43,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static String _today;
 
     //email stuff
-    private String _emailFrom;
     private String _mailhost;
     private String _returnAddress;
-    private String _buildmaster;
-    private String _notifyOnFailure;
+    private Set _buildmaster;
+    private Set _notifyOnFailure;
     private static String _projectName;
     private boolean _useEmailMap;
     private String _emailmapFilename;
@@ -182,11 +181,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             _debug = props.getProperty("debug").equals("true");
             _verbose = props.getProperty("verbose").equals("true");
             _mailhost = props.getProperty("mailhost");
-            _emailFrom = props.getProperty("emailFrom");
             _servletURL = props.getProperty("servletURL");
             _returnAddress = props.getProperty("returnAddress");
-            _buildmaster = props.getProperty("buildmaster");
-            _notifyOnFailure = props.getProperty("notifyOnFailure");
+            _buildmaster = getSetFromString(props.getProperty("buildmaster"));
+            _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
             _currentBuildStatusFile = props.getProperty("currentBuildStatusFile");
             _antFile = props.getProperty("antfile");
             _antTarget = props.getProperty("target");
@@ -222,7 +220,19 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
                 loadProperties();
 
-                Main.mainNoExit(getCommandLine(buildcounter));
+                //Set the security manager to one which will prevent 
+                // the Ant Main class from killing the VM.
+                SecurityManager oldSecMgr = System.getSecurityManager();
+                System.setSecurityManager(new NoExitSecurityManager());
+                try {
+
+                    Main.main(getCommandLine(buildcounter));
+                } catch (ExitException ee) {
+                    //Ignoring the exit exception from Main.
+                } finally {
+                    //Reset the SecurityManager to the old one.
+                    System.setSecurityManager(oldSecMgr);
+                }
 
                 if (_buildNotNecessary) {
                     log("Sleeping for " + (_buildInterval/1000.0)
@@ -230,12 +240,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                     Thread.sleep(_buildInterval);
                 } else {
                     buildcounter++;
+                    Set emails = getEmails(_userList);
                     if (_lastBuildSuccessful) {
-                        emailReport(_userList, _projectName + " Build " + _label + " Successful");
+                        emailReport(emails, _projectName + " Build " + _label + " Successful");
                         incrementLabel();
                         writeBuildInfo();
                     } else {
-                        emailReport(_userList, _projectName + " Build Failed");
+                        emailReport(emails, _projectName + " Build Failed");
                         log("Sleeping for " + (_buildInterval/1000.0)
                             + " seconds.");
                         Thread.sleep(_buildInterval);
@@ -461,53 +472,99 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     }
 
-
-    private void emailReport(String list, String subject) {
-
-        File emailmapFile = new File(_emailmapFilename);
-        Properties emailmap = new Properties();
-
-        //if we're using the email map, we should figure out what emails the source control usernames map to.
-		if(_useEmailMap) {
-		   try {
-		      emailmap.load(new FileInputStream(emailmapFile));
-	       } catch(Exception e) {
-		      log("error reading email map file: " + _emailmapFilename);
-		      e.printStackTrace();
-		   }
-
-		   StringTokenizer st = new StringTokenizer(list, ",");
-		   StringBuffer newemails = new StringBuffer();
-		   while(st.hasMoreTokens()) {
-			  String mapped = emailmap.getProperty(st.nextToken().trim());
-			  if(mapped != null) {
-		         newemails.append(emailmap.getProperty(st.nextToken().trim()));
-		         if(st.hasMoreTokens())
-		            newemails.append(",");
-			  }
-	       }
-
-		   list = newemails.toString();
-		   if(list.endsWith(","))
-		      list = list.substring(0, list.length() - 1);
-		}
-
-        String mailToNames = null;
+    private Set getEmails(String list) {
+        //The buildmaster is always included in the email names.
+        Set emails = new HashSet(_buildmaster);
         if (_debug) {
-            mailToNames = _buildmaster;
-        } else {
-            mailToNames = _buildmaster + "," + list;
+            log("List of emails is: " + list);
         }
+        
+
+        //If the build failed then the failure notification emails are included.
+        if (!_lastBuildSuccessful) {
+            emails.addAll(_notifyOnFailure);
+        }
+        
+        //we aren't using the email map, so the list provided is real email names.
+        if (!_debug) {
+            emails.addAll(getSetFromString(list));
+        }
+
+        return translateAliases(emails);
+    }
+
+    private void emailReport(Set emails, String subject) {
 
         String message = "view results here -> " + _servletURL + "?"
                          + _logFile.substring(_logFile.lastIndexOf(File.separator)+1,_logFile.lastIndexOf("."));
         try {
-            Mailer mailer = new Mailer(_mailhost, mailToNames, _emailFrom);
+            Mailer mailer = new Mailer(_mailhost, emails, _returnAddress);
             mailer.sendMessage(subject, message);
         } catch (MessagingException be) {
             System.out.println("unable to send email.");
             be.printStackTrace();
         }
+    }
+
+    /**
+     * Forms a set of unique words/names from the comma
+     * delimited list provided. Maybe empty, never null.
+     * 
+     * @param commaDelim String containing a comma delimited list of words,
+     *                   e.g. "paul,Paul, Tim, Alden,,Frank".
+     * @return Set of words; maybe empty, never null.
+     */
+    private Set getSetFromString(String commaDelim) {
+        Set elements = new TreeSet();
+        if (commaDelim == null) {
+            return elements;
+        }
+
+        StringTokenizer st = new StringTokenizer(commaDelim, ", ");
+        while (st.hasMoreTokens()) {
+            String mapped = st.nextToken().trim();
+            elements.add(mapped);
+        }
+
+        return elements;
+    }
+
+    private Set translateAliases(Set possibleAliases) {
+        if (!_useEmailMap) {
+            return possibleAliases;
+        }
+
+        Set returnAddresses = new HashSet();
+        boolean aliasPossible = false;
+        for (Iterator iter=possibleAliases.iterator(); iter.hasNext();) {
+            String nextName = (String)iter.next();
+            if (nextName.indexOf("@") > -1) {
+                //The address is already fully qualified.
+                returnAddresses.add(nextName);
+            } else {
+                File emailmapFile = new File(_emailmapFilename);
+                Properties emailmap = new Properties();
+                try {
+                    emailmap.load(new FileInputStream(emailmapFile));
+                } catch (Exception e) {
+                    log("error reading email map file: " + _emailmapFilename);
+                    e.printStackTrace();
+                }
+
+                String mappedNames = emailmap.getProperty(nextName);
+                if (mappedNames == null) {
+                    returnAddresses.add(nextName);
+                } else {
+                    returnAddresses.addAll(getSetFromString(mappedNames));
+                    aliasPossible = true;
+                }
+            }
+        }
+        if (aliasPossible) {
+            returnAddresses = translateAliases(returnAddresses);
+        }
+        
+        return returnAddresses;
     }
 
     /**
