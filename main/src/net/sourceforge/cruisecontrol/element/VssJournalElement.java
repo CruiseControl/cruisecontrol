@@ -62,28 +62,28 @@ import org.apache.tools.ant.Project;
  *  @author Jonny Boman
  */
 public class VssJournalElement extends SourceControlElement {
-    
-    public static final SimpleDateFormat VSS_OUT_FORMAT = 
+
+    public static final SimpleDateFormat VSS_OUT_FORMAT =
         new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma");
-    
+
     private String _ssDir = "$/";
     private String _journalFile;
     private String _property;
     private String _propertyOnDelete;
-    
-    private long _lastModified = 0L;
+
+    private long _lastModified;
     private Date _lastBuild;
-    
+
     private ArrayList _modifications = new ArrayList();
     private Set _emails = new HashSet();
     private List moListVssJournalDateFormat = new ArrayList();
-    
+
     public VssJournalElement() {
         // Add the default date format
         VssJournalDateFormat oVssJournalDateFormat = createVssjournaldateformat();
         oVssJournalDateFormat.setFormat("MM/dd/yy hh:mma");
     }
-    
+
     /**
      * Add a nested element for date format interpretation from the journal file.
      * The date and time parameters are fed as a "date time" string (a single space separates date from time)
@@ -103,7 +103,7 @@ public class VssJournalElement extends SourceControlElement {
     public void setSsDir(String s) {
         _ssDir = "$" + s;
     }
-    
+
     /**
      *  Full path to journal file.  Example: <code>c:/vssdata/journal/journal.txt</code>
      *
@@ -112,7 +112,7 @@ public class VssJournalElement extends SourceControlElement {
     public void setJournalFile(String s) {
         _journalFile = s;
     }
-    
+
     /**
      *  Choose a property to be set if the project has modifications if we have a
      *  change that only requires repackaging, i.e. jsp, we don't need to recompile
@@ -123,18 +123,18 @@ public class VssJournalElement extends SourceControlElement {
     public void setProperty(String s) {
         _property = s;
     }
-    
+
     public void setPropertyOnDelete(String s) {
         _propertyOnDelete = s;
     }
-    
+
     /**
      *  Sets the _lastBuild date. Protected so it can be used by tests.
      */
     protected void setLastBuildDate(Date lastBuild) {
         _lastBuild = lastBuild;
     }
-    
+
     /**
      *  For parent modificationset to find out the time of last modification for
      *  this project
@@ -144,7 +144,7 @@ public class VssJournalElement extends SourceControlElement {
     public long getLastModified() {
         return _lastModified;
     }
-    
+
     /**
      *  Returns a Set of usernames that made any modification since the last good
      *  build.
@@ -154,7 +154,7 @@ public class VssJournalElement extends SourceControlElement {
     public Set getEmails() {
         return _emails;
     }
-    
+
     /**
      *  Returns a List of modifications to this project since the last good
      *  build.
@@ -164,7 +164,7 @@ public class VssJournalElement extends SourceControlElement {
     public List getModifications() {
         return _modifications;
     }
-    
+
     /**
      *  Do the work... I'm writing to a file since VSS will start wrapping lines
      * if I read directly from the stream.
@@ -178,10 +178,10 @@ public class VssJournalElement extends SourceControlElement {
         _lastBuild = lastBuild;
         _modifications.clear();
         _emails.clear();
-        
+
         try {
             BufferedReader br = new BufferedReader(new FileReader(_journalFile));
-            
+
             String s = br.readLine();
             while (s != null) {
                 ArrayList entry = new ArrayList();
@@ -196,21 +196,21 @@ public class VssJournalElement extends SourceControlElement {
                     s = br.readLine();
                 }
             }
-            
+
             br.close();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         if (_property != null && _modifications.size() > 0) {
             getAntTask().getProject().setProperty(_property, "true");
         }
-        
+
         log("Found "+_modifications.size()+" modified files");
         return _modifications;
     }
-    
+
     /**
      *  pretty logging
      *
@@ -221,22 +221,22 @@ public class VssJournalElement extends SourceControlElement {
         log("User: " + mod.userName + " Date: " + mod.modifiedTime, Project.MSG_VERBOSE);
         log("", Project.MSG_VERBOSE);
     }
-    
+
     /**
      *  Parse individual VSS history entry
      *
      *@param  historyEntry
      */
     protected void handleEntry(List historyEntry) {
-        
+
         Modification mod = new Modification();
         String nameAndDateLine = (String) historyEntry.get(2);
         mod.userName = parseUser(nameAndDateLine);
         mod.modifiedTime = parseDate(nameAndDateLine);
-        
+
         String folderLine = (String) historyEntry.get(0);
         String fileLine = (String) historyEntry.get(3);
-        
+
         if(!isInSsDir(folderLine)) {
             // We are only interested in modifications to files in the specified ssdir
             return;
@@ -271,7 +271,7 @@ public class VssJournalElement extends SourceControlElement {
             mod.folderName = folderLine;
             mod.fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
             mod.comment = parseComment(historyEntry);
-            
+
             if (fileLine.endsWith("added")) {
                 mod.type = "add";
             } else if (fileLine.endsWith("deleted")) {
@@ -282,21 +282,21 @@ public class VssJournalElement extends SourceControlElement {
                 mod.type = "branch";
             }
         }
-        
+
         if (_propertyOnDelete != null && "delete".equals(mod.type)) {
             getAntTask().getProject().setProperty(_propertyOnDelete, "true");
         }
-        
+
         if (_property != null) {
             getAntTask().getProject().setProperty(_property, "true");
         }
-        
+
         // Add the modification and the user's email
         _modifications.add(mod);
         _emails.add(mod.userName);
         logModification(mod);
     }
-    
+
     /**
      *  parse comment from vss history (could be multiline)
      *
@@ -313,7 +313,7 @@ public class VssJournalElement extends SourceControlElement {
         }
         return comment.toString().trim();
     }
-    
+
     /**
      * Parse date/time from VSS file history
      *
@@ -338,15 +338,16 @@ public class VssJournalElement extends SourceControlElement {
             + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
             + dateAndTime.substring(indexOfColon + 2);
         }
-        dateAndTime = dateAndTime.substring(5);
-        String sDate = dateAndTime.substring(0, dateAndTime.indexOf("Time:")).trim();
-        String sTime = dateAndTime.substring(dateAndTime.indexOf("Time:")+5).trim();
-        // If it is a am/pm it seems to end with just "a" or "p" so we add the "m"
-        if (sTime.endsWith("a")
-        || sTime.endsWith("p")) {
-            sTime += "m";
+        try {
+            Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime + "m");
+
+            //(PENDING) This seems out of place
+            if (lastModifiedDate.getTime() < _lastModified) {
+                _lastModified = lastModifiedDate.getTime();
             }
-        dateAndTime = sDate+" "+sTime;
+
+            return lastModifiedDate;
+        } catch (ParseException pe) {
             // The standard parsing failed so we see if there are any suggestions
             // on how to interpret the date, but first we extract date and time into one
             // string with just one space separating the date from the time
@@ -364,16 +365,12 @@ public class VssJournalElement extends SourceControlElement {
                 }
             }
             if (oDate == null) {
-            throw new org.apache.tools.ant.BuildException("vssjournalelement: Could not parse date \""+dateAndTime+"\" in VssJournal file");
-        }
-        //(PENDING) This seems out of place
-        if (oDate.getTime() > _lastModified) {
-            _lastModified = oDate.getTime();
+                throw new org.apache.tools.ant.BuildException("Could not parse date in VssJournal file");
             }
             return oDate;
         }
     }
-    
+
     /**
      *  Parse username from VSS file history
      *
@@ -385,15 +382,15 @@ public class VssJournalElement extends SourceControlElement {
         try {
             String userName = userLine.substring(
             START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();
-            
+
             return userName;
         } catch (StringIndexOutOfBoundsException e) {
             System.err.println("Unparsable string was: " + userLine);
             throw e;
         }
-        
+
     }
-    
+
     /**
      *  Returns the substring of the given string from the last "/" character.
      *  UNLESS the last slash character is the last character or the string
@@ -407,7 +404,7 @@ public class VssJournalElement extends SourceControlElement {
             return input;
         }
     }
-    
+
     /**
      *  Returns the substring of the given string from the beginning to the last "/" character
      *  or till the end of the string if no slash character exists.
@@ -420,7 +417,7 @@ public class VssJournalElement extends SourceControlElement {
             return input;
         }
     }
-    
+
     /**
      *  Determines if the given folder is in the ssdir specified for this VssJournalElement.
      */
@@ -431,15 +428,15 @@ public class VssJournalElement extends SourceControlElement {
             return false;
         }
     }
-    
+
     /**
      *  Determines if the date given is before the last build for this VssJournalElement.
      */
     protected boolean isBeforeLastBuild(Date date) {
         return date.before(_lastBuild);
     }
-    
-    
+
+
     public static class VssJournalDateFormat {
         private DateFormat moDateFormat = null;
         private String msFormat = null;
