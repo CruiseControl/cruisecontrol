@@ -64,8 +64,8 @@ public class AntBuilderTest extends TestCase {
         builder.setBuildFile("buildfile");
         Hashtable properties = new Hashtable();
         properties.put("label", "200.1.23");
-        String[] resultDebug = { "java","org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-Dlabel=200.1.23","-debug","-verbose","-buildfile","buildfile","target"};
-        String[] resultInfo = { "java","org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-Dlabel=200.1.23","-buildfile","buildfile","target"};
+        String[] resultDebug = { "java","org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-debug","-verbose","-buildfile","buildfile","target"};
+        String[] resultInfo = { "java","org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-buildfile","buildfile","target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         log.getRoot().setPriority(Priority.INFO);
