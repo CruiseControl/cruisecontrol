@@ -36,21 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import junit.framework.TestCase;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.io.IOException;
-import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.Servlet;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
-import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
+import net.sourceforge.cruisecontrol.mock.MockPageContext;
 
 public class NavigationTagTest extends TestCase {
 

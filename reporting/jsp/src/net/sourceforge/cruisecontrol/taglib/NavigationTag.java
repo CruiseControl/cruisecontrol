@@ -83,7 +83,8 @@ public class NavigationTag implements Tag, BodyTag {
         String label = "";
         if (fileName.lastIndexOf(LABEL_SEPARATOR) > -1) {
             dateString = fileName.substring(3, fileName.indexOf(LABEL_SEPARATOR));
-            label = " (" + fileName.substring(fileName.indexOf(LABEL_SEPARATOR) + 1, fileName.lastIndexOf(".xml")) + ")";
+            label = " (" + fileName.substring(fileName.indexOf(LABEL_SEPARATOR) + 1, fileName.lastIndexOf(".xml"))
+                    + ")";
         } else {
             dateString = fileName.substring(3, fileName.lastIndexOf(".xml"));
         }

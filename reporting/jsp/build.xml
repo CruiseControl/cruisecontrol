@@ -72,7 +72,7 @@
         </checkstyle>
     </target>
 
-    <target name="compile" depends="init">
+    <target name="compile" depends="init,checkstyle">
         <javac srcdir="${src}" destdir="${classes}" debug="true">
             <classpath>
                 <pathelement location="${lib}/servlet.jar"/>
