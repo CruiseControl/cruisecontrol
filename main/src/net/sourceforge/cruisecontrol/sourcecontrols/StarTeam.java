@@ -40,6 +40,7 @@ import com.starbase.starteam.*;
 import com.starbase.util.OLEDate;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 
 import java.util.*;
@@ -113,6 +114,9 @@ public class StarTeam implements SourceControl {
 
     public Hashtable getProperties() {
         return _properties;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
     /**
@@ -303,6 +307,13 @@ public class StarTeam implements SourceControl {
 
 
         modifications.add(mod);
+        if(status.equals("deleted")) {
+            if(_propertyOnDelete != null)
+                _properties.put(_propertyOnDelete, "true");
+        }
+        if(_property != null) {
+            _properties.put(_property, "true");
+        }
     }
 
 }

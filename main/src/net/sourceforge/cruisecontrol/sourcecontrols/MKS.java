@@ -39,6 +39,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
@@ -161,6 +162,9 @@ public class MKS implements SourceControl {
 
     public Hashtable getProperties() {
         return _properties;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
     /**
@@ -344,8 +348,14 @@ public class MKS implements SourceControl {
 
             if (stateKeyword.equalsIgnoreCase(MKS_REVISION_DELETED)) {
                 nextModification.type = "deleted";
+                if( _propertyOnDelete != null )
+                    _properties.put(_propertyOnDelete, "true");
+                if(_property != null)
+                    _properties.put(_property, "true");
             } else {
                 nextModification.type = "modified";
+                if(_property != null)
+                    _properties.put(_property, "true");
             }
 
             mods.add(nextModification);
