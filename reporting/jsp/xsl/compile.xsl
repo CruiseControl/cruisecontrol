@@ -35,8 +35,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
-<xsl:stylesheet 
-    version="1.0" 
+<xsl:stylesheet
+    version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns="http://www.w3.org/TR/html4/strict.dtd" >
 
@@ -66,37 +66,37 @@
                 </tr>
                 <xsl:if test="count($javac.error.messages) > 0">
                     <tr>
-                        <td class="compile-error-data">
-                            <pre>
-                                <xsl:apply-templates select="$javac.error.messages"/>
-                            </pre>
+                        <td>
+                           <pre class="compile-error-data">
+                            <xsl:apply-templates select="$javac.error.messages"/>
+                           </pre>
                         </td>
                     </tr>
                 </xsl:if>
                 <xsl:if test="count($javac.warn.messages) > 0">
                     <tr>
-                        <td class="compile-data">
-                            <pre>
-                                <xsl:apply-templates select="$javac.warn.messages"/>
-                            </pre>
+                        <td>
+                           <pre class="compile-data">
+                            <xsl:apply-templates select="$javac.warn.messages"/>
+                           </pre>
                         </td>
                     </tr>
                 </xsl:if>
                 <xsl:if test="count($ejbjar.error.messages) > 0">
                     <tr>
-                        <td class="compile-error-data">
-                            <pre>
-                                <xsl:apply-templates select="$ejbjar.error.messages"/>
-                            </pre>
+                        <td>
+                           <pre class="compile-error-data">
+                            <xsl:apply-templates select="$ejbjar.error.messages"/>
+                           </pre>
                         </td>
                     </tr>
                 </xsl:if>
                 <xsl:if test="count($ejbjar.warn.messages) > 0">
                     <tr>
-                        <td class="compile-warn-data">
-                            <pre>
-                                <xsl:apply-templates select="$ejbjar.warn.messages"/>
-                            </pre>
+                        <td>
+                           <pre class="compile-warn-data">
+                            <xsl:apply-templates select="$ejbjar.warn.messages"/>
+                           </pre>
                         </td>
                     </tr>
                 </xsl:if>
@@ -115,5 +115,5 @@
     <xsl:template match="message[@priority='warn']">
         <xsl:value-of select="text()"/><br/>
     </xsl:template>
-    
+
 </xsl:stylesheet>
