@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -83,9 +84,10 @@ public class FileSystemTest extends TestCase {
 
         try {
             fs.validate();
-            assertTrue(true);
         } catch (CruiseControlException e) {
             fail("FileSystem should not throw exceptions when required attributes are set.");
+        } finally {
+            Util.deleteFile(tempDirectory);
         }
     }
 
@@ -100,72 +102,70 @@ public class FileSystemTest extends TestCase {
                 "filesystemtest" + System.currentTimeMillis());
         assertTrue(tempDirectory.mkdir());
 
-        //Setup a filesystem element that points at our test subdirectory...
-        FileSystem fsystem = new FileSystem();
-        fsystem.setFolder(tempDirectory.getAbsolutePath());
-
-        //Check for modifications...there shouldn't be any
-        Date startTime = new GregorianCalendar(2000, 0, 1).getTime();
-        Date timeOne = new Date(startTime.getTime() + 2000);
-        Date timeTwo = new Date(timeOne.getTime() + 2000);
-        Date timeThree = new Date(timeTwo.getTime() + 2000);
-        List mods = fsystem.getModifications(startTime, timeOne);
-        assertNotNull(mods);
-        assertEquals(0, mods.size());
-
-        //Write some files...
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-        tempFile.deleteOnExit();
-        writeContent(tempFile, "testing");
-        tempFile.setLastModified(timeOne.getTime());
-
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-        tempFile.deleteOnExit();
-        writeContent(tempFile, "testing 2");
-        tempFile.setLastModified(timeOne.getTime());
-
-        //Check for mods...there should be some, one for each file written.
-        mods = fsystem.getModifications(startTime, timeOne);
-        assertNotNull(mods);
-        assertEquals(2, mods.size());
-
-        //Write some new files...
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-        tempFile.deleteOnExit();
-        writeContent(tempFile, "testing 3");
-        tempFile.setLastModified(timeTwo.getTime());
-
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-        tempFile.deleteOnExit();
-        writeContent(tempFile, "testing 4");
-        tempFile.setLastModified(timeTwo.getTime());
-
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-        tempFile.deleteOnExit();
-        writeContent(tempFile, "testing 5");
-        tempFile.setLastModified(timeTwo.getTime());
-
-        //Checking for mods again should turn up only the new files.
-        mods = fsystem.getModifications(timeOne, timeTwo);
-        assertNotNull(mods);
-        assertEquals(3, mods.size());
-
-        //Create one modified file.
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-        tempFile.deleteOnExit();
-        writeContent(tempFile, "testing 6");
-        tempFile.setLastModified(timeThree.getTime());
-
-        //Checking for mods again should turn up only the one file
-        mods = fsystem.getModifications(timeTwo, timeThree);
-        assertNotNull(mods);
-        assertEquals(1, mods.size());
-
-        //Using this one mod, check the modification information for correctness.
-        Modification modification = (Modification) mods.get(0);
-        assertEquals(tempFile.getName(), modification.fileName);
-        assertEquals(getDirectory(tempFile).getPath(), modification.folderName);
-        assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
+        try {
+            //Setup a filesystem element that points at our test subdirectory...
+            FileSystem fsystem = new FileSystem();
+            fsystem.setFolder(tempDirectory.getAbsolutePath());
+    
+            //Check for modifications...there shouldn't be any
+            Date startTime = new GregorianCalendar(2000, 0, 1).getTime();
+            Date timeOne = new Date(startTime.getTime() + 2000);
+            Date timeTwo = new Date(timeOne.getTime() + 2000);
+            Date timeThree = new Date(timeTwo.getTime() + 2000);
+            List mods = fsystem.getModifications(startTime, timeOne);
+            assertNotNull(mods);
+            assertEquals(0, mods.size());
+    
+            //Write some files...
+            tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+            writeContent(tempFile, "testing");
+            tempFile.setLastModified(timeOne.getTime());
+    
+            tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+            writeContent(tempFile, "testing 2");
+            tempFile.setLastModified(timeOne.getTime());
+    
+            //Check for mods...there should be some, one for each file written.
+            mods = fsystem.getModifications(startTime, timeOne);
+            assertNotNull(mods);
+            assertEquals(2, mods.size());
+    
+            //Write some new files...
+            tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+            writeContent(tempFile, "testing 3");
+            tempFile.setLastModified(timeTwo.getTime());
+    
+            tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+            writeContent(tempFile, "testing 4");
+            tempFile.setLastModified(timeTwo.getTime());
+    
+            tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+            writeContent(tempFile, "testing 5");
+            tempFile.setLastModified(timeTwo.getTime());
+    
+            //Checking for mods again should turn up only the new files.
+            mods = fsystem.getModifications(timeOne, timeTwo);
+            assertNotNull(mods);
+            assertEquals(3, mods.size());
+    
+            //Create one modified file.
+            tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+            writeContent(tempFile, "testing 6");
+            tempFile.setLastModified(timeThree.getTime());
+    
+            //Checking for mods again should turn up only the one file
+            mods = fsystem.getModifications(timeTwo, timeThree);
+            assertNotNull(mods);
+            assertEquals(1, mods.size());
+    
+            //Using this one mod, check the modification information for correctness.
+            Modification modification = (Modification) mods.get(0);
+            assertEquals(tempFile.getName(), modification.fileName);
+            assertEquals(getDirectory(tempFile).getPath(), modification.folderName);
+            assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
+        } finally {
+            Util.deleteFile(tempDirectory);
+        }
     }
 
     private static File getDirectory(File file) {
