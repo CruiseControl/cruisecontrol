@@ -183,7 +183,7 @@ public class MavenBuilderTest extends TestCase {
                         + (mockFailure ? "BUILD FAILED" : "BUILD SUCCESSFUL")
                         + "\n");
             } else {
-                testScriptName = "/Users/jtf/Projects/cruisecontrol/main/_testmaven.sh";
+                testScriptName = "_testmaven.sh";
                 makeTestFile(
                     testScriptName,
                     "# This is a fake maven.sh\n"
