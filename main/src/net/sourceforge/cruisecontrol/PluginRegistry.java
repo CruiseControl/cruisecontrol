@@ -158,6 +158,9 @@ public final class PluginRegistry {
         registry.register(
             "vssbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
+        registry.register(
+            "starteambootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper");
         // sourcecontrols
         registry.register("buildstatus", "net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus");
         registry.register("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");

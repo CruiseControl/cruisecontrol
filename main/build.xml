@@ -259,7 +259,7 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${classes}" includes="**/StarTeamTest.class" />
+                <fileset dir="${classes}" includes="**/StarTeam*Test.class" />
             </batchtest>
         </junit>
 
