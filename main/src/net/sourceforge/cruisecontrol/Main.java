@@ -110,6 +110,10 @@ public class Main {
         Project project = readProject(parseProjectName(args));
 
         project.setLastBuild(parseLastBuild(args, project.getLastBuild()));
+
+        if (project.getLastSuccessfulBuild() == null){
+                project.setLastSuccessfulBuild(project.getLastBuild());
+        }
         project.setLabel(parseLabel(args, project.getLabel()));
         project.setName(parseProjectName(args));
         project.setConfigFileName(parseConfigFileName(args,

@@ -96,18 +96,41 @@
    In the interest of keeping config file sizes to a minimum, all plugins that ship with CruiseControl will be
    automatically registered.  Should you wish to use one of the registered plugin names with your own custom
    plugin class, you can just explicitly register the plugin name and that will override the default registration.
-   The following table outlines the default plugin registry.
+   </p><p>
+   The following tables outlines the default plugin registry:
    </p>
 
    <table>
-      <tr><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
+
+      <tr><td class="tableheader" colspan="3">Bootstrappers</td></tr>
+      <tr><td rowspan="5" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
       <tr><td>currentbuildstatusbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</td></tr>
       <tr><td>cvsbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</td></tr>
+      <tr><td>p4bootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</td></tr>
       <tr><td>vssbootstrapper</td><td>net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</td></tr>
+      
+      <tr><td>&nbsp;</td></tr>
+      <tr><td class="tableheader" colspan="3">Builders</td></tr>
+      <tr><td rowspan="3" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
       <tr><td>ant</td><td>net.sourceforge.cruisecontrol.builders.AntBuilder</td></tr>
+      
+      <tr><td>&nbsp;</td></tr>
+      <tr><td class="tableheader" colspan="3">Label Incrementers</td></tr>
+      <tr><td rowspan="3" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
       <tr><td>labelincrementer</td><td>net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</td></tr>
+      
+      <tr><td>&nbsp;</td></tr>
+      <tr><td class="tableheader" colspan="3">Publishers</td></tr>
+      <tr><td rowspan="7" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
       <tr><td>currentbuildstatuspublisher</td><td>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher</td></tr>
       <tr><td>email</td><td>net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</td></tr>
+      <tr><td>htmlemail</td><td>net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</td></tr>
+      <tr><td>execute</td><td>net.sourceforge.cruisecontrol.publishers.ExecutePublisher</td></tr>
+      <tr><td>scp</td><td>net.sourceforge.cruisecontrol.publishers.SCPPublisher</td></tr>
+
+      <tr><td>&nbsp;</td></tr>
+      <tr><td class="tableheader" colspan="3">Source Controls</td></tr>
+      <tr><td rowspan="10" width="1%">&nbsp;</td><td class="tableheader">Plugin Name</td><td class="tableheader">Class Name</td></tr>
       <tr><td>clearcase</td><td>net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</td></tr>
       <tr><td>cvs</td><td>net.sourceforge.cruisecontrol.sourcecontrols.CVS</td></tr>
       <tr><td>filesystem</td><td>net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</td></tr>
@@ -115,6 +138,9 @@
       <tr><td>starteam</td><td>net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</td></tr>
       <tr><td>vss</td><td>net.sourceforge.cruisecontrol.sourcecontrols.Vss</td></tr>
       <tr><td>vssjournal</td><td>net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td></tr>
+      <tr><td>mks</td><td>net.sourceforge.cruisecontrol.sourcecontrols.MKS</td></tr>
+      <tr><td>p4</td><td>net.sourceforge.cruisecontrol.sourcecontrols.P4</td></tr>
+
    </table>
 
          <!-- content ends here -->

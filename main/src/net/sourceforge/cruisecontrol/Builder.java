@@ -53,6 +53,8 @@ public abstract class Builder implements Comparable {
     private int _multiple = -1;
     private String _group = "default";
 
+    private boolean _buildAfterFailed = false;
+
     //should return log from build
     public abstract Element build(Map properties) throws CruiseControlException;
 
@@ -87,6 +89,10 @@ public abstract class Builder implements Comparable {
         _multiple = multiple;
     }
 
+    public void setBuildAfterFailed(boolean buildAfterFailed){
+        _buildAfterFailed = buildAfterFailed;
+    }
+
     public int getMultiple() {
         return _multiple;
     }
@@ -97,6 +103,10 @@ public abstract class Builder implements Comparable {
 
     public int getDay() {
         return _day;
+    }
+
+    public boolean getBuildAfterFailed(){
+        return _buildAfterFailed;
     }
 
     public String getGroup() {

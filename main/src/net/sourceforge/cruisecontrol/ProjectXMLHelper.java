@@ -95,6 +95,17 @@ public class ProjectXMLHelper {
         }
     }
 
+    public boolean getBuildAfterFailed() {
+        String buildAfterFailedAttr = _projectElement.getAttributeValue("buildafterfailed");
+        if(!"false".equalsIgnoreCase(buildAfterFailedAttr)) {
+            // default if not specified and all other cases
+            buildAfterFailedAttr = "true";
+        }
+        boolean buildafterfailed = Boolean.valueOf(buildAfterFailedAttr).booleanValue();
+        log.debug("Setting BuildAfterFailed to " + buildafterfailed);
+        return buildafterfailed;
+    }
+
     public long getBuildInterval() {
         return Long.parseLong(_projectElement.getChild("schedule").getAttributeValue("interval"));
     }

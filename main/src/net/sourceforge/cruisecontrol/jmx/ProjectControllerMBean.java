@@ -116,6 +116,16 @@ public interface ProjectControllerMBean {
     public String getLastBuild();
 
     /**
+     * Change the last built date.  This can be used to manipulate whether
+     * builds will be initiated.
+     *
+     * @param date date string in the form yyyyMMddHHmmss
+     */
+    public void setLastSuccessfulBuild(String date) throws CruiseControlException;
+
+    public String getLastSuccessfulBuild();
+
+    /**
      * Change the directory where CruiseControl logs are kept
      *
      * @param logdir Relative or absolute path to the log directory

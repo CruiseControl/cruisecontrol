@@ -121,6 +121,14 @@ public class ProjectController implements ProjectControllerMBean {
         return _project.getLastBuild();
     }
 
+    public void setLastSuccessfulBuild(String date) throws CruiseControlException {
+        _project.setLastSuccessfulBuild(date);
+    }
+
+    public String getLastSuccessfulBuild() {
+        return _project.getLastSuccessfulBuild();
+    }
+
     public void setLogDir(String logdir) {
         _project.setLogDir(logdir);
     }
