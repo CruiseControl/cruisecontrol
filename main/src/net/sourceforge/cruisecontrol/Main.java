@@ -164,7 +164,8 @@ public class Main {
         if (xslpath != null) {
             File directory = new File(xslpath);
             if (!directory.isDirectory()) {
-                throw new IllegalArgumentException("'xslpath' argument must specify an existing directory.");
+                throw new IllegalArgumentException(
+                        "'xslpath' argument must specify an existing directory but was " + xslpath);
             }
         }
         return xslpath;

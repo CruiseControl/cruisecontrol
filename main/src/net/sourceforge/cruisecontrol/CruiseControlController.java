@@ -68,8 +68,11 @@ public class CruiseControlController {
 
     public void setConfigFile(File configFile) throws CruiseControlException {
         this.configFile = configFile;
-        if (configFile == null || !configFile.exists()) {
+        if (configFile == null) {
             throw new CruiseControlException("No config file");
+        }
+        if (!configFile.exists()) {
+            throw new CruiseControlException("Config file not found: " + configFile.getName());
         }
         parseConfigFile();
     }
@@ -94,14 +97,14 @@ public class CruiseControlController {
             }
             String pluginClassname = pluginElement.getAttributeValue("classname");
             if (pluginClassname == null) {
-                LOG.warn(configFile.getName() + " contains plugin '" + pluginName 
+                LOG.warn(configFile.getName() + " contains plugin '" + pluginName
                         + "' without a classname-attribute, ignoring it");
                 continue;
             }
             PluginRegistry.registerToRoot(pluginName, pluginClassname);
         }
     }
-    
+
     private void addProject(Project project) {
         projects.add(project);
         for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {

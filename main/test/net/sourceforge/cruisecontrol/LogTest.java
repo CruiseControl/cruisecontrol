@@ -61,7 +61,11 @@ public class LogTest extends TestCase {
         augTweleveCalendar.set(2004, 7, 12, 1, 1, 1);
         Date augTweleve = augTweleveCalendar.getTime();
 
-        assertEquals("log20040812010101.xml", Log.formatLogFileName(augTweleve));
+        String expected = "log20040812010101.xml";
+        String actual = Log.formatLogFileName(augTweleve);
+        assertEquals(
+            expected + "--" + actual,
+            expected, actual);
         assertEquals("log20040812010101Lbuild.1.xml", Log.formatLogFileName(augTweleve, "build.1"));
     }
 

@@ -105,6 +105,8 @@ public class ProjectXMLHelperTest extends TestCase {
     }
 
     public void testGetLabelIncrementer() throws CruiseControlException {
+        PluginRegistry.registerToRoot(ProjectXMLHelper.LABEL_INCREMENTER,
+                                      DefaultLabelIncrementer.class.getName());
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project2");
         DefaultLabelIncrementer incrementer =
             (DefaultLabelIncrementer) helper.getLabelIncrementer();

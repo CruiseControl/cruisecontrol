@@ -50,10 +50,10 @@ import org.apache.log4j.Logger;
  * configuration file.
 
  * A PluginRegistry can have a parent registry, which it will query for
- * a plugin if it's not defined in the registry itself. This is used to 
- * enable projects to have their own plugins and override the classname 
+ * a plugin if it's not defined in the registry itself. This is used to
+ * enable projects to have their own plugins and override the classname
  * for a specific plugin, like the labelincrementer.
- * 
+ *
  * The root-registry contains the default list of plugins, i.e. those
  * that are already registered like AntBuilder that don't have to be registered
  * seperately in the configuration file.
@@ -61,27 +61,27 @@ import org.apache.log4j.Logger;
 public final class PluginRegistry {
 
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class);
-    
+
     /**
      * The only instance of the root plugin registry.
-     * This contains the default plugins and the plugins that are defined 
+     * This contains the default plugins and the plugins that are defined
      * external to projects.
      */
-    private static final PluginRegistry ROOTREGISTRY = getDefaultPluginRegistry();    
-    
+    private static final PluginRegistry ROOTREGISTRY = loadDefaultPluginRegistry();
+
     /**
      * @return PluginRegistry with the ROOTREGISTRY as its parent.
      */
     public static final PluginRegistry createRegistry() {
         return new PluginRegistry(ROOTREGISTRY);
     }
-    
+
     /**
      * The parent registry that will be searched for plugin definitions
      * if they're not defined in the registry itself. May be null.
      */
-    private final PluginRegistry parentRegistry;    
-    
+    private final PluginRegistry parentRegistry;
+
     /**
      * Map of plugins where the key is the plugin name (e.g. ant) and the value is
      * the fully qualified classname
@@ -90,13 +90,13 @@ public final class PluginRegistry {
     private final Map plugins = new HashMap();
 
     /**
-     * Creates a new PluginRegistry with no plugins registered, with the given parent registry. 
+     * Creates a new PluginRegistry with no plugins registered, with the given parent registry.
      * Only used internally for now, Projects should call createRegistry instead.
      */
     private PluginRegistry(PluginRegistry parentRegistry) {
         this.parentRegistry = parentRegistry;
     }
-  
+
     /**
      * @param pluginName The name for the plugin, e.g. ant. Note that plugin
      * names are always treated as case insensitive, so Ant, ant, and AnT are
@@ -112,7 +112,7 @@ public final class PluginRegistry {
     /**
      * Registers the given plugin in the root registry, so it will be
      * available to all projects.
-     * 
+     *
      */
     static void registerToRoot(String pluginName, String pluginClassname) {
         LOG.debug("registering plugin '" + pluginName + "' to root register as " + pluginClassname);
@@ -135,7 +135,7 @@ public final class PluginRegistry {
             return className;
         } else {
             // must be registered in our parent, then
-            return parentRegistry.getPluginClassname(pluginName); 
+            return parentRegistry.getPluginClassname(pluginName);
         }
     }
 
@@ -168,8 +168,8 @@ public final class PluginRegistry {
     }
 
     /**
-     * @return True if this registry or its parent contains 
-     * an entry for the plugin specified by the name. 
+     * @return True if this registry or its parent contains
+     * an entry for the plugin specified by the name.
      * The name is the short name for the plugin, not
      * the classname, e.g. ant. Note that plugin
      * names are always treated as case insensitive, so Ant, ant, and AnT are
@@ -197,7 +197,7 @@ public final class PluginRegistry {
      * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      * @throws RuntimeException in case of IOException during the reading of the properties-file
      */
-    private static PluginRegistry getDefaultPluginRegistry() {
+    static PluginRegistry loadDefaultPluginRegistry() {
         PluginRegistry rootRegistry = new PluginRegistry(null);
         Properties pluginDefinitions = new Properties();
         try {

@@ -52,6 +52,7 @@ import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import java.util.Arrays;
 
 public class MavenBuilderTest extends TestCase {
 
@@ -111,11 +112,11 @@ public class MavenBuilderTest extends TestCase {
         compareArrays(
             "NoDebug:",
             new String[] {
-                "testmaven.sh",
-                "-Dlabel=200.1.23",
-                "-b",
-                "-p",
-                "testproject.xml" },
+            "testmaven.sh",
+            "-Dlabel=200.1.23",
+            "-b",
+            "-p",
+            "testproject.xml" },
             builder.getCommandLineArgs(properties, false, null));
 
         Logger.getRoot().setLevel(Level.DEBUG);
@@ -317,8 +318,8 @@ public class MavenBuilderTest extends TestCase {
             cmdline.createArgument().setValue("755");
             cmdline.createArgument().setValue(testFile.getAbsolutePath());
             try {
-                Process p = cmdline.execute();       
-                p.waitFor();         
+                Process p = cmdline.execute();
+                p.waitFor();
             } catch (Exception e) {
                 e.printStackTrace();
                 fail("exception changing permissions on test file " + testFile.getAbsolutePath());
@@ -336,6 +337,7 @@ public class MavenBuilderTest extends TestCase {
 
         assertNotNull(msg + " Reference array is null and test not", refarr);
         assertNotNull(msg + " Test array is null and reference not", testarr);
+        assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
         assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
 
         for (int i = 0; i < refarr.length; i++) {

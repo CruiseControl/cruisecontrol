@@ -58,6 +58,16 @@ import net.sourceforge.cruisecontrol.Modification;
  *@author  <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class CVSTest extends TestCase {
+    private TimeZone originalTimeZone;
+
+    protected void setUp() throws Exception {
+        originalTimeZone = TimeZone.getDefault();
+    }
+
+    protected void tearDown() throws Exception {
+        TimeZone.setDefault(originalTimeZone);
+        originalTimeZone = null;
+    }
 
     private Date createDate(String dateString) throws ParseException {
         SimpleDateFormat formatter =

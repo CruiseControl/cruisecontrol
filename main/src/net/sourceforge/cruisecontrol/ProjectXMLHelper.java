@@ -57,6 +57,7 @@ public class ProjectXMLHelper {
     private PluginRegistry plugins;
     private Element projectElement;
     private String projectName;
+    public static final String LABEL_INCREMENTER = "labelincrementer";
 
     public ProjectXMLHelper() throws CruiseControlException {
         plugins = PluginRegistry.createRegistry();
@@ -88,7 +89,7 @@ public class ProjectXMLHelper {
             if (pluginName == null || pluginClassName == null) {
                 throw new CruiseControlException("name and classname are required on <plugin>");
             }
-            LOG.debug("Registering plugin '" + pluginName 
+            LOG.debug("Registering plugin '" + pluginName
                     + "' to classname '" + pluginClassName
                     + "' for project " + projectName);
             LOG.debug("");
@@ -190,11 +191,11 @@ public class ProjectXMLHelper {
 
     public LabelIncrementer getLabelIncrementer() throws CruiseControlException {
         LabelIncrementer incrementer;
-        Element labelIncrementerElement = projectElement.getChild("labelincrementer");
+        Element labelIncrementerElement = projectElement.getChild(LABEL_INCREMENTER);
         if (labelIncrementerElement != null) {
             incrementer = (LabelIncrementer) configurePlugin(labelIncrementerElement, false);
         } else {
-            Class labelIncrClass = plugins.getPluginClass("labelincrementer");
+            Class labelIncrClass = plugins.getPluginClass(LABEL_INCREMENTER);
             try {
                 incrementer = (LabelIncrementer) labelIncrClass.newInstance();
             } catch (Exception e) {
