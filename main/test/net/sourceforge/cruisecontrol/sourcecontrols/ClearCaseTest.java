@@ -36,80 +36,94 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.ClearCaseModification;
 
 /**
  * @author Eric Lefevre
  */
 public class ClearCaseTest extends TestCase {
 
+    public static final File TEST_DIR =
+        new File("test/net/sourceforge/cruisecontrol/sourcecontrols");
+    public static final File TEST_LOG = 
+        new File(TEST_DIR, "clearcase-history.txt");
+    public static final File TEST_XML =
+        new File(TEST_DIR, "clearcase-history.xml");
+
+    public static final SimpleDateFormat DATE_FMT =
+        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
     private ClearCase clearCase;
-    private String clearCaseStream;
+    private List mods;
 
-    private static final String USERID = "userid";
-    private static final String DATE = "20010808.023456";
-    private static final String FILENAME =
-            "c:" + File.separator + "path" + File.separator + "filename@@"
-            + File.separator + "main" + File.separator + "vob";
-    private static final String CHECKIN = "checkin";
-    private static final String COMMENT = "This is a \nsample\n\ncomment";
-    private static Date date1;
-
-    private static final String DATE2 = "20221218.143456";
-    private static final String COMMENT2 = "\n\n";
-    private static Date date2;
-
-    protected void setUp() {
-        // Set up so that this element will match all tests.
+    protected void setUp() throws JDOMException {
+        // Initialize our ClearCase element
         clearCase = new ClearCase();
-        String delimiter = ClearCase.DELIMITER;
-        clearCaseStream = "";
-        clearCaseStream += USERID + delimiter + DATE + delimiter;
-        clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
-        clearCaseStream += COMMENT + ClearCase.END_OF_STRING_DELIMITER + "\n";
-        clearCaseStream += USERID + delimiter + DATE2 + delimiter;
-        clearCaseStream += FILENAME + delimiter + CHECKIN + delimiter;
-        clearCaseStream += COMMENT2 + ClearCase.END_OF_STRING_DELIMITER + "\n";
+        mods = new Vector();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2001, 7, 8, 2, 34, 56);
-        calendar.set(Calendar.MILLISECOND, 0);
-        date1 = calendar.getTime();
-        calendar.set(2022, 11, 18, 14, 34, 56);
-        date2 = calendar.getTime();
+        // Set up the modification list to match against
+        SAXBuilder parser = new SAXBuilder();
+        Document doc = parser.build(TEST_XML);
+        List elts = doc.getRootElement().getChildren();
+
+        Iterator it = elts.iterator();
+        while (it.hasNext()) {
+           Element elt = (Element) it.next();
+           ClearCaseModification mod = new ClearCaseModification();
+           mod.fromElement(elt, DATE_FMT);
+           mods.add(mod);
+        }
     }
 
     /**
      * Tests the streams of bytes that can be returned by the ClearCase server.
      */
     public void testClearCaseStream() throws IOException {
-        byte[] streamBytes = clearCaseStream.getBytes();
-        ByteArrayInputStream stream = new ByteArrayInputStream(streamBytes);
-        List list = clearCase.parseStream(stream);
-        Modification mod = (Modification) list.get(0);
-        assertEquals(CHECKIN, mod.type);
-        assertEquals(File.separator + "filename", mod.fileName);
-        assertEquals(File.separator + "path", mod.folderName);
-        assertEquals(date1, mod.modifiedTime);
-        assertEquals(USERID, mod.userName);
-        assertEquals("This is a sample comment", mod.comment);
+        BufferedInputStream stream =
+            new BufferedInputStream(new FileInputStream(TEST_LOG));
 
-        mod = (Modification) list.get(1);
-        assertEquals(CHECKIN, mod.type);
-        assertEquals(File.separator + "filename", mod.fileName);
-        assertEquals(File.separator + "path", mod.folderName);
-        assertEquals(date2, mod.modifiedTime);
-        assertEquals(USERID, mod.userName);
-        assertEquals("", mod.comment);
+        List list = clearCase.parseStream(stream);
+        assertEquals(mods.size(), list.size());
+
+        for (int i = 0; i < list.size(); i++) {
+            ClearCaseModification a = (ClearCaseModification) mods.get(i);
+            ClearCaseModification b = (ClearCaseModification) list.get(i);
+            assertEquals(a.type, b.type);
+            assertEquals(a.fileName, b.fileName);
+            assertEquals(a.folderName, b.folderName);
+            assertEquals(a.modifiedTime, b.modifiedTime);
+            assertEquals(a.userName, b.userName);
+            assertEquals(a.emailAddress, b.emailAddress);
+            assertEquals(a.revision, b.revision);
+            assertEquals(a.labels, b.labels);
+            assertEquals(a.attributes, b.attributes);
+            
+            StringBuffer bc = new StringBuffer(b.comment);
+            for (int j = 0; j < bc.length(); j++) {
+               if (bc.charAt(j) == 13) {
+                  bc.deleteCharAt(j);
+               }
+            }
+            assertEquals(a.comment, bc.toString());
+
+            System.out.println("Record " + i + " OK");
+        }
     }
 
     public void testValidate() {
@@ -131,6 +145,10 @@ public class ClearCaseTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("ClearCase should not throw exceptions when required attributes are set.");
         }
+    }
+
+    public void testOutput() throws IOException {
+        
     }
 
     public static void main(java.lang.String[] args) {
