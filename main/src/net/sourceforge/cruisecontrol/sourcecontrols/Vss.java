@@ -78,7 +78,6 @@ public class Vss implements SourceControl {
      * Sets default values.
      */
     public Vss() {
-        ssdir = "";
         dateFormat = "MM/dd/yy";
         constructVssDateTimeFormat();
     }
@@ -169,14 +168,8 @@ public class Vss implements SourceControl {
         //(PENDING) extract buildHistoryCommand, execHistoryCommand
         // See CVSElement
 
-        File execFile = new File(ssdir, "ss.exe");
-
-		//call vss, write output to intermediate file
-        String[] cmdArray = {execFile.getAbsolutePath(), "history", vsspath, "-R", "-Vd" +
-                formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
-                "-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
 		try {
-			Process p = Runtime.getRuntime().exec(cmdArray);
+			Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now));
 			p.waitFor();
 
 			BufferedReader reader = new BufferedReader(new FileReader(
@@ -212,6 +205,19 @@ public class Vss implements SourceControl {
 
 		return modifications;
 	}
+
+    protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
+        String execCommand = null;
+        try {
+            execCommand = (ssdir != null) ? new File(ssdir, "ss.exe").getCanonicalPath() : "ss.exe";
+        } catch (IOException e) {
+            throw new CruiseControlException(e);
+        }
+
+        return new String[]{execCommand, "history", vsspath, "-R", "-Vd" +
+                formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
+                "-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
+    }
 
 	/**
 	 *  Format a date for vss in the format specified by the dateFormat.
