@@ -117,6 +117,7 @@ Project
 * Now fires BuildProgressEvents and BuildResultEvents. Patch by Michael Beauregard
 * Includes a cvs friendly timestamp in the properties sent to Ant named cvstimestamp. Patch by Brad Clarke
 * Include lastbuildsuccessful in properties sent to builders
+* Checks for accidental rescheduling for Projects that run within a minute
 
 PVCS
 ----------------------
