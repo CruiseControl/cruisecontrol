@@ -56,6 +56,7 @@ public class ArtifactsPublisher implements Publisher {
     private String targetDirectory;
     private String targetFile;
     private String subdirectory;
+    private boolean publishOnFailure = true;
 
     public void setDest(String dir) {
         destDir = dir;
@@ -69,20 +70,29 @@ public class ArtifactsPublisher implements Publisher {
         targetFile = file;
     }
 
+    public void setPublisherOnFailure(boolean shouldPublish) {
+        publishOnFailure = shouldPublish;
+    }
+
     public void publish(Element cruisecontrolLog)
-        throws CruiseControlException {
+            throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        Project project = new Project();
-        String timestamp = helper.getBuildTimestamp();
-        File destinationDirectory = getDestinationDirectory(timestamp);
+        if (shouldPublish(helper.isBuildSuccessful())) {
+            Project project = new Project();
+            String timestamp = helper.getBuildTimestamp();
+            File destinationDirectory = getDestinationDirectory(timestamp);
 
-        if (targetDirectory != null) {
-            publishDirectory(project, destinationDirectory);
+            if (targetDirectory != null) {
+                publishDirectory(project, destinationDirectory);
+            }
+            if (targetFile != null) {
+                publishFile(destinationDirectory);
+            }
         }
-        if (targetFile != null) {
-            publishFile(destinationDirectory);
-        }
+    }
 
+    protected boolean shouldPublish(final boolean buildSuccessful) {
+        return buildSuccessful || publishOnFailure;
     }
 
     File getDestinationDirectory(String timestamp) {
@@ -135,7 +145,7 @@ public class ArtifactsPublisher implements Publisher {
         if (targetDirectory == null && targetFile == null) {
             throw new CruiseControlException("'dir' or 'file' must be specified in configuration file.");
         }
-        
+
         if (targetDirectory != null && targetFile != null) {
             throw new CruiseControlException("only one of 'dir' or 'file' may be specified.");
         }
