@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
- 
+
 package net.sourceforge.cruisecontrol;
 
 import java.util.ArrayList;
@@ -97,8 +97,6 @@ public class ModificationSet extends Task {
     /**
      *   add a nested element for star team specific code.
      */
-    /*
-    we'll uncomment this dude when we have a compiling starteamelement...
        public StarTeamElement createStarteamelement() {
            StarTeamElement ste = new StarTeamElement();
            ste.setTask(this); //for logging in the sub elements
@@ -106,7 +104,6 @@ public class ModificationSet extends Task {
 
            return ste;
        }
-    */
 
 
     /**
@@ -119,6 +116,30 @@ public class ModificationSet extends Task {
 
         return ce;
     }
+
+
+    /**
+     *   add a nested element for p4 specific code.
+     */
+    public P4Element createP4element() {
+        P4Element p4e = new P4Element();
+        p4e.setTask(this); //for logging in the sub elements
+        _scElements.add(p4e);
+
+        return p4e;
+    }
+
+    /**
+     *   add a nested element for clearcase specific code.
+     */
+    public ClearCaseElement createClearcaseelement() {
+        ClearCaseElement cce = new ClearCaseElement();
+        cce.setTask(this); //for logging in the sub elements
+        _scElements.add(cce);
+
+        return cce;
+    }
+
 
     /**
      *  loop over all nested source control elements and get modifications and
