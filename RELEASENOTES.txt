@@ -1,8 +1,16 @@
 CruiseControl Release Notes - Latest CVS
 
+ArtifactsPublisher
+---------------
+* Added to the default plugin registry
+
 CVSBootstrapper
 ---------------
 * Add -dP to update command
+
+JMX
+---------------
+* Now exposing Project status (read-only) in the jmx interface
 
 CruiseControl Release Notes - 2.1.1
 
