@@ -148,7 +148,7 @@ public abstract class EmailPublisher implements Publisher {
             }
         } else { //build wasn't successful
             if (!logHelper.wasPreviousBuildSuccessful()
-                    && !logHelper.isBuildNecessary() && !_spamWhileBroken) {
+                    && logHelper.isBuildNecessary() && !_spamWhileBroken) {
                 log.debug("spamWhileBroken is set to false, not sending email");
                 return false;
             }
