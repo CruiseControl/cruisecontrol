@@ -2,7 +2,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.*;
 import java.util.*;
-import org.apache.tools.ant.*;
+import org.apache.tools.ant.Project;
 
 
 /**
