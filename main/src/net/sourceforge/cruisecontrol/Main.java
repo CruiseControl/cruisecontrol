@@ -62,10 +62,13 @@ public class Main {
         main.printVersion();
 
         Project project = null;
+        boolean startQueue = true;
+        BuildQueue buildQueue = new BuildQueue(startQueue);
         try {
             project = main.configureProject(args);
             // Init the project once, to check the current config file is ok
             project.init();
+            project.setBuildQueue(buildQueue);
 
             if (shouldStartProjectController(args)) {
                 ProjectControllerAgent agent =
@@ -78,7 +81,8 @@ public class Main {
             usage();
         }
 
-        project.execute();
+        Thread projectSchedulingThread = new Thread(project, "Project "+project.getName()+" thread");
+        projectSchedulingThread.start();
     }
 
     /**
