@@ -733,9 +733,10 @@ public class Project implements Serializable, Runnable {
     protected void validateLabel(String oldLabel, LabelIncrementer incrementer)
             throws CruiseControlException {
         if (!incrementer.isValidLabel(oldLabel)) {
-            throw new CruiseControlException(oldLabel
-                    + " is not a valid label for labelIncrementer "
-                    + incrementer.getClass().getName());
+            final String message = oldLabel + " is not a valid label for labelIncrementer "
+                    + incrementer.getClass().getName();
+            debug(message);
+            throw new CruiseControlException(message);
         }
     }
 
