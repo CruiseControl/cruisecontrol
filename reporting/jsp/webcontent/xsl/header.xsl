@@ -41,7 +41,7 @@
 
     <xsl:output method="html"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="header">
         <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
 
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
@@ -68,14 +68,14 @@
                 <span class="header-label">Time to build:&#160;</span>
                 <xsl:value-of select="cruisecontrol/build/@time"/>
             </td></tr>
-            <xsl:apply-templates select="$modification.list">
+            <xsl:apply-templates select="$modification.list" mode="header">
                 <xsl:sort select="date" order="descending" data-type="text" />
             </xsl:apply-templates>
         </table>
     </xsl:template>
 
     <!-- Last Modification template -->
-    <xsl:template match="modification">
+    <xsl:template match="modification" mode="header">
         <xsl:if test="position() = 1">
             <tr><td class="header-data">
                 <span class="header-label">Last changed:&#160;</span>
@@ -86,5 +86,9 @@
                 <xsl:value-of select="comment"/>
             </td></tr>
         </xsl:if>
+    </xsl:template>
+
+    <xsl:template match="/">
+        <xsl:apply-templates select="." mode="header"/>
     </xsl:template>
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <!--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
+ * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
  *
@@ -36,35 +36,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-    <xsl:output method="html"/>
 
-    <xsl:template match="/" mode="checkstyle">
-        <xsl:apply-templates select="cruisecontrol/checkstyle" mode="checkstyle"/>
-    </xsl:template>
+  <xsl:import href="maven.xsl"/>
+  <xsl:import href="nant.xsl"/>
+  <xsl:import href="checkstyle.xsl"/>
+  <xsl:import href="errors.xsl"/>
+  <xsl:import href="compile.xsl"/>
+  <xsl:import href="javadoc.xsl"/>
+  <xsl:import href="unittests.xsl"/>
+  <xsl:import href="modifications.xsl"/>
+  <xsl:import href="distributables.xsl"/>
 
-    <xsl:template match="checkstyle[file/error]" mode="checkstyle">
-        <xsl:variable name="file.error.count" select="count(file[error])" />
-        <xsl:variable name="total.error.count" select="count(file/error)" />
-        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
-          <tr>
-            <td class="checkstyle-sectionheader" colspan="3">
-                Checkstyle errors (<xsl:value-of select="$total.error.count" />)
-            </td>
-          </tr>
-          <xsl:for-each select="file/error" >
-            <tr>
-              <xsl:if test="position() mod 2 = 1">
-                <xsl:attribute name="class">checkstyle-oddrow</xsl:attribute>
-              </xsl:if>
-              <td class="checkstyle-data"><xsl:value-of select="../@name" /></td>
-              <td class="checkstyle-data"><xsl:value-of select="@line" /></td>
-              <td class="checkstyle-data"><xsl:value-of select="@message" /></td>
-            </tr>
-          </xsl:for-each>
-        </table>
-    </xsl:template>
+  <xsl:output method="html"/>
 
-    <xsl:template match="/">
-        <xsl:apply-templates select="." mode="checkstyle"/>
-    </xsl:template>
+  <xsl:variable name="cruisecontrol.list" select="."/>
+
+  <xsl:template match="/">
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="maven"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="nant"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="checkstyle"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="errors"/></p>
+    <!--
+      for traditional cc display of only compile errors and warnings
+      comment out mode="errors" and uncomment mode="compile"
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="compile"/></p>
+    -->
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="javadoc"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="unittests"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="modifications"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="distributables"/></p>
+  </xsl:template>
 </xsl:stylesheet>

@@ -44,7 +44,7 @@
 
     <xsl:variable name="task" select="/cruisecontrol/build/buildresults//task"/>
 
-    <xsl:template match="/">
+    <xsl:template match="/" mode="nant">
 	
         <xsl:variable name="nant.messages" select="$task/message"/>
         <xsl:variable name="nant.error.messages" select="$task/message[@priority='Error']"/>
@@ -59,15 +59,15 @@
                  </tr>
                  <tr>
                      <td>
-                         <xsl:apply-templates select="cruisecontrol/buildresults/message"/>
+                         <xsl:apply-templates select="cruisecontrol/buildresults/message" mode="nant"/>
                      </td>
                  </tr>
-                 <xsl:apply-templates select="$task"/>
+                 <xsl:apply-templates select="$task" mode="nant"/>
             </table>
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="task">
+    <xsl:template match="task" mode="nant">
        <tr class="compile-sectionheader">
        		<td>
             	<xsl:value-of select="@name"/>
@@ -75,24 +75,24 @@
        </tr>
        <tr>
        		<td>
-            	<xsl:apply-templates select="./message"/>
+            	<xsl:apply-templates select="./message" mode="nant"/>
             </td>
        </tr>
     </xsl:template>
 
-    <xsl:template match="message[@priority='Error']">
+    <xsl:template match="message[@priority='Error']" mode="nant">
     	  <span class="compile-error-data">
         <xsl:value-of select="text()"/><xsl:text disable-output-escaping="yes"><![CDATA[<br/>]]></xsl:text>
         </span>
     </xsl:template>
 
-    <xsl:template match="message[@priority='Warn']">
+    <xsl:template match="message[@priority='Warn']" mode="nant">
     	  <span class="compile-data">
         <xsl:value-of select="text()"/><xsl:text disable-output-escaping="yes"><![CDATA[<br/>]]></xsl:text>
         </span>
     </xsl:template>
 
-    <xsl:template match="message[@priority='Info']">
+    <xsl:template match="message[@priority='Info']" mode="nant">
     	  <span class="compile-data">
         <xsl:value-of select="text()"/><xsl:text disable-output-escaping="yes"><![CDATA[<br/>]]></xsl:text>
         </span>
