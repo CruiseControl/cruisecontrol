@@ -117,7 +117,7 @@
     </target> -->
     <target name="modificationset" depends="init" description="Check modifications since last build">
         <echo message="Checking for modifications..."/>
-        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
+        <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
             <cvselement cvsroot="${cvs.repository}"/> 
             <!-- Uncomment for StarTeam -->
             <!--<starteamelement username="${starteam.user}" password="${starteam.passwd}" 

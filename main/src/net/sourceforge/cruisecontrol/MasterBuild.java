@@ -54,10 +54,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private static String  _labelIncrementerClassName;
     // Needs to be static since new instance used each build
     private static String  _lastGoodBuildTime;
-    private static String  _lastBuildTime;
+    private static String  _lastBuildAttemptTime;
     
     private static boolean _lastBuildSuccessful;
     private static boolean _buildNotNecessary;
+    
+    private static boolean _spamWhileBroken = true;
+    
     private static String  _logDir;
     private static String  _logFile;
     private static String  _userList;
@@ -143,7 +146,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             BuildInfo info = (BuildInfo) s.readObject();
 
             _lastGoodBuildTime = info.timestamp;
-            _lastBuildTime = _lastGoodBuildTime;
+            _lastBuildAttemptTime = _lastGoodBuildTime;
             _label = info.label;
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,8 +157,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         for (int i = 0; i < args.length - 1; i++) {
             try {
                 if (args[i].equals("-lastbuild")) {
-                    _lastBuildTime = processLastBuildArg(args[i + 1]);
-                    _lastGoodBuildTime = _lastBuildTime;
+                    _lastBuildAttemptTime = processLastBuildArg(args[i + 1]);
+                    _lastGoodBuildTime = _lastBuildAttemptTime;
                 } else if (args[i].equals("-label")) {
                     //(PENDING) check format of label
                     _label = args[i + 1];
@@ -170,9 +173,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     public void setRemainingDefaultValues() {
-        if (_lastBuildTime == null) {
-            _lastBuildTime = DEFAULT_LASTBUILD;
-            _lastGoodBuildTime = _lastBuildTime;
+        if (_lastBuildAttemptTime == null) {
+            _lastBuildAttemptTime = DEFAULT_LASTBUILD;
+            _lastGoodBuildTime = _lastBuildAttemptTime;
         }
         
         if (_label == null) {
@@ -188,7 +191,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     
     public boolean buildInfoSpecified() {
         return 
-         (_lastBuildTime != null) && (_label != null) && (_propsFileName != null);
+         (_lastBuildAttemptTime != null) && (_label != null) && (_propsFileName != null);
     }
 
     private String processLastBuildArg(String lastBuild) {
@@ -261,6 +264,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _buildmaster = getSetFromString(props.getProperty("buildmaster"));
         _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
         _reportSuccess = getBooleanProperty(props, "reportSuccess");
+        _spamWhileBroken = getBooleanProperty(props, "spamWhileBroken");
         
         _logDir = props.getProperty("logDir"); 
         new File(_logDir).mkdirs();
@@ -324,7 +328,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * execute an alternate ant task every n builds, so that we can possibly 
      * execute a full clean build, etc.
      */
-    private void execute() {
+    public void execute() {
         try {
             int buildcounter = 0;
             while (true) {
@@ -345,19 +349,23 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                     System.setSecurityManager(oldSecMgr);
                 }
 
-                if (!_buildNotNecessary) {
-                    Set emails = getEmails(_userList);
+                if (_buildNotNecessary) {
+                    if (!_lastBuildSuccessful && _spamWhileBroken) {
+                        sendBuildEmail(_projectName + "Build still failing...");
+                    }
+                } else {
                     if (_lastBuildSuccessful) {
                         buildcounter++;
                         if(_reportSuccess) {
-                            emailReport(emails, _projectName + " Build " + _label + " Successful");
+                            sendBuildEmail(_projectName + " Build " + _label 
+                             + " Successful");
                         } else {
                             log("Skipping email notifications for successful builds");
-                        }                        
+                        }
                         incrementLabel();
                         writeBuildInfo();
                     } else {
-                        emailReport(emails, _projectName + " Build Failed");
+                        sendBuildEmail(_projectName + "Build Failed");
                     }
                 }
                 long timeToSleep = getSleepTime(startTime);
@@ -373,6 +381,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
     }
 
+    private void sendBuildEmail(String message) {
+        Set emails = getEmails(_userList);
+        emailReport(emails, message);
+    }
+    
     private long getSleepTime(Date startTime) {
         if (_isIntervalAbsolute) {
             // We need to sleep up until startTime + buildInterval.
@@ -390,7 +403,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String[] getCommandLine(int buildCounter) {
         Vector v = new Vector();
         v.add("-DlastGoodBuildTime=" + _lastGoodBuildTime);
-        v.add("-DlastBuildTime=" + _lastBuildTime);
+        v.add("-DlastBuildAttemptTime=" + _lastBuildAttemptTime);
         v.add("-Dlabel=" + _label);
         v.add("-listener");
         v.add(this.getClass().getName());
@@ -775,13 +788,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     /**
      *	Print usage instructions if command line arguments are not correctly specified.
      */
-    private void usage() {
+    public void usage() {
         System.out.println("Usage:");
         System.out.println("");
         System.out.println("Starts a continuous integration loop");
         System.out.println("");
         System.out.println("java MasterBuild [options]");
-        System.out.println("where options must include:");
+        System.out.println("where options are:");
         System.out.println("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
         System.out.println("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
         System.out.println("   -properties file       where file is the masterbuild properties file, and is available in the classpath");
@@ -843,10 +856,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
         _lastBuildSuccessful = false;
 
-        _lastBuildTime = proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP);
+        _lastBuildAttemptTime = proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP);
         if (buildevent.getException() == null) {
             _lastBuildSuccessful = true;
-            _lastGoodBuildTime = _lastBuildTime;
+            _lastGoodBuildTime = _lastBuildAttemptTime;
         }
 
         //get the exact filenames from the ant properties that tell us what aux xml files we have...
