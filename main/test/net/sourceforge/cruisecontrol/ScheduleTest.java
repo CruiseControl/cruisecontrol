@@ -227,6 +227,12 @@ public class ScheduleTest extends TestCase {
             "chained pauses with day specific pause",
             twentyFourHours + (2 * oneHour),
             schedule.getTimeToNextBuild(THURSDAY_2301, oneHour));
+    }
+    
+    public void testGetTimeToNextBuild_BadSchedule() {
+        long oneHour = 60 * ONE_MINUTE;
+        long twelveHours = 12 * oneHour;
+        long twentyFourHours = 2 * twelveHours;
 
         Schedule badSchedule = new Schedule();
 
@@ -244,6 +250,12 @@ public class ScheduleTest extends TestCase {
             "pause doesn't exceed maximum interval",
             Schedule.MAX_INTERVAL_MILLISECONDS,
             badSchedule.getTimeToNextBuild(THURSDAY_1001, twentyFourHours));
+    }
+    
+    public void testGetTimeToNextBuild_DailyBuild() {
+        long oneHour = 60 * ONE_MINUTE;
+        long twelveHours = 12 * oneHour;
+        long twentyFourHours = 2 * twelveHours;
 
         Schedule dailyBuildSchedule = new Schedule();
         dailyBuildSchedule.addBuilder(NOON_BUILDER);
@@ -251,8 +263,18 @@ public class ScheduleTest extends TestCase {
         assertEquals(
             "ignore interval when only time builds",
             oneHour - ONE_MINUTE,
-            dailyBuildSchedule.getTimeToNextBuild(THURSDAY_1101, fiveSeconds));
+            dailyBuildSchedule.getTimeToNextBuild(THURSDAY_1101, ONE_MINUTE));
+            
+        PauseBuilder pause = new PauseBuilder();
+        pause.setStartTime(0000);
+        pause.setEndTime(2359);
+        pause.setDay("friday");
+        dailyBuildSchedule.addPauseBuilder(pause);
 
+        assertEquals(
+            "pause w/only time builder",
+            (twentyFourHours * 2) - ONE_MINUTE,
+            dailyBuildSchedule.getTimeToNextBuild(THURSDAY_1201, ONE_MINUTE));
     }
 
     public void testInterval() {
