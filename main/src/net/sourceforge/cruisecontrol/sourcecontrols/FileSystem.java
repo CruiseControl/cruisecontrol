@@ -117,7 +117,7 @@ public class FileSystem implements SourceControl {
         
         mod.userName = "User";
         mod.fileName = revision.getName();
-        mod.folderName = revision.getPath();
+        mod.folderName = revision.getParent();
         mod.modifiedTime = new Date(revision.lastModified());
         mod.comment = "";
         modifications.add(mod);
