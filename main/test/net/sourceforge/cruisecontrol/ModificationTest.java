@@ -22,8 +22,8 @@ public class ModificationTest extends TestCase {
         mod.comment = "Comment";
 
         String expected = "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>" +
-        formatter.format(modifiedTime) + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Comment]]></comment></modification>";
+        formatter.format(modifiedTime) + "</date><user>User&lt;&gt;Name</user><email></email><comment><![CDATA[Comment]]></comment></modification>";
 
-        assertEquals(mod.toXml(formatter), expected);
+        assertEquals(expected, mod.toXml(formatter));
     }
 }
