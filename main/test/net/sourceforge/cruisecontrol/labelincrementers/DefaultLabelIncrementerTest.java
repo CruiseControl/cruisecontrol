@@ -51,19 +51,35 @@ public class DefaultLabelIncrementerTest extends TestCase {
     }
 
     public void testIsValidLabel() {
-        assertEquals(incrementer.isValidLabel("x.88"), true);
-        assertEquals(incrementer.isValidLabel("x.y"), false);
-        assertEquals(incrementer.isValidLabel("x88"), false);
+        assertTrue(incrementer.isValidLabel("x.88"));
+        assertFalse(incrementer.isValidLabel("x.y"));
+        assertFalse(incrementer.isValidLabel("x88"));
+        
+        incrementer.setSeparator("#");
+        assertFalse(incrementer.isValidLabel("x.88"));
+        assertTrue(incrementer.isValidLabel("x#88"));
+        
+        incrementer = new DefaultLabelIncrementer();
+        assertFalse(incrementer.isValidLabel("x.88"));
+        assertTrue(incrementer.isValidLabel("x#88"));
     }
 
     public void testIncrementLabel() {
-        assertEquals(incrementer.incrementLabel("x.88", null), "x.89");
+        assertEquals("x.89", incrementer.incrementLabel("x.88", null));
     }
 
     public void testSetPreBuildIncrementer() {
-        assertEquals(false, incrementer.isPreBuildIncrementer());
+        assertFalse(incrementer.isPreBuildIncrementer());
         incrementer.setPreBuildIncrementer(true);
-        assertEquals(true, incrementer.isPreBuildIncrementer());
+        assertTrue(incrementer.isPreBuildIncrementer());
+
+        incrementer = new DefaultLabelIncrementer();
+        assertTrue(incrementer.isPreBuildIncrementer());
     }
-    
+
+    protected void tearDown() throws Exception {
+        incrementer.setPreBuildIncrementer(false);
+        incrementer.setSeparator(".");
+    }
+
 }
