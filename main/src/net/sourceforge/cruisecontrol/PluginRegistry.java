@@ -67,13 +67,13 @@ public final class PluginRegistry {
      * This contains the default plugins and the plugins that are defined 
      * external to projects.
      */
-    private static final PluginRegistry rootRegistry = getDefaultPluginRegistry();    
+    private static final PluginRegistry ROOTREGISTRY = getDefaultPluginRegistry();    
     
     /**
-     * @return PluginRegistry with the rootRegistry as its parent.
+     * @return PluginRegistry with the ROOTREGISTRY as its parent.
      */
     public static final PluginRegistry createRegistry() {
-        return new PluginRegistry(rootRegistry);
+        return new PluginRegistry(ROOTREGISTRY);
     }
     
     /**
@@ -116,7 +116,7 @@ public final class PluginRegistry {
      */
     static void registerToRoot(String pluginName, String pluginClassname) {
         LOG.debug("registering plugin '" + pluginName + "' to root register as " + pluginClassname);
-        rootRegistry.register(pluginName, pluginClassname);
+        ROOTREGISTRY.register(pluginName, pluginClassname);
     }
 
     /**
