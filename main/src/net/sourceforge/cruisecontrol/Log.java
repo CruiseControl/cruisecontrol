@@ -187,11 +187,11 @@ public class Log {
             throw new CruiseControlException(e);
         } finally {
             if (logWriter != null) {
-            	try {
-					logWriter.close();
-				} catch (IOException e1) {
-					// nevermind, then
-				}
+                try {
+                    logWriter.close();
+                } catch (IOException e1) {
+                    // nevermind, then
+                }
             }
         }
     }
@@ -259,3 +259,4 @@ public class Log {
         return label;
     }
 }
+
