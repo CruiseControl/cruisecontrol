@@ -148,9 +148,13 @@ public class ProjectXMLHelper {
         while(builderIterator.hasNext()) {
             Element builderElement = (Element) builderIterator.next();
             if(builderElement.getName().equalsIgnoreCase("pause")) {
-                schedule.addPauseBuilder((PauseBuilder) configurePlugin(builderElement));
+                PauseBuilder pauseBuilder = (PauseBuilder) configurePlugin(builderElement);
+                pauseBuilder.validate();
+                schedule.addPauseBuilder(pauseBuilder);
             } else {
-                schedule.addBuilder((Builder) configurePlugin(builderElement));
+                Builder builder = (Builder) configurePlugin(builderElement);
+                builder.validate();
+                schedule.addBuilder(builder);
             }
         }
         return schedule;

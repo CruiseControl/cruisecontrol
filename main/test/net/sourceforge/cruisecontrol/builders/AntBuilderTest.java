@@ -50,6 +50,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 public class AntBuilderTest extends TestCase {
 
     /** enable logging for this class */
@@ -57,6 +59,28 @@ public class AntBuilderTest extends TestCase {
 
     public AntBuilderTest(String name) {
         super(name);
+    }
+
+    public void testValidate() {
+        AntBuilder ab = new AntBuilder();
+
+        try {
+            ab.validate();
+            fail("AntBuilder should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        ab.setMultiple(1);
+        ab.setBuildFile("buildfile");
+        ab.setTarget("target");
+
+        try {
+            ab.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("AntBuilder should not throw exceptions when required fields are set.");
+        }
     }
 
     public void testGetCommandLineArgs() {

@@ -49,8 +49,15 @@ import java.util.Date;
 public class PauseBuilder {
 
     private int _day = -1;
-    private int _startTime;
-    private int _endTime;
+    private int _startTime = -1;
+    private int _endTime = -1;
+
+    public void validate() throws CruiseControlException {
+        if(_startTime < 0)
+            throw new CruiseControlException("'starttime' is a required attribute on PauseBuilder");
+        if(_endTime < 0)
+            throw new CruiseControlException("'endtime' is a required attribute on PauseBuilder");
+    }
 
     public void setDay(String dayString) {
         if(dayString.equalsIgnoreCase("sunday")) {

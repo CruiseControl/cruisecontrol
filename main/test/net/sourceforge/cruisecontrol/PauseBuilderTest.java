@@ -58,6 +58,27 @@ public class PauseBuilderTest extends TestCase {
         _cal.set(2001, Calendar.NOVEMBER, 23); //Friday, November 23, 2001
     }
 
+    public void testValidate() {
+        PauseBuilder pb = new PauseBuilder();
+
+        try {
+            pb.validate();
+            fail("PauseBuilder should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        pb.setStartTime(1400);
+        pb.setEndTime(1500);
+
+        try {
+            pb.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("PauseBuilder should not throw exceptions when required fields are set.");
+        }
+    }
+
     public void testIsValidDay() {
         PauseBuilder pb = new PauseBuilder();
         pb.setDay("Thursday");
