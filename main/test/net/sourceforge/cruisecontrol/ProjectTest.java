@@ -106,6 +106,8 @@ public class ProjectTest extends TestCase {
         project.setLabel("1.2.2");
         project.setName("myproject");
         project.setSchedule(sched);
+        File logDir = new File("test-results");
+        logDir.mkdir();
         project.setLogDir("test-results");
         project.setLogXmlEncoding("ISO-8859-1");
         project.addAuxiliaryLogFile("_auxLog1.xml");
