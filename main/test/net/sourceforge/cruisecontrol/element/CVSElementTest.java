@@ -56,7 +56,7 @@ public class CVSElementTest extends TestCase {
 		element.setCvsRoot("cvsroot");
 		element.setLocalWorkingCopy(".");
 
-		String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "log",
+		String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
 				"-N", "-d", ">" + CVSElement.formatCVSDate(lastBuildTime)};
 
 		String[] actualCommand =
@@ -77,7 +77,7 @@ public class CVSElementTest extends TestCase {
 		element.setCvsRoot("cvsroot");
 		element.setLocalWorkingCopy(null);
 
-		String[] expectedCommand = new String[] {"cvs", "-d", "cvsroot", "log",
+		String[] expectedCommand = new String[] {"cvs", "-d", "cvsroot", "-q", "log",
 				"-N", "-d", ">" + CVSElement.formatCVSDate(lastBuildTime)};
 
 		String[] actualCommand =
@@ -97,7 +97,7 @@ public class CVSElementTest extends TestCase {
 		element.setCvsRoot(null);
 		element.setLocalWorkingCopy(".");
 
-		String[] expectedCommand = new String[]{"cvs", "log",
+		String[] expectedCommand = new String[]{"cvs", "-q", "log",
 				"-N", "-d", ">" + CVSElement.formatCVSDate(lastBuildTime)};
 
 		String[] actualCommand =
