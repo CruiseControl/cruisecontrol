@@ -48,8 +48,9 @@ import net.sourceforge.cruisecontrol.SourceControl;
 /**
  * 
  * Used to define a project that only builds when forced through the JMX interface,
- * since no Modifications are ever returned. To report modifications when forcing a
- * build, use this SourceControl as the Trigger part of a Compound SourceControl.
+ * since no Modifications are ever returned. 
+ * If you also want the modifications between two forced builds to be reported, 
+ * you'll have to use another solution (using Compound, for instance). 
  * 
  * @author <a href="mailto:joriskuipers@xs4all.nl">Joris Kuipers</a>
  *
