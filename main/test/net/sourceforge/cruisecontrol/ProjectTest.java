@@ -161,17 +161,40 @@ public class ProjectTest extends TestCase {
         }
     }
 
-    public void testGetModifications() {
+    public void testGetModifications() throws CruiseControlException {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.getModifications(null);
         project.setModificationSet(modSet);
+
+        modSet.setModified(true);
         assertEquals(modifications, project.getModifications());
         modSet.setModified(false);
         assertEquals(null, project.getModifications());
+
         project.setBuildForced(true);
         assertEquals(modifications, project.getModifications());
+        assertEquals(null, project.getModifications());
+
         project.setBuildForced(false);
         assertEquals(null, project.getModifications());
+        
+        modSet.setModified(true);
+        project.setLastBuild("20030218010101");
+        project.setLastSuccessfulBuild("20030218010101");
+        int before = modSet.getModCheckCount();
+        project.getModifications();
+        assertEquals(before+1, modSet.getModCheckCount());
+
+        project.setLastBuild("20030218020202");
+        project.setBuildAfterFailed(false);
+        before = modSet.getModCheckCount();
+        project.getModifications();
+        assertEquals(before+2, modSet.getModCheckCount());
+
+        project.setBuildAfterFailed(true);
+        before = modSet.getModCheckCount();
+        project.getModifications();
+        assertEquals(before+1, modSet.getModCheckCount());
         
         // TODO: need tests for when lastBuildSuccessful = false
     }

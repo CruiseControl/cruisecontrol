@@ -42,9 +42,12 @@ import java.util.Date;
 
 public class MockModificationSet extends ModificationSet {
 
+    private int modCheckCount = 0;
+
     Element modifications = new Element("modifications");
 
     public Element getModifications(Date lastBuild) {
+        modCheckCount++;
         return modifications;
     }
 
@@ -72,5 +75,9 @@ public class MockModificationSet extends ModificationSet {
     
     public void setTimeOfCheck(Date timeOfCheck) {
         time = timeOfCheck;
+    }
+    
+    public int getModCheckCount() {
+        return modCheckCount;
     }
 }

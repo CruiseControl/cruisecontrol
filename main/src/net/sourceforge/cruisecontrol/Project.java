@@ -318,8 +318,16 @@ public class Project implements Serializable, Runnable {
      */
     Element getModifications() {
         state = MODIFICATIONSET_STATE;
-        // get modifications since _lastBuild
-        Element modifications = _modificationSet.getModifications(_lastBuild);
+        Element modifications = null;
+
+        if (_buildAfterFailed) {
+            modifications =
+                _modificationSet.getModifications(_lastSuccessfulBuild);
+        }
+        else {
+            modifications = _modificationSet.getModifications(_lastBuild);
+        }
+
         if (!_modificationSet.isModified()) {
             log.info("No modifications found, build not necessary.");
 
@@ -342,8 +350,9 @@ public class Project implements Serializable, Runnable {
             }
         }
 
-        // get modifications since last successful build if it wasn't the last build
-        if (_lastBuild != null && !_lastBuild.equals(_lastSuccessfulBuild)) {
+        if (!_buildAfterFailed
+            && _lastBuild != null
+            && !_lastBuild.equals(_lastSuccessfulBuild)) {
             modifications =
                 _modificationSet.getModifications(_lastSuccessfulBuild);
         }
@@ -435,7 +444,8 @@ public class Project implements Serializable, Runnable {
      */
     public void setLastSuccessfulBuild(String lastSuccessfulBuild)
         throws CruiseControlException {
-        _lastSuccessfulBuild = parseFormatedTime(lastSuccessfulBuild, "lastSuccessfulBuild");
+        _lastSuccessfulBuild =
+            parseFormatedTime(lastSuccessfulBuild, "lastSuccessfulBuild");
     }
 
     public String getLastBuild() {
