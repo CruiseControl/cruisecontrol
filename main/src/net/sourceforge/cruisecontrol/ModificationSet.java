@@ -53,7 +53,7 @@ public class ModificationSet extends Task {
 
     private Date _lastBuild;
     private long _quietPeriod;
-    private ArrayList _sourceControlElements = new ArrayList();
+    private ArrayList sourceControlElements = new ArrayList();
 
     private long _lastModified;
     private DateFormat _formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
@@ -182,7 +182,7 @@ public class ModificationSet extends Task {
         ClearCaseElement cce = new ClearCaseElement();
         cce.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(cce);
+        sourceControlElements.add(cce);
 
         return cce;
     }
@@ -196,7 +196,7 @@ public class ModificationSet extends Task {
         CVSElement ce = new CVSElement();
         ce.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(ce);
+        sourceControlElements.add(ce);
 
         return ce;
     }
@@ -204,7 +204,7 @@ public class ModificationSet extends Task {
     public FileSystemElement createFileSystemElement() {
         FileSystemElement fse = new FileSystemElement();
         fse.setAntTask(this);
-        _sourceControlElements.add(fse);
+        sourceControlElements.add(fse);
         
         return fse;
     }
@@ -218,7 +218,7 @@ public class ModificationSet extends Task {
         MKSElement me = new MKSElement();
         me.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(me);
+        sourceControlElements.add(me);
 
         return me;
     }    
@@ -232,7 +232,7 @@ public class ModificationSet extends Task {
         P4Element p4e = new P4Element();
         p4e.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(p4e);
+        sourceControlElements.add(p4e);
 
         return p4e;
     }
@@ -246,7 +246,7 @@ public class ModificationSet extends Task {
         StarTeamElement ste = new StarTeamElement();
         ste.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(ste);
+        sourceControlElements.add(ste);
 
         return ste;
     }
@@ -260,9 +260,23 @@ public class ModificationSet extends Task {
         VssElement ve = new VssElement();
         ve.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(ve);
+        sourceControlElements.add(ve);
 
         return ve;
+    }
+    
+    /**
+     * add a nested element for sourcesafe specific code that uses journal files.
+     *
+     * @return
+     */    
+    public VssJournalElement createVssjournalelement() {
+        VssJournalElement vje = new VssJournalElement();
+        vje.setAntTask(this);
+        //for logging in the sub elements
+        sourceControlElements.add(vje);
+
+        return vje;
     }
     
     private boolean tooMuchRepositoryActivity(long currentTime) {
@@ -292,9 +306,9 @@ public class ModificationSet extends Task {
     private List processSourceControlElements(Date currentDate, Date lastBuild) {
         ArrayList mods = new ArrayList();
 
-        for (int i = 0; i < _sourceControlElements.size(); i++) {
+        for (int i = 0; i < sourceControlElements.size(); i++) {
             SourceControlElement sce =
-                    (SourceControlElement) _sourceControlElements.get(i);
+                    (SourceControlElement) sourceControlElements.get(i);
             mods.addAll(sce.getHistory(lastBuild, currentDate, _quietPeriod));
 
             if (!mods.isEmpty()) {
