@@ -22,11 +22,11 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.*;
-import java.util.*;
-
-import javax.mail.*;
 import java.text.*;
+import java.util.*;
+import javax.mail.*;
 import org.apache.tools.ant.*;
+import org.w3c.dom.*;
 
 /**
  * Class that will run the "Master Build" -- a
@@ -818,6 +818,17 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         logCurrentBuildStatus(true);
         super.buildStarted(buildevent);
     }
+
+    /**
+     * Wraps the XmlLogger's method with a logging level check
+     */
+    public void messageLogged(BuildEvent event) {
+        if (_debug == false && event.getPriority() == Project.MSG_DEBUG) {
+            return;
+        }
+        
+        super.messageLogged(event);
+    }    
     
 }
 
