@@ -189,6 +189,8 @@ public class MasterBuild {
         
         logCurrentBuildStatus(false);
 
+        checkModificationSetInvoked(runner.getProject());
+        
         buildFinished(runner.getProject(), successful);
 
         //(PENDING) do this in buildFinished?
@@ -213,6 +215,17 @@ public class MasterBuild {
         runner.reset();
     }
 
+    void checkModificationSetInvoked(Project project) throws BuildException {
+        // There might be a better way to do this, perhaps by quering the project for
+        // a list of executed tasks??? For now, this will suffice, as this property
+        // should always be set by the ModificationSet (even if there are no changes).
+        if (project.getProperty(ModificationSet.MODIFICATIONSET_INVOKED) == null) {
+            // This means that there was never a modification set task called.
+            log("The specified Ant target did not result in a ModificationSet task being called.");
+            log("Without a ModificationSet task, CruiseControl can not work correctly");
+            throw new BuildException("No ModificationSet task invoked");
+        }
+    }
     private void sendBuildEmail(String message) {
         CruiseControlMailer mailer = new CruiseControlMailer(props.getMailhost(),
                                                              props.getReturnAddress());
