@@ -42,7 +42,10 @@
 <web-app>
     <servlet>
       <servlet-name>BuildServlet</servlet-name>
+<!--
       <servlet-class>net.sourceforge.cruisecontrol.BuildServlet</servlet-class>
+-->
+      <jsp-file>cruise.jsp</jsp-file>
 
       <init-param>
         <!-- Absolute path to log directory.  The servlet will look at the log files in this 
