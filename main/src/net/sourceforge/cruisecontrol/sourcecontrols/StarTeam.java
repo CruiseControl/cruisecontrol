@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import com.starbase.starteam.*;
 import com.starbase.util.OLEDate;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 
 import java.util.*;
@@ -61,7 +62,7 @@ import org.apache.log4j.Category;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Neill
  */
-public class StarTeam extends SourceControlElement {
+public class StarTeam implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(StarTeam.class.getName());
@@ -70,10 +71,12 @@ public class StarTeam extends SourceControlElement {
     private String password;
     private String folder;
     private String url;
-    private Set emailAddresses = new HashSet();
     private List modifications = new ArrayList();
-    private OLEDate mostRecent = new OLEDate(0);
     private OLEDate nowDate;
+
+    private Hashtable _properties = new Hashtable();
+    private String _property;
+    private String _propertyOnDelete;
 
     /**
      * Set StarTeam user name
@@ -100,19 +103,16 @@ public class StarTeam extends SourceControlElement {
         this.url = url;
     }
 
-    public Set getEmails() {
-        return emailAddresses;
+    public void setProperty(String property) {
+        _property = property;
     }
 
-    /**
-     * Returns the modified time of the most recent change in StarTeam. This
-     * helps to make sure that we don't start a build with someones changes half
-     * checked in to StarTeam.
-     *
-     * @return
-     */
-    public long getLastModified() {
-        return mostRecent.getLongValue();
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
+    }
+
+    public Hashtable getProperties() {
+        return _properties;
     }
 
     /**
@@ -124,7 +124,7 @@ public class StarTeam extends SourceControlElement {
      * @param quietPeriod
      * @return
      */
-    public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
         // Clean out the modifications list.  Otherwise we get duplicate entries
         // when this function is called more than once in a quiet period breach
         // We normally would need to clean out the email list as well, except we
@@ -275,24 +275,6 @@ public class StarTeam extends SourceControlElement {
             return;
         }
 
-        //  Only get emails for users still on the system
-        if (user != null) {
-
-             // Try to obtain email to add.  This is only allowed if logged on
-             // user is SERVER ADMINISTRATOR
-            try {
-                emailAddresses.add(
-                 user.getServer().getAdministration().findUserAccount(
-                 user.getID()).getEmailAddress());
-            } catch (ServerException sx) {
-                // Logged on user does not have permission to get user's email.
-                // Return the modifying user's name instead. Then use the
-                // email.properties file to map the name to an email address
-                // outside of StarTeam
-                emailAddresses.add(user.getName());
-            }
-        }
-
         Modification mod = new Modification();
         mod.type = status;
         mod.fileName = revision.getName();
@@ -301,11 +283,26 @@ public class StarTeam extends SourceControlElement {
         mod.userName = user.getName();
         mod.comment = revision.getComment();
 
-        modifications.add(mod);
+        //  Only get emails for users still on the system
+        if (user != null) {
 
-        if (revision.getModifiedTime().getLongValue() > mostRecent.getLongValue()) {
-            mostRecent = revision.getModifiedTime();
+             // Try to obtain email to add.  This is only allowed if logged on
+             // user is SERVER ADMINISTRATOR
+            try {
+                mod.emailAddress =
+                 user.getServer().getAdministration().findUserAccount(
+                 user.getID()).getEmailAddress();
+            } catch (ServerException sx) {
+                // Logged on user does not have permission to get user's email.
+                // Return the modifying user's name instead. Then use the
+                // email.properties file to map the name to an email address
+                // outside of StarTeam
+                log.info("Error looking up user email address." , sx);
+            }
         }
+
+
+        modifications.add(mod);
     }
 
 }
