@@ -35,11 +35,6 @@ public class CVSElement extends SourceControlElement {
 	private String local;
 
 	/**
-	 *  The tag to look for when running cvs log
-	 */
-	private String tag;
-
-	/**
 	 *  This is a set of the authors that modified files. In many projects the
 	 *  author name for CVS corresponds to the author's email address, without the
 	 *  domain name.
@@ -50,11 +45,6 @@ public class CVSElement extends SourceControlElement {
 	 *  the most recent modification time.
 	 */
 	private Date lastModified;
-
-	/**
-	 *  If not null, appended to user names to form appropriate e-mail address
-	 */
-	private String _emailDomain;
 
 	/**
 	 *  This is the date format required by commands passed to CVS.
@@ -106,11 +96,6 @@ public class CVSElement extends SourceControlElement {
 	 */
 	private final static String CVS_REVISION_DELETED = "dead";
     
-    /**
-     * Used to identify newly added files in CVS
-     */
-    private final static String CVS_NO_LINES_CHANGED = "+0 -0";
-    
 	/**
 	 *  System dependent new line seperator.
 	 */
@@ -144,21 +129,6 @@ public class CVSElement extends SourceControlElement {
 			throw new BuildException(
 					"Local working copy \"" + local + "\" does not exist!");
 		}
-	}
-
-	public void setEmailDomain(String emailDomain) {
-		_emailDomain = emailDomain;
-	}
-
-	//(PENDING) not currently used
-	/**
-	 *  Set the tag to use when running CVS log. See CVS documentation for more
-	 *  information on the -r option of the log command
-	 *
-	 *@param  tag a tag, a branch
-	 */
-	public void setTag(String tag) {
-		this.tag = tag;
 	}
 
 	/**
@@ -324,6 +294,7 @@ public class CVSElement extends SourceControlElement {
 		return mods;
 	}
 
+    //(PENDING) Extract CVSEntryParser class
 	/**
 	 *  Parses a single file entry from the reader. This entry may contain zero or
 	 *  more revisions. This method may consume the next CVS_FILE_DELIMITER line
@@ -341,7 +312,7 @@ public class CVSElement extends SourceControlElement {
 		//Read to the working file name line to get the filename. It is ASSUMED
 		//  that a line will exist with the working file name on it.
 		String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
-		String workingFilename =
+		String workingFileName =
 				workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
 		while (reader.ready() && nextLine != null
 				 && !nextLine.startsWith(CVS_FILE_DELIM)) {
@@ -368,12 +339,13 @@ public class CVSElement extends SourceControlElement {
 			tokens.nextToken();
 			String stateKeyword = tokens.nextToken();
 
-            // The next token should be the lines keyword, then the lines changed
-            String linesChanged = "";
+            // if no lines keyword then file is added
+            boolean isAdded = false;
             try {
                 tokens.nextToken();
-                linesChanged = tokens.nextToken() + " " + tokens.nextToken();
-            } catch (NoSuchElementException noLinesFoundIgnore) {}
+            } catch (NoSuchElementException noLinesFoundIgnore) {
+                isAdded = true;
+            }
             
 			// All the text from now to the next revision delimiter or working
 			// file delimiter constitutes the messsage.
@@ -395,7 +367,7 @@ public class CVSElement extends SourceControlElement {
 			}
 
 			Modification nextModification = new Modification();
-			nextModification.fileName = workingFilename;
+			nextModification.fileName = workingFileName;
 			//CVS doesn't provide specific project or "folder" information.
 			nextModification.folderName = "";
 
@@ -410,21 +382,17 @@ public class CVSElement extends SourceControlElement {
 			}
 
 			nextModification.userName = authorName;
-			if (_emailDomain != null) {
-				authorName = authorName + "@" + _emailDomain;
-			}
 			emailNames.add(authorName);
 
 			nextModification.comment = (message != null ? message : "");
 
 			if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DELETED)) {
 				nextModification.type = "deleted";
-			} else if (linesChanged.equals(CVS_NO_LINES_CHANGED)) {
+			} else if (isAdded) {
                 nextModification.type = "added";
             } else {
 				nextModification.type = "modified";
 			}
-            
 			mods.add(nextModification);
 		}
 		return mods;
