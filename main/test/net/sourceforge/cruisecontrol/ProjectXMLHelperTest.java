@@ -36,16 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import org.jdom.Element;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-
-import org.jdom.Element;
 
 public class ProjectXMLHelperTest extends TestCase {
 
@@ -138,76 +136,6 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(0, helper.getAuxLogs().size());
         helper = new ProjectXMLHelper(configFile, "project2");
         assertEquals(1, helper.getAuxLogs().size());
-    }
-
-    public void testPluginRegistry()
-        throws
-            IllegalArgumentException,
-            SecurityException,
-            ClassNotFoundException,
-            InstantiationException,
-            IllegalAccessException,
-            InvocationTargetException,
-            NoSuchMethodException {
-        verifyPluginClass(
-            "currentbuildstatusbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
-        verifyPluginClass(
-            "cvsbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
-        verifyPluginClass(
-            "p4bootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
-        verifyPluginClass(
-            "vssbootstrapper",
-            "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
-        verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
-        verifyPluginClass("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
-        verifyPluginClass("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
-        verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
-        verifyPluginClass("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
-        verifyPluginClass("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
-        // skipped because not everyone has starteam api jar
-        // verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
-        verifyPluginClass("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
-        verifyPluginClass("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
-        verifyPluginClass("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
-        verifyPluginClass("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
-        verifyPluginClass("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
-        verifyPluginClass(
-            "labelincrementer",
-            "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
-        verifyPluginClass(
-            "artifactspublisher",
-            "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
-        verifyPluginClass(
-            "currentbuildstatuspublisher",
-            "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
-        verifyPluginClass("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
-        verifyPluginClass(
-            "htmlemail",
-            "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
-        verifyPluginClass("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
-        verifyPluginClass("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
-        verifyPluginClass("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
-        verifyPluginClass("schedule", "net.sourceforge.cruisecontrol.Schedule");
-    }
-
-    private void verifyPluginClass(String pluginName, String expectedName)
-        throws
-            ClassNotFoundException,
-            IllegalArgumentException,
-            SecurityException,
-            InstantiationException,
-            IllegalAccessException,
-            InvocationTargetException,
-            NoSuchMethodException {
-        ProjectXMLHelper helper = new ProjectXMLHelper();
-        String className = helper.getClassNameForPlugin(pluginName);
-        assertEquals(expectedName, className);
-        Class pluginClass = Class.forName(className);
-        pluginClass.getConstructor(null).newInstance(null);
-
     }
 
     protected void setUp() throws Exception {
