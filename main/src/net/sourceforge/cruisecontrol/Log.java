@@ -37,8 +37,10 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import java.io.BufferedOutputStream;
@@ -177,11 +179,11 @@ public class Log {
         OutputStream logStream = null;
         try {
             XMLOutputter outputter = null;
-            if (logXmlEncoding == null) {
-                outputter = new XMLOutputter("   ", true);
-            } else {
-                outputter = new XMLOutputter("   ", true, logXmlEncoding);
+            Format format = Format.getPrettyFormat();
+            if (logXmlEncoding != null) {
+                format.setEncoding(logXmlEncoding);
             }
+            outputter = new XMLOutputter(format);
             logStream = new BufferedOutputStream(new FileOutputStream(lastLogFile));
             outputter.output(new Document(buildLog), logStream);
         } catch (IOException e) {
@@ -214,7 +216,7 @@ public class Log {
         return logFileName.toString();
     }
 
-    public void addContent(Element newContent) {
+    public void addContent(Content newContent) {
         buildLog.addContent(newContent);
     }
 

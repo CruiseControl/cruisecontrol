@@ -18,6 +18,14 @@ JabberPublisher:
 ----------------------
 * Add 1 second sleep so multiple jabber publishers work. (CC-119) Patch by Fleur Kelpin
 
+JDOM support:
+----------------------
+* Upgraded from version b9 to version 1.0
+
+Log(Test):
+----------------------
+* Small patch (CC-121) for new JDOM version by Mark Doliner
+
 manifest.mf:
 ----------------------
 * Corrected Class-Path to refer to the correct jars (includes CC-99)
