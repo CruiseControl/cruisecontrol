@@ -155,9 +155,9 @@ public class ProjectController implements ProjectControllerMBean {
         return project.getLastSuccessfulBuild();
     }
 
-    public void setLogDir(String logdir) {
+    public void setLogDir(String logdir) throws CruiseControlException {
         log("setting log dir to [" + logdir + "]");
-        project.setLogDir(logdir);
+        project.getLog().setLogDir(logdir);
     }
 
     public String getLogDir() {
@@ -193,7 +193,7 @@ public class ProjectController implements ProjectControllerMBean {
     public void register(MBeanServer server) throws JMException {
         this.server = server;
         ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
-        server.registerMBean(this, projectName);
+        this.server.registerMBean(this, projectName);
     }
 
 }

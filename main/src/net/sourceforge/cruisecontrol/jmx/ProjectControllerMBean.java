@@ -141,7 +141,7 @@ public interface ProjectControllerMBean {
      *
      * @param logdir Relative or absolute path to the log directory
      */
-    public void setLogDir(String logdir);
+    public void setLogDir(String logdir) throws CruiseControlException;
 
     public String getLogDir();
 
