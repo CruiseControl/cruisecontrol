@@ -1,0 +1,21 @@
+<project name="continuous integration" default="all">
+    <target name="init">
+        <property name="build.compiler" value="jikes"/>
+        <property name="classes.dir" value="classes"/>
+        <mkdir dir="${classes.dir}"/>
+        <property name="classpath" value="lib\mail.jar;lib\activation.jar"/>
+    </target>
+    
+    <target name="compile" depends="init">
+        <javac srcdir="src" destdir="${classes.dir}" classpath="${classpath}"/>
+        <copy todir="${classes.dir}">
+            <fileset dir="src" includes="**/*.java, **/*.properties"/>
+        </copy>
+    </target>
+    
+    <target name="jar" depends="compile">
+        <jar jarfile="lib\masterbuild.jar" basedir="${classes.dir}"/>
+    </target>
+    
+    <target name="all" depends="jar" />
+</project>                                                                       
