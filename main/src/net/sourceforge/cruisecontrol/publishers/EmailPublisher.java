@@ -215,10 +215,7 @@ public abstract class EmailPublisher implements Publisher {
     protected String createUserList(XMLLogHelper logHelper)
             throws CruiseControlException {
 
-        Set users = logHelper.getBuildParticipants();
-        if (skipUsers) {
-            users = new HashSet();
-        }
+        Set users = skipUsers ? new HashSet() : logHelper.getBuildParticipants();
 
         //add always addresses
         for (int i = 0; i < alwaysAddresses.length; i++) {
@@ -274,14 +271,16 @@ public abstract class EmailPublisher implements Publisher {
      */
     public void publish(Element cruisecontrolLog) {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        boolean important = !helper.isBuildSuccessful() && failAsImportant;
         try {
             if (shouldSend(helper)) {
-                sendMail(
-                    createUserList(helper),
-                    createSubject(helper),
-                    createMessage(helper),
-                    important);
+                boolean important = !helper.isBuildSuccessful() && failAsImportant;
+                String userList = createUserList(helper);
+                // userList can be empty, for example if skipUsers=true
+                if (userList.length() > 0) {
+                    sendMail(userList, createSubject(helper), createMessage(helper), important);
+                } else {
+                    LOG.info("No recipients, so not sending email");
+                }
             }
         } catch (CruiseControlException e) {
             LOG.error("", e);
