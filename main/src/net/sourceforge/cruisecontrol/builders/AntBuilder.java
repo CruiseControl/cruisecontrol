@@ -291,7 +291,7 @@ public class AntBuilder extends Builder {
             }
             cmdLine.createArgument().setValue("-classpath");
             cmdLine.createArgument().setValue(System.getProperty("java.class.path"));
-            cmdLine.createArgument().setValue("org.apache.tools.ant.Main");
+            cmdLine.createArgument().setValue("org.apache.tools.ant.launch.Launcher");
         }
 
         if (useLogger) {

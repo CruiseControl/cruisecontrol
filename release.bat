@@ -36,7 +36,7 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-set ANT_CLASSPATH=main/lib/ant.jar;main/lib/ant-launcher.jar
+set ANT_CLASSPATH=main/lib/ant/ant-launcher.jar
 echo %ANT_CLASSPATH%
 
 if "%JAVA_HOME%" == "" goto noJavaFound
@@ -64,7 +64,7 @@ echo Using Jikes!
 goto exec
 
 :exec
-java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.Main -buildfile release.xml %1 %2 %3 %4 %5 %6 %7 %8 %9
+java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.launch.Launcher -buildfile release.xml %1 %2 %3 %4 %5 %6 %7 %8 %9
 goto end
 
 :noJavaFound

@@ -2,8 +2,8 @@ CruiseControl Release Notes - Latest CVS
 
 Ant:
 ----------------------
-* Upgraded internal Ant to 1.6.2. Only the jars needed to build and run CruiseControl itself are packaged:
-  If you need other Ant tasks to be available to your build scripts, consider using the antscript attribute of the AntBuilder
+* Upgraded internal Ant to 1.6.2. 
+  All ant jars are packaged, to remain backwards compatible with config files that don't use the antscript attribute.
 
 AntBuilder & MavenBuilder:
 ----------------------
@@ -16,7 +16,8 @@ AntBuilder:
 * No longer use UTF-8 to read Ant log files, but use default encoding. Patch by Mark Doliner
 * Do not use read-ahead to skip broken processing instruction caused by old Ant versions, but use an XmlFilter
   so SAXBuilder can build from a File using the right Stream/Reader and encoding. Patch by Hack Kampbjørn
-* Setting debug to true now causes only '-debug' to be passed to ant's Main, rather than '-debug -verbose' (which would enable only -verbose, effectively)
+* Setting debug to true now causes only '-debug' to be passed to ant, rather than '-debug -verbose' (which would enable only -verbose, effectively)
+* Call org.apache.tools.ant.launch.Launcher instead of Main in absence of the antscript attribute
 * Various code cleanups
 
 ArtifactsPublisher

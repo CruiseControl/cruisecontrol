@@ -54,10 +54,9 @@
             <exclude name="website/**"/>
             <exclude name="main/lib/starteam-sdk.jar"/>
             <exclude name="main/dist/**"/>
-            <exclude name="main/classes/**"/>
-            <exclude name="main/test-results/**"/>
+            <exclude name="main/target/**"/>
             <exclude name="reporting/jsp/samplelogs/_cache/**"/>
-            <exclude name="reporting/jsp/classes/**"/>
+            <exclude name="reporting/jsp/target/**"/>
             <exclude name="reporting/jsp/dist/**"/>
             <exclude name="reporting/jsp/testresults.xml"/>
             <exclude name="../cruisecontrol-${label}.zip"/>
