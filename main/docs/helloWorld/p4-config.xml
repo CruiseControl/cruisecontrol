@@ -5,7 +5,7 @@
          <p4bootstrapper path="//depot/mycruise/build.xml" p4Port="HOST:1666" p4User="USER" p4Client="CLIENT"/>
       </bootstrappers>
       <modificationset quietperiod="30" >
-         <p4 port="${p4.port}" user="${p4.user}" client="${p4.client}" view="${p4.view}" />
+         <p4 port="PORT" user="USER" client="CLIENT" view="VIEW" />
       </modificationset>
       <schedule interval="30" >
          <ant buildfile="build.xml" target="cleanbuild" multiple="5" />
