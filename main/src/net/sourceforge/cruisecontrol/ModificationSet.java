@@ -27,7 +27,8 @@ import org.apache.tools.ant.*;
  */
 public class ModificationSet extends Task {
 
-	private Date _lastBuild;
+	private String _emailSuffix;
+    private Date _lastBuild;
 	private long _quietPeriod;
 	private ArrayList _sourceControlElements = new ArrayList();
 
@@ -43,6 +44,17 @@ public class ModificationSet extends Task {
 	private final static SimpleDateFormat _simpleDateFormat =
 			new SimpleDateFormat("yyyyMMddHHmmss");
 
+    
+    public void setDateFormat(String format) {
+		if (format != null && format.length() > 0) {
+			_formatter = new SimpleDateFormat(format);
+		}
+	}
+
+    public void setEmailSuffix(String emailSuffix) {
+        _emailSuffix = emailSuffix;
+    }
+    
 	/**
 	 *  set the timestamp of the last build time. String should be formatted as
 	 *  "yyyyMMddHHmmss"
@@ -67,12 +79,6 @@ public class ModificationSet extends Task {
 		_quietPeriod = seconds * 1000;
 	}
 
-	public void setDateFormat(String format) {
-		if (format != null && format.length() > 0) {
-			_formatter = new SimpleDateFormat(format);
-		}
-	}
-
 	/**
 	 *  do stuff, namely get all modifications since the last build time, and make
 	 *  sure that the appropriate quiet period is enforced so that we aren't
@@ -81,9 +87,12 @@ public class ModificationSet extends Task {
 	 *@throws  BuildException
 	 */
 	public void execute() throws BuildException {
+        ArrayList modifications = new ArrayList();
 		try {
 			Date currentDate = new Date();
 			_lastModified = _lastBuild.getTime();
+            
+            modifications = processSourceControlElements(currentDate, _lastBuild);            
             
             long currentTime = currentDate.getTime();
 			while (tooMuchRepositoryActivity(currentTime)) {
@@ -93,11 +102,11 @@ public class ModificationSet extends Task {
 						 + (sleepTime / 1000.0) + " seconds.");
 				Thread.sleep(sleepTime);
 
+                modifications = 
+                 processSourceControlElements(currentDate, _lastBuild);
+                
 				currentDate = new Date();
 			}
-
-			ArrayList modifications =
-					processSourceControlElements(currentDate, _lastBuild);
 
 			//If there aren't any modifications, then a build is not necessary, so
 			//  we will terminate this build by throwing a BuildException. That will
@@ -202,7 +211,7 @@ public class ModificationSet extends Task {
         if (_lastModified > currentTime) {
             return _lastModified - currentTime + _quietPeriod;
         } else {
-            return _quietPeriod - currentTime - _lastModified;                    
+            return _quietPeriod - (currentTime - _lastModified);                    
         }        
     }    
     
