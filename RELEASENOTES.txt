@@ -1,9 +1,5 @@
 CruiseControl Release Notes - Latest CVS
 
-AntBuilder
-----------------------
-* Fixed problem when antscript attribute contained a space.
-
 build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
