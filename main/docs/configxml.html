@@ -1402,7 +1402,7 @@
 
         <p>Changes are detected by running a command similar to the following:</p>
         
-        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-r<i>TAG</i>]&nbsp;-N&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"</pre>
+        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;</pre>
         
         <p>The following changes are made to generate the actual command:</p>
         
@@ -1419,8 +1419,11 @@
             the value of that attribute.</li>
         
             <li>The <code>-r</code> option is only used when the tag attribute
-            is specfied; <code><i>TAG</i></code> is replaced by the value of
-            that attribute.</li>
+            is specified; <code><i>TAG</i></code> is replaced by the value of
+            that attribute. Otherwise, the <code>-b</code> option is used.</li>
+
+            <li>The <code>-N</code> option is only used when the tag attribute
+            is not specified or if it is set to <code>HEAD</code>.</li>
         </ul>
         
         <p>Refer to the <a class="external"
