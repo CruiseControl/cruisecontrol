@@ -74,7 +74,11 @@ public class PluginXMLHelper {
             throw new CruiseControlException("Could not instantiate class: "
                     + pluginClass.getName());
         }
-        configureObject(objectElement, pluginInstance, skipChildElements);
+        if (pluginInstance instanceof SelfConfiguringPlugin) {
+            ((SelfConfiguringPlugin) pluginInstance).configure(objectElement);
+        } else {
+            configureObject(objectElement, pluginInstance, skipChildElements);
+        }
 
         return pluginInstance;
     }

@@ -41,6 +41,10 @@ SCPPublisher:
 ----------------------
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
 
+SelfConfiguringPlugin:
+----------------------
+* Add new SelfConfiguringPlugin interface. Submitted by Jeff Ramsdale
+
 VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)
