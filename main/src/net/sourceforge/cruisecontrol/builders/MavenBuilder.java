@@ -172,18 +172,6 @@ public class MavenBuilder extends Builder implements StreamConsumer {
      */
     public void setMavenScript(String mavenScript) {
         this.mavenScript = mavenScript;
-        if (!mavenScript.endsWith(".bat") && isWindows()) {
-            File file = new File(mavenScript);
-            if (!file.exists()) {
-                // check if we need to add a '.bat' extension
-                file = new File(mavenScript + ".bat");
-                if (file.exists()) {
-                    this.mavenScript = mavenScript + ".bat";
-                }
-                // we're not going to solve other problems here:
-                // just let the execution fail
-            }
-        }
     }
 
     /**
