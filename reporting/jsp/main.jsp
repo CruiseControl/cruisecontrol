@@ -46,7 +46,7 @@
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
     <tr>
       <td valign="top">
-        <jsp:include page="navigation.jsp" />
+        <jsp:include page="navigation.jsp" flush="true" />
       </td>
       <td valign="top">
         &nbsp;<br>
@@ -57,16 +57,16 @@
           <tr>
             <td bgcolor="white" >
               <cruisecontrol:tab name="buildResults" label="Build Results" >
-                <jsp:include page="buildresults.jsp" />
+                <jsp:include page="buildresults.jsp" flush="true" />
               </cruisecontrol:tab>
               <cruisecontrol:tab name="testResults" label="Test Results" >
-                <jsp:include page="testdetails.jsp" />
+                <jsp:include page="testdetails.jsp" flush="true" />
               </cruisecontrol:tab>
               <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
-                <jsp:include page="xmllog.jsp" />
+                <jsp:include page="xmllog.jsp" flush="true" />
               </cruisecontrol:tab>
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
-                <jsp:include page="controlpanel.jsp" />
+                <jsp:include page="controlpanel.jsp" flush="true" />
               </cruisecontrol:tab>
             </td>
           </tr>
