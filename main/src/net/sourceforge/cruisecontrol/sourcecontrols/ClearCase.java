@@ -270,8 +270,7 @@ public class ClearCase implements SourceControl {
     /**
      *  Parses a single line from the reader. Each line contains a signe revision
      *  with the format : <br>
-     *  username££date_of_revision££element_name££operation_type££comments <br>
-     *
+     *  username#~#date_of_revision#~#element_name#~#operation_type#~#comments <br>
      *
      *@param  line the line to parse
      *@return  a modification element corresponding to the given line
