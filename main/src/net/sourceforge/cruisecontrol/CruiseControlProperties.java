@@ -17,8 +17,7 @@ public class CruiseControlProperties {
     private  File currentBuildStatusFile;
 
     private  boolean debug;
-    private  boolean verbose;
-    private  boolean reportSuccess;
+    private  boolean verbose;    
     private  boolean useEmailMap;    
     private  boolean isIntervalAbsolute;
     private  boolean mapSourceControlUsersToEmail;
@@ -36,6 +35,7 @@ public class CruiseControlProperties {
     private  String antTarget;
     private  String cleanAntTarget;
     private  String labelIncrementerClassName;
+    private  String reportSuccess;
 
     public CruiseControlProperties(String propertiesFile) throws IOException {
         
@@ -70,7 +70,12 @@ public class CruiseControlProperties {
             auxLogProperties.add(nextFile);
         }
 
-        buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
+        try {
+            buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException(
+            "buildInterval not set correctly in " + propsFileName);
+        }
 
         debug = getBooleanProperty(props, "debug");
         verbose = getBooleanProperty(props, "verbose");
@@ -79,12 +84,36 @@ public class CruiseControlProperties {
             getBooleanProperty(props, "mapSourceControlUsersToEmail");
 
         defaultEmailSuffix = props.getProperty("defaultEmailSuffix");
+                
         mailhost = props.getProperty("mailhost");
+        if(mailhost.equals("")) {        
+            throw new IllegalArgumentException(
+            "mailhost not set correctly in " + propsFileName);
+        }
+        
         servletURL = props.getProperty("servletURL");
+        if(servletURL.equals("")) {        
+            throw new IllegalArgumentException(
+            "servletURL not set correctly in " + propsFileName);
+        }
+        
         returnAddress = props.getProperty("returnAddress");
+        if(returnAddress.equals("")) {        
+            throw new IllegalArgumentException(
+            "returnAddress not set correctly in " + propsFileName);
+        }
+        
         buildmaster = getSetFromString(props.getProperty("buildmaster"));
         notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
-        reportSuccess = getBooleanProperty(props, "reportSuccess");
+        
+        reportSuccess = props.getProperty("reportSuccess","always");
+        if (!reportSuccess.equalsIgnoreCase("always") &&
+            !reportSuccess.equalsIgnoreCase("fixes") &&
+            !reportSuccess.equalsIgnoreCase("never")) {
+                throw new IllegalArgumentException(
+                "invalid value for reportSuccess in " + propsFileName);
+        }
+        
         spamWhileBroken = getBooleanProperty(props, "spamWhileBroken");
 
         logDir = props.getProperty("logDir"); 
@@ -98,7 +127,14 @@ public class CruiseControlProperties {
         antFile = props.getProperty("antfile");
         antTarget = props.getProperty("target");
         cleanAntTarget = props.getProperty("cleantarget");
-        cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
+        
+        try {
+            cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException(
+            "cleanBuildEvery not set correctly in " + propsFileName);
+        }
+        
         labelIncrementerClassName = props.getProperty("labelIncrementerClass");
         if (labelIncrementerClassName == null) {
             labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
@@ -404,14 +440,14 @@ public class CruiseControlProperties {
     /** Getter for property reportSuccess.
      * @return Value of property reportSuccess.
      */
-    public  boolean shouldReportSuccess() {
+    public  String getReportSuccess() {
         return reportSuccess;
     }
 
     /** Setter for property reportSuccess.
      * @param reportSuccess New value of property reportSuccess.
      */
-    public  void setReportSuccess(boolean reportSuccess) {
+    public  void setReportSuccess(String reportSuccess) {
         this.reportSuccess = reportSuccess;
     }
 
@@ -484,5 +520,4 @@ public class CruiseControlProperties {
     public  void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
-
 }

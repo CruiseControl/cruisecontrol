@@ -159,6 +159,9 @@ public class MasterBuild {
     }
 
     private void performBuild() throws Exception {
+        
+        boolean previousBuildSuccessful = (info.getLastBuild() == info.getLastGoodBuild());        
+        
         //Reload the properties file.
         props = new CruiseControlProperties(_propsFileName);
 
@@ -201,16 +204,26 @@ public class MasterBuild {
         } else {
             if (info.isLastBuildSuccessful()) {
                 _buildCounter++;
-                if(props.shouldReportSuccess()) {
-                    sendBuildEmail(_projectName + " Build " + info.getLabel() + " Successful");
+                if(props.getReportSuccess().equalsIgnoreCase("always")) {
+                    sendBuildEmail(_projectName + " Build " + info.getLabel() + 
+                    " Successful");
+                } else if(props.getReportSuccess().equalsIgnoreCase("fixes")) {                    
+                    if (!previousBuildSuccessful) {                        
+                        sendBuildEmail(_projectName + " Build Fixed, " + 
+                        info.getLabel() + " Successful");
+                    } else {
+                        log("Skipping email notifications for successful builds");
+                    }
                 } else {
-                    log("Skipping email notifications for successful builds");
+                    log("Skipping email notifications for fixed and " +
+                    "successful builds");
                 }
+                
                 info.incrementLabel(props.getLabelIncrementerClassName());
             } else {
                 sendBuildEmail(_projectName + "Build Failed");
-            }
-            info.write();
+            }            
+            info.write(); 
         }
         runner.reset();
     }
