@@ -37,6 +37,9 @@
 package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
+
+import net.sourceforge.cruisecontrol.util.Util;
+
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -53,6 +56,9 @@ public class Schedule {
 
     private List _builders = new ArrayList();
     private List _pauseBuilders = new ArrayList();
+    
+    private final Object mutex = new Object();
+    static final long ONE_MINUTE = 60 * 1000;
 
     public void addBuilder(Builder builder) {
         _builders.add(builder);
@@ -69,18 +75,24 @@ public class Schedule {
      *  @return true if CruiseControl is currently paused (no build should run).
      */
     public boolean isPaused(Date now) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        Iterator pauseBuilderIterator = _pauseBuilders.iterator();
-        while (pauseBuilderIterator.hasNext()) {
-            PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
-            if (builder.isPaused(cal)) {
-                log.info("CruiseControl is paused until: " + builder.getEndTime()+1);
-                return true;
-            }
-        }
+        PauseBuilder pause = findPause(now);
+        if (pause != null) {
+			log.info("CruiseControl is paused until: " + pause.getEndTime()+1);
+        	return true;
+        } 
         return false;
     }
+
+	PauseBuilder findPause(Date date) {	
+		Iterator pauseBuilderIterator = _pauseBuilders.iterator();
+		while (pauseBuilderIterator.hasNext()) {
+		    PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
+		    if (builder.isPaused(date)) {
+		        return builder;
+		    }
+		}
+		return null;
+	}
 
     /**
      *  Select the correct <code>Builder</code> and start a build.
@@ -112,10 +124,15 @@ public class Schedule {
         Iterator builderIterator = _builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
-            if (builder.getTime() > 0) {
-                if (getTimeFromDate(lastBuild) < builder.getTime() &&
-                        builder.getTime() < getTimeFromDate(now)
-                        && builder.isValidDay(now)) {
+            int buildTime = builder.getTime();
+            boolean isTimeBuilder = buildTime>0;
+            if (isTimeBuilder) {
+				boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
+            	boolean isAfterBuildTime = buildTime<=Util.getTimeFromDate(now);
+            	boolean isValidDay = builder.isValidDay(now); 
+                if (didntBuildToday
+                    && isAfterBuildTime
+                    && isValidDay) {
                     return builder;
                 }
             } else if (builder.getMultiple() > 0) {
@@ -130,17 +147,98 @@ public class Schedule {
         throw new CruiseControlException("No Builder selected.");
     }
 
-    /**
-     *  Create an integer time from a <code>Date</code> object.
-     *
-     *  @param date The date to get the timestamp from.
-     *  @return The time as an integer formatted as "HHmm".
-     */
-    protected int getTimeFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY) * 100;
-        int minute = calendar.get(Calendar.MINUTE);
-        return hour + minute;
+	boolean builderDidntBuildToday(Date lastBuild, Date now, int buildTime) {
+		int time = Util.getTimeFromDate(now);
+		long timeMillis = Util.convertToMillis(time);
+		long startOfToday = now.getTime() - timeMillis;
+		boolean lastBuildYesterday = lastBuild.getTime()<startOfToday;
+		boolean lastBuildTimeBeforeBuildTime = Util.getTimeFromDate(lastBuild)<buildTime;
+		boolean didntBuildToday = lastBuildYesterday || lastBuildTimeBeforeBuildTime;
+		return didntBuildToday;
+	}
+
+    long getTimeToNextBuild(Date now, long sleepInterval) {
+    	long timeToNextBuild = sleepInterval;
+		timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
+		timeToNextBuild = checkPauseBuilders(now, timeToNextBuild);
+    	return timeToNextBuild;
     }
+
+	long checkTimeBuilders(Date now, long proposedTime) {
+		long timeToNextBuild = proposedTime;
+		int nowTime = Util.getTimeFromDate(now);
+		Iterator builderIterator = _builders.iterator();
+		while (builderIterator.hasNext()) {
+			Builder builder = (Builder) builderIterator.next();
+			int thisBuildTime = builder.getTime();
+			boolean isTimeBuilder = thisBuildTime>0;
+			if (isTimeBuilder) {
+				long timeToThisBuild = Long.MAX_VALUE;
+				boolean isBeforeBuild = nowTime<=thisBuildTime;
+				boolean isValidDay = builder.isValidDay(now);
+				if (isBeforeBuild && isValidDay) {
+					timeToThisBuild = Util.milliTimeDiffernce(nowTime, thisBuildTime);
+				}
+				else {
+					long oneDay = 24 * 60 * ONE_MINUTE;
+					Date tomorrow = new Date(now.getTime()+oneDay);
+					boolean tomorrowIsValid = builder.isValidDay(tomorrow);
+					if (tomorrowIsValid) {
+						long remainingTimeToday = oneDay - Util.convertToMillis(nowTime);
+						long timeTomorrow = Util.convertToMillis(thisBuildTime);
+						timeToThisBuild = remainingTimeToday + timeTomorrow;
+					}
+				}
+				if (timeToThisBuild < timeToNextBuild) {
+					timeToNextBuild = timeToThisBuild;
+				}
+			}
+		}
+		return timeToNextBuild;
+	}
+	
+	long checkPauseBuilders(Date now, long proposedTime) {
+		long futureMillis = now.getTime() + proposedTime;
+		Date futureDate = new Date(futureMillis);
+		PauseBuilder pause = findPause(futureDate);
+		if (pause == null) return proposedTime;
+		int endPause = pause.getEndTime();
+		int currentTime = Util.getTimeFromDate(now);
+		long timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
+		return timeToEndOfPause + ONE_MINUTE;
+	}
+
+	void waitForNextBuild(long waitTime) throws InterruptedException {
+		log.info("waiting for " + formatTime(waitTime));
+		synchronized(mutex) {
+			mutex.wait(waitTime);
+		}
+	}
+	
+	void forceBuild() {
+		synchronized(mutex) {
+			mutex.notifyAll();
+		}		
+	}
+
+	/**
+	 * @param time time in milliseconds
+	 * @return Time formatted as X hours Y minutes Z seconds
+	 */
+	public static String formatTime(long time) {
+	    long seconds = time / 1000;
+	    long hours = seconds / 3600;
+	    long minutes = (seconds % 3600) / 60;
+	    seconds = seconds % 60;
+	
+	    StringBuffer sb = new StringBuffer();
+	    if (hours > 0)
+	        sb.append(hours + " hours ");
+	    if (minutes > 0)
+	        sb.append(minutes + " minutes ");
+	    if (seconds > 0)
+	        sb.append(seconds + " seconds ");
+	
+	    return sb.toString();
+	}
 }
