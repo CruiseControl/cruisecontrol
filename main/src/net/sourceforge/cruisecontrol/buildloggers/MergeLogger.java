@@ -36,14 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.buildloggers;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.BuildLogger;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 
 /**
  * This BuildLogger implementation merges other XML logs into the CruiseControl
@@ -81,24 +81,28 @@ public class MergeLogger implements BuildLogger {
     public void log(Element buildLog) throws CruiseControlException {
         String nextLogFilename = ((file != null) ? file : dir);
 
-        File auxLogFile = new File(nextLogFilename);
-        if (auxLogFile.isDirectory()) {
-            String[] childFileNames = auxLogFile.list(new FilenameFilter() {
-                public boolean accept(File dir, String filename) {
-                    return filename.endsWith(".xml");
+        mergeFile(new File(nextLogFilename), buildLog);
+    }
+
+    /**
+     * Recursive method that merges the specified file into the buildLog. If
+     * the file is a directory, then all it's children that are XML files
+     * are merged.
+     */
+    private void mergeFile(File nextLogFile, Element buildLog) {
+
+        if (nextLogFile.isDirectory()) {
+            File[] children = nextLogFile.listFiles(new FileFilter() {
+                public boolean accept(File file) {
+                    return file.isDirectory()
+                            || file.getName().endsWith(".xml");
                 }
             });
-            for (int j = 0; j < childFileNames.length; j++) {
-                String nextChildFilename = childFileNames[j];
-
-                Element auxLogElement =
-                        getElementFromAuxLogFile(nextLogFilename + File.separator + nextChildFilename);
-                if (auxLogElement != null) {
-                    buildLog.addContent(auxLogElement.detach());
-                }
+            for (int j = 0; j < children.length; j++) {
+                mergeFile(children[j], buildLog);
             }
         } else {
-            Element auxLogElement = getElementFromAuxLogFile(nextLogFilename);
+            Element auxLogElement = getElement(nextLogFile);
             if (auxLogElement != null) {
                 buildLog.addContent(auxLogElement.detach());
             }
@@ -108,13 +112,14 @@ public class MergeLogger implements BuildLogger {
     /**
      *  Get a JDOM <code>Element</code> from an XML file.
      *
-     *  @param fileName The file name to read.
+     *  @param xmlFile The file name to read.
      *  @return JDOM <code>Element</code> representing that xml file.
      */
-    private Element getElementFromAuxLogFile(String fileName) {
+    private Element getElement(File xmlFile) {
         try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Element element = builder.build(fileName).getRootElement();
+            SAXBuilder builder =
+                    new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            Element element = builder.build(xmlFile).getRootElement();
             if (element.getName().equals("testsuite")) {
                 if (element.getChild("properties") != null) {
                     element.getChild("properties").detach();
@@ -122,7 +127,7 @@ public class MergeLogger implements BuildLogger {
             }
             return element;
         } catch (JDOMException e) {
-            LOG4J.warn("Could not read aux log: " + fileName + ".  Skipping...", e);
+            LOG4J.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
         }
 
         return null;
