@@ -6,6 +6,7 @@ AntBuilder
 * Added check to ensure that log file exists before trying to get contents.
 * Fixed getCommandLineArgs to handle EmptyLabelIncrementer
 * Added timeout attribute. Patch by Igor Fedorenko
+* Added two XMLFilters to remove empty <message>- and <task>-elements from the XML log file in getAntLogAsElement.
 
 BuildInfoTag
 ----------------------
@@ -14,7 +15,7 @@ BuildInfoTag
 
 compile.xsl
 ----------------------
-* Ignore empty lines. Patch by Brad Clarke
+* Ignore empty lines. Patch by Brad Clarke (note: this is now obsolete for new logfiles but still useful for old ones)
 
 Compound
 ----------------------
@@ -52,6 +53,10 @@ index.jsp
 ----------------------
 * Sort projects. Patch by Brad Clarke
 
+JDOM support
+----------------------
+* Upgraded from version b7 to version b9
+
 jmx
 ----------------------
 * Now using MX4J instead of Sun's reference implementation. Patch by Michael Kloss
@@ -64,6 +69,10 @@ Main
 main.jsp
 ----------------------
 * Added a metrics tab.
+
+MergeLogger
+----------------------
+* Use XMLFilter to remove properties from JUnit results. This fixes removal for JUnit reports and uses less resources.
 
 metrics.jsp
 ----------------------
@@ -98,11 +107,13 @@ PVCS
 StatusHelper
 ----------------------
 * Build dates now formatted according to the locale of the user's browser.a
+
 SVN
 ----------------------
 * Revert to using date instead of guessing at revision. Patch by Etienne Studer
 * Add to plugin registry. Patch by Gerd Zanker
 * Add initial documentation in configxml.html and plugins.html. Patch by Gerd Zanker
+* Updated method declarations for JDOM b9-compliancy
 
 testdetails.xsl
 ----------------------
