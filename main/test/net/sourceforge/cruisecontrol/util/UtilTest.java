@@ -107,4 +107,21 @@ public class UtilTest extends TestCase {
         assertEquals(midnightToday, Util.getMidnight());
     }
 
+  public void testFormatTime() {
+      long fiveSeconds = 5 * 1000;
+      long oneHour = 60 * Util.ONE_MINUTE;
+      long oneHourFiftyNineMinutes = 2 * oneHour - Util.ONE_MINUTE;
+
+      String seconds = "5 seconds";
+      String hoursMinutesSeconds = "1 hours 59 minutes 5 seconds";
+      String negativeTime = "-1 hours -59 minutes -5 seconds";
+
+      assertEquals(seconds, Util.formatTime(fiveSeconds));
+      assertEquals(
+          hoursMinutesSeconds,
+          Util.formatTime(oneHourFiftyNineMinutes + fiveSeconds));
+      assertEquals(
+          negativeTime,
+          Util.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
+  }
 }

@@ -58,7 +58,6 @@ public class ProjectTest extends TestCase {
             org.apache.log4j.Logger.getLogger(ProjectTest.class);
 
     private Project project;
-    private static final long ONE_MINUTE = 60 * 1000;
     private final List filesToClear = new ArrayList();
 
     public ProjectTest(String name) {
@@ -342,24 +341,6 @@ public class ProjectTest extends TestCase {
         mockProject.stopLooping();
     }
 
-    public void testFormatTime() {
-        long fiveSeconds = 5 * 1000;
-        long oneHour = 60 * ONE_MINUTE;
-        long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
-
-        String seconds = "5 seconds";
-        String hoursMinutesSeconds = "1 hours 59 minutes 5 seconds";
-        String negativeTime = "-1 hours -59 minutes -5 seconds";
-
-        assertEquals(seconds, Util.formatTime(fiveSeconds));
-        assertEquals(
-            hoursMinutesSeconds,
-            Util.formatTime(oneHourFiftyNineMinutes + fiveSeconds));
-        assertEquals(
-            negativeTime,
-            Util.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
-    }
-    
     public void testNeedToWait() {
         assertTrue(Project.needToWaitForNextBuild(1));
         assertFalse(Project.needToWaitForNextBuild(0));
