@@ -54,9 +54,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class AntBuilderTest extends TestCase {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(AntBuilderTest.class);
-
     public AntBuilderTest(String name) {
         super(name);
     }
@@ -99,7 +96,7 @@ public class AntBuilderTest extends TestCase {
         String[] resultShellScript = {"ant.sh", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
-        log.getRoot().setLevel(Level.INFO);
+        Logger.getRoot().setLevel(Level.INFO);
         assertTrue(Arrays.equals(resultInfo, builder.getCommandLineArgs(properties, false, false, false)));
         assertTrue(Arrays.equals(resultLogger, builder.getCommandLineArgs(properties, true, false, false)));
 
@@ -109,7 +106,7 @@ public class AntBuilderTest extends TestCase {
         assertTrue(Arrays.equals(resultShellScript, builder.getCommandLineArgs(properties, false, true, false)));
         builder.setAntScript(null);
 
-        log.getRoot().setLevel(Level.DEBUG);
+        Logger.getRoot().setLevel(Level.DEBUG);
         assertTrue(Arrays.equals(resultDebug, builder.getCommandLineArgs(properties, false, false, false)));
 
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
@@ -137,9 +134,8 @@ public class AntBuilderTest extends TestCase {
             bw2.flush();
             bw2.close();
 
-            AntBuilder builder = new AntBuilder();
-            assertEquals(buildLogElement.toString(), builder.getAntLogAsElement(logFile).toString());
-            assertEquals(buildLogElement.toString(), builder.getAntLogAsElement(logFile2).toString());
+            assertEquals(buildLogElement.toString(), AntBuilder.getAntLogAsElement(logFile).toString());
+            assertEquals(buildLogElement.toString(), AntBuilder.getAntLogAsElement(logFile2).toString());
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
