@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+SVN
+----------------------
+* fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
+
 CruiseControl Release Notes - 2.1.4
 
 AntBuilder
