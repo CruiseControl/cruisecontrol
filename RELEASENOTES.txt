@@ -1,9 +1,37 @@
+CruiseControl Release Notes - Latest CVS
+
+JSP
+----------------------
+* XSL modified to render compile errors/warnings correctly on Netscape 4.7 - Patch by Sanjay Madhaven
+
+EmailPublisher
+----------------------
+* Allow optional subject line prefix on emails for easier filtering - Patch by Peter Mei
+
+Manifest
+----------------------
+* Added missing ant.jar, optional.jar, and xalan.jar manifest classpath entries - Bug found by Brett Watson
+
+Ant
+----------------------
+* Ability to choose whether Ant runs XmlLogger as a Logger or a Listener - Patch by Keith Levy
+
+P4
+----------------------
+* Correctly parse P4 changelist descriptions.  Patch by Mike Roberts.  Test by Tim Jones.
+
+
+
 CruiseControl Release Notes - 2.0.1
 
 PVCS
 ----------------------
 * Configurable date formats - Patch by Kalpesh Parmar
 * Modification type support - Patch by Steven E. Newton
+
+XMLLogHelper
+----------------------
+* Make sure that Perforce emails are parsed correctly
 
 ClearCase
 ----------------------
