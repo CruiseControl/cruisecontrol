@@ -86,4 +86,5 @@
                 <xsl:value-of select="comment"/>
             </td></tr>
         </xsl:if>
+    </xsl:template>
 </xsl:stylesheet>
