@@ -103,9 +103,9 @@ public final class Util {
             cruisecontrolElement = builder.build(configFile).getRootElement();
         } catch (Exception e) {
             throw new CruiseControlException(
-                "failed to load config file [" + configFile != null
+                "failed to load config file [" + (configFile != null
                     ? configFile.getName()
-                    : "" + "]",
+                    : "") + "]",
                 e);
         }
         return cruisecontrolElement;
