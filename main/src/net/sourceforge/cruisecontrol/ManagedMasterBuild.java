@@ -37,7 +37,12 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
      * Indicates whether or not the user paused the CruiseControl process.
      */
     protected boolean paused = false;
-    
+
+    /**
+     * Indicates whether or not the build process should stop.
+     */
+    protected boolean shouldStop = false;
+
     /**
      * Constructs a new instance. User arguments may be provided to control
      * the same user set attributes controlled by the MasterBuild superclass.
@@ -73,7 +78,7 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
     public void execute() {
         try {
             _buildCounter = 0;
-            while (true) {
+            while (!shouldStop) {
                 Date startTime = new Date();
                 startLog();
                 reposCheckCount++;
@@ -103,9 +108,9 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
         endLog(origWakeUpTime - System.currentTimeMillis());
 
         long wakeUpTime = origWakeUpTime;
-        while (paused
+        while ((paused
                || (System.currentTimeMillis() < wakeUpTime
-                    && !shouldRunAsap )) {
+                    && !shouldRunAsap )) && !shouldStop) {
             Thread.sleep(100);
             wakeUpTime = getWakeUpTime(startTime.getTime(), goToSleepTime);
         }
@@ -115,6 +120,9 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
         if (shouldRunAsap) {
             System.out.println("Was told to run as soon as possible. Running now.");
             shouldRunAsap = false;
+        }
+        if (shouldStop) {
+            System.out.println("Was told to stop. Stopping now.");
         }
         long actualSleepSeconds = (System.currentTimeMillis() - goToSleepTime)/1000;
         System.out.println("Actually slept for " + actualSleepSeconds + " seconds.");
@@ -210,5 +218,10 @@ public class ManagedMasterBuild extends MasterBuild implements Runnable {
         }
         System.out.println("Will resume as soon as possible.");
         paused = false;
+    }
+
+    public void stop() {
+        shouldStop = true;
+        System.out.println("Will stop the process as soon as possible.");
     }
 }
