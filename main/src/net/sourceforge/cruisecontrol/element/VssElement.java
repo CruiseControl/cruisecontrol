@@ -162,7 +162,7 @@ public class VssElement extends SourceControlElement {
 			e.printStackTrace();
 		}
 
-		if (_modifications.size() > 0) {
+		if (_property != null && _modifications.size() > 0) {
 			getAntTask().getProject().setProperty(_property, "true");
 		}
 
@@ -218,11 +218,14 @@ public class VssElement extends SourceControlElement {
             }
 		}
 
-		if ("delete".equals(mod.type)) {
+		if (_propertyOnDelete != null && "delete".equals(mod.type)) {
 			getAntTask().getProject().setProperty(_propertyOnDelete, "true");
 		}
-
-		getAntTask().getProject().setProperty(_property, "true");
+        
+        if (_property != null) {
+    		getAntTask().getProject().setProperty(_property, "true");
+        }
+        
 		_modifications.add(mod);
 		logModification(mod);
 	}
