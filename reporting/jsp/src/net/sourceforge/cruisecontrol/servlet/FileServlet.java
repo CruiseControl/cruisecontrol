@@ -82,7 +82,7 @@ public class FileServlet extends HttpServlet {
         return rootDirectory;
     }
 
-    private static File getDirectoryFromName(String dir) throws ServletException {
+    private static File getDirectoryFromName(String dir) {
         File rootDirectory;
         if (dir == null) {
             return null;

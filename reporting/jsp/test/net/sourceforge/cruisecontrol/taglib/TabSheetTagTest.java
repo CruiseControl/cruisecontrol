@@ -97,7 +97,7 @@ public class TabSheetTagTest extends TestCase {
         tabSheet.setPageContext(pageContext);
     }
 
-    public void testClearTabsOnStart() throws IOException, JspException {
+    public void testClearTabsOnStart() throws JspException {
         tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag()); // side effect of this should clear
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
@@ -108,7 +108,7 @@ public class TabSheetTagTest extends TestCase {
         assertEquals(expected, pageContext.getOut().toString());
     }
 
-    public void testClearTabsOnRelease() throws IOException, JspException {
+    public void testClearTabsOnRelease() throws JspException {
         tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
         tabSheet.release();
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag()); // wouldn't normally call this after a release
