@@ -12,6 +12,7 @@ build.xml (jsp)
 ClearCase Sourcecontrol
 ----------------------
 * Fixed bug with ClearCase version 2002.05.00 that hindered sending email. Patch by Ian Colledge and Esa Laine
+* Fixed bug where comments with ~ or # were causing modifications to be lost
 
 CruiseControlTagSupport
 ----------------------
@@ -29,6 +30,7 @@ FileSystem Sourcecontrol
 FTP support
 ----------------------
 * Added CurrentBuildStatusFTPBootstrapper and CurrentBuildStatusFTPPublisher. Submitted by Matt Albrecht
+* Also added an FTPPublisher. (Submitted by Matt Albrecht)
 
 JMX Interface
 ----------------------
