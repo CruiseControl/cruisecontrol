@@ -131,11 +131,4 @@ public class BuildQueue implements Runnable {
     public boolean isWaiting() {
         return waiting;
     }
-
-    BuildQueue(boolean startQueue) {
-        if (startQueue) {
-            start();
-        }
-    }
-
 }

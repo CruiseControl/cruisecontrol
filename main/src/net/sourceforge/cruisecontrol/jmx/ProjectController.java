@@ -36,6 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
+import java.io.File;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.JMException;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Project;
@@ -51,6 +57,7 @@ public class ProjectController implements ProjectControllerMBean {
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
     private Project project;
+    private MBeanServer server;
 
     public ProjectController(Project project) {
         this.project = project;
@@ -87,11 +94,11 @@ public class ProjectController implements ProjectControllerMBean {
 
     public void setConfigFileName(String fileName) {
         log("setting config file to [" + fileName + "]");
-        project.setConfigFileName(fileName);
+        project.setConfigFile(new File(fileName));
     }
 
     public String getConfigFileName() {
-        return project.getConfigFileName();
+        return project.getConfigFile().getAbsolutePath();
     }
 
     public void setLabel(String label) {
@@ -173,5 +180,11 @@ public class ProjectController implements ProjectControllerMBean {
     private void log(String message) {
         LOG.info(project.getName() + " Controller: " + message);
     }
-    
+
+    public void register(MBeanServer server) throws JMException {
+        this.server = server;
+        ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
+        server.registerMBean(this, projectName);
+    }
+
 }

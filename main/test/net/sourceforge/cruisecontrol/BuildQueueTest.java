@@ -50,7 +50,7 @@ public class BuildQueueTest extends TestCase {
 
     protected void setUp() throws Exception {
         boolean startQueue = false;
-        queue = new BuildQueue(startQueue);
+        queue = new BuildQueue();
     }
 
     public void testServiceQueue() {

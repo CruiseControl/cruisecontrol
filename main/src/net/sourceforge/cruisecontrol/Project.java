@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Calendar;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
@@ -68,9 +69,7 @@ import org.jdom.output.XMLOutputter;
  * and a Schedule that determines when builds occur.
  */
 public class Project implements Serializable, Runnable {
-
     static final long serialVersionUID = 2656877748476842326L;
-
     private static final Logger LOG = Logger.getLogger(Project.class);
 
     public static final int IDLE_STATE = 0;
@@ -80,6 +79,8 @@ public class Project implements Serializable, Runnable {
     public static final int BUILDING_STATE = 4;
     public static final int MERGING_LOGS_STATE = 5;
     public static final int PUBLISHING_STATE = 6;
+    public static final int PAUSED_STATE = 7;
+    public static final int STOPPED_STATE = 8;
     public static final String[] STATE_DESCRIPTIONS =
         {
             "idle",
@@ -88,9 +89,14 @@ public class Project implements Serializable, Runnable {
             "checking for modifications",
             "now building",
             "merging accumulated log files",
-            "publishing build results" };
+            "publishing build results",
+            "paused",
+            "stopped"
+        };
 
-    private transient int state = IDLE_STATE;
+    private static final String DEFAULT_LABEL = "build.1";
+
+    private transient int state = STOPPED_STATE;
     private transient Schedule schedule;
     private transient List bootstrappers = new ArrayList();
     private transient ModificationSet modificationSet;
@@ -113,15 +119,24 @@ public class Project implements Serializable, Runnable {
         new SimpleDateFormat("yyyyMMddHHmmss");
 
     private int buildCounter = 0;
-    private Date lastBuild;
-    private Date lastSuccessfulBuild;
+    private Date lastBuild; {
+        Calendar midnight = Calendar.getInstance();
+        midnight.set(Calendar.HOUR, 0);
+        midnight.set(Calendar.MINUTE, 0);
+        midnight.set(Calendar.SECOND, 0);
+        midnight.set(Calendar.MILLISECOND, 0);
+        lastBuild = midnight.getTime();
+    }
+    private Date lastSuccessfulBuild = lastBuild;
     private boolean wasLastBuildSuccessful = true;
-    private String label;
-    private String configFileName = "config.xml";
+    private String label = DEFAULT_LABEL;
+    private File configFile;
     private String name;
     private boolean buildForced = false;
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
+    private Thread projectSchedulingThread;
+    private boolean stopped = true;
 
     /**
      * <b>Note:</b> This means that the config file is re-parsed on every cycle.
@@ -248,25 +263,32 @@ public class Project implements Serializable, Runnable {
     }
 
     public void run() {
+        LOG.info("Project " + name + " started");
         checkMutex();
-        while (true) {
-            try {
-                waitIfPaused();
-                waitForNextBuild();
-                setState(QUEUED_STATE);
-                queue.requestBuild(this);
-                waitForBuildToFinish();
-            } catch (InterruptedException e) {
-                String message = "Project " + name + ".run() interrupted";
-                LOG.error(message, e);
-                throw new RuntimeException(message);
+        try {
+            while (!stopped) {
+                try {
+                    waitIfPaused();
+                    waitForNextBuild();
+                    setState(QUEUED_STATE);
+                    queue.requestBuild(this);
+                    waitForBuildToFinish();
+                } catch (InterruptedException e) {
+                    String message = "Project " + name + ".run() interrupted";
+                    LOG.error(message, e);
+                    throw new RuntimeException(message);
+                }
             }
+        } finally {
+            stopped = true;
+            LOG.info("Project " + name + " stopped");
         }
     }
 
     void waitIfPaused() throws InterruptedException {
         synchronized (pausedMutex) {
             while (isPaused) {
+                setState(PAUSED_STATE);
                 pausedMutex.wait(10 * ONE_MINUTE);
             }
         }
@@ -424,13 +446,13 @@ public class Project implements Serializable, Runnable {
         this.logXmlEncoding = logXmlEncoding;
     }
 
-    public void setConfigFileName(String fileName) {
+    public void setConfigFile(File fileName) {
         debug("Config file set to [" + fileName + "]");
-        configFileName = fileName;
+        configFile = fileName;
     }
 
-    public String getConfigFileName() {
-        return configFileName;
+    public File getConfigFile() {
+        return configFile;
     }
 
     public void setName(String name) {
@@ -563,9 +585,8 @@ public class Project implements Serializable, Runnable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        log("reading settings from config file [" + configFileName + "]");
-        ProjectXMLHelper helper =
-            new ProjectXMLHelper(new File(configFileName), name);
+        log("reading settings from config file [" + configFile.getAbsolutePath() + "]");
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
         buildInterval = ONE_SECOND * helper.getBuildInterval();
         logDir = helper.getLogDir();
         logXmlEncoding = helper.getLogXmlEncoding();
@@ -844,11 +865,8 @@ public class Project implements Serializable, Runnable {
      * @param labelIncrementer target LabelIncrementer
      * @throws CruiseControlException if label is not valid
      */
-    protected void validateLabel(
-        String label,
-        LabelIncrementer labelIncrementer)
+    protected void validateLabel(String label, LabelIncrementer labelIncrementer)
         throws CruiseControlException {
-
         if (!labelIncrementer.isValidLabel(label)) {
             throw new CruiseControlException(label + " is not a valid label");
         }
@@ -886,5 +904,19 @@ public class Project implements Serializable, Runnable {
 
     private void debug(String message) {
         LOG.debug("Project " + name + ":  " + message);
+    }
+
+    public void start() {
+        stopped = false;
+        projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
+        projectSchedulingThread.start();
+        LOG.info("Project " + name + " starting");
+        setState(IDLE_STATE);
+    }
+
+    public void stop() {
+        LOG.info("Project " + name + " stopping");
+        stopped = true;
+        setState(STOPPED_STATE);
     }
 }
