@@ -8,6 +8,10 @@ BuildQueue
 ----------------------
 * Add support for multiple build threads (ThreadQueue). Patch by Jared Richardson
 
+CruiseControl
+----------------------
+* Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass. Patch by Jerome Lacoste
+
 cruisecontrol-jsp12.tld
 ----------------------
 * Fix id attribute typo for LinkTag. Patch by Gareth Reakes
