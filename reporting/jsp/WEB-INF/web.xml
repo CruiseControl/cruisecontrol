@@ -45,7 +45,11 @@
       <jsp-file>buildresults.jsp</jsp-file>
       <init-param>
         <param-name>logDir</param-name>
-        <param-value>Your CruiseControl Log Directory</param-value>
+        <param-value>YOUR CRUISECONTROL LOG DIRECTORY</param-value>
+      </init-param>
+      <init-param>
+        <param-name>currentBuildStatusFile</param-name>
+        <param-value>CURRENT BUILD STATUS FILE</param-value>
       </init-param>
     </servlet>
     <servlet-mapping>

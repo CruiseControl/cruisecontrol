@@ -90,7 +90,6 @@
 	<target name="war" depends="test">
 		<war warfile="${dist}/cruisecontrol.war" webxml="WEB-INF/web.xml">
 			<fileset dir=".">
-                <exclude name="*"/>
                 <exclude name="samplelogs/_cache/"/>
 				<exclude name="${dist}/"/>
 				<exclude name="WEB-INF/web.xml"/>
