@@ -34,6 +34,7 @@ build.xml (jsp)
 * Removed references to "**/element/" (CC-57). Patch by Jerome Lacoste
 * Build products now created only under target & dist (CC-81). Patch by Jerome Lacoste
 * Now uses forkmode="perBatch" for junit (available since Ant 1.6.2)
+* Default to not including xalan and xerces (CC-5).
 
 build.xml (main)
 ----------------------
