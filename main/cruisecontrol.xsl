@@ -196,7 +196,7 @@
             <xsl:if test="$totalErrorsAndFailures > 0">
 
               <tr>
-                <td bgcolor="#000066" colspan="4">
+                <td bgcolor="#000066" colspan="6">
                     <font face="arial" size="2" color="#FFFFFF">
                         &#160;Unit Test Error Details:&#160;(
                          <xsl:value-of select="$totalErrorsAndFailures"/>)
@@ -359,12 +359,12 @@
                 <xsl:attribute name="bgcolor">#CCCCCC</xsl:attribute>   
             </xsl:if>
 
-            <td><font size="1" face="arial"><xsl:value-of select="@type"/></font></td>
-            <td><font size="1" face="arial">&#160;</font></td>
-            <td><font size="1" face="arial"><xsl:value-of select="user"/></font></td>
-            <td><font size="1" face="arial"><xsl:value-of select="project"/></font></td>
-            <td><font size="1" face="arial"><xsl:value-of select="filename"/></font></td>
-            <td><font size="1" face="arial"><xsl:value-of select="comment"/></font></td>
+            <td colspan="4"><font size="1" face="arial"><xsl:value-of select="@type"/></font></td>
+            <td colspan="4"><font size="1" face="arial">&#160;</font></td>
+            <td colspan="4"><font size="1" face="arial"><xsl:value-of select="user"/></font></td>
+            <td colspan="4"><font size="1" face="arial"><xsl:value-of select="project"/></font></td>
+            <td colspan="4"><font size="1" face="arial"><xsl:value-of select="filename"/></font></td>
+            <td colspan="4"><font size="1" face="arial"><xsl:value-of select="comment"/></font></td>
         </tr>
         
         <xsl:comment>Project: <xsl:value-of select="project"/></xsl:comment>        
