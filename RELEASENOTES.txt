@@ -66,6 +66,7 @@ logfile.xsl
 main.jsp & navigation.jsp
 ----------------------
 * Fix for compatability with Tomcat 5.0. Patch from Robert Pearse
+* Include sub-jsps instead of having all the content in main.jsp
 
 Modification Set
 ----------------------

@@ -53,42 +53,20 @@
         <cruisecontrol:tabsheet>
           <tr>
             <td bgcolor="white" >
-
               <cruisecontrol:tab name="buildResults" label="Build Results" >
-                <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
-
-                <cruisecontrol:artifactsLink>
-                  <table width="98%" border="0" cellspacing="0" cellpadding="2" align="center">
-                    <tr><td class="header-label"><a href="<%= artifacts_url %>">Build Artifacts</a></td></tr>
-                  </table>
-                </cruisecontrol:artifactsLink>
-
-                <cruisecontrol:xsl xslFile="/xsl/maven.xsl"/>
-                <p>
-                <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
-                <p>
-                <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
-                <p>
-                <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
-                <p>
-                <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
-                <p>
-                <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
-                <p>
-                <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
+                <%@ include file="buildresults.jsp" %>
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="testResults" label="Test Results" >
-                <cruisecontrol:xsl xslFile="/xsl/testdetails.xsl"/>
+                <%@ include file="testdetails.jsp" %>
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
-                <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
+                <%@ include file="xmllog.jsp" %>
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
-                <p><a href="http://localhost:8000/">JMX Control Panel</a></p>
-                <p>(todo: need a way to map project to correct url)</p>
+                <%@ include file="controlpanel.jsp" %>
               </cruisecontrol:tab>
             </td>
           </tr>
