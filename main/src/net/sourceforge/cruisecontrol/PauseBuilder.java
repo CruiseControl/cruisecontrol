@@ -36,9 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.Util;
+
 import java.util.Calendar;
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
 /**
  *  Used by <code>Schedule</code> to define periods of time when CruiseControl
@@ -106,13 +107,15 @@ public class PauseBuilder {
     /**
      *  Determine if the build is paused at the given time.
      *
-     *  @param now Calendar set to the current time
+     *  @param date Date set to current date/time
      *
-     *  @return true if the build is paused
+     *  @return true if the build is paused at date
      */
-    public boolean isPaused(Calendar now) {
-        int currentTime = (now.get(Calendar.HOUR_OF_DAY) * 100) + now.get(Calendar.MINUTE);
-        int currentDay = now.get(Calendar.DAY_OF_WEEK);
+    public boolean isPaused(Date date) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(date);
+		int currentDay = now.get(Calendar.DAY_OF_WEEK);
+        int currentTime = Util.getTimeFromDate(date);
 
         boolean isValidDay = ((_day < 0) || (_day == currentDay));
 
