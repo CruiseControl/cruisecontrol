@@ -62,7 +62,7 @@ public class Main {
     public static void main(String args[]) {
         Main main = new Main();
         main.printVersion();
-        Project project = new Project();
+        Project project = null;
         try {
             project = main.configureProject(args);
             project.init(); // Init the project once, to check the current config file is ok
