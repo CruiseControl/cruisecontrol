@@ -75,8 +75,10 @@
                <li><a class="small" href="#publishers">Publishers</a>
                   <ul>
                      <li><a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>
-                     <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
+                     <li><a class="small" href="#executepublisher">ExecutePublisher</a>
                      <li><a class="small" href="#htmlemailpublisher">HTMLEmailPublisher</a></li>
+                     <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
+                     <li><a class="small" href="#scppublisher">SCPPublisher</a>
                   </ul>
                <li><a class="small" href="#labelincrementers">LabelIncrementers</a>
                   <ul>
@@ -759,6 +761,85 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">No</td>
                <td class="tabledata">Optionally customize the dateformat used in this file</td>
             </tr>
+         </table>
+
+         <p><a name="executepublisher"><span class="small">ExecutePublisher</span><br>
+         Execute a command as part of the publishing phase.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">command</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The command to execute</td>
+            </tr>
+         </table>
+
+         <p><a name="scppublisher"><span class="small">SCPPublisher</span><br>
+         SCP a file as part of the publishing process.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">sourceuser</td>
+               <td class="tabledata">Yes if sourcehost is specified</td>
+               <td class="tabledata">Log in to the sourcemachine as this user.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">sourcehost</td>
+               <td class="tabledata">Yes if sourceuser is specified</td>
+               <td class="tabledata">SCP from this machine.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">sourcedir</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The directory to copy from.  Defaults to '.'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetuser</td>
+               <td class="tabledata">Yes if targethost is specified</td>
+               <td class="tabledata">Log in to the target machine as this user.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targethost</td>
+               <td class="tabledata">Yes if targetuser is specified</td>
+               <td class="tabledata">SCP to this machine.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetdir</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The directory to copy to.  Defaults to '.'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetseparator</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The file separator on the target machine.  Defaults to File.separator on the source machine.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">ssh</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The ssh application, defaults to 'ssh'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">options</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Additional options to pass to SCP.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The filename to copy, defaults to the current logfile.</td>
+            </tr>
+
+
+
+
          </table>
 
          <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br/>
