@@ -20,9 +20,9 @@
  *****************************************************************************-->
 <project name="CruiseControl" default="all">
 
-    <property name="build.compiler" value="jikes"/>
+    <property file="cruise-build.properties" />   
+    <property name="build.compiler" value="jikes" />
     <property name="classes" value="classes"/>        
-    <property name="classpath" value="lib\ant.jar;lib\optional.jar;lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar;lib\jakarta-oro-2.0.1.jar;lib\starteam-sdk-interfaceonly.jar"/>
     <property name="webinfclasses" value="web-inf\classes"/>
     <property name="dist" value="dist"/>
     <property name="lib" value="lib"/>
@@ -31,7 +31,20 @@
     <property name="apidocs" value="${docs}/api"/>
     <property name="images" value="images"/>
 
-    <target name="init">        
+    <path id="classpath" >
+         <pathelement location="lib/activation.jar" />
+         <pathelement location="lib/ant.jar" />
+         <pathelement location="lib/jakarta-oro-2.0.1.jar" />
+         <pathelement location="lib/mail.jar" />
+         <pathelement location="lib/optional.jar" />
+         <pathelement location="lib/parser.jar" />
+         <pathelement location="lib/servlet.jar" />
+         <pathelement location="lib/starteam-sdk-interfaceonly.jar" />
+         <pathelement location="lib/xalan.jar" />
+         <pathelement location="lib/xerces.jar" />
+    </path>
+
+    <target name="init">     
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${apidocs}"/>
@@ -45,7 +58,7 @@
     </target>
     
     <target name="compile" depends="init">
-        <javac srcdir="${src}" destdir="${classes}" classpath="${classpath}"/>
+        <javac srcdir="${src}" destdir="${classes}" classpathref="classpath" />
         <copy todir="${classes}">
             <fileset dir="${src}" includes="**/*.properties"/>
         </copy>
@@ -80,9 +93,42 @@
 <!-- ***** JAVADOC ***** -->
 
     <target name="javadoc" depends="init">
-       <javadoc sourcepath="${src}" destdir="${apidocs}" classpath="${classpath};${src}" packagenames="net.sourceforge.cruisecontrol.*">
+       <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*">
+           <classpath>
+               <path refid="classpath" />
+               <pathelement location="${src}" />
+           </classpath>
        </javadoc>
     </target>
                                                           
     <target name="all" depends="init,clean,compile,javadoc,jar,buildwar" />
+
+<!-- ***** CRUISE EXAMPLES ***** -->
+
+    <target name="cvs-update" depends="init" if="localCopy">
+        <cvs cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol"
+             package="cruisecontrol" dest="${localCopy}" />
+    </target>
+
+    <target name="cruise-check" depends="init" if="localCopy" >
+        <tstamp />
+        <property name="modificationset.file" value="modifications.xml" />
+        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet" />
+
+        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="300">
+            <cvselement cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol" 
+                        localworkingcopy="${localCopy}/cruisecontrol" />
+        </modificationset>
+    </target>
+
+    <target name="cruise" depends="init,cruise-check" >
+        <antcall target="cvs-update" />
+        <ant antfile="${localCopy}/cruisecontrol/build.xml" target="all" />
+    </target>
+
+    <target name="cruise-clean" depends="init,cruise-check" >
+        <antcall target="cvs-update" />
+        <ant antfile="${localCopy}/cruisecontrol/build.xml" target="clean" />
+        <ant antfile="${localCopy}/cruisecontrol/build.xml" target="all" />
+    </target>
 </project>                                                                       
