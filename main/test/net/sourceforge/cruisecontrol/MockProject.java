@@ -55,7 +55,8 @@ public class MockProject extends Project {
         try {
             Thread.sleep(ONE_SECOND);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            String message = "MockProject.execute() interrupted";
+            throw new RuntimeException(message);
         }
     }
     
@@ -76,7 +77,8 @@ public class MockProject extends Project {
                 checkWait();
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                String message = "MockProject.loop() interrupted";
+                throw new RuntimeException(message);
             }
         }
     }
