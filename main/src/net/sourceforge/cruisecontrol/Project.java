@@ -433,11 +433,11 @@ public class Project implements Serializable {
                 _logFileName = new File(_logDir, "log" + _formatter.format(_now)
                         + ".xml").getAbsolutePath();
             log.debug("Writing log file: " + _logFileName);
-            logWriter = new BufferedWriter(new FileWriter(_logFileName));
             XMLOutputter outputter = new XMLOutputter("   ", true, _logXmlEncoding);
-			// If encoding is provided we will put out an XML declartion. Otherwise not (old behavior).
-			outputter.setOmitDeclaration(_logXmlEncoding == null);
-			outputter.setOmitEncoding(_logXmlEncoding == null);
+            if(_logXmlEncoding == null) {
+                _logXmlEncoding = System.getProperty("file.encoding");
+            }
+            logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName), _logXmlEncoding));
             outputter.output(new Document(logElement), logWriter);
             logWriter = null;
         } catch (IOException e) {
