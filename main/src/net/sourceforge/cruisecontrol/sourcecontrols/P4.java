@@ -121,6 +121,14 @@ public class P4 implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(_P4Port == null)
+            throw new CruiseControlException("'port' is a required attribute on P4");
+        if(_P4Client == null)
+            throw new CruiseControlException("'client' is a required attribute on P4");
+        if(_P4User == null)
+            throw new CruiseControlException("'user' is a required attribute on P4");
+        if(_P4View == null)
+            throw new CruiseControlException("'view' is a required attribute on P4");
     }
 
     /**

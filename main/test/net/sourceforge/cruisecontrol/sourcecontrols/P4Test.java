@@ -48,6 +48,8 @@ import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 /**
  *@author  Robert Watkins
  *@author  Jason Yip, jcyip@thoughtworks.com
@@ -56,6 +58,29 @@ public class P4Test extends TestCase {
 
     public P4Test(String testName) {
         super(testName);
+    }
+
+    public void testValidate() {
+        P4 p4 = new P4();
+
+        try {
+            p4.validate();
+            fail("P4 should throw exceptions when required attributes are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        p4.setUser("user");
+        p4.setPort("port");
+        p4.setClient("client");
+        p4.setView("view");
+
+        try {
+            p4.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("P4 should not throw exceptions when required attributes are set.");
+        }
     }
 
     public void testParseChangelists() throws IOException, ParseException {
