@@ -1,0 +1,16 @@
+
+RCS file: /home/jerome/cvs-repository/CVSROOT/cvswrappers,v
+Working file: cvswrappers
+head: 1.1
+branch:
+locks: strict
+access list:
+symbolic names:
+keyword substitution: kv
+total revisions: 1;	selected revisions: 1
+description:
+----------------------------
+revision 1.1
+date: 2004-03-25 00:58:49 +0000;  author: jerome;  state: Exp;
+initial checkin
+=============================================================================

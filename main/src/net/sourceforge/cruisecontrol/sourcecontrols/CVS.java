@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 /**
@@ -100,6 +99,8 @@ public class CVS implements SourceControl {
      * The CVS tag we are dealing with.
      */
     private String tag;
+
+    private String cvsServerVersion;
 
     /** enable logging for this class */
     private static Logger log = Logger.getLogger(CVS.class);
@@ -211,6 +212,82 @@ public class CVS implements SourceControl {
         this.propertyOnDelete = propertyOnDelete;
     }
 
+    protected String getCvsServerVersion() {
+        if (cvsServerVersion == null) {
+
+            Commandline commandLine = getCommandline();
+            commandLine.setExecutable("cvs");
+
+            if (cvsroot != null) {
+                commandLine.createArgument().setValue("-d");
+                commandLine.createArgument().setValue(cvsroot);
+            }
+
+            commandLine.createArgument().setLine("version");
+
+            Process p = null;
+            try {
+                if (local != null) {
+                    commandLine.setWorkingDirectory(local);
+                }
+
+                p = commandLine.execute();
+                logErrorStream(p);
+                InputStream is = p.getInputStream();
+                BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
+                String line = in.readLine();
+                if (line.startsWith("Client:")) {
+                    line = in.readLine();
+                    if (!line.startsWith("Server:")) {
+                        System.err.println("Warning expected a line starting with \"Server:\" but got " + line);
+                    }
+                }
+                log.debug("server version line: " + line);
+                int verBegin = line.indexOf("1.1");
+                int verEnd = line.indexOf(" ", verBegin);
+                cvsServerVersion = line.substring(verBegin, verEnd);
+
+                log.debug("cvs server version: " + cvsServerVersion);
+                p.waitFor();
+                p.getInputStream().close();
+                p.getOutputStream().close();
+                p.getErrorStream().close();
+            } catch (Exception e) {
+                log.error("Failed reading cvs server version", e);
+            }
+
+            if (p == null || p.exitValue() != 0) {
+                if (p == null) {
+                    log.debug("Process p was null in CVS.getCvsServerVersion()");
+                } else {
+                    log.debug("Process exit value = " + p.exitValue());
+                }
+                log.warn("problem getting cvs server version; using 1.11");
+                cvsServerVersion = "1.11";
+            }
+
+        }
+        return cvsServerVersion;
+    }
+
+    public boolean isCvsNewOutputFormat() {
+        String csv = getCvsServerVersion();
+        StringTokenizer st = new StringTokenizer(csv, ".");
+        st.nextToken();
+        int subversion = Integer.parseInt(st.nextToken());
+        if (subversion > 11) {
+            if (subversion == 12) {
+                if (Integer.parseInt(st.nextToken()) < 9) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+
     public Hashtable getProperties() {
         return properties;
     }
@@ -237,7 +314,7 @@ public class CVS implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
         mailAliases = getMailAliases();
-        
+
         List mods = null;
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
@@ -252,7 +329,7 @@ public class CVS implements SourceControl {
     }
 
     /**
-     * Get CVS's idea of user/address mapping. Only runs once per class 
+     * Get CVS's idea of user/address mapping. Only runs once per class
      * instance. Won't run if the mailAlias was already set.
      *
      * @return a Hashtable containing the mapping defined in CVSROOT/users.
@@ -261,14 +338,14 @@ public class CVS implements SourceControl {
     private Hashtable getMailAliases() {
         if (mailAliases == null) {
             mailAliases = new Hashtable();
-            Commandline commandLine = new Commandline();
+            Commandline commandLine = getCommandline();
             commandLine.setExecutable("cvs");
 
             if (cvsroot != null) {
                 commandLine.createArgument().setValue("-d");
                 commandLine.createArgument().setValue(cvsroot);
             }
-            
+
             commandLine.createArgument().setLine("-q co -p CVSROOT/users");
 
             Process p = null;
@@ -276,7 +353,7 @@ public class CVS implements SourceControl {
                 if (local != null) {
                     commandLine.setWorkingDirectory(local);
                 }
-            
+
                 p = commandLine.execute();
                 logErrorStream(p);
                 InputStream is = p.getInputStream();
@@ -312,12 +389,12 @@ public class CVS implements SourceControl {
     void addAliasToMap(String line) {
         log.debug("Mapping " + line);
         int colon = line.indexOf(':');
-        
+
         if (colon >= 0) {
             String user = line.substring(0, colon);
             String address = line.substring(colon + 1);
             mailAliases.put(user, address);
-        
+
         }
     }
 
@@ -327,7 +404,7 @@ public class CVS implements SourceControl {
      * @return CommandLine for "cvs -d CVSROOT -q log -N -dlastbuildtime<checktime "
      */
     public Commandline buildHistoryCommand(Date lastBuildTime, Date checkTime) throws CruiseControlException {
-        Commandline commandLine = new Commandline();
+        Commandline commandLine = getCommandline();
         commandLine.setExecutable("cvs");
 
         if (local != null) {
@@ -360,6 +437,11 @@ public class CVS implements SourceControl {
         return commandLine;
     }
 
+    // factory method for mock...
+    protected Commandline getCommandline() {
+        return new Commandline();
+    }
+
     public static String formatCVSDate(Date date) {
         return CVSDATE.format(date);
     }
@@ -371,7 +453,7 @@ public class CVS implements SourceControl {
      *
      *@param input InputStream to get log data from.
      *@return List of Modification elements, maybe empty never null.
-     *@exception IOException
+     *@throws IOException
      */
     protected List parseStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -437,7 +519,7 @@ public class CVS implements SourceControl {
      *
      *@param reader Reader to parse data from.
      *@return modifications found in this entry; maybe empty, never null.
-     *@exception IOException
+     *@throws IOException
      */
     private List parseEntry(BufferedReader reader) throws IOException {
         ArrayList mods = new ArrayList();
@@ -448,26 +530,10 @@ public class CVS implements SourceControl {
         // that a line will exist with the working file name on it.
         String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
         String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
-        String branchRevisionName = null;
+        String branchRevisionName = parseBranchRevisionName(reader, tag);
 
-        if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
-            // Look for the revision of the form "tag: *.(0.)y ". this doesn't work for HEAD
-            // get line with branch revision on it.
-
-            String branchRevisionLine = readToNotPast(reader, "\t" + tag + ": ", CVS_DESCRIPTION);
-
-            if (branchRevisionLine != null) {
-                // Look for the revision of the form "tag: *.(0.)y "
-                branchRevisionName = branchRevisionLine.substring(tag.length() + 3);
-                if (branchRevisionName.charAt(branchRevisionName.lastIndexOf(".") - 1) == '0') {
-                    branchRevisionName =
-                        branchRevisionName.substring(0, branchRevisionName.lastIndexOf(".") - 2)
-                            + branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
-                }
-            }
-        }
-
-        while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
+        boolean newCVSVersion = isCvsNewOutputFormat();
+        while (!nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
             if (nextLine == null) {
                 //No more revisions for this file.
@@ -499,6 +565,10 @@ public class CVS implements SourceControl {
             String dateStamp = tokens.nextToken();
             String timeStamp = tokens.nextToken();
 
+            // skips the +0000 part of new format
+            if (newCVSVersion) {
+                tokens.nextToken();
+            }
             // The next token should be the author keyword, then the author name.
             tokens.nextToken();
             String authorName = tokens.nextToken();
@@ -508,12 +578,7 @@ public class CVS implements SourceControl {
             String stateKeyword = tokens.nextToken();
 
             // if no lines keyword then file is added
-            boolean isAdded = false;
-            try {
-                tokens.nextToken();
-            } catch (NoSuchElementException noLinesFoundIgnore) {
-                isAdded = true;
-            }
+            boolean isAdded = !tokens.hasMoreTokens();
 
             // All the text from now to the next revision delimiter or working
             // file delimiter constitutes the messsage.
@@ -550,7 +615,11 @@ public class CVS implements SourceControl {
             modfile.revision = nextModification.revision;
 
             try {
-                nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
+                if (newCVSVersion) {
+                    nextModification.modifiedTime = CVSDATE.parse(dateStamp + " " + timeStamp + " GMT");
+                } else {
+                    nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
+                }
             } catch (ParseException pe) {
                 log.error("Error parsing cvs log for date and time", pe);
                 return null;
@@ -591,6 +660,37 @@ public class CVS implements SourceControl {
     }
 
     /**
+     * Find the CVS branch revision name, when the tag is not HEAD
+     * The reader will consume all lines up to the next description.
+     *
+     * @param reader the reader
+     * @param tag    may be null
+     * @return the branch revision name, or <code>null</code> if not applicable or none was found.
+     * @throws IOException
+     */
+    private static String parseBranchRevisionName(BufferedReader reader, final String tag) throws IOException {
+        String branchRevisionName = null;
+
+        if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
+            // Look for the revision of the form "tag: *.(0.)y ". this doesn't work for HEAD
+            // get line with branch revision on it.
+
+            String branchRevisionLine = readToNotPast(reader, "\t" + tag + ": ", CVS_DESCRIPTION);
+
+            if (branchRevisionLine != null) {
+                // Look for the revision of the form "tag: *.(0.)y "
+                branchRevisionName = branchRevisionLine.substring(tag.length() + 3);
+                if (branchRevisionName.charAt(branchRevisionName.lastIndexOf(".") - 1) == '0') {
+                    branchRevisionName =
+                        branchRevisionName.substring(0, branchRevisionName.lastIndexOf(".") - 2)
+                        + branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
+                }
+            }
+        }
+        return branchRevisionName;
+    }
+
+    /**
      * This method will consume lines from the reader up to the line that begins
      * with the String specified but not past a line that begins with the
      * notPast String. If the line that begins with the beginsWith String is
@@ -605,7 +705,7 @@ public class CVS implements SourceControl {
      *      of the reader or the notPast line was found.
      *@throws IOException
      */
-    private String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
+    private static String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
         throws IOException {
         boolean checkingNotPast = notPast != null;
 

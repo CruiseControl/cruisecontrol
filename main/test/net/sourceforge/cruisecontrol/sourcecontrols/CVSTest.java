@@ -36,12 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.MockCommandline;
+
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -49,13 +54,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
 
 /**
- *@author  Robert Watkins
- *@author  <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author Robert Watkins
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class CVSTest extends TestCase {
     private TimeZone originalTimeZone;
@@ -69,11 +71,26 @@ public class CVSTest extends TestCase {
         originalTimeZone = null;
     }
 
-    private Date createDate(String dateString) throws ParseException {
-        SimpleDateFormat formatter =
-                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-        return formatter.parse(dateString);
+    private Date parseCVSDateFormat(String dateString) throws ParseException {
+        return CVS.CVSDATE.parse(dateString);
     }
+
+    private Date parseLogDateFormat(String dateString) throws ParseException {
+        return CVS.LOGDATE.parse(dateString);
+    }
+
+    static class MockCVS extends CVS {
+        private final String vers;
+
+        public MockCVS(String cvsVersion) {
+            this.vers = cvsVersion;
+        }
+
+        protected String getCvsServerVersion() {
+            return vers;
+        }
+    }
+
 
     public void testValidate() throws CruiseControlException, IOException {
         CVS cvs = new CVS();
@@ -119,7 +136,8 @@ public class CVSTest extends TestCase {
     }
 
     public void testParseStream() throws IOException, ParseException {
-        CVS cvs = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockCVS("1.11.16");
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         emailAliases.put("tim", "tim@tim.net");
@@ -131,8 +149,7 @@ public class CVSTest extends TestCase {
         input.close();
         Collections.sort(modifications);
 
-        assertEquals(
-                "Should have returned 5 modifications.",
+        assertEquals("Should have returned 5 modifications.",
                 5,
                 modifications.size());
 
@@ -140,7 +157,7 @@ public class CVSTest extends TestCase {
         Modification.ModifiedFile mod1file = mod1.createModifiedFile("log4j.properties", null);
         mod1file.action = "modified";
         mod1.revision = "1.2";
-        mod1.modifiedTime = createDate("2002/03/13 13:45:50 GMT-6:00");
+        mod1.modifiedTime = parseLogDateFormat("2002/03/13 13:45:50 GMT-6:00");
         mod1.userName = "alden";
         mod1.comment =
                 "Shortening ConversionPattern so we don't use up all of the available screen space.";
@@ -150,7 +167,7 @@ public class CVSTest extends TestCase {
         Modification.ModifiedFile mod2file = mod2.createModifiedFile("build.xml", null);
         mod2file.action = "modified";
         mod2.revision = "1.41";
-        mod2.modifiedTime = createDate("2002/03/13 19:56:34 GMT-6:00");
+        mod2.modifiedTime = parseLogDateFormat("2002/03/13 19:56:34 GMT-6:00");
         mod2.userName = "alden";
         mod2.comment = "Added target to clean up test results.";
         mod2.emailAddress = "alden@users.sourceforge.net";
@@ -159,7 +176,7 @@ public class CVSTest extends TestCase {
         Modification.ModifiedFile mod3file = mod3.createModifiedFile("build.xml", "main");
         mod3file.action = "modified";
         mod3.revision = "1.42";
-        mod3.modifiedTime = createDate("2002/03/15 13:20:28 GMT-6:00");
+        mod3.modifiedTime = parseLogDateFormat("2002/03/15 13:20:28 GMT-6:00");
         mod3.userName = "alden";
         mod3.comment = "enabled debug info when compiling tests.";
         mod3.emailAddress = "alden@users.sourceforge.net";
@@ -168,7 +185,7 @@ public class CVSTest extends TestCase {
         Modification.ModifiedFile mod4file = mod4.createModifiedFile("kungfu.xml", "main");
         mod4file.action = "deleted";
         mod4.revision = "1.2";
-        mod4.modifiedTime = createDate("2002/03/13 13:45:42 GMT-6:00");
+        mod4.modifiedTime = parseLogDateFormat("2002/03/13 13:45:42 GMT-6:00");
         mod4.userName = "alden";
         mod4.comment = "Hey, look, a deleted file.";
         mod4.emailAddress = "alden@users.sourceforge.net";
@@ -177,7 +194,7 @@ public class CVSTest extends TestCase {
         Modification.ModifiedFile mod5file = mod5.createModifiedFile("stuff.xml", "main");
         mod5file.action = "deleted";
         mod5.revision = "1.4";
-        mod5.modifiedTime = createDate("2002/03/13 13:38:42 GMT-6:00");
+        mod5.modifiedTime = parseLogDateFormat("2002/03/13 13:38:42 GMT-6:00");
         mod5.userName = "alden";
         mod5.comment = "Hey, look, another deleted file.";
         mod5.emailAddress = "alden@users.sourceforge.net";
@@ -189,8 +206,39 @@ public class CVSTest extends TestCase {
         assertEquals(mod3, modifications.get(4));
     }
 
+    public void testParseStreamNewFormat() throws IOException, ParseException {
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockCVS("1.12.9");
+        Hashtable emailAliases = new Hashtable();
+        emailAliases.put("jerome", "jerome@coffeebreaks.org");
+        cvs.setMailAliases(emailAliases);
+
+        BufferedInputStream input =
+                new BufferedInputStream(loadTestLog("cvslog1-12.txt"));
+        List modifications = cvs.parseStream(input);
+        input.close();
+        Collections.sort(modifications);
+
+        assertEquals("Should have returned 1 modification.",
+                1,
+                modifications.size());
+
+        Modification mod1 = new Modification("cvs");
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("log4j.properties", null);
+        mod1file.action = "modified";
+        mod1.revision = "1.1";
+        mod1.modifiedTime = parseCVSDateFormat("2004-03-25 00:58:49 GMT");
+        mod1.userName = "jerome";
+        mod1.comment =
+                "initial checkin";
+        mod1.emailAddress = "jerome@coffeebreaks.org";
+
+        assertEquals(mod1, modifications.get(0));
+    }
+
     public void testParseStreamBranch() throws IOException, ParseException {
-        CVS cvs = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockCVS("1.11.16");
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         cvs.setMailAliases(emailAliases);
@@ -202,14 +250,13 @@ public class CVSTest extends TestCase {
         input.close();
         Collections.sort(modifications);
 
-        assertEquals(
-                "Should have returned 4 modifications.",
+        assertEquals("Should have returned 4 modifications.",
                 4,
                 modifications.size());
 
         Modification mod1 = new Modification("cvs");
         mod1.revision = "1.1.2.4";
-        mod1.modifiedTime = createDate("2002/10/03 16:05:23 GMT");
+        mod1.modifiedTime = parseLogDateFormat("2002/10/03 16:05:23 GMT");
         mod1.userName = "tim";
         mod1.comment = "Test commit once more";
         Modification.ModifiedFile mod1file = mod1.createModifiedFile("test.version", null);
@@ -218,7 +265,7 @@ public class CVSTest extends TestCase {
 
         Modification mod2 = new Modification("cvs");
         mod2.revision = "1.1.2.3";
-        mod2.modifiedTime = createDate("2002/10/03 14:24:17 GMT");
+        mod2.modifiedTime = parseLogDateFormat("2002/10/03 14:24:17 GMT");
         mod2.userName = "tim";
         mod2.comment = "Test commit";
         Modification.ModifiedFile mod2file = mod2.createModifiedFile("test.version", null);
@@ -227,7 +274,7 @@ public class CVSTest extends TestCase {
 
         Modification mod3 = new Modification("cvs");
         mod3.revision = "1.1.2.2";
-        mod3.modifiedTime = createDate("2002/10/02 21:54:44 GMT");
+        mod3.modifiedTime = parseLogDateFormat("2002/10/02 21:54:44 GMT");
         mod3.userName = "tim";
         mod3.comment = "Update parameters for test";
         Modification.ModifiedFile mod3file = mod3.createModifiedFile("test.version", null);
@@ -236,7 +283,7 @@ public class CVSTest extends TestCase {
 
         Modification mod4 = new Modification("cvs");
         mod4.revision = "1.1.2.1";
-        mod4.modifiedTime = createDate("2002/10/02 21:49:31 GMT");
+        mod4.modifiedTime = parseLogDateFormat("2002/10/02 21:49:31 GMT");
         mod4.userName = "tim";
         mod4.comment = "Add parameters for test";
         Modification.ModifiedFile mod4file = mod4.createModifiedFile("test.version", null);
@@ -251,7 +298,8 @@ public class CVSTest extends TestCase {
     }
 
     public void testGetProperties() throws IOException, ParseException {
-        CVS cvs = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockCVS("1.11.16");
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
@@ -268,12 +316,12 @@ public class CVSTest extends TestCase {
         assertEquals("Should be two properties.", 2, table.size());
 
         assertTrue("Property was not set.", table.containsKey("property"));
-        assertTrue(
-                "PropertyOnDelete was not set.",
+        assertTrue("PropertyOnDelete was not set.",
                 table.containsKey("propertyOnDelete"));
 
         //negative test
-        CVS cvs2 = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs2 = new MockCVS("1.11.16");
         cvs2.setMailAliases(new Hashtable());
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
@@ -305,7 +353,8 @@ public class CVSTest extends TestCase {
 
     public void testGetPropertiesOnlyModifications()
             throws IOException, ParseException {
-        CVS cvs = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockCVS("1.11.16");
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
@@ -322,7 +371,8 @@ public class CVSTest extends TestCase {
         assertTrue("Property was not set.", table.containsKey("property"));
 
         //negative test
-        CVS cvs2 = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs2 = new MockCVS("1.11.16");
         cvs2.setMailAliases(new Hashtable());
         cvs2.setPropertyOnDelete("propertyOnDelete");
         input = new BufferedInputStream(loadTestLog(logName));
@@ -337,7 +387,8 @@ public class CVSTest extends TestCase {
 
     public void testGetPropertiesOnlyDeletions()
             throws IOException, ParseException {
-        CVS cvs = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockCVS("1.11.16");
         cvs.setMailAliases(new Hashtable());
         cvs.setPropertyOnDelete("propertyOnDelete");
         String logName = "cvslog1-11del.txt";
@@ -350,12 +401,12 @@ public class CVSTest extends TestCase {
         assertNotNull("Table of properties shouldn't be null.", table);
 
         assertEquals("Should be one property.", 1, table.size());
-        assertTrue(
-                "PropertyOnDelete was not set.",
+        assertTrue("PropertyOnDelete was not set.",
                 table.containsKey("propertyOnDelete"));
 
         //negative test
-        CVS cvs2 = new CVS();
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs2 = new MockCVS("1.11.16");
         cvs2.setMailAliases(new Hashtable());
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
@@ -390,8 +441,7 @@ public class CVSTest extends TestCase {
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
 
-        assertEquals(
-                "Mismatched lengths!",
+        assertEquals("Mismatched lengths!",
                 expectedCommand.length,
                 actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
@@ -421,8 +471,7 @@ public class CVSTest extends TestCase {
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
 
-        assertEquals(
-                "Mismatched lengths!",
+        assertEquals("Mismatched lengths!",
                 expectedCommand.length,
                 actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
@@ -451,8 +500,7 @@ public class CVSTest extends TestCase {
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
 
-        assertEquals(
-                "Mismatched lengths!",
+        assertEquals("Mismatched lengths!",
                 expectedCommand.length,
                 actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
@@ -478,8 +526,7 @@ public class CVSTest extends TestCase {
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
-        assertEquals(
-                "Mismatched lengths!",
+        assertEquals("Mismatched lengths!",
                 expectedCommand.length,
                 actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
@@ -498,8 +545,7 @@ public class CVSTest extends TestCase {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+0:00"));
         Date mayEighteenSixPM2001 =
                 new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
-        assertEquals(
-                "2001-05-18 18:00:00 GMT",
+        assertEquals("2001-05-18 18:00:00 GMT",
                 CVS.formatCVSDate(mayEighteenSixPM2001));
     }
 
@@ -508,13 +554,11 @@ public class CVSTest extends TestCase {
 
         Date mayEighteenSixPM2001 =
                 new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
-        assertEquals(
-                "2001-05-18 08:00:00 GMT",
+        assertEquals("2001-05-18 08:00:00 GMT",
                 CVS.formatCVSDate(mayEighteenSixPM2001));
         Date may18EightAM2001 =
                 new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
-        assertEquals(
-                "2001-05-17 22:00:00 GMT",
+        assertEquals("2001-05-17 22:00:00 GMT",
                 CVS.formatCVSDate(may18EightAM2001));
     }
 
@@ -522,13 +566,11 @@ public class CVSTest extends TestCase {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
         Date may18SixPM2001 =
                 new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
-        assertEquals(
-                "2001-05-19 04:00:00 GMT",
+        assertEquals("2001-05-19 04:00:00 GMT",
                 CVS.formatCVSDate(may18SixPM2001));
         Date may18EightAM2001 =
                 new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
-        assertEquals(
-                "2001-05-18 18:00:00 GMT",
+        assertEquals("2001-05-18 18:00:00 GMT",
                 CVS.formatCVSDate(may18EightAM2001));
     }
 
@@ -551,4 +593,89 @@ public class CVSTest extends TestCase {
         assertNull(aliasMap.get("me"));
     }
 
+    public void testGetCvsServerVersionDifferingClientServerVersions() throws IOException {
+        String logName = "cvslog1-1xversion.txt";
+        final BufferedInputStream input =
+                new BufferedInputStream(loadTestLog(logName));
+
+        CVS cvs = new CVS() {
+            // factory method for mock...
+            protected Commandline getCommandline() {
+                final MockCommandline mockCommandline = new MockCommandline();
+                mockCommandline.setExpectedCommandline(new String[]{"cvs", "version"});
+                mockCommandline.setExpectedWorkingDirectory(null);
+                // could System.in and System.out create problems here?
+                mockCommandline.setProcessErrorStream(System.in);
+                mockCommandline.setProcessInputStream(input);
+                mockCommandline.setProcessOutputStream(System.out);
+                return mockCommandline;
+            }
+        };
+        assertEquals("differing client & server version", "1.11.16", cvs.getCvsServerVersion());
+        assertEquals("differing client & server version", false, cvs.isCvsNewOutputFormat());
+        input.close();
+    }
+
+    public void testGetCvsServerVersionIdenticalClientServerVersions1() throws IOException {
+        String logName = "cvslog1-11version.txt";
+        final BufferedInputStream input =
+                new BufferedInputStream(loadTestLog(logName));
+
+        CVS cvs = new CVS() {
+            // factory method for mock...
+            protected Commandline getCommandline() {
+                final MockCommandline mockCommandline = new MockCommandline();
+                mockCommandline.setExpectedCommandline(new String[]{"cvs", "version"});
+                mockCommandline.setExpectedWorkingDirectory(null);
+                // could System.in and System.out create problems here?
+                mockCommandline.setProcessErrorStream(System.in);
+                mockCommandline.setProcessInputStream(input);
+                mockCommandline.setProcessOutputStream(System.out);
+                return mockCommandline;
+            }
+        };
+        assertEquals("identical client & server version 1.11.16", "1.11.16", cvs.getCvsServerVersion());
+        assertEquals("old output format", false, cvs.isCvsNewOutputFormat());
+        input.close();
+    }
+
+    public void testGetCvsServerVersionIdenticalClientServerVersions2() throws IOException {
+        String logName = "cvslog1-12version.txt";
+        final BufferedInputStream input =
+                new BufferedInputStream(loadTestLog(logName));
+
+        CVS cvs = new CVS() {
+            // factory method for mock...
+            protected Commandline getCommandline() {
+                final MockCommandline mockCommandline = new MockCommandline();
+                mockCommandline.setExpectedCommandline(new String[]{"cvs", "version"});
+                mockCommandline.setExpectedWorkingDirectory(null);
+                // could System.in and System.out create problems here?
+                mockCommandline.setProcessErrorStream(System.in);
+                mockCommandline.setProcessInputStream(input);
+                mockCommandline.setProcessOutputStream(System.out);
+                return mockCommandline;
+            }
+        };
+        assertEquals("identical client & server version 1.12.9", "1.12.9", cvs.getCvsServerVersion());
+        assertEquals("new output format", true, cvs.isCvsNewOutputFormat());
+        input.close();
+    }
+
+    public void testIsCVSNewVersion() throws IOException {
+
+        Object[] array = new Object[]{
+            new MockCVS("1.11.16"), Boolean.FALSE,
+            new MockCVS("1.12.8"), Boolean.FALSE,
+            new MockCVS("1.12.9"), Boolean.TRUE,
+            new MockCVS("1.12.81"), Boolean.TRUE
+        };
+
+        for (int i = 0; i < array.length; i += 2) {
+            MockCVS cvs = (MockCVS) array[i];
+            Boolean b = (Boolean) array[i + 1];
+            assertEquals("output format " + cvs.getCvsServerVersion() + " is new?",
+                    b.booleanValue(), cvs.isCvsNewOutputFormat());
+        }
+    }
 }
