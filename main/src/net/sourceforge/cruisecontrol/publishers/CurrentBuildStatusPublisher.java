@@ -64,7 +64,7 @@ public class CurrentBuildStatusPublisher implements Publisher {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
         }
         try {
-            long interval = cruisecontrolLog.getChild("interval").getAttribute("seconds").getLongValue();
+            long interval = cruisecontrolLog.getChild("cruisecontrol").getChild("properties").getChild("interval").getAttribute("seconds").getLongValue();
             writeFile(new Date(), interval);
         } catch (DataConversionException dce) {
             throw new CruiseControlException("");
