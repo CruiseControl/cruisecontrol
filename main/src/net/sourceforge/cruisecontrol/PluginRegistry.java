@@ -51,56 +51,110 @@ import java.util.HashMap;
 public final class PluginRegistry {
 
     /**
-     * This is a utility class for now...so private constructor.
+     * Map of plugins where the key is the plugin name (e.g. ant) and the value is
+     * the fully qualified classname
+     * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
-    private PluginRegistry() {
+    private final Map plugins;
+
+    /**
+     * Creates a new PluginRegistry with no plugins registered. Use
+     * <code>PluginRegistry.getDefaultPluginRegistry<code> for a PluginRegistry
+     * instance containing all the default plugins.
+     */
+    public PluginRegistry() {
+        plugins = new HashMap();
     }
 
-    public static Map getDefaultPluginRegistry() {
-        Map registry = new HashMap();
+    /**
+     * @param pluginName The name for the plugin, e.g. ant. Note that plugin
+     * names are always treated as case insensitive, so Ant, ant, and AnT are
+     * all treated as the same plugin.
+     *
+     * @param pluginClass The fully qualified classname for the
+     * plugin class, e.g. net.sourceforge.cruisecontrol.builders.AntBuilder.
+     */
+    public void register(String pluginName, String pluginClass) {
+        plugins.put(pluginName.toLowerCase(), pluginClass);
+    }
+
+    /**
+     * @return Returns null if no plugin has been registered with the specified
+     * name, otherwise a String representing the fully qualified classname
+     * for the plugin class. Note that plugin
+     * names are always treated as case insensitive, so Ant, ant, and AnT are
+     * all treated as the same plugin.
+     */
+    public String getPluginClassname(String pluginName) {
+        return (String) plugins.get(pluginName.toLowerCase());
+    }
+
+    /**
+     * @return True if this registry contains an entry for the plugin
+     * specified by the name. The name is the short name for the plugin, not
+     * the classname, e.g. ant. Note that plugin
+     * names are always treated as case insensitive, so Ant, ant, and AnT are
+     * all treated as the same plugin.
+     *
+     * @throws NullPointerException If a null pluginName is passed, then
+     * a NullPointerException will occur. It's recommended to not pass a
+     * null pluginName.
+     */
+    public boolean isPluginRegistered(String pluginName) {
+        return plugins.containsKey(pluginName.toLowerCase());
+    }
+
+    /**
+     * Returns a new Map instance containing all the default plugins, where
+     * the where the key is the plugin name (e.g. ant) and the value is
+     * the fully qualified classname
+     * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
+     */
+    public static PluginRegistry getDefaultPluginRegistry() {
+        PluginRegistry registry = new PluginRegistry();
         // bootstrappers
-        registry.put(
+        registry.register(
             "currentbuildstatusbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
-        registry.put(
+        registry.register(
             "cvsbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
-        registry.put("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
-        registry.put(
+        registry.register("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
+        registry.register(
             "vssbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
         // sourcecontrols
-        registry.put("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
-        registry.put("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
-        registry.put("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
-        registry.put("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
-        registry.put("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
-        registry.put("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
-        registry.put("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
-        registry.put("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
-        registry.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
+        registry.register("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
+        registry.register("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
+        registry.register("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
+        registry.register("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
+        registry.register("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
+        registry.register("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
+        registry.register("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
+        registry.register("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
+        registry.register("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
         // builders
-        registry.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
-        registry.put("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
-        registry.put("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
+        registry.register("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
+        registry.register("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
+        registry.register("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
         // label incrementer -- only one!
-        registry.put(
+        registry.register(
             "labelincrementer",
             "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
         // publishers
-        registry.put(
+        registry.register(
             "artifactspublisher",
             "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
-        registry.put(
+        registry.register(
             "currentbuildstatuspublisher",
             "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
-        registry.put("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
-        registry.put("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
-        registry.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
-        registry.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
+        registry.register("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
+        registry.register("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
+        registry.register("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
+        registry.register("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
         // other
-        registry.put("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
-        registry.put("schedule", "net.sourceforge.cruisecontrol.Schedule");
+        registry.register("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
+        registry.register("schedule", "net.sourceforge.cruisecontrol.Schedule");
 
         return registry;
     }
