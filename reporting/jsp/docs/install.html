@@ -1,0 +1,100 @@
+<html>
+<head>
+   <title>CruiseControl Build Results JSP Installation Guide</title>
+   <style type="text/css">
+      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
+      .header { font-size:12pt; font-weight:bold; }
+      pre { font-family:courier,serif; }
+      .small { font-size:8pt; font-weight:bold; }
+      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
+   </style>
+</head>
+
+
+<body class="body" leftmargin="0" topmargin="0">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+   <tr>
+      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
+      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
+   <tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+   <tr>
+      <td valign="top" width="80">
+         <img src="menutop.gif" border="0"><br>
+         <a href="index.html"><img src="menujsp.gif" border="0"></a><br>
+         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
+         <img src="menubottom.gif" border="0">
+      </td>
+      <td valign="top" align="left" width="650">
+         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <!-- content begins here -->
+
+<span class="header">CruiseControl Build Results JSP Installation Guide</span>
+<p>
+
+<span class="small">Getting The Source</span><br>
+   If you have CVS installed, you can get the entire CruiseControl source by running:
+
+<pre>
+cvs -z3 -d:pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
+</pre>
+Just press the ENTER key when prompted for a password.
+   <p>
+   Once you have obtained the source, you should have a reporting/jsp directory that contains the following:<br>
+   <span class="small">src</span> - The source for the JSP custom tags<br>
+   <span class="small">test</span> - JUnit Tests for the JSP custom tags<br>
+   <span class="small">docs</span> - This manual<br>
+   <span class="small">dist</span> - Output directory for the cruisecontrol.war distributable<br>
+   <span class="small">images</span> - Images used by the buildresults.jsp<br>
+   <span class="small">lib</span> - 3rd party libraries<br>
+
+
+<p>
+<span class="small">Configuring</span><br>
+   The WEB-INF/web.xml file holds the required configuration for the JSP.  There are currently 2 parameters that need
+   to be set.  The first is the path to the log directory.  This is required so that the JSP can read the CruiseControl
+   log files to build the left-hand navigation.  The second is the path to the current build status file.  This is the
+   file that is written by the CruiseControl build loop to let the JSP know whether it is currently building, or when
+   the next build will occur.
+   <p>
+   Depending on the version of the JSP specification that is implemented by your app server, you may need to make one
+   minor edit to the buildresults.jsp file.  If you are using a server that is JSP 1.2 compliant, you will need to
+   change the second line after the license text from:
+
+<pre>
+&lt;%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%&gt;
+</pre>
+
+   to:
+
+<pre>
+&lt;%@ taglib uri="/WEB-INF/cruisecontrol-jsp12.tld" prefix="cruisecontrol"%&gt;
+</pre>
+
+<p>
+<span class="small">Building</span><br>
+   CruiseControl uses <a href="http://jakarta.apache.org/ant">Ant</a> to build and package the build results web application.  Everything you need
+   to build has been included with the source that you obtained from CVS.  There is a batch file and a shell script
+   (build.bat and build.sh respectively) provided to make building the CruiseControl web application as easy as
+   possible.  The configured cruisecontrol.war file has been created in the dist directory.
+
+<p>
+<span class="small">Deploying</span><p>
+   Tomcat<br>
+      Copy the cruisecontrol.war file from the dist directory to the %TOMCAT_HOME%/webapps directory.  Then startup
+      the server by going to the %TOMCAT_HOME%/bin directory and using the startup script.  The cruisecontrol web
+      application should deploy and you should be able to test it out by opening a web browser and going to:<p>
+
+      http://localhost:8080/cruisecontrol/buildresults
+
+
+         <!-- content ends here -->
+         </td></tr></table>
+      </td>
+   </tr>
+</table>
+</body>
+</html>
