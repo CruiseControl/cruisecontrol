@@ -36,12 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.IOException;
-import java.io.File;
-import java.util.Properties;
-
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Command line entry point.

@@ -36,8 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import java.util.List;
 import javax.management.InvalidAttributeValueException;
+import java.util.List;
 
 /**
  *

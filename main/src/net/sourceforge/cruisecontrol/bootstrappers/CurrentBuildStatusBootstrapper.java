@@ -36,11 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import java.util.Date;
-
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+
+import java.util.Date;
 
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
 

@@ -37,14 +37,14 @@
 
 package net.sourceforge.cruisecontrol;
 
+import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**

@@ -36,12 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.apache.log4j.Logger;
 
 import java.io.File;
-
-import org.apache.log4j.Logger;
 
 /**
  *  Concrete implementation of the <code>EmailPublisher</code> abstract class.  This class handles the simplest

@@ -36,17 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.VSSHelper;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 
 public class VssBootstrapper implements Bootstrapper {
 

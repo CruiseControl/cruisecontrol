@@ -37,12 +37,11 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.Util;
+import org.jdom.Element;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-
-import org.jdom.Element;
 
 /**
  *  Used by <code>Schedule</code> to define periods of time when CruiseControl

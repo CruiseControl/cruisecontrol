@@ -36,17 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.Calendar;
-import java.util.Date;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
-
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 public final class Util {
 

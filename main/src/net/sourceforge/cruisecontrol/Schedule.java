@@ -36,19 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.Util;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
-import java.util.Iterator;
 import java.util.Calendar;
-
-import net.sourceforge.cruisecontrol.util.Util;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  Handles scheduling different builds.

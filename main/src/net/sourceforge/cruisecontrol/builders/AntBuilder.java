@@ -37,6 +37,13 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
+import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,14 +55,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import net.sourceforge.cruisecontrol.Builder;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 /**
  *  we often see builds that fail because the previous build is still holding on to some resource.

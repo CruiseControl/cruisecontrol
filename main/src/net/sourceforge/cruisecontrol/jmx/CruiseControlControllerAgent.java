@@ -36,13 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import org.apache.log4j.Logger;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
 
 /**
  * JMX agent for a ProjectController

@@ -36,6 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.ModificationSet;
+import org.apache.log4j.Logger;
+import org.jdom.Attribute;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -44,16 +53,6 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.ModificationSet;
-
-import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 /**
  *  Upgrades an existing cruisecontrol.properties and build.xml to the new config.xml file.

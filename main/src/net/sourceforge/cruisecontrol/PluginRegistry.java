@@ -36,8 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**

@@ -36,16 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
+import net.sourceforge.cruisecontrol.Modification;
 import org.jdom.Element;
 
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.text.SimpleDateFormat;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
 
 /**
  *  Wrapper for the cruisecontrol build log.  This class serves two purposes:<br>
