@@ -25,6 +25,11 @@
 
     <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
+    <!-- Uncomment for StarTeam -->
+<!--    <taskdef name="starteamcheckout" 
+     classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamCheckout"/>
+    <taskdef name="starteamlabel" 
+     classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamLabel"/>    -->
     
     <property name="build.compiler" value="jikes"/>
     <property name="build.compiler.emacs" value="true"/>    
@@ -38,6 +43,12 @@
 
     <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
     <property name="cvs.package" value="CruiseControlTest/src"/>
+
+    <!-- Uncomment for StarTeam -->
+<!--    <property name="starteam.folder" value="src" />
+    <property name="starteam.url" value="10.1.2.65:49201/CruiseControl/CruiseControl" />
+    <property name="starteam.user" value="jcyip" />
+    <property name="starteam.passwd" value="" /> -->
 
     <path id="classpath" >
         <fileset dir="${ccdir}/lib">
@@ -91,19 +102,36 @@
         <echo message="Application built!"/>
     </target>
 
-    <target name="cvs-update" description="Update package from CVS">
+    <target name="checkout" description="Update package from CVS">
         <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".." />
     </target>
+
+    <!-- Uncomment for StarTeam -->
+    <!-- <target name="checkout" depends="init">
+      <starteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
+       folder="${starteam.folder}" starteamurl="${starteam.url}" createworkingdirectories="true"/>
+   </target>
+
+   <target name="labelbuild">
+      <starteamlabel label="${label}" lastbuild="${lastGoodBuildTime}" 
+       description="Release Build Successful." username="${starteam.user}" 
+       password="${starteam.passwd}" starteamurl="${starteam.url}"/>
+   </target> -->
 
     <target name="modificationset" depends="init" description="Check modifications since last build">
         <echo message="Checking for modifications..."/>
         <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30" 
           dateformat="yyyy-MMM-dd HH:mm:ss">
             <cvselement cvsroot="${cvs.repository}" />
+            <!-- Uncomment for StarTeam -->
+            <!--<starteamelement username="${starteam.user}" password="${starteam.passwd}" 
+             folder="${starteam.folder}" starteamurl="${starteam.url}" />-->
         </modificationset>
     </target>
 
-    <target name="masterbuild" depends="modificationset,cvs-update,compile,test,jar" description="Cruise control master build"/>
+    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" description="Cruise control master build"/>
+    <!-- Uncomment for StarTeam -->
+<!--    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar,labelbuild" description="Cruise control master build"/>-->
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
     
 </project>
