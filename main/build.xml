@@ -22,7 +22,7 @@
 
     <property name="build.compiler" value="jikes"/>
     <property name="classes" value="classes"/>        
-    <property name="classpath" value="lib\ant.jar;lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar"/>
+    <property name="classpath" value="lib\ant.jar;lib\optional.jar;lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar;lib\jakarta-oro-2.0.1.jar;lib\starteam-sdk-interfaceonly.jar"/>
     <property name="webinfclasses" value="web-inf\classes"/>
     <property name="dist" value="dist"/>
     <property name="lib" value="lib"/>
