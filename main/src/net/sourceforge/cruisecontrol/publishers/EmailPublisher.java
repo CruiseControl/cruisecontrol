@@ -70,11 +70,11 @@ public abstract class EmailPublisher implements Publisher {
     protected String _servletUrl;
     private List _alwaysAddresses = new ArrayList();
     private List _failureAddresses = new ArrayList();
+    private List _emailMap = new ArrayList();
     private String _returnAddress;
     private String _defaultSuffix;
     private String _reportSuccess = "always";
     private boolean _spamWhileBroken;
-    private String _emailMapFile;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -132,18 +132,18 @@ public abstract class EmailPublisher implements Publisher {
         //add always addresses
         Iterator alwaysAddressIterator = _alwaysAddresses.iterator();
         while (alwaysAddressIterator.hasNext()) {
-            users.add((String) alwaysAddressIterator.next());
+            users.add(((Always) alwaysAddressIterator.next()).getAddress());
         }
 
         //if build failed, add failure addresses
         if (!logHelper.isBuildSuccessful()) {
             Iterator failureAddressIterator = _failureAddresses.iterator();
             while (failureAddressIterator.hasNext()) {
-                users.add((String) failureAddressIterator.next());
+                users.add(((Failure) failureAddressIterator.next()).getAddress());
             }
         }
 
-        //map emails or add defaultsuffix
+/*
         Set emails = new TreeSet();
         Properties emailMap = new Properties();
         FileInputStream fis = null;
@@ -158,12 +158,24 @@ public abstract class EmailPublisher implements Publisher {
                 fis = null;
             }
         }
+*/
+        //move map to hashtable
+        Set emails = new TreeSet();
+        Hashtable emailMap = new Hashtable();
+        Iterator emailMapIterator = _emailMap.iterator();
+        while(emailMapIterator.hasNext()) {
+            Map map = (Map) emailMapIterator.next();
+            System.out.println(map.getAlias() + "->" + map.getAddress());
+            emailMap.put(map.getAlias(), map.getAddress());
+        }
+
         Iterator userIterator = users.iterator();
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
+            System.out.println(user);
             if (emailMap.containsKey(user)) {
-                log.debug("User found in email map.  Mailing to: " + emailMap.getProperty(user));
-                emails.add(emailMap.getProperty(user));
+                log.debug("User found in email map.  Mailing to: " + emailMap.get(user));
+                emails.add(emailMap.get(user));
             } else {
                 if (user.indexOf("@") < 0) {
                     user = user + _defaultSuffix;
@@ -261,7 +273,66 @@ public abstract class EmailPublisher implements Publisher {
         _spamWhileBroken = spam;
     }
 
-    public void setEmailMap(String emailMapFile) {
-        _emailMapFile = emailMapFile;
+    public Object createAlways() {
+        Always always = new Always();
+        _alwaysAddresses.add(always);
+        return always;
+    }
+
+    public Object createFailure() {
+        Failure failure = new Failure();
+        _failureAddresses.add(failure);
+        return failure;
+    }
+
+    public Object createMap() {
+        Map map = new Map();
+        _emailMap.add(map);
+        return map;
+    }
+
+    public class Always {
+        private String _address;
+
+        public String getAddress() {
+            return _address;
+        }
+
+        public void setAddress(String address) {
+            _address = address;
+        }
+    }
+
+    public class Failure {
+        private String _address;
+
+        public String getAddress() {
+            return _address;
+        }
+
+        public void setAddress(String address) {
+            _address = address;
+        }
+    }
+
+    public class Map {
+        private String _alias;
+        private String _address;
+
+        public String getAlias() {
+            return _alias;
+        }
+
+        public void setAlias(String alias) {
+            _alias = alias;
+        }
+
+        public String getAddress() {
+            return _address;
+        }
+
+        public void setAddress(String address) {
+            _address = address;
+        }
     }
 }
