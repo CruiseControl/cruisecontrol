@@ -1,5 +1,11 @@
 CruiseControl Release Notes - Latest CVS
 
+Schedule
+----------------------
+* Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
+
+CruiseControl Release Notes - 2.0.2
+
 JMX/PROJECT CONTROLLER
 ----------------------
 * Added ability to force a rebuild via ProjectController (and effectivly JMX) Patch by Dominick Bellizzi. An implementation note. If project is in state "PAUSED" it won't force the build until you command "RESUME", but then it will emediatly start building.
