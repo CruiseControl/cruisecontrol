@@ -74,7 +74,7 @@ public class AntBuilder extends Builder {
 
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties));
+            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties, isLoggerSupported()));
         } catch (IOException e) {
             throw new CruiseControlException(
                     "Encountered an IO exception while attempting to execute Ant."
@@ -98,9 +98,12 @@ public class AntBuilder extends Builder {
         errorPumper.flush();
 
         //read in log file as element, return it
-        File log = new File("log.xml");
-        Element buildLogElement = getAntLogAsElement(log);
-        log.delete();
+        File logFile = new File("log.xml");
+        if(!logFile.exists()) {
+            log.error("Ant logfile cannot be found");
+        }
+        Element buildLogElement = getAntLogAsElement(logFile);
+        logFile.delete();
 
         //also read in this file, which has all of the ant properties defined.
         Element propertiesElement = null;
@@ -133,11 +136,36 @@ public class AntBuilder extends Builder {
     }
 
     /**
+     *  Determine whether the org.apache.tools.ant.XmlLogger being
+     *  used implements the BuildLogger interface.  Using the XmlLogger
+     *  as a BuildLogger rather than a BuildListener is a newer feature
+     *  and can reduce log file size dramatically.
+     *
+     *  @return true if XmlLogger can be found and used as a BuildLogger.
+     */
+    protected boolean isLoggerSupported() {
+        try {
+            Class[] interfaces = Class.forName("org.apache.tools.ant.XmlLogger").getInterfaces();
+            for(int i=0; i<interfaces.length; i++) {
+                log.debug(interfaces[i].getName());
+            }
+            boolean isLoggerAssignableToXml = (Class.forName("org.apache.tools.ant.BuildLogger").isAssignableFrom(Class.forName("org.apache.tools.ant.XmlLogger")));
+            boolean isXmlAssignableToLogger = (Class.forName("org.apache.tools.ant.XmlLogger").isAssignableFrom(Class.forName("org.apache.tools.ant.BuildLogger")));
+            log.debug("" + isLoggerAssignableToXml);
+            log.debug("" + isXmlAssignableToLogger);
+            return (Class.forName("org.apache.tools.ant.BuildLogger").isAssignableFrom(Class.forName("org.apache.tools.ant.XmlLogger")));
+        } catch (ClassNotFoundException e) {
+            log.error("Could not find Ant XmlLogger", e);
+            return false;
+        }
+    }
+
+    /**
      *  construct the command that we're going to execute.
      *  @param buildProperties Map holding key/value pairs of arguments to the build process
      *  @return String[] holding command to be executed
      */
-    protected String[] getCommandLineArgs(Map buildProperties) {
+    protected String[] getCommandLineArgs(Map buildProperties, boolean useLogger) {
         List al = new ArrayList();
         al.add("java");
         Iterator argsIterator = _args.iterator();
@@ -147,8 +175,15 @@ public class AntBuilder extends Builder {
         al.add("-classpath");
         al.add(System.getProperty("java.class.path"));
         al.add("org.apache.tools.ant.Main");
-        al.add("-listener");
-        al.add("org.apache.tools.ant.XmlLogger");
+        if(useLogger) {
+            al.add("-logger");
+            al.add("org.apache.tools.ant.XmlLogger");
+            al.add("-logfile");
+            al.add("log.xml");
+        } else {
+            al.add("-listener");
+            al.add("org.apache.tools.ant.XmlLogger");
+        }
         al.add("-listener");
         al.add("net.sourceforge.cruisecontrol.builders.PropertyLogger");
 
