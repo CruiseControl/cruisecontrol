@@ -47,6 +47,7 @@ public class MockPublisher implements Publisher {
     private String someString;
     private MockPublisherChild mpc;
     private boolean someBoolean;
+    private EmailMapping mapping;
 
     public void setSomeBoolean(boolean someBoolean) {
         this.someBoolean = someBoolean;
@@ -87,8 +88,15 @@ public class MockPublisher implements Publisher {
     public void validate() throws CruiseControlException {
     }
 
+    public void add(EmailMapping emapping) {
+        mapping = emapping;
+    }
+
+    public EmailMapping getEmailMapping() {
+        return mapping;
+    }
+
     public class MockPublisherChild {
-        
         private int someInt;
         private String someString;
 
@@ -107,8 +115,5 @@ public class MockPublisher implements Publisher {
         public String getSomeString() {
             return someString;
         }
-        
     }
-    
 }
-

@@ -48,6 +48,7 @@ import java.util.Map;
 public class PluginXMLHelperTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
     private PluginXMLHelper helper;
+    private ProjectXMLHelper projectXmlHelper;
 
     private static final int SOME_INT = 15;
     private static final int SOME_OTHER_INT = 16;
@@ -60,8 +61,9 @@ public class PluginXMLHelperTest extends TestCase {
         LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
-    protected void setUp() {
-        helper = new PluginXMLHelper();
+    protected void setUp() throws CruiseControlException {
+        projectXmlHelper = new ProjectXMLHelper();
+        helper = new PluginXMLHelper(projectXmlHelper);
     }
 
     public void testConfigure() throws Exception {
@@ -73,6 +75,12 @@ public class PluginXMLHelperTest extends TestCase {
         childElement.setAttribute("somestring", "childString");
         childElement.setAttribute("someint", Integer.toString(SOME_OTHER_INT));
         testElement.addContent(childElement);
+        Element childMapper = new Element("mockMapper");
+        childMapper.setAttribute("address", "foo");
+        testElement.addContent(childMapper);
+
+        PluginRegistry registry = projectXmlHelper.getPlugins();
+        registry.register("mockMapper", "net.sourceforge.cruisecontrol.publishers.MockMapping");
 
         MockPublisher plugin = (MockPublisher) helper.configure(testElement,
                 Class.forName("net.sourceforge.cruisecontrol.publishers.MockPublisher"), false);
@@ -82,6 +90,7 @@ public class PluginXMLHelperTest extends TestCase {
         assertEquals(true, plugin.getSomeBoolean());
         assertEquals("childString", plugin.getMockPluginChild().getSomeString());
         assertEquals(SOME_OTHER_INT, plugin.getMockPluginChild().getSomeInt());
+        assertEquals("foo", plugin.getEmailMapping().getAddress());
     }
 
     public void testConfigureNoClass() {

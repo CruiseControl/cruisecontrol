@@ -248,7 +248,7 @@ public class ProjectXMLHelper {
     protected Object configurePlugin(Element pluginElement, boolean skipChildElements)
             throws CruiseControlException {
         String name = pluginElement.getName();
-        PluginXMLHelper pluginHelper = new PluginXMLHelper();
+        PluginXMLHelper pluginHelper = new PluginXMLHelper(this);
         String pluginName = pluginElement.getName();
 
         if (plugins.isPluginRegistered(pluginName)) {
@@ -297,5 +297,9 @@ public class ProjectXMLHelper {
         }
 
         return log;
+    }
+
+    PluginRegistry getPlugins() {
+        return plugins;
     }
 }
