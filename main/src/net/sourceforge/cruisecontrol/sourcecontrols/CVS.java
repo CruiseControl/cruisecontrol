@@ -509,7 +509,7 @@ public class CVS implements SourceControl {
             }
         }
 
-        while (reader.ready() && nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
+        while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
             if (nextLine == null) {
                 //No more revisions for this file.
