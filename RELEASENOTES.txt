@@ -128,6 +128,10 @@ MergeLogger
 ----------------------
 * You can now specify a filename pattern for filtering files to be merged (defaults to "*.xml"). Patch by Mark van Holsteijn
 
+ModificationSet
+----------------------
+* You can now specify a list of filename patterns for excluding files from the reported Modifications. Patch by Peter Romianowski
+
 Project
 ----------------------
 * Reset ProjectState to IDLE in case of an exception while building. Patch by Will Gwaltney

@@ -997,6 +997,13 @@
                bootstrapper to sync files (as opposed to getting updates as part
                of the build). 0 is a valid value.</td>
             </tr>
+            <tr class="oddrow">
+                <td>ignoreFiles</td>
+                <td>No</td>
+                <td>Specify a comma separated list of glob-patterns identify files to be ignored in modificationsets.
+                Each pattern is matched against the complete path.
+                Example: <code>*.txt,*/build/build.xml</code><br> This is useful if you want to update and commit files during your CC build.</td>
+            </tr>
             </tbody>
         </table>
 
