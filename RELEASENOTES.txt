@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+AntBuilder
+---------------------
+added antWorkingDir attribute. - Patch by Brett Wooldridge
+
 Multiple Classes
 ---------------------
 added support to run multiple projects in one instance of CruiseControl. Each project is on its own schedule and only one project will build at a time.

@@ -65,6 +65,7 @@ public class AntBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
+    private String antWorkingDir = null;
     private String buildFile;
     private String target;
     private String tempFileName = "log.xml";
@@ -93,13 +94,19 @@ public class AntBuilder extends Builder {
 
         Process p = null;
         try {
-            p =
-                Runtime.getRuntime().exec(
-                    getCommandLineArgs(
-                        buildProperties,
-                        useLogger,
-                        antScript != null,
-                        isWindows()));
+            String[] commandLine =
+                getCommandLineArgs(
+                    buildProperties,
+                    useLogger,
+                    antScript != null,
+                    isWindows());
+
+            File workingDir =
+                (antWorkingDir != null)
+                    ? (new File(antWorkingDir))
+                    : null;
+
+            p = Runtime.getRuntime().exec(commandLine, null, workingDir);
         } catch (IOException e) {
             throw new CruiseControlException(
                 "Encountered an IO exception while attempting to execute Ant."
@@ -129,32 +136,69 @@ public class AntBuilder extends Builder {
         errorPumper.flush();
 
         //read in log file as element, return it
-        File logFile = new File(tempFileName);
+        File logFile = new File(antWorkingDir, tempFileName);
         if (!logFile.exists()) {
-            LOG.error("Ant logfile cannot be found");
+            LOG.error(
+                "Ant logfile ["
+                    + logFile.getAbsolutePath()
+                    + "] cannot be found");
         }
+
         Element buildLogElement = getAntLogAsElement(logFile);
         logFile.delete();
 
         return buildLogElement;
     }
 
+    /**
+     * Set the working directory where Ant will be invoked.  This
+     * parameter gets set in the XML file via the antWorkingDir attribute.
+     * The directory can be relative (to the cruisecontrol current working
+     * directory) or absolute.
+     * @param dir the directory to make the current working directory.
+     */
+    public void setAntWorkingDir(String dir) {
+        this.antWorkingDir = dir;
+    }
+
+    /**
+     * Sets the Script file to be invoked (in place of calling the Ant class
+     * directly).  This is a platform dependent script file.
+     * @param antScript the name of the script file
+     */
     public void setAntScript(String antScript) {
         this.antScript = antScript;
     }
 
+    /**
+     * Set the name of the temporary file used to capture output.
+     * @param tempFileName
+     */
     public void setTempFile(String tempFileName) {
         this.tempFileName = tempFileName;
     }
 
+    /**
+     * Set the Ant target(s) to invoke.
+     * @param target the target(s) name.
+     */
     public void setTarget(String target) {
         this.target = target;
     }
 
+    /**
+     * Sets the name of the build file that Ant will use.  The Ant default is
+     * build.xml, use this to override it.
+     * @param buildFile the name of the build file.
+     */
     public void setBuildFile(String buildFile) {
         this.buildFile = buildFile;
     }
 
+    /**
+     * Sets whether Ant will use the custom loggers.
+     * @param useLogger
+     */
     public void setUseLogger(boolean useLogger) {
         this.useLogger = useLogger;
     }
@@ -295,7 +339,7 @@ public class AntBuilder extends Builder {
         public String getArg() {
             return arg;
         }
-        
+
     }
 
     public class Property {
@@ -318,7 +362,7 @@ public class AntBuilder extends Builder {
         public String getValue() {
             return value;
         }
-        
+
     }
-    
+
 }
