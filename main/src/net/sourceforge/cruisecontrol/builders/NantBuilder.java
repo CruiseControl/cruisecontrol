@@ -46,7 +46,9 @@ import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
+import org.jdom.CDATA;
 import org.jdom.Element;
+import org.jdom.filter.ContentFilter;
 import org.jdom.input.SAXBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
@@ -408,8 +410,13 @@ public class NantBuilder extends Builder {
 
     protected Element translateNantErrorElements(Element buildLogElement) throws CruiseControlException {
         buildLogElement.setName("build");
-        if (buildLogElement.getChildren("failure").size() > 0) {
-            buildLogElement.setAttribute(new Attribute("error", "true"));
+        Element failure = buildLogElement.getChild("failure"); 
+        if (failure != null) {
+            Element buildError = failure.getChild("builderror");
+            Element message = buildError.getChild("message");
+            List matches = message.getContent(new ContentFilter(ContentFilter.CDATA));
+            String errorMessage = ((CDATA) matches.get(0)).getText();
+            buildLogElement.setAttribute(new Attribute("error", errorMessage));
         }
         return buildLogElement;
     }
