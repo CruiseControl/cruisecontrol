@@ -41,6 +41,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 import org.apache.log4j.Category;
 
@@ -50,22 +51,15 @@ import org.apache.log4j.Category;
  * 
  *  @author <a href="mailto:Richard.Wagner@alltel.com">Richard Wagner</a>
  */
-public class PVCS extends SourceControlElement {
+public class PVCS implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(PVCS.class.getName());
 
-	/**
-	 *  Set of the authors that modified files. With PVCS, it corresponds to the
-	 *  user names.
-	 */
-	private Set _emailNames = new HashSet();
+    private Hashtable _properties = new Hashtable();
+    private String _property;
+    private String _propertyOnDelete;
 
-	/**
-	 *  This date indicates the most recent modification time.
-	 */
-	private Date _lastModified;
-        
         private String _pvcsProject;
         // i.e. "esa";
         // i.e. "esa/uihub2";
@@ -99,33 +93,18 @@ public class PVCS extends SourceControlElement {
 	public void setPvcssubproject(String subproject) {
 		_pvcsSubProject = subproject;
 	}
-        
-        
 
+    public void setProperty(String property) {
+        _property = property;
+    }
 
-	/**
-	 *  Returns a Set of email addresses. since PVCS doesn't track actual
-	 *  email addresse, we just return the usernames, which may correspond to
-	 *  emails ids.
-	 *
-	 *@return
-	 */
-	public Set getEmails() {
-		return _emailNames;
-	}
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
+    }
 
-	/**
-	 *  Gets the last modified time for the set of files queried in the {@link
-	 *  #getHistory} method.
-	 *
-	 *@return  the lastest revision time.
-	 */
-	public long getLastModified() {
-		if (_lastModified == null) {
-			return 0;
-		}
-		return _lastModified.getTime();
-	}
+    public Hashtable getProperties() {
+        return _properties;
+    }
 
 	/**
 	 *  Returns an {@link java.util.List List} of {@link Modification}
@@ -139,7 +118,7 @@ public class PVCS extends SourceControlElement {
          *
          *  Note:  Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
 	 */
-	public List getHistory(Date lastBuild, Date now, long quietPeriod) {       
+	public List getModifications(Date lastBuild, Date now, long quietPeriod) {
                 // build file of PVCS command line instructions
                 String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
                 String nowDate = IN_DATE_FORMAT.format(now);
@@ -239,22 +218,6 @@ public class PVCS extends SourceControlElement {
           }
         }
         
-        
-
-
-
-	/**
-	 *  Updates the lastModified date if necessary (new date is after the current
-	 *  lastModified date).
-	 *
-	 *@param  newPossible the new possible lastModified date
-	 */
-	private void updateLastModified(Date newPossible) {
-		if (_lastModified == null || _lastModified.before(newPossible)) {
-			_lastModified = newPossible;
-		}
-	}
-
 	/**
 	 *  Inner class to build Modifications and verify the order of the lines
          *   used to build them. 
@@ -304,7 +267,6 @@ public class PVCS extends SourceControlElement {
               		try {
                                 String lastMod = line.substring(16);
                         	modification.modifiedTime = OUT_DATE_FORMAT.parse(lastMod);
-                		updateLastModified(modification.modifiedTime);
                         }
                         catch (ParseException e) {
                             modification.modifiedTime = null;
@@ -328,7 +290,6 @@ public class PVCS extends SourceControlElement {
                         modification.userName = username;
                         firstUserName = false;
                         nextLineIsComment = true;
-                        _emailNames.add(modification.userName);
                     }
                 }  // end of Author id
                 
