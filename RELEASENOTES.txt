@@ -12,6 +12,10 @@ CVSBootstrapper
 ---------------
 * Add -dP to update command
 
+EmailPublisher
+---------------
+* Added nested success element - Patch by Marco Faini
+
 JMX
 ---------------
 * Now exposing Project status (read-only) in the jmx interface

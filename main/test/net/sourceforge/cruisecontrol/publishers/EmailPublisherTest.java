@@ -77,6 +77,8 @@ public class EmailPublisherTest extends TestCase {
         xml.append("<always address=\"always2@host.com\"/>");
         xml.append("<failure address=\"failure1\"/>");
         xml.append("<failure address=\"failure2@host.com\"/>");
+        xml.append("<success address='success1' />");
+        xml.append("<success address='success2@host.com' />");
         xml.append("<map alias=\"user3\" address=\"user3@host2.com\"/>");
         xml.append("</email>");
 
@@ -89,7 +91,8 @@ public class EmailPublisherTest extends TestCase {
         emailPublisher =
             (MockEmailPublisher) xmlHelper.configure(
                 emailPublisherElement,
-                "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher", false);
+                "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher",
+                false);
 
         successLogHelper = createLogHelper(true, true);
         failureLogHelper = createLogHelper(false, false);
@@ -134,7 +137,6 @@ public class EmailPublisherTest extends TestCase {
         assertEquals(false, emailPublisher.shouldSend(fixedLogHelper));
         assertEquals(true, emailPublisher.shouldSend(failureLogHelper));
 
-
         emailPublisher.setSpamWhileBroken(false);
         emailPublisher.setReportSuccess("success");
         assertEquals(true, emailPublisher.shouldSend(successLogHelper));
@@ -158,26 +160,38 @@ public class EmailPublisherTest extends TestCase {
 
     public void testCreateSubject() throws Exception {
         emailPublisher.setReportSuccess("always");
-        assertEquals("TestProject somelabel Build Successful", emailPublisher.createSubject(successLogHelper));
+        assertEquals(
+            "TestProject somelabel Build Successful",
+            emailPublisher.createSubject(successLogHelper));
         emailPublisher.setReportSuccess("fixes");
-        assertEquals("TestProject somelabel Build Fixed", emailPublisher.createSubject(fixedLogHelper));
+        assertEquals(
+            "TestProject somelabel Build Fixed",
+            emailPublisher.createSubject(fixedLogHelper));
 
         assertEquals("TestProject Build Failed", emailPublisher.createSubject(failureLogHelper));
 
         emailPublisher.setSubjectPrefix("[CC]");
         emailPublisher.setReportSuccess("always");
-        assertEquals("[CC] TestProject somelabel Build Successful", emailPublisher.createSubject(successLogHelper));
+        assertEquals(
+            "[CC] TestProject somelabel Build Successful",
+            emailPublisher.createSubject(successLogHelper));
         emailPublisher.setReportSuccess("fixes");
-        assertEquals("[CC] TestProject somelabel Build Fixed", emailPublisher.createSubject(fixedLogHelper));
+        assertEquals(
+            "[CC] TestProject somelabel Build Fixed",
+            emailPublisher.createSubject(fixedLogHelper));
 
-        assertEquals("[CC] TestProject Build Failed", emailPublisher.createSubject(failureLogHelper));
+        assertEquals(
+            "[CC] TestProject Build Failed",
+            emailPublisher.createSubject(failureLogHelper));
 
     }
 
     public void testCreateUserList() {
         PropertyConfigurator.configure("log4j.properties");
         assertEquals(
-            "always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com",
+            "always1@host.com,always2@host.com,"
+                + "success1@host.com,success2@host.com,"
+                + "user1@host.com,user2@host.com,user3@host2.com",
             emailPublisher.createUserList(successLogHelper));
         assertEquals(
             "always1@host.com,always2@host.com,failure1@host.com,"
@@ -185,13 +199,15 @@ public class EmailPublisherTest extends TestCase {
             emailPublisher.createUserList(failureLogHelper));
 
         emailPublisher.setSkipUsers(true);
-        assertEquals("always1@host.com,always2@host.com", emailPublisher.createUserList(successLogHelper));
+        assertEquals(
+            "always1@host.com,always2@host.com,success1@host.com,success2@host.com",
+            emailPublisher.createUserList(successLogHelper));
         assertEquals(
             "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com",
             emailPublisher.createUserList(failureLogHelper));
 
     }
-    
+
     public void testGetFromAddress() throws AddressException {
         String returnAddress = "me@you.com";
         String returnName = "Me you Me";
@@ -201,5 +217,5 @@ public class EmailPublisherTest extends TestCase {
         assertEquals(returnAddress, fromAddress.getAddress());
         assertEquals(returnName, fromAddress.getPersonal());
     }
-    
+
 }
