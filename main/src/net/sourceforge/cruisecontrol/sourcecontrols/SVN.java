@@ -232,7 +232,7 @@ public class SVN implements SourceControl {
     private List execHistoryCommand(Commandline command, Date lastBuild)
         throws InterruptedException, IOException, ParseException, JDOMException {
 
-        Process p = Runtime.getRuntime().exec(command.getCommandline());
+        Process p = command.execute();
 
         logErrorStream(p);
         InputStream svnStream = p.getInputStream();
