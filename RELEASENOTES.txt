@@ -26,6 +26,11 @@ ClearCaseBootstrapper
 ----------------------
 * fixed /dev/nul to /dev/null (CC-76). Patch by Esa Laine 
 
+Contrib
+----------------------
+* A Windows system tray icon for monitoring a CruiseControl build process. Contributed by Ivan Moore.
+* A NTServiceWrapper for running CruiseControl as an NT service. Contributed by Nick Chalko.
+
 CruiseControl
 ----------------------
 * Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass (CC-56). Patch by Jerome Lacoste
