@@ -44,6 +44,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -54,6 +56,16 @@ import org.apache.log4j.PatternLayout;
 import org.jdom.Element;
 
 public class AntBuilderTest extends TestCase {
+    private final List filesToClear = new ArrayList();
+
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+    }
 
     public void testValidate() {
         AntBuilder ab = new AntBuilder();
@@ -232,12 +244,14 @@ public class AntBuilderTest extends TestCase {
         try {
             Element buildLogElement = new Element("build");
             File logFile = new File("_tempAntLog14.xml");
+            filesToClear.add(logFile);
             BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
             bw1.write(
                 "<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
             bw1.flush();
             bw1.close();
             File logFile2 = new File("_tempAntLog141.xml");
+            filesToClear.add(logFile2);
             BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
             bw2.write(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "

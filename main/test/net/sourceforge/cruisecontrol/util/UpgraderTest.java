@@ -42,6 +42,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -56,6 +59,17 @@ import org.jdom.output.XMLOutputter;
 
 public class UpgraderTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(UpgraderTest.class);
+
+    private final List filesToClear = new ArrayList();
+
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+    }
 
     public UpgraderTest(String name) {
         super(name);
@@ -294,6 +308,7 @@ public class UpgraderTest extends TestCase {
         File tempPropertiesFile = new File("nosuchpropertiesfile");
         upgrader.setPropertiesFile(tempPropertiesFile);
         File tempConfigFile = new File("_tempConfigFile");
+        filesToClear.add(tempConfigFile);
         upgrader.setConfigFile(tempConfigFile);
         upgrader.setProjectName("someproject");
 
@@ -342,8 +357,10 @@ public class UpgraderTest extends TestCase {
 
     private void writeFile(String filename) {
         BufferedWriter bw = null;
+        File theFile = new File(filename);
+        filesToClear.add(theFile);
         try {
-            bw = new BufferedWriter(new FileWriter(filename));
+            bw = new BufferedWriter(new FileWriter(theFile));
             bw.write(" ");
             bw.flush();
             bw.close();
@@ -353,5 +370,4 @@ public class UpgraderTest extends TestCase {
             bw = null;
         }
     }
-    
 }

@@ -42,13 +42,27 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.File;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.text.SimpleDateFormat;
 
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
+    private final List filesToClear = new ArrayList();
 
     public CurrentBuildStatusBootstrapperTest(String name) {
         super(name);
+    }
+
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
     }
 
 
@@ -70,6 +84,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
     public void testWriteFile() {
         CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
         cbsb.setFile("_testCurrentBuildStatus.txt");
+        filesToClear.add(new File("_testCurrentBuildStatus.txt"));
         Date date = new Date();
 
         try {
