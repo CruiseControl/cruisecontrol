@@ -108,14 +108,28 @@ public class P4Test extends TestCase {
         assertEquals("Returned wrong number of changelists", 3, changelists.size());
         XMLOutputter outputter = new XMLOutputter();
         List changelistElements = p4.changeListsToElement(changelists);
-        for (Iterator iterator = changelistElements.iterator(); iterator.hasNext();) {
-            Element element = (Element) iterator.next();
+        assertEquals(
+			"Wrong description",
+			"Fixed support for db2. This is now the default database shipped with HPDoc. For now that is. Still has to be tested on PostgreSQL to see that it is still working there. The sea rch mechanism is also upgraded to now ALMOST support AND/OR expressions. There are thoughtsabout this, but not yet implemented (however prepared for)",
+			((Element)changelistElements.get(0)).getChild("description").getText()
+		);
+		assertEquals(
+			"Wrong description",
+			"ok, tests running smooth. Checking in mostly for backup. Not finished yet. CIMD is comming on great and I'm starting to see a framework developing.",
+			((Element)changelistElements.get(1)).getChild("description").getText()
+		);
+		assertEquals(
+			"Wrong description",
+			"Testing ..\nSome ..\nLinebreaks.",
+			((Element)changelistElements.get(2)).getChild("description").getText()
+		);
+//        for (Iterator iterator = changelistElements.iterator(); iterator.hasNext();) {
+//            Element element = (Element) iterator.next();
 //  Use next lines if you want to see the output of the run. This is what is inserted into the logs.
 //            outputter.setNewlines(true);
 //            outputter.setIndent(true);
 //            System.out.println(outputter.outputString(element));
-        }
-
+//        }
     }
 
 //    public void testGetModifications() throws Exception {

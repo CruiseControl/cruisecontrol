@@ -250,15 +250,31 @@ public class P4 implements SourceControl {
                 st.nextToken(); // skip 'on' text
                 changelist._dateOfSubmission = st.nextToken();
             }
-            line = reader.readLine(); // get past a 'text:' otherwise the expression below will fail to match.
-            String description = "";
-            while ((line = readToNotPast(reader, "text:\t", "text:")) != null && line.startsWith("text:\t")) {
-                description += line.substring(6);
+
+            line = reader.readLine(); // get past a 'text:'
+            StringBuffer descriptionBuffer = new StringBuffer();
+            // Use this since we don't want the final (empty) line
+            String previousLine = null;
+            while ((line = reader.readLine()) != null &&
+                    line.startsWith("text:") &&
+                    !line.startsWith("text: Affected files ...")) {
+
+                if (previousLine != null) {
+                    if (descriptionBuffer.length() > 0) {
+                        descriptionBuffer.append('\n');
+                    }
+                    descriptionBuffer.append(previousLine);
+                }
+                try {
+                    previousLine = line.substring(5).trim();
+                } catch (Exception e) {
+                    log.error("Error parsing Perforce description, line that caused problem was: [" + line + "]");
+                }
+
             }
-            changelist._description = description;
+            changelist._description = descriptionBuffer.toString();
 
             // Ok, read affected files if there are any.
-            line = readToNotPast(reader, "text: Affected files ...", "exit:");
             if (line != null) {
                 reader.readLine(); // read past next 'text:'
                 while ((line = readToNotPast(reader, "info1:", "text:")) != null && line.startsWith("info1:")) {
