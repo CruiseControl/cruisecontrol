@@ -53,10 +53,6 @@ import java.util.*;
  */
 public class Mailer {
     /**
-     * Stores who the mail will be sent to.
-     */
-    private String to;
-    /**
      * Stores the address from which the mail was sent.
      */
     private String from;
@@ -64,7 +60,7 @@ public class Mailer {
      * Stores the address of the mail(SMTP) server.
      */
     private String mailhost;
-    
+
     /**
      * Construct a mailer for the given recipient(s) and
      * sender.
@@ -73,54 +69,11 @@ public class Mailer {
      *               of addresses, to which mail should be sent.
      * @param from   The sender's address.
      */
-    public Mailer(String mailhost, String to, String from) {
+    public Mailer(String mailhost, String from) {
         this.mailhost = mailhost;
-        this.to = to;
         this.from = from;
     }
-    
-    /**
-     * Creates a Mailer for a Collection of "to" addresses.
-     *
-     * @param to     Collection of email address to which mail should be sent.
-     * @param from   Address from which the mail should be sent.
-     */
-    public Mailer(String mailhost, Collection to, String from) {
-        this.mailhost = mailhost;
-        
-        StringBuffer buf = new StringBuffer();
-        for (Iterator toIter = to.iterator(); toIter.hasNext(); ) {
-            String nextName = (String)toIter.next();
-            buf.append(nextName);
-            if (toIter.hasNext()) {
-                buf.append(", ");
-            }
-        }
-        this.to = buf.toString();
-        this.from = from;
-    }
-    
-    /**
-     * Creates a Mailer for an array of "to" addresses.
-     *
-     * @param to     Array of email addresses to which mail should be sent.
-     * @param from   Address from which the mail is sent.
-     */
-    public Mailer(String mailhost, String[] to, String from) {
-        this.mailhost = mailhost;
-        
-        StringBuffer buf = new StringBuffer();
-        for (int i=0; i<to.length; i++ ) {
-            String nextName = to[i];
-            buf.append(nextName);
-            if (i<(to.length - 1)) {
-                buf.append(", ");
-            }
-        }
-        this.to = buf.toString();
-        this.from = from;
-    }
-    
+
     /**
      * Sends a message to the recipient(s) managed by this
      * Mailer instance.
@@ -129,44 +82,86 @@ public class Mailer {
      * @param message Message body.
      * @throws MessagingException
      */
-    public void sendMessage(String subject, String message) throws MessagingException {
-         sendMessage(subject, message, false);
+    public void sendMessage(String to, String subject, String message) throws MessagingException {
+        sendMessage(to, subject, message, false);
     }
-    
-     /**
-      * Sends a message to the recipient(s) managed by this
-      * Mailer instance.
-      * 
-      * @param subject Subject of the mail message.
-      * @param message Message body.
-      * @param debug   true to output standard debug information from the
-      *                JavaMail Transport Provider.
-      * @exception MessagingException
-      */
-     public void sendMessage(String subject, String message, boolean debug) 
-       throws MessagingException  {
+
+    /**
+     * Sends a message to the recipient(s) managed by this
+     * Mailer instance.
+     *
+     * @param subject Subject of the mail message.
+     * @param message Message body.
+     * @throws MessagingException
+     */
+    public void sendMessage(Collection to, String subject, String message) throws MessagingException {
+        StringBuffer buf = new StringBuffer();
+        for (Iterator toIter = to.iterator(); toIter.hasNext();) {
+            String nextName = (String)toIter.next();
+            buf.append(nextName);
+            if (toIter.hasNext()) {
+                buf.append(", ");
+            }
+        }
+
+        sendMessage(buf.toString(), subject, message, false);
+    }
+
+    /**
+     * Sends a message to the recipient(s) managed by this
+     * Mailer instance.
+     *
+     * @param subject Subject of the mail message.
+     * @param message Message body.
+     * @throws MessagingException
+     */
+    public void sendMessage(String[] to, String subject, String message) throws MessagingException {
+        StringBuffer buf = new StringBuffer();
+        for (int i=0; i<to.length; i++) {
+            String nextName = to[i];
+            buf.append(nextName);
+            if (i<(to.length - 1)) {
+                buf.append(", ");
+            }
+        }
+
+        sendMessage(buf.toString(), subject, message, false);
+    }
+
+    /**
+     * Sends a message to the recipient(s) managed by this
+     * Mailer instance.
+     * 
+     * @param subject Subject of the mail message.
+     * @param message Message body.
+     * @param debug   true to output standard debug information from the
+     *                JavaMail Transport Provider.
+     * @exception MessagingException
+     */
+    public void sendMessage(String to, String subject, String message, boolean debug) 
+    throws MessagingException  {
         if (mailhost == null || mailhost.equals("")) {
             System.out.println(
-              "\nMail was not sent, as no mailhost has been specified");
+                              "\nMail was not sent, as no mailhost has been specified");
             return;
         }
 
-         Properties props = System.getProperties();
-         props.put("mail.smtp.host", mailhost);
-         Session session = Session.getDefaultInstance(props, null);
-         session.setDebug(debug);
-    
-         Message msg = new MimeMessage(session);
-         msg.setFrom(new InternetAddress(from));
-         msg.setRecipients(Message.RecipientType.TO, 
-           InternetAddress.parse(to, false));
-         msg.setSubject(subject);
-         msg.setText(message);
-         msg.setSentDate(new Date());
- 
-         // send the message off
-         Transport.send(msg);
-         System.out.println("\nMail was sent successfully.");         
-     } 
+        Properties props = System.getProperties();
+        props.put("mail.smtp.host", mailhost);
+        Session session = Session.getDefaultInstance(props, null);
+        session.setDebug(debug);
+
+        Message msg = new MimeMessage(session);
+        msg.setFrom(new InternetAddress(from));
+        msg.setRecipients(Message.RecipientType.TO, 
+                          InternetAddress.parse(to, false));
+        msg.setSubject(subject);
+        msg.setText(message);
+        msg.setSentDate(new Date());
+
+        // send the message off
+        Transport.send(msg);
+        System.out.println("\nMail was sent successfully.");         
+    } 
 
 }
