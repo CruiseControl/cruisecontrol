@@ -38,14 +38,15 @@
 
 <p>&nbsp;<p>
 <ul>
-	<li> <a href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a>
+	<li> <a href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></li>
+	<li> <a href="#cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></li>
 </ul>
 
-<p>&nbsp;<p>
+<p></p>
 
-<span class="header"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span><br>
-<br>
-Usually this problem manifest itself like:<br>
+<span class="header"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span>
+
+<p>Usually this problem manifests itself like:</p>
 
 <pre>My CruiseControl builds are failing because ant can't use the modern java
 compiler and my project won't compile with the classic compiler.  But my
@@ -61,7 +62,9 @@ compilers, you don't need it. Furthermore, due to problems with javac
 locking JAR files, it is advisable to use a different compiler (such as
 Jikes).</p>
 
+<span class="header"><a name="cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></span>
 
+<p>This solution requires Ant 1.4.  Set the property "build.compiler" to "extJavac".  This tells Ant to fork a separate process for using Javac, which will release the lock when it terminates.  Alternatively, set the "fork" attribute of the javac task to true.</p>
 
       <!-- content ends here -->
       </td>
