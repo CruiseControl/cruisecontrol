@@ -74,6 +74,7 @@
     <!-- **************************************************** -->
     <target name="init" description="Setup build system">
         <mkdir dir="${classes}"/>
+        <mkdir dir="${dist}"/>
         <mkdir dir="${apidocs}"/>
         <mkdir dir="${release}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
@@ -155,7 +156,7 @@
             <classpath >
                 <path refid="project.runtime.classpath" />
             </classpath>
-            <!--<formatter type="brief" usefile="false" />-->
+            <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
                 <fileset dir="${classes}" includes="**/*Test.class" excludes="**/element/" />
