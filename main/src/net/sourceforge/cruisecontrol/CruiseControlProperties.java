@@ -40,6 +40,8 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
 import net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher;
+import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
+import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper;
 
 import java.io.*;
 import java.util.*;
@@ -116,7 +118,8 @@ public class CruiseControlProperties {
      *  Factory method for creating an <code>AntBuilder</code> from the properties file, rather than making repeated calls
      *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
-     *  @return AntBuilder that is fully configured for the appropriate build target, based on the build counter
+     *  @param buildCounter internal counter for cruisecontrol to determine the build behavior
+     *  @return AntBuilder that is fully configured for the appropriate build target
      */
     public AntBuilder createAntBuilder(int buildCounter) {
         AntBuilder builder = new AntBuilder();
@@ -130,6 +133,31 @@ public class CruiseControlProperties {
         builder.setTarget(antTarget);
         return builder;
     }
+
+    /**
+     *  Factory method for creating an <code>CurrentBuildStatusBootstrapper</code> from the properties file, rather
+     *  than making repeated calls to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     *
+     *  @return CurrentBuildStatusBootstrapper that is fully configured
+     */
+    public CurrentBuildStatusBootstrapper createCurrentBuildStatusBootstrapper() {
+        CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
+        bootstrapper.setFile(currentBuildStatusFile.getAbsolutePath());
+        return bootstrapper;
+    }
+
+    /**
+     *  Factory method for creating an <code>CurrentBuildStatusPublisher</code> from the properties file, rather
+     *  than making repeated calls to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     *
+     *  @return CurrentBuildStatusPublisher that is fully configured
+     */
+    public CurrentBuildStatusPublisher createCurrentBuildStatusPublisher() {
+        CurrentBuildStatusPublisher publisher = new CurrentBuildStatusPublisher();
+        publisher.setFile(currentBuildStatusFile.getAbsolutePath());
+        return publisher;
+    }
+
 
     public CruiseControlProperties(String propertiesFile) throws IOException {
 
