@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -284,7 +285,11 @@ public class AntBuilder extends Builder {
 
         al.add("-buildfile");
         al.add(buildFile);
-        al.add(target);
+        
+        StringTokenizer targets = new StringTokenizer(target);
+        while (targets.hasMoreTokens()) {
+            al.add(targets.nextToken());
+        }
 
         StringBuffer sb = new StringBuffer();
         sb.append("Executing Command: ");
