@@ -48,6 +48,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.URIResolver;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -79,6 +81,25 @@ public class XSLTag implements Tag, BodyTag {
     protected void transform(File xmlFile, InputStream in, Writer out) {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
+	    if (_xslFileName != null) {
+                String xslFilePath = _pageContext.getServletContext().getRealPath(_xslFileName);
+                final String xslDir = new File(xslFilePath).getAbsoluteFile().getParent();
+                javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
+                    public javax.xml.transform.Source resolve(String href, String base) {
+                        File possibleFile = new File(xslDir, href);
+                        if (possibleFile.exists()) {
+                            System.out.println("Using nested stylesheet for " + href);
+                            return new javax.xml.transform.stream.StreamSource(possibleFile);
+                        } else {
+                            System.out.println("Nested stylesheet not found for " + href);
+                            return null;
+                        }
+                    }
+                };
+                tFactory.setURIResolver(resolver);
+            } else {
+                System.err.println("No XSL File Name!");
+            }
             Transformer transformer = tFactory.newTransformer(new StreamSource(in));
             transformer.transform(new StreamSource(xmlFile), new StreamResult(out));
         } catch (TransformerFactoryConfigurationError error) {
