@@ -94,6 +94,7 @@
         <mkdir dir="${clover.results}"/>
         <available file="${lib}/starteam-sdk.jar" property="starteam-sdk-present"/>
         <available file="${lib}/STComm.jar" property="sametime-sdk-present"/>
+    	<available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
         <tstamp/>
         <property name="label" value="${version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
@@ -155,6 +156,7 @@
         </copy>
         <copy todir="${target}">
             <fileset dir="${test}" includes="testbuild.xml"/>
+            <fileset dir="${test}" includes="test.build"/>
         </copy>
     </target>
 
@@ -204,7 +206,9 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${test.classes}" includes="**/${tests}.class" />
+                <fileset dir="${test.classes}"
+                         includes="**/${tests}.class"
+                         excludes="**/NantBuilder*Test.class" />
             </batchtest>
         </junit>
     </target>
@@ -258,6 +262,20 @@
 
     </target>
 
+    <target name="test-nant" depends="init, compile-test" if="nant-present">
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}" >
+            <classpath >
+                <path refid="project.runtime.classpath" />
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <batchtest todir="${junit.results}" >
+                <fileset dir="${test.classes}" includes="**/NantBuilder*Test.class" />
+            </batchtest>
+        </junit>
+
+    </target>
+
     <target name="jar" depends="compile">
         <jar jarfile="${dist}/cruisecontrol.jar" manifest="${basedir}/manifest.mf">
             <fileset dir="${classes}"/>
@@ -278,7 +296,7 @@
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar"/>
     
-    <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar" description="Performs a build, runs tests, and builds jar" />
+    <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,test-nant,jar" description="Performs a build, runs tests, and builds jar" />
 
     <target name="cvs-update" depends="init" if="localCopy">
         <cvs command="update -d -P" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol"

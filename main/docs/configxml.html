@@ -123,6 +123,7 @@
 <a href="#merge">&lt;merge&gt;</a>
 <a href="#mks">&lt;mks&gt;</a>
 <a href="#modificationset">&lt;modificationset&gt;</a>
+<a href="#nant">&lt;nant&gt;</a>
 <a href="#p4">&lt;p4&gt;</a>
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
@@ -225,6 +226,7 @@
          <a href="#ant">&lt;ant/&gt;</a>
          <a href="#maven">&lt;maven/&gt;</a>
          <a href="#pause">&lt;pause/&gt;</a>
+         <a href="#nant">&lt;nant/&gt;</a>
       &lt;/schedule&gt;
       <a href="#log">&lt;log&gt;</a>
          <a href="#merge">&lt;merge/&gt;</a>
@@ -2693,6 +2695,11 @@
                 <td>0 .. *</td>
                 <td>Pauses the build.</td>
             </tr>
+            <tr>
+                <td><a href="#nant">&lt;nant&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using NAnt.</td>
+            </tr>
             </tbody>
         </table>
 
@@ -3138,6 +3145,195 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="nant">&lt;nant&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;nant&gt;</pre>
+        </div>
+
+        <p>Specifies a <a href="http://nant.sourceforge.net/">NAnt</a> build to be run at a given time or build number.
+        For instance, we can run a clean build every 5 builds, or run more
+        comprehensive (and time intensive) system tests every 10 builds.  We
+        can also schedule an official build to run every night at midnight,
+        if we so desire.</p>
+          
+        <p>When a build runs, NAnt is invoked in a separate Java process. NAnt
+			and the .NET Framework or Mono need to be installed for this builder
+			to function. See NAnt's documentation for details on configuration
+			and compatibility with .NET implementations. </p>
+        
+        <p>The standard CruiseControl <a href="#buildproperties">properties
+        passed to builders</a> are available from within the NAnt build.</p>
+        
+        <p>See below for <a href="#nant-examples">examples</a> of the
+        <code>&lt;nant&gt;</code> element.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>buildfile</td>
+                <td>No (defaults to default.build)</td>
+                <td>Path to NAnt build file.</td>
+            </tr>
+            <tr>
+                <td>target</td>
+                <td>No</td>
+                <td>NAnt target(s) to run. Default is "", or the default target
+                for the build file.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>multiple</td>
+                <td>No</td>
+                <td>Build index used to run different builders.  For example,
+                if this is set to 3, the builder will be run every 3 builds.
+                Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>No</td>
+                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>day</td>
+                <td>No</td>
+                <td>Valid values are (case-insenstive) the english names for
+                the days of the week (Sunday, Monday, Tuesday, etc). Does not
+                support multiple days except for the default of every day.</td>
+            </tr>
+            <tr>
+                <td>tempfile</td>
+                <td>No</td>
+                <td>Name of temp file.  Defaults to log.xml</td>
+            </tr>
+            <tr class="oddrow">
+                <td>targetFramework</td>
+                <td>No, but recommended</td>
+                <td>Specifies the framework to target. Typical values are
+					"net-1.1" and "mono-1.0".</td>
+            </tr>
+            <tr>
+                <td>nantWorkingDir</td>
+                <td>No</td>
+                <td>Will invoke NAnt in the specified directory.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>timeout</td>
+                <td>No</td>
+                <td>NAnt build will be halted if it continues longer than the
+                specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
+                <td>uselogger</td>
+                <td>No</td>
+                <td>'true' if CruiseControl should call NAnt using -logger; 
+                'false' to call NAnt without '-logger', thus using the 
+                loggerclass as a Listener. uselogger="true" will make NAnt
+                log its messages using the class specified by loggerclassname 
+                as a NAnt Logger,  which can make for smaller log files since 
+                it doesn't log DEBUG messages (see useDebug and useQuiet 
+                attributes below, and the 
+                <a href="http://nant.sourceforge.net/release/0.85-rc1/help/fundamentals/listeners.html">
+					NAnt documentation</a>). 
+                Listener will echo NAnt messages to console which is
+                useful when debugging your NAnt build. Defaults to 'false'
+                for historical reasons, but setting it to 'true' is recommended
+                for production situations.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>loggerclassname</td>
+                <td>No (defaults to NAnt.Core.XMLLogger)</td>
+                <td>If you want to use another logger than NAnt's XmlLogger,
+				you can specify the classname of the logger here. The logger
+				needs to output compatible XML, and the class needs to be
+				available on the classpath at buildtime.</td>
+            </tr>
+            <tr>
+                <td>usedebug</td>
+                <td>No</td>
+                <td>If true will invoke NAnt with -debug, which can be
+                useful for debugging your NAnt build. Defaults to 'false',
+                cannot be set to 'true' if usequiet is also set to 'true'.
+                Is only effective when used in combination with uselogger="true"!</td>
+            </tr>
+            <tr class="oddrow">
+                <td>usequiet</td>
+                <td>No</td>
+                <td>If true will invoke NAnt with -quiet, which can be
+                useful for creating smaller log files since messages with
+                a priority of INFO will not be logged. Defaults to 'false',
+                cannot be set to 'true' if usedebug is also set to 'true'.
+                Is only effective when used in combination with uselogger="true"!</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>&lt;property&gt;</td>
+                <td>0 .. *</td>
+                <td>Used to define properties for the NAnt build. The element
+                has a two required attributes: "name" and "value". These will
+                be passed on the NAnt command-line as "-D:name=value"<br/>
+                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3><a name="nant-examples">Examples</a></h3>
+
+        <ol>
+            <li>Invoke NAnt, specifying the
+            working directory as <code>D:\workspace\MyProject</code> and the
+            NAnt build file as <code>MyProject-nightly.build</code> using the default target.
+        
+            <pre>&lt;schedule&gt;
+    &lt;nant nantworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightly.build" 
+         uselogger="true" 
+         usedebug="false"/&gt;
+&lt;schedule&gt;</pre>
+            </li>
+
+            <li>Invoke NAnt, specifying the working directory as <code>/home/cc/workspace</code>,
+            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>, 
+			and the targetframework as .NET version 1.1.
+            
+            <pre>&lt;schedule&gt;
+    &lt;nant targetframework="net-1.1"
+         nantworkingdir="/home/cc/workspace"
+         target="smoketest" 
+         uselogger="true"/&gt;
+&lt;schedule&gt;</pre>
+
+            </li>
+        </ol>
         </div>
 
         <div class="elementdocumentation">

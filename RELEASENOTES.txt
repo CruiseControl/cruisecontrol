@@ -79,6 +79,10 @@ ModificationSet:
 ----------------------
 * Fix for possible NPE when using ignoreFiles
 
+NantBuilder:
+----------------------
+* Submitted by Jeff Ramsdale; nant.xsl by Eric Pugh (CC-136)
+
 navigation.jsp:
 ----------------------
 * New combo box for project selection (including link to status page). Contribution by Gerd Zanker
