@@ -117,6 +117,7 @@
         </xsl:if>
     </xsl:template>
 
+    <!-- used by P4 -->
     <xsl:template match="file">
         <tr valign="top" >
             <xsl:if test="position() mod 2=0">
@@ -143,6 +144,36 @@
     </xsl:template>
 
     <!-- Modifications template -->
+    <xsl:template match="modification[file]">
+        <tr>
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
+            </xsl:if>
+
+            <td class="modifications-data">
+                <xsl:value-of select="file/@action"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:if test="file/project">
+                    <xsl:value-of select="file/project"/>
+                    <xsl:value-of select="system-property('file.separator')"/>
+                </xsl:if>
+                <xsl:value-of select="file/filename"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
+        </tr>
+    </xsl:template>
+
+    <!-- Up to version 2.1.6 the modification set format did not
+         include the file node -->
     <xsl:template match="modification">
         <tr>
             <xsl:if test="position() mod 2=0">
@@ -153,35 +184,17 @@
             </xsl:if>
 
             <td class="modifications-data">
-                <xsl:choose>
-                  <xsl:when test="file">
-                    <xsl:value-of select="file/action"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <xsl:value-of select="@type"/>
-                  </xsl:otherwise>
-                </xsl:choose>
+                <xsl:value-of select="@type"/>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="user"/>
             </td>
             <td class="modifications-data">
-                <xsl:choose>
-                  <xsl:when test="file">
-                    <xsl:if test="file/project">
-                      <xsl:value-of select="file/project"/>
-                      <xsl:value-of select="system-property('file.separator')"/>
-                    </xsl:if>
-                    <xsl:value-of select="file/filename"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <xsl:if test="project">
-                      <xsl:value-of select="project"/>
-                      <xsl:value-of select="system-property('file.separator')"/>
-                    </xsl:if>
-                    <xsl:value-of select="filename"/>
-                  </xsl:otherwise>
-                </xsl:choose>
+                <xsl:if test="project">
+                    <xsl:value-of select="project"/>
+                    <xsl:value-of select="system-property('file.separator')"/>
+                </xsl:if>
+                <xsl:value-of select="filename"/>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="comment"/>
