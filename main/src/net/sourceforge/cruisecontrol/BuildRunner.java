@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.ProjectHelper;
 import org.apache.tools.ant.XmlLogger;
+import org.apache.tools.ant.DemuxOutputStream;
+import java.io.PrintStream;
 
 /**
  * Executes a CruiseProject.
@@ -102,7 +104,13 @@ public class BuildRunner {
      */
 
     public boolean runBuild() {
+        final PrintStream oldOut = System.out;
+        final PrintStream oldErr = System.err;
+
         CruiseProject project = getProject();
+
+        System.setOut(new PrintStream(new DemuxOutputStream(project, false)));
+        System.setErr(new PrintStream(new DemuxOutputStream(project, true)));
 
         project.fireBuildStarted();
         _project.init();
@@ -124,6 +132,8 @@ public class BuildRunner {
         }
         finally {
             project.fireBuildFinished(_error);
+            System.setOut(oldOut);
+            System.setErr(oldErr);
         }
     }
     
