@@ -27,6 +27,7 @@
     <property name="dist" value="dist"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
+    <property name="test" value="test"/>
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
     <property name="images" value="images"/>
@@ -35,6 +36,7 @@
          <pathelement location="lib/activation.jar" />
          <pathelement location="lib/ant.jar" />
          <pathelement location="lib/jakarta-oro-2.0.1.jar" />
+         <pathelement location="lib/junit.jar" />
          <pathelement location="lib/mail.jar" />
          <pathelement location="lib/optional.jar" />
          <pathelement location="lib/parser.jar" />
@@ -44,6 +46,7 @@
          <pathelement location="lib/xerces.jar" />
     </path>
 
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
     <target name="init">     
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
@@ -62,6 +65,27 @@
         <copy todir="${classes}">
             <fileset dir="${src}" includes="**/*.properties"/>
         </copy>
+    </target>
+  
+    <target name="test" depends="init">
+        <mkdir dir="test-results" />
+        <javac srcdir="${test}" destdir="${classes}" classpathref="classpath" />
+
+        <junit printsummary="true" haltonfailure="true" >
+            <classpath >
+                <path refid="classpath" />
+                <pathelement location="${classes}" />
+            </classpath>
+            <formatter type="plain" usefile="false" />
+            <formatter type="xml" usefile="true" />
+            <batchtest todir="test-results" >
+                <fileset dir="${classes}" includes="**/*Test.class" />
+            </batchtest>
+        </junit>
+        <junitreport tofile="test-results.xml" >
+            <fileset dir="./test-results" />
+        </junitreport>
+        <delete dir="test-results" />
     </target>
     
     <target name="jar">
@@ -101,7 +125,7 @@
        </javadoc>
     </target>
                                                           
-    <target name="all" depends="init,clean,compile,javadoc,jar,buildwar" />
+    <target name="all" depends="init,clean,compile,test,javadoc,jar,buildwar" />
 
 <!-- ***** CRUISE EXAMPLES ***** -->
 

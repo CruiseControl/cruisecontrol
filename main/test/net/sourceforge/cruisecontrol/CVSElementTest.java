@@ -63,7 +63,7 @@ public class CVSElementTest extends TestCase {
 
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
         testDate = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();    // 6pm, 18 May, 2001
-        assertEquals("Failed for GMT", "2001-05-10 04:00:00 GMT", CVSElement.CVSDATE.format(testDate));
+        assertEquals("Failed for GMT", "2001-05-19 04:00:00 GMT", CVSElement.CVSDATE.format(testDate));
         testDate = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();    // 6pm, 18 May, 2001
         assertEquals("Failed for GMT", "2001-05-18 18:00:00 GMT", CVSElement.CVSDATE.format(testDate));
     }

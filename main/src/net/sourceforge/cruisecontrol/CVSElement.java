@@ -42,7 +42,7 @@ public class CVSElement implements SourceControlElement {
      * This is the date format required by commands passed
      * to CVS.
      */
-    private static final SimpleDateFormat CVSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
+    static final SimpleDateFormat CVSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
     
     static {
         // The timezone is hard coded to GMT to prevent problems with it being
