@@ -177,26 +177,27 @@ public class ProjectTest extends TestCase {
 
         project.setBuildForced(false);
         assertEquals(null, project.getModifications());
-        
-        modSet.setModified(true);
+
+        // TODO: need tests for when lastBuildSuccessful = false
+    }
+
+    public void testCheckOnlySinceLastBuild() throws CruiseControlException {
+
         project.setLastBuild("20030218010101");
         project.setLastSuccessfulBuild("20030218010101");
-        int before = modSet.getModCheckCount();
-        project.getModifications();
-        assertEquals(before+1, modSet.getModCheckCount());
+        assertEquals(false, project.checkOnlySinceLastBuild());
 
         project.setLastBuild("20030218020202");
-        project.setBuildAfterFailed(false);
-        before = modSet.getModCheckCount();
-        project.getModifications();
-        assertEquals(before+2, modSet.getModCheckCount());
+        assertEquals(false, project.checkOnlySinceLastBuild());
 
-        project.setBuildAfterFailed(true);
-        before = modSet.getModCheckCount();
-        project.getModifications();
-        assertEquals(before+1, modSet.getModCheckCount());
-        
-        // TODO: need tests for when lastBuildSuccessful = false
+        project.setBuildAfterFailed(false);
+        assertEquals(true, project.checkOnlySinceLastBuild());
+
+        project.setLastBuild("20030218010102");
+        assertEquals(false, project.checkOnlySinceLastBuild());
+
+        project.setLastBuild("20020101010101");
+        assertEquals(false, project.checkOnlySinceLastBuild());
     }
 
     public void testWaitIfPaused() throws InterruptedException {
