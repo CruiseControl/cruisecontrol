@@ -61,7 +61,6 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * Commandline objects help handling command lines specifying processes to
  * execute.
@@ -90,7 +89,7 @@ public class Commandline implements Cloneable {
     private static Logger log = Logger.getLogger(Commandline.class);
 
     private Vector arguments = new Vector();
-    private String executable = null;
+    private String _executable = null;
 
     public Commandline(String to_process) {
         super();
@@ -102,7 +101,7 @@ public class Commandline implements Cloneable {
         }
         if (tmp != null && tmp.length > 0) {
             setExecutable(tmp[0]);
-            for (int i=1; i<tmp.length; i++) {
+            for (int i = 1; i < tmp.length; i++) {
                 createArgument().setValue(tmp[i]);
             }
         }
@@ -125,7 +124,7 @@ public class Commandline implements Cloneable {
          * @param value a single commandline argument.
          */
         public void setValue(String value) {
-            parts = new String[] {value};
+            parts = new String[] { value };
         }
 
         /**
@@ -134,7 +133,7 @@ public class Commandline implements Cloneable {
          * @param line line to split into several commandline arguments
          */
         public void setLine(String line) {
-            if( line == null ) {
+            if (line == null) {
                 return;
             }
             try {
@@ -151,7 +150,7 @@ public class Commandline implements Cloneable {
          * @param value a single commandline argument.
          */
         public void setFile(File value) {
-            parts = new String[] {value.getAbsolutePath()};
+            parts = new String[] { value.getAbsolutePath()};
         }
 
         /**
@@ -170,11 +169,11 @@ public class Commandline implements Cloneable {
     // whether there might be additional use cases.</p> --SB
     public class Marker {
 
-        private int position;
+        private int _position;
         private int realPos = -1;
 
         Marker(int position) {
-            this.position = position;
+            _position = position;
         }
 
         /**
@@ -185,8 +184,8 @@ public class Commandline implements Cloneable {
          */
         public int getPosition() {
             if (realPos == -1) {
-                realPos = (executable == null ? 0 : 1);
-                for (int i=0; i<position; i++) {
+                realPos = (_executable == null ? 0 : 1);
+                for (int i = 0; i < _position; i++) {
                     Argument arg = (Argument) arguments.elementAt(i);
                     realPos += arg.getParts().length;
                 }
@@ -206,7 +205,7 @@ public class Commandline implements Cloneable {
      * @return the argument object.
      */
     public Argument createArgument() {
-        return this.createArgument( false );
+        return this.createArgument(false);
     }
 
     /**
@@ -218,10 +217,10 @@ public class Commandline implements Cloneable {
      * @param insertAtStart if true, the argument is inserted at the
      * beginning of the list of args, otherwise it is appended.
      */
-    public Argument createArgument( boolean insertAtStart ) {
+    public Argument createArgument(boolean insertAtStart) {
         Argument argument = new Argument();
-        if(insertAtStart) {
-            arguments.insertElementAt(argument,0);
+        if (insertAtStart) {
+            arguments.insertElementAt(argument, 0);
         } else {
             arguments.addElement(argument);
         }
@@ -233,20 +232,20 @@ public class Commandline implements Cloneable {
      */
     public void setExecutable(String executable) {
         if (executable == null || executable.length() == 0) {
-          return;
+            return;
         }
-        this.executable = executable.replace('/', File.separatorChar)
-            .replace('\\', File.separatorChar);
+        this._executable =
+            executable.replace('/', File.separatorChar).replace(
+                '\\',
+                File.separatorChar);
     }
-
 
     public String getExecutable() {
-        return executable;
+        return _executable;
     }
 
-
     public void addArguments(String[] line) {
-        for (int i=0; i < line.length; i++) {
+        for (int i = 0; i < line.length; i++) {
             createArgument().setValue(line[i]);
         }
     }
@@ -256,37 +255,35 @@ public class Commandline implements Cloneable {
      */
     public String[] getCommandline() {
         final String[] args = getArguments();
-        if (executable == null) {
-          return args;
+        if (_executable == null) {
+            return args;
         }
-        final String[] result = new String[args.length+1];
-        result[0] = executable;
+        final String[] result = new String[args.length + 1];
+        result[0] = _executable;
         System.arraycopy(args, 0, result, 1, args.length);
         return result;
     }
-
 
     /**
      * Returns all arguments defined by <code>addLine</code>,
      * <code>addValue</code> or the argument object.
      */
     public String[] getArguments() {
-        Vector result = new Vector(arguments.size()*2);
-        for (int i=0; i<arguments.size(); i++) {
+        Vector result = new Vector(arguments.size() * 2);
+        for (int i = 0; i < arguments.size(); i++) {
             Argument arg = (Argument) arguments.elementAt(i);
             String[] s = arg.getParts();
-            if( s != null ) {
-                for (int j=0; j<s.length; j++) {
+            if (s != null) {
+                for (int j = 0; j < s.length; j++) {
                     result.addElement(s[j]);
                 }
             }
         }
 
-        String [] res = new String[result.size()];
+        String[] res = new String[result.size()];
         result.copyInto(res);
         return res;
     }
-
 
     public String toString() {
         return toString(getCommandline());
@@ -302,29 +299,30 @@ public class Commandline implements Cloneable {
      * @exception CruiseControlException if the argument contains both, single
      *                           and double quotes.
      */
-    public static String quoteArgument(String argument) throws CruiseControlException {
+    public static String quoteArgument(String argument)
+        throws CruiseControlException {
         if (argument.indexOf("\"") > -1) {
             if (argument.indexOf("\'") > -1) {
                 throw new CruiseControlException("Can't handle single and double quotes in same argument");
             } else {
-                return '\''+argument+'\'';
+                return '\'' + argument + '\'';
             }
         } else if (argument.indexOf("\'") > -1 || argument.indexOf(" ") > -1) {
-            return '\"'+argument+'\"';
+            return '\"' + argument + '\"';
         } else {
             return argument;
         }
     }
 
-    public static String toString(String [] line) {
+    public static String toString(String[] line) {
         // empty path return empty string
         if (line == null || line.length == 0) {
-          return "";
+            return "";
         }
 
         // path containing one or more elements
         final StringBuffer result = new StringBuffer();
-        for (int i=0; i < line.length; i++) {
+        for (int i = 0; i < line.length; i++) {
             if (i > 0) {
                 result.append(' ');
             }
@@ -337,7 +335,8 @@ public class Commandline implements Cloneable {
         return result.toString();
     }
 
-    public static String[] translateCommandline(String to_process) throws CruiseControlException {
+    public static String[] translateCommandline(String to_process)
+        throws CruiseControlException {
         if (to_process == null || to_process.length() == 0) {
             return new String[0];
         }
@@ -355,34 +354,34 @@ public class Commandline implements Cloneable {
         while (tok.hasMoreTokens()) {
             String nextTok = tok.nextToken();
             switch (state) {
-            case inQuote:
-                if ("\'".equals(nextTok)) {
-                    state = normal;
-                } else {
-                    current.append(nextTok);
-                }
-                break;
-            case inDoubleQuote:
-                if ("\"".equals(nextTok)) {
-                    state = normal;
-                } else {
-                    current.append(nextTok);
-                }
-                break;
-            default:
-                if ("\'".equals(nextTok)) {
-                    state = inQuote;
-                } else if ("\"".equals(nextTok)) {
-                    state = inDoubleQuote;
-                } else if (" ".equals(nextTok)) {
-                    if (current.length() != 0) {
-                        v.addElement(current.toString());
-                        current.setLength(0);
+                case inQuote :
+                    if ("\'".equals(nextTok)) {
+                        state = normal;
+                    } else {
+                        current.append(nextTok);
                     }
-                } else {
-                    current.append(nextTok);
-                }
-                break;
+                    break;
+                case inDoubleQuote :
+                    if ("\"".equals(nextTok)) {
+                        state = normal;
+                    } else {
+                        current.append(nextTok);
+                    }
+                    break;
+                default :
+                    if ("\'".equals(nextTok)) {
+                        state = inQuote;
+                    } else if ("\"".equals(nextTok)) {
+                        state = inDoubleQuote;
+                    } else if (" ".equals(nextTok)) {
+                        if (current.length() != 0) {
+                            v.addElement(current.toString());
+                            current.setLength(0);
+                        }
+                    } else {
+                        current.append(nextTok);
+                    }
+                    break;
             }
         }
 
@@ -391,7 +390,8 @@ public class Commandline implements Cloneable {
         }
 
         if (state == inQuote || state == inDoubleQuote) {
-            throw new CruiseControlException("unbalanced quotes in " + to_process);
+            throw new CruiseControlException(
+                "unbalanced quotes in " + to_process);
         }
 
         String[] args = new String[v.size()];
@@ -405,7 +405,7 @@ public class Commandline implements Cloneable {
 
     public Object clone() {
         Commandline c = new Commandline();
-        c.setExecutable(executable);
+        c.setExecutable(_executable);
         c.addArguments(getArguments());
         return c;
     }
@@ -413,7 +413,7 @@ public class Commandline implements Cloneable {
     /**
      * Clear out the whole command line.  */
     public void clear() {
-        executable = null;
+        _executable = null;
         arguments.removeAllElements();
     }
 
