@@ -359,6 +359,11 @@ public class Project implements Serializable {
         }
         infoElement.addContent(lastBuildPropertyElement);
 
+        Element buildDateElement = new Element("property");
+        buildDateElement.setAttribute("name", "builddate");
+        buildDateElement.setAttribute("value", new SimpleDateFormat(DateFormatFactory.getFormat()).format(_now));
+        infoElement.addContent(buildDateElement);
+
         Element labelPropertyElement = new Element("property");
         labelPropertyElement.setAttribute("name", "label");
         labelPropertyElement.setAttribute("value", _label);
@@ -519,4 +524,7 @@ public class Project implements Serializable {
         return _wasLastBuildSuccessful;
     }
 
+    protected Date getNow() {
+        return _now;
+    }
 }
