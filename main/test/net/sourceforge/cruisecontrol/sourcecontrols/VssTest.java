@@ -38,7 +38,9 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.text.*;
 import java.util.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 
 import junit.framework.*;
 import net.sourceforge.cruisecontrol.Modification;
@@ -164,6 +166,25 @@ public class VssTest extends TestCase {
 
         assertEquals("Unusual label entry added. Labels shouldn't be added.",
                      null, _vss.handleEntry(entry));
+
+        // need to adjust for cases where Label: line exists
+        // and there is also an action.
+
+        entry = new ArrayList();
+        entry.add("*****  DateChooser.java  *****");
+        entry.add("Version 8");
+        entry.add("Label: \"Completely new version!\"");
+        entry.add("User: Arass        Date: 10/21/02   Time: 12:48p");
+        entry.add("Checked in $/code/development/src/org/ets/cbtidg/common/gui");
+        entry.add("Comment: This is where I add a completely new, but alot nicer version of the date chooser.");
+
+        Modification modification = _vss.handleEntry(entry);
+        assertEquals("DateChooser.java", modification.fileName);
+
+        assertEquals("/code/development/src/org/ets/cbtidg/common/gui", modification.folderName);
+        assertEquals("Comment: This is where I add a completely new, but alot nicer version of the date chooser.", modification.comment);
+        assertEquals("Arass", modification.userName);
+        assertEquals("checkin", modification.type);
     }
 
     public void testHandleEntryCheckinWithComment() {

@@ -237,7 +237,7 @@ public class Vss implements SourceControl {
 			new File(VSS_TEMP_FILE).delete();
 		}
 
-		private void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
+		void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
 			String currLine = reader.readLine();
 			while (currLine != null) {
 				if (currLine.startsWith("***** ")) {
@@ -294,66 +294,93 @@ public class Vss implements SourceControl {
 	/**
 	 *  Parse individual VSS history entry
 	 *
-	 *@param  historyEntry
+	 *@param  entry
 	 */
-	protected Modification handleEntry(List historyEntry) {
-		// Ignore unusual labels of directories which cause parsing errors that
-		// look like this:
-		//
-		// *****  built  *****
-		// Version 4
-		// Label: "autobuild_test"
-		// User: Etucker      Date:  6/26/01   Time: 11:53a
-		// Labeled
-		if ((historyEntry.size() > 4) &&
-		   (((String) historyEntry.get(4)).startsWith("Labeled"))) {
-			return null;
-		}
+	protected Modification handleEntry(List entry) {
+		try {
+            // Ignore unusual labels of directories which cause parsing errors that
+            // look like this:
+            //
+            // *****  built  *****
+            // Version 4
+            // Label: "autobuild_test"
+            // User: Etucker      Date:  6/26/01   Time: 11:53a
+            // Labeled
+            if ((entry.size() > 4) &&
+               (((String) entry.get(4)).startsWith("Labeled"))) {
+                return null;
+            }
 
-		Modification modification = new Modification();
-		String nameAndDateLine = (String) historyEntry.get(2);
-		modification.userName = parseUser(nameAndDateLine);
-		modification.modifiedTime = parseDate(nameAndDateLine);
+            // but need to adjust for cases where Label: line exists
+            //
+            // *****  DateChooser.java  *****
+            // Version 8
+            // Label: "Completely new version!"
+            // User: Arass        Date: 10/21/02   Time: 12:48p
+            // Checked in $/code/development/src/org/ets/cbtidg/common/gui
+            // Comment: This is where I add a completely new, but alot nicer version of the date chooser.
+            // Label comment:
 
-		String folderLine = (String) historyEntry.get(0);
-		String fileLine = (String) historyEntry.get(3);
-		if (fileLine.startsWith("Checked in")) {
-			modification.type = "checkin";
-			modification.comment = parseComment(historyEntry);
-			modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
-			modification.folderName = fileLine.substring(12);
-		} else if (fileLine.endsWith("Created")) {
-			modification.type = "create";
-		} else {
-			modification.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
-			int lastSpace = fileLine.lastIndexOf(" ");
-			if ( lastSpace != -1 ) {
-				modification.fileName = fileLine.substring(0, lastSpace);
-			} else {
-				modification.fileName = fileLine;
-			}
+            int nameAndDateIndex = 2;
+            String nameAndDateLine = (String) entry.get(nameAndDateIndex);
+            if (nameAndDateLine.startsWith("Label:")) {
+                nameAndDateIndex++;
+                nameAndDateLine = (String) entry.get(nameAndDateIndex);
+            }
 
-			if (fileLine.endsWith("added")) {
-				modification.type = "add";
-			} else if (fileLine.endsWith("deleted")) {
-				modification.type = "delete";
-				addPropertyOnDelete();
-			} else if (fileLine.endsWith("recovered")) {
-				modification.type = "recover";
-			} else if (fileLine.endsWith("shared")) {
-				modification.type = "branch";
-			} else if (fileLine.indexOf(" renamed to ") != -1){
-				modification.fileName = fileLine;
-				modification.type = "rename";
-				addPropertyOnDelete();
-			}
-		}
+            Modification modification = new Modification();
+            modification.userName = parseUser(nameAndDateLine);
+            modification.modifiedTime = parseDate(nameAndDateLine);
 
-		if (_property != null) {
-			_properties.put(_property,  "true");
-		}
+            String folderLine = (String) entry.get(0);
+		    int fileIndex = nameAndDateIndex+1;
+            String fileLine = (String) entry.get(fileIndex);
+            if (fileLine.startsWith("Checked in")) {
+                modification.type = "checkin";
+                int commentIndex = fileIndex+1;
+                modification.comment = parseComment(entry, commentIndex);
+                modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+                modification.folderName = fileLine.substring(12);
+            } else if (fileLine.endsWith("Created")) {
+                modification.type = "create";
+            } else {
+                modification.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
+                int lastSpace = fileLine.lastIndexOf(" ");
+                if ( lastSpace != -1 ) {
+                    modification.fileName = fileLine.substring(0, lastSpace);
+                } else {
+                    modification.fileName = fileLine;
+                }
 
-		return modification;
+                if (fileLine.endsWith("added")) {
+                    modification.type = "add";
+                } else if (fileLine.endsWith("deleted")) {
+                    modification.type = "delete";
+                    addPropertyOnDelete();
+                } else if (fileLine.endsWith("recovered")) {
+                    modification.type = "recover";
+                } else if (fileLine.endsWith("shared")) {
+                    modification.type = "branch";
+                } else if (fileLine.indexOf(" renamed to ") != -1){
+                    modification.fileName = fileLine;
+                    modification.type = "rename";
+                    addPropertyOnDelete();
+                }
+            }
+
+            if (_property != null) {
+                _properties.put(_property,  "true");
+            }
+
+            return modification;
+
+        } catch (RuntimeException e) {
+            log.fatal("RuntimeException handling VSS entry:");
+            for (int i=0; i < entry.size(); i++) {
+                log.fatal(entry.get(i));
+            }
+            throw e;
+        }
 	}
 
 	private void addPropertyOnDelete() {
@@ -368,10 +395,10 @@ public class Vss implements SourceControl {
 	 *@param  commentList
 	 *@return
 	 */
-	private String parseComment(List commentList) {
+	private String parseComment(List commentList, int commentIndex) {
 		StringBuffer comment = new StringBuffer();
-		comment.append(((String) commentList.get(4)) + " ");
-		for (int i = 5; i < commentList.size(); i++) {
+		comment.append(((String) commentList.get(commentIndex)) + " ");
+		for (int i = commentIndex+1; i < commentList.size(); i++) {
 			comment.append(((String) commentList.get(i)) + " ");
 		}
 
@@ -425,9 +452,8 @@ public class Vss implements SourceControl {
 	 *@return the user name who made the modification
 	 */
 	public String parseUser(String userLine) {
-        final int START_OF_USER_NAME = 6;
-		String userName = userLine.substring(
-         START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();
+        final int USER_INDEX = "User: ".length();
+        String userName = userLine.substring(USER_INDEX, userLine.indexOf("Date: ") - 1).trim();
 
 		return userName;
 	}
