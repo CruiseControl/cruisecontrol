@@ -45,7 +45,7 @@ import javax.servlet.jsp.tagext.Tag;
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class TabTag extends CruiseTagSupport {
+public class TabTag extends CruiseControlTagSupport {
     private String name;
     private String label;
 

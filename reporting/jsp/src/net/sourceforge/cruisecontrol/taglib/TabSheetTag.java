@@ -51,7 +51,7 @@ import javax.servlet.jsp.tagext.Tag;
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class TabSheetTag extends CruiseTagSupport {
+public class TabSheetTag extends CruiseControlTagSupport {
     private List tabs = new ArrayList();
     private Tab selectedTab;
     private static final Tab NONE_SELECTED = null;

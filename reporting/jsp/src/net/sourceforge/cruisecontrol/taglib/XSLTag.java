@@ -66,7 +66,7 @@ import javax.xml.transform.stream.StreamSource;
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
-public class XSLTag extends CruiseTagSupport implements Tag, BodyTag {
+public class XSLTag extends CruiseControlTagSupport implements Tag, BodyTag {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
     private String xslFileName;
     private String xslRootContext = DEFAULT_XSL_ROOT;

@@ -51,7 +51,7 @@ import javax.servlet.jsp.tagext.BodyContent;
 /**
  *
  */
-public class NavigationTag extends CruiseTagSupport {
+public class NavigationTag extends CruiseControlTagSupport {
     public static final String LABEL_SEPARATOR = "L";
     public static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     public static final String LINK_TEXT_ATTR = "linktext";
