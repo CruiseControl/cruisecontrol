@@ -202,6 +202,9 @@ public class P4 implements SourceControl {
 
         getRidOfLeftoverData(p4Stream);
         p.waitFor();
+        p.getInputStream().close();
+        p.getOutputStream().close();
+        p.getErrorStream().close();
 
         return changelistNumbers;
     }
