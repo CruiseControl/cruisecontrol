@@ -346,9 +346,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                 }
 
                 if (!_buildNotNecessary) {
-                    buildcounter++;
                     Set emails = getEmails(_userList);
                     if (_lastBuildSuccessful) {
+                        buildcounter++;
                         if(_reportSuccess) {
                             emailReport(emails, _projectName + " Build " + _label + " Successful");
                         } else {
