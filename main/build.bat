@@ -36,9 +36,39 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-set OLDCLASSPATH=CLASSPATH
+set ANT_CLASSPATH=lib/ant.jar;lib/optional.jar;lib/junit.jar;lib/xerces.jar
+echo %ANT_CLASSPATH%
 
-set CLASSPATH=lib/ant.jar;lib/optional.jar;lib/junit.jar
-call ant
+if "%JAVA_HOME%" == "" goto noJavaFound
 
-set CLASSPATH=OLDCLASSPATH
+if not "%JIKESPATH%" == "" goto useJikes
+
+echo Using Javac!
+if exist "%JAVA_HOME%\lib\tools.jar" goto useModern
+if exist "%JAVA_HOME%\lib\classes.zip" goto useClassic
+goto noJavaFound
+
+:useClassic
+set BUILDCOMPILER=classic
+set ANT_CLASSPATH=%ANT_CLASSPATH%;%JAVA_HOME%\lib\classes.zip
+goto exec
+
+:useModern
+set BUILDCOMPILER=modern
+set ANT_CLASSPATH=%ANT_CLASSPATH%;%JAVA_HOME%\lib\tools.jar
+goto exec
+
+:useJikes
+set BUILDCOMPILER=jikes
+echo Using Jikes!
+goto exec
+
+:exec
+java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.Main %1
+goto end
+
+:noJavaFound
+echo Java not found!
+goto end
+
+:end
