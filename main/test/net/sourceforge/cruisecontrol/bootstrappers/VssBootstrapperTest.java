@@ -7,7 +7,7 @@ public class VssBootstrapperTest extends TestCase {
 
   public VssBootstrapperTest(String name) { super(name); }
 
-  public void testCheckAttributes() {
+  public void testValidate() {
     VssBootstrapper bootstrapper = new VssBootstrapper();
     try {
       bootstrapper.validate();
@@ -33,13 +33,13 @@ public class VssBootstrapperTest extends TestCase {
       bootstrapper.validate();
     }
     catch (CruiseControlException ex) {
-      fail("checkAttributes() shouldn't fail when required attributes have been set");
+      fail("validate() shouldn't fail when required attributes have been set");
     }
 
     bootstrapper.setLocalDirectory("c:/not/an/existing/directory");
     try {
       bootstrapper.validate();
-      fail("checkAttributes() should fail when given a file path that doesn't exist");
+      fail("validate() should fail when given a file path that doesn't exist");
     }
     catch (CruiseControlException ex) {
     }
