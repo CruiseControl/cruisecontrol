@@ -31,7 +31,7 @@ public class UpgraderTest extends TestCase {
     }
 
     public void testCreateLog() throws Exception {
-        String expected = "<log logdir=\"somelogdirectory\"></log>";
+        String expected = "<log dir=\"somelogdirectory\"></log>";
         Properties properties = new Properties();
         properties.put("logDir", "somelogdirectory");
 
@@ -167,6 +167,7 @@ public class UpgraderTest extends TestCase {
         upgrader.setPropertiesFile(tempPropertiesFile);
         File tempConfigFile = new File("_tempConfigFile");
         upgrader.setConfigFile(tempConfigFile);
+        upgrader.setProjectName("someproject");
 
         try {
             upgrader.execute();
