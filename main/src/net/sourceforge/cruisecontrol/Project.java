@@ -79,7 +79,7 @@ public class Project implements Serializable, Runnable {
     private transient Log log;
     private transient List publishers;
     private transient LabelIncrementer labelIncrementer;
-    private transient List listeners = Collections.EMPTY_LIST;
+    private transient List listeners;
 
     /**
      * If this attribute is set, then it means that the user has overriden
@@ -117,9 +117,12 @@ public class Project implements Serializable, Runnable {
 
     private void initializeTransientFields() {
         state = ProjectState.STOPPED;
-
-        bootstrappers = new ArrayList();
-        publishers = new ArrayList();
+        
+        // we never add to the following 3 Lists,
+        // so we don't need to create a new List for them
+        bootstrappers = Collections.EMPTY_LIST;
+        publishers = Collections.EMPTY_LIST;
+        listeners = Collections.EMPTY_LIST;
 
         pausedMutex = new Object();
         scheduleMutex = new Object();
