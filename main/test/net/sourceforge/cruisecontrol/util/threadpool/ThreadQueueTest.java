@@ -75,7 +75,7 @@ public class ThreadQueueTest extends TestCase {
 
         for (int i = 0; i < TASK_COUNT; i++) {
             ThreadQueue.interruptRunningTasks();
-            sleep(100);
+            sleep(500);
 
             System.out.println("ThreadQueue.numTotalTasks()->" + ThreadQueue.numTotalTasks());
             System.out.println("ThreadQueue.numWaitingTasks()->" + ThreadQueue.numWaitingTasks());
