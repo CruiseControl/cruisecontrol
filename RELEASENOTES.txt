@@ -38,7 +38,7 @@ JMX Interface
 * Renamed start operation to resume.
 * Renamed stop operation to pause.
 
-logile.xsl
+logfile.xsl
 ----------------------
 * Changed the logfile.xsl to have an output method (some Xalan versions gave an error on this). Patch from Matt Albrecht
 
@@ -50,6 +50,7 @@ Project
 ----------------------
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
 * fixed to allow changing build interval from JMX interface. Project was reloading the original value from Schedule, overwriting any change a user had made in the JMX interface.
+* Last Build and Last Good Build are now passed to the builders (cclastbuildtimestamp and cclastgoodbuildtimestamp respectively)
 
 SametimeAnnouncementPublisher
 ----------------------
