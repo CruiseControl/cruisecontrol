@@ -49,6 +49,10 @@ SelfConfiguringPlugin:
 ----------------------
 * Add new SelfConfiguringPlugin interface. Submitted by Jeff Ramsdale
 
+TimeBuild:
+----------------------
+* Add new source control that will trigger a build at a specified time. Submitted by Eric Pugh
+
 VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)
