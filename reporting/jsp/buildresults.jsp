@@ -35,7 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <%@page contentType="text/html"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp12.tld" prefix="cruisecontrol"%>
+<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <html>
 <head>
   <title></title>
@@ -57,15 +57,15 @@
         </table>
       </td>
       <td valign="top" bgcolor="#FFFFFF">
-         <cruisecontrol:xsl xslFile="xsl/header.xsl"/>
+         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
          <p>
-         <cruisecontrol:xsl xslFile="xsl/compile.xsl"/>
+         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
          <p>
-         <cruisecontrol:xsl xslFile="xsl/unittests.xsl"/>
+         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
          <p>
-         <cruisecontrol:xsl xslFile="xsl/modifications.xsl"/>
+         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
          <p>
-         <cruisecontrol:xsl xslFile="xsl/distributables.xsl"/>
+         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
       </td>
     </tr>
     <tr>
