@@ -252,8 +252,8 @@
     </target>
 
     <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present">
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" classpathref="project.classpath" fork="true">
-            <classpath refid="project.classpath"/>
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true">
+            <classpath refid="project.runtime.classpath"/>
             <src path="${test}"/>
             <include name="**/StarTeam*"/>
         </javac>
@@ -271,9 +271,8 @@
     </target>
 
     <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present">
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true"
-                classpathref="project.classpath">
-            <classpath refid="project.classpath"/>
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true">
+            <classpath refid="project.runtime.classpath"/>
             <src path="${test}"/>
             <include name="**/Sametime*"/>
         </javac>
