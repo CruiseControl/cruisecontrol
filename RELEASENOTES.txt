@@ -84,6 +84,10 @@ HTMLEmailPublisher
 ----------------------
 * Now uses default logdir "logs/<projectname>" if none is specified (CC-64)
 
+index.jsp
+----------------------
+* added option to set auto-refresh on or off. Patch by Jerome Lacoste
+
 (Link)JabberPublisher
 ----------------------
 * Added new JabberPublisher and subclass to report buildresults through Jabber (CC-63). Patch by Jonas Edgeworth
