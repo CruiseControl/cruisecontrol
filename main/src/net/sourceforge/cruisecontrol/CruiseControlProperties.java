@@ -87,6 +87,26 @@ public class CruiseControlProperties {
     private  String reportSuccess;
 
     /**
+     *  Factory method for creating an <code>LabelIncrementer</code> from the properties file, rather than making repeated calls
+     *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
+     *
+     *  @return LabelIncrementer that is fully configured
+     */
+    public LabelIncrementer createLabelIncrementer() {
+        LabelIncrementer incrementer = null;
+
+        try {
+            Class incrementerClass = Class.forName(labelIncrementerClassName);
+            incrementer = (LabelIncrementer) incrementerClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return incrementer;
+    }
+
+
+    /**
      *  Factory method for creating an <code>EmailPublisher</code> from the properties file, rather than making repeated calls
      *  to <code>CruiseControlProperties</code> from <code>MasterBuild</code>.
      *
