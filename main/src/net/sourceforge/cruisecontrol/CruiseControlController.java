@@ -172,7 +172,9 @@ public class CruiseControlController {
                     || !serializedProjectFile.canRead()
                     || serializedProjectFile.isDirectory()) {
                 LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
-                return new Project();
+                Project newProject = new Project();
+                newProject.setBuildForced(true);
+                return newProject;
             }
         }
 
