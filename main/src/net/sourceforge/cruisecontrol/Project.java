@@ -154,13 +154,16 @@ public class Project implements Serializable {
         while (auxLogIterator.hasNext()) {
             cruisecontrolElement.addContent((Element) auxLogIterator.next());
         }
-        writeLogFile(cruisecontrolElement);
+
+        createLogFileName(cruisecontrolElement);
 
         Element logFileElement = new Element("property");
         logFileElement.setAttribute("name", "logfile");
         logFileElement.setAttribute("value", _logFileName.substring(
                 _logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
+
+        writeLogFile(cruisecontrolElement);
 
         if (buildSuccessful) {
             _lastBuild = _now;
@@ -421,6 +424,16 @@ public class Project implements Serializable {
         }
     }
 
+    protected void createLogFileName(Element logElement) throws CruiseControlException {
+        XMLLogHelper helper = new XMLLogHelper(logElement);
+        if (helper.isBuildSuccessful())
+            _logFileName = new File(_logDir, "log" + _formatter.format(_now)
+                    + "L" + helper.getLabel() + ".xml").getAbsolutePath();
+        else
+            _logFileName = new File(_logDir, "log" + _formatter.format(_now)
+                    + ".xml").getAbsolutePath();
+    }
+
     /**
      *  Write the entire log file to disk, merging in any additional logs
      *
@@ -430,13 +443,6 @@ public class Project implements Serializable {
             throws CruiseControlException {
         BufferedWriter logWriter = null;
         try {
-            XMLLogHelper helper = new XMLLogHelper(logElement);
-            if (helper.isBuildSuccessful())
-                _logFileName = new File(_logDir, "log" + _formatter.format(_now)
-                        + "L" + helper.getLabel() + ".xml").getAbsolutePath();
-            else
-                _logFileName = new File(_logDir, "log" + _formatter.format(_now)
-                        + ".xml").getAbsolutePath();
             log.debug("Writing log file: " + _logFileName);
             if(_logXmlEncoding == null) {
                 _logXmlEncoding = System.getProperty("file.encoding");
