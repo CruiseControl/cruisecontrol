@@ -62,7 +62,7 @@
 
             <tr><td class="header-data">
                 <span class="header-label">Date of build:&#160;</span>
-                <xsl:value-of select="cruisecontrol/info/property[@name='lastbuild']/@value"/>
+                <xsl:value-of select="cruisecontrol/info/property[@name='builddate']/@value"/>
             </td></tr>
             <tr><td class="header-data">
                 <span class="header-label">Time to build:&#160;</span>
