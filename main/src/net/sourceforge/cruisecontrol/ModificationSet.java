@@ -43,7 +43,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
+ * Set of modifications collected from included SourceControls
  *
+ * @see SourceControl
  */
 public class ModificationSet {
 
@@ -57,14 +59,17 @@ public class ModificationSet {
     protected Date _now;
 
     /**
-     *
+     * Set the amount of time in which there is no source control activity
+     * after which it is assumed that it is safe to update from the source
+     * control system and initiate a build.
      */
     public void setQuietPeriod(int seconds) {
         _quietPeriod = seconds * 1000;
     }
 
     /**
-     *
+     * @param dateFormat pattern describing date and time format
+     * @see SimpleDateFormat
      */
     public void setDateFormat(String dateFormat) {
         _formatter = new SimpleDateFormat(dateFormat);
