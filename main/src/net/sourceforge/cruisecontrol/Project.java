@@ -143,8 +143,10 @@ public class Project implements Serializable {
         // BUILD
         cruisecontrolElement.addContent(_schedule.build(_buildCounter, _lastBuild, _now, getProjectPropertiesMap()).detach());
 
+        boolean buildSuccessful = new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
+
         // increment label if necessary
-        if (!_labelIncrementer.isPreBuildIncrementer() && (new XMLLogHelper(cruisecontrolElement)).isBuildSuccessful()) {
+        if (!_labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
             _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
 
@@ -161,7 +163,7 @@ public class Project implements Serializable {
         logFileElement.setAttribute("value", _logFileName.substring(_logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
 
-        _lastBuild = _now;
+        if(buildSuccessful) _lastBuild = _now;
         _buildCounter++;
         write();
         publish(cruisecontrolElement);
