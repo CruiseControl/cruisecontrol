@@ -24,56 +24,15 @@ import org.apache.log4j.Logger;
 /**
  *  Retrieves change history from SnapshotCM source control using whist command.
  *
- *  Output looks something like this:
- * <code>
- * =============================================================
- * File: /xxx/yyy/zzzz/scripts/sbin/init.d/wallawalla
- * Snapshot: /RSTDevelopment/A.03.50/Develop
- * Current revision: 4
- * I/O mode: text
- * Keyword expansion: keyword and value
- * Permissions: r--r--r--
- * ----------------------------
- * Revision: 8              Derivation:      7 --&gt; (8)
- * Date: 2004/01/07 09:51:34 -0700;  Size:     4280 bytes
- * Author: billy bob (billyb)
- * Snapshot: /rr/rrr/Develop/brimmy
- * Used in: /rr/rrr/Develop/brimmy
- * Change: Content
- * remove obsolete comment
- * =============================================================
- * File: /xxx/yyy/cccc/dddd/build.xml
- * Snapshot: /RSTDevelopment/A.03.50/Develop
- * Current revision: 19
- * I/O mode: text
- * Keyword expansion: keyword and value
- * Permissions: r--r--r--
- * ----------------------------
- * Revision: 19 (current)   Derivation:    18 --&gt; (19)
- * Date: 2004/01/06 17:00:40 -0700;  Size:    14157 bytes
- * Author: billy bob (billyb)
- * Snapshot: /rr/rrr/Develop
- * Used in: /rr/rrr/Develop
- * Change: Content
- * Removed -D param from SnapshotCM wco and wci commands.
- * ----------------------------
- * Revision: 18             Derivation:    17 --&gt; (18) --&gt; 19
- * Date: 2004/01/06 15:49:38 -0700;  Size:    14218 bytes
- * Author: billy bob (billyb)
- * Snapshot: /rrr/ssss/tttt
- * Change: Content
- * Corrected capitalization for all parameters
- * </code>
- *
  *  @author patrick.conant@hp.com
  */
 
 public class SnapshotCM implements SourceControl {
     /**  Date format required by commands passed to SnapshotCM */
-    private static final SimpleDateFormat IN_DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+    static final SimpleDateFormat IN_DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
     /**  Date format returned in the output of SnapshotCM commands. */
-    private static final SimpleDateFormat OUT_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    static final SimpleDateFormat OUT_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private static final MessageFormat EXECUTABLE = new MessageFormat("whist -RA -c{0} \"{1}\"");
 
@@ -84,7 +43,7 @@ public class SnapshotCM implements SourceControl {
     private static final String CHANGE_DELETE = "Delete";
 
     /** enable logging for this class */
-    private static Logger log = Logger.getLogger(SnapshotCM.class);
+    private static final Logger LOG = Logger.getLogger(SnapshotCM.class);
 
     private Hashtable props = new Hashtable();
 
@@ -94,7 +53,7 @@ public class SnapshotCM implements SourceControl {
 
     /**
      *  List of source path values provided either with sourcePath="...",
-     *  sourcePaths="...;...", or nested <sourcePath path="..."> elements.
+     *  sourcePaths="...;...", or nested &lt;sourcePath path="..."&gt; elements.
      */
     private List sourcePaths = new ArrayList();
 
@@ -119,8 +78,7 @@ public class SnapshotCM implements SourceControl {
     public void setSourcePaths(String sourcePaths) {
         StringTokenizer st = new StringTokenizer(sourcePaths, ";");
         while (st.hasMoreTokens()) {
-            SourcePath sourcePath = new SourcePath(st.nextToken());
-            this.sourcePaths.add(sourcePath);
+            setSourcePath(st.nextToken());
         }
     }
 
@@ -165,7 +123,7 @@ public class SnapshotCM implements SourceControl {
             parameters[1] = ((SourcePath) i.next()).getPath();
 
             String command = EXECUTABLE.format(parameters);
-            log.info("Running command: " + command);
+            LOG.info("Running command: " + command);
             try {
                 Process p = Runtime.getRuntime().exec(command);
 
@@ -179,7 +137,7 @@ public class SnapshotCM implements SourceControl {
                 p.getOutputStream().close();
                 p.getErrorStream().close();
             } catch (Exception e) {
-                log.error("Error in executing the SnapshotCM command : ", e);
+                LOG.error("Error in executing the SnapshotCM command : ", e);
             }
         }
 
@@ -312,12 +270,14 @@ public class SnapshotCM implements SourceControl {
                 mod = new Modification("snapshotcm");
                 mod.createModifiedFile(fileName, folderName);
             } else if (line.startsWith("Revision: ")) {  //e.g. Revision: 46 (current)   Derivation:    45 --> (46)
-                mod.revision = line.substring(10);
+                int nextSpaceDelimiterIndex = line.indexOf(" ", 10);
+                int endIndex = nextSpaceDelimiterIndex > -1 ? nextSpaceDelimiterIndex : line.length();
+                mod.revision = line.substring(10, endIndex);
             } else if (line.startsWith("Date: ")) {  //e.g. Date: 2004/01/06 17:00:38 -0700;  Size:    39459 bytes
                 try {
                     mod.modifiedTime = OUT_DATE_FORMAT.parse(line.substring(6, line.indexOf("-") - 1));
                 } catch (ParseException pe) {
-                    log.info("Unable to parse date " + line.substring(6, line.indexOf("-") - 1));
+                    LOG.warn("Unable to parse date " + line.substring(6, line.indexOf("-") - 1));
                     mod.modifiedTime = new Date(0);
                 }
             } else if (line.startsWith("Author: ")) {  //e.g. Author: pacon (Patrick Conant)
@@ -350,7 +310,6 @@ public class SnapshotCM implements SourceControl {
         private String path;
 
         public SourcePath() {
-            super();
         }
 
         public SourcePath(String path) {
