@@ -154,6 +154,10 @@
                 <filter token="VERSION" value="${label}" />
             </filterset>
         </copy>
+    	<!-- copy resources like properties from the src-dir -->
+	    <copy todir="${classes}">
+	      <fileset dir="${src}" excludes="**/*.java"/>
+	    </copy>
     </target>
 
     <target name="compile-starteam" if="starteam-sdk-present" depends="init">
