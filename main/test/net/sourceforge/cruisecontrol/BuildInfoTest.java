@@ -1,8 +1,12 @@
 package net.sourceforge.cruisecontrol;
 
-import java.io.*;
+import junit.framework.TestCase;
+import org.jdom.output.XMLOutputter;
 
-import junit.framework.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class BuildInfoTest extends TestCase {
 
@@ -13,16 +17,30 @@ public class BuildInfoTest extends TestCase {
     private static final String STD_LOGFILE = "log20010504120000L1.3";
     private static final boolean STD_LAST_BUILD_SUCCESS = true;
     private static final boolean STD_BUILD_NOT_NECCESSARY = false;
-    
+
     private static final String INCOMPLETE_LAST_BUILD = "20010504";
 
     /**
-     * Obligitory name constructor.
-     * 
+     * Obligatory name constructor.
+     *
      * @param name   Name of the test to run.
      */
     public BuildInfoTest(String name) {
         super(name);
+    }
+
+
+    public void testToElement() {
+        BuildInfo info = new BuildInfo();
+        info.setLabel("1.1");
+        info.setLastBuild("20020207120000");
+        info.setLastGoodBuild("20020206120000");
+        info.setLastBuildSuccessful(true);
+        info.setLogfile("log.xml");
+
+        String expected = "<info><label value=\"1.1\" /><lastgoodbuild value=\"20020206120000\" /><lastbuild value=\"20020207120000\" /><previousbuildsuccessful value=\"true\" /></info>";
+        XMLOutputter outputter = new XMLOutputter();
+        assertEquals(outputter.outputString(info.toElement()), expected);
     }
 
     /**
@@ -39,18 +57,18 @@ public class BuildInfoTest extends TestCase {
     }
 
     /**
-     * This method checks that timestamp related setters throw an exception 
+     * This method checks that timestamp related setters throw an exception
      * when an "incomplete" time is provided
      */
     public void testIncompleteTime() {
         BuildInfo info = new BuildInfo();
         try {
             info.setLastBuild(INCOMPLETE_LAST_BUILD);
-            fail("Provided an incomplete time ("+INCOMPLETE_LAST_BUILD
-                 + "), but the setLastBuild method didn't throw an"
-                 + " IllegalArgumentException as expected.");
+            fail("Provided an incomplete time (" + INCOMPLETE_LAST_BUILD
+                    + "), but the setLastBuild method didn't throw an"
+                    + " IllegalArgumentException as expected.");
         } catch (IllegalArgumentException iae) {
-            //Good we expect the incomplete time to cause an 
+            //Good we expect the incomplete time to cause an
             // IllegalArgumentException to be thrown.
         }
     }
@@ -59,7 +77,7 @@ public class BuildInfoTest extends TestCase {
      * Tests a standard call to write a BuildInfo instance out to disk. No
      * failures should occur. Most importantly, writing the info instance out
      * should NOT change the value of any of the info attributes.
-     * 
+     *
      * @exception IOException
      *                   Creating a tempfile to write the buildinfo instance to may cause an
      *                   exception, or writing the info instance itself. In this standard
@@ -78,12 +96,12 @@ public class BuildInfoTest extends TestCase {
 
         //Make sure the tempfile exists and has some data in it.
         assertTrue("The temp file should have been written, but it doesn't exist.",
-               tempFile.exists());
+                tempFile.exists());
         assertTrue("Cannot read the temp file.", tempFile.canRead());
         InputStream in = new FileInputStream(tempFile);
         assertTrue("The tempfile contains zero bytes, but it should contain at"
-               + " least enough bytes to represent the attributes set.", 
-               in.available() > 0);
+                + " least enough bytes to represent the attributes set.",
+                in.available() > 0);
 
         //Writing the file out should not change the value of any of the attributes.
         doStandardAssertions(info);
@@ -114,7 +132,7 @@ public class BuildInfoTest extends TestCase {
      * Creates a new BuildInfo instance populated with the standard values
      * set as constants in this test class. Every attribute in the info instance
      * returned should be populated with a valid value.
-     * 
+     *
      * @return Fully populated BuildInfo instance.
      */
     private BuildInfo populateStandard() {
@@ -134,7 +152,7 @@ public class BuildInfoTest extends TestCase {
      * Performs the assertions required to make sure that the info instance
      * provided is populated with the values defined as standard constants
      * in this test class.
-     * 
+     *
      * @param info   BuildInfo instance.
      */
     private void doStandardAssertions(BuildInfo info) {
