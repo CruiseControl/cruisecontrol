@@ -33,47 +33,15 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+
+********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.PropertyConfigurator;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
-import java.io.StringReader;
-import java.util.Hashtable;
-import java.util.Iterator;
+public class MockEmailPublisher extends EmailPublisher {
 
-public class LinkEmailPublisherTest extends TestCase {
-
-    private XMLLogHelper _successLogHelper;
-
-    public LinkEmailPublisherTest(String name) {
-        super(name);
-    }
-
-    protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
-        Element cruisecontrolElement = new Element("cruisecontrol");
-        Element infoElement = new Element("info");
-        Element logFileElement = new Element("property");
-        logFileElement.setAttribute("name", "logfile");
-        logFileElement.setAttribute("value", "log20020206120000.xml");
-        infoElement.addContent(logFileElement);
-        cruisecontrolElement.addContent(infoElement);
-
-        return new XMLLogHelper(cruisecontrolElement);
-    }
-
-    public void setUp() throws Exception {
-        _successLogHelper = createLogHelper(true, true);
-    }
-
-    public void testCreateMessage() {
-        EmailPublisher publisher = new LinkEmailPublisher();
-        publisher.setBuildResultsUrl("http://mybuildserver.com:8080/buildservlet/BuildServlet");
-        assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000", publisher.createMessage(_successLogHelper));
+    protected String createMessage(XMLLogHelper logHelper){
+        return null;
     }
 }
