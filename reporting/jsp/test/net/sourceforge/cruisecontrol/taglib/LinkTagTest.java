@@ -36,24 +36,48 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
+import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockServletRequest;
 
-public class AllTests extends TestCase {
-
-    public AllTests(String name) {
+/**
+ *
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ */
+public class LinkTagTest extends TestCase {
+    public LinkTagTest(String name) {
         super(name);
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(NavigationTagTest.class);
-        suite.addTestSuite(XSLTagTest.class);
-        suite.addTestSuite(TabSheetTagTest.class);
-        suite.addTestSuite(TabTagTest.class);
-        suite.addTestSuite(CruiseControlTagSupportTest.class);
-        suite.addTestSuite(LinkTagTest.class);
-        return suite;
+    public void testCreateLink() throws JspException {
+        LinkTag tag = new LinkTag();
+        MockPageContext pageContext = new MockPageContext();
+        pageContext.setHttpServletRequest(new MockServletRequest("context", "servlet"));
+        tag.setPageContext(pageContext);
+        tag.setId("link");
+        assertEquals(Tag.SKIP_BODY, tag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, tag.doEndTag());
+
+        assertEquals("/context/servlet", pageContext.getAttribute("link"));
+    }
+
+    public void testCreateLinkExcludeLog() throws JspException {
+        LinkTag tag = new LinkTag();
+        MockPageContext pageContext = new MockPageContext();
+        final MockServletRequest mockRequest = new MockServletRequest("context", "servlet");
+        pageContext.setHttpServletRequest(mockRequest);
+        mockRequest.addParameter("log", "logFile");
+        mockRequest.addParameter("other", "value");
+        tag.setPageContext(pageContext);
+        tag.setId("link");
+        assertEquals(Tag.SKIP_BODY, tag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, tag.doEndTag());
+
+        assertEquals("/context/servlet?other=value", pageContext.getAttribute("link"));
+
     }
 }
