@@ -304,6 +304,17 @@ public class Project implements Serializable {
                     new File(_configFileName), _name);
             _sleepMillis = 1000 * helper.getBuildInterval();
             _logDir = helper.getLogDir();
+            File logDir = new File(_logDir);
+            if(!logDir.exists()) {
+                throw new CruiseControlException(
+                        "Log Directory specified in config file does not exist: "
+                        + logDir.getAbsolutePath());
+            }
+            if(!logDir.isDirectory()) {
+            	throw new CruiseControlException(
+                        "Log Directory specified in config file is not a directory: "
+                        + logDir.getAbsolutePath());
+            }
             _bootstrappers = helper.getBootstrappers();
             _schedule = helper.getSchedule();
             _modificationSet = helper.getModificationSet();
