@@ -1,8 +1,12 @@
 CruiseControl Release Notes - Latest CVS
 
-build.xml
+main/build.xml
 ----------------------
 * update version to 2.1
+
+reporting/jsp/build.xml
+----------------------
+* Filter token for build artifacts was missing  - Fixed by Jason Yip
 
 cruisecontrol-jsp12.tld
 ----------------------
