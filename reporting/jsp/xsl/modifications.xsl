@@ -169,13 +169,15 @@
                 <xsl:choose>
                   <xsl:when test="file">
                     <xsl:if test="file/project">
-                      <xsl:value-of select="file/project"/>/
+                      <xsl:value-of select="file/project"/>
+                      <xsl:value-of select="system-property('file.separator')"/>
                     </xsl:if>
                     <xsl:value-of select="file/filename"/>
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:if test="project">
-                      <xsl:value-of select="project"/>/
+                      <xsl:value-of select="project"/>
+                      <xsl:value-of select="system-property('file.separator')"/>
                     </xsl:if>
                     <xsl:value-of select="filename"/>
                   </xsl:otherwise>
