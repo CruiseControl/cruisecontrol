@@ -55,7 +55,9 @@ public class CVSElement implements SourceControlElement {
      * This is the date format returned in the log information
      * from CVS.
      */
-    private static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss 'GMT'");
+//    private static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss 'GMT'");
+    
+    private static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
     
     
     /**
@@ -140,13 +142,6 @@ public class CVSElement implements SourceControlElement {
     private Task task;
     
     /**
-     * (PENDING) Only used for testing...
-     */
-    public static String formatCVSDate(Object o) {
-        return CVSDATE.format(o);
-    }
-    
-    /**
      * Sets the CVSROOT for all calls to CVS.
      *
      * @param cvsroot CVSROOT to use.
@@ -227,12 +222,12 @@ public class CVSElement implements SourceControlElement {
     
     /**
      * Returns an ArrayList of Modifications detailing all
-     * the changes between now and the last build.
+     * the changes between the last build and the latest revision
+     * at the repository
      *
-     * @param lastBuild Last build time.
-     * @param now       Time now, or time to check.
-     * @param quietPeriod
-     *                  NOT USED.
+     * @param lastBuild last build time
+     * @param now NOT USED
+     * @param quietPeriod NOT USED.
      * @return maybe empty, never null.
      */
     public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
@@ -240,12 +235,12 @@ public class CVSElement implements SourceControlElement {
         //Init last modified to last build date.
         lastModified = lastBuild;
 
+        // Build command "cvs -d CVSROOT log -d"lastbuildtime<currtime" "
         String[] commandArray = {"cvs",
                                  "-d", cvsroot,
                                  "log",
-                                 "-d" + "\"" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "\"",
-                                 getLocalPath()};
-
+                                 "-d" + "\"" + CVSDATE.format(lastBuild) + "<" 
+                                 + CVSDATE.format(now) + "\" " + getLocalPath() };
         String logCommand = "";
         for (int i = 0; i < commandArray.length; i++) {
             logCommand += commandArray[i] + " ";
@@ -291,7 +286,7 @@ public class CVSElement implements SourceControlElement {
      *         as path separator.
      */
     private String getLocalPath() {
-        String basicPath = local.getAbsolutePath();
+        String basicPath = local.getPath();
         String formattedPath = basicPath.replace('\\', '/');
         return formattedPath;
     }
