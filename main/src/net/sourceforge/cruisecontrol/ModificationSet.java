@@ -21,13 +21,9 @@
 
 package net.sourceforge.cruisecontrol;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.io.*;
 import java.text.*;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.apache.tools.ant.*;
 
@@ -41,11 +37,9 @@ public class ModificationSet extends Task {
     private long _quietPeriod;
     private ArrayList _sourceControlElements = new ArrayList();
 
-    private Date _now;
     private long _lastModified;
     private DateFormat _formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
 
-    private ArrayList _modifications = new ArrayList();
     private Set _emails = new HashSet();
 
     private static final SimpleDateFormat _simpleDateFormat = 
@@ -63,44 +57,43 @@ public class ModificationSet extends Task {
      */
     public void execute() throws BuildException {
         try {
-            _now = new Date();
+            Date currentDate = new Date();
             _lastModified = _lastBuild.getTime();
 
-            processSourceControlElements();
+            while (tooMuchRepositoryActivity(currentDate.getTime())) {
+                long sleepTime = 
+                 _quietPeriod - (currentDate.getTime() - _lastModified);
+
+                log("[modificationset] Too much repository activity...sleeping for: " 
+                 + (sleepTime/1000.0) + " seconds.");
+                Thread.sleep(sleepTime);
+
+                currentDate = new Date();
+            }            
+            
+            ArrayList modifications = 
+             processSourceControlElements(currentDate, _lastBuild);
 
             //If there aren't any modifications, then a build is not necessary, so
             //  we will terminate this build by throwing a BuildException. That will
             //  kill the Ant process and return control to MasterBuild.
-            if (_modifications.isEmpty()) {
+            if (modifications.isEmpty()) {
                 getProject().setProperty(BUILDUNNECESSARY, "true");
                 throw new BuildException("No Build Necessary");
             }
 
-            //If a modification occured within our quietPeriod, we need to sleep
-            //  until at least the end of the quiet period, then check again.
-            while (_lastModified > (_now.getTime() - _quietPeriod)) {
-                long sleepTime = _quietPeriod - (_now.getTime() - _lastModified);
-
-                log("[modificationset] Too much repository activity...sleeping for: " + (sleepTime/1000.0) + " seconds.");
-                Thread.sleep(sleepTime);
-
-                _now = new Date();
-                _modifications = new ArrayList();
-                processSourceControlElements();
-            }
-
             getProject().setProperty(SNAPSHOTTIMESTAMP, 
-             _simpleDateFormat.format(_now));
+             _simpleDateFormat.format(currentDate));
             getProject().setProperty(USERS, emailsAsCommaDelimitedList());
 
-            writeFile();
+            writeFile(modifications);
         } catch (InterruptedException ie) {
             throw new BuildException(ie);
         } catch (IOException ioe) {
             throw new BuildException(ioe);
         }
     }    
-    
+
     /**
      *	set the timestamp of the last build time.
      *	String should be formatted as "yyyyMMddHHmmss"
@@ -122,7 +115,6 @@ public class ModificationSet extends Task {
         _quietPeriod = seconds * 1000;
     }
 
-
     public void setDateformat(String format) {
         if (format != null && format.length() > 0) {
             _formatter = new SimpleDateFormat(format);
@@ -143,13 +135,13 @@ public class ModificationSet extends Task {
     /**
      *   add a nested element for star team specific code.
      */
-       public StarTeamElement createStarteamelement() {
-           StarTeamElement ste = new StarTeamElement();
-           ste.setAntTask(this); //for logging in the sub elements
-           _sourceControlElements.add(ste);
-
-           return ste;
-       }
+    public StarTeamElement createStarteamelement() {
+        StarTeamElement ste = new StarTeamElement();
+        ste.setAntTask(this); //for logging in the sub elements
+        _sourceControlElements.add(ste);
+        
+        return ste;
+    }
 
 
     /**
@@ -186,32 +178,39 @@ public class ModificationSet extends Task {
         return cce;
     }
 
-
+    private boolean tooMuchRepositoryActivity(long currentTime) {
+        return (_lastModified > (currentTime - _quietPeriod));
+    }
+    
     /**
-     *  loop over all nested source control elements and get modifications and
+     *  Loop over all nested source control elements and get modifications and
      *	users that made modifications
      */
-    private void processSourceControlElements() {
-        for (int i=0; i < _sourceControlElements.size(); i++) {
+    private ArrayList processSourceControlElements(Date currentDate, Date lastBuild) {
+        ArrayList mods = new ArrayList();
+        
+        for (int i = 0; i < _sourceControlElements.size(); i++) {
             SourceControlElement sce = 
              (SourceControlElement) _sourceControlElements.get(i);
-            ArrayList mods = sce.getHistory(_lastBuild, _now, _quietPeriod);
+            mods.addAll(sce.getHistory(lastBuild, currentDate, _quietPeriod));
 
             if (!mods.isEmpty()) {
-                _modifications.addAll(mods);
-                if (sce.getLastModified() > _lastModified)
+                if (sce.getLastModified() > lastBuild.getTime()) {
                     _lastModified = sce.getLastModified();
+                }
 
                 _emails.addAll(sce.getEmails());
             }
         }
+        
+        return mods;
     }
-
+    
     /**
-     *	write out file with all modifications.  filename is specified in the ant property
-     *	modificationset.file
+     * Write out file with all modifications.  Filename is specified in the ant
+     * property modificationset.file
      */
-    private void writeFile() throws IOException {
+    private void writeFile(ArrayList modifications) throws IOException {
         Project p = getProject();
         String modFileName = getProject().getProperty("modificationset.file");
         if (modFileName == null) {
@@ -221,8 +220,8 @@ public class ModificationSet extends Task {
 
         FileWriter fw = new FileWriter(new File(modFileName));
         fw.write("<modifications>\n");
-        for (int i=0; i < _modifications.size(); i++)
-            fw.write(((Modification) _modifications.get(i)).toXml(_formatter));
+        for (int i=0; i < modifications.size(); i++)
+            fw.write(((Modification) modifications.get(i)).toXml(_formatter));
         fw.write("</modifications>\n");
         fw.close();
     }
@@ -240,4 +239,5 @@ public class ModificationSet extends Task {
         }
         return sb.toString();
     }
+    
 }
