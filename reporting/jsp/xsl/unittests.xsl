@@ -207,7 +207,7 @@
         </tr>
 
         <tr>
-            <td colspan="2" class="unittests-error">
+            <td colspan="2" class="unittests-failure">
                 <pre>
                     <xsl:call-template name="br-replace">
                         <xsl:with-param name="word" select="failure"/>

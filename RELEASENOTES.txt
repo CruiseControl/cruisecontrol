@@ -108,6 +108,10 @@ testdetails.xsl
 ----------------------
 * patch for JS-escape template so whole string is escaped and line feeds are dealt with properly. Patch by Han Wang and Roy O. Wright
 
+unittests.xsl
+----------------------
+* have failures and errors displayed in different colors. Patch by Mark Doliner
+
 Upgrader
 ----------------------
 * Removed this class, since noone needs support for upgrading 1.x config files anymore
