@@ -60,6 +60,18 @@ public class CurrentBuildStatusPublisher implements Publisher {
         _dateFormat = dateFormat;
     }
 
+    /**
+     *  Called after the configuration is read to make sure that all the mandatory parameters
+     *  were specified..
+     *
+     *  @throws CruiseControlException if there was a configuration error.
+     */
+    public void validate() throws CruiseControlException {
+        if(_fileName == null) {
+            throw new CruiseControlException ("fileName not specified in configuration file.");
+        }
+    }
+
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
         if (_fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");

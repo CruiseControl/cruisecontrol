@@ -65,6 +65,7 @@ public class Main {
         Project project = new Project();
         try {
             project = main.configureProject(args);
+            project.init(); // Init the project once, to check the current config file is ok
         } catch (CruiseControlException e) {
             log.fatal(e.getMessage());
             usage();

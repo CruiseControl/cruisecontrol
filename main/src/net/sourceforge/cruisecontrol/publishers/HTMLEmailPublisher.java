@@ -77,6 +77,57 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private String logDir;
     private String messageMimeType = "text/html";
 
+    /*
+     *  Called after the configuration is read to make sure that all the mandatory parameters
+     *  were specified..
+     *
+     *  @throws CruiseControlException if there was a configuration error.
+     */
+    public void validate() throws CruiseControlException {
+        super.validate();
+
+        verifyDirectory("HTMLEmailPublisher.logDir", this.logDir);
+
+        if(this.xslFile == null) {
+            verifyDirectory("HTMLEmailPublisher.xslDir", this.xslDir);
+            verifyFile("HTMLEmailPublisher.css", this.css);
+            verifyFile("HTMLEmailPublisher.xslDir/header.xsl", new File(this.xslDir, "header.xsl"));
+            verifyFile("HTMLEmailPublisher.xslDir/compile.xsl", new File(this.xslDir, "compile.xsl"));
+            verifyFile("HTMLEmailPublisher.xslDir/unittests.xsl", new File(this.xslDir, "unittests.xsl"));
+            verifyFile("HTMLEmailPublisher.xslDir/modifications.xsl", new File(this.xslDir, "modifications.xsl"));
+            verifyFile("HTMLEmailPublisher.xslDir/distributables.xsl", new File(this.xslDir, "distributables.xsl"));
+        }
+    }
+
+    private void verifyDirectory(String dirName, String dir)  throws CruiseControlException {
+        if(dir == null) {
+            throw new CruiseControlException(dirName + " not specified in configuration file");
+        }
+        File dirFile = new File(dir);
+        if(!dirFile.exists()) {
+            throw new CruiseControlException(dirName + " does not exist : " + dirFile.getAbsolutePath());
+        }
+        if(!dirFile.isDirectory()) {
+            throw new CruiseControlException(dirName + " is not a directory : " + dirFile.getAbsolutePath());
+        }
+    }
+
+    private void verifyFile(String fileName, String file)  throws CruiseControlException {
+        if(file == null) {
+            throw new CruiseControlException(fileName + " not specified in configuration file");
+        }
+        verifyFile(fileName, new File(file));
+    }
+
+    private void verifyFile(String fileName, File file)  throws CruiseControlException {
+        if(!file.exists()) {
+            throw new CruiseControlException(fileName + " does not exist: " + file.getAbsolutePath());
+        }
+        if(!file.isFile()) {
+            throw new CruiseControlException(fileName + " is not a file: " + file.getAbsolutePath());
+        }
+    }
+
     /**
      *  @param toList comma delimited <code>String</code> of email addresses
      *  @param subject subject line for the message

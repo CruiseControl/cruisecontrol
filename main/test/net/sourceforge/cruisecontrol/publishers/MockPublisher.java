@@ -75,6 +75,9 @@ public class MockPublisher implements Publisher {
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
     }
 
+    public void validate() throws CruiseControlException {
+    }
+
     public class MockPublisherChild {
         private int _someInt;
         private String _someString;

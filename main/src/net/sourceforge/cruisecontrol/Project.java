@@ -298,35 +298,28 @@ public class Project implements Serializable {
     /**
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
-    protected void init() {
-        try {
-            ProjectXMLHelper helper = new ProjectXMLHelper(
-                    new File(_configFileName), _name);
-            _sleepMillis = 1000 * helper.getBuildInterval();
-            _logDir = helper.getLogDir();
-            File logDir = new File(_logDir);
-            if(!logDir.exists()) {
-                throw new CruiseControlException(
-                        "Log Directory specified in config file does not exist: "
-                        + logDir.getAbsolutePath());
-            }
-            if(!logDir.isDirectory()) {
-            	throw new CruiseControlException(
-                        "Log Directory specified in config file is not a directory: "
-                        + logDir.getAbsolutePath());
-            }
-            _bootstrappers = helper.getBootstrappers();
-            _schedule = helper.getSchedule();
-            _modificationSet = helper.getModificationSet();
-
-            _labelIncrementer = helper.getLabelIncrementer();
-            validateLabel(_label, _labelIncrementer);
-
-            _auxLogs = helper.getAuxLogs();
-            _publishers = helper.getPublishers();
-        } catch (CruiseControlException e) {
-            log.fatal("Error initializing project.", e);
+    protected void init() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(new File(_configFileName), _name);
+        _sleepMillis = 1000 * helper.getBuildInterval();
+        _logDir = helper.getLogDir();
+        File logDir = new File(_logDir);
+        if(!logDir.exists()) {
+            throw new CruiseControlException(
+                "Log Directory specified in config file does not exist: " + logDir.getAbsolutePath());
         }
+        if(!logDir.isDirectory()) {
+          	throw new CruiseControlException(
+                "Log Directory specified in config file is not a directory: " + logDir.getAbsolutePath());
+        }
+        _bootstrappers = helper.getBootstrappers();
+        _schedule = helper.getSchedule();
+        _modificationSet = helper.getModificationSet();
+
+        _labelIncrementer = helper.getLabelIncrementer();
+        validateLabel(_label, _labelIncrementer);
+
+        _auxLogs = helper.getAuxLogs();
+        _publishers = helper.getPublishers();
     }
 
     protected Element getProjectPropertiesElement() {
