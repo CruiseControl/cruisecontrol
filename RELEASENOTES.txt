@@ -11,7 +11,7 @@ build.xml (jsp)
 
 ClearCase Sourcecontrol
 ----------------------
-* Fixed bug with ClearCase version 2002.05.00 that hindered sending email. Patch by Ian Colledge
+* Fixed bug with ClearCase version 2002.05.00 that hindered sending email. Patch by Ian Colledge and Esa Laine
 
 CruiseControlTagSupport
 ----------------------
