@@ -36,7 +36,8 @@
  ********************************************************************************--%>
 <%@page isErrorPage="true"%>
 <%@page import="java.io.CharArrayWriter,
-            java.io.PrintWriter"%>
+            java.io.PrintWriter,
+            javax.servlet.http.HttpUtils"%>
 <%
     String baseURL = request.getScheme() + "://" + request.getServerName();
     if (!request.getScheme().equals("http") || request.getServerPort() != 80) {
@@ -50,7 +51,7 @@
     CharArrayWriter stackTraceWriter = new CharArrayWriter();
     exception.printStackTrace(new PrintWriter(stackTraceWriter, true));
     String stackTrace = stackTraceWriter.toString();
-    log(request.getRequestURL() + ": " + message, exception);
+    log(HttpUtils.getRequestURL(request) + ": " + message, exception);
 %>
 <html>
 <head>
