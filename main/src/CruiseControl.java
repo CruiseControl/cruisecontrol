@@ -48,7 +48,9 @@ import net.sourceforge.cruisecontrol.*;
  */
 
 public class CruiseControl {
+
     public static void main(String[] args) {
+        //Delegate to Masterbuild class.
         MasterBuild.main(args);
     }
 
