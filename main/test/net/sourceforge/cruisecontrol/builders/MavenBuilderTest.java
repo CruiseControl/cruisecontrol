@@ -51,6 +51,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 public class MavenBuilderTest extends TestCase {
 
@@ -293,23 +294,27 @@ public class MavenBuilderTest extends TestCase {
     /**
      * Make a test file with specified content. Assumes the file does not exist.
      */
-    private void makeTestFile(String fname, String content, boolean onWindows) {
-        File tFile = new File(fname);
+    private void makeTestFile(String filename, String content, boolean onWindows) {
+        File testFile = new File(filename);
         try {
-            BufferedWriter bwr = new BufferedWriter(new FileWriter(tFile));
+            BufferedWriter bwr = new BufferedWriter(new FileWriter(testFile));
             bwr.write(content);
             bwr.flush();
             bwr.close();
         } catch (IOException ioex) {
-            fail("Unexpected IOException while preparing " + fname + " test file");
+            fail("Unexpected IOException while preparing " + filename + " test file");
         }
         if (!onWindows) {
-            String[] commandLineArgs = new String[] {"chmod", "755", tFile.getAbsolutePath() };
+            Commandline cmdline = new Commandline();
+            cmdline.setExecutable("chmod");
+            cmdline.createArgument().setValue("755");
+            cmdline.createArgument().setValue(testFile.getAbsolutePath());
             try {
-                Runtime.getRuntime().exec(commandLineArgs, null, tFile.getParentFile());
-            } catch (IOException e) {
+                Process p = cmdline.execute();       
+                p.waitFor();         
+            } catch (Exception e) {
                 e.printStackTrace();
-                fail("exception changing permissions on test file");
+                fail("exception changing permissions on test file " + testFile.getAbsolutePath());
             }
         }
     }

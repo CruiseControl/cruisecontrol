@@ -5,6 +5,10 @@ log4j.properties
 * Fixed bug where the month was being used in place of minutes.
 * Now using abbreviation of month name rather than month number.
 
+MavenBuilderTest
+----------------------
+* Fixed bug trying to chmod test file on unix. - Patch by Andy Nguyen
+
 CruiseControl Release Notes - 2.1.2
 
 AntBuilder
