@@ -37,7 +37,6 @@
 
 <project name="CruiseControl" default="all" basedir=".">
 
-    <property name="build.compiler" value="jikes" />
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
         
