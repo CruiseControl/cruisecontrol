@@ -49,7 +49,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author <a href="mailto:robert.watkins@suncorp.com.au">Robert Watkins</a>
+ * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class MockServletRequest implements HttpServletRequest {
     public Object getAttribute(String s) {

@@ -44,7 +44,7 @@ import javax.servlet.ServletContext;
 
 /**
  *
- * @author <a href="mailto:robert.watkins@suncorp.com.au">Robert Watkins</a>
+ * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class MockServletConfig implements ServletConfig {
     private Map initParams = new HashMap();
