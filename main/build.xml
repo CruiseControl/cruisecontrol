@@ -76,6 +76,8 @@
         <mkdir dir="${apidocs}"/>
         <mkdir dir="${release}"/>
         <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
+        <tstamp/>
+        <property name="label" value="2.0 Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
     <!-- **************************************************** -->
@@ -120,10 +122,11 @@
            <exclude name="**/StarTeam*"/>
         </javac>
         <copy todir="${classes}">
-            <fileset dir="${src}" includes="**/*.properties"/>
-        </copy>
-        <copy todir="${classes}">
             <fileset dir="." includes="log4j.properties"/>
+            <fileset dir="." includes="version.properties"/>
+            <filterset>
+                <filter token="VERSION" value="${label}" />
+            </filterset>
         </copy>
     </target>
 

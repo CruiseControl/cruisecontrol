@@ -41,6 +41,8 @@ import org.apache.log4j.Category;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  *  Command line entry point.
@@ -53,8 +55,9 @@ public class Main {
     private static Category log = Category.getInstance(Main.class.getName());
 
     public static void main(String args[]) {
-        Project project = new Project();
         Main main = new Main();
+        main.printVersion();
+        Project project = new Project();
         try {
             project = main.configureProject(args);
         } catch (CruiseControlException e) {
@@ -62,6 +65,16 @@ public class Main {
             usage();
         }
         project.execute();
+    }
+
+    private void printVersion() {
+        Properties props = new Properties();
+        try {
+            props.load(getClass().getResourceAsStream("/version.properties"));
+        } catch (IOException e) {
+            log.error("Error reading version properties", e);
+        }
+        log.info("CruiseControl Version " + props.getProperty("version"));
     }
 
     public Project configureProject(String args[]) throws CruiseControlException {
@@ -187,9 +200,3 @@ public class Main {
         System.exit(1);
     }
 }
-//
-// -lastbuild 20001122010203 -label 1.1 -configfile config.xml -projectname HelloWorld
-//log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-//log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-//log.info("   -configfile file       where file is the configuration file");
-//log.info("   -projectname name      where name is the name of the project");
