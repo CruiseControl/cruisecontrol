@@ -41,7 +41,7 @@
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
-    <xsl:variable name="tasklist" select="//target/task"/>
+    <xsl:variable name="tasklist" select="/cruisecontrol/build//target/task"/>
     <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']/message[@priority='info'] | $tasklist[@name='jar']/message[@priority='info']"/>
     <xsl:variable name="war.tasklist" select="$tasklist[@name='War']/message[@priority='info'] | $tasklist[@name='war']/message[@priority='info']"/>
     <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='ejbjar']/message[@priority='info']"/>
