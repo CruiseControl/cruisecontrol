@@ -95,6 +95,7 @@ public class PluginXMLHelper {
         while (attributeIterator.hasNext()) {
             Attribute attribute = (Attribute) attributeIterator.next();
             if (setters.containsKey(attribute.getName().toLowerCase())) {
+                log.debug("Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
                 try {
                     Method method = (Method) setters.get(attribute.getName().toLowerCase());
                     Class[] parameters = method.getParameterTypes();
@@ -102,6 +103,10 @@ public class PluginXMLHelper {
                         method.invoke(object, new Object[]{attribute.getValue()});
                     } else if (int.class.isAssignableFrom(parameters[0])) {
                         method.invoke(object, new Object[]{new Integer(attribute.getIntValue())});
+                    } else if (boolean.class.isAssignableFrom(parameters[0])) {
+                        method.invoke(object, new Object[]{new Boolean(attribute.getBooleanValue())});
+                    } else {
+                        log.error("Couldn't invoke setter" + attribute.getName().toLowerCase());
                     }
                 } catch (Exception e) {
                     log.fatal("Error configuring plugin.", e);

@@ -67,6 +67,7 @@ public class PluginXMLHelperTest extends TestCase {
         Element testElement = new Element("test");
         testElement.setAttribute("somestring", "expectedString");
         testElement.setAttribute("someint", Integer.toString(SOME_INT));
+        testElement.setAttribute("someboolean", "true");
         Element childElement = new Element("mockpluginchild");
         childElement.setAttribute("somestring", "childString");
         childElement.setAttribute("someint", Integer.toString(SOME_OTHER_INT));
@@ -77,6 +78,7 @@ public class PluginXMLHelperTest extends TestCase {
 
         assertEquals("expectedString", plugin.getSomeString());
         assertEquals(SOME_INT, plugin.getSomeInt());
+        assertEquals(true, plugin.getSomeBoolean());
         assertEquals("childString", plugin.getMockPluginChild().getSomeString());
         assertEquals(SOME_OTHER_INT, plugin.getMockPluginChild().getSomeInt());
     }

@@ -46,6 +46,15 @@ public class MockPublisher implements Publisher {
     private int _someInt;
     private String _someString;
     private MockPublisherChild _mpc;
+    private boolean _someBoolean;
+
+    public void setSomeBoolean(boolean someBoolean) {
+        _someBoolean = someBoolean;
+    }
+
+    public boolean getSomeBoolean() {
+        return _someBoolean;
+    }
 
     public void setSomeString(String someString) {
         _someString = someString;
