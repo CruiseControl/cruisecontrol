@@ -116,7 +116,7 @@
        </javadoc>
     </target>
                                                           
-    <target name="all" depends="init,clean,compile,test,javadoc,jar,buildwar" />
+    <target name="all" depends="init,clean,compile,test,jar,buildwar" />
 
 <!-- ***** CRUISE EXAMPLES ***** -->
 
