@@ -53,6 +53,16 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
     private PageContext _pageContext;
 
     public int doAfterBody() throws JspException {
+        // writeStatus(_bodyOut.getEnclosingWriter());
+        return SKIP_BODY;
+    }
+
+    public int doEndTag() throws JspException {
+        writeStatus(_pageContext.getOut());
+        return EVAL_PAGE;
+    }
+
+    private void writeStatus(java.io.Writer out) throws JspException {
         BufferedReader br = null;
         String currentBuildFileName =
                 _pageContext.getServletConfig().getInitParameter(
@@ -61,7 +71,7 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
             br = new BufferedReader(new FileReader(currentBuildFileName));
             String s = br.readLine();
             while(s != null) {
-                _bodyOut.getEnclosingWriter().write(s);
+                out.write(s);
                 s = br.readLine();
             }
         } catch (IOException e) {
@@ -76,12 +86,6 @@ public class CurrentBuildStatusTag implements Tag, BodyTag {
             }
             br = null;
         }
-
-        return SKIP_BODY;
-    }
-
-    public int doEndTag() throws JspException {
-        return EVAL_PAGE;
     }
 
     public int doStartTag() throws JspException {
