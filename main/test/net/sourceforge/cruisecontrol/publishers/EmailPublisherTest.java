@@ -77,13 +77,6 @@ public class EmailPublisherTest extends TestCase {
             modificationsElement.addContent(modificationElement);
         }
 
-        Element propertiesElement = new Element("properties");
-        Element propertyElement = new Element("property");
-        propertyElement.setAttribute("name", "ant.project.name");
-        propertyElement.setAttribute("value", "some project");
-        propertiesElement.addContent(propertyElement);
-        buildElement.addContent(propertiesElement);
-
         if (!success) {
             buildElement.setAttribute("error", "No Build Necessary");
         }
@@ -102,6 +95,7 @@ public class EmailPublisherTest extends TestCase {
         properties.put("label", label);
         properties.put("lastbuildsuccessful", lastBuildSuccess + "");
         properties.put("logfile", "log20020206120000.xml");
+        properties.put("projectname", "some project");
 
         Iterator propertyIterator = properties.keySet().iterator();
         while (propertyIterator.hasNext()) {

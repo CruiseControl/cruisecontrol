@@ -84,13 +84,6 @@ public class XMLLogHelper {
     }
 
     /**
-     *  @return true if a <code>ModificationSet</code> was invoked in the build
-     */
-    public boolean wasModificationSetInvoked() throws CruiseControlException {
-        return getAntProperty("modificationset.invoked") == null;
-    }
-
-    /**
      *  @return the build log name
      */
     public String getLogFileName() throws CruiseControlException {
@@ -125,7 +118,7 @@ public class XMLLogHelper {
      *  @return project name as defined in the ant build file
      */
     public String getProjectName() throws CruiseControlException {
-        return getAntProperty("ant.project.name");
+        return getCruiseControlInfoProperty("projectname");
     }
 
     /**

@@ -348,6 +348,11 @@ public class Project implements Serializable {
 
     protected Element getProjectPropertiesElement() {
         Element infoElement = new Element("info");
+        Element projectNameElement = new Element("property");
+        projectNameElement.setAttribute("name", "projectname");
+        projectNameElement.setAttribute("value", _name);
+        infoElement.addContent(projectNameElement);
+
         Element lastBuildPropertyElement = new Element("property");
         lastBuildPropertyElement.setAttribute("name", "lastbuild");
         if (_lastBuild == null) {

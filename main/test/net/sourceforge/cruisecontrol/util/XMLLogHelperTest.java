@@ -78,22 +78,11 @@ public class XMLLogHelperTest extends TestCase {
         return modificationsElement;
     }
 
-    private Element createBuildElement(boolean successful, String propertyValue1, String propertyValue2) {
+    private Element createBuildElement(boolean successful) {
         Element buildElement = new Element("build");
         if (!successful) {
             buildElement.setAttribute("error", "No Build Necessary");
         }
-        Element propertiesElement = new Element("properties");
-        Element propertyElement1 = new Element("property");
-        propertyElement1.setAttribute("name", "antprop1");
-        propertyElement1.setAttribute("value", propertyValue1);
-        Element propertyElement2 = new Element("property");
-        propertyElement2.setAttribute("name", "ant.project.name");
-        propertyElement2.setAttribute("value", "someproject");
-        propertiesElement.addContent(propertyElement1);
-        propertiesElement.addContent(propertyElement2);
-        buildElement.addContent(propertiesElement);
-
         return buildElement;
     }
 
@@ -101,6 +90,7 @@ public class XMLLogHelperTest extends TestCase {
         Element infoElement = new Element("info");
 
         Hashtable properties = new Hashtable();
+        properties.put("projectname", "someproject");
         properties.put("label", label);
         properties.put("lastbuildtime", "");
         properties.put("lastgoodbuildtime", "");
@@ -124,12 +114,12 @@ public class XMLLogHelperTest extends TestCase {
     public void setUp() {
         _successfulLogElement = new Element("cruisecontrol");
         _successfulLogElement.addContent(createInfoElement("1.0", false));
-        _successfulLogElement.addContent(createBuildElement(true, "antvalue1", "antvalue2"));
+        _successfulLogElement.addContent(createBuildElement(true));
         _successfulLogElement.addContent(createModificationsElement("username1", "username2"));
 
         _failedLogElement = new Element("cruisecontrol");
         _failedLogElement.addContent(createInfoElement("1.1", true));
-        _failedLogElement.addContent(createBuildElement(false, "antvalue3", "antvalue4"));
+        _failedLogElement.addContent(createBuildElement(false));
         _failedLogElement.addContent(createModificationsElement("username3", "username4"));
     }
 
@@ -162,20 +152,6 @@ public class XMLLogHelperTest extends TestCase {
             assertEquals(true, failureHelper.wasPreviousBuildSuccessful());
         } catch (CruiseControlException e) {
             assertTrue(false);
-        }
-    }
-
-    public void testGetAntProperty() {
-        XMLLogHelper successHelper = new XMLLogHelper(_successfulLogElement);
-        try {
-            assertEquals("antvalue1", successHelper.getAntProperty("antprop1"));
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
-        try {
-            successHelper.getAntProperty("notaproperty");
-        } catch (CruiseControlException e) {
-            assertEquals("Property: notaproperty not found.", e.getMessage());
         }
     }
 
