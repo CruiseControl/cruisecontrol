@@ -178,16 +178,24 @@ public class SVN implements SourceControl {
     /**
      * Returns a list of modifications detailing all the changes between
      * the last build and the latest revision in the repository.
+     * @returns the list of modifications, or an empty list if we failed
+     * to retrieve the changes.
      */
     public List getModifications(Date lastBuild, Date now) {
         List modifications = new ArrayList();
+        Commandline command = null;
         try {
-            Commandline command = buildHistoryCommand(lastBuild, now);
-            modifications = execHistoryCommand(command, lastBuild);
-            fillPropertiesIfNeeded(modifications);
-        } catch (Exception e) {
-            LOG.error("Error executing svn log command", e);
+            command = buildHistoryCommand(lastBuild, now);
+        } catch (CruiseControlException e) {
+            LOG.error("Error building history command", e);
+            return modifications;
         }
+        try {
+            modifications = execHistoryCommand(command, lastBuild);
+        } catch (Exception e) {
+            LOG.error("Error executing svn log command " + command, e);
+        }
+        fillPropertiesIfNeeded(modifications);
         return modifications;
     }
 
