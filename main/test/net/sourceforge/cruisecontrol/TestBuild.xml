@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<project name="test" basedir="." default="work">
+    <target name="init" >
+        <property name="testInitProperty" value="test" />
+    </target>
+    <target name="work" depends="init">
+        <property name="testProperty" value="test" />
+    </target>
+
+    <target name="dont-work">
+        <fail message="fail" />
+    </target>
+</project>
