@@ -561,14 +561,14 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     private void emailReport(Set emails, String subject) {
 
-        String message = "view results here -> " + _servletURL + "?"
+        String message = "View results here -> " + _servletURL + "?"
                          + _logFile.substring(_logFile.lastIndexOf(File.separator)+1,_logFile.lastIndexOf("."));
         try {
             Mailer mailer = new Mailer(_mailhost, emails, _returnAddress);
             mailer.sendMessage(subject, message);
-        } catch (java.io.IOException be) {
-            System.out.println("unable to send email.");
-            be.printStackTrace();
+        } catch (javax.mail.MessagingException me) {
+            System.out.println("Unable to send email.");
+            me.printStackTrace();
         }
     }
 
