@@ -182,6 +182,7 @@ public class MasterBuild {
         }
         BuildRunner runner = new BuildRunner(props.getAntFile(), target, 
                                              info.getLastGoodBuild(),
+                                             info.getLastBuild (),
                                              info.getLabel(), logger);
         
         boolean successful = runner.runBuild();

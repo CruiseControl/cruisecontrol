@@ -41,6 +41,8 @@ import junit.framework.*;
 import org.apache.tools.ant.XmlLogger;
 
 /**
+ * @author <a href="mailto:robertdw@bigpond.net.au">Robert Watkins</a>
+ * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  * @version Revision: 1.1.1
  */
 public class BuildRunnerTest extends TestCase {
@@ -91,8 +93,9 @@ public class BuildRunnerTest extends TestCase {
         bufferedIn.close();
         buildStream.close();
         
-        test = new BuildRunner(testFile, "work", "20010710000000", "testing.1", logger);
-    }
+        test = new BuildRunner(testFile, "work", "20010710000000", 
+                               "20010710000000", "testing.1", logger);
+         }
     
     /** Test of getProject method, of class net.sourceforge.cruisecontrol.BuildRunner. */
     public void testGetProject() {
@@ -112,10 +115,9 @@ public class BuildRunnerTest extends TestCase {
     }
     
     public void testRunBadBuild() {
-        BuildRunner badBuild = new BuildRunner(testFile, "dont-work", "20010710000000", 
+        BuildRunner badBuild = new BuildRunner(testFile, "dont-work", 
+                                               "20010710000000", "20010710000000",
                                                "testing.1", logger);
         assertTrue(badBuild.runBuild() == false);
     }
-    
 }
-

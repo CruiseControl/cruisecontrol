@@ -43,7 +43,9 @@ import org.apache.tools.ant.XmlLogger;
 /**
  * Executes a CruiseProject.
  *
- * @author  robertdw@bigpond.net.au
+ * @author  <a href="mailto:robertdw@bigpond.net.au">Robert Watkins</a>
+ * @author  <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
+ *
  * @version Revision: 1.1.1
  */
 public class BuildRunner {
@@ -59,7 +61,8 @@ public class BuildRunner {
     private CruiseProject _project;
     private String _target;
     
-    private String _lastBuildTime;
+    private String _lastGoodBuildTime;
+    private String _lastBuildAttemptTime;
     private String _label;
     private java.io.File _buildFile;
 
@@ -75,11 +78,11 @@ public class BuildRunner {
      */
     
     /** Creates new BuildRunner */
-    public BuildRunner(String buildFileName, String target, String lastBuildTime, String label, CruiseLogger logger) {
-        this(new java.io.File(buildFileName), target, lastBuildTime, label, logger);
+    public BuildRunner(String buildFileName, String target, String lastGoodBuildTime, String lastBuildAttemptTime, String label, CruiseLogger logger) {
+        this(new java.io.File(buildFileName), target, lastGoodBuildTime, lastBuildAttemptTime, label, logger);
     }
 
-    public BuildRunner(java.io.File buildFile, String target, String lastBuildTime, String label, CruiseLogger logger) {
+    public BuildRunner(java.io.File buildFile, String target, String lastGoodBuildTime, String lastBuildAttemptTime, String label, CruiseLogger logger) {
         _logger = logger;
         try {
             _buildFile = buildFile.getCanonicalFile();
@@ -89,7 +92,8 @@ public class BuildRunner {
         }
         loadProject();
         _target = target;
-        _lastBuildTime = lastBuildTime;
+        _lastGoodBuildTime = lastGoodBuildTime;
+        _lastBuildAttemptTime = lastBuildAttemptTime;
         _label = label;
     }
 
@@ -106,7 +110,8 @@ public class BuildRunner {
         
         try {
             project.setUserProperty("ant.version", "1.4alpha");
-            project.setUserProperty("lastGoodBuildTime", _lastBuildTime);
+            project.setUserProperty("lastGoodBuildTime", _lastGoodBuildTime);
+            project.setUserProperty("lastBuildAttemptTime", _lastBuildAttemptTime);
             project.setUserProperty("label", _label);
             project.setUserProperty("ant.file" , _buildFile.getAbsolutePath() );
 
