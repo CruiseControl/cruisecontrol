@@ -411,7 +411,6 @@ public class CVSTest extends TestCase {
                     "cvsroot",
                     "-q",
                     "log",
-                    "-N",
                     "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-rsometag"};
 

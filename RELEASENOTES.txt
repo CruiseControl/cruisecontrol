@@ -6,6 +6,10 @@ AntBuilder
 * Added check to ensure that log file exists before trying to get contents.
 * Fixed getCommandLineArgs to handle EmptyLabelIncrementer
 
+CVS
+----------------------
+* Fixed a bug with not returning modfications when the tag attribute is used.
+
 controlpanel.jsp
 ----------------------
 * Replace link with iframe showing JMX interface. Patch by Archibald Bartleman

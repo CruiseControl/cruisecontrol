@@ -340,7 +340,9 @@ public class CVS implements SourceControl {
         commandLine.createArgument().setValue("-q");
 
         commandLine.createArgument().setValue("log");
-        commandLine.createArgument().setValue("-N");
+        if (tag == null || tag.equals("HEAD")) {
+            commandLine.createArgument().setValue("-N");
+        }
         String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
         commandLine.createArgument().setValue("-d" + dateRange);
 
@@ -399,24 +401,6 @@ public class CVS implements SourceControl {
     private void getRidOfLeftoverData(InputStream stream) {
         StreamPumper outPumper = new StreamPumper(stream, (PrintWriter) null);
         new Thread(outPumper).start();
-    }
-
-    /**
-     * This method encapsulates the strange behavior that the windows CVS client
-     * wants relative paths to use the forward-slash character (/) rather than
-     * the windows standard back-slash (\). This should work fine on *Nix
-     * machines and windows machines.
-     *
-     *@return The relative path to the working copy using (/) characters as path
-     *      separator.
-     */
-    private String getLocalPath() {
-        return local.replace('\\', '/');
-    }
-
-    private boolean preJava13() {
-        String javaVersion = System.getProperty("java.version");
-        return javaVersion.startsWith("1.1") || javaVersion.startsWith("1.2");
     }
 
     private List execHistoryCommand(Commandline command) throws Exception {
