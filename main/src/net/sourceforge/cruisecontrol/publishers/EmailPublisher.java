@@ -67,6 +67,8 @@ public abstract class EmailPublisher implements Publisher {
     private static Logger log = Logger.getLogger(EmailPublisher.class);
 
     private String _mailHost;
+    private String _username;
+    private String _password;
     private String _mailPort;
     protected String _servletUrl;
     private List _alwaysAddresses = new ArrayList();
@@ -102,6 +104,12 @@ public abstract class EmailPublisher implements Publisher {
         }
         if(getReturnAddress() == null) {
             throw new CruiseControlException("'returnaddress' not specified in configuration file.");
+        }
+        if(getUsername() != null && getPassword() == null) {
+            throw new CruiseControlException("'password' is required if 'username' is set for email.");
+        }
+        if(getPassword() != null && getUsername() == null) {
+            throw new CruiseControlException("'username' is required if 'password' is set for email.");
         }
     }
 
@@ -288,6 +296,9 @@ public abstract class EmailPublisher implements Publisher {
         }
         log.debug("mailHost is " + _mailHost + ", mailPort is " +
                    _mailPort==null?"default":_mailPort);
+        if(_username != null && _password != null) {
+            props.put("mail.smtp.auth", "true");
+        }
         return props;
     }
 
@@ -313,7 +324,15 @@ public abstract class EmailPublisher implements Publisher {
             msg.setSubject(subject);
             msg.setText(message);
             msg.setSentDate(new Date());
-            Transport.send(msg);
+            if(_username != null && _password != null) {
+                msg.saveChanges(); // implicit with send()
+                Transport transport = session.getTransport("smtp");
+                transport.connect(_mailHost, _username, _password);
+                transport.sendMessage(msg, msg.getAllRecipients());
+                transport.close();
+            } else {
+                Transport.send(msg);
+            }
         } catch (MessagingException e) {
             throw new CruiseControlException(e.getMessage());
         }
@@ -325,6 +344,22 @@ public abstract class EmailPublisher implements Publisher {
 
     public String getMailHost() {
         return _mailHost;
+    }
+
+    public void setUsername(String username) {
+        _username = username;
+    }
+
+    public String getUsername() {
+        return _username;
+    }
+
+    public void setPassword(String password) {
+        _password = password;
+    }
+
+    public String getPassword() {
+        return _password;
     }
 
     public void setMailPort(String mailPort) {
@@ -439,6 +474,24 @@ public abstract class EmailPublisher implements Publisher {
 
         public void setAddress(String address) {
             _address = address;
+        }
+    }
+
+
+    public static void main(String[] args) {
+        EmailPublisher pub = new EmailPublisher() {
+            protected String createMessage(XMLLogHelper logHelper) {
+                return "This is a test message.";
+            }
+        };
+        pub.setMailHost(args[0]);
+        pub.setUsername(args[1]);
+        pub.setPassword(args[2]);
+        pub.setReturnAddress(args[3]);
+        try {
+            pub.sendMail(args[4], "test subject", "test message");
+        } catch (CruiseControlException e) {
+            log.error("test failed", e);
         }
     }
 
