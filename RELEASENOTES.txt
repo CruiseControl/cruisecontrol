@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+HTMLEmailPublisher
+----------------------
+* Added charset attribute.
+
 Schedule
 ----------------------
 * Fixed a bug where a time builder wouldn't run if the time of the last build on the previous day was later than the time of the time builder. - Patch by Jeffrey Fredrick
