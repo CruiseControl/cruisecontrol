@@ -41,15 +41,18 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
+import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
     private static Logger log = Logger.getLogger(ProjectTest.class);
 
     private Project project;
+    private static final long ONE_MINUTE = 60 * 1000;
 
     public ProjectTest(String name) {
         super(name);
@@ -64,40 +67,61 @@ public class ProjectTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        assertEquals("Default value of config file doesn't match", "config.xml",
-                project.getConfigFileName());
+        assertEquals(
+            "Default value of config file doesn't match",
+            "config.xml",
+            project.getConfigFileName());
 
+        Date now = new Date();
+        MockModificationSet modSet = new MockModificationSet();
+        modSet.setTimeOfCheck(now);
         MockSchedule sched = new MockSchedule();
         project.setLabel("1.2.2");
         project.setName("myproject");
         project.setSchedule(sched);
         project.setLogDir("test-results");
-		project.setLogXmlEncoding("ISO-8859-1");
+        project.setLogXmlEncoding("ISO-8859-1");
         project.addAuxiliaryLogFile("_auxLog1.xml");
         project.addAuxiliaryLogFile("_auxLogs");
         project.setLabelIncrementer(new DefaultLabelIncrementer());
-        project.setModificationSet(new MockModificationSet());
+        project.setModificationSet(modSet);
         writeFile("_auxLog1.xml", "<one/>");
         File auxLogsDirectory = new File("_auxLogs");
         auxLogsDirectory.mkdir();
-        writeFile("_auxLogs/_auxLog2.xml", "<testsuite><properties><property/></properties><testcase/></testsuite>");
+        writeFile(
+            "_auxLogs/_auxLog2.xml",
+            "<testsuite><properties><property/></properties><testcase/></testsuite>");
         writeFile("_auxLogs/_auxLog3.xml", "<testsuite/>");
 
         project.build();
 
         assertTrue(project.isLastBuildSuccessful());
 
-        String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"projectname\" value=\"myproject\" /><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"lastsuccessfulbuild\" value=\"" + project.getLastSuccessfulBuild() + "\" /><property name=\"builddate\" value=\"" + new SimpleDateFormat(DateFormatFactory.getFormat()).format(project.getNow()) + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /><property name=\"logfile\" value=\"" + File.separator + "log" + project.getBuildTime() + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
+        String expected =
+            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"projectname\" value=\"myproject\" /><property name=\"lastbuild\" value=\""
+                + project.getFormatedTime(now)
+                + "\" /><property name=\"lastsuccessfulbuild\" value=\""
+                + project.getLastSuccessfulBuild()
+                + "\" /><property name=\"builddate\" value=\""
+                + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
+                + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
+                + File.separator
+                + "log"
+                + project.getFormatedTime(now)
+                + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
-        assertEquals("Didn't increment the label", "1.2.3",
-                project.getLabel().intern());
+        assertEquals(
+            "Didn't increment the label",
+            "1.2.3",
+            project.getLabel().intern());
 
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
         assertEquals("Should be 4 build properties.", 4, props.size());
-        assertTrue("filemodified not found.", props.containsKey(
-                "filemodified"));
+        assertTrue(
+            "filemodified not found.",
+            props.containsKey("filemodified"));
         assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
     }
 
@@ -105,7 +129,8 @@ public class ProjectTest extends TestCase {
         try {
             project.validateLabel("build_0", new DefaultLabelIncrementer());
             fail("Expected exception due to bad label");
-        } catch (CruiseControlException expected) {
+        }
+        catch (CruiseControlException expected) {
 
         }
     }
@@ -122,7 +147,8 @@ public class ProjectTest extends TestCase {
         try {
             project.setLastBuild(null);
             fail("Expected an IllegalArgumentException for a null last build");
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
         }
     }
 
@@ -130,8 +156,131 @@ public class ProjectTest extends TestCase {
         try {
             project.setLastBuild("af32455432");
             fail("Expected a CruiseControlException for a bad last build");
-        } catch (CruiseControlException e) {
         }
+        catch (CruiseControlException e) {
+        }
+    }
+
+    public void testGetModifications() {
+        MockModificationSet modSet = new MockModificationSet();
+        Element modifications = modSet.getModifications(null);
+        project.setModificationSet(modSet);
+        assertEquals(modifications, project.getModifications());
+        modSet.setModified(false);
+        assertEquals(null, project.getModifications());
+        project.setBuildForced(true);
+        assertEquals(modifications, project.getModifications());
+        project.setBuildForced(false);
+        assertEquals(null, project.getModifications());
+        
+        // TODO: need tests for when lastBuildSuccessful = false
+    }
+
+    public void testWaitIfPaused() throws InterruptedException {
+        MockProject project = new MockProject() {
+            public void run() {
+                loop();
+            }
+            void checkWait() throws InterruptedException {
+                waitIfPaused();
+            }
+        };
+
+        new Thread(project).start();
+
+        int firstLoopCount = project.getLoopCount();
+        Thread.sleep(100);
+        int secondLoopCount = project.getLoopCount();
+        assertTrue(
+            "loop counts are different when not paused",
+            firstLoopCount != secondLoopCount);
+
+        project.setPaused(true);
+        Thread.sleep(100);
+        firstLoopCount = project.getLoopCount();
+        Thread.sleep(100);
+        secondLoopCount = project.getLoopCount();
+        assertTrue(
+            "loop counts are the same when paused",
+            firstLoopCount == secondLoopCount);
+
+        project.setPaused(false);
+        Thread.sleep(100);
+        int lastLoopCount = project.getLoopCount();
+        assertTrue(
+            "loop count increased after pause ended",
+            lastLoopCount > secondLoopCount);
+
+        project.stopLooping();
+    }
+
+    public void testWaitForNextBuild() throws InterruptedException {
+        MockProject project = new MockProject() {
+            public void run() {
+                loop();
+            }
+            void checkWait() throws InterruptedException {
+                waitForNextBuild();
+            }
+        };
+        project.setSleepMillis(1000);
+        project.setSchedule(new MockSchedule());
+        new Thread(project).start();
+
+        Thread.sleep(100);
+        assertEquals(1, project.getLoopCount());
+
+        Thread.sleep(100);
+        assertEquals(1, project.getLoopCount());
+
+        project.forceBuild();
+        Thread.sleep(100);
+        assertEquals(2, project.getLoopCount());
+
+        project.stopLooping();
+    }
+
+    public void testWaitForBuildToFinish() throws InterruptedException {
+        MockProject project = new MockProject() {
+            public void run() {
+                loop();
+            }
+            void checkWait() throws InterruptedException {
+                waitForBuildToFinish();
+            }
+        };
+
+        new Thread(project).start();
+
+        Thread.sleep(100);
+        assertEquals(1, project.getLoopCount());
+
+        Thread.sleep(100);
+        assertEquals(1, project.getLoopCount());
+
+        project.buildFinished();
+        Thread.sleep(100);
+        assertEquals(2, project.getLoopCount());
+
+        project.stopLooping();
+    }
+
+    public void testFormatTime() {
+        long fiveSeconds = 5 * 1000;
+        long oneHour = 60 * ONE_MINUTE;
+        long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
+
+        String seconds = "5 seconds";
+        String hoursMinutesSeconds = "1 hours 59 minutes 5 seconds";
+        String negativeTime = "-1 hours -59 minutes -5 seconds";
+
+        assertEquals(seconds, Project.formatTime(fiveSeconds));
+        assertEquals(
+            hoursMinutesSeconds,
+            Project.formatTime(oneHourFiftyNineMinutes + fiveSeconds));
+        assertEquals(
+            negativeTime,
+            Project.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
     }
 
     private String readFileToString(String filename) throws IOException {
@@ -149,7 +298,7 @@ public class ProjectTest extends TestCase {
     }
 
     private void writeFile(String fileName, String contents)
-            throws IOException {
+        throws IOException {
 
         FileWriter fw = new FileWriter(fileName);
         fw.write(contents);
