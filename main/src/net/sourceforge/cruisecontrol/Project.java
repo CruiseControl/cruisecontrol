@@ -562,8 +562,8 @@ public class Project implements Serializable, Runnable {
         queue = buildQueue;
     }
 
-    public Date getBuildStartTime() {
-        return buildStartTime;
+    public String getBuildStartTime() {
+        return getFormatedTime(buildStartTime);
     }
 
     public Log getLog() {

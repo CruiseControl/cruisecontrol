@@ -201,6 +201,11 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getLastSuccessfulBuild();
     }
 
+    public String getBuildStartTime() {
+        String buildStartTime = project.getBuildStartTime();
+        return buildStartTime == null ? "" : buildStartTime;
+    }
+
     public void setLogDir(String logdir) throws CruiseControlException {
         log("setting log dir to [" + logdir + "]");
         project.getLog().setLogDir(logdir);

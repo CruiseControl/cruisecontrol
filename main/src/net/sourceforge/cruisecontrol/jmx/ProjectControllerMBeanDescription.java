@@ -90,6 +90,9 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
         ATTR_DESCRIPTIONS.put("Status", "The current status of the project");
 
         ATTR_DESCRIPTIONS.put("Paused", "Indicates if the project is paused");
+
+        ATTR_DESCRIPTIONS.put("BuildStartTime", 
+                              "Start Time of the last build, using the format 'yyyyMMddHHmmss'");
     }
     
     public String getOperationDescription(Method method) {
