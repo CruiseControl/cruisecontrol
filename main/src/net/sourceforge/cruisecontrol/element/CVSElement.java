@@ -275,12 +275,17 @@ public class CVSElement extends SourceControlElement {
 		return local.replace('\\', '/');
 	}
 
+    private boolean preJava13() {
+        String javaVersion = System.getProperty("java.version");
+        return javaVersion.startsWith("1.1") || javaVersion.startsWith("1.2");
+    }
+    
 	private List execHistoryCommand(Commandline command) throws Exception {
         Process p = null;
         
         if (local != null) {
             if (System.getProperty("os.name").equalsIgnoreCase("Linux") 
-             && System.getProperty("java.version").startsWith("1.3")) {
+             && !(preJava13())) {
                 log("Executing: " + command + " in directory: " + getLocalPath());
                 // Call this using reflection
                 
