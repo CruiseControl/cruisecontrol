@@ -136,7 +136,7 @@ public class CruiseControlTagSupport extends TagSupport {
                 }
             }
         }
-        url.append(queryString);
+        url.append(queryString.toString());
         if (paramName != null && paramValue != null) {
             appendParam(url, paramName, paramValue);
         }
