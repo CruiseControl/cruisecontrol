@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -83,8 +84,6 @@ public class Project implements Serializable, Runnable {
     private transient Object waitMutex = new Object();
     private transient BuildQueue queue;
 
-    private static final transient long ONE_SECOND = 1000;
-    private static final transient long ONE_MINUTE = 60 * ONE_SECOND;
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private int buildCounter = 0;
@@ -246,7 +245,7 @@ public class Project implements Serializable, Runnable {
         synchronized (pausedMutex) {
             while (isPaused) {
                 setState(ProjectState.PAUSED_STATE);
-                pausedMutex.wait(10 * ONE_MINUTE);
+                pausedMutex.wait(10 * Util.ONE_MINUTE);
             }
         }
     }
@@ -255,7 +254,7 @@ public class Project implements Serializable, Runnable {
         Date now = new Date();
         long waitTime = schedule.getTimeToNextBuild(now, buildInterval);
         if (needToWaitForNextBuild(waitTime)) {
-            log("next build in " + formatTime(waitTime));
+            appLog("next build in " + Util.formatTime(waitTime));
             synchronized (waitMutex) {
                 waitMutex.wait(waitTime);
             }
@@ -287,30 +286,6 @@ public class Project implements Serializable, Runnable {
     }
 
     /**
-     * @param time time in milliseconds
-     * @return Time formatted as X hours Y minutes Z seconds
-     */
-    public static String formatTime(long time) {
-        long seconds = time / 1000;
-        long hours = seconds / 3600;
-        long minutes = (seconds % 3600) / 60;
-        seconds = seconds % 60;
-
-        StringBuffer sb = new StringBuffer();
-        if (hours != 0) {
-            sb.append(hours + " hours ");
-        }
-        if (minutes != 0) {
-            sb.append(minutes + " minutes ");
-        }
-        if (seconds != 0) {
-            sb.append(seconds + " seconds");
-        }
-
-        return sb.toString();
-    }
-
-    /**
      * @return Element
      */
     Element getModifications() {
@@ -327,16 +302,16 @@ public class Project implements Serializable, Runnable {
         }
 
         if (!modificationSet.isModified()) {
-            log("No modifications found, build not necessary.");
+            appLog("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
             // modifications. This is in fact current default behaviour.
             // Set by <project buildafterfailed="true/false">
             if (buildAfterFailed && !wasLastBuildSuccessful) {
-                log("Building anyway, since buildAfterFailed is true and last build failed.");
+                appLog("Building anyway, since buildAfterFailed is true and last build failed.");
             } else {
                 if (buildForced) {
-                    log("Building anyway, since build was explicitly forced.");
+                    appLog("Building anyway, since build was explicitly forced.");
                 } else {
                     return null;
                 }
@@ -365,7 +340,7 @@ public class Project implements Serializable, Runnable {
 
         long lastBuildLong = lastBuild.getTime();
         long timeDifference = lastBuildLong - lastSuccessfulBuild.getTime();
-        boolean moreThanASecond = timeDifference > ONE_SECOND;
+        boolean moreThanASecond = timeDifference > Util.ONE_SECOND;
 
         boolean checkNewMods = !buildAfterFailed && moreThanASecond;
 
@@ -526,7 +501,7 @@ public class Project implements Serializable, Runnable {
 
     private void setState(ProjectState newState) {
         state = newState;
-        log(getStatus());
+        appLog(getStatus());
     }
 
     public void setBuildQueue(BuildQueue buildQueue) {
@@ -541,15 +516,13 @@ public class Project implements Serializable, Runnable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        log("reading settings from config file [" + configFile.getAbsolutePath() + "]");
-        ProjectXMLHelper helper = getProjectXMLHelper();
-
-        this.log = new Log(this.name);
-        log.setLogDir(helper.getLogDir());
-        log.setLogXmlEncoding(helper.getLogXmlEncoding());
+        appLog("reading settings from config file [" + configFile.getAbsolutePath() + "]");
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
 
         bootstrappers = helper.getBootstrappers();
         schedule = helper.getSchedule();
+        log = helper.getLog();
+
         buildInterval = schedule.getInterval();
         modificationSet = helper.getModificationSet();
 
@@ -588,11 +561,6 @@ public class Project implements Serializable, Runnable {
     protected void setPublishers(List listOfPublishers) {
         publishers = listOfPublishers;
         
-    }
-
-    ProjectXMLHelper getProjectXMLHelper() throws CruiseControlException {
-        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
-        return helper;
     }
 
     protected Element getProjectPropertiesElement(Date now) {
@@ -808,7 +776,7 @@ public class Project implements Serializable, Runnable {
         return date;
     }
 
-    private void log(String message) {
+    private void appLog(String message) {
         LOG.info("Project " + name + ":  " + message);
     }
 

@@ -113,20 +113,6 @@ public class ProjectXMLHelper {
         return buildafterfailed;
     }
 
-    public String getLogDir() throws CruiseControlException {
-        String logDir = "logs" + File.separatorChar + projectName;
-
-        Element logElement = projectElement.getChild("log");
-        if (logElement != null) {
-            String logDirValue = logElement.getAttributeValue("dir");
-            if (logDirValue != null) {
-                logDir = logDirValue;
-            }
-        }
-
-        return logDir;
-    }
-
     public List getBootstrappers() throws CruiseControlException {
         List bootstrappers = new ArrayList();
         Element element = projectElement.getChild("bootstrappers");
@@ -173,15 +159,6 @@ public class ProjectXMLHelper {
             }
         }
         return auxLogs;
-    }
-
-    public String getLogXmlEncoding() throws CruiseControlException {
-        String encoding = null;
-        Element logElement = projectElement.getChild("log");
-        if (logElement != null) {
-            encoding = logElement.getAttributeValue("encoding");
-        }
-        return encoding;
     }
 
     public Schedule getSchedule() throws CruiseControlException {
@@ -312,5 +289,40 @@ public class ProjectXMLHelper {
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
+    }
+
+    /**
+     * Returns a Log instance representing the Log element.
+     */
+    public Log getLog() throws CruiseControlException {
+        Log log = new Log(this.projectName);
+
+        log.setLogDir(getLogDir());
+        log.setLogXmlEncoding(getLogXmlEncoding());
+
+        return log;
+    }
+
+    private String getLogDir() {
+        String logDir = "logs" + File.separatorChar + projectName;
+
+        Element logElement = projectElement.getChild("log");
+        if (logElement != null) {
+            String logDirValue = logElement.getAttributeValue("dir");
+            if (logDirValue != null) {
+                logDir = logDirValue;
+            }
+        }
+
+        return logDir;
+    }
+
+    private String getLogXmlEncoding() {
+        String encoding = null;
+        Element logElement = projectElement.getChild("log");
+        if (logElement != null) {
+            encoding = logElement.getAttributeValue("encoding");
+        }
+        return encoding;
     }
 }
