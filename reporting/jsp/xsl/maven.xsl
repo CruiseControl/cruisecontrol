@@ -51,6 +51,7 @@
         <xsl:variable name="maven.warn.messages" select="$mavengoal/message[@priority='warn']"/>
         <xsl:variable name="maven.info.messages" select="$mavengoal/message[@priority='info']"/>
 
+        <xsl:if test="count($maven.messages) > 0">
             <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
                  <!-- Style download notifications first -->
                  <tr class="compile-sectionheader">
@@ -63,7 +64,7 @@
                  </tr>
                  <xsl:apply-templates select="$mavengoal"/>
             </table>
-
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="mavengoal">
