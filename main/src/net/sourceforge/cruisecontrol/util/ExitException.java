@@ -42,14 +42,14 @@ package net.sourceforge.cruisecontrol.util;
  *  @author <a href="mailto:mpfoemme@thoughtworks.com">Matthew Foemmel</a>
  */
 public class ExitException extends RuntimeException {
-    private int _status;
+    private int status;
 
     public ExitException(int status) {
-        _status = status;
+        this.status = status;
     }
 
     public int getStatus() {
-        return _status;
+        return status;
     }
     
 }

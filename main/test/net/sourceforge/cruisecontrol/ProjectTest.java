@@ -55,7 +55,7 @@ import org.jdom.Element;
 public class ProjectTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(ProjectTest.class);
 
-    private Project _project;
+    private Project project;
     private static final long ONE_MINUTE = 60 * 1000;
 
     public ProjectTest(String name) {
@@ -67,28 +67,28 @@ public class ProjectTest extends TestCase {
     }
 
     protected void setUp() {
-        _project = new Project();
+        project = new Project();
     }
 
     public void testBuild() throws Exception {
         assertEquals(
             "Default value of config file doesn't match",
             "config.xml",
-            _project.getConfigFileName());
+            project.getConfigFileName());
 
         Date now = new Date();
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
         MockSchedule sched = new MockSchedule();
-        _project.setLabel("1.2.2");
-        _project.setName("myproject");
-        _project.setSchedule(sched);
-        _project.setLogDir("test-results");
-        _project.setLogXmlEncoding("ISO-8859-1");
-        _project.addAuxiliaryLogFile("_auxLog1.xml");
-        _project.addAuxiliaryLogFile("_auxLogs");
-        _project.setLabelIncrementer(new DefaultLabelIncrementer());
-        _project.setModificationSet(modSet);
+        project.setLabel("1.2.2");
+        project.setName("myproject");
+        project.setSchedule(sched);
+        project.setLogDir("test-results");
+        project.setLogXmlEncoding("ISO-8859-1");
+        project.addAuxiliaryLogFile("_auxLog1.xml");
+        project.addAuxiliaryLogFile("_auxLogs");
+        project.setLabelIncrementer(new DefaultLabelIncrementer());
+        project.setModificationSet(modSet);
         writeFile("_auxLog1.xml", "<one/>");
         File auxLogsDirectory = new File("_auxLogs");
         auxLogsDirectory.mkdir();
@@ -97,17 +97,17 @@ public class ProjectTest extends TestCase {
             "<testsuite><properties><property/></properties><testcase/></testsuite>");
         writeFile("_auxLogs/_auxLog3.xml", "<testsuite/>");
 
-        _project.build();
+        project.build();
 
-        assertTrue(_project.isLastBuildSuccessful());
+        assertTrue(project.isLastBuildSuccessful());
 
         String expected =
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol>"
                 + "<modifications /><info><property name=\"projectname\" "
                 + "value=\"myproject\" /><property name=\"lastbuild\" value=\""
-                + _project.getFormatedTime(now)
+                + project.getFormatedTime(now)
                 + "\" /><property name=\"lastsuccessfulbuild\" value=\""
-                + _project.getLastSuccessfulBuild()
+                + project.getLastSuccessfulBuild()
                 + "\" /><property name=\"builddate\" value=\""
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
                 + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
@@ -115,15 +115,14 @@ public class ProjectTest extends TestCase {
                 + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
                 + File.separator
                 + "log"
-                + _project.getFormatedTime(now)
+                + project.getFormatedTime(now)
                 + "L1.2.2.xml\" /></info><build /><one /><testsuite><testcase "
                 + "/></testsuite><testsuite /></cruisecontrol>";
-
-        assertEquals(expected, readFileToString(_project.getLogFileName()));
+        assertEquals(expected, readFileToString(project.getLogFileName()));
         assertEquals(
             "Didn't increment the label",
             "1.2.3",
-            _project.getLabel().intern());
+            project.getLabel().intern());
 
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
@@ -137,7 +136,7 @@ public class ProjectTest extends TestCase {
 
     public void testBadLabel() {
         try {
-            _project.validateLabel("build_0", new DefaultLabelIncrementer());
+            project.validateLabel("build_0", new DefaultLabelIncrementer());
             fail("Expected exception due to bad label");
         } catch (CruiseControlException expected) {
 
@@ -147,14 +146,14 @@ public class ProjectTest extends TestCase {
     public void testSetLastBuild() throws CruiseControlException {
         String lastBuild = "20000101120000";
 
-        _project.setLastBuild(lastBuild);
+        project.setLastBuild(lastBuild);
 
-        assertEquals(lastBuild, _project.getLastBuild());
+        assertEquals(lastBuild, project.getLastBuild());
     }
 
     public void testNullLastBuild() throws CruiseControlException {
         try {
-            _project.setLastBuild(null);
+            project.setLastBuild(null);
             fail("Expected an IllegalArgumentException for a null last build");
         } catch (IllegalArgumentException e) {
         }
@@ -162,7 +161,7 @@ public class ProjectTest extends TestCase {
 
     public void testBadLastBuild() {
         try {
-            _project.setLastBuild("af32455432");
+            project.setLastBuild("af32455432");
             fail("Expected a CruiseControlException for a bad last build");
         } catch (CruiseControlException e) {
         }
@@ -171,44 +170,44 @@ public class ProjectTest extends TestCase {
     public void testGetModifications() throws CruiseControlException {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.getModifications(null);
-        _project.setModificationSet(modSet);
+        project.setModificationSet(modSet);
 
         modSet.setModified(true);
-        assertEquals(modifications, _project.getModifications());
+        assertEquals(modifications, project.getModifications());
         modSet.setModified(false);
-        assertEquals(null, _project.getModifications());
+        assertEquals(null, project.getModifications());
 
-        _project.setBuildForced(true);
-        assertEquals(modifications, _project.getModifications());
-        assertEquals(null, _project.getModifications());
+        project.setBuildForced(true);
+        assertEquals(modifications, project.getModifications());
+        assertEquals(null, project.getModifications());
 
-        _project.setBuildForced(false);
-        assertEquals(null, _project.getModifications());
+        project.setBuildForced(false);
+        assertEquals(null, project.getModifications());
 
         // TODO: need tests for when lastBuildSuccessful = false
     }
 
     public void testCheckOnlySinceLastBuild() throws CruiseControlException {
 
-        _project.setLastBuild("20030218010101");
-        _project.setLastSuccessfulBuild("20030218010101");
-        assertEquals(false, _project.checkOnlySinceLastBuild());
+        project.setLastBuild("20030218010101");
+        project.setLastSuccessfulBuild("20030218010101");
+        assertEquals(false, project.checkOnlySinceLastBuild());
 
-        _project.setLastBuild("20030218020202");
-        assertEquals(false, _project.checkOnlySinceLastBuild());
+        project.setLastBuild("20030218020202");
+        assertEquals(false, project.checkOnlySinceLastBuild());
 
-        _project.setBuildAfterFailed(false);
-        assertEquals(true, _project.checkOnlySinceLastBuild());
+        project.setBuildAfterFailed(false);
+        assertEquals(true, project.checkOnlySinceLastBuild());
 
-        _project.setLastBuild("20030218010102");
-        assertEquals(false, _project.checkOnlySinceLastBuild());
+        project.setLastBuild("20030218010102");
+        assertEquals(false, project.checkOnlySinceLastBuild());
 
-        _project.setLastBuild("20020101010101");
-        assertEquals(false, _project.checkOnlySinceLastBuild());
+        project.setLastBuild("20020101010101");
+        assertEquals(false, project.checkOnlySinceLastBuild());
     }
 
     public void testWaitIfPaused() throws InterruptedException {
-        MockProject project = new MockProject() {
+        MockProject mockProject = new MockProject() {
             public void run() {
                 loop();
             }
@@ -217,36 +216,36 @@ public class ProjectTest extends TestCase {
             }
         };
 
-        new Thread(project).start();
+        new Thread(mockProject).start();
 
-        int firstLoopCount = project.getLoopCount();
+        int firstLoopCount = mockProject.getLoopCount();
         Thread.sleep(100);
-        int secondLoopCount = project.getLoopCount();
+        int secondLoopCount = mockProject.getLoopCount();
         assertTrue(
             "loop counts are different when not paused",
             firstLoopCount != secondLoopCount);
 
-        project.setPaused(true);
+        mockProject.setPaused(true);
         Thread.sleep(100);
-        firstLoopCount = project.getLoopCount();
+        firstLoopCount = mockProject.getLoopCount();
         Thread.sleep(100);
-        secondLoopCount = project.getLoopCount();
+        secondLoopCount = mockProject.getLoopCount();
         assertTrue(
             "loop counts are the same when paused",
             firstLoopCount == secondLoopCount);
 
-        project.setPaused(false);
+        mockProject.setPaused(false);
         Thread.sleep(100);
-        int lastLoopCount = project.getLoopCount();
+        int lastLoopCount = mockProject.getLoopCount();
         assertTrue(
             "loop count increased after pause ended",
             lastLoopCount > secondLoopCount);
 
-        project.stopLooping();
+        mockProject.stopLooping();
     }
 
     public void testWaitForNextBuild() throws InterruptedException {
-        MockProject project = new MockProject() {
+        MockProject mockProject = new MockProject() {
             public void run() {
                 loop();
             }
@@ -254,25 +253,25 @@ public class ProjectTest extends TestCase {
                 waitForNextBuild();
             }
         };
-        project.setSleepMillis(1000);
-        project.setSchedule(new MockSchedule());
-        new Thread(project).start();
+        mockProject.setSleepMillis(1000);
+        mockProject.setSchedule(new MockSchedule());
+        new Thread(mockProject).start();
 
         Thread.sleep(100);
-        assertEquals(1, project.getLoopCount());
+        assertEquals(1, mockProject.getLoopCount());
 
         Thread.sleep(100);
-        assertEquals(1, project.getLoopCount());
+        assertEquals(1, mockProject.getLoopCount());
 
-        project.forceBuild();
+        mockProject.forceBuild();
         Thread.sleep(100);
-        assertEquals(2, project.getLoopCount());
+        assertEquals(2, mockProject.getLoopCount());
 
-        project.stopLooping();
+        mockProject.stopLooping();
     }
 
     public void testWaitForBuildToFinish() throws InterruptedException {
-        MockProject project = new MockProject() {
+        MockProject mockProject = new MockProject() {
             public void run() {
                 loop();
             }
@@ -281,19 +280,19 @@ public class ProjectTest extends TestCase {
             }
         };
 
-        new Thread(project).start();
+        new Thread(mockProject).start();
 
         Thread.sleep(100);
-        assertEquals(1, project.getLoopCount());
+        assertEquals(1, mockProject.getLoopCount());
 
         Thread.sleep(100);
-        assertEquals(1, project.getLoopCount());
+        assertEquals(1, mockProject.getLoopCount());
 
-        project.buildFinished();
+        mockProject.buildFinished();
         Thread.sleep(100);
-        assertEquals(2, project.getLoopCount());
+        assertEquals(2, mockProject.getLoopCount());
 
-        project.stopLooping();
+        mockProject.stopLooping();
     }
 
     public void testFormatTime() {

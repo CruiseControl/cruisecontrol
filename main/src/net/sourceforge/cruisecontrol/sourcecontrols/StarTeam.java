@@ -74,72 +74,72 @@ public class StarTeam implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(StarTeam.class);
 
-    private String _userName;
-    private String _password;
-    private String _folder;
-    private String _url;
-    private List _modifications = new ArrayList();
+    private String userName;
+    private String password;
+    private String folder;
+    private String url;
+    private List modifications = new ArrayList();
     private OLEDate nowDate;
 
-    private Hashtable _properties = new Hashtable();
-    private String _property;
-    private String _propertyOnDelete;
+    private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
-    private boolean _preloadFileInformation = false;
-    private boolean _canLookupEmails = true;
+    private boolean preloadFileInformation = false;
+    private boolean canLookupEmails = true;
 
     /**
      * Set StarTeam user name
      */
-    public void setUsername(String username) {
-        _userName = username;
+    public void setUsername(String userName) {
+        this.userName = userName;
     }
 
     /**
      * Set password for StarTeam user
      */
     public void setPassword(String password) {
-        _password = password;
+        this.password = password;
     }
 
     /**
      * Set repository folder
      */
     public void setFolder(String folder) {
-        _folder = folder;
+        this.folder = folder;
     }
 
     public void setPreloadFileInformation(boolean preloadFileInformation) {
-        _preloadFileInformation = preloadFileInformation;
+        this.preloadFileInformation = preloadFileInformation;
     }
 
     public void setStarteamurl(String url) {
-        _url = url;
+        this.url = url;
     }
 
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void validate() throws CruiseControlException {
-        if (_folder == null) {
+        if (folder == null) {
            throw new CruiseControlException("'folder' is a required attribute on StarTeam.");
         }
-        if (_url == null) {
+        if (url == null) {
            throw new CruiseControlException("'url' is a required attribute on StarTeam.");
         }
-        if (_userName == null) {
+        if (userName == null) {
            throw new CruiseControlException("'username' is a required attribute on StarTeam.");
         }
-        if (_password == null) {
+        if (password == null) {
            throw new CruiseControlException("'password' is a required attribute on StarTeam.");
         }
     }
@@ -157,7 +157,7 @@ public class StarTeam implements SourceControl {
         // when this function is called more than once in a quiet period breach
         // We normally would need to clean out the email list as well, except we
         // know that all entries in current list will still be required
-        _modifications.clear();
+        modifications.clear();
 
         // Store OLEDate equivalents of now and lastbuild for performance
         nowDate = new OLEDate(now.getTime());
@@ -169,8 +169,8 @@ public class StarTeam implements SourceControl {
         Server server = null;
         try {
             // Set up two view snapshots, one at lastbuild time, one now
-            View view = StarTeamFinder.openView(_userName + ":"
-             + _password + "@" + _url);
+            View view = StarTeamFinder.openView(userName + ":"
+             + password + "@" + url);
             server = view.getServer();
 
 
@@ -180,7 +180,7 @@ public class StarTeam implements SourceControl {
             Map nowFiles = new HashMap();
             Map lastBuildFiles = new HashMap();
 
-            Folder nowRoot = StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(), _folder);
+            Folder nowRoot = StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(), folder);
 
             PropertyNames stPropertyNames = server.getPropertyNames();
             // properties to fetch immediately and cache
@@ -193,7 +193,7 @@ public class StarTeam implements SourceControl {
                     stPropertyNames.MODIFIED_USER_ID,
                     stPropertyNames.FILE_NAME };
 
-            if (_preloadFileInformation) {
+            if (preloadFileInformation) {
                 // cache information for now
                 nowRoot.populateNow(server.getTypeNames().FILE, propertiesToCache, -1);
             }
@@ -202,9 +202,9 @@ public class StarTeam implements SourceControl {
             addFolderModsToList(nowFiles, nowRoot);
 
             try {
-                Folder lastBuildRoot = StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), _folder);
+                Folder lastBuildRoot = StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), folder);
 
-                if (_preloadFileInformation) {
+                if (preloadFileInformation) {
                     // cache information for last build
                     lastBuildRoot.populateNow(server.getTypeNames().FILE, propertiesToCache, -1);
                 }
@@ -225,12 +225,12 @@ public class StarTeam implements SourceControl {
                 LOG.error("Server Exception occurred discarding last build file cache: ", se);
             }
 
-            LOG.info(_modifications.size() + " modifications in " + _folder);
-            return _modifications;
+            LOG.info(modifications.size() + " modifications in " + folder);
+            return modifications;
         } catch (Exception e) {
             LOG.error("Problem looking up modifications in StarTeam.", e);
-            _modifications.clear();
-            return _modifications;
+            modifications.clear();
+            return modifications;
         } finally {
             if (server != null) {
                 server.disconnect();
@@ -327,7 +327,7 @@ public class StarTeam implements SourceControl {
         mod.comment = revision.getComment();
 
         //  Only get emails for users still on the system
-        if (user != null && _canLookupEmails) {
+        if (user != null && canLookupEmails) {
 
              // Try to obtain email to add.  This is only allowed if logged on
              // user is SERVER ADMINISTRATOR
@@ -341,19 +341,19 @@ public class StarTeam implements SourceControl {
                 // email.properties file to map the name to an email address
                 // outside of StarTeam
                 LOG.info("Error looking up user email address." , sx);
-                _canLookupEmails = false;
+                canLookupEmails = false;
             }
         }
 
 
-        _modifications.add(mod);
+        modifications.add(mod);
         if (status.equals("deleted")) {
-            if (_propertyOnDelete != null) {
-                _properties.put(_propertyOnDelete, "true");
+            if (propertyOnDelete != null) {
+                properties.put(propertyOnDelete, "true");
             }
         }
-        if (_property != null) {
-            _properties.put(_property, "true");
+        if (property != null) {
+            properties.put(property, "true");
         }
     }
 

@@ -43,7 +43,7 @@ import org.jdom.Element;
 
 public class LinkEmailPublisherTest extends TestCase {
 
-    private XMLLogHelper _successLogHelper;
+    private XMLLogHelper successLogHelper;
 
     public LinkEmailPublisherTest(String name) {
         super(name);
@@ -62,7 +62,7 @@ public class LinkEmailPublisherTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        _successLogHelper = createLogHelper(true, true);
+        successLogHelper = createLogHelper(true, true);
     }
 
     public void testCreateMessage() {
@@ -71,7 +71,7 @@ public class LinkEmailPublisherTest extends TestCase {
             "http://mybuildserver.com:8080/buildservlet/BuildServlet");
         assertEquals(
             "View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log=log20020206120000",
-            publisher.createMessage(_successLogHelper));
+            publisher.createMessage(successLogHelper));
     }
 
     public void testValidate() {

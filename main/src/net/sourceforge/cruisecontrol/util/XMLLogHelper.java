@@ -77,10 +77,10 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  */
 public class XMLLogHelper {
 
-    private Element _log;
+    private Element log;
 
     public XMLLogHelper(Element log) {
-        _log = log;
+        this.log = log;
     }
 
     /**
@@ -108,10 +108,10 @@ public class XMLLogHelper {
      *  @return true if the build was necessary
      */
     public boolean isBuildNecessary() {
-        if (_log.getChild("build") != null
-            && _log.getChild("build").getAttributeValue("error") != null) {
+        if (log.getChild("build") != null
+            && log.getChild("build").getAttributeValue("error") != null) {
                 
-            return !_log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
+            return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
         }
         return true;
     }
@@ -127,7 +127,7 @@ public class XMLLogHelper {
      *  @return true if the build was successful, false otherwise
      */
     public boolean isBuildSuccessful() {
-        return (_log.getChild("build").getAttribute("error") == null);
+        return (log.getChild("build").getAttribute("error") == null);
     }
 
     /**
@@ -136,19 +136,19 @@ public class XMLLogHelper {
      */
     public Set getBuildParticipants() {
         Set results = new HashSet();
-        if (_log.getChild("modifications").getChildren("changelist") != null
-            && !_log
+        if (log.getChild("modifications").getChildren("changelist") != null
+            && !log
                 .getChild("modifications")
                 .getChildren("changelist")
                 .isEmpty()) {
                     
-            Iterator changelistIterator = _log.getChild("modifications").getChildren("changelist").iterator();
+            Iterator changelistIterator = log.getChild("modifications").getChildren("changelist").iterator();
             while (changelistIterator.hasNext()) {
                 Element changelistElement = (Element) changelistIterator.next();
                 results.add(changelistElement.getAttributeValue("user"));
             }
         } else {
-            Iterator modificationIterator = _log.getChild("modifications").getChildren("modification").iterator();
+            Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
             while (modificationIterator.hasNext()) {
                 Element modification = (Element) modificationIterator.next();
                 Element emailElement = modification.getChild("email");
@@ -166,7 +166,7 @@ public class XMLLogHelper {
      *  @return the value of the ant property
      */
     public String getAntProperty(String propertyName) throws CruiseControlException {
-        Iterator propertyIterator = _log.getChild("build").getChild("properties").getChildren("property").iterator();
+        Iterator propertyIterator = log.getChild("build").getChild("properties").getChildren("property").iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
             if (property.getAttributeValue("name").equals(propertyName)) {
@@ -177,7 +177,7 @@ public class XMLLogHelper {
     }
 
     public String getCruiseControlInfoProperty(String propertyName) throws CruiseControlException {
-        Iterator propertyIterator = _log.getChild("info").getChildren("property").iterator();
+        Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
             if (property.getAttributeValue("name").equals(propertyName)) {

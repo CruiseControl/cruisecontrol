@@ -1,7 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, isMobile.com - http://www.ismobile.com
- * Aurorum 2, S-977 75 Luleå, Sweden
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 500
+ * Chicago, IL 60661 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,10 +17,10 @@
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
  *
- *     + Neither the name of isMobile.com, ThoughtWorks, Inc.,
- *       CruiseControl, nor the names of its contributors may be used
- *       to endorse or promote products derived from this software
- *       without specific prior written permission.
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -80,43 +81,43 @@ public class P4 implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(P4.class);
 
-    private String _p4Port;
-    private String _p4Client;
-    private String _p4User;
-    private String _p4View;
+    private String p4Port;
+    private String p4Client;
+    private String p4User;
+    private String p4View;
     private static final SimpleDateFormat P4_DATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private static final SimpleDateFormat P4_REVISION_DATE = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
-    private Hashtable _properties = new Hashtable();
-    private String _property;
-    private String _propertyOnDelete;
+    private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
     public void setPort(String p4Port) {
-        _p4Port = p4Port;
+        this.p4Port = p4Port;
     }
 
     public void setClient(String p4Client) {
-        _p4Client = p4Client;
+        this.p4Client = p4Client;
     }
 
     public void setUser(String p4User) {
-        _p4User = p4User;
+        this.p4User = p4User;
     }
 
     public void setView(String p4View) {
-        _p4View = p4View;
+        this.p4View = p4View;
     }
 
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     protected List changeListsToElement(List mods) {
@@ -129,16 +130,16 @@ public class P4 implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (_p4Port == null) {
+        if (p4Port == null) {
             throw new CruiseControlException("'port' is a required attribute on P4");
         }
-        if (_p4Client == null) {
+        if (p4Client == null) {
             throw new CruiseControlException("'client' is a required attribute on P4");
         }
-        if (_p4User == null) {
+        if (p4User == null) {
             throw new CruiseControlException("'user' is a required attribute on P4");
         }
-        if (_p4View == null) {
+        if (p4View == null) {
             throw new CruiseControlException("'view' is a required attribute on P4");
         }
     }
@@ -322,19 +323,19 @@ public class P4 implements SourceControl {
         commandLine.setExecutable("p4");
         commandLine.createArgument().setValue("-s");
 
-        if (_p4Client != null) {
+        if (p4Client != null) {
             commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(_p4Client);
+            commandLine.createArgument().setValue(p4Client);
         }
 
-        if (_p4Port != null) {
+        if (p4Port != null) {
             commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(_p4Port);
+            commandLine.createArgument().setValue(p4Port);
         }
 
-        if (_p4User != null) {
+        if (p4User != null) {
             commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(_p4User);
+            commandLine.createArgument().setValue(p4User);
         }
 
 //        execP4Command("changes -m 1 -s submitted " + _P4View,
@@ -343,7 +344,7 @@ public class P4 implements SourceControl {
         commandLine.createArgument().setValue("-s");
         commandLine.createArgument().setValue("submitted");
         commandLine.createArgument().setValue(
-            _p4View
+            p4View
                 + "@"
                 + P4_REVISION_DATE.format(lastBuildTime)
                 + ",@"
@@ -358,19 +359,19 @@ public class P4 implements SourceControl {
         commandLine.setExecutable("p4");
         commandLine.createArgument().setValue("-s");
 
-        if (_p4Client != null) {
+        if (p4Client != null) {
             commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(_p4Client);
+            commandLine.createArgument().setValue(p4Client);
         }
 
-        if (_p4Port != null) {
+        if (p4Port != null) {
             commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(_p4Port);
+            commandLine.createArgument().setValue(p4Port);
         }
 
-        if (_p4User != null) {
+        if (p4User != null) {
             commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(_p4User);
+            commandLine.createArgument().setValue(p4User);
         }
 
 //        execP4Command("describe -s " + changeNumber.toString(),

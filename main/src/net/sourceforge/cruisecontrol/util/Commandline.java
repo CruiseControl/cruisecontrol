@@ -85,19 +85,18 @@ import org.apache.log4j.Logger;
  */
 public class Commandline implements Cloneable {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(Commandline.class);
+    private static final Logger LOG = Logger.getLogger(Commandline.class);
 
     private Vector arguments = new Vector();
-    private String _executable = null;
+    private String executable = null;
 
-    public Commandline(String to_process) {
+    public Commandline(String toProcess) {
         super();
         String[] tmp = new String[0];
         try {
-            tmp = translateCommandline(to_process);
+            tmp = translateCommandline(toProcess);
         } catch (CruiseControlException e) {
-            log.error("Error translating Commandline.", e);
+            LOG.error("Error translating Commandline.", e);
         }
         if (tmp != null && tmp.length > 0) {
             setExecutable(tmp[0]);
@@ -139,7 +138,7 @@ public class Commandline implements Cloneable {
             try {
                 parts = translateCommandline(line);
             } catch (CruiseControlException e) {
-                log.error("Error translating Commandline.", e);
+                LOG.error("Error translating Commandline.", e);
             }
         }
 
@@ -169,11 +168,11 @@ public class Commandline implements Cloneable {
     // whether there might be additional use cases.</p> --SB
     public class Marker {
 
-        private int _position;
+        private int position;
         private int realPos = -1;
 
         Marker(int position) {
-            _position = position;
+            this.position = position;
         }
 
         /**
@@ -184,8 +183,8 @@ public class Commandline implements Cloneable {
          */
         public int getPosition() {
             if (realPos == -1) {
-                realPos = (_executable == null ? 0 : 1);
-                for (int i = 0; i < _position; i++) {
+                realPos = (executable == null ? 0 : 1);
+                for (int i = 0; i < position; i++) {
                     Argument arg = (Argument) arguments.elementAt(i);
                     realPos += arg.getParts().length;
                 }
@@ -234,14 +233,14 @@ public class Commandline implements Cloneable {
         if (executable == null || executable.length() == 0) {
             return;
         }
-        this._executable =
+        this.executable =
             executable.replace('/', File.separatorChar).replace(
                 '\\',
                 File.separatorChar);
     }
 
     public String getExecutable() {
-        return _executable;
+        return executable;
     }
 
     public void addArguments(String[] line) {
@@ -255,11 +254,11 @@ public class Commandline implements Cloneable {
      */
     public String[] getCommandline() {
         final String[] args = getArguments();
-        if (_executable == null) {
+        if (executable == null) {
             return args;
         }
         final String[] result = new String[args.length + 1];
-        result[0] = _executable;
+        result[0] = executable;
         System.arraycopy(args, 0, result, 1, args.length);
         return result;
     }
@@ -329,15 +328,15 @@ public class Commandline implements Cloneable {
             try {
                 result.append(quoteArgument(line[i]));
             } catch (CruiseControlException e) {
-                log.error("Error quoting argument.", e);
+                LOG.error("Error quoting argument.", e);
             }
         }
         return result.toString();
     }
 
-    public static String[] translateCommandline(String to_process)
+    public static String[] translateCommandline(String toProcess)
         throws CruiseControlException {
-        if (to_process == null || to_process.length() == 0) {
+        if (toProcess == null || toProcess.length() == 0) {
             return new String[0];
         }
 
@@ -347,7 +346,7 @@ public class Commandline implements Cloneable {
         final int inQuote = 1;
         final int inDoubleQuote = 2;
         int state = normal;
-        StringTokenizer tok = new StringTokenizer(to_process, "\"\' ", true);
+        StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
         Vector v = new Vector();
         StringBuffer current = new StringBuffer();
 
@@ -391,7 +390,7 @@ public class Commandline implements Cloneable {
 
         if (state == inQuote || state == inDoubleQuote) {
             throw new CruiseControlException(
-                "unbalanced quotes in " + to_process);
+                "unbalanced quotes in " + toProcess);
         }
 
         String[] args = new String[v.size()];
@@ -405,7 +404,7 @@ public class Commandline implements Cloneable {
 
     public Object clone() {
         Commandline c = new Commandline();
-        c.setExecutable(_executable);
+        c.setExecutable(executable);
         c.addArguments(getArguments());
         return c;
     }
@@ -413,7 +412,7 @@ public class Commandline implements Cloneable {
     /**
      * Clear out the whole command line.  */
     public void clear() {
-        _executable = null;
+        executable = null;
         arguments.removeAllElements();
     }
 

@@ -43,19 +43,19 @@ import java.util.Calendar;
 
 public class PauseBuilderTest extends TestCase {
 
-    private Calendar _cal, _cal2;
+    private Calendar cal, cal2;
 
     public PauseBuilderTest(String name) {
         super(name);
     }
 
     public void setUp() {
-        _cal = Calendar.getInstance();
-        _cal.clear();
-        _cal.set(2001, Calendar.NOVEMBER, 22); //Thursday, November 22, 2001
-        _cal2 = Calendar.getInstance();
-        _cal2.clear();
-        _cal2.set(2001, Calendar.NOVEMBER, 23); //Friday, November 23, 2001
+        cal = Calendar.getInstance();
+        cal.clear();
+        cal.set(2001, Calendar.NOVEMBER, 22); //Thursday, November 22, 2001
+        cal2 = Calendar.getInstance();
+        cal2.clear();
+        cal2.set(2001, Calendar.NOVEMBER, 23); //Friday, November 23, 2001
     }
 
     public void testValidate() {
@@ -109,61 +109,61 @@ public class PauseBuilderTest extends TestCase {
     }
 
     public void testIsPaused() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(2002, Calendar.DECEMBER, 23, 18, 00, 00);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2002, Calendar.DECEMBER, 23, 18, 00, 00);
 
-        Calendar cal2 = Calendar.getInstance();
-        cal2.set(2002, Calendar.DECEMBER, 23, 20, 00, 00);
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.set(2002, Calendar.DECEMBER, 23, 20, 00, 00);
 
-        Calendar cal3 = Calendar.getInstance();
-        cal3.set(2002, Calendar.DECEMBER, 23, 22, 00, 00);
+        Calendar calendar3 = Calendar.getInstance();
+        calendar3.set(2002, Calendar.DECEMBER, 23, 22, 00, 00);
 
-        Calendar cal4 = Calendar.getInstance();
-        cal4.set(2002, Calendar.DECEMBER, 24, 3, 00, 00);
+        Calendar calendar4 = Calendar.getInstance();
+        calendar4.set(2002, Calendar.DECEMBER, 24, 3, 00, 00);
 
-        Calendar cal5 = Calendar.getInstance();
-        cal5.set(2002, Calendar.DECEMBER, 24, 7, 00, 00);
+        Calendar calendar5 = Calendar.getInstance();
+        calendar5.set(2002, Calendar.DECEMBER, 24, 7, 00, 00);
 
         PauseBuilder pb = new PauseBuilder();
         pb.setStartTime(1900);
         pb.setEndTime(2100);
 
-        assertEquals(false, pb.isPaused(cal.getTime()));
-        assertEquals(true, pb.isPaused(cal2.getTime()));
-        assertEquals(false, pb.isPaused(cal3.getTime()));
+        assertEquals(false, pb.isPaused(calendar.getTime()));
+        assertEquals(true, pb.isPaused(calendar2.getTime()));
+        assertEquals(false, pb.isPaused(calendar3.getTime()));
 
         pb.setDay("monday");
-        assertEquals(false, pb.isPaused(cal.getTime()));
-        assertEquals(true, pb.isPaused(cal2.getTime()));
-        assertEquals(false, pb.isPaused(cal3.getTime()));
+        assertEquals(false, pb.isPaused(calendar.getTime()));
+        assertEquals(true, pb.isPaused(calendar2.getTime()));
+        assertEquals(false, pb.isPaused(calendar3.getTime()));
 
         pb.setDay("tuesday");
-        assertEquals(false, pb.isPaused(cal.getTime()));
-        assertEquals(false, pb.isPaused(cal2.getTime()));
-        assertEquals(false, pb.isPaused(cal3.getTime()));
+        assertEquals(false, pb.isPaused(calendar.getTime()));
+        assertEquals(false, pb.isPaused(calendar2.getTime()));
+        assertEquals(false, pb.isPaused(calendar3.getTime()));
 
         pb = new PauseBuilder();
         pb.setStartTime(2100);
         pb.setEndTime(500);
 
-        assertEquals(false, pb.isPaused(cal.getTime()));
-        assertEquals(true, pb.isPaused(cal3.getTime()));
-        assertEquals(true, pb.isPaused(cal4.getTime()));
-        assertEquals(false, pb.isPaused(cal5.getTime()));
+        assertEquals(false, pb.isPaused(calendar.getTime()));
+        assertEquals(true, pb.isPaused(calendar3.getTime()));
+        assertEquals(true, pb.isPaused(calendar4.getTime()));
+        assertEquals(false, pb.isPaused(calendar5.getTime()));
 
         pb.setDay("monday");
 
-        assertEquals(false, pb.isPaused(cal.getTime()));
-        assertEquals(true, pb.isPaused(cal3.getTime()));
-        assertEquals(true, pb.isPaused(cal4.getTime()));
-        assertEquals(false, pb.isPaused(cal5.getTime()));
+        assertEquals(false, pb.isPaused(calendar.getTime()));
+        assertEquals(true, pb.isPaused(calendar3.getTime()));
+        assertEquals(true, pb.isPaused(calendar4.getTime()));
+        assertEquals(false, pb.isPaused(calendar5.getTime()));
 
         pb.setDay("tuesday");
 
-        assertEquals(false, pb.isPaused(cal.getTime()));
-        assertEquals(false, pb.isPaused(cal3.getTime()));
-        assertEquals(false, pb.isPaused(cal4.getTime()));
-        assertEquals(false, pb.isPaused(cal5.getTime()));
+        assertEquals(false, pb.isPaused(calendar.getTime()));
+        assertEquals(false, pb.isPaused(calendar3.getTime()));
+        assertEquals(false, pb.isPaused(calendar4.getTime()));
+        assertEquals(false, pb.isPaused(calendar5.getTime()));
     }
 
 }

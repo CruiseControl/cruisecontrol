@@ -43,15 +43,15 @@ import java.util.Date;
  */
 public class MockProject extends Project {
 
-    private int _buildCount = 0;
-    private Date _lastBuild;
+    private int buildCount = 0;
+    private Date lastBuild;
     private static final long ONE_SECOND = 1000;
-    private boolean _keepLooping = false;
-    private int _loopCount = 0;
+    private boolean keepLooping = false;
+    private int loopCount = 0;
     
     public void execute() {
-        _buildCount++;
-        _lastBuild = new Date();
+        buildCount++;
+        lastBuild = new Date();
         try {
             Thread.sleep(ONE_SECOND);
         } catch (InterruptedException e) {
@@ -61,18 +61,18 @@ public class MockProject extends Project {
     }
     
     public int getBuildCount() {
-        return _buildCount;
+        return buildCount;
     }
     
     public Date getLastBuildDate() {
-        return _lastBuild;
+        return lastBuild;
     }
 
     void loop() {
-        _loopCount = 0;
-        _keepLooping = true;
-        while (_keepLooping) {
-            _loopCount++;
+        loopCount = 0;
+        keepLooping = true;
+        while (keepLooping) {
+            loopCount++;
             try {
                 checkWait();
                 Thread.sleep(50);
@@ -87,11 +87,11 @@ public class MockProject extends Project {
     }
     
     void stopLooping() {
-        _keepLooping = false;
+        keepLooping = false;
     }
     
     int getLoopCount() {
-        return _loopCount;
+        return loopCount;
     }
 
 }

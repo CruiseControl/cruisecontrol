@@ -56,18 +56,18 @@ public class Schedule {
 
     private static final Logger LOG = Logger.getLogger(Schedule.class);
 
-    private List _builders = new ArrayList();
-    private List _pauseBuilders = new ArrayList();
+    private List builders = new ArrayList();
+    private List pauseBuilders = new ArrayList();
 
     static final long ONE_MINUTE = 60 * 1000;
     static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
 
     public void addBuilder(Builder builder) {
-        _builders.add(builder);
+        builders.add(builder);
     }
 
     public void addPauseBuilder(PauseBuilder pauseBuilder) {
-        _pauseBuilders.add(pauseBuilder);
+        pauseBuilders.add(pauseBuilder);
     }
 
     /**
@@ -87,7 +87,7 @@ public class Schedule {
     }
 
     PauseBuilder findPause(Date date) {
-        Iterator pauseBuilderIterator = _pauseBuilders.iterator();
+        Iterator pauseBuilderIterator = pauseBuilders.iterator();
         while (pauseBuilderIterator.hasNext()) {
             PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
             if (builder.isPaused(date)) {
@@ -129,7 +129,7 @@ public class Schedule {
      */
     protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now)
         throws CruiseControlException {
-        Iterator builderIterator = _builders.iterator();
+        Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
             int buildTime = builder.getTime();
@@ -183,7 +183,7 @@ public class Schedule {
     long checkTimeBuilders(Date now, long proposedTime) {
         long timeToNextBuild = proposedTime;
         int nowTime = Util.getTimeFromDate(now);
-        Iterator builderIterator = _builders.iterator();
+        Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
             int thisBuildTime = builder.getTime();

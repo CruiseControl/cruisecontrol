@@ -77,17 +77,17 @@ public class VssJournal implements SourceControl {
     public static final SimpleDateFormat VSS_OUT_FORMAT =
         new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma");
 
-    private String _ssDir = "$/";
-    private String _journalFile;
+    private String ssDir = "$/";
+    private String journalFile;
 
-    private Hashtable _properties = new Hashtable();
-    private String _property;
-    private String _propertyOnDelete;
+    private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
-    private Date _lastBuild;
+    private Date lastBuild;
 
-    private ArrayList _modifications = new ArrayList();
-    private List _moListVssJournalDateFormat = new ArrayList();
+    private ArrayList modifications = new ArrayList();
+    private List moListVssJournalDateFormat = new ArrayList();
 
     public VssJournal() {
         // Add the default date format
@@ -102,7 +102,7 @@ public class VssJournal implements SourceControl {
      */
     public VssJournalDateFormat createVssjournaldateformat() {
         VssJournalDateFormat oVssJournalDateFormat = new VssJournalDateFormat();
-        _moListVssJournalDateFormat.add(oVssJournalDateFormat);
+        moListVssJournalDateFormat.add(oVssJournalDateFormat);
         return oVssJournalDateFormat;
     }
 
@@ -111,8 +111,8 @@ public class VssJournal implements SourceControl {
      *
      *  @param  s
      */
-    public void setSsDir(String s) {
-        _ssDir = "$" + s;
+    public void setSsDir(String ssDir) {
+        this.ssDir = "$" + ssDir;
     }
 
     /**
@@ -120,8 +120,8 @@ public class VssJournal implements SourceControl {
      *
      *  @param s
      */
-    public void setJournalFile(String s) {
-        _journalFile = s;
+    public void setJournalFile(String journalFile) {
+        this.journalFile = journalFile;
     }
 
     /**
@@ -132,29 +132,29 @@ public class VssJournal implements SourceControl {
      *@param  property
      */
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     /**
      *  Sets the _lastBuild date. Protected so it can be used by tests.
      */
     protected void setLastBuildDate(Date lastBuild) {
-        _lastBuild = lastBuild;
+        this.lastBuild = lastBuild;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void validate() throws CruiseControlException {
-        if (_journalFile == null) {
+        if (journalFile == null) {
             throw new CruiseControlException("'journalfile' is a required attribute on VssJournal");
         }
-        if (_ssDir == null) {
+        if (ssDir == null) {
             throw new CruiseControlException("'ssdir' is a required attribute on VssJournal");
         }
     }
@@ -168,11 +168,11 @@ public class VssJournal implements SourceControl {
      *@return
      */
     public List getModifications(Date lastBuild, Date now) {
-        _lastBuild = lastBuild;
-        _modifications.clear();
+        this.lastBuild = lastBuild;
+        modifications.clear();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(_journalFile));
+            BufferedReader br = new BufferedReader(new FileReader(journalFile));
 
             String s = br.readLine();
             while (s != null) {
@@ -185,7 +185,7 @@ public class VssJournal implements SourceControl {
                 }
                 Modification mod = handleEntry(entry);
                 if (mod != null) {
-                    _modifications.add(mod);
+                    modifications.add(mod);
                 }
 
                 if (s.equals("")) {
@@ -199,12 +199,12 @@ public class VssJournal implements SourceControl {
             e.printStackTrace();
         }
 
-        if (_property != null && _modifications.size() > 0) {
-            _properties.put(_property, "true");
+        if (property != null && modifications.size() > 0) {
+            properties.put(property, "true");
         }
 
-        LOG.info("Found " + _modifications.size() + " modified files");
-        return _modifications;
+        LOG.info("Found " + modifications.size() + " modified files");
+        return modifications;
     }
 
     /**
@@ -267,12 +267,12 @@ public class VssJournal implements SourceControl {
             }
         }
 
-        if (_propertyOnDelete != null && "delete".equals(mod.type)) {
-            _properties.put(_propertyOnDelete, "true");
+        if (propertyOnDelete != null && "delete".equals(mod.type)) {
+            properties.put(propertyOnDelete, "true");
         }
 
-        if (_property != null) {
-            _properties.put(_property, "true");
+        if (property != null) {
+            properties.put(property, "true");
         }
 
         return mod;
@@ -338,7 +338,7 @@ public class VssJournal implements SourceControl {
                 dateAndTime.substring(dateAndTime.indexOf("Time:") + 5).trim();
             dateAndTime = sDate + " " + sTime;
             Date oDate = null;
-            for (Iterator oIterator = _moListVssJournalDateFormat.iterator();
+            for (Iterator oIterator = moListVssJournalDateFormat.iterator();
                 oIterator.hasNext();
                 ) {
                 VssJournalDateFormat oVssJournalDateFormat =
@@ -408,32 +408,32 @@ public class VssJournal implements SourceControl {
      *  Determines if the given folder is in the ssdir specified for this VssJournalElement.
      */
     protected boolean isInSsDir(String path) {
-        return (path.toLowerCase().indexOf(_ssDir.toLowerCase()) != -1);
+        return (path.toLowerCase().indexOf(ssDir.toLowerCase()) != -1);
     }
 
     /**
      *  Determines if the date given is before the last build for this VssJournalElement.
      */
     protected boolean isBeforeLastBuild(Date date) {
-        return date.before(_lastBuild);
+        return date.before(lastBuild);
     }
 
 
     public static class VssJournalDateFormat {
-        private DateFormat _moDateFormat;
-        private String _msFormat;
+        private DateFormat moDateFormat;
+        private String msFormat;
         
         public void setFormat(String psFormat) {
-            _moDateFormat = new SimpleDateFormat(psFormat);
-            _msFormat = psFormat;
+            moDateFormat = new SimpleDateFormat(psFormat);
+            msFormat = psFormat;
         }
         
         public String getFormat() {
-            return _msFormat;
+            return msFormat;
         }
         
         public final DateFormat getDateFormat() {
-            return _moDateFormat;
+            return moDateFormat;
         }
         
     }

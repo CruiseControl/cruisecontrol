@@ -46,11 +46,11 @@ import junit.framework.TestCase;
  */
 public class BuildQueueTest extends TestCase {
 
-    private BuildQueue _queue;
+    private BuildQueue queue;
 
     protected void setUp() throws Exception {
         boolean startQueue = false;
-        _queue = new BuildQueue(startQueue);
+        queue = new BuildQueue(startQueue);
     }
 
     public void testServiceQueue() {
@@ -58,10 +58,10 @@ public class BuildQueueTest extends TestCase {
         for (int i = 0; i < queuedProjects.length; i++) {
             queuedProjects[i] = new MockProject();
             queuedProjects[i].setName("Build " + i);
-            _queue.requestBuild(queuedProjects[i]);
+            queue.requestBuild(queuedProjects[i]);
         }
 
-        _queue.serviceQueue();
+        queue.serviceQueue();
 
         for (int i = 0; i < queuedProjects.length - 1; i++) {
             MockProject thisBuild = queuedProjects[i];
@@ -79,10 +79,10 @@ public class BuildQueueTest extends TestCase {
     }
 
     public void testStartAndStop() throws InterruptedException {
-        _queue.start();
+        queue.start();
         MockProject project = new MockProject();
         project.setName("BuildQueueTest.testStartAndStop()");
-        _queue.requestBuild(project);        
+        queue.requestBuild(project);        
         for (int sleepCount = 0; project.getBuildCount() == 0; sleepCount++) {
             if (sleepCount > 5) {
                 break;
@@ -91,12 +91,12 @@ public class BuildQueueTest extends TestCase {
         }
         assertEquals(1, project.getBuildCount());
 
-        _queue.stop();
+        queue.stop();
         Thread.sleep(1000);
-        assertTrue(!_queue.isWaiting());
-        assertTrue(!_queue.isAlive());
+        assertTrue(!queue.isWaiting());
+        assertTrue(!queue.isAlive());
         
-        _queue.requestBuild(project);
+        queue.requestBuild(project);
         for (int sleepCount = 0; project.getBuildCount() == 1; sleepCount++) {
             if (sleepCount > 2) {
                 break;

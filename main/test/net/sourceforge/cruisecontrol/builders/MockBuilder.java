@@ -46,13 +46,13 @@ import java.util.Map;
  */
 public class MockBuilder extends Builder {
 
-    private Element _buildLog = new Element("build");
+    private Element buildLog = new Element("build");
 
     public Element build(Map properties) {
-        return _buildLog;
+        return buildLog;
     }
 
     public void setBuildLogXML(Element buildLog) {
-        _buildLog = buildLog;
+        this.buildLog = buildLog;
     }
 }

@@ -53,11 +53,11 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class EmailPublisherTest extends TestCase {
 
-    private XMLLogHelper _successLogHelper;
-    private XMLLogHelper _fixedLogHelper;
-    private XMLLogHelper _failureLogHelper;
-    private XMLLogHelper _firstFailureLogHelper;
-    private EmailPublisher _emailPublisher;
+    private XMLLogHelper successLogHelper;
+    private XMLLogHelper fixedLogHelper;
+    private XMLLogHelper failureLogHelper;
+    private XMLLogHelper firstFailureLogHelper;
+    private EmailPublisher emailPublisher;
 
     public EmailPublisherTest(String s) {
         super(s);
@@ -86,15 +86,15 @@ public class EmailPublisherTest extends TestCase {
         emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
 
         PluginXMLHelper xmlHelper = new PluginXMLHelper();
-        _emailPublisher =
+        emailPublisher =
             (MockEmailPublisher) xmlHelper.configure(
                 emailPublisherElement,
                 "net.sourceforge.cruisecontrol.publishers.MockEmailPublisher");
 
-        _successLogHelper = createLogHelper(true, true);
-        _failureLogHelper = createLogHelper(false, false);
-        _fixedLogHelper = createLogHelper(true, false);
-        _firstFailureLogHelper = createLogHelper(false, true);
+        successLogHelper = createLogHelper(true, true);
+        failureLogHelper = createLogHelper(false, false);
+        fixedLogHelper = createLogHelper(true, false);
+        firstFailureLogHelper = createLogHelper(false, true);
 
     }
 
@@ -118,59 +118,59 @@ public class EmailPublisherTest extends TestCase {
 
     public void testShouldSend() throws Exception {
         //build not necessary, spam while broken=true
-        _emailPublisher.setSpamWhileBroken(true);
-        _emailPublisher.setReportSuccess("success");
-        assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
+        emailPublisher.setSpamWhileBroken(true);
+        emailPublisher.setReportSuccess("success");
+        assertEquals(true, emailPublisher.shouldSend(successLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(fixedLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(failureLogHelper));
 
-        _emailPublisher.setReportSuccess("fixes");
-        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
+        emailPublisher.setReportSuccess("fixes");
+        assertEquals(false, emailPublisher.shouldSend(successLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(fixedLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(failureLogHelper));
 
-        _emailPublisher.setReportSuccess("never");
-        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
-        assertEquals(false, _emailPublisher.shouldSend(_fixedLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
+        emailPublisher.setReportSuccess("never");
+        assertEquals(false, emailPublisher.shouldSend(successLogHelper));
+        assertEquals(false, emailPublisher.shouldSend(fixedLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(failureLogHelper));
 
 
-        _emailPublisher.setSpamWhileBroken(false);
-        _emailPublisher.setReportSuccess("success");
-        assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
-        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_firstFailureLogHelper));
+        emailPublisher.setSpamWhileBroken(false);
+        emailPublisher.setReportSuccess("success");
+        assertEquals(true, emailPublisher.shouldSend(successLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(fixedLogHelper));
+        assertEquals(false, emailPublisher.shouldSend(failureLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(firstFailureLogHelper));
 
-        _emailPublisher.setReportSuccess("fixes");
-        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_fixedLogHelper));
-        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_firstFailureLogHelper));
+        emailPublisher.setReportSuccess("fixes");
+        assertEquals(false, emailPublisher.shouldSend(successLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(fixedLogHelper));
+        assertEquals(false, emailPublisher.shouldSend(failureLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(firstFailureLogHelper));
 
-        _emailPublisher.setReportSuccess("never");
-        assertEquals(false, _emailPublisher.shouldSend(_successLogHelper));
-        assertEquals(false, _emailPublisher.shouldSend(_fixedLogHelper));
-        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
-        assertEquals(true, _emailPublisher.shouldSend(_firstFailureLogHelper));
+        emailPublisher.setReportSuccess("never");
+        assertEquals(false, emailPublisher.shouldSend(successLogHelper));
+        assertEquals(false, emailPublisher.shouldSend(fixedLogHelper));
+        assertEquals(false, emailPublisher.shouldSend(failureLogHelper));
+        assertEquals(true, emailPublisher.shouldSend(firstFailureLogHelper));
 
     }
 
     public void testCreateSubject() throws Exception {
-        _emailPublisher.setReportSuccess("always");
-        assertEquals("TestProject somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
-        _emailPublisher.setReportSuccess("fixes");
-        assertEquals("TestProject somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
+        emailPublisher.setReportSuccess("always");
+        assertEquals("TestProject somelabel Build Successful", emailPublisher.createSubject(successLogHelper));
+        emailPublisher.setReportSuccess("fixes");
+        assertEquals("TestProject somelabel Build Fixed", emailPublisher.createSubject(fixedLogHelper));
 
-        assertEquals("TestProject Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+        assertEquals("TestProject Build Failed", emailPublisher.createSubject(failureLogHelper));
 
-        _emailPublisher.setSubjectPrefix("[CC]");
-        _emailPublisher.setReportSuccess("always");
-        assertEquals("[CC] TestProject somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
-        _emailPublisher.setReportSuccess("fixes");
-        assertEquals("[CC] TestProject somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
+        emailPublisher.setSubjectPrefix("[CC]");
+        emailPublisher.setReportSuccess("always");
+        assertEquals("[CC] TestProject somelabel Build Successful", emailPublisher.createSubject(successLogHelper));
+        emailPublisher.setReportSuccess("fixes");
+        assertEquals("[CC] TestProject somelabel Build Fixed", emailPublisher.createSubject(fixedLogHelper));
 
-        assertEquals("[CC] TestProject Build Failed", _emailPublisher.createSubject(_failureLogHelper));
+        assertEquals("[CC] TestProject Build Failed", emailPublisher.createSubject(failureLogHelper));
 
     }
 
@@ -178,26 +178,26 @@ public class EmailPublisherTest extends TestCase {
         PropertyConfigurator.configure("log4j.properties");
         assertEquals(
             "always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com",
-            _emailPublisher.createUserList(_successLogHelper));
+            emailPublisher.createUserList(successLogHelper));
         assertEquals(
             "always1@host.com,always2@host.com,failure1@host.com,"
                 + "failure2@host.com,user1@host.com,user2@host.com,user3@host2.com",
-            _emailPublisher.createUserList(_failureLogHelper));
+            emailPublisher.createUserList(failureLogHelper));
 
-        _emailPublisher.setSkipUsers(true);
-        assertEquals("always1@host.com,always2@host.com", _emailPublisher.createUserList(_successLogHelper));
+        emailPublisher.setSkipUsers(true);
+        assertEquals("always1@host.com,always2@host.com", emailPublisher.createUserList(successLogHelper));
         assertEquals(
             "always1@host.com,always2@host.com,failure1@host.com,failure2@host.com",
-            _emailPublisher.createUserList(_failureLogHelper));
+            emailPublisher.createUserList(failureLogHelper));
 
     }
     
     public void testGetFromAddress() throws AddressException {
         String returnAddress = "me@you.com";
         String returnName = "Me you Me";
-        _emailPublisher.setReturnAddress(returnAddress);
-        _emailPublisher.setReturnName(returnName);
-        InternetAddress fromAddress = _emailPublisher.getFromAddress();
+        emailPublisher.setReturnAddress(returnAddress);
+        emailPublisher.setReturnName(returnName);
+        InternetAddress fromAddress = emailPublisher.getFromAddress();
         assertEquals(returnAddress, fromAddress.getAddress());
         assertEquals(returnName, fromAddress.getPersonal());
     }

@@ -71,9 +71,9 @@ public class MKS implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(MKS.class);
 
-    private Hashtable _properties = new Hashtable();
-    private String _property;
-    private String _propertyOnDelete;
+    private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
     /**
      * This is the date format required by commands passed
@@ -134,8 +134,8 @@ public class MKS implements SourceControl {
      */
     private static final String NEW_LINE = System.getProperty("line.separator");
 
-    private String _mksroot;
-    private File _localWorkingCopy;
+    private String mksroot;
+    private File localWorkingCopy;
 
     /**
      * Sets the MKSROOT for all calls to MKS.
@@ -143,7 +143,7 @@ public class MKS implements SourceControl {
      * @param mksroot MKSROOT to use.
      */
     public void setMksroot(String mksroot) {
-        _mksroot = mksroot;
+        this.mksroot = mksroot;
     }
 
     /**
@@ -155,23 +155,23 @@ public class MKS implements SourceControl {
      *               to find the log history.
      */
     public void setLocalWorkingCopy(String local) {
-        _localWorkingCopy = new File(local);
+        localWorkingCopy = new File(local);
     }
 
     public void setProperty(String property) {
-        _property = property;
+        this.property = property;
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        _propertyOnDelete = propertyOnDelete;
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
-        return _properties;
+        return properties;
     }
 
     public void validate() throws CruiseControlException {
-        if (_mksroot == null) {
+        if (mksroot == null) {
             throw new CruiseControlException("'mksroot' is a required attribute on MKS");
         }
     }
@@ -189,7 +189,7 @@ public class MKS implements SourceControl {
 
         String dateRange =
             "\"" + MKSDATE.format(lastBuild) + "<" + MKSDATE.format(now) + "\"";
-        String commandArray = "rlog -q -d" + dateRange + " -P" + _mksroot;
+        String commandArray = "rlog -q -d" + dateRange + " -P" + mksroot;
         LOG.debug("Executing: " + commandArray);
 
         try {
@@ -366,16 +366,16 @@ public class MKS implements SourceControl {
 
             if (stateKeyword.equalsIgnoreCase(MKS_REVISION_DELETED)) {
                 nextModification.type = "deleted";
-                if (_propertyOnDelete != null) {
-                    _properties.put(_propertyOnDelete, "true");
+                if (propertyOnDelete != null) {
+                    properties.put(propertyOnDelete, "true");
                 }
-                if (_property != null) {
-                    _properties.put(_property, "true");
+                if (property != null) {
+                    properties.put(property, "true");
                 }
             } else {
                 nextModification.type = "modified";
-                if (_property != null) {
-                    _properties.put(_property, "true");
+                if (property != null) {
+                    properties.put(property, "true");
                 }
             }
 
