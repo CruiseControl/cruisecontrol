@@ -131,7 +131,7 @@ public class CVSTest extends TestCase {
 
 
 
-    public void testValidate() throws CruiseControlException, IOException {
+    public void testValidate() throws IOException {
         CVS cvs = new CVS();
 
         try {
@@ -337,7 +337,7 @@ public class CVSTest extends TestCase {
         assertEquals(mod1, modifications.get(3));
     }
 
-    public void testGetProperties() throws IOException, ParseException {
+    public void testGetProperties() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
@@ -373,8 +373,7 @@ public class CVSTest extends TestCase {
         assertEquals("Shouldn't be any properties.", 0, table.size());
     }
 
-    public void testGetPropertiesNoModifications()
-            throws IOException, ParseException {
+    public void testGetPropertiesNoModifications() throws IOException {
         CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
@@ -391,8 +390,7 @@ public class CVSTest extends TestCase {
         assertEquals("Shouldn't be any properties.", 0, table.size());
     }
 
-    public void testGetPropertiesOnlyModifications()
-            throws IOException, ParseException {
+    public void testGetPropertiesOnlyModifications() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
@@ -425,8 +423,7 @@ public class CVSTest extends TestCase {
         assertEquals("Shouldn't be any properties.", 0, table.size());
     }
 
-    public void testGetPropertiesOnlyDeletions()
-            throws IOException, ParseException {
+    public void testGetPropertiesOnlyDeletions() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
@@ -478,15 +475,27 @@ public class CVSTest extends TestCase {
                     "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(checkTime),
                     "-b"};
 
-        String[] actualCommand =
-                element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        String[] noTagCommand = element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        assertCommandsEqual(expectedCommand, noTagCommand);
+        
+        element.setTag("");
+        String[] emptyStringTagCommand = element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        assertCommandsEqual(expectedCommand, emptyStringTagCommand);
+        
+        element.setTag("HEAD");
+        String[] headTagCommand = element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        assertCommandsEqual(expectedCommand, headTagCommand);
+    }
 
-        assertEquals("Mismatched lengths!",
-                expectedCommand.length,
-                actualCommand.length);
-        for (int i = 0; i < expectedCommand.length; i++) {
-            assertEquals(expectedCommand[i], actualCommand[i]);
-        }
+    /**
+     * @param expectedCommand
+     * @param actualCommand
+     */
+    private void assertCommandsEqual(String[] expectedCommand, String[] actualCommand) {
+      assertEquals("Mismatched lengths!", expectedCommand.length, actualCommand.length);
+      for (int i = 0; i < expectedCommand.length; i++) {
+          assertEquals(expectedCommand[i], actualCommand[i]);
+      }
     }
 
     public void testBuildHistoryCommandWithTag()
@@ -511,12 +520,7 @@ public class CVSTest extends TestCase {
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
 
-        assertEquals("Mismatched lengths!",
-                expectedCommand.length,
-                actualCommand.length);
-        for (int i = 0; i < expectedCommand.length; i++) {
-            assertEquals(expectedCommand[i], actualCommand[i]);
-        }
+        assertCommandsEqual(expectedCommand, actualCommand);
     }
 
     public void testHistoryCommandNullLocal() throws CruiseControlException {
@@ -540,12 +544,7 @@ public class CVSTest extends TestCase {
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
 
-        assertEquals("Mismatched lengths!",
-                expectedCommand.length,
-                actualCommand.length);
-        for (int i = 0; i < expectedCommand.length; i++) {
-            assertEquals(expectedCommand[i], actualCommand[i]);
-        }
+        assertCommandsEqual(expectedCommand, actualCommand);
     }
 
     public void testHistoryCommandNullCVSROOT() throws CruiseControlException {
@@ -566,12 +565,7 @@ public class CVSTest extends TestCase {
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
-        assertEquals("Mismatched lengths!",
-                expectedCommand.length,
-                actualCommand.length);
-        for (int i = 0; i < expectedCommand.length; i++) {
-            assertEquals(expectedCommand[i], actualCommand[i]);
-        }
+        assertCommandsEqual(expectedCommand, actualCommand);
     }
 
     public void testParseLogDate() throws ParseException {
@@ -682,7 +676,7 @@ public class CVSTest extends TestCase {
         input.close();
     }
 
-    public void testIsCVSNewVersion() throws IOException {
+    public void testIsCVSNewVersion() {
 
         Object[] array = new Object[]{
             new MockVersionCVS(getOfficialCVSVersion("1.11.16")), Boolean.FALSE,
