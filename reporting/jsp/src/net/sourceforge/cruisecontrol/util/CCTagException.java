@@ -36,17 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
 import javax.servlet.jsp.JspTagException;
 
 /**
  * A JspTagException with an initial cause.
+ * 
+ * To maintain 1.3 compatibility we delegate the printStackTrace methods
+ * to the Throwable that is the initial cause.
  *
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class CCTagException extends JspTagException {
 
     private Throwable initCause;
-
 
     /**
      * Constructs an instance of <code>CCTagException</code> with the specified detail message.
@@ -61,7 +66,15 @@ public class CCTagException extends JspTagException {
         initCause = cause;
     }
     
-  public StackTraceElement[] getStackTrace() {
-    return initCause.getStackTrace();
-  }
+    public void printStackTrace() {
+        initCause.printStackTrace();
+    }
+
+    public void printStackTrace(PrintStream s) {
+        initCause.printStackTrace(s);
+    }
+
+    public void printStackTrace(PrintWriter s) {
+        initCause.printStackTrace(s);
+    }
 }
