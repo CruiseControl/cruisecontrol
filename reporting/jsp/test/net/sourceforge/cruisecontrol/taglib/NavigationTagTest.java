@@ -38,6 +38,11 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
@@ -95,13 +100,19 @@ public class NavigationTagTest extends TestCase {
         assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0"));
     }
 
-    public void testGetFormattedLinkText() {
+    public void testGetFormattedLinkText() throws ParseException {
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
-        assertEquals("22-Feb-2002 12:00:00", tag.getLinkText("log20020222120000"));
-        assertEquals("22-Feb-2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11"));
-    }
+        
+        DateFormat inputFormat = new  SimpleDateFormat("yyyyMMddHHmmss");
+        Date date = inputFormat.parse("20020222120000");
+        DateFormat expectedFormat = new SimpleDateFormat(formatString);
+        String expectedDate = expectedFormat.format(date); 
 
+        assertEquals(expectedDate, tag.getLinkText("log20020222120000"));
+        assertEquals(expectedDate + " (3.11)", tag.getLinkText("log20020222120000L3.11"));
+    }
+    
     public void testGetLinks() throws JspException {
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
         tag.doInitBody();
