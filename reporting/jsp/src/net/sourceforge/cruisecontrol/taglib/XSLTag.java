@@ -52,6 +52,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.StringTokenizer;
 
 /**
  *  JSP custom tag to handle xsl transforms.  This tag also caches the output of the transform to disk, reducing the
@@ -141,7 +142,7 @@ public class XSLTag implements Tag, BodyTag {
     /**
      *  Gets the correct log file, based on the query string and the log directory.
      *
-     *  @param queryString The query string from the request, which should contain the specified log name
+     *  @param queryString The query string from the request, which should contain a name value pair log=LOG_FILE_NAME
      *  @param logDir The directory where the log files reside.
      *  @return The specifed log file or the latest log, if nothing is specified
      */
@@ -151,7 +152,15 @@ public class XSLTag implements Tag, BodyTag {
             xmlFile = getLatestLogFile(logDir);
             System.out.println("Using latest log file: " + xmlFile.getAbsolutePath());
         } else {
-            xmlFile = new File(logDir, queryString + ".xml");
+            String logFile = null;
+            StringTokenizer tokenizer = new StringTokenizer(queryString, "&");
+            while(tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                if(token.startsWith("log")) {
+                    logFile = token.substring(token.lastIndexOf('=') + 1);
+                }
+            }
+            xmlFile = new File(logDir, logFile + ".xml");
             System.out.println("Using specified log file: " + xmlFile.getAbsolutePath());
         }
         return xmlFile;

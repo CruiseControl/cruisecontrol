@@ -71,7 +71,7 @@ public class NavigationTag implements Tag, BodyTag {
      */
     protected String getUrl(String fileName, String servletPath) {
         String queryString = fileName.substring(0, fileName.lastIndexOf(".xml"));
-        return servletPath + "?" + queryString;
+        return servletPath + "?log=" + queryString;
     }
 
     /**
