@@ -51,8 +51,8 @@ public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);
 
     private LinkedList queue = new LinkedList();
-    private boolean alive = false;
     private boolean waiting = false;
+    private Thread buildQueueThread;
 
     /**
      * @param project
@@ -79,7 +79,8 @@ public class BuildQueue implements Runnable {
 
     public void run() {
         try {
-            while (alive) {
+          LOG.info("BuildQueue started");
+            while (true) {
                 synchronized (queue) {
                     if (queue.isEmpty()) {
                         try {
@@ -95,13 +96,15 @@ public class BuildQueue implements Runnable {
                 }
                 serviceQueue();
             }
+        } catch (Throwable e) {
+            LOG.error("BuildQueue.run()", e);
         } finally {
             LOG.info("BuildQueue thread is no longer alive");
         }
     }
 
     void start() {
-        Thread buildQueueThread = new Thread(this, "BuildQueueThread");
+        buildQueueThread = new Thread(this, "BuildQueueThread");
         buildQueueThread.setDaemon(false);
         buildQueueThread.start();
         while (!buildQueueThread.isAlive()) {
@@ -113,18 +116,18 @@ public class BuildQueue implements Runnable {
                 throw new RuntimeException(message);
             }
         }
-        alive = true;
     }
 
     void stop() {
-        alive = false;
+      LOG.info("Stopping BuildQueue", new Exception("stacktrace"));
+      buildQueueThread.interrupt();
         synchronized (queue) {
             queue.notify();
         }
     }
 
     public boolean isAlive() {
-        return alive;
+      return buildQueueThread != null ? buildQueueThread.isAlive() : false;
     }
 
     public boolean isWaiting() {
