@@ -51,6 +51,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -74,7 +75,7 @@ public class VssJournal implements SourceControl {
     private static final Logger LOG = Logger.getLogger(VssJournal.class);
 
     public static final SimpleDateFormat VSS_OUT_FORMAT =
-        new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma");
+        new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma", Locale.US);
 
     private String ssDir = "$/";
     private String journalFile;

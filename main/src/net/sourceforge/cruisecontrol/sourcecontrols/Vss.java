@@ -54,6 +54,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -315,7 +316,7 @@ public class Vss implements SourceControl {
      *  @see #setDateFormat
      */
     private String formatDateForVSS(Date d) {
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat + ";" + timeFormat);
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat + ";" + timeFormat, Locale.US);
         String vssFormattedDate = sdf.format(d);
         if (timeFormat.endsWith("a")) {
             return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
@@ -546,7 +547,7 @@ public class Vss implements SourceControl {
      */
     private void constructVssDateTimeFormat() {
         vssDateTimeFormat =
-            new SimpleDateFormat("'Date: '" + dateFormat + "   'Time: '" + timeFormat);
+            new SimpleDateFormat("'Date: '" + dateFormat + "   'Time: '" + timeFormat, Locale.US);
     }
 
     protected SimpleDateFormat getVssDateTimeFormat() {
