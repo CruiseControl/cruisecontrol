@@ -72,4 +72,23 @@ public class CVSLabelIncrementer implements LabelIncrementer {
     public boolean isPreBuildIncrementer() {
         return false;
     }
+
+    /**
+     *  Verify that the label specified is a valid label.  In this case a valid label contains
+     *  at least one '-' character, and an integer after the last occurrence of the '-' character.
+     */
+    public boolean isValidLabel(String label) {
+
+        if(label.indexOf("-") < 0) {
+            return false;
+        }
+
+        try {
+            String suffix = label.substring(label.lastIndexOf("-") + 1, label.length());
+            int i = Integer.parseInt(suffix);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

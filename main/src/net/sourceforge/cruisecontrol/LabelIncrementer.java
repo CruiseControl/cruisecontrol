@@ -73,4 +73,13 @@ public interface LabelIncrementer {
      *  building or after building.
      */
     public boolean isPreBuildIncrementer();
+
+    /**
+     *  Check the validity of a user-supplied label, making sure that it can be incremented successfully by
+     *  the appropriate implementation of <code>LabelIncrementer</code>
+     *
+     *  @param label user-supplied label
+     *  @return true if it is a valid label.
+     */
+    public boolean isValidLabel(String label);
 }
