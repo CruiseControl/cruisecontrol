@@ -17,6 +17,7 @@ build.xml
 HTMLEmailPublisher
 ----------------------
 * xslFileNames now encapsulated to allow for easier overriding - Patch by Patrick Lisser
+* added checkstyle.xsl - Patch by Dan Rollo
 
 main.jsp
 ----------------------
