@@ -168,6 +168,7 @@
             <classes dir="${classes}"/>
             <lib dir="${lib}">
                 <include name="cewolf.jar"/>
+                <include name="commons-logging.jar"/>
                 <include name="jfreechart-0.9.8.jar"/>
                 <include name="jcommon-0.8.0.jar"/>
                 <include name="batik-svggen.jar"/>
@@ -193,6 +194,7 @@
                 <include name="xalan.jar"/>
                 <include name="xerces.jar"/>
                 <include name="cewolf.jar"/>
+                <include name="commons-logging.jar"/>
                 <include name="jfreechart-0.9.8.jar"/>
                 <include name="jcommon-0.8.0.jar"/>
                 <include name="batik-svggen.jar"/>
