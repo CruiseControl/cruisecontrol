@@ -68,7 +68,7 @@ public class CruiseControlTagSupportTest extends TestCase {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
         log1 = new File(logDir, "log1.xml");
-        log2 = new File(logDir, "log2.xml");
+        log2 = new File(logDir, "log20040905010203Lsuccessful-build-file.1.xml");
         log3 = new File(logDir, "log3.xml");
     }
     
@@ -115,6 +115,15 @@ public class CruiseControlTagSupportTest extends TestCase {
         File result = CruiseControlTagSupport.getLatestLogFile(logDir);
         assertEquals("log3.xml", result.getName());
     }
+
+    public void testGetLatestSuccessfulLog() throws Exception {
+        writeFile(log1, "");
+        writeFile(log2, "");
+        writeFile(log3, "");
+
+        File result = CruiseControlTagSupport.getLatestSuccessfulLogFile(logDir);
+        assertEquals(log2, result);
+}
 
     private void writeFile(File file, String body) throws Exception {
         FileWriter writer = new FileWriter(file);

@@ -116,19 +116,28 @@
            }
            else {
 %>    <thead class="index-header">
-        <tr><td>Project</td><td align="center">Last build result</td><td align="center">Last build time</td></tr>
+      <tr>
+        <td>Project</td>
+        <td align="center">Last build result</td>
+        <td align="center">Last build time</td>
+        <td align="center">Last successful build time</td>
+        <td align="center">Last label</td>
+    </tr>
     </thead>
     <tbody>
  <%
                Arrays.sort(projectDirs);
-               for (int i = 0; i < projectDirs.length; i++) {
+             for (int i = 0; i < projectDirs.length; i++) {
                    String project = projectDirs[i];
                    File projectDir = new File(logDir, project);
                    statusHelper.setProjectDirectory(projectDir);
-                   final String result = statusHelper.getLastBuildResult();
+                 final String result = statusHelper.getLastBuildResult();
          %>        <tr><td><a href="buildresults/<%=project%>"><%=project%></a></td><%
                  %><td class="index-<%=result%>" align="center"><%=result%></td><%
-                 %><td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td></tr>
+                 %><td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td><%
+                 %><td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td><%
+                 %><td><%=statusHelper.getLastSuccessfulBuildLabel()%></td>
+                   </tr>
  <%
                }
          %>    </tbody>
