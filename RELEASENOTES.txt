@@ -127,6 +127,10 @@ VssBootstrapper
 ----------------------
 * Fixed a bug where bootstrapper would hang if SS.exe put up a prompt.
 
+web.xml
+----------------------
+* Added a welcome-file-list containing index.jsp; necessary for WebSphere (and maybe other appservers)
+
 CruiseControl Release Notes - 2.1.5
 
 ArtifactsPublisher
