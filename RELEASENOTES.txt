@@ -51,6 +51,10 @@ FileServlet
 ----------------------
 * write(stream) now uses buffered IO. Patch by Garrick Olson
 
+FileSystem
+----------------------
+* check to see that specified folder exists. Patch by Eric Pugh
+
 HTMLEmailBuilder
 ----------------------
 * Delete temp files after they've been used. Patch by Joris Kuipers

@@ -85,7 +85,9 @@ public class FileSystem implements SourceControl {
         if (folder == null) {
             throw new CruiseControlException("'folder' is a required attribute for FileSystem");
         }
-        //TODO: validate that folder exists
+        if (!folder.exists()) {
+            throw new CruiseControlException("folder " + folder.getAbsolutePath() + " must exist for FileSystem");
+        } 
     }
 
     /**
