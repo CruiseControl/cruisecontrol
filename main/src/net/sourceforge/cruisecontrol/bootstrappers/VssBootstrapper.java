@@ -66,9 +66,13 @@ public class VssBootstrapper implements Bootstrapper {
 
             Process p = Runtime.getRuntime().exec(commandLine, env);
             InputStream errorIn = p.getErrorStream();
+            InputStream stdIn = p.getInputStream();
             PrintWriter errorOut = new PrintWriter(System.err, true);
+            PrintWriter stdOut = new PrintWriter(System.out, true);
             StreamPumper errorPumper = new StreamPumper(errorIn, errorOut);
+            StreamPumper stdPumper = new StreamPumper(stdIn, stdOut);
             new Thread(errorPumper).start();
+            new Thread(stdPumper).start();
             p.waitFor();
             p.getInputStream().close();
             p.getOutputStream().close();
