@@ -645,6 +645,8 @@ public class Project implements Serializable, Runnable {
         Map buildProperties = new HashMap();
         buildProperties.put("label", label);
         buildProperties.put("cctimestamp", getFormatedTime(now));
+        buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
+        buildProperties.put("cclastbuildtimestamp", getLastBuild());
         buildProperties.putAll(modificationSet.getProperties());
         return buildProperties;
     }
