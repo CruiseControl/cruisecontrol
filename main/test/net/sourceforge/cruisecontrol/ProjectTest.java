@@ -43,6 +43,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
@@ -57,6 +60,7 @@ public class ProjectTest extends TestCase {
 
     private Project project;
     private static final long ONE_MINUTE = 60 * 1000;
+    private final List filesToClear = new ArrayList();
 
     public ProjectTest(String name) {
         super(name);
@@ -68,6 +72,27 @@ public class ProjectTest extends TestCase {
 
     protected void setUp() {
         project = new Project();
+    }
+
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            deleteFile(file);
+        }
+    }
+
+    private void deleteFile(File file) {
+        if (file.exists() == false) {
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            for (int i = 0; i < children.length; i++) {
+                File child = children[i];
+                deleteFile(child);
+            }
+        }
+        file.delete();
     }
 
     public void testBuild() throws Exception {
@@ -334,7 +359,9 @@ public class ProjectTest extends TestCase {
     private void writeFile(String fileName, String contents)
         throws IOException {
 
-        FileWriter fw = new FileWriter(fileName);
+        File theFile = new File(fileName);
+        filesToClear.add(theFile);
+        FileWriter fw = new FileWriter(theFile);
         fw.write(contents);
         fw.close();
     }

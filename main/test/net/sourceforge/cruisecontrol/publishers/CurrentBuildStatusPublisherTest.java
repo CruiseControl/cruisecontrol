@@ -40,15 +40,29 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.text.SimpleDateFormat;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.File;
 
 public class CurrentBuildStatusPublisherTest extends TestCase {
+    private final List filesToClear = new ArrayList();
 
     public CurrentBuildStatusPublisherTest(String name) {
         super(name);
+    }
+
+    public void tearDown() {
+        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
+            File file = (File) iterator.next();
+            if (file.exists()) {
+                file.delete();
+            }
+        }
     }
 
     public void testValidate() {
