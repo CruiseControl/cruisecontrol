@@ -54,6 +54,7 @@
                <li><a class="small" href="#schedule">Schedule</a>
                   <ul>
                      <li><a class="small" href="#antbuilder">AntBuilder</a>
+                     <li><a class="small" href="#mavenbuilder">MavenBuilder</a>
                      <li><a class="small" href="#pausebuilder">PauseBuilder</a>
                   </ul>
                <li><a class="small" href="#modificationset">ModificationSet</a>
@@ -678,6 +679,59 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">uselogger</td>
                <td class="tabledata">No</td>
                <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger.  'false' to call it as a Listener. Logger will log messages based on log4j setting which can make for smaller log files. Listener will echo ant messages to console which is useful when debugging your ant build. Defaults to 'false'</td>
+            </tr>
+         </table>
+
+         <p><a name="mavenbuilder"><span class="small">MavenBuilder</span><br/>
+	  Specify a <a href="http://maven.apache.org">Maven</a> build to be run at a given time or build number.  
+		Basically, it behaves like the AntBuilder, with some differences noted below. MavenBuilder runs (an already installed copy of) Maven 
+		over the specified project. Due to the current status of Maven (in heavy development) only the "script" start mode is supported.
+		</p>
+
+	<p><b>Note1:</b> Only the first <b>builder</b> entry for a particular interval will be run.  Any subsequent duplicate entries are ignored.</p>
+	<p><b>Note2:</b> The "goal" attribute has the following usage examples:</p>
+							 		 <ul>
+									 		 <li>"clean" will run 'clean' goal on the project</li>
+									 		 <li>"clean java:compile" will run 'clean' goal then 'java:compile' goal on the project, within the <b>same</b> Maven session run</li>
+									 		 <li>"clean my-cvs-update|java:compile" will run 'clean' goal then 'my-cvs-update' goal on the project, within the <b>same</b> Maven session run,
+											 	    then it will run Maven <b>again</b> with goal 'java:compile'. Handy behavior for running update goals that update the "project.xml" itself (or the like).
+														Arbitrary number of subsets allowed . Subset separator is '|'.
+											 </li>
+									 </ul>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">mavenscript</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Absolute filename of maven startup script (maven.bat or maven.sh).</td>
+            </tr>
+            <tr>
+               <td class="tabledata">projectfile</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Path to Maven's "project.xml" file</td>
+            </tr>
+            <tr>
+               <td class="tabledata">goal</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Maven goal, "set of goals" or "set of set of goals" to run. (see above Note2)</td>
+            </tr>
+            <tr>
+               <td class="tabledata">multiple</td>
+               <td class="tabledata" rowspan="2">One of These</td>
+               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">time</td>
+               <td class="tabledata">Time in the form HHmm</td>
+            </tr>
+            <tr>
+               <td class="tabledata">day</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Integer value of day when builds should take place.  Sunday = 1.  Does not support multiple days except for the default of every day.</td>
             </tr>
          </table>
 
