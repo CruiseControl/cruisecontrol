@@ -95,7 +95,7 @@ public class FileServlet extends HttpServlet {
         WebFile file = new WebFile(rootDir, request.getPathInfo());
         if (file.isFile()) {
             String filename = file.getName();
-            String mimeType = getServletContext().getMimeType(filename);
+            String mimeType = getMimeType(filename);
             response.setContentType(mimeType);
             file.write(response.getOutputStream());
             return;
@@ -113,6 +113,14 @@ public class FileServlet extends HttpServlet {
         }
         writer.write("</body>");
         writer.write("</html>");
+    }
+
+    String getMimeType(String filename) {
+        String mimeType = getServletContext().getMimeType(filename);
+        if (mimeType == null) {
+            mimeType = "text/plain";
+        }
+        return mimeType;
     }
 
     private void printDirs(HttpServletRequest request, WebFile file, Writer writer)

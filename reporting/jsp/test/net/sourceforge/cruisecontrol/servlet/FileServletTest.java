@@ -41,6 +41,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
@@ -132,6 +133,37 @@ public class FileServletTest extends TestCase {
         assertEquals(expected, actual);
         String actualMimeType = response.getContentType();
         assertEquals("text/html", actualMimeType);
+    }
+
+    public void testGetMimeType() {
+        MockServletContext context = new MockServletContext() {
+            public String getMimeType(String s) {
+                return "text/html";
+            }
+        };
+        servlet = new TestFileServlet(context);
+        assertEquals("text/html", servlet.getMimeType(""));
+
+        context = new MockServletContext() {
+            public String getMimeType(String s) {
+                return null;
+            }
+        };
+        servlet = new TestFileServlet(context);
+        assertEquals("text/plain", servlet.getMimeType(""));
+    }
+
+    private final class TestFileServlet extends FileServlet {
+        private MockServletContext context;
+
+        private TestFileServlet(MockServletContext msc) {
+            super();
+            context = msc;
+        }
+
+        public ServletContext getServletContext() {
+            return context;
+        }
     }
 
 }
