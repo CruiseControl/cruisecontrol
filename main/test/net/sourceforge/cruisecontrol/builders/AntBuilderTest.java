@@ -76,9 +76,7 @@ public class AntBuilderTest extends TestCase {
         properties = new Hashtable();
         properties.put("label", "200.1.23");
 
-        
-        BasicConfigurator.configure(
-            new ConsoleAppender(new PatternLayout("%m%n")));
+        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
     }
 
     public void tearDown() {
@@ -113,6 +111,14 @@ public class AntBuilderTest extends TestCase {
             fail("validate should not throw exceptions when options are set.");
         }
         
+        builder.setSaveLogDir("I/hope/this/dir/does/not/exist/");
+        try {
+            builder.validate();
+            fail("validate should throw exceptions when saveLogDir doesn't exist");
+        } catch (CruiseControlException e) {          
+        }
+
+        builder.setSaveLogDir(null);
         builder.setMultiple(2);
 
         try {
@@ -524,5 +530,37 @@ public class AntBuilderTest extends TestCase {
             + "/home/joris/java/cruisecontrol-2.2/main/lib/smack.jar:.";
         assertEquals("/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar",
                      unixBuilder.getAntLauncherJarLocation(unixPath));
+    }
+
+    public void testSaveAntLog() throws IOException {
+        String originalDirName = "target";
+        String logName = "log.xml";
+        String saveDirName = "target/reports/ant";
+
+        builder.setSaveLogDir(saveDirName);
+        builder.setTempFile(logName);
+
+        File originalDir = new File(originalDirName);
+        File originalLog = new File(originalDir, logName);
+        originalDir.mkdirs();
+        originalLog.createNewFile();
+        
+        File saveDir = new File(saveDirName);
+        File savedLog = new File(saveDir, logName);
+        saveDir.mkdirs();
+        savedLog.delete();
+
+        builder.saveAntLog(originalLog);
+        assertTrue(savedLog.exists());
+
+        savedLog.delete();
+
+        builder.setSaveLogDir("");
+        builder.saveAntLog(originalLog);
+        assertFalse(savedLog.exists());
+
+        builder.setSaveLogDir(null);
+        builder.saveAntLog(originalLog);
+        assertFalse(savedLog.exists());
     }
 }
