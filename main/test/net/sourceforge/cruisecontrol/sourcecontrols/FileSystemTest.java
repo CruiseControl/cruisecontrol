@@ -101,15 +101,14 @@ public class FileSystemTest extends TestCase {
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing");
-        tempFile.setLastModified(now.getTime() + 1000);
+        tempFile.setLastModified(now.getTime());
 
         tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         tempFile.deleteOnExit();
         writeContent(tempFile, "testing 2");
-        tempFile.setLastModified(now.getTime() + 1000);
+        tempFile.setLastModified(now.getTime());
 
         //Check for mods...there should be some, one for each file written.
-        lastBuild = now;
         Thread.sleep(1000); //slight delay
         now = new Date();
         mods = fsystem.getModifications(lastBuild, now);
