@@ -36,7 +36,6 @@
  ********************************************************************************/
 
 import net.sourceforge.cruisecontrol.*;
-import net.sourceforge.cruisecontrol.setup.*;
 
 /**
  * This class wraps the MasterBuild process to
