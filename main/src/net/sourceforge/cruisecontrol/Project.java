@@ -100,7 +100,6 @@ public class Project implements Serializable, Runnable {
 
     private int _buildCounter = 0;
     private Date _lastBuild;
-    //  can differ from _lastBuild when _buildAfterFailed=false
     private Date _lastSuccessfulBuild;
     private boolean _wasLastBuildSuccessful = true;
     private String _label;
@@ -129,7 +128,7 @@ public class Project implements Serializable, Runnable {
             build();
         }
         catch (CruiseControlException e) {
-            log.error("", e);
+            log.error("exception attempting build in project " + _name, e);
         }
 
         buildFinished();
@@ -265,7 +264,7 @@ public class Project implements Serializable, Runnable {
     void waitForNextBuild() throws InterruptedException {
         Date now = new Date();
         long waitTime = _schedule.getTimeToNextBuild(now, buildInterval);
-        log.info("next build for " + _name + " in " + formatTime(waitTime));
+        log("next build in " + formatTime(waitTime));
         synchronized (waitMutex) {
             waitMutex.wait(waitTime);
         }
@@ -329,19 +328,17 @@ public class Project implements Serializable, Runnable {
         }
 
         if (!_modificationSet.isModified()) {
-            log.info("No modifications found, build not necessary.");
+            log("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
             // modifications. This is in fact current default behaviour.
             // Set by <project buildafterfailed="true/false">
             if (_buildAfterFailed && !_wasLastBuildSuccessful) {
-                log.info(
-                    "Building anyway, since buildAfterFailed is true and last build failed.");
+                log("Building anyway, since buildAfterFailed is true and last build failed.");
             }
             else {
                 if (_buildForced) {
-                    log.info(
-                        "Building anyway, since build was explicitly forced.");
+                    log("Building anyway, since build was explicitly forced.");
                     _buildForced = false;
                 }
                 else {
@@ -370,7 +367,7 @@ public class Project implements Serializable, Runnable {
             s.writeObject(this);
             s.flush();
             s.close();
-            log.debug("Serializing project to: " + _name);
+            debug("Serializing project to [" + _name + "]");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -402,7 +399,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public void setConfigFileName(String fileName) {
-        log.debug("Config file set to: " + fileName);
+        debug("Config file set to [" + fileName + "]");
         _configFileName = fileName;
     }
 
@@ -693,7 +690,7 @@ public class Project implements Serializable, Runnable {
         throws CruiseControlException {
         BufferedWriter logWriter = null;
         try {
-            log.debug("Writing log file: " + _logFileName);
+            debug("Writing log file [" + _logFileName + "]");
             XMLOutputter outputter = null;
             if (_logXmlEncoding == null) {
                 outputter = new XMLOutputter("   ", true);
@@ -822,11 +819,19 @@ public class Project implements Serializable, Runnable {
             date = _formatter.parse(timeString);
         }
         catch (ParseException e) {
-            log.error("Error parsing timestamp for " + label, e);
+            log.error("Error parsing timestamp for [" + label + "]", e);
             throw new CruiseControlException(
                 "Cannot parse string for " + label + ":" + timeString);
         }
 
         return date;
+    }
+
+    private void log(String message) {
+        log.info("Project " + _name + ":  " + message);
+    }
+
+    private void debug(String message) {
+        log.debug("Project " + _name + ":  " + message);
     }
 }
