@@ -89,8 +89,6 @@ public class P4 implements SourceControl {
     private static final SimpleDateFormat P4_REVISION_DATE = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
     private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
 
     public void setPort(String p4Port) {
         this.p4Port = p4Port;
@@ -108,12 +106,16 @@ public class P4 implements SourceControl {
         this.p4View = p4View;
     }
 
+    /** 
+     * Unsupported by P4. 
+     */
     public void setProperty(String property) {
-        this.property = property;
     }
 
+    /** 
+     * Unsupported by P4. 
+     */
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {

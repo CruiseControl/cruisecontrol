@@ -187,6 +187,9 @@ public class MKS implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         List mods = null;
 
+        //TODO: update to use CommandLine
+        //TODO: use localWorkingCopy? (currently ignored)
+
         String dateRange =
             "\"" + MKSDATE.format(lastBuild) + "<" + MKSDATE.format(now) + "\"";
         String commandArray = "rlog -q -d" + dateRange + " -P" + mksroot;

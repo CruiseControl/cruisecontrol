@@ -55,11 +55,11 @@ public class FileSystem implements SourceControl {
 
     private Hashtable properties = new Hashtable();
     private String property;
-    private String propertyOnDelete;
 
     private List modifications;
     private File folder;
-
+    //TODO: change folder attribute to path. Can be file or directory.
+    
     /**
      * Set the root folder of the directories that we are going to scan
      */
@@ -71,8 +71,10 @@ public class FileSystem implements SourceControl {
         this.property = property;
     }
 
+    /** 
+     * Unsupported by FileSystem. 
+     */
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {
@@ -81,8 +83,9 @@ public class FileSystem implements SourceControl {
 
     public void validate() throws CruiseControlException {
         if (folder == null) {
-           throw new CruiseControlException("'folder' is a required attribute for FileSystem");
+            throw new CruiseControlException("'folder' is a required attribute for FileSystem");
         }
+        //TODO: validate that folder exists
     }
 
     /**
@@ -109,6 +112,9 @@ public class FileSystem implements SourceControl {
         Modification mod = new Modification();
 
         mod.type = "change";
+        
+        // TODO: add attribute to specify user name for modifications
+        
         mod.userName = "User";
         mod.fileName = revision.getName();
         mod.folderName = revision.getPath();
