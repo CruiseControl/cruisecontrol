@@ -100,14 +100,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
             verifyDirectory("HTMLEmailPublisher.xslDir", xslDir);
             verifyFile("HTMLEmailPublisher.css", css);
 
-            String[] xslFileNames = getXslFileNames();
+            String[] fileNames = getXslFileNames();
             
-            if (xslFileNames == null) {
-                throw new CruiseControlException("HTMLEmailPublisher.xslFileNames can't be null");
+            if (fileNames == null) {
+                throw new CruiseControlException("HTMLEmailPublisher.getXslFileNames() can't return null");
             }
 
-            for (int i = 0; i < xslFileNames.length; i++) {
-                String fileName = xslFileNames[i];
+            for (int i = 0; i < fileNames.length; i++) {
+                String fileName = fileNames[i];
                 verifyFile(
                     "HTMLEmailPublisher.xslDir/" + fileName,
                     new File(xslDir, fileName));
@@ -280,9 +280,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
             messageBuffer.append(createLinkLine(inFile.getName()));
 
             File xslDirectory = new File(xslDir);
-            String[] xslFileNames = getXslFileNames();
-            for (int i = 0; i < xslFileNames.length; i++) {
-                String fileName = xslFileNames[i];
+            String[] fileNames = getXslFileNames();
+            for (int i = 0; i < fileNames.length; i++) {
+                String fileName = fileNames[i];
                 File xsl = new File(xslDirectory, fileName);
                 appendTransform(inFile, messageBuffer, tFactory, xsl);
             }
