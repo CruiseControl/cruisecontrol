@@ -47,7 +47,6 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
 
 import org.apache.log4j.Logger;
 
@@ -56,7 +55,7 @@ import org.apache.log4j.Logger;
  *
  * @author <a href="mailto:yourgod@users.sourceforge.net">Brad Clarke</a>
  */
-public class HttpFile implements SourceControl {
+public class HttpFile extends FakeUserSourceControl {
     private static Logger log = Logger.getLogger(HttpFile.class);
     private String urlString;
 
@@ -116,7 +115,7 @@ public class HttpFile implements SourceControl {
             Modification mod = new Modification("http");
             mod.createModifiedFile(url.getFile(), url.getPath());
 
-            mod.userName = "User";
+            mod.userName = getUserName();
             mod.modifiedTime = new Date(lastModified);
             mod.comment = "";
             modifiedList.add(mod);

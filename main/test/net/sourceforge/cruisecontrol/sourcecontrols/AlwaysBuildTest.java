@@ -36,64 +36,37 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Modification;
 
-/**
- * Returns "true" always, so that a build will happen repeatedly.
- *
- * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
- */
-public class AlwaysBuild extends FakeUserSourceControl {
+public class AlwaysBuildTest extends TestCase {
 
-    private Hashtable properties = new Hashtable();
-
-    /**
-     * Unsupported by AlwaysBuild.
-     */
-    public void setProperty(String property) {
-
+    public AlwaysBuildTest(String name) {
+        super(name);
     }
 
-    /**
-     * Unsupported by AlwaysBuild.
-     */
-    public void setPropertyOnDelete(String propertyOnDelete) {
+    public void testDefaultUserName() throws IOException {
+        AlwaysBuild alwaysBuild = new AlwaysBuild();        
+        checkUserName("User", alwaysBuild);
     }
 
-    public Hashtable getProperties() {
-        return properties;
+    public void testProvidedUserName() throws IOException {
+        AlwaysBuild alwaysBuild = new AlwaysBuild();
+        alwaysBuild.setUserName("epugh");
+        checkUserName("epugh", alwaysBuild);
+
+        alwaysBuild.setUserName("");
+        checkUserName("", alwaysBuild);
     }
-
-    public void validate() throws CruiseControlException {
-
-    }
-
-    /**
-     * For this case, we don't care about the quietperiod, only that
-     * one user is modifying the build.
-     *
-     * @param lastBuild date of last build
-     * @param now       IGNORED
-     */
-    public List getModifications(Date lastBuild, Date now) {
-        List modifications = new ArrayList();
-
-        Modification mod = new Modification("always");
-        Modification.ModifiedFile modfile = mod.createModifiedFile("force build", "force build");
-        modfile.action = "change";
-
-        mod.userName = getUserName();
-        mod.modifiedTime = new Date((new Date()).getTime() - 100000);
-        mod.comment = "";
-        modifications.add(mod);
-        return modifications;
-    }
-
-
+    
+    private void checkUserName(String userName, AlwaysBuild alwaysBuild) {
+        List modifications = alwaysBuild.getModifications(new Date(), new Date());
+        assertEquals(1, modifications.size());
+        Modification modification = (Modification) modifications.get(0);
+        assertEquals(userName, modification.userName);
+    }    
 }

@@ -44,14 +44,13 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
 
 /**
  * Scans a directory tree on a local drive rather than in a repository.
  *
  * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
  */
-public class FileSystem implements SourceControl {
+public class FileSystem extends FakeUserSourceControl {
 
     private Hashtable properties = new Hashtable();
     private String property;
@@ -114,7 +113,7 @@ public class FileSystem implements SourceControl {
     private void addRevision(File revision) {
         Modification mod = new Modification("filesystem");
 
-        mod.userName = "User";
+        mod.userName = getUserName();
 
         Modification.ModifiedFile modfile = mod.createModifiedFile(revision.getName(), revision.getParent());
         modfile.action = "change";
