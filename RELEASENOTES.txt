@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+DefaultLabelIncrementer & CVSLabelIncrementer
+----------------------
+* Added preBuildIncrementer attribute. - Patch by Brett Wooldridge
+
 HTMLEmailPublisher
 ----------------------
 * Added charset attribute.
