@@ -41,7 +41,7 @@
 
     <xsl:output method="html"/>
 
-    <xsl:variable name="testsuite.list" select="cruisecontrol/testsuite"/>
+    <xsl:variable name="testsuite.list" select="//testsuite"/>
     <xsl:variable name="testsuite.error.count" select="count($testsuite.list/error)"/>
     <xsl:variable name="testcase.list" select="$testsuite.list/testcase"/>
     <xsl:variable name="testcase.error.list" select="$testcase.list/error"/>

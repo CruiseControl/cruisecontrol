@@ -121,7 +121,7 @@
     </script>
     <table border="0" cellspacing="0" width="100%">
     <xsl:call-template name="table.header" />
-    <xsl:for-each select="./testsuite">
+    <xsl:for-each select="//testsuite">
         <xsl:sort select="count(testcase/error)" data-type="number" order="descending" />
         <xsl:sort select="count(testcase/failure)" data-type="number" order="descending" />
         <xsl:sort select="@package"/>
