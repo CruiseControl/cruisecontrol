@@ -36,73 +36,86 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.StringWriter;
 
-import java.io.*;
+import junit.framework.TestCase;
 
 public class XSLTagTest extends TestCase {
 
-    File _logDir;
-    File _log1;
-    File _log2;
-    File _log3;
+    private File logDir;
+    private File log1;
+    private File log2;
+    private File log3;
 
     public XSLTagTest(String name) {
         super(name);
     }
 
     protected void setUp() throws Exception {
-        _logDir = new File("testresults/");
-        if (!_logDir.exists()) {
-            assertTrue("Failed to create test result dir", _logDir.mkdir());
+        logDir = new File("testresults/");
+        if (!logDir.exists()) {
+            assertTrue("Failed to create test result dir", logDir.mkdir());
         }
-        _log1 = new File(_logDir, "log1.xml");
-        _log2 = new File(_logDir, "log2.xml");
-        _log3 = new File(_logDir, "log3.xml");
+        log1 = new File(logDir, "log1.xml");
+        log2 = new File(logDir, "log2.xml");
+        log3 = new File(logDir, "log3.xml");
 
     }
 
     protected void tearDown() throws Exception {
-        _log1.delete();
-        _log2.delete();
-        _log3.delete();
-        _logDir.delete();
+        log1.delete();
+        log2.delete();
+        log3.delete();
+        logDir.delete();
     }
 
     public void testGetLatestLog() throws Exception {
-        writeFile(_log1, "");
-        writeFile(_log2, "");
-        writeFile(_log3, "");
+        writeFile(log1, "");
+        writeFile(log2, "");
+        writeFile(log3, "");
 
         XSLTag tag = new XSLTag();
-        File result = tag.getLatestLogFile(_logDir);
+        File result = tag.getLatestLogFile(logDir);
         assertEquals(result.getName(), "log3.xml");
     }
 
     public void testTransform() throws Exception {
-        writeFile(_log1, "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" xmlns:lxslt=\"http://xml.apache.org/xslt\"><xsl:output method=\"text\"/><xsl:template match=\"/\"><xsl:value-of select=\"test\"/></xsl:template></xsl:stylesheet>");
-        writeFile(_log3, "<test>3</test>");
-        InputStream in = new FileInputStream(_log1);
+        final String styleSheetText =
+                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
+                        + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
+                    + "<xsl:output method=\"text\"/>"
+                    + "<xsl:template match=\"/\">"
+                        + "<xsl:value-of select=\"test\"/>"
+                    + "</xsl:template>"
+                + "</xsl:stylesheet>";
+        writeFile(log1, styleSheetText);
+        writeFile(log3, "<test>3</test>");
+        InputStream in = new FileInputStream(log1);
         StringWriter out = new StringWriter();
 
         XSLTag tag = new XSLTag();
-        tag.transform(_log3, in, out);
+        tag.transform(log3, in, out);
         assertEquals("3", out.toString());
     }
 
     public void testGetXmlFile() throws Exception {
-        writeFile(_log1, "");
-        writeFile(_log3, "");
+        writeFile(log1, "");
+        writeFile(log3, "");
 
         XSLTag tag = new XSLTag();
-        assertEquals(tag.getXMLFile("", _logDir).getName(), "log3.xml");
-        assertEquals(tag.getXMLFile("log1", _logDir).getName(), "log1.xml");
+        assertEquals(tag.getXMLFile("", logDir).getName(), "log3.xml");
+        assertEquals(tag.getXMLFile("log1", logDir).getName(), "log1.xml");
     }
 
     public void testGetCachedCopyFileName() {
         XSLTag tag = new XSLTag();
         tag.setXslFile("xsl/cruisecontrol.xsl");
-        assertEquals("log20020221120000-cruisecontrol.html", tag.getCachedCopyFileName(new File("log20020221120000.xml")));
+        final String expectedValue = "log20020221120000-cruisecontrol.html";
+        assertEquals(expectedValue, tag.getCachedCopyFileName(new File("log20020221120000.xml")));
     }
 
     /*
@@ -120,11 +133,11 @@ public void testIsCachedCopyCurrent() {
 }
       */
     public void testServeCachedCopy() throws Exception {
-        writeFile(_log3, "<test></test>");
+        writeFile(log3, "<test></test>");
         StringWriter out = new StringWriter();
         XSLTag tag = new XSLTag();
 
-        tag.serveCachedCopy(_log3, out);
+        tag.serveCachedCopy(log3, out);
         assertEquals("<test></test>", out.toString());
     }
 

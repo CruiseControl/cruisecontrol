@@ -36,27 +36,31 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import javax.servlet.jsp.PageContext;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.URIResolver;
-
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.StringTokenizer;
 
 /**
  *  JSP custom tag to handle xsl transforms.  This tag also caches the output of the transform to disk, reducing the
@@ -66,10 +70,10 @@ import java.util.StringTokenizer;
  */
 public class XSLTag implements Tag, BodyTag {
 
-    private BodyContent _bodyOut;
-    private Tag _parent;
-    private PageContext _pageContext;
-    private String _xslFileName;
+    private BodyContent bodyOut;
+    private Tag parent;
+    private PageContext pageContext;
+    private String xslFileName;
 
     /**
      *  Perform an xsl transform.  This body of this method is based upon the xalan sample code.
@@ -81,8 +85,8 @@ public class XSLTag implements Tag, BodyTag {
     protected void transform(File xmlFile, InputStream in, Writer out) {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
-	    if (_xslFileName != null) {
-                String xslFilePath = _pageContext.getServletContext().getRealPath(_xslFileName);
+            if (xslFileName != null) {
+                String xslFilePath = pageContext.getServletContext().getRealPath(xslFileName);
                 final String xslDir = new File(xslFilePath).getAbsoluteFile().getParent();
                 javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
                     public javax.xml.transform.Source resolve(String href, String base) {
@@ -116,19 +120,20 @@ public class XSLTag implements Tag, BodyTag {
      *  @return true if the cache file is current.
      */
     protected boolean isCacheFileCurrent(File xmlFile, File cacheFile) {
-        if(!cacheFile.exists())
+        if (!cacheFile.exists()) {
             return false;
+        }
 
         long xmlLastModified = xmlFile.lastModified();
         long xslLastModified = xmlLastModified;
         long cacheLastModified = cacheFile.lastModified();
 
         try {
-          URL url = _pageContext.getServletContext().getResource(_xslFileName);
-          URLConnection con = url.openConnection();
-          xslLastModified = con.getLastModified();
+            URL url = pageContext.getServletContext().getResource(xslFileName);
+            URLConnection con = url.openConnection();
+            xslLastModified = con.getLastModified();
         } catch (Exception e) {
-          System.err.println("Failed to retrieve lastModified of xsl file " + _xslFileName);
+            System.err.println("Failed to retrieve lastModified of xsl file " + xslFileName);
         }
 
         return (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
@@ -137,7 +142,7 @@ public class XSLTag implements Tag, BodyTag {
     /**
      *  Serves the cached copy rather than re-performing the xsl transform for every request.
      *
-     *  @param fileName The filename of the cached copy of the transform.
+     *  @param cacheFile The filename of the cached copy of the transform.
      *  @param out The writer to write to
      */
     protected void serveCachedCopy(File cacheFile, Writer out) {
@@ -145,7 +150,7 @@ public class XSLTag implements Tag, BodyTag {
         try {
             is = new BufferedInputStream(new FileInputStream(cacheFile));
             int c = 0;
-            while((c=is.read()) != -1) {
+            while ((c = is.read()) != -1) {
                 out.write(c);
             }
             is.close();
@@ -165,8 +170,8 @@ public class XSLTag implements Tag, BodyTag {
      */
     protected String getCachedCopyFileName(File xmlFile) {
         String xmlFileName = xmlFile.getName().substring(0, xmlFile.getName().lastIndexOf("."));
-        String xslFileName = _xslFileName.substring(_xslFileName.lastIndexOf("/")+1, _xslFileName.lastIndexOf("."));
-        return xmlFileName + "-" + xslFileName + ".html";
+        String styleSheetName = xslFileName.substring(xslFileName.lastIndexOf("/") + 1, xslFileName.lastIndexOf("."));
+        return xmlFileName + "-" + styleSheetName + ".html";
     }
 
     /**
@@ -178,15 +183,15 @@ public class XSLTag implements Tag, BodyTag {
      */
     protected File getXMLFile(String queryString, File logDir) {
         File xmlFile = null;
-        if(queryString == null || queryString.trim().equals("")) {
+        if (queryString == null || queryString.trim().equals("")) {
             xmlFile = getLatestLogFile(logDir);
             System.out.println("Using latest log file: " + xmlFile.getAbsolutePath());
         } else {
             String logFile = null;
             StringTokenizer tokenizer = new StringTokenizer(queryString, "&");
-            while(tokenizer.hasMoreTokens()) {
+            while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken();
-                if(token.startsWith("log")) {
+                if (token.startsWith("log")) {
                     logFile = token.substring(token.lastIndexOf('=') + 1);
                 }
             }
@@ -208,10 +213,10 @@ public class XSLTag implements Tag, BodyTag {
                 return (name.startsWith("log") && name.endsWith(".xml") && name.length() > 7);
             }
         });
-        if(logs != null && logs.length > 0) {
-            Arrays.sort(logs, new Comparator(){
-                public int compare(Object o1, Object o2){
-                    return ((File)o2).getName().compareTo(((File)o1).getName());
+        if (logs != null && logs.length > 0) {
+            Arrays.sort(logs, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((File) o2).getName().compareTo(((File) o1).getName());
                 }
             });
             return logs[0];
@@ -227,32 +232,33 @@ public class XSLTag implements Tag, BodyTag {
      *  @param xslFile The path to the xslFile.
      */
     public void setXslFile(String xslFile) {
-        _xslFileName = xslFile;
+        xslFileName = xslFile;
     }
 
     /**
      *  Write the transformed log content to page writer given.
      */
     protected void writeContent(Writer out) throws JspException {
-        String logDirName = _pageContext.getServletConfig().getInitParameter("logDir");
+        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
         if (logDirName == null) {
-            logDirName = _pageContext.getServletContext().getInitParameter("logDir");
+            logDirName = pageContext.getServletContext().getInitParameter("logDir");
         }
         File logDir = new File(logDirName);
         System.out.println("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
 
 
         File cacheDir = new File(logDir, "_cache");
-        if(!cacheDir.exists()) {
+        if (!cacheDir.exists()) {
             cacheDir.mkdir();
         }
 
-        String queryString = ((HttpServletRequest) _pageContext.getRequest()).getQueryString();
+        String queryString = ((HttpServletRequest) pageContext.getRequest()).getQueryString();
         File xmlFile = getXMLFile(queryString, logDir);
         File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile));
-        if(!isCacheFileCurrent(xmlFile, cacheFile)) {
+        if (!isCacheFileCurrent(xmlFile, cacheFile)) {
             try {
-                transform(xmlFile, _pageContext.getServletContext().getResourceAsStream(_xslFileName), new FileWriter(new File(cacheDir, getCachedCopyFileName(xmlFile))));
+                final InputStream styleSheetStream = pageContext.getServletContext().getResourceAsStream(xslFileName);
+                transform(xmlFile, styleSheetStream, new FileWriter(cacheFile));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -264,12 +270,12 @@ public class XSLTag implements Tag, BodyTag {
     }
 
     public int doAfterBody() throws JspException {
-        //writeContent(_bodyOut.getEnclosingWriter());
+        //writeContent(bodyOut.getEnclosingWriter());
         return SKIP_BODY;
     }
 
     public int doEndTag() throws JspException {
-        writeContent(_pageContext.getOut());
+        writeContent(pageContext.getOut());
         return EVAL_PAGE;
     }
 
@@ -278,24 +284,24 @@ public class XSLTag implements Tag, BodyTag {
     }
 
     public Tag getParent() {
-        return _parent;
+        return parent;
     }
 
     public void release() {
     }
 
     public void setPageContext(PageContext pageContext) {
-        _pageContext = pageContext;
+        this.pageContext = pageContext;
     }
 
     public void setParent(Tag parent) {
-        _parent = parent;
+        this.parent = parent;
     }
 
     public void doInitBody() throws JspException {
     }
 
     public void setBodyContent(BodyContent bodyOut) {
-        _bodyOut = bodyOut;
+        this.bodyOut = bodyOut;
     }
 }
