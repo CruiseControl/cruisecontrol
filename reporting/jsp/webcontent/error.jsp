@@ -34,44 +34,63 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
-<%@page errorPage="/error.jsp"%>
-<%@page import="java.io.File, java.util.Arrays"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
+<%@page isErrorPage="true"%>
+<%@page import="java.io.CharArrayWriter,
+            java.io.PrintWriter"%>
+<%
+    String baseURL = request.getScheme() + "://" + request.getServerName();
+    if (!request.getScheme().equals("http") || request.getServerPort() != 80) {
+        baseURL += ":" + request.getServerPort();
+    }
+    baseURL += request.getContextPath() + "/";
+    String message = exception.getMessage();
+    if (message == null) {
+        message = "(null)";
+    }
+    CharArrayWriter stackTraceWriter = new CharArrayWriter();
+    exception.printStackTrace(new PrintWriter(stackTraceWriter, true));
+    String stackTrace = stackTraceWriter.toString();
+    log(request.getRequestURL() + ": " + message, exception);
+%>
+<html>
+<head>
+  <title>CruiseControl Error</title>
+  <base href="<%= baseURL %>" />
+  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
+</head>
+<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+  <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
+    <tr>
+      <td valign="top">
         <img src="images/blank8.gif" border="0"><br>
         <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
-        <table border="0" align="center" width="98%">
-<%
-    String singleProjectMode = application.getInitParameter("singleProject");
-    if (Boolean.valueOf(singleProjectMode).booleanValue() == false) {  %>
-            <tr><td><a class="link" href="index">Project</a></td></tr>
-            <tr><td>
-              <form action="index" >
-                <select name="projecttarget" onchange="self.location.href = this.form.projecttarget.options[this.form.projecttarget.selectedIndex].value">
-                  <cruisecontrol:projectnav>
-                    <option <%=selected%> value="<%=projecturl%>"><%=linktext%></option>
-                  </cruisecontrol:projectnav>
-                </select>
-              </form>
-            </td></tr>
-            <tr><td>&nbsp;</td></tr>
-    <%
-    } 
- %>
-            <tr><td>&nbsp;</td></tr>
-            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
-            <tr><td>&nbsp;</td></tr>
-            <cruisecontrol:link id="baseUrl" />
-            <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
-            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
-                <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
-            </cruisecontrol:nav>
-            <tr><td>
-              <form method="GET" action="<%=baseUrl%>" >
-                <select name="log" onchange="form.submit()">
-                  <cruisecontrol:nav startingBuildNumber="10">
-                    <option value="<%=logfile%>"><%= linktext %></option>
-                  </cruisecontrol:nav>
-                </select>
-              </form>
-            </td></tr>
+      </td>
+      <td valign="top">
+        &nbsp;<br>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+            <tr>
+              <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"></td>
+            </tr>
+            <tr>
+              <td bgcolor="white" >
+                <table width="98%" border="0" cellspacing="0" cellpadding="2" align="center">
+                  <tr>
+                    <td class="header-title"><%= message %></td>
+                  </tr>
+                  <tr>
+                    <td class="header-data"><pre><%= stackTrace %></pre></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"></td>
+            </tr>
+          </tbody>
         </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

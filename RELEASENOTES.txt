@@ -106,6 +106,7 @@ navigation.jsp:
 reporting application:
 ----------------------
 * Moved JSP's, WEB-INF and static content to dedicated subdirectory (CC-95)
+* Xsl transformation error handling (CC-16) Patch by Hack Kampbjorn
 
 P4 & P4Bootstrapper:
 ----------------------

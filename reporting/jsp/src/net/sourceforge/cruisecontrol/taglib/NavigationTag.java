@@ -45,10 +45,12 @@ import java.util.Arrays;
 import java.util.Date;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
 
 import net.sourceforge.cruisecontrol.BuildInfo;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
  *
@@ -74,7 +76,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
         return fileName.substring(0, fileName.lastIndexOf(".xml"));
     }
 
-    protected String getLinkText(String fileName) {
+    protected String getLinkText(String fileName) throws JspTagException {
         String dateString = "";
         String label = "";
         if (fileName.lastIndexOf(LABEL_SEPARATOR) > -1) {
@@ -96,6 +98,8 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
             date = inputDate.parse(dateString);
         } catch (ParseException e) {
             err(e);
+            throw new CCTagException("Error parsing '" + dateString + "': " + e.getMessage(), e);
+
         }
 
         return getDateFormat().format(date) + label;
@@ -124,7 +128,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
        setupLinkVariables();
     }
 
-    void setupLinkVariables() {
+    void setupLinkVariables() throws JspTagException {
         final String fileName = buildInfo[count].getFileName();
         String logName = extractLogNameFromFileName(fileName);
         getPageContext().setAttribute(URL_ATTR, createUrl("log", logName));
@@ -143,6 +147,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
                 out.writeOut(out.getEnclosingWriter());
             } catch (IOException e) {
                 err(e);
+                throw new CCTagException("IO Error: " + e.getMessage(), e);
             }
             return SKIP_BODY;
         }

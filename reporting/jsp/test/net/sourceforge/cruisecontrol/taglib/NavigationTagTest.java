@@ -45,6 +45,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
 
@@ -92,14 +93,14 @@ public class NavigationTagTest extends TestCase {
         logDir.delete();
     }
 
-    public void testGetLinkText() {
+    public void testGetLinkText() throws JspTagException {
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000"));
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200"));
         assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11"));
         assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0"));
     }
 
-    public void testGetFormattedLinkText() throws ParseException {
+    public void testGetFormattedLinkText() throws ParseException, JspTagException {
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
         

@@ -1,6 +1,3 @@
-<%@ page import="java.io.File,
-                 java.util.Arrays,
-                 java.util.Calendar"%>
  <%--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
@@ -37,6 +34,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
+<%@page errorPage="/error.jsp"%>
+<%@page import="java.io.File,
+                 java.util.Arrays,
+                 java.util.Calendar"%>
 <jsp:useBean id="statusHelper" scope="page" class="net.sourceforge.cruisecontrol.StatusHelper" />
 <%
     String singleProjectMode = application.getInitParameter("singleProject");

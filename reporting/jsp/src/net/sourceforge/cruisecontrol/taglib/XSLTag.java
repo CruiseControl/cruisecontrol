@@ -51,12 +51,15 @@ import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
  *  JSP custom tag to handle xsl transforms.  This tag also caches the output of the transform to disk, reducing the
@@ -78,7 +81,7 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param style stream containing the xsl stylesheet
      *  @param out stream to output the results of the transformation
      */
-    protected void transform(File xmlFile, InputStream style, OutputStream out) {
+    protected void transform(File xmlFile, InputStream style, OutputStream out) throws JspTagException {
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
@@ -109,6 +112,8 @@ public class XSLTag extends CruiseControlTagSupport {
             transformer.transform(in, new StreamResult(out));
         } catch (TransformerException e) {
             err(e);
+            throw new CCTagException("Error transforming '" + xmlFile.getName()
+                    + "': " + e.getMessage(), e);
         }
     }
 
@@ -143,7 +148,7 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param cacheFile The filename of the cached copy of the transform.
      *  @param out The writer to write to
      */
-    protected void serveCachedCopy(File cacheFile, Writer out) {
+    protected void serveCachedCopy(File cacheFile, Writer out) throws JspTagException {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new FileReader(cacheFile));
@@ -158,6 +163,8 @@ public class XSLTag extends CruiseControlTagSupport {
             in.close();
         } catch (IOException e) {
             err(e);
+            throw new CCTagException("Error reading cache transformation '"
+                    + cacheFile.getName() + "': " + e.getMessage(), e);
         }
     }
 
@@ -234,7 +241,7 @@ public class XSLTag extends CruiseControlTagSupport {
         serveCachedCopy(cacheFile, out);
     }
 
-    private void updateCacheFile(File xmlFile, File cacheFile) {
+    private void updateCacheFile(File xmlFile, File cacheFile) throws JspTagException {
         try {
             final InputStream styleSheetStream = getPageContext().getServletContext().getResourceAsStream(xslFileName);
             final FileOutputStream out = new FileOutputStream(cacheFile);
@@ -243,6 +250,8 @@ public class XSLTag extends CruiseControlTagSupport {
             styleSheetStream.close();
         } catch (IOException e) {
             err(e);
+            throw new CCTagException("Error saving a cached transformation '"
+                    + cacheFile.getName() + "': " + e.getMessage(), e);
         }
     }
 
