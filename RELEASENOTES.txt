@@ -1,5 +1,10 @@
 CruiseControl Release Notes - Latest CVS
 
+AntBuilder
+----------------------
+* Added more infomative exception when log file doesn't contain a build tag. Patch by Dave Glowacki
+* Added check to ensure that log file exists before trying to get contents.
+
 CruiseControlController
 ----------------------
 * On a new project (no serialized project found) force a build. This is to aid setting up CruiseControl as you will not need to wait for a modification.

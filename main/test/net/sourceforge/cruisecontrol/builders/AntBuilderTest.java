@@ -293,33 +293,69 @@ public class AntBuilderTest extends TestCase {
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
-    public void testGetAntLogAsElement() throws Exception {
-        try {
-            Element buildLogElement = new Element("build");
-            File logFile = new File("_tempAntLog14.xml");
-            filesToClear.add(logFile);
-            BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
-            bw1.write(
+    public void testGetAntLogAsElement() throws IOException, CruiseControlException {
+        Element buildLogElement = new Element("build");
+        File logFile = new File("_tempAntLog14.xml");
+        filesToClear.add(logFile);
+        BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
+        bw1.write(
                 "<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
-            bw1.flush();
-            bw1.close();
-            File logFile2 = new File("_tempAntLog141.xml");
-            filesToClear.add(logFile2);
-            BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
-            bw2.write(
+        bw1.flush();
+        bw1.close();
+        File logFile2 = new File("_tempAntLog141.xml");
+        filesToClear.add(logFile2);
+        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
+        bw2.write(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
-                    + "type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
-            bw2.flush();
-            bw2.close();
+                + "type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
+        bw2.flush();
+        bw2.close();
 
-            assertEquals(
+        assertEquals(
                 buildLogElement.toString(),
                 AntBuilder.getAntLogAsElement(logFile).toString());
-            assertEquals(
+        assertEquals(
                 buildLogElement.toString(),
                 AntBuilder.getAntLogAsElement(logFile2).toString());
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+    }
+
+    public void testGetAntLogAsElement_NoLogFile() throws IOException {
+        File doesNotExist = new File("blah blah blah does not exist");
+        try {
+            AntBuilder.getAntLogAsElement(doesNotExist);
+            fail();
+        } catch (CruiseControlException expected) {
+            assertEquals("ant logfile " + doesNotExist.getAbsolutePath() + " does not exist.", expected.getMessage());
+        }
+    }
+
+    public void testGetAntLogAsElement_NoBuildElement() throws IOException {
+        File logFile = new File("_tempAntLog14.xml");
+        filesToClear.add(logFile);
+        BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
+        bw1.write("<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><notbuild></notbuild>");
+        bw1.flush();
+        bw1.close();
+        File logFile2 = new File("_tempAntLog141.xml");
+        filesToClear.add(logFile2);
+        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
+        bw2.write(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
+                + "type=\"text/xsl\" href=\"log.xsl\"?><notbuild></notbuild>");
+        bw2.flush();
+        bw2.close();
+
+        try {
+            AntBuilder.getAntLogAsElement(logFile);
+            fail();
+        } catch (CruiseControlException expected) {
+            assertEquals("build tag not found in " + logFile.getAbsolutePath(), expected.getMessage());
+        }
+
+        try {
+            AntBuilder.getAntLogAsElement(logFile2);
+        } catch (CruiseControlException expected) {
+            assertEquals("build tag not found in " + logFile2.getAbsolutePath(), expected.getMessage());            
         }
     }
 
