@@ -206,7 +206,8 @@ public class MKS implements SourceControl {
             mods = parseStream(input);
 
             //Using another stream pumper here will get rid of any leftover data in the stream.
-            StreamPumper outPumper = new StreamPumper(input, null);
+            StreamPumper outPumper = new StreamPumper(input,
+                                                      (PrintWriter) null);
             new Thread(outPumper).start();
 
             p.waitFor();

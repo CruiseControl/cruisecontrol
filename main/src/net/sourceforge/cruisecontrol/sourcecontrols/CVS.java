@@ -389,7 +389,7 @@ public class CVS implements SourceControl {
     }
 
     private void getRidOfLeftoverData(InputStream stream) {
-        StreamPumper outPumper = new StreamPumper(stream, null);
+        StreamPumper outPumper = new StreamPumper(stream, (PrintWriter) null);
         new Thread(outPumper).start();
     }
 

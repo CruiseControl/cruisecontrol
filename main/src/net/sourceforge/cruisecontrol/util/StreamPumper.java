@@ -99,16 +99,19 @@ import java.io.PrintWriter;
  * Class to pump the error stream during Process's runtime. Copied from
  * the Ant built-in task.
  * 
- * @created  June 11, 2001
+ * @since  June 11, 2001
+ * @author <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public class StreamPumper implements Runnable {
 
     private BufferedReader in;
+    private StreamConsumer consumer = null;
     private PrintWriter out = new PrintWriter(System.out);
     private static final int SIZE = 1024;
 
     public StreamPumper(InputStream in, PrintWriter writer) {
-        this.in = new BufferedReader(new InputStreamReader(in), SIZE);
+        this(in);
         out = writer;
     }
 
@@ -116,10 +119,23 @@ public class StreamPumper implements Runnable {
         this.in = new BufferedReader(new InputStreamReader(in), SIZE);
     }
 
+    public StreamPumper(InputStream in, StreamConsumer consumer) {
+        this(in);
+        this.consumer = consumer;
+    }
+
+    public StreamPumper(InputStream in, PrintWriter writer,
+                        StreamConsumer consumer) {
+        this(in);
+        this.out = writer;
+        this.consumer = consumer;
+    }
+
     public void run() {
         try {
             String s = in.readLine();
             while (s != null) {
+                consumeLine(s);
                 out.println(s);
                 out.flush();
 
@@ -144,5 +160,10 @@ public class StreamPumper implements Runnable {
         flush();
         out.close();
     }
-    
+
+    private void consumeLine(String line) {
+        if (consumer != null) {
+            consumer.consumeLine(line);
+        }
+    }
 }
