@@ -33,17 +33,9 @@
     <property name="images" value="images"/>
 
     <path id="classpath" >
-         <pathelement location="lib/activation.jar" />
-         <pathelement location="lib/ant.jar" />
-         <pathelement location="lib/jakarta-oro-2.0.1.jar" />
-         <pathelement location="lib/junit.jar" />
-         <pathelement location="lib/mail.jar" />
-         <pathelement location="lib/optional.jar" />
-         <pathelement location="lib/parser.jar" />
-         <pathelement location="lib/servlet.jar" />
-         <pathelement location="lib/starteam-sdk-interfaceonly.jar" />
-         <pathelement location="lib/xalan.jar" />
-         <pathelement location="lib/xerces.jar" />
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>
     </path>
 
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
