@@ -78,7 +78,7 @@ public class EmailPublisherTest extends TestCase {
         }
 
         if (!success) {
-            buildElement.setAttribute("error", "No Build Necessary");
+            buildElement.setAttribute("error", "Compile failed");
         }
 
         cruisecontrolElement.addContent(modificationsElement);
