@@ -1,5 +1,3 @@
-
-
 <html>
 
 <head>
@@ -45,13 +43,13 @@
 <p>&nbsp;<p>
 <span class="header">Anonymous CVS Access:</span><p>
 CruiseControl's SourceForge CVS repository can be checked out through anonymous (pserver)
-CVS with the following instruction set. The module you wish to check out must be specified
-as the <i>modulename</i>. When prompted for a password for <i>anonymous</i>, simply press the Enter
+CVS with the following instruction set. 
+ When prompted for a password for <i>anonymous</i>, simply press the Enter
 key.
 <pre>
 cvs -d:pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol login
 
-cvs -z3 -d:pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co modulename
+cvs -z3 -d:pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
 </pre>
 Updates from within the module's directory do not need the -d parameter.
 
@@ -59,12 +57,12 @@ Updates from within the module's directory do not need the -d parameter.
 <p>&nbsp;<p>
 <span class="header">Developer CVS Access via SSH:</span><p>
 Only project developers can access the CVS tree via this method. SSH1 must be installed on
-your client machine. Substitute <i>modulename</i> and <i>developername</i> with the proper values.
+your client machine. Substitute <i>developername</i> with the proper value.
 Enter your site password when prompted.
 <pre>
 export CVS_RSH=ssh
 
-cvs -z3 -d:ext:developername@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co modulename
+cvs -z3 -d:ext:developername@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
 </pre>
 
       <!-- content ends here -->
