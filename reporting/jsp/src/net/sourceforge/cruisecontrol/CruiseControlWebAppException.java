@@ -40,12 +40,21 @@ package net.sourceforge.cruisecontrol;
  * Generic exception for CruiseControl web app.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class CruiseControlException extends RuntimeException {
+public class CruiseControlWebAppException extends RuntimeException {
 
-    /**
-     * @param string
-     */
-    public CruiseControlException(String message) {
+    public CruiseControlWebAppException() {
+        super();
+    }
+
+    public CruiseControlWebAppException(String message) {
         super(message);
+    }
+
+    public CruiseControlWebAppException(Throwable cause) {
+        super(cause.getMessage());
+    }
+
+    public CruiseControlWebAppException(String message, Throwable cause) {
+        super(message + " : " + cause.getMessage());
     }
 }
