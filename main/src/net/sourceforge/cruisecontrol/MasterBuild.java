@@ -374,35 +374,53 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * only copies text from aux files to the main ant log,
      * and thus assumes that your aux xml has valid syntax.
      * The auxiliary xml files are declared in the masterbuild properties
-     * file.
-     */
+     * file.  If the auxiliary xml File is a directory, all files with extension
+     * xml will be appended.
+     **/
     private void mergeAuxXmlFiles(Project proj) {
         _logFile = getFinalLogFileName(proj);
 
         try {
-            StringBuffer xml = new StringBuffer();
+            StringBuffer aggregatedXMLLog = new StringBuffer();
+            
             //read in the ant build log output by the XmlLogger then throw away the last
             //  </build> tag. We will add it later.
-            String entireLog = readFile(proj.getProperty("XmlLogger.file"));
-            xml.append(entireLog.substring(0, entireLog.lastIndexOf("</build>")));
+            String antBuildLog = readFile(proj.getProperty("XmlLogger.file"));
+            aggregatedXMLLog.append(antBuildLog.substring(0, antBuildLog.lastIndexOf("</build>")));
 
             //for each aux xml file, read and write to ant buildlog
-            for (Enumeration logFiles = _auxLogFiles.elements(); logFiles.hasMoreElements();) {
+            for (Enumeration logFiles = _auxLogFiles.elements(); 
+             logFiles.hasMoreElements();) {
                 String nextFile = (String)logFiles.nextElement();
-
-                //Read in the entire aux log file, stripping any xml version tags.
-                String text = stripXMLVersionTags(readFile(nextFile));
-
-                //Add the text to the composite xml file.
-                xml.append(text);
+                
+                File tmp = new File(nextFile);
+                if (tmp.isDirectory()) {
+                    String[] files = tmp.list(new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return name.endsWith(".xml");
+                        }
+                    });
+                    if (files != null) {
+                        for (int i=0;i<files.length;i++) {
+                            //Read in the entire aux log file, stripping any xml version tags.
+                            String text = stripXMLVersionTags(readFile(nextFile+System.getProperty("file.separator")+files[i]));
+                            aggregatedXMLLog.append(text);
+                        }
+                    }
+                } else {
+                    //Read in the entire aux log file, stripping any xml version tags.
+                    String text = stripXMLVersionTags(readFile(nextFile));
+                    aggregatedXMLLog.append(text);
+                }
+                
             }
             //close ant buildlog
-            xml.append("<label>" + _label + "</label>");
-            xml.append("<today>" + _today + "</today>");
-            xml.append("</build>");
+            aggregatedXMLLog.append("<label>" + _label + "</label>");
+            aggregatedXMLLog.append("<today>" + _today + "</today>");
+            aggregatedXMLLog.append("</build>");
 
             //write appended buildlog
-            writeFile(_logFile, xml.toString());
+            writeFile(_logFile, aggregatedXMLLog.toString());
 
         } catch (Throwable ioe) {
             ioe.printStackTrace();
