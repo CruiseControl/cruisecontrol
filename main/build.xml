@@ -153,14 +153,12 @@
               <include name="xerces.jar"/>
               <include name="xalan.jar"/>
            </lib>
-           <classes dir="${classes}">
-              <include name="net/sourceforge/cruisecontrol/BuildServlet*"/>
-           </classes>
            <fileset dir=".">
               <include name="${images}/**"/>
               <include name="cruisecontrol.xsl"/>
               <include name="templates/**"/>
               <include name="buildservlet.properties"/>
+              <include name="cruise.jsp"/>
            </fileset>
         </war>
     </target>
