@@ -255,68 +255,71 @@ public class AntBuilder extends Builder {
         boolean useLogger,
         boolean useScript,
         boolean isWindows) {
-        List al = new ArrayList();
+        List arguments = new ArrayList();
 
         if (useScript) {
             if (isWindows) {
-                al.add("cmd.exe");
-                al.add("/C");
-                al.add(antScript);
+                arguments.add("cmd.exe");
+                arguments.add("/C");
+                arguments.add(antScript);
             } else {
-                al.add(antScript);
+                arguments.add(antScript);
             }
         } else {
-            al.add("java");
+            arguments.add("java");
             Iterator argsIterator = args.iterator();
             while (argsIterator.hasNext()) {
                 String arg = ((JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
-                    al.add(arg);
+                    arguments.add(arg);
                 }
             }
-            al.add("-classpath");
-            al.add(System.getProperty("java.class.path"));
-            al.add("org.apache.tools.ant.Main");
+            arguments.add("-classpath");
+            arguments.add(System.getProperty("java.class.path"));
+            arguments.add("org.apache.tools.ant.Main");
         }
 
         if (useLogger) {
-            al.add("-logger");
-            al.add(getLoggerClassName());
-            al.add("-logfile");
-            al.add(tempFileName);
+            arguments.add("-logger");
+            arguments.add(getLoggerClassName());
+            arguments.add("-logfile");
+            arguments.add(tempFileName);
         } else {
-            al.add("-listener");
-            al.add(getLoggerClassName());
-            al.add("-DXmlLogger.file=" + tempFileName);
+            arguments.add("-listener");
+            arguments.add(getLoggerClassName());
+            arguments.add("-DXmlLogger.file=" + tempFileName);
         }
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
             String key = (String) propertiesIterator.next();
-            al.add("-D" + key + "=" + buildProperties.get(key));
+            final String value = buildProperties.get(key).toString();
+            if (value != null & !value.equals("")) {
+                arguments.add("-D" + key + "=" + value);
+            }
         }
 
         Iterator antPropertiesIterator = properties.iterator();
         while (antPropertiesIterator.hasNext()) {
             Property property = (Property) antPropertiesIterator.next();
-            al.add("-D" + property.getName() + "=" + property.getValue());
+            arguments.add("-D" + property.getName() + "=" + property.getValue());
         }
 
         if (useDebug) {
-            al.add("-debug");
-            al.add("-verbose");
+            arguments.add("-debug");
+            arguments.add("-verbose");
         }
 
-        al.add("-buildfile");
-        al.add(buildFile);
+        arguments.add("-buildfile");
+        arguments.add(buildFile);
 
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
-            al.add(targets.nextToken());
+            arguments.add(targets.nextToken());
         }
 
-        return (String[]) al.toArray(new String[al.size()]);
+        return (String[]) arguments.toArray(new String[arguments.size()]);
     }
 
     /**
