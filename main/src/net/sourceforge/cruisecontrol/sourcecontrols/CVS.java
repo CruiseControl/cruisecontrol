@@ -61,7 +61,7 @@ import java.util.*;
  * @author  <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author  Marc Paquette
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
- * @author <a href="mailto:mcclain@looneys.net">McClain Looney</a>
+ * @author <a href="mailto:m@loonsoft.com">McClain Looney</a>
  */
 public class CVS implements SourceControl {
 
@@ -130,6 +130,12 @@ public class CVS implements SourceControl {
      * in the CVS log information.
      */
     private final static String CVS_REVISION_STATE = "state:";
+
+    /**
+     * This is the name of the tip of the main branch, which needs special handling with
+     * the log entry parser
+     */
+    private final static String CVS_HEAD_TAG = "HEAD";
 
     /**
      * This is the keyword that precedes the revision as found in the
@@ -417,8 +423,8 @@ public class CVS implements SourceControl {
         String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
         String branchRevisionName = null;
 
-        if (tag != null) {
-            // Look for the revision of the form "tag: *.(0.)y "
+        if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
+            // Look for the revision of the form "tag: *.(0.)y ". this doesn't work for HEAD
             // get line with branch revision on it.
 
             String branchRevisionLine = readToNotPast(reader, "\t"+tag+": ", CVS_DESCRIPTION);
@@ -444,7 +450,7 @@ public class CVS implements SourceControl {
             StringTokenizer tokens = new StringTokenizer(nextLine, " ");
             tokens.nextToken();
             String revision = tokens.nextToken();
-            if(tag!=null) {
+            if(tag != null && !tag.equals(CVS_HEAD_TAG)) {
                 String itsBranchRevisionName = revision.substring(0,revision.lastIndexOf('.'));
                 if(!itsBranchRevisionName.equals(branchRevisionName)) {
                     break;
@@ -523,6 +529,12 @@ public class CVS implements SourceControl {
             nextModification.userName = authorName;
 
             nextModification.comment = (message != null ? message : "");
+
+            if(stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD) && message.indexOf("was initially added on branch")!=-1) {
+                log.debug("skipping branch addition activity for " + nextModification);
+                //this prevents additions to a branch from showing up as action "deleted" from head
+                continue;
+            }
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)) {
                 nextModification.type = "deleted";
