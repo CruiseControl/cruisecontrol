@@ -98,7 +98,7 @@ public class ClearCaseModification extends Modification {
         StringBuffer sb = new StringBuffer(super.toString());
 
         for (Iterator it = labels.iterator(); it.hasNext(); ) {
-            sb.append("Tag: " + (String) it.next() + "\n");
+            sb.append("Tag: " + it.next() + "\n");
         }
 
         for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
@@ -111,24 +111,26 @@ public class ClearCaseModification extends Modification {
     }
 
     public void log(DateFormat formatter) {
-        super.log(formatter);
-
-        if (labels != null) {
-            for (Iterator it = labels.iterator(); it.hasNext(); ) {
-                LOG.debug("Tag: " + (String) it.next());
+        if (LOG.isDebugEnabled()) {
+            super.log(formatter);
+    
+            if (labels != null) {
+                for (Iterator it = labels.iterator(); it.hasNext(); ) {
+                    LOG.debug("Tag: " + it.next());
+                }
             }
-        }
-
-        if (attributes != null) {
-            for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
-                String attName = (String) it.next();
-                String attValue = (String) attributes.get(attName);
-                LOG.debug("Attribute: " + attName + " = " + attValue);
+    
+            if (attributes != null) {
+                for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
+                    String attName = (String) it.next();
+                    String attValue = (String) attributes.get(attName);
+                    LOG.debug("Attribute: " + attName + " = " + attValue);
+                }
             }
+    
+            LOG.debug("");
+            LOG.debug("");
         }
-
-        LOG.debug("");
-        LOG.debug("");
     }
 
     public void fromElement(Element modification, DateFormat formatter) {

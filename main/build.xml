@@ -72,10 +72,9 @@
     in lib directory will be included in CLASSPATH
     **************************************************** -->
     <path id="project.classpath" >
-        <fileset dir="${lib}" includes="*.jar">
-            <exclude name="ant.jar"/>
-            <exclude name="optional.jar"/>
-        </fileset>
+        <fileset dir="${lib}" includes="*.jar"/>
+    	<!-- ant.jar is also needed to compile the ArtifactsPublisher,
+    	     but is added automatically to the javac classpath -->
     </path>
 
     <path id="project.runtime.classpath" >
@@ -93,16 +92,15 @@
         <mkdir dir="${dist}"/>
         <mkdir dir="${junit.results}"/>
         <mkdir dir="${clover.results}"/>
-        <available file="lib/starteam-sdk.jar" property="starteam-sdk-present"/>
-        <available file="lib/STComm.jar" property="sametime-sdk-present"/>
+        <available file="${lib}/starteam-sdk.jar" property="starteam-sdk-present"/>
+        <available file="${lib}/STComm.jar" property="sametime-sdk-present"/>
         <tstamp/>
         <property name="label" value="${version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
-    <!-- FIXME why don't we just clean target and dist ?? -->
     <target name="clean" description="Cleans out the build directories" >
        <delete quiet="yes">
-            <fileset dir="${dist}" includes="*.jar, *.war, *.zip"/>
+            <fileset dir="${dist}"/>
        </delete>
        <delete dir="${target}"/>
     </target>
@@ -115,8 +113,7 @@
            <exclude name="**/Sametime*"/>
         </javac>
         <copy todir="${classes}">
-            <fileset dir="${basedir}" includes="log4j.properties"/>
-            <fileset dir="${basedir}" includes="version.properties"/>
+            <fileset dir="${basedir}" includes="*.properties"/>
             <filterset>
                 <filter token="VERSION" value="${label}" />
             </filterset>
@@ -161,7 +158,7 @@
         </copy>
     </target>
 
-    <target name="checkstyle" description="Run CheckStyle on code">
+    <target name="checkstyle" depends="init" description="Run CheckStyle on code">
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
         <checkstyle config="${basedir}/checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
             <formatter type="plain"/>

@@ -97,13 +97,10 @@ public final class Util {
         return milliseconds;
     }
 
-    public static Element loadConfigFile(File configFile)
-            throws CruiseControlException {
-        Element cruisecontrolElement = null;
+    public static Element loadConfigFile(File configFile) throws CruiseControlException {
         try {
-            SAXBuilder builder =
-                    new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            cruisecontrolElement = builder.build(configFile).getRootElement();
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            return builder.build(configFile).getRootElement();
         } catch (Exception e) {
             throw new CruiseControlException(
                     "failed to load config file [" + (configFile != null
@@ -111,7 +108,6 @@ public final class Util {
                     : "") + "]",
                     e);
         }
-        return cruisecontrolElement;
     }
 
     /**

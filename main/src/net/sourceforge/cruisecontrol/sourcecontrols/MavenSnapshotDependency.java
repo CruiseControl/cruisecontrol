@@ -197,7 +197,7 @@ public class MavenSnapshotDependency implements SourceControl {
      */
     List getSnapshotFilenames(File mavenFile) {
         List filenames = new ArrayList();
-        Element mavenElement = null;
+        Element mavenElement;
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         try {
             mavenElement = builder.build(mavenFile).getRootElement();

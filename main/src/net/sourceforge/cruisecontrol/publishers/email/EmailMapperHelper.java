@@ -93,7 +93,7 @@ public class EmailMapperHelper {
 
         // take the still unmapped users and move them into the mappedUsers set
         for (Iterator userIterator = users.iterator(); userIterator.hasNext(); ) {
-            mappedUsers.add((String) userIterator.next());
+            mappedUsers.add(userIterator.next());
             userIterator.remove();
         }
     }

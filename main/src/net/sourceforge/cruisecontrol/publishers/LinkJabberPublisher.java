@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Logger;
 
 import java.io.File;
 
@@ -52,8 +51,6 @@ import java.io.File;
  * @version 1.0
  */
 public class LinkJabberPublisher extends JabberPublisher {
-
-    private static final Logger LOG = Logger.getLogger(LinkJabberPublisher.class);
 
     private String buildResultsURL;
 

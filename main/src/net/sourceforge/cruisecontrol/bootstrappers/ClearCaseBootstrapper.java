@@ -80,11 +80,10 @@ public class ClearCaseBootstrapper implements Bootstrapper {
      */
     public void bootstrap() {
         Commandline commandLine = buildUpdateCommand();
-        Process p = null;
 
-        log.debug("Executing: " + commandLine.toString());
+        log.debug("Executing: " + commandLine);
         try {
-            p = Runtime.getRuntime().exec(commandLine.getCommandline());
+            Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
             StreamPumper errorPumper =
                 new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
