@@ -55,7 +55,7 @@ public class PauseBuilderTest extends TestCase {
         _cal.set(2001, Calendar.NOVEMBER, 22); //Thursday, November 22, 2001
         _cal2 = Calendar.getInstance();
         _cal2.clear();
-        _cal.set(2001, Calendar.NOVEMBER, 23); //Friday, November 23, 2001
+        _cal2.set(2001, Calendar.NOVEMBER, 23); //Friday, November 23, 2001
     }
 
     public void testValidate() {
@@ -65,17 +65,46 @@ public class PauseBuilderTest extends TestCase {
             pb.validate();
             fail("PauseBuilder should throw exceptions when required fields are not set.");
         } catch (CruiseControlException e) {
-            assertTrue(true);
         }
 
         pb.setStartTime(1400);
+        try {
+            pb.validate();
+            fail("PauseBuilder should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+        }
+
         pb.setEndTime(1500);
 
         try {
             pb.validate();
-            assertTrue(true);
         } catch (CruiseControlException e) {
             fail("PauseBuilder should not throw exceptions when required fields are set.");
+        }
+
+        try {
+            pb.setDay("sUnDaY");
+            pb.validate();
+            pb.setDay("monday");
+            pb.validate();
+            pb.setDay("TuesdaY");
+            pb.validate();
+            pb.setDay("wedNESday");
+            pb.validate();
+            pb.setDay("Thursday");
+            pb.validate();
+            pb.setDay("friday");
+            pb.validate();
+            pb.setDay("SATURDAY");
+            pb.validate();
+        } catch (CruiseControlException e) {
+            fail("PauseBuilder shouldn't throw exception with english names for day of week (case insensitive)");
+        }
+        try {
+            pb.setDay("1");
+            pb.validate();
+            fail("PauseBuilder requires english names for day of week (case insensitive)");
+        } catch (CruiseControlException e) {
         }
     }
 
