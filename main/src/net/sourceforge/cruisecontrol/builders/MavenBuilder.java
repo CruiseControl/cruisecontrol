@@ -124,12 +124,16 @@ public class MavenBuilder extends Builder implements StreamConsumer {
 
             StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), this);
             StreamPumper outPumper = new StreamPumper(p.getInputStream(), this);
-            new Thread(errorPumper).start();
-            new Thread(outPumper).start();
+            Thread errorPumperThread = new Thread(errorPumper);
+            Thread outPumperThread = new Thread(outPumper);
+            errorPumperThread.start();
+            outPumperThread.start();
             int exitCode = 1;
 
             try {
                 exitCode = p.waitFor();
+                errorPumperThread.join();
+                outPumperThread.join();
                 p.getInputStream().close();
                 p.getOutputStream().close();
                 p.getErrorStream().close();
