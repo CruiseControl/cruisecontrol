@@ -3,4 +3,4 @@ dist
 test-results
 checkstyle.cache
 checkstyle*.txt
-override.properties
+override.propertiesmyproject.ser
