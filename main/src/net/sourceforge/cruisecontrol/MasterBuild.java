@@ -69,21 +69,12 @@ public class MasterBuild {
     private final String DEFAULT_CLEAN_TARGET = "cleanbuild";
 
     //label/modificationset/build participants
-    private String  _label;
     private String  _labelIncrementerClassName;
 
-    private String  _lastGoodBuildTime;
-    private String  _lastBuildAttemptTime;
-    
-    private boolean _lastBuildSuccessful = true;
-    private boolean _buildNotNecessary;
-    
     private boolean _spamWhileBroken = true;
     
     private String  _logDir;
-    private String  _logFile;
-    private String  _userList;
-
+    
     //build iteration info
     private long _buildInterval;
     private boolean _isIntervalAbsolute;
@@ -124,6 +115,8 @@ public class MasterBuild {
     private String _servletURL;
     private File _currentBuildStatusFile;
 
+    private BuildInfo info;
+
     private int _buildCounter;
     /**
      * Entry point.  Verifies that all command line arguments are correctly 
@@ -152,35 +145,19 @@ public class MasterBuild {
      * Deserialize the label and timestamp of the last good build.
      */
     public void readBuildInfo() {
-        File infoFile = new File(BUILDINFO_FILENAME);
-        log("Reading build information from : " + infoFile.getAbsolutePath());
-        if (!infoFile.exists() || !infoFile.canRead()) {
-            log("Cannot read build information.");
-            return;
-        }
-
-        try {
-            ObjectInputStream s = new ObjectInputStream(new FileInputStream(infoFile));
-            //(PENDING) just pass back a BuildInfo instead
-            BuildInfo info = (BuildInfo) s.readObject();
-
-            _lastGoodBuildTime = info.lastGoodBuild;
-            _lastBuildAttemptTime = info.lastBuild;
-            _label = info.label;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        info = new BuildInfo();
+        info.read();
     }
 
     public void overwriteWithUserArguments(String[] args) {
         for (int i = 0; i < args.length - 1; i++) {
             try {
                 if (args[i].equals("-lastbuild")) {
-                    _lastBuildAttemptTime = processLastBuildArg(args[i + 1]);
-                    _lastGoodBuildTime = _lastBuildAttemptTime;
+                    info.setLastBuild(processLastBuildArg(args[i + 1]));
+                    info.setLastGoodBuild(info.getLastBuild());
                 } else if (args[i].equals("-label")) {
                     //(PENDING) check format of label
-                    _label = args[i + 1];
+                    info.setLabel(args[i + 1]);
                 } else if (args[i].equals("-properties")) {
                     _propsFileName = args[i + 1];
                 }
@@ -200,8 +177,7 @@ public class MasterBuild {
     }
     
     public boolean buildInfoSpecified() {
-        return 
-         (_lastBuildAttemptTime != null) && (_label != null) && (_propsFileName != null);
+        return info.ready();
     }
 
     private String processLastBuildArg(String lastBuild) {
@@ -227,16 +203,7 @@ public class MasterBuild {
      * Serialize the label and timestamp of the last good build
      */
     private void writeBuildInfo() {
-        try {
-            BuildInfo info = 
-             new BuildInfo(_lastBuildAttemptTime, _lastGoodBuildTime, _label);
-            ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(BUILDINFO_FILENAME));
-            s.writeObject(info);
-            s.flush();
-            s.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        info.write();
     }
 
     /**
@@ -409,8 +376,9 @@ public class MasterBuild {
             log("Using normal target: " + _antTarget);
             target = _antTarget;
         }
-        BuildRunner runner = new BuildRunner(_antFile, target, _lastGoodBuildTime,
-                                             _label, logger);
+        BuildRunner runner = new BuildRunner(_antFile, target, 
+                                             info.getLastGoodBuild(),
+                                             info.getLabel(), logger);
         
         boolean successful = runner.runBuild();
         
@@ -419,15 +387,15 @@ public class MasterBuild {
         buildFinished(runner.getProject(), successful);
 
         //(PENDING) do this in buildFinished?
-        if (_buildNotNecessary) {
-            if (!_lastBuildSuccessful && _spamWhileBroken) {
+        if (info.isBuildNotNecessary()) {
+            if (!info.isLastBuildSuccessful() && _spamWhileBroken) {
                 sendBuildEmail(_projectName + "Build still failing...");
             }
         } else {
-            if (_lastBuildSuccessful) {
+            if (info.isLastBuildSuccessful()) {
                 _buildCounter++;
                 if(_reportSuccess) {
-                    sendBuildEmail(_projectName + " Build " + _label + " Successful");
+                    sendBuildEmail(_projectName + " Build " + info.getLabel() + " Successful");
                 } else {
                     log("Skipping email notifications for successful builds");
                 }
@@ -441,7 +409,7 @@ public class MasterBuild {
     }
 
     private void sendBuildEmail(String message) {
-        Set emails = getEmails(_userList);
+        Set emails = getEmails(info.getUserList());
         emailReport(emails, message);
     }
     
@@ -469,10 +437,11 @@ public class MasterBuild {
      * xml will be appended.
      **/
     private void mergeAuxXmlFiles(Project antProject) {
-        _logFile = getFinalLogFileName(antProject);
+        info.setLogfile(getFinalLogFileName(antProject));
         XMLLogMerger merger = 
-         new XMLLogMerger(_logFile, antProject.getProperty("XmlLogger.file"), 
-         _auxLogFiles, _label, _today);
+         new XMLLogMerger(info.getLogfile(), 
+                          antProject.getProperty("XmlLogger.file"), 
+                          _auxLogFiles, info.getLabel(), _today);
         try {
             merger.merge();
         } catch (IOException ioe) {
@@ -500,8 +469,8 @@ public class MasterBuild {
         }
 
         String logFileName = "log" + dateStamp + timeStamp;
-        if (_lastBuildSuccessful) {
-            logFileName += "L" + _label;
+        if (info.isLastBuildSuccessful()) {
+            logFileName += "L" + info.getLabel();
         }
         logFileName += ".xml";
         logFileName = _logDir + File.separator + logFileName;
@@ -522,7 +491,7 @@ public class MasterBuild {
         try {
             Class incrementerClass = Class.forName(_labelIncrementerClassName);
             LabelIncrementer incr = (LabelIncrementer)incrementerClass.newInstance();
-            _label = incr.incrementLabel(_label);
+            info.setLabel(incr.incrementLabel(info.getLabel()));
         } catch (Exception e) {
             log("Error incrementing label.");
             e.printStackTrace();
@@ -536,7 +505,7 @@ public class MasterBuild {
         Set emails = new HashSet(_buildmaster);
 
         //If the build failed then the failure notification emails are included.
-        if (!_lastBuildSuccessful) {
+        if (!info.isLastBuildSuccessful()) {
             emails.addAll(_notifyOnFailure);
         }
         
@@ -555,13 +524,14 @@ public class MasterBuild {
         }
         log(logMessage.toString());
 
+        String logFile = info.getLogfile();
         String message = "View results here -> " + _servletURL + "?"
-         + _logFile.substring(_logFile.lastIndexOf(File.separator) + 1, 
-         _logFile.lastIndexOf("."));
+         + logFile.substring(logFile.lastIndexOf(File.separator) + 1, 
+         logFile.lastIndexOf("."));
 
         try {
-            Mailer mailer = new Mailer(_mailhost, emails, _returnAddress);
-            mailer.sendMessage(subject, message);
+            Mailer mailer = new Mailer(_mailhost, _returnAddress);
+            mailer.sendMessage(emails, subject, message);
         } catch (javax.mail.MessagingException me) {
             System.out.println("Unable to send email.");
             me.printStackTrace();
@@ -653,8 +623,8 @@ public class MasterBuild {
      */
     private void startLog() {
         log("***** Starting Build Cycle");
-        log("***** Label: " + _label);
-        log("***** Last Good Build: " + _lastGoodBuildTime);
+        log("***** Label: " + info.getLabel());
+        log("***** Last Good Build: " + info.getLastGoodBuild());
         log("\n");
     }
 
@@ -664,8 +634,8 @@ public class MasterBuild {
     private void endLog(long sleepTime) {
         log("\n");
         log("***** Ending Build Cycle, sleeping " + (sleepTime/1000.0) + " seconds until next build.\n\n\n");
-        log("***** Label: " + _label);
-        log("***** Last Good Build: " + _lastGoodBuildTime);
+        log("***** Label: " + info.getLabel());
+        log("***** Last Good Build: " + info.getLastGoodBuild());
         log("\n");
     }
 
@@ -726,21 +696,21 @@ public class MasterBuild {
      */
     public void buildFinished(Project proj, boolean successful) {
         _projectName = proj.getName();
-        _buildNotNecessary = (proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
-        if (_buildNotNecessary) {
+        info.setBuildNotNecessary(proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
+        if (info.isBuildNotNecessary()) {
             return;
         }
 
         _today = proj.getProperty("TODAY");
 
-        _userList = proj.getProperty(ModificationSet.USERS);
+        info.setUserList(proj.getProperty(ModificationSet.USERS));
 
-        _lastBuildSuccessful = false;
+        info.setLastBuildSuccessful(false);
 
-        _lastBuildAttemptTime = proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP);
+        info.setLastBuild(proj.getProperty(ModificationSet.SNAPSHOTTIMESTAMP));
         if (successful == true) {
-            _lastBuildSuccessful = true;
-            _lastGoodBuildTime = _lastBuildAttemptTime;
+            info.setLastBuildSuccessful(true);
+            info.setLastGoodBuild(info.getLastBuild());
         }
 
         //get the exact filenames from the ant properties that tell us what aux xml files we have...
@@ -766,22 +736,5 @@ public class MasterBuild {
         }
         
         return false;
-    }
-}
-
-/**
- * Inner class to hold the build information elements
- * which will be serialized and deseralized by the
- * MasterBuild process.
- */
-class BuildInfo implements Serializable {
-    String lastBuild;
-    String lastGoodBuild;
-    String label;
-
-    BuildInfo(String lastBuildAttempt, String lastGoodBuild, String label) {
-        lastBuild = lastBuildAttempt;
-        this.lastGoodBuild = lastGoodBuild;
-        this.label = label;
     }
 }
