@@ -67,11 +67,15 @@ public final class CurrentBuildFileWriter {
         try {
             fw = new FileWriter(fileName);
             fw.write(sb.toString());
-            fw.close();
         } catch (IOException ioe) {
             throw new CruiseControlException("Error Writing File: " + fileName);
         } finally {
-            fw = null;
+            if (fw != null) {
+                try {
+                    fw.close();
+                } catch (IOException ignore) {
+                }
+            }
         }
     }
 
