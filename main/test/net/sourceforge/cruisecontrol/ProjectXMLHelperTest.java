@@ -47,7 +47,8 @@ public class ProjectXMLHelperTest extends TestCase {
     }
 
     public void testDateFormat() {
-        assertEquals("MM/dd/yyyy HH:mm:ss", DateFormatFactory.getFormat());
+    	String originalFormat = DateFormatFactory.getFormat();
+        assertEquals("MM/dd/yyyy HH:mm:ss", originalFormat);
 
         Element projectElement = new Element("project");
         Element dateFormatElement = new Element("dateformat");
@@ -58,5 +59,7 @@ public class ProjectXMLHelperTest extends TestCase {
         helper.setDateFormat(projectElement);
 
         assertEquals("yyyy/MM/dd hh:mm:ss a", DateFormatFactory.getFormat());
+        
+        DateFormatFactory.setFormat(originalFormat);
     }
 }
