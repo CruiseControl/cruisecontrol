@@ -6,6 +6,7 @@ AntBuilder:
   This should fix the error where optional tasks couldn't be found by Ant even though they where present on the classpath
 * Added useQuiet attribute to call Ant using -quiet, which is mutually exclusive with useDebug
 * Corrected documentation for uselogger and usedebug and added docs for usequiet
+* Added saveLogDir attribute where a copy of the ant log will be saved. Patch by Jeremy Whitlock
 
 AntBuilderTest:
 ----------------------

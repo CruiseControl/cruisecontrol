@@ -38,6 +38,8 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -81,7 +83,8 @@ public class AntBuilder extends Builder {
     private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private long timeout = -1;
-
+    private File saveLogDir = null;
+    
     public void validate() throws CruiseControlException {
         super.validate();
 
@@ -103,6 +106,12 @@ public class AntBuilder extends Builder {
         
         if (antScript != null && !args.isEmpty()) {
             LOG.warn("jvmargs will be ignored if you specify your own antscript!");
+        }
+        
+        if (saveLogDir != null) {
+            if (!saveLogDir.isDirectory()) {
+                throw new CruiseControlException("'saveLogDir' must exist and be a directory");
+            }
         }
     }
 
@@ -178,18 +187,61 @@ public class AntBuilder extends Builder {
         } else {
             //read in log file as element, return it
             buildLogElement = getAntLogAsElement(logFile);
+            saveAntLog(logFile);
             logFile.delete();
         }
         return buildLogElement;
     }
 
+
     /**
-     * Set the working directory where Ant will be invoked.  This
-     * parameter gets set in the XML file via the antWorkingDir attribute.
-     * The directory can be relative (to the cruisecontrol current working
-     * directory) or absolute.
-     *
-     * @param dir the directory to make the current working directory.
+     * Set the location to which the ant log will be saved before Cruise
+     * Control merges the file into its log.
+     * 
+     * @param dir
+     *          the absolute path to the directory where the ant log will be
+     *          saved or relative path to where you started CruiseControl
+     */
+    public void setSaveLogDir(String dir) {
+        saveLogDir = null;
+        
+        if (dir != null && !dir.trim().equals("")) {
+            saveLogDir = new File(dir.trim());
+        }
+    }
+
+    void saveAntLog(File logFile) {
+        if (saveLogDir == null) {
+            return;
+        }
+
+        try {
+            File newAntLogFile = new File(saveLogDir, tempFileName);
+            newAntLogFile.createNewFile();
+
+            FileInputStream in = new FileInputStream(logFile);
+            FileOutputStream out = new FileOutputStream(newAntLogFile);
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        } catch (IOException ioe) {
+            LOG.error(ioe);
+            LOG.error("Unable to create file: " + new File(saveLogDir, tempFileName));
+        }
+  }
+
+    /**
+     * Set the working directory where Ant will be invoked. This parameter gets
+     * set in the XML file via the antWorkingDir attribute. The directory can
+     * be relative (to the cruisecontrol current working directory) or absolute.
+     * 
+     * @param dir
+     *          the directory to make the current working directory.
      */
     public void setAntWorkingDir(String dir) {
         antWorkingDir = dir;
