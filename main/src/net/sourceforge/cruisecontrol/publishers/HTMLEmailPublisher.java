@@ -184,6 +184,13 @@ public class HTMLEmailPublisher extends LinkEmailPublisher {
       File distributablesxsl = new File(xslDir, "distributables.xsl");
 
       appendHeader(messageBuffer);
+      String logFileName = inFile.getName();
+      String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(File.separator) + 1,
+              logFileName.lastIndexOf("."));
+      String url = _servletUrl + "?" + baseLogFileName;
+
+      messageBuffer.append("View results here -> <a href=\"" + url + "\">" + url + "</a>");
+      messageBuffer.append("<p>\n");
       appendTransform(inFile, messageBuffer, tFactory, headerxsl);
       messageBuffer.append("<p>\n");
       appendTransform(inFile, messageBuffer, tFactory, compilexsl);
