@@ -391,7 +391,7 @@ public class CVS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (cvsroot == null) {
+        if (cvsroot == null && local == null) {
             OSEnvironment env = new OSEnvironment();
             cvsroot = env.getVariable("CVSROOT");
         }
