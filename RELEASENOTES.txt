@@ -26,6 +26,10 @@ FileSystem Sourcecontrol
 ----------------------
 * Fixed bug where FS was reporting the wrong path for modifications. Patch by Randy Coulman.
 
+FTP support
+----------------------
+* Added CurrentBuildStatusFTPBootstrapper and CurrentBuildStatusFTPPublisher. Submitted by Matt Albrecht
+
 JMX Interface
 ----------------------
 * Added a halt operation on the CruiseControl process JMX interface. Patch from Matt Albrecht
