@@ -149,13 +149,27 @@ public class MockCommandline extends Commandline {
     }
 
     public void ensureCommandline() {
-        Assert.assertTrue("Command line error", Arrays.equals(expectedCommandline, getCommandline()));
+        if (!Arrays.equals(expectedCommandline, getCommandline())) { 
+            Assert.fail("Command line error expected: " + 
+                buildString(expectedCommandline) + " - got: " + buildString(getCommandline()));
+        }
     }
 
     public void ensureWorkingDirectory() {
         Assert.assertEquals("WorkingDirectory error", expectedWorkingDirectory, getWorkingDirectory());
     }
 
+    private static final String buildString(String[] array)
+    {
+        if (array == null) 
+            return "null";
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < array.length; i++) {
+            sb.append(array[i]).append(" ");
+        }
+        return sb.toString();
+    }
+    
     /**
      * Fakes the execution of the command.
      * Checks that the command line and the working directory are correctly set / computed.

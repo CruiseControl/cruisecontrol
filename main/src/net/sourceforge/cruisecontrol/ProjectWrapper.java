@@ -54,14 +54,14 @@ public class ProjectWrapper implements WorkerThread {
   private static final Logger LOG = Logger.getLogger(ProjectWrapper.class);
 
   public ProjectWrapper(Project thisProject) {
+    if (thisProject == null) {
+       throw new IllegalArgumentException("null thisProject");
+    }
     LOG.debug("Project " + thisProject.getName() + " is being wrapped");
     myProject = thisProject;
   }
 
   public void run() {
-    if (myProject == null) {
-      return;
-    }
     LOG.debug("executing project " + myProject.getName());
     myProject.execute();
   }
