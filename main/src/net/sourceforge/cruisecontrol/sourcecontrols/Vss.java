@@ -47,7 +47,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -110,7 +109,7 @@ public class Vss implements SourceControl {
     /**
      *  Set the path to the directory containing the srcsafe.ini file.
      *
-     *  @param serverPath
+     *  @param dirWithSrcsafeIni
      */
     public void setServerPath(String dirWithSrcsafeIni) {
         serverPath = dirWithSrcsafeIni;
@@ -119,7 +118,7 @@ public class Vss implements SourceControl {
     /**
      *  Login for vss
      *
-     *@param  login
+     *@param  usernameCommaPassword
      */
     public void setLogin(String usernameCommaPassword) {
         login = usernameCommaPassword;
@@ -130,7 +129,7 @@ public class Vss implements SourceControl {
      *  change that only requires repackaging, i.e. jsp, we don't need to recompile
      *  everything, just rejar.
      *
-     *@param  property
+     *@param  propertyName
      */
     public void setProperty(String propertyName) {
         property = propertyName;
@@ -139,7 +138,7 @@ public class Vss implements SourceControl {
     /**
      *  Choose a property to be set if the project has deletions
      *
-     *  @param  propertyOnDelete
+     *  @param  propertyName
      */
     public void setPropertyOnDelete(String propertyName) {
         propertyOnDelete = propertyName;
@@ -206,20 +205,8 @@ public class Vss implements SourceControl {
             p.waitFor();
             p.getInputStream().close();
             p.getOutputStream().close();
-            // we want to log output to stderr as warings, since it might inform us
-            // on why ss.exe has problems to run properly.
-            BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            StringBuffer err = new StringBuffer();
-            String line;
-            while ((line = in.readLine()) != null) {
-                err.append(line).append('\n');
-            }
             p.getErrorStream().close();
 
-            if (err.length() > 0) {
-                LOG.warn("Vss: ss.exe reported the following problems:\n" + err);
-            }
-            
             parseTempFile(modifications);
 
         } catch (Exception e) {
@@ -375,65 +362,75 @@ public class Vss implements SourceControl {
                 LOG.debug("adjusting for the line that starts with Label");
             }
 
-            Modification modification = new Modification();
+            Modification modification = new Modification("vss");
             modification.userName = parseUser(nameAndDateLine);
             modification.modifiedTime = parseDate(nameAndDateLine);
 
             String folderLine = (String) entry.get(0);
             int fileIndex = nameAndDateIndex + 1;
             String fileLine = (String) entry.get(fileIndex);
+
             if (fileLine.startsWith("Checked in")) {
-                modification.type = "checkin";
+
                 LOG.debug("this is a checkin");
                 int commentIndex = fileIndex + 1;
                 modification.comment = parseComment(entry, commentIndex);
-                modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
-                modification.folderName = fileLine.substring(12);
+                String fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+                String folderName = fileLine.substring(12);
+
+                Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
+                modfile.action = "checkin";
+
             } else if (fileLine.endsWith("Created")) {
                 modification.type = "create";
                 LOG.debug("this folder was created");
             } else {
+
+                String fileName, folderName = null;
+
                 if (nameAndDateIndex == 1) {
-                    modification.folderName = vssPath;
+                    folderName = vssPath;
                 } else {
-                    modification.folderName =
+                    folderName =
                         vssPath + "\\" + folderLine.substring(7, folderLine.indexOf("  *"));
                 }
                 int lastSpace = fileLine.lastIndexOf(" ");
                 if (lastSpace != -1) {
-                    modification.fileName = fileLine.substring(0, lastSpace);
+                    fileName = fileLine.substring(0, lastSpace);
                 } else {
-                    modification.fileName = fileLine;
-                    if (modification.fileName.equals("Branched")) {
+                    fileName = fileLine;
+                    if (fileName.equals("Branched")) {
                         LOG.debug(
                             "Branched file, ignoring as branch directory is handled separately");
                         return null;
                     }
                 }
 
+                Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
+
                 if (fileLine.endsWith("added")) {
-                    modification.type = "add";
+                    modfile.action = "add";
                     LOG.debug("this file was added");
                 } else if (fileLine.endsWith("deleted")) {
-                    modification.type = "delete";
+                    modfile.action = "delete";
                     LOG.debug("this file was deleted");
                     addPropertyOnDelete();
                 } else if (fileLine.endsWith("destroyed")) {
-                    modification.type = "destroy";
+                    modfile.action = "destroy";
                     LOG.debug("this file was destroyed");
                     addPropertyOnDelete();
                 } else if (fileLine.endsWith("recovered")) {
-                    modification.type = "recover";
+                    modfile.action = "recover";
                     LOG.debug("this file was recovered");
                 } else if (fileLine.endsWith("shared")) {
-                    modification.type = "share";
+                    modfile.action = "share";
                     LOG.debug("this file was shared");
                 } else if (fileLine.endsWith("branched")) {
-                    modification.type = "branch";
+                    modfile.action = "branch";
                     LOG.debug("this file was branched");
                 } else if (fileLine.indexOf(" renamed to ") != -1) {
-                    modification.fileName = fileLine;
-                    modification.type = "rename";
+                    modfile.fileName = fileLine;
+                    modfile.action = "rename";
                     LOG.debug("this file was renamed");
                     addPropertyOnDelete();
                 } else if (fileLine.startsWith("Labeled")) {

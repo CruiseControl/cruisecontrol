@@ -135,7 +135,7 @@ public class ModificationSet {
             }
             if (object instanceof Element) {
                 Element element = (Element) object;
-                modification = new Modification();
+                modification = new Modification("unknown");
                 modification.fromElement(element, formatter);
             }
             if (modification != null) {
@@ -196,7 +196,7 @@ public class ModificationSet {
             }
             while (modificationIterator.hasNext()) {
                 Object object = modificationIterator.next();
-                if (object instanceof org.jdom.Element) {
+                if (object instanceof Element) {
                     modificationsElement.addContent(((Element) object).detach());
                 } else {
                     Modification modification = (Modification) object;
@@ -251,7 +251,7 @@ public class ModificationSet {
         boolean isIgnored = false;
         if (this.ignoreFiles != null) {
 
-            File file = new File (modification.folderName, modification.fileName);
+            File file = new File (modification.getFolderName(), modification.getFileName());
             String path = file.toString();
 
             // On systems with a '\' as pathseparator convert it to a forward slash '/'

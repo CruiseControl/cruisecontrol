@@ -98,7 +98,6 @@ public class SVNTest extends TestCase {
         }
 
         File tempFile = File.createTempFile("temp", "txt");
-        tempFile.deleteOnExit();
 
         svn = new SVN();
         svn.setLocalWorkingCopy(tempFile.getParent());
@@ -433,14 +432,15 @@ public class SVNTest extends TestCase {
         String folder,
         String file,
         String type) {
-        Modification modification = new Modification();
+        Modification modification = new Modification("svn");
+        Modification.ModifiedFile modifiedFile = modification.createModifiedFile(file, folder);
+        modifiedFile.action = type;
+        modifiedFile.revision = revision;
+
         modification.modifiedTime = date;
         modification.userName = user;
         modification.comment = comment;
         modification.revision = revision;
-        modification.folderName = folder;
-        modification.fileName = file;
-        modification.type = type;
         return modification;
     }
 

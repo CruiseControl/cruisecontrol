@@ -160,8 +160,8 @@ public class FileSystemTest extends TestCase {
     
             //Using this one mod, check the modification information for correctness.
             Modification modification = (Modification) mods.get(0);
-            assertEquals(tempFile.getName(), modification.fileName);
-            assertEquals(getDirectory(tempFile).getPath(), modification.folderName);
+            assertEquals(tempFile.getName(), modification.getFileName());
+            assertEquals(getDirectory(tempFile).getPath(), modification.getFolderName());
             assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
         } finally {
             Util.deleteFile(tempDirectory);

@@ -108,7 +108,7 @@ public class VssJournal implements SourceControl {
     /**
      *  Set the project to get history from
      *
-     *  @param  s
+     *  @param  ssDir
      */
     public void setSsDir(String ssDir) {
         this.ssDir = "$" + ssDir;
@@ -117,7 +117,7 @@ public class VssJournal implements SourceControl {
     /**
      *  Full path to journal file.  Example: <code>c:/vssdata/journal/journal.txt</code>
      *
-     *  @param s
+     *  @param journalFile
      */
     public void setJournalFile(String journalFile) {
         this.journalFile = journalFile;
@@ -212,7 +212,7 @@ public class VssJournal implements SourceControl {
      *@param  historyEntry
      */
     protected Modification handleEntry(List historyEntry) {
-        Modification mod = new Modification();
+        Modification mod = new Modification("vss");
         String nameAndDateLine = (String) historyEntry.get(2);
         mod.userName = parseUser(nameAndDateLine);
         mod.modifiedTime = parseDate(nameAndDateLine);
@@ -230,39 +230,51 @@ public class VssJournal implements SourceControl {
             // We don't add labels.
             return null;
         } else if (fileLine.startsWith("Checked in")) {
-            mod.type = "checkin";
+
+            String fileName = substringFromLastSlash(folderLine);
+            String folderName = substringToLastSlash(folderLine);
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+
+            modfile.action = "checkin";
             mod.comment = parseComment(historyEntry);
-            mod.fileName = substringFromLastSlash(folderLine);
-            mod.folderName = substringToLastSlash(folderLine);
         } else if (fileLine.indexOf(" renamed to ") > -1) {
             // TODO: This is a special case that is really two modifications: deleted and recovered.
             //       For now I'll consider it a deleted to force a clean build.
             //       I should really make this two modifications.
-            mod.type = "delete";
             mod.comment = parseComment(historyEntry);
-            mod.fileName = fileLine.substring(0, fileLine.indexOf(" "));
-            mod.folderName = folderLine;
+
+            String fileName = fileLine.substring(0, fileLine.indexOf(" "));
+            String folderName = folderLine;
+
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+            modfile.action = "delete";
+
         } else if (fileLine.indexOf(" moved to ") > -1) {
             // TODO: This is a special case that is really two modifications: deleted and recovered.
             //       For now I'll consider it a deleted to force a clean build.
             //       I should really make this two modifications.
-            mod.type = "delete";
             mod.comment = parseComment(historyEntry);
-            mod.fileName = fileLine.substring(0, fileLine.indexOf(" "));
-            mod.folderName = folderLine;
+            String fileName = fileLine.substring(0, fileLine.indexOf(" "));
+            String folderName = folderLine;
+
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+            modfile.action = "delete";
+
         } else {
-            mod.folderName = folderLine;
-            mod.fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
+            String folderName = folderLine;
+            String fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+
             mod.comment = parseComment(historyEntry);
 
             if (fileLine.endsWith("added")) {
-                mod.type = "add";
+                modfile.action = "add";
             } else if (fileLine.endsWith("deleted")) {
-                mod.type = "delete";
+                modfile.action = "delete";
             } else if (fileLine.endsWith("recovered")) {
-                mod.type = "recover";
+                modfile.action = "recover";
             } else if (fileLine.endsWith("shared")) {
-                mod.type = "branch";
+                modfile.action = "branch";
             }
         }
 

@@ -178,7 +178,7 @@ public class SVN implements SourceControl {
     /**
      * Returns a list of modifications detailing all the changes between
      * the last build and the latest revision in the repository.
-     * @returns the list of modifications, or an empty list if we failed
+     * @return the list of modifications, or an empty list if we failed
      * to retrieve the changes.
      */
     public List getModifications(Date lastBuild, Date now) {
@@ -286,7 +286,8 @@ public class SVN implements SourceControl {
         if (propertyOnDelete != null) {
             for (int i = 0; i < modifications.size(); i++) {
                 Modification modification = (Modification) modifications.get(i);
-                if (modification.type.equals("deleted")) {
+                Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
+                if (file.action.equals("deleted")) {
                     properties.put(propertyOnDelete, "true");
                     break;
                 }
@@ -339,14 +340,17 @@ public class SVN implements SourceControl {
             for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
                 Element path = (Element) iterator.next();
 
-                Modification modification = new Modification();
+                Modification modification = new Modification("svn");
+
                 modification.modifiedTime = convertDate(logEntry.getChildText("date"));
                 modification.userName = logEntry.getChildText("author");
                 modification.comment = logEntry.getChildText("msg");
                 modification.revision = logEntry.getAttributeValue("revision");
-                modification.folderName = "";
-                modification.fileName = path.getText();
-                modification.type = convertAction(path.getAttributeValue("action"));
+
+                Modification.ModifiedFile modfile = modification.createModifiedFile(path.getText(), null);
+                modfile.action = convertAction(path.getAttributeValue("action"));
+                modfile.revision = modification.revision;
+
                 modifications.add(modification);
             }
 

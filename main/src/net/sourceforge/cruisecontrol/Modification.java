@@ -45,17 +45,29 @@ import org.jdom.output.XMLOutputter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * data structure for holding data about a single modification
  * to a source control tool.
  *
+ * <modification type="" date="" user="" email="">
+ *     <comment></comment>
+ *     <file >
+ * </modification>
+ *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
 public class Modification implements Comparable {
+
+    private static final Logger LOG = Logger.getLogger(Modification.class);
+
     private static final String TAGNAME_MODIFICATION = "modification";
     private static final String TAGNAME_TYPE = "type";
+    private static final String TAGNAME_FILE = "file";
     private static final String TAGNAME_FILENAME = "filename";
     private static final String TAGNAME_FOLDERNAME = "project";
     private static final String TAGNAME_DATE = "date";
@@ -63,25 +75,122 @@ public class Modification implements Comparable {
     private static final String TAGNAME_COMMENT = "comment";
     private static final String TAGNAME_EMAIL = "email";
     private static final String TAGNAME_REVISION = "revision";
+    private static final String TAGNAME_ACTION = "action";
 
-    private static final Logger LOG = Logger.getLogger(Modification.class);
+    public class ModifiedFile {
+
+        public String fileName;
+        public String revision;
+        public String folderName;
+        public String action = "unknown";
+
+        protected ModifiedFile() {
+        }
+
+        public Element toElement(DateFormat formatter) {
+
+            Element element = new Element(TAGNAME_FILE);
+
+            if (revision != null && revision.trim().length() > 0) {
+                Element revisionElement = new Element(TAGNAME_REVISION);
+                revisionElement.addContent(revision);
+                element.addContent(revisionElement);
+            }
+
+            if (action != null && action.trim().length() > 0) {
+                element.setAttribute(TAGNAME_ACTION, action);
+            }
+
+            Element fileElement = new Element(TAGNAME_FILENAME);
+            fileElement.addContent(fileName);
+            element.addContent(fileElement);
+
+            if (folderName != null && folderName.trim().length() > 0) {
+                Element folderElement = new Element(TAGNAME_FOLDERNAME);
+                folderElement.addContent(folderName);
+                element.addContent(folderElement);
+            }
+
+            return element;
+
+        }
+
+        public void fromElement(Element modification, DateFormat formatter) {
+            fileName = modification.getChildText(TAGNAME_FILENAME);
+            folderName = modification.getChildText(TAGNAME_FOLDERNAME);
+            revision = modification.getChildText(TAGNAME_REVISION);
+            action = modification.getAttributeValue(TAGNAME_ACTION);
+        }
+
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            }
+
+            if (!(o instanceof ModifiedFile)) {
+                return false;
+            }
+
+            ModifiedFile mod = (ModifiedFile) o;
+
+            boolean folderNamesAreEqual = (folderName != null)
+                ? folderName.equals(mod.folderName)
+                : (mod.folderName == null);
+
+            boolean revisionsAreEqual = (revision != null)
+                ? revision.equals(mod.revision)
+                : (mod.revision == null);
+
+            return (action.equals(mod.action)
+                    && fileName.equals(mod.fileName)
+                    && folderNamesAreEqual
+                    && revisionsAreEqual);
+        }
+
+
+
+    }
 
     public String type = "unknown";
-    public String fileName;
-    public String folderName;
     public Date modifiedTime;
     public String userName;
     public String emailAddress;
     public String revision;
     public String comment = "";
 
+    public List files = new ArrayList();
+
+    public Modification() {
+        this("unknown");
+    }
+
+    public Modification(String type) {
+        this.type = type;
+    }
+
+
+    public final ModifiedFile createModifiedFile(String filename, String folder) {
+        ModifiedFile file = newModifiedFile();
+        file.fileName = filename;
+        file.folderName = folder;
+        files.add(file);
+        return file;
+    }
+
+    protected ModifiedFile newModifiedFile() {
+        return new ModifiedFile();
+    }
+
     public Element toElement(DateFormat formatter) {
         Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
-        Element filenameElement = new Element(TAGNAME_FILENAME);
-        filenameElement.addContent(fileName);
-        Element projectElement = new Element(TAGNAME_FOLDERNAME);
-        projectElement.addContent(folderName);
+
+        Iterator i = files.iterator();
+        while (i.hasNext()) {
+            ModifiedFile f = (ModifiedFile) i.next();
+            modificationElement.addContent(f.toElement(formatter));
+        }
+
         Element dateElement = new Element(TAGNAME_DATE);
         dateElement.addContent(formatter.format(modifiedTime));
         Element userElement = new Element(TAGNAME_USER);
@@ -93,17 +202,16 @@ public class Modification implements Comparable {
             cd = new CDATA(comment);
         } catch (org.jdom.IllegalDataException e) {
             LOG.error(e);
-            cd = new CDATA("Unable to parse comment.  It contains illegal data.");
+            cd =
+                new CDATA("Unable to parse comment.  It contains illegal data.");
         }
         commentElement.addContent(cd);
 
-        modificationElement.addContent(filenameElement);
-        modificationElement.addContent(projectElement);
         modificationElement.addContent(dateElement);
         modificationElement.addContent(userElement);
         modificationElement.addContent(commentElement);
 
-        if (revision != null) {
+        if (revision != null && revision.trim().length() > 0) {
             Element revisionElement = new Element(TAGNAME_REVISION);
             revisionElement.addContent(revision);
             modificationElement.addContent(revisionElement);
@@ -128,9 +236,6 @@ public class Modification implements Comparable {
         SimpleDateFormat formatter =
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
-        sb.append("FileName: " + fileName + "\n");
-        sb.append("FolderName: " + folderName + "\n");
-        sb.append("Revision: " + revision + "\n");
         sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
         sb.append("UserName: " + userName + "\n");
         sb.append("EmailAddress: " + emailAddress + "\n");
@@ -139,15 +244,37 @@ public class Modification implements Comparable {
     }
 
     public void log(DateFormat formatter) {
-        LOG.debug("FileName: " + fileName);
-        LOG.debug("FolderName: " + folderName);
-        LOG.debug("Revision: " + revision);
         LOG.debug("Last Modified: " + formatter.format(modifiedTime));
         LOG.debug("UserName: " + userName);
         LOG.debug("EmailAddress: " + emailAddress);
         LOG.debug("Comment: " + comment);
         LOG.debug("");
     }
+
+    /**
+     * Convenience method for getting the filename of the first file
+     * @return
+     */
+    public String getFileName() {
+        if (files.isEmpty()) {
+            return null;
+        } else {
+            return ((ModifiedFile) files.get(0)).fileName;
+        }
+    }
+
+    /**
+     * Convenience method for getting the foldername of the first file
+     * @return
+     */
+    public String getFolderName() {
+        if (files.isEmpty()) {
+            return null;
+        } else {
+            return ((ModifiedFile) files.get(0)).folderName;
+        }
+    }
+
 
     public int compareTo(Object o) {
         Modification modification = (Modification) o;
@@ -173,23 +300,27 @@ public class Modification implements Comparable {
             ? revision.equals(mod.revision)
             : (mod.revision == null);
 
+        boolean filesAreEqual = files.size() == mod.files.size();
+        for (int i = 0; filesAreEqual && i < files.size(); i++) {
+            Modification.ModifiedFile modfile1 = (Modification.ModifiedFile) files.get(i);
+            Modification.ModifiedFile modfile2 = (Modification.ModifiedFile) mod.files.get(i);
+            filesAreEqual = filesAreEqual
+                    && modfile1.equals(modfile2);
+        }
+
         return (
             type.equals(mod.type)
-                && fileName.equals(mod.fileName)
-                && folderName.equals(mod.folderName)
                 && modifiedTime.equals(mod.modifiedTime)
                 && userName.equals(mod.userName)
-                && emailsAreEqual
                 && revisionsAreEqual
+                && emailsAreEqual
                 && comment.equals(mod.comment));
     }
 
     //for brief testing only
     public static void main(String[] args) {
         Date now = new Date();
-        Modification mod = new Modification();
-        mod.fileName = "File\"Name&";
-        mod.folderName = "Folder'Name";
+        Modification mod = new Modification("unknown");
         mod.modifiedTime = now;
         mod.userName = "User<>Name";
         mod.comment = "Comment";
@@ -198,25 +329,38 @@ public class Modification implements Comparable {
     }
 
     public void fromElement(Element modification, DateFormat formatter) {
+
         type = modification.getAttributeValue(TAGNAME_TYPE);
-        fileName = modification.getChildText(TAGNAME_FILENAME);
-        folderName = modification.getChildText(TAGNAME_FOLDERNAME);
-        LOG.debug("type = " + type);
-        LOG.debug("fileName = " + fileName);
-        LOG.debug("folderName = " + folderName);
         try {
+            String s = modification.getChildText(TAGNAME_DATE);
+            if (s == null) {
+                XMLOutputter outputter = new XMLOutputter();
+                LOG.info("XML: " + outputter.outputString(modification));
+            }
+
             modifiedTime =
-                formatter.parse(modification.getChildText(TAGNAME_DATE));
-            LOG.debug("modifiedTime = " + modifiedTime);
+                formatter.parse(s);
         } catch (ParseException e) {
-            // todo: maybe we should do something different
-            LOG.error("could not parse " + TAGNAME_DATE + " from element " + modification, e);
+            //maybe we should do something different
             modifiedTime = new Date();
-            LOG.debug("modifiedTime = " + modifiedTime);
         }
+
         revision = modification.getChildText(TAGNAME_REVISION);
         userName = modification.getChildText(TAGNAME_USER);
         comment = modification.getChildText(TAGNAME_COMMENT);
         emailAddress = modification.getChildText(TAGNAME_EMAIL);
+
+        files.clear();
+        List modfiles = modification.getChildren(TAGNAME_FILE);
+        if (modfiles != null && modfiles.size() > 0) {
+
+            Iterator it = modfiles.iterator();
+            while (it.hasNext()) {
+                Element modfileElement = (Element) it.next();
+                ModifiedFile modfile = newModifiedFile();
+                modfile.fromElement(modfileElement, formatter);
+                files.add(modfile);
+            }
+        }
     }
 }

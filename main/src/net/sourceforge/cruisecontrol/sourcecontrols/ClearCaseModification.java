@@ -35,7 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -46,6 +46,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * data structure for holding data about a single modification
@@ -62,6 +64,10 @@ public class ClearCaseModification extends Modification {
 
     public List labels = null;
     public Map attributes = null;
+
+    public ClearCaseModification() {
+        super("clearcase");
+    }
 
     public Element toElement(DateFormat formatter) {
         Element modificationElement = super.toElement(formatter);

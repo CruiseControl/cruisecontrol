@@ -442,7 +442,7 @@ public class PVCS implements SourceControl {
             if (modificationList == null) {
                 modificationList = new ArrayList();
             }
-            modification = new Modification();
+            modification = new Modification("pvcs");
             firstModifiedTime = true;
             firstUserName = true;
             nextLineIsComment = false;
@@ -452,20 +452,26 @@ public class PVCS implements SourceControl {
         public void addLine(String line) {
             if (line.startsWith("Archive:")) {
                 initializeModification();
-                modification.fileName = line.substring((line.indexOf(proj) + proj.length()),  line.indexOf("-arc"));
-                if (modification.fileName.startsWith("/") || modification.fileName.startsWith("\\")) {
-                     modification.fileName = modification.fileName.substring(1);
+                String fileName = null;
+
+                fileName = line.substring((line.indexOf(proj) + proj.length()),  line.indexOf("-arc"));
+                if (fileName.startsWith("/") || fileName.startsWith("\\")) {
+                     fileName = fileName.substring(1);
                 }
-                if (modification.fileName.startsWith("archives")) {
-                     modification.fileName = modification.fileName.substring("archives".length());
+                if (fileName.startsWith("archives")) {
+                     fileName = fileName.substring("archives".length());
                 }
+
+
+                Modification.ModifiedFile file = modification.createModifiedFile(fileName, null);
+
             } else if (waitingForNextValidStart) {
                 // we're in this state after we've got the last useful line
                 // from the previous item, but haven't yet started a new one
                 // -- we should just skip these lines till we start a new one
                 return;
             } else if (line.startsWith("Workfile:")) {
-                modification.fileName = line.substring(18);
+                Modification.ModifiedFile file = modification.createModifiedFile(line.substring(18), null);
             } else if (line.startsWith("Archive created:")) {
                 try {
                     String createdDate = line.substring(18);

@@ -82,18 +82,16 @@ public class MockSourceControl implements SourceControl {
         if (version == 1) {
             //build up a couple Modification objects
             Modification mod1 = new Modification();
-            mod1.type = "Checkin";
-            mod1.fileName = "file1";
-            mod1.folderName = "dir1";
+            Modification.ModifiedFile mod1file = mod1.createModifiedFile("file1", "dir1");
+            mod1file.action = "Checkin";
             mod1.userName = "user1";
             mod1.modifiedTime = modifiedDate;
             mod1.comment = "comment1";
             result.add(mod1);
 
             Modification mod2 = new Modification();
-            mod2.type = "Checkin";
-            mod2.fileName = "file2";
-            mod2.folderName = "dir2";
+            Modification.ModifiedFile mod2file = mod1.createModifiedFile("file2", "dir2");
+            mod2file.action = "Checkin";
             mod2.userName = "user2";
             mod2.modifiedTime = modifiedDate;
             mod2.comment = "comment2";
@@ -106,18 +104,16 @@ public class MockSourceControl implements SourceControl {
 
         if (version == 2) {
             Modification mod3 = new Modification();
-            mod3.type = "Checkin";
-            mod3.fileName  = "file3";
-            mod3.folderName = "dir3";
+            Modification.ModifiedFile mod3file = mod3.createModifiedFile("file3", "dir3");
+            mod3file.action = "Checkin";
             mod3.userName = "user3";
             mod3.modifiedTime = modifiedDate;
             mod3.comment = "comment3";
             result.add(mod3);
 
             Modification mod4 = new Modification();
-            mod4.type = "Checkin";
-            mod4.fileName = "file4";
-            mod4.folderName = "dir4";
+            Modification.ModifiedFile mod4file = mod4.createModifiedFile("file4", "dir4");
+            mod4file.action = "Checkin";
             mod4.userName = "user4";
             mod4.modifiedTime = modifiedDate;
             mod4.comment = "comment4";

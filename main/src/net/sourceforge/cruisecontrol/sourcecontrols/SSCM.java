@@ -187,7 +187,8 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
       LOG.debug("Output-" + str + "-\n");
 
       if (str == null || str.length() == 0) { return null; }
-      Modification mod = new Modification();
+      Modification mod = new Modification("sscm");
+      Modification.ModifiedFile modfile = mod.createModifiedFile(null, null);
 
       boolean fValid = false;
       String strToken = "><";
@@ -197,13 +198,13 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
       // Repository
       iRight = str.indexOf(strToken, iLeft);
       if (iRight > iLeft) {
-         mod.folderName = str.substring(iLeft, iRight);
+         modfile.folderName = str.substring(iLeft, iRight);
          iLeft = iRight + strToken.length();
 
          // Filename
          iRight = str.indexOf(strToken, iLeft);
          if (iRight > iLeft) {
-            mod.fileName = str.substring(iLeft, iRight);
+            modfile.fileName = str.substring(iLeft, iRight);
             iLeft = iRight + strToken.length();
 
             // Revision
@@ -215,7 +216,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
                // Event
                iRight = str.indexOf(strToken, iLeft);
                if (iRight > iLeft) {
-                  mod.type = str.substring(iLeft, iRight);
+                  modfile.action = str.substring(iLeft, iRight);
                   iLeft = iRight + strToken.length();
 
                   // Date

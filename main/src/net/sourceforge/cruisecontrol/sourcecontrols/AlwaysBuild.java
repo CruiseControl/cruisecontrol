@@ -85,15 +85,13 @@ public class AlwaysBuild implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         List modifications = new ArrayList();
 
-        Modification mod = new Modification();
-
-        mod.type = "change";
+        Modification mod = new Modification("always");
+        Modification.ModifiedFile modfile = mod.createModifiedFile("force build", "force build");
+        modfile.action = "change";
 
         // TODO: add attribute to specify user name for modifications
 
         mod.userName = "User";
-        mod.fileName = "force build";
-        mod.folderName = "force build";
         mod.modifiedTime = new Date((new Date()).getTime() - 100000);
         mod.comment = "";
         modifications.add(mod);

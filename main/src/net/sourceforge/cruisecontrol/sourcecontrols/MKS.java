@@ -228,9 +228,11 @@ public class MKS implements SourceControl {
 
         while (itr.hasNext()) {
             Modification mod = (Modification) itr.next();
+            Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+
             System.out.println(
                 " File Modified :"
-                    + mod.fileName
+                    + modfile.fileName
                     + "Time Modified :"
                     + mod.modifiedTime.toString());
         }
@@ -349,11 +351,8 @@ public class MKS implements SourceControl {
                 nextLine = reader.readLine();
             }
 
-            Modification nextModification = new Modification();
-            nextModification.fileName = workingFilename;
-            //MKS doesn't provide specific project or "folder" information.
-            nextModification.folderName = "";
-
+            Modification nextModification = new Modification("mks");
+            Modification.ModifiedFile modfile = nextModification.createModifiedFile(workingFilename, null);
 
             try {
 

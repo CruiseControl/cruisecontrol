@@ -36,23 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.BufferedInputStream;
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.ClearCaseModification;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author Eric Lefevre
@@ -120,16 +118,28 @@ public class ClearCaseTest extends TestCase {
         for (int i = 0; i < list.size(); i++) {
             ClearCaseModification a = (ClearCaseModification) mods.get(i);
             ClearCaseModification b = (ClearCaseModification) list.get(i);
+
             assertEquals(a.type, b.type);
-            assertEquals(a.fileName, b.fileName);
-            assertEquals(a.folderName, b.folderName);
             assertEquals(a.modifiedTime, b.modifiedTime);
             assertEquals(a.userName, b.userName);
             assertEquals(a.emailAddress, b.emailAddress);
             assertEquals(a.revision, b.revision);
             assertEquals(a.labels, b.labels);
             assertEquals(a.attributes, b.attributes);
-            
+
+            assertEquals(a.files.size(), b.files.size());
+            for (int j = 0; j < b.files.size(); j++) {
+                ClearCaseModification.ModifiedFile af =
+                        (ClearCaseModification.ModifiedFile) a.files.get(j);
+                ClearCaseModification.ModifiedFile bf =
+                        (ClearCaseModification.ModifiedFile) b.files.get(j);
+                assertEquals(af.action, bf.action);
+                assertEquals(af.fileName, bf.fileName);
+                assertEquals(af.folderName, bf.folderName);
+                assertEquals(af.revision, bf.revision);
+            }
+
+
             StringBuffer bc = new StringBuffer(b.comment);
             for (int j = 0; j < bc.length(); j++) {
                if (bc.charAt(j) == 13) {

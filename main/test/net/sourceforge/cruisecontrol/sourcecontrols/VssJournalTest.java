@@ -122,11 +122,14 @@ public class VssJournalTest extends TestCase {
         entry.add("Comment: Making cc email users when build failed");
         
         Modification mod = element.handleEntry(entry);
-        assertEquals(mod.fileName, "cruisecontrol.properties");
-        assertEquals(mod.folderName, "$/AutoBuild/conf");
+        assertEquals(mod.getFileName(), "cruisecontrol.properties");
+        assertEquals(mod.getFolderName(), "$/AutoBuild/conf");
         assertEquals(mod.comment, "Comment: Making cc email users when build failed");
         assertEquals(mod.userName, "Etucker");
-        assertEquals(mod.type, "checkin");                
+        assertEquals(mod.type, "vss");
+
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        assertEquals(modfile.action, "checkin");
     }
     
     public void testHandleEntryRename() {
@@ -137,12 +140,15 @@ public class VssJournalTest extends TestCase {
         entry.add("body3.htm renamed to step3.htm ");
         
         Modification mod = element.handleEntry(entry);
-        assertEquals(mod.fileName, "body3.htm");
-        assertEquals(mod.folderName, "$/WILD/Client/English");
+        assertEquals(mod.getFileName(), "body3.htm");
+        assertEquals(mod.getFolderName(), "$/WILD/Client/English");
         assertEquals(mod.comment, "");
         assertEquals(mod.userName, "Ddavis");
-        assertEquals(mod.type, "delete");                
-    }    
+        assertEquals(mod.type, "vss");
+        
+        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        assertEquals(modfile.action, "delete");
+    }
     
     public void testHandleEntryLabel() {
         List entry = new ArrayList();

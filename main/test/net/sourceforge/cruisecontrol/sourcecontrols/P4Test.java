@@ -44,9 +44,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-
-import org.jdom.Element;
-// import org.jdom.output.XMLOutputter;
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  *@author  Robert Watkins
@@ -116,7 +114,7 @@ public class P4Test extends TestCase {
             "Returned wrong number of changelists",
             3,
             changelists.size());
-        List changelistElements = p4.changeListsToElement(changelists);
+
         assertEquals(
             "Wrong description",
             "Fixed support for db2. This is now the default database shipped"
@@ -124,22 +122,19 @@ public class P4Test extends TestCase {
                 + " PostgreSQL to see that it is still working there. The sea rch"
                 + " mechanism is also upgraded to now ALMOST support AND/OR"
                 + " expressions. There are thoughtsabout this, but not yet implemented (however prepared for)",
-            ((Element) changelistElements.get(0))
-                .getChild("description")
-                .getText());
+            ((Modification) changelists.get(0))
+                .comment);
         assertEquals(
             "Wrong description",
             "ok, tests running smooth. Checking in mostly for backup. Not"
                 + " finished yet. CIMD is comming on great and I'm starting to see a framework developing.",
-            ((Element) changelistElements.get(1))
-                .getChild("description")
-                .getText());
+            ((Modification) changelists.get(1))
+                .comment);
         assertEquals(
             "Wrong description",
             "Testing ..\nSome ..\nLinebreaks.",
-            ((Element) changelistElements.get(2))
-                .getChild("description")
-                .getText());
+            ((Modification) changelists.get(2))
+                .comment);
         //        XMLOutputter outputter = new XMLOutputter();
         //        for (Iterator iterator = changelistElements.iterator(); iterator.hasNext();) {
         //            Element element = (Element) iterator.next();

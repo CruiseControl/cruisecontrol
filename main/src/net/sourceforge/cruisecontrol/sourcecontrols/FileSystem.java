@@ -87,7 +87,7 @@ public class FileSystem implements SourceControl {
         }
         if (!folder.exists()) {
             throw new CruiseControlException("folder " + folder.getAbsolutePath() + " must exist for FileSystem");
-        } 
+        }
     }
 
     /**
@@ -112,15 +112,13 @@ public class FileSystem implements SourceControl {
      * userName "User".
      */
     private void addRevision(File revision) {
-        Modification mod = new Modification();
+        Modification mod = new Modification("filesystem");
 
-        mod.type = "change";
-        
-        // TODO: add attribute to specify user name for modifications
-        
         mod.userName = "User";
-        mod.fileName = revision.getName();
-        mod.folderName = revision.getParent();
+
+        Modification.ModifiedFile modfile = mod.createModifiedFile(revision.getName(), revision.getParent());
+        modfile.action = "change";
+
         mod.modifiedTime = new Date(revision.lastModified());
         mod.comment = "";
         modifications.add(mod);

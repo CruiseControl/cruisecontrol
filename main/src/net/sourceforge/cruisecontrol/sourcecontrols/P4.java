@@ -37,11 +37,11 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
-import org.jdom.CDATA;
 import org.jdom.Element;
 
 import java.io.BufferedReader;
@@ -49,14 +49,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The
@@ -117,15 +117,6 @@ public class P4 implements SourceControl {
         return properties;
     }
 
-    protected List changeListsToElement(List mods) {
-        List changelists = new ArrayList();
-        for (Iterator iterator = mods.iterator(); iterator.hasNext();) {
-            Changelist changelist = (Changelist) iterator.next();
-            changelists.add(changelist.toElement());
-        }
-        return changelists;
-    }
-
     public void validate() throws CruiseControlException {
         if (p4Port == null) {
             throw new CruiseControlException("'port' is a required attribute on P4");
@@ -165,7 +156,7 @@ public class P4 implements SourceControl {
             LOG.error("Log command failed to execute succesfully", e);
         }
 
-        return changeListsToElement(mods);
+        return mods;
     }
 
     private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers)
@@ -242,6 +233,7 @@ public class P4 implements SourceControl {
     }
 
     protected List parseChangeDescriptions(InputStream is) throws IOException {
+
         ArrayList changelists = new ArrayList();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -249,7 +241,8 @@ public class P4 implements SourceControl {
         // Find first Changelist item if there is one.
         String line;
         while ((line = readToNotPast(reader, "text: Change", "exit:")) != null) {
-            Changelist changelist = new Changelist();
+
+            P4Modification changelist = new P4Modification();
             if (line.startsWith("error:")) {
                 throw new IOException("Error reading P4 stream: P4 says: " + line);
             } else if (line.startsWith("exit: 1")) {
@@ -261,16 +254,21 @@ public class P4 implements SourceControl {
 
                 st.nextToken(); // skip 'text:' text
                 st.nextToken(); // skip 'Change' text
-                changelist.changelistNumber = st.nextToken();
+                changelist.revision = st.nextToken();
                 st.nextToken(); // skip 'by' text
 
                 // split user@client
                 StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
-                changelist.user = st2.nextToken();
+                changelist.userName = st2.nextToken();
                 changelist.client = st2.nextToken();
 
                 st.nextToken(); // skip 'on' text
-                changelist.dateOfSubmission = st.nextToken();
+                String date = st.nextToken() + ":" + st.nextToken();
+                try {
+                    changelist.modifiedTime = P4_REVISION_DATE.parse(date);
+                } catch (ParseException xcp) {
+                    changelist.modifiedTime = new Date();
+                }
             }
 
             line = reader.readLine(); // get past a 'text:'
@@ -297,19 +295,20 @@ public class P4 implements SourceControl {
                 }
 
             }
-            changelist.description = descriptionBuffer.toString();
+
+            changelist.comment = descriptionBuffer.toString();
 
             // Ok, read affected files if there are any.
             if (line != null) {
                 reader.readLine(); // read past next 'text:'
                 while ((line = readToNotPast(reader, "info1:", "text:")) != null
                     && line.startsWith("info1:")) {
-                    AffectedFile affectedFile = new AffectedFile();
-                    affectedFile.filename = line.substring(7, line.lastIndexOf(" ") - 2);
+
+                    String fileName = line.substring(7, line.lastIndexOf(" ") - 2);
+                    Modification.ModifiedFile affectedFile = changelist.createModifiedFile(fileName, null);
                     affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
                     affectedFile.revision =
                         line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
-                    changelist.affectedFiles.add(affectedFile);
                 }
             }
             changelists.add(changelist);
@@ -405,61 +404,45 @@ public class P4 implements SourceControl {
         return nextLine;
     }
 
-    /**
-     * Contains a changelist description, including the changelist number,
-     * user, client, date of submission, textual description, list
-     * of affected files
-     */
-    class Changelist {
-        public String changelistNumber;
-        public String user;
+    private static class P4Modification extends Modification {
+
         public String client;
-        public String dateOfSubmission;
-        public String description;
-        public Vector affectedFiles = new Vector();
 
-        public Element toElement() {
-            LOG.debug("changelistNumber = " + changelistNumber);
-            LOG.debug("user = " + user);
-            LOG.debug("client = " + client);
-            LOG.debug("dateOfSubmission = " + dateOfSubmission);
-            LOG.debug("description = " + description);
-            Element changelistElement = new Element("changelist");
-            changelistElement.setAttribute("type", "p4");
-            changelistElement.setAttribute("changelistNumber", changelistNumber);
-            changelistElement.setAttribute("user", user);
-            changelistElement.setAttribute("client", client);
-            changelistElement.setAttribute("dateOfSubmission", dateOfSubmission);
-            Element descriptionElement = new Element("description");
-            descriptionElement.addContent(new CDATA(description));
-            changelistElement.addContent(descriptionElement);
-            for (int i = 0; i < affectedFiles.size(); i++) {
-                AffectedFile affectedFile = (AffectedFile) affectedFiles.elementAt(i);
-                changelistElement.addContent(affectedFile.toElement());
+        public int compareTo(Object o) {
+            P4Modification modification = (P4Modification) o;
+            return getChangelistNumber() - modification.getChangelistNumber();
+        }
+
+        public boolean equals(Object o) {
+
+            if (o == null || !(o instanceof P4Modification)) {
+                return false;
             }
-            return changelistElement;
+
+            P4Modification modification = (P4Modification) o;
+            return getChangelistNumber() == modification.getChangelistNumber();
+        }
+
+        private int getChangelistNumber() {
+            return Integer.parseInt(revision);
+        }
+
+
+        P4Modification() {
+            super("p4");
+        }
+
+        public Element toElement(DateFormat format) {
+
+            Element element = super.toElement(format);
+            LOG.debug("client = " + client);
+
+            Element clientElement = new Element("client");
+            clientElement.addContent(client);
+            element.addContent(clientElement);
+
+            return element;
         }
 
     }
-
-    class AffectedFile {
-        public String filename;
-        public String revision;
-        public String action;
-
-        public Element toElement() {
-            Element affectedFileElement = new Element("affectedfile");
-            affectedFileElement.setAttribute("filename", filename);
-            affectedFileElement.setAttribute("revision", revision);
-            affectedFileElement.setAttribute("action", action);
-            return affectedFileElement;
-        }
-
-        public void log() {
-            System.out.println("Filename:\t<" + filename + ">");
-            System.out.println("Revision:\t<" + revision + ">");
-            System.out.println("Action:\t<" + action + ">");
-        }
-    }
-
 }
