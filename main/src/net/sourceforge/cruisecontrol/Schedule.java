@@ -69,14 +69,13 @@ public class Schedule {
      *  @return true if CruiseControl is currently paused (no build should run).
      */
     public boolean isPaused(Date now) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
         Iterator pauseBuilderIterator = _pauseBuilders.iterator();
         while (pauseBuilderIterator.hasNext()) {
             PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
-            if (builder.getStartTime() <= getTimeFromDate(now) &&
-                    getTimeFromDate(now) <= builder.getEndTime() &&
-                    builder.isValidDay(now)) {
-                    log.info("CruiseControl is paused until: "
-                            + builder.getEndTime()+1);
+            if (builder.isPaused(cal)) {
+                log.info("CruiseControl is paused until: " + builder.getEndTime()+1);
                 return true;
             }
         }
@@ -94,9 +93,7 @@ public class Schedule {
      *
      *  @return JDOM Element representation of build log.
      */
-    public Element build(int buildNumber, Date lastBuild, Date now,
-                         Map properties)
-            throws CruiseControlException {
+    public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
         Builder builder = selectBuilder(buildNumber, lastBuild, now);
         return builder.build(properties);
     }
@@ -146,5 +143,4 @@ public class Schedule {
         int minute = calendar.get(Calendar.MINUTE);
         return hour + minute;
     }
-
 }

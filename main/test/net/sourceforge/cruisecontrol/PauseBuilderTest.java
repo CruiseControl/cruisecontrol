@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 
 import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 public class PauseBuilderTest extends TestCase {
 
@@ -108,10 +109,62 @@ public class PauseBuilderTest extends TestCase {
         }
     }
 
-    public void testIsValidDay() {
+    public void testIsPaused() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(2002, Calendar.DECEMBER, 23, 18, 00, 00);
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(2002, Calendar.DECEMBER, 23, 20, 00, 00);
+
+        Calendar cal3 = Calendar.getInstance();
+        cal3.set(2002, Calendar.DECEMBER, 23, 22, 00, 00);
+
+        Calendar cal4 = Calendar.getInstance();
+        cal4.set(2002, Calendar.DECEMBER, 24, 3, 00, 00);
+
+        Calendar cal5 = Calendar.getInstance();
+        cal5.set(2002, Calendar.DECEMBER, 24, 7, 00, 00);
+
         PauseBuilder pb = new PauseBuilder();
-        pb.setDay("Thursday");
-        assertEquals(true, pb.isValidDay(_cal.getTime()));
-        assertEquals(false, pb.isValidDay(_cal2.getTime()));
+        pb.setStartTime(1900);
+        pb.setEndTime(2100);
+
+        assertEquals(false, pb.isPaused(cal));
+        assertEquals(true, pb.isPaused(cal2));
+        assertEquals(false, pb.isPaused(cal3));
+
+        pb.setDay("monday");
+        assertEquals(false, pb.isPaused(cal));
+        assertEquals(true, pb.isPaused(cal2));
+        assertEquals(false, pb.isPaused(cal3));
+
+        pb.setDay("tuesday");
+        assertEquals(false, pb.isPaused(cal));
+        assertEquals(false, pb.isPaused(cal2));
+        assertEquals(false, pb.isPaused(cal3));
+
+        pb = new PauseBuilder();
+        pb.setStartTime(2100);
+        pb.setEndTime(500);
+
+        assertEquals(false, pb.isPaused(cal));
+        assertEquals(true, pb.isPaused(cal3));
+        assertEquals(true, pb.isPaused(cal4));
+        assertEquals(false, pb.isPaused(cal5));
+
+        pb.setDay("monday");
+
+        assertEquals(false, pb.isPaused(cal));
+        assertEquals(true, pb.isPaused(cal3));
+        assertEquals(true, pb.isPaused(cal4));
+        assertEquals(false, pb.isPaused(cal5));
+
+        pb.setDay("tuesday");
+
+        assertEquals(false, pb.isPaused(cal));
+        assertEquals(false, pb.isPaused(cal3));
+        assertEquals(false, pb.isPaused(cal4));
+        assertEquals(false, pb.isPaused(cal5));
     }
+
 }
