@@ -60,6 +60,7 @@ public class MockServletRequest implements HttpServletRequest {
     private String servletPath;
     private Map params = new HashMap();
     private String pathInfo;
+    private Locale locale;
 
     public MockServletRequest() {
     }
@@ -148,7 +149,7 @@ public class MockServletRequest implements HttpServletRequest {
     }
 
     public Locale getLocale() {
-        return null;
+        return locale;
     }
 
     public Enumeration getLocales() {
@@ -279,5 +280,12 @@ public class MockServletRequest implements HttpServletRequest {
 
     public void setPathInfo(String info) {
         pathInfo = info;
+    }
+
+    /**
+     * @param locale
+     */
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 }

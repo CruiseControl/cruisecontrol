@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2003, ThoughtWorks, Inc.
+ * Copyright (c) 2004, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,63 +34,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.util;
 
-import java.io.File;
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
-import net.sourceforge.cruisecontrol.taglib.CruiseControlTagSupport;
-import net.sourceforge.cruisecontrol.util.DateUtil;
-
 /**
- * @author Jared Richardson
- * User: jfredrick
- * Adapted from StatusPage.java, submitted by Jared to the cruisecontrol-devel mailing list.
+ * Helper class for date-related functions.
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class StatusHelper {
-    private File newestLogfile;
+public final class DateUtil {
 
-    private static final String PASSED = "passed";
-    private static final String FAILED = "failed";
-
-    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
-
-    public void setProjectDirectory(File directory) {
-        newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
+    private static final char YEAR = 'y';
+    private static final char DAY = 'd';
+    private static final char MONTH = 'M';
+    private static final String TWENTY_FOUR_HOUR = " HH:mm:ss";
+    private static final SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy/MM/dd" + TWENTY_FOUR_HOUR);
+    private static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd/MM/yyyy" + TWENTY_FOUR_HOUR);
+    private static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MM/dd/yyyy" + TWENTY_FOUR_HOUR);
+    
+    private DateUtil() {
+        // private constructor for utility class.
     }
-
-    public String getLastBuildResult() {
-        if (newestLogfile == null) {
-            return null;
+    
+    /**
+     * Create a date format for the locale provided.
+     * @param locale    the locale.
+     * @return  the date format.
+     */
+    public static SimpleDateFormat createDateFormat(Locale locale) {
+        SimpleDateFormat standardFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale);
+        String standardPattern = standardFormat.toPattern();
+        char firstLetterInPattern = standardPattern.charAt(0);
+        switch (firstLetterInPattern) {
+            case MONTH:
+                return MONTH_FORMAT;
+            case DAY:
+                return DAY_FORMAT;
+            case YEAR:
+                return YEAR_FORMAT;
+            default:
+                return new SimpleDateFormat(standardPattern + TWENTY_FOUR_HOUR);
         }
-        String filename = newestLogfile.getName();
-
-        // passing log file name is of form log20020102030405L.*.xml
-        // look for L
-        if (filename.length() > 16 && filename.charAt(17) == 'L') {
-            return PASSED;
-        }
-
-        return FAILED;
     }
-
-    public String getLastBuildTimeString(Locale locale) {
-        if (newestLogfile == null) {
-            return null;
-        }
-        String filename = newestLogfile.getName();
-        String dateFromFilename = filename.substring(3, 17);
-        String dateString = "error";
-        try {
-            Date date = LOG_TIME_FORMAT_SECONDS.parse(dateFromFilename);
-            dateString = DateUtil.createDateFormat(locale).format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return dateString;
-    }
-
 }

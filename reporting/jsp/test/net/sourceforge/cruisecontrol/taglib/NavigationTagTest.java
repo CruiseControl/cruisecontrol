@@ -42,6 +42,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -63,6 +64,7 @@ public class NavigationTagTest extends TestCase {
         tag = new NavigationTag();
         pageContext = new MockPageContext();
         MockServletRequest request = new MockServletRequest("context", "servlet");
+        request.setLocale(Locale.US);
         pageContext.setHttpServletRequest(request);
 
         tag.setPageContext(pageContext);

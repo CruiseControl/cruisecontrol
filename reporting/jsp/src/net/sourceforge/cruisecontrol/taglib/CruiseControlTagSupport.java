@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Locale;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -169,5 +171,12 @@ public class CruiseControlTagSupport extends TagSupport {
         } else {
             return null;
         }
+    }
+
+    /**
+     * @return
+     */
+    protected Locale getLocale() {
+        return pageContext.getRequest().getLocale();
     }
 }
