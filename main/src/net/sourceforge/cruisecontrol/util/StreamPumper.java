@@ -84,6 +84,8 @@ public class StreamPumper implements Runnable {
             while (s != null) {
 
                 _out.println(s);
+                _out.flush();
+
                 s = _in.readLine();
                 if (s == null) {
                     try {
@@ -95,5 +97,14 @@ public class StreamPumper implements Runnable {
             }
         } catch (IOException e) {
         }
+    }
+
+    public void flush() {
+        _out.flush();
+    }
+
+    public void close() {
+        flush();
+        _out.close();
     }
 }
