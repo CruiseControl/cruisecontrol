@@ -122,7 +122,8 @@ public class CruiseControlControllerTest extends TestCase {
         FileWriter configOut = new FileWriter(configFile);
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
-        configOut.write("  <plugin name=\"testname\" classname=\"net.sourceforge.cruisecontrol.CruiseControllerTest\"/>\n");
+        configOut.write("  <plugin name=\"testname\" " 
+                        + "classname=\"net.sourceforge.cruisecontrol.CruiseControllerTest\"/>\n");
         configOut.write("  <plugin name=\"labelincrementer\" classname=\"my.global.Incrementer\"/>\n");
         configOut.write("</cruisecontrol>\n");
         configOut.close();
