@@ -48,9 +48,6 @@ public class VssJournalTest extends TestCase {
 
     private VssJournal _element;
     
-    private final String DATE_TIME_STRING = "Date:  6/20/01   Time: 10:36a";    
-    private final String STRANGE_DATE_TIME_STRING = "Date:  6/20/:1   Time: 10:36a";
-    
     public VssJournalTest(String name) {
         super(name);
     }
