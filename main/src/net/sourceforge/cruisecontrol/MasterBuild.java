@@ -18,6 +18,7 @@ import org.apache.tools.ant.*;
 public class MasterBuild extends XmlLogger implements BuildListener {
 
     private static final String BUILDINFO_FILENAME = "buildcycleinfo";
+    private static final String DEFAULT_EMAILMAP = "emailmap.properties";
 
     //label/modificationset/build participants
     private static String  _label;
@@ -122,7 +123,6 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * serialize the label and timestamp of the last good build
      */
     public void writeBuildInfo() {
-        //REDTAG - Paul - Do we want this to be human readable/modifiable in the file?
         try {
             BuildInfo info = new BuildInfo(_lastGoodBuildTime, _label);
             ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(BUILDINFO_FILENAME));
@@ -196,8 +196,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
                 _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
             }
 
-            _useEmailMap = props.getProperty("useemailmap").equals("true");
             _emailmapFilename = props.getProperty("emailmap");
+            _useEmailMap = usingEmailMap(_emailmapFilename);
 
             if (_debug || _verbose)
                 props.list(System.out);
@@ -206,6 +206,27 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             log("Properties file: " + propFile.getAbsolutePath() + " not found.");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * This method infers from the value of the email
+     * map filename, whether or not the email map is being
+     * used. For example, if the filename is blank
+     * or null, then the map is not being used.
+     * 
+     * @param emailMapFileName
+     *               Name provided by the user.
+     * @return true if the email map should be consulted, otherwise false.
+     */
+    private boolean usingEmailMap(String emailMapFileName) {
+        //If the user specified name is null or blank or doesn't exist, then 
+        //  the email map is not being used.
+        if (emailMapFileName == null || emailMapFileName.trim().length() == 0) {
+            return false;
+        }
+        //Otherwise, check to see if the filename provided exists and is readable.
+        File userEmailMap = new File(emailMapFileName);
+        return userEmailMap.exists() && userEmailMap.canRead();
     }
 
     /**
