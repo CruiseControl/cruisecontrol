@@ -98,7 +98,7 @@
         <echo message="Checking for modifications..."/>
         <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30" 
           dateformat="yyyy-MMM-dd HH:mm:ss">
-            <cvselement cvsroot="${cvs.repository}"/>
+            <cvselement cvsroot="${cvs.repository}" />
         </modificationset>
     </target>
 

@@ -615,12 +615,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     }
 
+    //(PENDING) Extract e-mail stuff into another class
     private Set getEmails(String list) {
         //The buildmaster is always included in the email names.
         Set emails = new HashSet(_buildmaster);
-        if (_debug) {
-            log("List of emails is: " + list);
-        }
 
         //If the build failed then the failure notification emails are included.
         if (!_lastBuildSuccessful) {
@@ -628,6 +626,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
         
         if (_mapSourceControlUsersToEmail) {
+            log("Adding source control users to e-mail list: " + list);
             emails.addAll(getSetFromString(list));
         }
 
