@@ -31,11 +31,10 @@ import java.io.*;
  *	This class handles all vss-related aspects of determining the modifications since the
  *	last good build.
  *
- *	@author alden almagro, ThoughtWorks, Inc. 2001, etucker
+ *	@author alden almagro, ThoughtWorks, Inc. 2001, etucker, jchyip
  */
-public class VssElement implements SourceControlElement {
+public class VssElement extends SourceControlElement {
     
-    private Task _task;
     private String _ssDir;
     private String _login;
     private String _property;
@@ -48,6 +47,16 @@ public class VssElement implements SourceControlElement {
     private Set _emails = new HashSet();
     
     private SimpleDateFormat _vssOutFormat = new SimpleDateFormat("'Date:'MM/dd/yy   'Time: 'hh:mma");
+
+    /**
+     * The String prepended to log messages from the source control element.  For
+     * example, CVSElement should implement this as return "[cvselement]";
+     *
+     * @return prefix for log messages
+     */
+    protected String logPrefix() {
+        return "[vsselement]";
+    }    
     
     /**
      *	set the project to get history
@@ -74,13 +83,6 @@ public class VssElement implements SourceControlElement {
     
     public void setPropertyondelete(String s) {
         _propertyOnDelete = s;
-    }
-    
-    /**
-     *   really just here for logging to get a handle to the project
-     */
-    public void setTask(Task t) {
-        _task = t;
     }
     
     /**
@@ -143,7 +145,7 @@ public class VssElement implements SourceControlElement {
         }
         
         if (_modifications.size() > 0) {
-            _task.getProject().setProperty(_property, "true");
+            getTask().getProject().setProperty(_property, "true");
         }
         
         return _modifications;
@@ -185,9 +187,9 @@ public class VssElement implements SourceControlElement {
         }
         
         if ("delete".equals(mod.type))
-            _task.getProject().setProperty(_propertyOnDelete, "true");
+            getTask().getProject().setProperty(_propertyOnDelete, "true");
         
-        _task.getProject().setProperty(_property, "true");
+        getTask().getProject().setProperty(_property, "true");
         _modifications.add(mod);
         logModification(mod);
     }
@@ -240,14 +242,5 @@ public class VssElement implements SourceControlElement {
         log("User: " + mod.userName + " Date: " + mod.modifiedTime);
         log("");
     }
-    
-    /**
-     * Use Ant task to send a log message
-     */
-    public void log(String message) {
-        if (_task != null) {
-            _task.log("[vsselement]" + message);
-        }        
-    }
-    
+       
 }

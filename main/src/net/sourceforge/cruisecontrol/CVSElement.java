@@ -25,8 +25,6 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-import org.apache.tools.ant.Task;
-
 /**
  * This class implements the SourceControlElement methods
  * for a CVS repository. The call to CVS is assumed to work without
@@ -35,7 +33,7 @@ import org.apache.tools.ant.Task;
  *
  * @author Paul Julius ThoughtWorks Inc., robertdw, Frederic Lavigne, jchyip
  */
-public class CVSElement implements SourceControlElement {
+public class CVSElement extends SourceControlElement {
     
     /**
      * This is the date format required by commands passed
@@ -131,11 +129,14 @@ public class CVSElement implements SourceControlElement {
      */
     private Date lastModified;
     
-    /**
-     * This task should be provided by the caller. This class
-     * will use it to log information.
-     */
-    private Task _task;
+   /**
+    * The String prepended to log messages from the source control element.
+    *
+    * @return prefix for log messages
+    */    
+    protected String logPrefix() {
+        return "[cvselement]";
+    }
     
     /**
      * Sets the CVSROOT for all calls to CVS.
@@ -169,15 +170,6 @@ public class CVSElement implements SourceControlElement {
     }
     
     /**
-     * Allows the caller to set the task, which will be used for logging purposes.
-     *
-     * @param task   Task to use.
-     */
-    public void setTask(Task task) {
-        _task = task;
-    }
-    
-    /**
      * Returns a Set of email addresses.  CVS doesn't track actual email addresses,
      * so we'll just return the usernames here, which may correspond to
      * email ids. We'll tack on the suffix, i.e. @apache.org, in MasterBuild.java before mailing
@@ -203,17 +195,6 @@ public class CVSElement implements SourceControlElement {
             return 0;
         }
         return lastModified.getTime();
-    }
-    
-    /**
-     * Logs the message if a task has been set.
-     *
-     * @param message message to log.
-     */
-    public void log(String message) {
-        if (_task != null) {
-            _task.log("[cvselement]" + message);
-        }
     }
     
     /**

@@ -20,13 +20,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 import java.io.*;
-
-import net.sourceforge.cruisecontrol.*;
 
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
@@ -49,15 +44,14 @@ import org.apache.oro.text.perl.*;
  *  P4Element sets the property ${p4element.change} with the current changelist
  *  number. This should then be passed into p4sync or other p4 commands.
  *
- * @author     niclas.olofsson@ismobile.com
+ * @author     niclas.olofsson@ismobile.com, jchyip
  * @created    den 23 april 2001
- * @version    0.0
+ * @version    0.1
  */
-public class P4Element implements SourceControlElement {
+public class P4Element extends SourceControlElement {
     
     private Set _emailNames = new HashSet();
     private Date _lastModified;
-    private org.apache.tools.ant.Task _task;
     private final static java.text.SimpleDateFormat p4Date = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     
     //P4 runtime directives
@@ -67,6 +61,16 @@ public class P4Element implements SourceControlElement {
     private String _P4User;
     private String _P4View;
     private int _P4lastChange;
+
+    /**
+     * The String prepended to log messages from the source control element.  For
+     * example, CVSElement should implement this as return "[cvselement]";
+     *
+     * @return prefix for log messages
+     */
+    protected String logPrefix() {
+        return "[p4element]";
+    }
     
     protected void execP4Command(String command) throws BuildException {
         execP4Command(command, null);
@@ -128,8 +132,8 @@ public class P4Element implements SourceControlElement {
             
             Execute exe = new Execute(handler, null);
             
-            if (this._task != null) {
-                exe.setAntRun(this._task.getProject());
+            if (getTask() != null) {
+                exe.setAntRun(getTask().getProject());
             }
             
             exe.setCommandline(commandline.getCommandline());
@@ -186,15 +190,6 @@ public class P4Element implements SourceControlElement {
             _emailNames = new HashSet();
         }
         return _emailNames;
-    }
-    
-    /**
-     *  Allows the caller to set the task, which will be used for logging purposes.
-     *
-     * @param  task  Task to use.
-     */
-    public void setTask(org.apache.tools.ant.Task task) {
-        this._task = task;
     }
     
     /**
@@ -265,7 +260,7 @@ public class P4Element implements SourceControlElement {
         if (modifiedTime.compareTo(lastBuild) > 0) {
             // if it differs, we build,
             _P4lastChange = Integer.parseInt(sbChangenumber.toString());
-            this._task.getProject().setProperty("p4element.change", sbChangenumber.toString());
+            getTask().getProject().setProperty("p4element.change", sbChangenumber.toString());
             
             // the rest should be a list of the files affected and the resp action
             String affectedFiles = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*?\\n\\n(.*)\\n\\n/$5/s", sbDescription.toString());
@@ -299,29 +294,6 @@ public class P4Element implements SourceControlElement {
         }
         
         return mods;
-    }
-    
-    /**
-     *  Logs the message if a task has been set.
-     *
-     * @param  message  message to log.
-     */
-    public void log(String message) {
-        if (_task != null) {
-            _task.log("[p4element] " + message);
-        }
-    }
-    
-    /**
-     *  Logs the message if a task has been set.
-     *
-     * @param  message    message to log.
-     * @param  msg_level  ?
-     */
-    private void log(String message, int msg_level) {
-        if (_task != null) {
-            _task.log("[p4element] " + message, msg_level);
-        }
     }
     
 }// P4Element

@@ -33,7 +33,7 @@ import java.util.Date;
 
 import org.apache.tools.ant.*;
 
-public class StarTeamElement implements SourceControlElement {
+public class StarTeamElement extends SourceControlElement {
 
     private Set emailAddresses = new HashSet();
     private List modifications = new ArrayList();
@@ -42,18 +42,20 @@ public class StarTeamElement implements SourceControlElement {
     private Folder folder;
     private String folderName;
     private String targetFolderPath = "";
-    private org.apache.tools.ant.Task _task;
     private String url;
     private String username;
     private String password;
 
     /**
-     *	Set the parent task for logging purposes
+     * The String prepended to log messages from the source control element.  For
+     * example, CVSElement should implement this as return "[cvselement]";
+     *
+     * @return prefix for log messages
      */
-    public void setTask(org.apache.tools.ant.Task task) {
-        _task = task;
+    protected String logPrefix() {
+        return "[starteamelement]";
     }
-
+    
     public long getLastModified() {
         return mostRecent;
     }
@@ -234,13 +236,5 @@ public class StarTeamElement implements SourceControlElement {
         } catch (java.io.IOException e) { return "";}
     }
     
-    /**
-     * Use Ant task to send a log message
-     */
-    public void log(String message) {
-        if (_task != null) {
-            _task.log("[starteamelement]" + message);
-        }
-    }
     
 }
