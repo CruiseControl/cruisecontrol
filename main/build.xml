@@ -48,20 +48,14 @@
     <property name="src" value="src"/>
     <property name="test" value="test"/>
 
-    <!-- ********************************************************* -->
-    <!-- Give user a chance to override without editing this file  -->
-    <!-- (and without typing -D each time they invoke a target)    -->
-    <!-- ********************************************************* -->
-    <property file="cruise-build.properties" />
-    <property file="${user.home}/build.properties" />
-
     <!-- ****************************************************
     Define the project classpath references.  Any jar found
     in lib directory will be included in CLASSPATH
     **************************************************** -->
     <path id="project.classpath" >
         <fileset dir="lib">
-            <include name="**/*.jar"/>
+            <exclude name="ant.jar"/>
+            <exclude name="optional.jar"/>
         </fileset>
     </path>
 
@@ -70,7 +64,6 @@
     <!-- **************************************************** -->
     <path id="project.runtime.classpath" >
         <path refid="project.classpath" />
-        <fileset dir="lib"/>
         <pathelement location="${classes}" />
         <pathelement path="${java.class.path}"/>
     </path>
@@ -156,7 +149,7 @@
     <!-- Builds the jar                                       -->
     <!-- **************************************************** -->
     <target name="jar" depends="compile">
-        <jar jarfile="${dist}\cruisecontrol.jar">
+        <jar jarfile="${dist}\cruisecontrol.jar" manifest="manifest.mf">
             <fileset dir="${classes}"/>
         </jar>
         <jar jarfile="${dist}\src.jar">
