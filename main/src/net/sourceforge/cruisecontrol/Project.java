@@ -674,13 +674,14 @@ public class Project implements Serializable, Runnable {
         setState(ProjectState.PUBLISHING);
         for (Iterator i = publishers.iterator(); i.hasNext(); ) {
             Publisher publisher = (Publisher) i.next();
+            // catch all errors, Publishers shouldn't cause failures in the build method
             try {
                 publisher.publish(getLog().getContent());
-            } catch (CruiseControlException e) {
+            } catch (Throwable t) {
                 StringBuffer message = new StringBuffer("exception publishing results");
                 message.append(" with " + publisher.getClass().getName());
                 message.append(" for project " + name);
-                LOG.error(message.toString(), e);
+                LOG.error(message.toString(), t);
             }
         }
     }
