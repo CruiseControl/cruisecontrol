@@ -92,6 +92,7 @@
        <delete dir="${classes}" quiet="yes"/>
        <delete dir="${apidocs}" quiet="yes"/>
        <delete dir="${junit.results}" quiet="yes"/>
+       <delete dir="${basedir}" includes="_*" />
     </target>
 
     <!-- **************************************************** -->
