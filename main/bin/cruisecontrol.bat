@@ -43,7 +43,14 @@ REM set CVS_RSH=
 REM The root of the CruiseControl directory.  The key requirement is that this is the parent
 REM directory of CruiseControl's lib and dist directories.
 REM By default assume they are using the batch file from the local directory.
-set CCDIR=..
+REM Acknowledgments to Ant Project for this batch file incantation
+REM %~dp0 is name of current script under NT
+set DEFAULT_CCDIR=%~dp0
+REM : operator works similar to make : operator
+set DEFAULT_CCDIR=%DEFAULT_CCDIR%\..
+
+if "%CCDIR%"=="" set CCDIR=%DEFAULT_CCDIR%
+set DEFAULT_CCDIR=
 
 :setClassPath
 set CRUISE_PATH=

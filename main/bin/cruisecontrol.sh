@@ -39,8 +39,20 @@
 
 # The root of the CruiseControl directory.  The key requirement is that this is the parent
 # directory of CruiseControl's lib and dist directories.
-# By default assume they are using the batch file from the local directory.
-CCDIR=..
+
+# Inspired by Ant's wrapper script
+if [ -z "$CCDIR" ] ; then
+  PRG=$0
+  saveddir=`pwd`
+
+  CCDIR=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  CCDIR=`cd "$CCDIR" && pwd`
+
+  cd $saveddir
+  echo Using Cruise Control at $CCDIR
+fi
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
 
