@@ -31,12 +31,11 @@ import org.apache.tools.ant.Task;
 /**
  *  This class implements the SourceControlElement methods for a Clear Case
  *  repository.
- *
- *@author  Thomas Leseney, jchyip
- *@created  June 11, 2001
- *@version  May 25, 2001
+ * 
+ * @author Thomas Leseney
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @version May 25, 2001
  */
-
 public class ClearCaseElement extends SourceControlElement {
 
 	/**
@@ -264,8 +263,8 @@ public class ClearCaseElement extends SourceControlElement {
 	 *  Inner class to pump the error stream during Process's runtime. Copied from
 	 *  the Ant built-in task.
 	 *
-	 *@author  jcyip
-	 *@created  June 11, 2001
+	 * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+	 * @created  June 11, 2001
 	 */
 	class StreamPumper implements Runnable {
 

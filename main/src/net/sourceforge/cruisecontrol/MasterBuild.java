@@ -33,10 +33,10 @@ import org.w3c.dom.*;
  * be automatically run.  Extends XmlLogger so
  * this is the only listener that needs to be declared.
  *
- * @author Alden Almagro (alden@thoughtworks.com)
- * @author Paul Julius (pdjulius@thoughtworks.com)
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  * @author Robert Watkins
- * @author Jason Yip, jcyip@thoughtworks.com
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  */
 public class MasterBuild extends XmlLogger implements BuildListener {

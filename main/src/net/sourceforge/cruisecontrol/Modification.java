@@ -27,6 +27,8 @@ import java.text.DateFormat;
 /**
  * data structure for holding data about a single modification
  * to a source control tool.
+ * 
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
 public class Modification {
 

@@ -40,7 +40,7 @@ import org.apache.tools.ant.*;
  * starteamurl="server:port/project/view"/>
  *
  * @author Christopher Charlier, ThoughtWorks, Inc. 2001
- * @author Jason Yip, jcyip@thoughtworks.com
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class StarTeamLabel extends StarTeamTask {
 

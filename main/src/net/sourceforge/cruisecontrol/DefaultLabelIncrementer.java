@@ -25,8 +25,9 @@ package net.sourceforge.cruisecontrol;
  * This class provides a default label incrementation.
  * This class expects the label format to be "x.y",
  * where x is any String and y is an integer.
- *
- * @author alden almagro (alden@thoughtworks.com), Paul Julius (pdjulius@thoughtworks.com), ThoughtWorks, Inc. 2001
+ * 
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public class DefaultLabelIncrementer implements LabelIncrementer {
     

@@ -31,6 +31,13 @@ import javax.servlet.http.*;
 
 import org.apache.xalan.xslt.*;
 
+/**
+ * Servlet designed to use an XSL transform to display the information
+ * from the log files output by CruiseControl in a convenient manner
+ * for viewing.
+ * 
+ * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ */
 public class BuildServlet extends HttpServlet {
 
     // **** these are coming from the properties file
