@@ -41,6 +41,11 @@ buildresults.jsp
 ----------------------
 * The list of builds is now limited to 10 hard links, with the rest being done via a drop-down list.
 
+Main
+----------------------
+* Use current time if lastbuildtime isn't specified - Patch by Josh Knowles
+
+
 CruiseControl Release Notes - 2.0.2
 
 JMX/PROJECT CONTROLLER

@@ -40,9 +40,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Vector;
+import java.text.SimpleDateFormat;
 
 import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -189,13 +191,8 @@ public class Main {
      * @return final value of lastbuild; never null
      * @throws CruiseControlException if final lastbuild value is null
      */
-    protected String parseLastBuild(String args[], String lastBuild)
-        throws CruiseControlException {
-        lastBuild = parseArgument(args, "lastbuild", lastBuild);
-        if (lastBuild == null) {
-            throw new CruiseControlException("'lastbuild' is a required argument to CruiseControl.");
-        }
-        return lastBuild;
+    protected String parseLastBuild(String args[], String lastBuild) throws CruiseControlException {
+        return parseArgument(args, "lastbuild", (lastBuild != null ? lastBuild : new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())));
     }
 
     /**

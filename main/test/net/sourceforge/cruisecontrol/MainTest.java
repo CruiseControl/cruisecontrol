@@ -68,7 +68,6 @@ public class MainTest extends TestCase {
             myProjFile.delete();
         }
 
-        
         Project project = main.configureProject(correctArgs);
         assertEquals(project.getConfigFileName(), "config.xml");
         assertEquals(project.getLabel(), "1.2.2");
@@ -130,12 +129,7 @@ public class MainTest extends TestCase {
             // expected
         }
 
-        try {
-            main.parseLastBuild(missingArgs, null);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
-        }
+        assertNotNull(main.parseLastBuild(missingArgs, null));
     }
 
     public void testParseLabelCorrect() throws CruiseControlException {
@@ -208,7 +202,7 @@ public class MainTest extends TestCase {
 
         projectName = main.parseProjectName(missingArgs);
         assertNull(projectName);
- 
+
         try {
             main.parseProjectName(incorrectArgs);
             fail("Expected exception");
@@ -287,7 +281,7 @@ public class MainTest extends TestCase {
             assertTrue("Good, expected to get an exception.", true);
         }
     }
-    
+
     public void testGetProjectNames() {
         Element rootElement = new Element("cruisecontrol");
         Element project1 = new Element("project");
