@@ -162,8 +162,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             //(PENDING) just pass back a BuildInfo instead
             BuildInfo info = (BuildInfo) s.readObject();
 
-            _lastGoodBuildTime = info.timestamp;
-            _lastBuildAttemptTime = _lastGoodBuildTime;
+            _lastGoodBuildTime = info.lastGoodBuild;
+            _lastBuildAttemptTime = info.lastBuild;
             _label = info.label;
         } catch (Exception e) {
             e.printStackTrace();
@@ -235,7 +235,8 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      */
     private void writeBuildInfo() {
         try {
-            BuildInfo info = new BuildInfo(_lastGoodBuildTime, _label);
+            BuildInfo info = 
+             new BuildInfo(_lastBuildAttemptTime, _lastGoodBuildTime, _label);
             ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(BUILDINFO_FILENAME));
             s.writeObject(info);
             s.flush();
@@ -853,16 +854,17 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     *	Overrides method in XmlLogger.  Gets us the timestamp that we performed a "get" on
-     *	our source control repository and whether or not the build was successful.  Calls the
-     *	method on XmlLogger afterward.
+     * Overrides method in XmlLogger.  Gets us the timestamp that we performed 
+     * a "get" on our source control repository and whether or not the build was 
+     * successful.  Calls the method on XmlLogger afterward.
      */
     public void buildFinished(BuildEvent buildevent) {
         logCurrentBuildStatus(false);
 
         Project proj = buildevent.getProject();
         _projectName = proj.getName();
-        _buildNotNecessary = (proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
+        _buildNotNecessary = 
+         (proj.getProperty(ModificationSet.BUILDUNNECESSARY) != null);
         if (_buildNotNecessary) {
             return;
         }
@@ -949,11 +951,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
  * MasterBuild process.
  */
 class BuildInfo implements Serializable {
-    String timestamp;
+    String lastBuild;
+    String lastGoodBuild;
     String label;
 
-    BuildInfo(String timestamp, String label) {
-        this.timestamp = timestamp;
+    BuildInfo(String lastBuildAttempt, String lastGoodBuild, String label) {
+        lastBuild = lastBuildAttempt;
+        this.lastGoodBuild = lastGoodBuild;
         this.label = label;
     }
 }
