@@ -49,14 +49,14 @@ set DEFAULT_CCDIR=%~dp0
 REM : operator works similar to make : operator
 set DEFAULT_CCDIR=%DEFAULT_CCDIR%\..
 
-if "%CCDIR%"=="" set CCDIR=%DEFAULT_CCDIR%
+if not defined CCDIR set CCDIR=%DEFAULT_CCDIR%
 set DEFAULT_CCDIR=
 
 :setClassPath
 set CRUISE_PATH=
 
 :checkJava
-if "%JAVA_HOME%" == "" goto noJavaHome
+if not defined JAVA_HOME goto noJavaHome
 set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
 goto setCruise
 
@@ -70,7 +70,7 @@ set DISTDIR=%CCDIR%\dist
 
 set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\xerces.jar;%LIBDIR%\mail.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;.
 
-set EXEC=java -cp %CRUISE_PATH% CruiseControl %*
+set EXEC="%JAVA_HOME%\bin\java" -cp "%CRUISE_PATH%" CruiseControl %*
 echo %EXEC%
 %EXEC%
 
