@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,38 +34,67 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+package net.sourceforge.cruisecontrol.publishers.email;
 
-package net.sourceforge.cruisecontrol.publishers;
+import java.util.Properties;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-import org.apache.log4j.Logger;
-import java.util.Hashtable;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
-public class EmailAddressMapper {
+public class PropertiesMapper extends EmailAddressMapper {
 
-    private static final Logger LOG = Logger.getLogger(EmailAddressMapper.class);
+    private String file = null;
+    private final Properties props = new Properties();
 
-    private Hashtable emailMappings = new Hashtable();
-
-    public EmailAddressMapper() {
+    public PropertiesMapper() {
+        super();
     }
 
-    public void open(EmailPublisher emailPublisher) {
-        if (emailPublisher != null) {
-            EmailMapping[] emailMap = emailPublisher.getEmailMapping();
-            for (int i = 0; i < emailMap.length; i++) {
-                EmailMapping mapping = emailMap[i];
-                LOG.debug(
-                    "Mapping alias: " + mapping.getAlias() + " to address: " + mapping.getAddress());
-                emailMappings.put(mapping.getAlias(), mapping.getAddress());
-            }
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public void validate() throws CruiseControlException {
+        if (file == null) {
+            throw new CruiseControlException("'file' not specified in configuration file.");
+        }
+        File f = new File(file);
+        if (!f.exists()) {
+            throw new CruiseControlException("File not found: " + file);
+        }
+        if (!f.canRead()) {
+            throw new CruiseControlException("Can not read file " + file);
+        }
+        if (!f.isFile()) {
+            throw new CruiseControlException(file + " is not a file");
+        }
+    }
+
+    /*
+     * @see net.sourceforge.cruisecontrol.publishers.EmailAddressMapper#open()
+     */
+    public void open() throws CruiseControlException {
+        File f = new File(getFile());
+
+        try {
+            props.load(new BufferedInputStream(new FileInputStream(f)));
+        } catch (IOException ie) {
+            throw new CruiseControlException(ie);
         }
     }
 
     public void close() {
-        emailMappings.clear();
+        props.clear();
     }
 
     public String mapUser(String user) {
-        return (String) emailMappings.get(user);
+        return props.getProperty(user);
     }
 }

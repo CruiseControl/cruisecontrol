@@ -34,31 +34,23 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.publishers;
+package net.sourceforge.cruisecontrol.publishers.email;
 
-/**
- * EmailPublishers use this class to map an alias, like those returned by
- * a SourceControl system, to a real email address. For example, mapping
- * pdjulius to pdjulius@users.sourceforge.net
- *
- */
-public class EmailMapping {
-        private String alias;
-        private String address;
+public class DropLetterEmailAddressMapper extends EmailAddressMapper {
 
-        public String getAlias() {
-            return alias;
-        }
-
-        public void setAlias(String theAlias) {
-            alias = theAlias;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String theAddress) {
-            this.address = theAddress;
-        }
+    public DropLetterEmailAddressMapper() {
+        super();
     }
+
+    public String mapUser(String user) {
+        String mappedUser = null;
+        if (user.startsWith("dropletteruser")) {
+            mappedUser = (new StringBuffer(user)).substring(1);
+        }
+        return mappedUser;
+    }
+
+    public boolean cacheable() {
+        return false;
+    }
+}

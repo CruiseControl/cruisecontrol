@@ -35,7 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
-package net.sourceforge.cruisecontrol.publishers;
+package net.sourceforge.cruisecontrol.publishers.email;
 
 /**
  * User: jfredrick

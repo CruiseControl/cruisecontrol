@@ -38,6 +38,9 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
+import net.sourceforge.cruisecontrol.publishers.email.EmailMapperHelper;
+import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -74,8 +77,6 @@ import java.util.TreeSet;
  */
 public abstract class EmailPublisher implements Publisher {
     private static final Logger LOG = Logger.getLogger(EmailPublisher.class);
-    private static final String DEFAULT_EMAILADDRESSMAPPER
-            = "net.sourceforge.cruisecontrol.publishers.EmailAddressMapper";
 
     private String mailHost;
     private String userName;
@@ -85,7 +86,8 @@ public abstract class EmailPublisher implements Publisher {
     private Always[] alwaysAddresses = new Always[0];
     private Failure[] failureAddresses = new Failure[0];
     private Success[] successAddresses = new Success[0];
-    private EmailMapping[] emailMap = new EmailMapping[0];
+    private EmailMapper[] emailMapper = new EmailMapper[0];
+    private EmailMapperHelper mapperHelper = new EmailMapperHelper();
     private String returnAddress;
     private String returnName;
     private String defaultSuffix = "";
@@ -94,7 +96,6 @@ public abstract class EmailPublisher implements Publisher {
     private boolean skipUsers = false;
     private String subjectPrefix;
     private boolean failAsImportant = true;
-    private String emailAddressMapper = DEFAULT_EMAILADDRESSMAPPER;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -196,11 +197,13 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     * Creates the list of email addresses to receive the email message.  If an
-     * emailmap file is found, usernames will attempt to be mapped to emails
-     * from that file.  If no emailmap is found, or no match for the given
-     * username is found in the emailmap, then the default email suffix will be
-     * used.  Any addresses set in the <code>addAlwaysAddress</code> method will
+     * Creates the list of email addresses to receive the email message.
+     * Uses configured emailmappers to map user names to email addresses.
+     * After all mappings are done, mapped users are checked for existance of
+     * the domain part (i.e @mydomain.com) in the mapped email address. If it
+     * doesn't exist, default (if configured) is appended
+     *
+     * Any addresses set in the <code>addAlwaysAddress</code> method will
      * always receive the email if it is sent.  Any address set in the
      * <code>addFailureAddress</code> method will receive the message if the
      * build has failed.
@@ -244,58 +247,24 @@ public abstract class EmailPublisher implements Publisher {
             }
         }
 
-        EmailAddressMapper mapper = null;
-        Class cl = null;
-        try {
-            cl = Class.forName(getEmailAddressMapper());
-            mapper = (EmailAddressMapper) cl.newInstance();
-        } catch (InstantiationException ie) {
-            LOG.fatal("Could not instantiate class", ie);
-            throw new CruiseControlException("Could not instantiate class: "
-                + getEmailAddressMapper());
-        } catch (ClassNotFoundException cnfe) {
-            LOG.fatal("Could not find class", cnfe);
-            throw new CruiseControlException("Could not find class: "
-                + getEmailAddressMapper());
-        } catch (IllegalAccessException iae) {
-            LOG.fatal("Illegal Access", iae);
-            throw new CruiseControlException("Illegal Access class: "
-                + getEmailAddressMapper());
-        }
-
-        mapper.open(this);
-
         Set emails = new TreeSet();
-        Iterator userIterator = users.iterator();
-        while (userIterator.hasNext()) {
-            String user = (String) userIterator.next();
-            String mappedUser = (mapper != null) ? mapper.mapUser(user) : null;
-            if (mappedUser != null) {
-                LOG.debug("User found in email map.  Mailing to: " + mappedUser);
-            } else {
-                LOG.debug("User not found in email map.  Mailing to: " + mappedUser);
-                mappedUser = user;
-            }
-            if (mappedUser.indexOf("@") < 0) {
-                mappedUser = mappedUser + defaultSuffix;
-            }
-            emails.add(mappedUser);
-        }
-
-        mapper.close();
+        mapperHelper.mapUsers(this, users, emails);
 
         //return set of emails as a comma delimited string
         StringBuffer commaDelimitedString = new StringBuffer();
-        int emailCount = 1;
-        Iterator emailIterator = emails.iterator();
-        while (emailIterator.hasNext()) {
-            commaDelimitedString.append((String) emailIterator.next());
-            if (emailCount < emails.size()) {
+        for (Iterator emailIterator = emails.iterator(); emailIterator.hasNext(); ) {
+            String mappedUser = (String) emailIterator.next();
+            // apend default suffix if need to
+            if (mappedUser.indexOf("@") < 0) {
+                mappedUser += defaultSuffix;
+            }
+            LOG.debug("Mailing to: " + mappedUser);
+            commaDelimitedString.append(mappedUser);
+            if (emailIterator.hasNext()) {
                 commaDelimitedString.append(",");
             }
-            emailCount++;
         }
-        LOG.debug("Final list of emails: " + commaDelimitedString.toString());
+        LOG.debug("Final list of emails: " + commaDelimitedString);
 
         return commaDelimitedString.toString();
     }
@@ -450,16 +419,8 @@ public abstract class EmailPublisher implements Publisher {
         buildResultsURL = url;
     }
 
-    public String getEmailAddressMapper() {
-        return emailAddressMapper;
-    }
-
-    public void setEmailAddressMapper(String classname) {
-        emailAddressMapper = classname;
-    }
-
-    public EmailMapping[] getEmailMapping() {
-        return emailMap;
+    public EmailMapper[] getEmailMapper() {
+        return emailMapper;
     }
 
     public String getReturnAddress() {
@@ -538,16 +499,23 @@ public abstract class EmailPublisher implements Publisher {
         return success;
     }
 
-    public EmailMapping createMap() {
-        List emailList = new ArrayList();
-        emailList.addAll(Arrays.asList(emailMap));
+    /*
+     * for the <map ... /> entries, just stuff them into the cache in EmailMapperHelper
+     */
+    public void add(EmailMapping mapping) {
+        EmailMapperHelper.addCacheEntry(this, mapping.getAlias(), mapping.getAddress());
+    }
 
-        EmailMapping map = new EmailMapping();
-        emailList.add(map);
 
-        emailMap = (EmailMapping[]) emailList.toArray(new EmailMapping[0]);
 
-        return map;
+    public void add(EmailMapper mapper) {
+        List mapperList = new ArrayList();
+        mapperList.addAll(Arrays.asList(emailMapper));
+
+        mapper.setPublisher(this);
+        mapperList.add(mapper);
+
+        emailMapper = (EmailMapper[]) mapperList.toArray(new EmailMapper[0]);
     }
 
     public class Address {
