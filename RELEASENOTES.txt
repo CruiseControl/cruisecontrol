@@ -27,6 +27,10 @@ EmailPublisher & friends
 ----------------------
 * Uses new EmailMapperHelper to map addresses with EmailMappers. Patch by Esa Laine (Jira CC-2)
 
+(Link)JabberPublisher
+----------------------
+* Added new JabberPublisher and subclass to report buildresults through Jabber (CC-63). Patch by Jonas Edgeworth
+
 LoggerController
 ----------------------
 * new JMX MBean to control a Logger's logging level. A controller for the root logger is registered at startup.

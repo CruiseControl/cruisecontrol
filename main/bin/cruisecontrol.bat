@@ -68,7 +68,7 @@ echo Warning: You have not set the JAVA_HOME environment variable. Any tasks rel
 set LIBDIR=%CCDIR%\lib
 set DISTDIR=%CCDIR%\dist
 
-set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\xerces.jar;%LIBDIR%\mail.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j-jmx.jar;%LIBDIR%\mx4j-tools.jar;.
+set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\xerces.jar;%LIBDIR%\mail.jar;%LIBDIR%\optional.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j-jmx.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\smack.jar;.
 
 set EXEC="%JAVA_HOME%\bin\java" -cp "%CRUISE_PATH%" CruiseControl %*
 echo %EXEC%
