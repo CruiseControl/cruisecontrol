@@ -62,11 +62,11 @@ public class ClearCaseTest extends TestCase {
             + File.separator + "main" + File.separator + "vob";
     private static final String CHECKIN = "checkin";
     private static final String COMMENT = "This is a \nsample\n\ncomment";
-    private static Date _date1;
+    private static Date date1;
 
     private static final String DATE2 = "20221218.143456";
     private static final String COMMENT2 = "\n\n";
-    private static Date _date2;
+    private static Date date2;
 
     protected void setUp() {
         // Set up so that this element will match all tests.
@@ -83,9 +83,9 @@ public class ClearCaseTest extends TestCase {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2001, 7, 8, 2, 34, 56);
         calendar.set(Calendar.MILLISECOND, 0);
-        _date1 = calendar.getTime();
+        date1 = calendar.getTime();
         calendar.set(2022, 11, 18, 14, 34, 56);
-        _date2 = calendar.getTime();
+        date2 = calendar.getTime();
     }
 
     /**
@@ -98,7 +98,7 @@ public class ClearCaseTest extends TestCase {
         assertEquals(CHECKIN, mod.type);
         assertEquals(File.separator + "filename", mod.fileName);
         assertEquals(File.separator + "path", mod.folderName);
-        assertEquals(_date1, mod.modifiedTime);
+        assertEquals(date1, mod.modifiedTime);
         assertEquals(USERID, mod.userName);
         assertEquals("This is a sample comment", mod.comment);
 
@@ -106,7 +106,7 @@ public class ClearCaseTest extends TestCase {
         assertEquals(CHECKIN, mod.type);
         assertEquals(File.separator + "filename", mod.fileName);
         assertEquals(File.separator + "path", mod.folderName);
-        assertEquals(_date2, mod.modifiedTime);
+        assertEquals(date2, mod.modifiedTime);
         assertEquals(USERID, mod.userName);
         assertEquals("", mod.comment);
     }

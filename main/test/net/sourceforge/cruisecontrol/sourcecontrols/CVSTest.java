@@ -447,50 +447,50 @@ public class CVSTest extends TestCase {
     }
 
     public void testFormatLogDate() {
-        Date may18_2001_6pm =
+        Date may18SixPM2001 =
             new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();        
         assertEquals(
             "2001/05/18 18:00:00 "
                 + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT),
-            CVS.LOGDATE.format(may18_2001_6pm));
+            CVS.LOGDATE.format(may18SixPM2001));
     }
 
     public void testFormatCVSDateGMTPlusZero() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+0:00"));
-        Date may18_2001_6pm =
+        Date mayEighteenSixPM2001 =
             new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals(
             "2001-05-18 18:00:00 GMT",
-            CVS.formatCVSDate(may18_2001_6pm));
+            CVS.formatCVSDate(mayEighteenSixPM2001));
     }
 
     public void testFormatCVSDateGMTPlusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
 
-        Date may18_2001_6pm =
+        Date mayEighteenSixPM2001 =
             new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals(
             "2001-05-18 08:00:00 GMT",
-            CVS.formatCVSDate(may18_2001_6pm));
-        Date may18_2001_8am =
+            CVS.formatCVSDate(mayEighteenSixPM2001));
+        Date may18EightAM2001 =
             new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
         assertEquals(
             "2001-05-17 22:00:00 GMT",
-            CVS.formatCVSDate(may18_2001_8am));
+            CVS.formatCVSDate(may18EightAM2001));
     }
 
     public void testFormatCVSDateGMTMinusTen() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
-        Date may18_2001_6pm =
+        Date may18SixPM2001 =
             new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
         assertEquals(
             "2001-05-19 04:00:00 GMT",
-            CVS.formatCVSDate(may18_2001_6pm));
-        Date may18_2001_8am =
+            CVS.formatCVSDate(may18SixPM2001));
+        Date may18EightAM2001 =
             new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
         assertEquals(
             "2001-05-18 18:00:00 GMT",
-            CVS.formatCVSDate(may18_2001_8am));
+            CVS.formatCVSDate(may18EightAM2001));
     }
 
 }
