@@ -44,12 +44,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -323,41 +318,51 @@ public class AntBuilder extends Builder {
      *  JDOM doesn't like the <?xml:stylesheet ?> tag.  we don't need it, so we'll skip it.
      *  TO DO: make sure that we are only skipping this string and not something else
      */
-    protected static Element getAntLogAsElement(File f)
-        throws CruiseControlException {
+    protected static Element getAntLogAsElement(File file) throws CruiseControlException {
+        if (!file.exists()) {
+            throw new CruiseControlException("ant logfile " + file.getAbsolutePath() + " does not exist.");
+        }
         try {
-            Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8");
+            Reader r = new InputStreamReader(new FileInputStream(file), "UTF-8");
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 150; i++) {
                 sb.append((char) r.read());
             }
             String beginning = sb.toString();
             int skip = beginning.lastIndexOf("<build");
+            if (skip < 0) {
+                throw new CruiseControlException("build tag not found in " + file.getAbsolutePath());
+            }
 
             BufferedReader bufferedReader =
-                new BufferedReader(
-                    new InputStreamReader(new FileInputStream(f), "UTF-8"));
+                    new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
             bufferedReader.skip(skip);
-            SAXBuilder builder =
-                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             return builder.build(bufferedReader).getRootElement();
         } catch (Exception ee) {
-            File saveFile =
-                new File(
-                    f.getParentFile(),
-                    System.currentTimeMillis() + f.getName());
-            f.renameTo(saveFile);
+            if (ee instanceof CruiseControlException) {
+                throw (CruiseControlException)ee;
+            }
+            File saveFile = new File(file.getParentFile(), System.currentTimeMillis() + file.getName());
+            file.renameTo(saveFile);
             throw new CruiseControlException(
-                "Error reading : "
-                    + f.getAbsolutePath()
-                    + ".  Saved as : "
-                    + saveFile.getAbsolutePath(),
-                ee);
+                    "Error reading : " + file.getAbsolutePath() + ".  Saved as : " + saveFile.getAbsolutePath(), ee);
         }
     }
 
-    public class JVMArg {
+    public void setUseDebug(boolean debug) {
+        useDebug = debug;
+    }
 
+    public String getLoggerClassName() {
+        return loggerClassName;
+    }
+
+    public void setLoggerClassName(String string) {
+        loggerClassName = string;
+    }
+
+    public class JVMArg {
         private String arg;
 
         public void setArg(String arg) {
@@ -367,11 +372,9 @@ public class AntBuilder extends Builder {
         public String getArg() {
             return arg;
         }
-
     }
 
     public class Property {
-
         private String name;
         private String value;
 
@@ -390,19 +393,5 @@ public class AntBuilder extends Builder {
         public String getValue() {
             return value;
         }
-
     }
-
-    public void setUseDebug(boolean debug) {
-        useDebug = debug;
-    }
-
-    public String getLoggerClassName() {
-        return loggerClassName;
-    }
-
-    public void setLoggerClassName(String string) {
-        loggerClassName = string;
-    }
-
 }
