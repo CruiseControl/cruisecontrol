@@ -1,5 +1,10 @@
 CruiseControl Release Notes - Latest CVS
 
+log4j.properties
+----------------------
+* Fixed bug where the month was being used in place of minutes.
+* Now using abbreviation of month name rather than month number.
+
 CruiseControl Release Notes - 2.1.2
 
 AntBuilder
