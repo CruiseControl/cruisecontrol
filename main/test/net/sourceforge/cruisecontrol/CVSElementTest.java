@@ -25,46 +25,46 @@ import java.util.*;
 import junit.framework.*;
 
 /**
- * Class Description
- *
- * @author  robertdw
- * @version 18 May 2001
+ * @author  robertdw, jhcyip
+ * @version 23 May 2001
  */
 public class CVSElementTest extends TestCase {
     
     public CVSElementTest(java.lang.String testName) {
         super(testName);
     }
-    
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-    
-    public static Test suite() {
-        TestSuite suite = new TestSuite(CVSElementTest.class);
-        
-        return suite;
-    }
-    
-    /**
-     * Verify that the CVSDate formats the date, for a variety of time zones,
-     * into a GMT time zone string.
-     */
-    public void testCVSDate() {
+
+    public void testFormatCVSDateGMTPlusZero() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+0:00"));
-        Date testDate = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();    // 6pm, 18 May, 2001
-        assertEquals("Failed for GMT", "2001-05-18 18:00:00 GMT", CVSElement.CVSDATE.format(testDate));
-
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
-        testDate = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();    // 6pm, 18 May, 2001
-        assertEquals("Failed for GMT", "2001-05-18 08:00:00 GMT", CVSElement.CVSDATE.format(testDate));
-        testDate = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();    // 6pm, 18 May, 2001
-        assertEquals("Failed for GMT", "2001-05-17 22:00:00 GMT", CVSElement.CVSDATE.format(testDate));
-
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
-        testDate = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();    // 6pm, 18 May, 2001
-        assertEquals("Failed for GMT", "2001-05-19 04:00:00 GMT", CVSElement.CVSDATE.format(testDate));
-        testDate = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();    // 6pm, 18 May, 2001
-        assertEquals("Failed for GMT", "2001-05-18 18:00:00 GMT", CVSElement.CVSDATE.format(testDate));
+        Date may18_2001_6pm = 
+         new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
+        assertEquals("2001-05-18 18:00:00 GMT", 
+         CVSElement.CVSDATE.format(may18_2001_6pm));
     }
+    
+    public void testFormatCVSDateGMTPlusTen() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
+        Date may18_2001_6pm = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
+        assertEquals("2001-05-18 08:00:00 GMT", 
+         CVSElement.CVSDATE.format(may18_2001_6pm));
+        Date may8_2001_6pm = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
+        assertEquals("2001-05-17 22:00:00 GMT", 
+         CVSElement.CVSDATE.format(may8_2001_6pm));
+    }
+
+    public void testFormatCVSDateGMTMinusTen() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
+        Date may18_2001_6pm = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
+        assertEquals("2001-05-19 04:00:00 GMT", 
+         CVSElement.CVSDATE.format(may18_2001_6pm));
+        Date may8_2001_6pm = new GregorianCalendar(2001, 4, 18, 8, 0, 0).getTime();
+        assertEquals("2001-05-18 18:00:00 GMT", 
+         CVSElement.CVSDATE.format(may8_2001_6pm));
+    }
+
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(CVSElementTest.class);
+    }
+    
+    
 }
