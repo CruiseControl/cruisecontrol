@@ -293,7 +293,7 @@ public class SVN implements SourceControl {
 
 
         static List parseAndFilter(Reader reader, Date lastBuild)
-                throws JDOMException, ParseException {
+                throws ParseException, JDOMException, IOException {
 
             Modification[] modifications = parse(reader);
             return filterModifications(modifications, lastBuild);
@@ -301,7 +301,7 @@ public class SVN implements SourceControl {
 
 
         static Modification[] parse(Reader reader)
-                throws JDOMException, ParseException {
+                throws ParseException, JDOMException, IOException {
 
             SAXBuilder builder = new SAXBuilder(false);
             Document document = builder.build(reader);
