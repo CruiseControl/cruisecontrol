@@ -110,7 +110,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
         commandLine.createArgument().setValue("update");
         commandLine.createArgument().setValue("-force");
         commandLine.createArgument().setValue("-log");
-        commandLine.createArgument().setValue(isWindows() ? "NUL" : "/dev/nul");
+        commandLine.createArgument().setValue(isWindows() ? "NUL" : "/dev/null");
         commandLine.createArgument().setValue(getFullPathFileName());
 
         return commandLine;

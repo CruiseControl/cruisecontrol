@@ -75,7 +75,7 @@ public class ClearCaseBootstrapperTest extends TestCase {
         MockClearCaseBootstrapper cbs = new MockClearCaseBootstrapper("Linux");
         cbs.setFile("somefile");
         assertEquals("Update command was not created correctly.",
-                "cleartool update -force -log /dev/nul somefile", cbs.buildUpdateCommand().toString());
+                "cleartool update -force -log /dev/null somefile", cbs.buildUpdateCommand().toString());
 
         cbs.setOsName("Windows NT");
         assertEquals("Update command was not created correctly.",
