@@ -36,13 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
-import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+
+import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * Command line entry point.
@@ -50,27 +52,29 @@ import java.util.Properties;
  * @author alden almagro, ThoughtWorks, Inc. 2002
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
-public class Main {
+public final class Main {
     private static final Logger LOG = Logger.getLogger(Main.class);
     public static final int NOT_FOUND = -1;
-    private static final String NOT_FOUND_STRING = String.valueOf(NOT_FOUND);
 
+    private Main() { }
+    
     /**
      * Print the version, configure the project with serialized build info
      * and/or arguments and start the project build process.
      */
     public static void main(String[] args) {
-        Main main = new Main();
-        main.printVersion();
-
+        printVersion();
         if (printUsage(args)) {
             usage();
         }
         try {
+            if (findIndex(args, "debug") != NOT_FOUND) {
+                Logger.getRootLogger().setLevel(Level.DEBUG);
+            }
             CruiseControlController controller = new CruiseControlController();
-            String configFileName = parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
-            controller.setConfigFile(new File(configFileName));
-            ServerXMLHelper helper = new ServerXMLHelper(new File(configFileName));
+            File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
+            controller.setConfigFile(configFile);
+            ServerXMLHelper helper = new ServerXMLHelper(configFile);
             ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
 
             if (shouldStartController(args)) {
@@ -86,7 +90,6 @@ public class Main {
             LOG.fatal(e.getMessage());
             usage();
         }
-
     }
 
     /**
@@ -98,12 +101,18 @@ public class Main {
         LOG.info("Starts a continuous integration loop");
         LOG.info("");
         LOG.info("java CruiseControl [options]");
-        LOG.info("where options are:");
+        LOG.info("where options (all optional) are:");
         LOG.info("");
-        LOG.info("   -port number           where number is the port of the Controller web site");
-        LOG.info("   -rmiport number        where number is the RMI port of the Controller");
-        LOG.info("   -xslpath directory     where directory is location of jmx xsl files");
-        LOG.info("   -configfile file       where file is the configuration file");
+        LOG.info("  -port [number]       where number is the port of the Controller web site; defaults to 8000");
+        LOG.info("  -rmiport [number]    where number is the RMI port of the Controller; defaults to 1099");
+        LOG.info("  -xslpath directory   where directory is location of jmx xsl files;"
+                 + " defaults to files in package");
+        LOG.info("  -configfile file     where file is the configuration file;"
+                 + " defaults to config.xml in the current directory");
+        LOG.info("  -debug               to set the internal logging level to DEBUG");
+        LOG.info("");
+        LOG.info("Please keep in mind that the JMX server will only be started "
+                 + "if you specify -port and/or -rmiport");
         System.exit(1);
     }
 
@@ -118,7 +127,7 @@ public class Main {
      */
     static String parseConfigFileName(String[] args, String configFileName)
         throws CruiseControlException {
-        configFileName = parseArgument(args, "configfile", configFileName);
+        configFileName = parseArgument(args, "configfile", configFileName, null);
         if (configFileName == null) {
             throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
         }
@@ -133,34 +142,32 @@ public class Main {
      * Parse port number from arguments.
      *
      * @return port number
-     * @throws IllegalArgumentException if port argument is not specified
-     *          or invalid
+     * @throws IllegalArgumentException if port argument is invalid
      */
     static int parseHttpPort(String[] args) throws CruiseControlException {
-        return parseInt(args, "port", NOT_FOUND_STRING);
+        return parseInt(args, "port", NOT_FOUND, 8000);
     }
 
     static int parseRmiPort(String[] args) throws CruiseControlException {
-        return parseInt(args, "rmiport", NOT_FOUND_STRING);
+        return parseInt(args, "rmiport", NOT_FOUND, 1099);
     }
 
-    private static int parseInt(String[] args, String argName, String defaultValue) throws CruiseControlException {
-        String intString = parseArgument(args, argName, defaultValue);
-        if (intString == null) {
-            throw new IllegalStateException("Should not reach this point");
-        }
-        int intValue;
+    private static int parseInt(String[] args, String argName, int defaultIfNoParam, int defaultIfNoValue) 
+            throws CruiseControlException {
+        String intString = parseArgument(args, 
+                                         argName, 
+                                         Integer.toString(defaultIfNoParam), 
+                                         Integer.toString(defaultIfNoValue));
         try {
-            intValue = Integer.parseInt(intString);
+            return Integer.parseInt(intString);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
                 "-" + argName + " parameter, specified as '" + intString + "', requires integer argument");
         }
-        return intValue;
     }
 
     static String parseXslPath(String[] args) throws CruiseControlException {
-        String xslpath = parseArgument(args, "xslpath", null);
+        String xslpath = parseArgument(args, "xslpath", null, null);
         if (xslpath != null) {
             File directory = new File(xslpath);
             if (!directory.isDirectory()) {
@@ -175,10 +182,10 @@ public class Main {
      * Writes the current version information, as indicated in the
      * version.properties file, to the logging information stream.
      */
-    private void printVersion() {
+    private static void printVersion() {
         Properties props = new Properties();
         try {
-            props.load(getClass().getResourceAsStream("/version.properties"));
+            props.load(Main.class.getResourceAsStream("/version.properties"));
         } catch (IOException e) {
             LOG.error("Error reading version properties", e);
         }
@@ -199,31 +206,33 @@ public class Main {
      *      Java main function.
      * @param argName Name of the argument, without any preceeding "-",
      *      i.e. "port" not "-port".
-     * @param defaultValue A default argument value, in case one was not
-     *      specified.
+     * @param defaultIfNoParam A default argument value, 
+     *      in case the parameter argName was not specified
+     * @param defaultIfNoValue A default argument value, 
+     *      in case the parameter argName was specified without a value
      * @return The argument value found, or the default if none was found.
-     * @throws CruiseControlException If the user specified the argument name
-     *      but didn't include the argument, as in "-port" when it should most
-     *      likely be "-port 8080".
      */
-    public static String parseArgument(String[] args, String argName, String defaultValue)
+    static String parseArgument(String[] args, String argName, String defaultIfNoParam, String defaultIfNoValue)
             throws CruiseControlException {
-        String returnArgValue = defaultValue;
         int argIndex = findIndex(args, argName);
-        if (argIndex != NOT_FOUND) {
-            try {
-                returnArgValue = args[argIndex + 1];
-                LOG.debug("Main: value of parameter " + argName + " is [" + returnArgValue + "]");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new CruiseControlException("'" + argName + "' argument was not specified.");
-            }
+        if (argIndex == NOT_FOUND) {
+            return defaultIfNoParam;
         }
-        return returnArgValue;
+        // check to see if the user supplied a value for the parameter;
+        // if not, return the supplied default
+        if (argIndex == args.length - 1            // last arg
+            || args[argIndex + 1].charAt(0) == '-' // start of new param
+        ) {
+            return defaultIfNoValue;
+        }
+        return args[argIndex + 1];
     }
 
     static int findIndex(String[] args, String argName) {
-        for (int i = 0; i <= args.length - 1; i++) {
-            if (args[i].equals("-" + argName)) {
+        
+        String searchString = "-" + argName;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(searchString)) {
                 return i;
             }
         }

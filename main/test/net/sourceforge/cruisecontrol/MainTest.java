@@ -41,48 +41,35 @@ import junit.framework.TestCase;
 public class MainTest extends TestCase {
 
     public void testParseConfigurationFileName() throws Exception {
-        String[] correctArgs = new String[] {"-configfile", "config.xml"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-configfile"};
+        String[] correctArgs = new String[] {"-configfile", "myconfig.xml"};
+        String[] missingParam = new String[] {""};
+        String[] missingValue = new String[] {"-configfile"};
 
-        assertEquals(Main.parseConfigFileName(correctArgs, null), "config.xml");
-
-        assertEquals(Main.parseConfigFileName(missingArgs, "config.xml"), "config.xml");
+        assertEquals("myconfig.xml", Main.parseConfigFileName(correctArgs, null));
+        assertEquals("config.xml", Main.parseConfigFileName(missingParam, "config.xml"));
 
         try {
-            Main.parseConfigFileName(incorrectArgs, null);
-            fail("Expected exception");
+            Main.parseConfigFileName(missingValue, null);
+            fail("Expected CruiseControlException on missing configfile value");
         } catch (CruiseControlException e) {
             // expected
         }
 
-        try {
-            Main.parseConfigFileName(missingArgs, null);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
-        }
     }
 
     public void testParseHttpPort() throws Exception {
         String[] correctArgs = new String[] {"-port", "123"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-port"};
+        String[] missingParam = new String[] {""};
+        String[] defaultValue = new String[] {"-port"};
         String[] invalidArgs = new String[] {"-port", "ABC"};
 
         assertEquals(123, Main.parseHttpPort(correctArgs));
-        assertEquals(Main.NOT_FOUND, Main.parseHttpPort(missingArgs));
-
-        try {
-            Main.parseHttpPort(incorrectArgs);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
-        }
+        assertEquals(Main.NOT_FOUND, Main.parseHttpPort(missingParam));
+        assertEquals(8000, Main.parseHttpPort(defaultValue));
 
         try {
             Main.parseHttpPort(invalidArgs);
-            fail("Expected exception");
+            fail("Expected IllegalArgumentException on non-int ABC");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -90,19 +77,13 @@ public class MainTest extends TestCase {
 
     public void testParseRmiPort() throws Exception {
         String[] correctArgs = new String[] {"-rmiport", "123"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-rmiport"};
+        String[] missingParam = new String[] {""};
+        String[] defaultValue = new String[] {"-rmiport"};
         String[] invalidArgs = new String[] {"-rmiport", "ABC"};
 
         assertEquals(123, Main.parseRmiPort(correctArgs));
-        assertEquals(Main.NOT_FOUND, Main.parseRmiPort(missingArgs));
-
-        try {
-            Main.parseRmiPort(incorrectArgs);
-            fail("Expected exception");
-        } catch (CruiseControlException e) {
-            // expected
-        }
+        assertEquals(Main.NOT_FOUND, Main.parseRmiPort(missingParam));
+        assertEquals(1099, Main.parseRmiPort(defaultValue));
 
         try {
             Main.parseRmiPort(invalidArgs);
@@ -114,20 +95,14 @@ public class MainTest extends TestCase {
 
     public void testParseXslPath() throws CruiseControlException {
         String[] correctArgs = new String[] {"-xslpath", "xsl"};
-        String[] missingArgs = new String[] {""};
-        String[] incorrectArgs = new String[] {"-xslpath"};
+        String[] missingParam = new String[] {""};
+        String[] missingValue = new String[] {"-xslpath"};
         final String invalidXsl = "does_Not_Exist";
         String[] invalidArgs = new String[] {"-xslpath", invalidXsl};
 
         assertEquals("xsl", Main.parseXslPath(correctArgs));
-        assertNull(Main.parseXslPath(missingArgs));
-
-        try {
-            Main.parseXslPath(incorrectArgs);
-            fail();
-        } catch (CruiseControlException expected) {
-            assertEquals("'xslpath' argument was not specified.", expected.getMessage());
-        }
+        assertNull(Main.parseXslPath(missingParam));
+        assertNull(Main.parseXslPath(missingValue));
 
         try {
             Main.parseXslPath(invalidArgs);
@@ -139,44 +114,36 @@ public class MainTest extends TestCase {
     }
 
     public void testParseArgs() throws Exception {
-        String argName = "port";
-        String defaultValue = "8080";
+        final String argName = "port";
+        final String defaultIfNoParam = "8080";
+        final String defaultIfNoValue = "8000";
 
         //No args specified. Should get the default back.
         String[] args = {
         };
-        String foundValue = Main.parseArgument(args, argName, defaultValue);
-        assertEquals(defaultValue, foundValue);
+        String foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
+        assertEquals(defaultIfNoParam, foundValue);
 
         //One arg specified, should get the value specified, not the default.
         String setValue = "100";
         args = new String[] {"-port", setValue};
-        foundValue = Main.parseArgument(args, argName, defaultValue);
+        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
         assertEquals(setValue, foundValue);
 
         //More than one arg specified, should still get the value specified.
         args = new String[] {"-port", setValue, "-throwAway", "value"};
-        foundValue = Main.parseArgument(args, argName, defaultValue);
+        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
         assertEquals(setValue, foundValue);
 
         //Switch the order around, should still get the value specified.
         args = new String[] {"-throwAway", "value", "-port", setValue};
-        foundValue = Main.parseArgument(args, argName, defaultValue);
+        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
         assertEquals(setValue, foundValue);
 
-        //If arg name is included, but no arg, then should get an exception.
+        //If arg name is included, but no arg, then should get defaultIfNoValue
         args = new String[] {"-port"};
-        try {
-            foundValue = Main.parseArgument(args, argName, defaultValue);
-            fail(
-                "Expected to get an exception, because the user specified"
-                    + " an argument but didn't provide a value for the argument."
-                    + " Got the value '"
-                    + foundValue
-                    + "' instead.");
-        } catch (CruiseControlException e) {
-            assertTrue("Good, expected to get an exception.", true);
-        }
+        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
+        assertEquals(defaultIfNoValue, foundValue);
     }
 
     public void testUsage() {
@@ -191,11 +158,13 @@ public class MainTest extends TestCase {
                                             "-rmiport", "8086"};
         String[] rmiPort = new String[]{"-rmiport", "8086"};
         String[] httpPort = new String[]{"-port", "8085"};
+        String[] httpPortWithDefault = new String[]{"-port"};
         String[] neitherArg = new String[]{"-foo", "blah"};
 
         assertTrue(Main.shouldStartController(bothArgs));
         assertTrue(Main.shouldStartController(rmiPort));
         assertTrue(Main.shouldStartController(httpPort));
+        assertTrue(Main.shouldStartController(httpPortWithDefault));
         assertFalse(Main.shouldStartController(neitherArg));
     }
 }
