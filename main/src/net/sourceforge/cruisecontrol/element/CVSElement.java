@@ -228,7 +228,7 @@ public class CVSElement extends SourceControlElement {
 
 	/**
 	 *@param  lastBuildTime
-	 *@return  CommandLine for "cvs -d CVSROOT log -N -d ">lastbuildtime" "
+	 *@return  CommandLine for "cvs -d CVSROOT -q log -N -d ">lastbuildtime" "
 	 */
 	public Commandline buildHistoryCommand(Date lastBuildTime) {
 		Commandline commandLine = new Commandline();
@@ -238,6 +238,7 @@ public class CVSElement extends SourceControlElement {
 			commandLine.createArgument().setValue("-d");
 			commandLine.createArgument().setValue(cvsroot);
 		}
+		commandLine.createArgument().setValue("-q");
 
 		commandLine.createArgument().setValue("log");
 		commandLine.createArgument().setValue("-N");
