@@ -38,6 +38,10 @@ log4j.properties
 * Added more information into the console log including the timestamp - Patch by Mark Richters
 * Added a rotating file log - Patch by Mark Richters
 
+StarTeamBootstrapper
+---------------
+* StarTeamBootstrapper submitted by Lee Marlow
+
 CruiseControl Release Notes - 2.1.1
 
 main/build.xml
