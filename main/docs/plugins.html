@@ -131,12 +131,30 @@
         to all your projects, plugins under a project element will be only
         available within that project. This is useful to override a plugin
         like the labelincrementer for a single project.</p>
-        
+
         <p>In the interest of keeping config file sizes to a minimum, all
         plugins that ship with CruiseControl will be automatically registered.
         Should you wish to use one of the registered plugin names with your own
         custom plugin class, you can just explicitly register the plugin name
         and that will override the default registration.</p>
+        
+        <p>On registering plugins, you can also define default values for some
+        of the properties of the plugins. You can do this by simply using the
+        same attributes as you would when using the plugin itself. Every 
+        default can be overridden when you actually use the plugin within a
+        project. 
+        If you want to define default values for default plugins, you may 
+        leave out the classname attribute of the plugin element. <br />
+        An example: to define some default values for the htmlemail publisher, 
+        you can specify something like this in your config file:
+<pre>
+  &lt;plugin name="htmlemail"
+          mailhost="smtp.mydomain.com"
+          returnaddress="builmaster@mydomain.com"
+          subjectprefix="[CC]"
+          xsldir="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\xsl"
+          css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\cruisecontrol.css"/&gt;
+</pre></p>
         
         <p>The following tables outlines the default plugin registry:</p>
 
