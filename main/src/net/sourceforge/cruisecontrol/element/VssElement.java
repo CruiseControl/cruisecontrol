@@ -59,32 +59,31 @@ public class VssElement extends SourceControlElement {
     public static final SimpleDateFormat VSS_OUT_FORMAT =
          new SimpleDateFormat("'Date: 'MM/dd/yy   'Time: 'hh:mma");
 
-	private String _ssDir;
-	private String _login;
-	private String _property;
-	private String _propertyOnDelete;
+	private String ssdir;
+	private String login;
+	private String property;
+	private String propertyOnDelete;
+	private long lastModified;
 
-	private long _lastModified;
-
-	private ArrayList _modifications = new ArrayList();
-	private Set _emails = new HashSet();
+	private ArrayList modifications = new ArrayList();
+	private Set emails = new HashSet();
 
 	/**
 	 *  Set the project to get history from
 	 *
-	 *@param  s
+	 *@param  ssdir
 	 */
-	public void setSsDir(String s) {
-		_ssDir = "$" + s;
+	public void setSsDir(String ssdir) {
+		this.ssdir = "$" + ssdir;
 	}
 
 	/**
 	 *  Login for vss
 	 *
-	 *@param  s
+	 *@param  login
 	 */
-	public void setLogin(String s) {
-		_login = s;
+	public void setLogin(String login) {
+		this.login = login;
 	}
 
 	/**
@@ -92,15 +91,20 @@ public class VssElement extends SourceControlElement {
 	 *  change that only requires repackaging, i.e. jsp, we don't need to recompile
 	 *  everything, just rejar.
 	 *
-	 *@param  s
+	 *@param  property
 	 */
-	public void setProperty(String s) {
-		_property = s;
+	public void setProperty(String property) {
+		this.property = property;
 	}
 
-	public void setPropertyOnDelete(String s) {
-		_propertyOnDelete = s;
-	}
+  	/**
+	 *  Choose a property to be set if the project has deletions
+	 *
+	 *@param  property
+	 */
+     public void setPropertyOnDelete(String property) {
+		propertyOnDelete = property;
+     }
 
 	/**
 	 *  For parent modificationset to find out the time of last modification for
@@ -109,7 +113,7 @@ public class VssElement extends SourceControlElement {
 	 *@return
 	 */
 	public long getLastModified() {
-		return _lastModified;
+		return lastModified;
 	}
 
 	/**
@@ -119,7 +123,7 @@ public class VssElement extends SourceControlElement {
 	 *@return
 	 */
 	public Set getEmails() {
-		return _emails;
+		return emails;
 	}
 
 	/**
@@ -129,59 +133,62 @@ public class VssElement extends SourceControlElement {
 	 *@return
 	 */
 	public List getModifications() {
-		return _modifications;
+		return modifications;
 	}
 
 	/**
-	 *  Do the work... I'm writing to a file since VSS will start wrapping lines
-     * if I read directly from the stream.
+	 * Calls 
+     * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
+     * Results written to a file since VSS will start wrapping lines if read 
+     * directly from the stream.
 	 *
 	 *@param  lastBuild
 	 *@param  now
 	 *@param  quietPeriod
-	 *@return
+	 *@return List of modifications
 	 */
 	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
-        //(PENDING) buildHistoryCommand, execHistoryCommand
+        //(PENDING) extract buildHistoryCommand, execHistoryCommand
+        // See CVSElement
+        
 		//call vss, write output to intermediate file
+        String[] cmdArray = {"ss.exe", "history", ssdir, "-R", "-Vd" +
+                formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
+                "-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
 		try {
-			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", "-Vd" +
-					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
-                    "-Y" + _login, "-I-N", "-O" + VSS_TEMP_FILE};
 			Process p = Runtime.getRuntime().exec(cmdArray);
 			p.waitFor();
 
-			BufferedReader br = new BufferedReader(new FileReader(
+			BufferedReader reader = new BufferedReader(new FileReader(
              new File(VSS_TEMP_FILE)));
 
-			String s = br.readLine();
-			while (s != null) {
-				if (s.startsWith("***** ")) {
-					ArrayList a = new ArrayList();
-					a.add(s);
-					s = br.readLine();
-					while (s != null && !s.startsWith("***** ")) {
-						a.add(s);
-						s = br.readLine();
+			String currLine = reader.readLine();
+			while (currLine != null) {
+				if (currLine.startsWith("***** ")) {
+					ArrayList vssEntry = new ArrayList();
+					vssEntry.add(currLine);
+					currLine = reader.readLine();
+					while (currLine != null && !currLine.startsWith("***** ")) {
+						vssEntry.add(currLine);
+						currLine = reader.readLine();
 					}
-					handleEntry(a);
+					handleEntry(vssEntry);
 				} else {
-					s = br.readLine();
+					currLine = reader.readLine();
 				}
 			}
 
-			br.close();
-			(new File(VSS_TEMP_FILE)).delete();
-
+			reader.close();
+			new File(VSS_TEMP_FILE).delete();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		if (_property != null && _modifications.size() > 0) {
-			getAntTask().getProject().setProperty(_property, "true");
+		if (property != null && modifications.size() > 0) {
+			getAntTask().getProject().setProperty(property, "true");
 		}
 
-		return _modifications;
+		return modifications;
 	}
 
 	/**
@@ -259,29 +266,29 @@ public class VssElement extends SourceControlElement {
             }
 		}
 
-		if (_propertyOnDelete != null && "delete".equals(mod.type)) {
-			getAntTask().getProject().setProperty(_propertyOnDelete, "true");
+		if (propertyOnDelete != null && "delete".equals(mod.type)) {
+			getAntTask().getProject().setProperty(propertyOnDelete, "true");
 		}
 
-        if (_property != null) {
-    		getAntTask().getProject().setProperty(_property, "true");
+        if (property != null) {
+    		getAntTask().getProject().setProperty(property, "true");
         }
 
-		_modifications.add(mod);
+		modifications.add(mod);
 		logModification(mod);
 	}
 
 	/**
-	 *  parse comment from vss history (could be multiline)
+	 *  Parse comment from VSS history (could be multi-line)
 	 *
-	 *@param  a
+	 *@param  commentList
 	 *@return
 	 */
-	private String parseComment(List a) {
+	private String parseComment(List commentList) {
 		StringBuffer comment = new StringBuffer();
-		comment.append(((String) a.get(4)) + " ");
-		for (int i = 5; i < a.size(); i++) {
-			comment.append(((String) a.get(i)) + " ");
+		comment.append(((String) commentList.get(4)) + " ");
+		for (int i = 5; i < commentList.size(); i++) {
+			comment.append(((String) commentList.get(i)) + " ");
 		}
 
 		return comment.toString().trim();
@@ -315,8 +322,8 @@ public class VssElement extends SourceControlElement {
              dateAndTime.trim() + "m");
             
             //(PENDING) This seems out of place
-            if (lastModifiedDate.getTime() < _lastModified) {
-                _lastModified = lastModifiedDate.getTime();
+            if (lastModifiedDate.getTime() < lastModified) {
+                lastModified = lastModifiedDate.getTime();
             }
             
             return lastModifiedDate;
@@ -336,7 +343,7 @@ public class VssElement extends SourceControlElement {
         final int START_OF_USER_NAME = 6;
 		String userName = userLine.substring(
          START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();
-		_emails.add(userName);
+		emails.add(userName);
 
 		return userName;
 	}
