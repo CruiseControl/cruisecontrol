@@ -73,6 +73,46 @@
 		</xsl:choose>
 	</xsl:template>
 
+	<!-- Composite data -->
+	<xsl:template name="compositedata">
+
+		<xsl:choose>
+			<xsl:when test="@isnull='false'">
+				<xsl:variable name="url">getattribute?objectname=<xsl:value-of select="../@objectname"/>&amp;attribute=<xsl:value-of select="@name"/>&amp;format=compositedata&amp;template=identity</xsl:variable>
+				<a href="{$url}">
+					<xsl:call-template name="str">
+						<xsl:with-param name="id">mbean_attributes.compositedata.view</xsl:with-param>
+					</xsl:call-template>
+				</a>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="str">
+					<xsl:with-param name="id">mbean_attributes.compositedata.null</xsl:with-param>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+		<!-- Composite data -->
+	<xsl:template name="tabulardata">
+
+		<xsl:choose>
+			<xsl:when test="@isnull='false'">
+				<xsl:variable name="url">getattribute?objectname=<xsl:value-of select="../@objectname"/>&amp;attribute=<xsl:value-of select="@name"/>&amp;format=tabulardata&amp;template=viewtabulardata</xsl:variable>
+				<a href="{$url}">
+					<xsl:call-template name="str">
+						<xsl:with-param name="id">mbean_attributes.tabulardata.view</xsl:with-param>
+					</xsl:call-template>
+				</a>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="str">
+					<xsl:with-param name="id">mbean_attributes.tabulardata.null</xsl:with-param>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
 	<xsl:template name="raw-input">
 		<xsl:param name="type"/>
 		<xsl:param name="value"/>
@@ -81,26 +121,6 @@
 
 		<xsl:variable name="result">none</xsl:variable>
 		<xsl:choose>
-			<xsl:when test="$type='java.lang.String'
-				or $type='java.lang.Double'
-				or $type='java.lang.Short'
-				or $type='java.lang.Integer'
-				or $type='java.lang.Long'
-				or $type='java.lang.Float'
-				or $type='java.lang.Byte'
-				or $type='java.lang.Character'
-				or $type='java.lang.Number'
-				or $type='javax.management.ObjectName'
-				or $type='int'
-				or $type='short'
-				or $type='byte'
-				or $type='char'
-				or $type='double'
-				or $type='long'
-				or $type='float'
-				or $strinit='true'">
-				<input type="text" name="{$name}" value="{$value}"/>
-			</xsl:when>
 			<xsl:when test="$type='java.lang.Boolean' or $type='boolean'">
 				<xsl:choose>
 					<xsl:when test="$value='true'">
@@ -117,54 +137,27 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:when>
+			<xsl:otherwise>
+				<input type="text" name="{$name}" value="{$value}"/>
+			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
 
 	<xsl:template match="Attribute[@type]" name="form">
 		<xsl:param name="value"/>
 		<xsl:choose>
-			<xsl:when test="@type='java.lang.String'
-				or @type='java.lang.String'
-				or @type='java.lang.Double'
-				or @type='java.lang.Short'
-				or @type='java.lang.Integer'
-				or @type='java.lang.Long'
-				or @type='java.lang.Float'
-				or @type='java.lang.Byte'
-				or @type='java.lang.Boolean'
-				or @type='java.lang.Character'
-				or @type='java.lang.Number'
-				or @type='javax.management.ObjectName'
-				or @type='int'
-				or @type='short'
-				or @type='byte'
-				or @type='double'
-				or @type='boolean'
-				or @type='long'
-				or @type='char'
-				or @type='float'">
-				<xsl:variable name="name" select="@name"/>
-						<xsl:call-template name="raw-input">
-							<xsl:with-param name="type" select="@type"/>
-							<xsl:with-param name="value" select="$value"/>
-							<xsl:with-param name="name">value_<xsl:value-of select="@name"/></xsl:with-param>
-							<xsl:with-param name="strinit">false</xsl:with-param>
-						</xsl:call-template>
-						<xsl:call-template name="submit">
-							<xsl:with-param name="name" select="@name"/>
-						</xsl:call-template>
-			</xsl:when>
 			<xsl:when test="@strinit='true'">
 				<xsl:variable name="name" select="@name"/>
-					<xsl:call-template name="raw-input">
-						<xsl:with-param name="type" select="@type"/>
-						<xsl:with-param name="value" select="$value"/>
-						<xsl:with-param name="name">value_<xsl:value-of select="@name"/></xsl:with-param>
-						<xsl:with-param name="strinit">true</xsl:with-param>
-					</xsl:call-template>
-					<xsl:call-template name="submit">
-						<xsl:with-param name="name" select="@name"/>
-					</xsl:call-template>
+				<xsl:call-template name="raw-input">
+					<xsl:with-param name="type" select="@type"/>
+					<xsl:with-param name="value" select="$value"/>
+					<xsl:with-param name="name">value_<xsl:value-of select="@name"/>
+					</xsl:with-param>
+					<xsl:with-param name="strinit">true</xsl:with-param>
+				</xsl:call-template>
+				<xsl:call-template name="submit">
+					<xsl:with-param name="name" select="@name"/>
+				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:call-template name="str">
@@ -177,27 +170,7 @@
 	<!-- Makes the submit button for setting one attribute -->
 	<xsl:template match="Attribute[@type]" name="submit">
 		<xsl:param name="name"/>
-		<xsl:if test="@type='java.lang.String'
-			or @type='java.lang.String'
-			or @type='java.lang.Double'
-			or @type='java.lang.Short'
-			or @type='java.lang.Integer'
-			or @type='java.lang.Long'
-			or @type='java.lang.Float'
-			or @type='java.lang.Byte'
-			or @type='java.lang.Character'
-			or @type='java.lang.Boolean'
-			or @type='java.lang.Number'
-			or @type='javax.management.ObjectName'
-			or @type='int'
-			or @type='short'
-			or @type='boolean'
-			or @type='byte'
-			or @type='long'
-			or @type='char'
-			or @type='double'
-			or @type='float'
-			or @strinit='true'">
+		<xsl:if test="@strinit='true'">
 			<xsl:variable name="str.set">
 				<xsl:call-template name="str">
 					<xsl:with-param name="id">mbean_attributes.submit.set</xsl:with-param>
@@ -225,12 +198,20 @@
 			<xsl:when test="$objectclass='javax.management.ObjectName'">
 				<xsl:variable name="name_encoded">
 					<xsl:call-template name="uri-encode">
-						<xsl:with-param name="uri"><xsl:value-of select="$objectvalue"/></xsl:with-param>
+						<xsl:with-param name="uri">
+							<xsl:value-of select="$objectvalue"/>
+						</xsl:with-param>
 					</xsl:call-template>
 				</xsl:variable>
-				<a href="/mbean?objectname={$name_encoded}"><xsl:value-of select="$objectvalue"/></a>
+				<a href="/mbean?objectname={$name_encoded}">
+					<xsl:value-of select="$objectvalue"/>
+				</a>
 			</xsl:when>
 			<xsl:otherwise>
+            <!-- Use the following line when the result of an invocation
+                 returns e.g. HTML or XML data
+            <xsl:value-of select="$objectvalue" disable-output-escaping="true" />
+            -->
 				<xsl:value-of select="$objectvalue"/>
 			</xsl:otherwise>
 		</xsl:choose>
@@ -243,7 +224,8 @@
 			</xsl:call-template>
 		</td>
 		<td align="right" class="mbean_row">
-			<xsl:call-template name="form"/></td>
+			<xsl:call-template name="form"/>
+		</td>
 	</xsl:template>
 
 	<!-- Template for readwrite attributes -->
@@ -343,54 +325,56 @@
 				</td>
 			</tr>
 			<form action="setattributes" method="get">
-			<xsl:for-each select="Attribute">
-				<xsl:sort data-type="text" order="ascending" select="@name"/>
-				<xsl:variable name="classtype">
-					<xsl:if test="(position() mod 2)=1">clearline</xsl:if>
-					<xsl:if test="(position() mod 2)=0">darkline</xsl:if>
-				</xsl:variable>
-				<tr class="{$classtype}">
-					<td class="mbean_row">
-						<xsl:value-of select="@name"/>
-					</td>
-					<td class="mbean_row">
-						<xsl:value-of select="@description"/>
-					</td>
-					<td class="mbean_row">
+				<xsl:for-each select="Attribute">
+					<xsl:sort data-type="text" order="ascending" select="@name"/>
+					<xsl:variable name="classtype">
+						<xsl:if test="(position() mod 2)=1">clearline</xsl:if>
+						<xsl:if test="(position() mod 2)=0">darkline</xsl:if>
+					</xsl:variable>
+					<tr class="{$classtype}">
+						<td class="mbean_row">
+							<xsl:value-of select="@name"/>
+						</td>
+						<td class="mbean_row">
+							<xsl:value-of select="@description"/>
+						</td>
+						<td class="mbean_row">
+							<xsl:choose>
+								<xsl:when test="starts-with(@type, '[L')">
+									<xsl:call-template name="str">
+										<xsl:with-param name="id">mbean_attributes.attribute.arrayof</xsl:with-param>
+										<xsl:with-param name="p0">
+											<xsl:value-of select="substring-before(substring-after(@type, '[L'), ';')"/>
+										</xsl:with-param>
+									</xsl:call-template>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="@type"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</td>
 						<xsl:choose>
-							<xsl:when test="starts-with(@type, '[L')">
-								<xsl:call-template name="str">
-									<xsl:with-param name="id">mbean_attributes.attribute.arrayof</xsl:with-param>
-									<xsl:with-param name="p0"><xsl:value-of select="substring-before(substring-after(@type, '[L'), ';')"/></xsl:with-param>
-								</xsl:call-template>
+							<xsl:when test="@availability='RO'">
+								<xsl:call-template name="RO"/>
 							</xsl:when>
-							<xsl:otherwise>
-								<xsl:value-of select="@type"/>
-							</xsl:otherwise	>
+							<xsl:when test="@availability='RW'">
+								<xsl:call-template name="RW"/>
+							</xsl:when>
+							<xsl:when test="@availability='WO'">
+								<xsl:call-template name="WO"/>
+							</xsl:when>
 						</xsl:choose>
-					</td>
-					<xsl:choose>
-						<xsl:when test="@availability='RO'">
-							<xsl:call-template name="RO"/>
-						</xsl:when>
-						<xsl:when test="@availability='RW'">
-							<xsl:call-template name="RW"/>
-						</xsl:when>
-						<xsl:when test="@availability='WO'">
-							<xsl:call-template name="WO"/>
-						</xsl:when>
-					</xsl:choose>
-				</tr>
-			</xsl:for-each>
-			<td colspan="5" align="right" class="attributes_setall">
-				<input type="hidden" name="objectname" value="{$request.objectname}"/>
-				<xsl:variable name="str.setall">
-					<xsl:call-template name="str">
-						<xsl:with-param name="id">mbean_attributes.attribute.setall</xsl:with-param>
-					</xsl:call-template>
-				</xsl:variable>
-				<input type="Submit" name="setall" value="{$str.setall}"/>
-			</td>
+					</tr>
+				</xsl:for-each>
+				<td colspan="5" align="right" class="attributes_setall">
+					<input type="hidden" name="objectname" value="{$request.objectname}"/>
+					<xsl:variable name="str.setall">
+						<xsl:call-template name="str">
+							<xsl:with-param name="id">mbean_attributes.attribute.setall</xsl:with-param>
+						</xsl:call-template>
+					</xsl:variable>
+					<input type="Submit" name="setall" value="{$str.setall}"/>
+				</td>
 			</form>
 		</table>
 	</xsl:template>
