@@ -43,6 +43,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockServletContext;
 
 public class XSLTagTest extends TestCase {
 
@@ -89,17 +91,54 @@ public class XSLTagTest extends TestCase {
                         + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
                     + "<xsl:output method=\"text\"/>"
                     + "<xsl:template match=\"/\">"
-                        + "<xsl:value-of select=\"test\"/>"
+                        +  "<xsl:apply-templates />"
+                    + "</xsl:template>"
+                    + "<xsl:template match=\"test\" >"
+                        + "test=<xsl:value-of select=\"/\" />.<xsl:value-of select=\"@sub\" />"
                     + "</xsl:template>"
                 + "</xsl:stylesheet>";
         writeFile(log1, styleSheetText);
-        writeFile(log3, "<test>3</test>");
+        writeFile(log3, "<test sub=\"1\">3</test>");
         InputStream in = new FileInputStream(log1);
         StringWriter out = new StringWriter();
 
         XSLTag tag = new XSLTag();
         tag.transform(log3, in, out);
-        assertEquals("3", out.toString());
+        assertEquals("test=3.1", out.toString());
+    }
+
+    public void testTransformNested() throws Exception {
+        final String innerStyleSheetText =
+                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
+                        + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
+                    + "<xsl:template match=\"test\" >"
+                        + "test=<xsl:value-of select=\"/\" />.<xsl:value-of select=\"@sub\" />"
+                    + "</xsl:template>"
+                + "</xsl:stylesheet>";
+        writeFile(log1, innerStyleSheetText);
+        final String outerStyleSheetText =
+                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
+                        + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
+                    + "<xsl:output method=\"text\"/>"
+                    + "<xsl:include href=\"log1.xml\" />"
+                    + "<xsl:template match=\"/\">"
+                        +  "<xsl:apply-templates />"
+                    + "</xsl:template>"
+                + "</xsl:stylesheet>";
+        writeFile(log2, outerStyleSheetText);
+        writeFile(log3, "<test sub=\"1\">3</test>");
+        InputStream in = new FileInputStream(log2);
+        StringWriter out = new StringWriter();
+
+        XSLTag tag = new XSLTag();
+        final MockPageContext pageContext = new MockPageContext();
+        final MockServletContext servletContext = new MockServletContext();
+        pageContext.setServletContext(servletContext);
+        servletContext.setBaseResourceDir(logDir);
+        tag.setPageContext(pageContext);
+        tag.setXslRootContext("/");
+        tag.transform(log3, in, out);
+        assertEquals("test=3.1", out.toString());
     }
 
     public void testGetXmlFile() throws Exception {

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.mock;
 
 import java.io.IOException;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.HashMap;
 import javax.servlet.jsp.PageContext;
@@ -57,6 +58,8 @@ public class MockPageContext extends PageContext {
     private MockServletRequest request = new MockServletRequest();
 
     private HashMap[] scopes = { new HashMap(), new HashMap(), new HashMap(), new HashMap() };
+    private MockServletContext servletContext;
+
     public void initialize(Servlet servlet, ServletRequest servletRequest, ServletResponse servletResponse,
                            String errorPageURL, boolean needsSession, int bufferSize, boolean autoFlush)
             throws IOException, IllegalStateException, IllegalArgumentException {
@@ -133,7 +136,7 @@ public class MockPageContext extends PageContext {
     }
 
     public ServletContext getServletContext() {
-        return null;
+        return servletContext;
     }
 
     public void forward(String relativeUrlPath) throws ServletException, IOException {
@@ -143,5 +146,9 @@ public class MockPageContext extends PageContext {
     }
 
     public void handlePageException(Exception e) throws ServletException, IOException {
+    }
+
+    public void setServletContext(MockServletContext context) {
+        servletContext = context;
     }
 }
