@@ -10,7 +10,9 @@ import java.io.*;
 public class BuildInfo implements Serializable {
     
     public static final String DEFAULT_BUILDINFO_FILENAME = "buildcycleinfo";
-
+    private static final int COMPLETE_TIME_LENGTH = 
+     new String("YYYYMMDDHHmmss").length();
+    
     private String  label;
     private String  lastGoodBuild;
     private String  lastBuild;
@@ -85,9 +87,7 @@ public class BuildInfo implements Serializable {
     }
     
     private boolean isCompleteTime(String time) {
-        //???
-        int expectedLength = 14;
-        if (time.length() < expectedLength) {
+        if (time == null || time.length() < COMPLETE_TIME_LENGTH) {
             return false;
         }
 
