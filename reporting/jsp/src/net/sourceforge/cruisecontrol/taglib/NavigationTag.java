@@ -49,6 +49,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  *
@@ -123,6 +125,14 @@ public class NavigationTag implements Tag, BodyTag {
                 return name.startsWith("log") && name.endsWith(".xml") && !(new File(dir, name).isDirectory());
             }
         });
+
+        //sort links...
+        Arrays.sort(_fileNames, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return ((String) o2).compareTo((String) o1);
+            }
+        });
+
         return EVAL_BODY_TAG;
     }
 
