@@ -132,12 +132,12 @@ public class BuildInfo implements Comparable {
      * @param file
      * @return
      */
-    public static Summary loadFromDir(File logDir) throws CruiseControlException {
+    public static Summary loadFromDir(File logDir) throws CruiseControlWebAppException {
         String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
-            throw new CruiseControlException("Could not access the directory " + logDir.getAbsolutePath());
+            throw new CruiseControlWebAppException("Could not access the directory " + logDir.getAbsolutePath());
         } else if (logFileNames.length == 0) {
-            throw new CruiseControlException("Configuration problem? No logs found in logDir: "
+            throw new CruiseControlWebAppException("Configuration problem? No logs found in logDir: "
                                              + logDir.getAbsolutePath());
         }
         List buildInfoList = new ArrayList(logFileNames.length);
@@ -146,8 +146,9 @@ public class BuildInfo implements Comparable {
             try {
                 buildInfoList.add(new BuildInfo(logFileName));
             } catch (ParseException e) {
-                throw new RuntimeException("Could not parse log file name " + logFileName
-                                           + ". Is the filter broken?", e);
+                throw new CruiseControlWebAppException(
+                        "Could not parse log file name " + logFileName
+                        + ". Is the filter broken?", e);
             }
         }
         Collections.sort(buildInfoList);
