@@ -231,8 +231,12 @@ public class Upgrader {
     }
 
     public String createLabelIncrementerPlugin(Properties properties) {
-        String classname = properties.getProperty("labelIncrementerClass") != null ? properties.getProperty("labelIncrementerClass") : DefaultLabelIncrementer.class.getName();
-        return "<plugin name=\"labelincrementer\" classname=\"" + classname + "\"/>";
+        if(properties.getProperty("labelIncrementerClass") != null) {
+            String classname = properties.getProperty("labelIncrementerClass");
+            return "<plugin name=\"labelincrementer\" classname=\"" + classname + "\"/>";
+        } else {
+            return "";
+        }
     }
 
     public Element createXML(Properties properties, Element modificationsetElement) throws JDOMException {
@@ -243,10 +247,6 @@ public class Upgrader {
         config.append(createSchedule(properties));
         config.append(createLog(properties));
         config.append(createPublishers(properties));
-        config.append("<plugin name=\"currentbuildstatusbootstrapper\" classname=\"" + CurrentBuildStatusBootstrapper.class.getName() + "\"/>");
-        config.append("<plugin name=\"ant\" classname=\"" + AntBuilder.class.getName() + "\"/>");
-        config.append("<plugin name=\"email\" classname=\"" + LinkEmailPublisher.class.getName() + "\"/>");
-        config.append("<plugin name=\"currentbuildstatuspublisher\" classname=\"" + CurrentBuildStatusPublisher.class.getName() + "\"/>");
         config.append(createLabelIncrementerPlugin(properties));
         config.append("</project></cruisecontrol>");
 
