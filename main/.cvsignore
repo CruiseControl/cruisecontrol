@@ -10,3 +10,6 @@ notLog.xml
 _*
 cc_coverage*
 clover-results
+logs
+.classpath
+.project
