@@ -101,7 +101,7 @@ public class ClearCaseElement extends SourceControlElement {
    * Sets the local working copy to use when making queries.
    */
   public void setViewpath(String path) {
-    _viewPath = getTask().getProject().resolveFile(path).getAbsolutePath();
+    _viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
   }
 
   /**

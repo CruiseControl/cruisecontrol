@@ -45,12 +45,15 @@ public abstract class SourceControlElement {
     */
    protected abstract String logPrefix();
     
+   //(PENDING) pull these up too
+   
    /**
-    * get a Set of email addresses.  depends on the source control tool.  StarTeam has a field for
-    * email addresses, so we would return a set of full email addresses here.  SourceSafe doesn't have
-    * the same functionality, so we'll just return the usernames here. (which should correspond to
-    * email ids)  we'll tack on the suffix, i.e. @apache.org, in MasterBuild.java before mailing
-    * results of the build.
+    * Get a Set of email addresses.  Depends on the source control tool.  
+    * StarTeam has a field for email addresses, so we would return a set of 
+    * full email addresses here.  SourceSafe doesn't have the same 
+    * functionality, so we'll just return the usernames here (which should 
+    * correspond to email IDs).  We'll tack on the suffix, e.g., @apache.org, in 
+    * MasterBuild.java before mailing results of the build.
     */
    public abstract Set getEmails();
     
@@ -80,15 +83,11 @@ public abstract class SourceControlElement {
         }
    }
    
-   //(PENDING) rename to get/set AntTask
-   public Task getTask() {
+   protected Task getAntTask() {
        return _task;
    }
    
-   /** 
-    * Get the task from the parent element for logging purposes 
-    */
-   public void setTask(Task task) {
+   public void setAntTask(Task task) {
        _task = task;
    }
    
