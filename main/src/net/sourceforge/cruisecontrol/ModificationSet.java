@@ -20,17 +20,16 @@ public class ModificationSet extends Task {
     private Date _lastBuild;
     private long _quietPeriod;
     private ArrayList _scElements = new ArrayList();
-    private String _emailSuffix = "";
 
     private Date _now;
     long _lastModified;
     private DateFormat _formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
-    
+
     private ArrayList _modifications = new ArrayList();
     private Set _emails = new HashSet();
 
     private static final SimpleDateFormat _sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-    
+
     public static final String BUILDUNNECESSARY = "modificationset.buildunnecessary";
     public static final String SNAPSHOTTIMESTAMP = "modificationset.snapshottimestamp";
     public static final String USERS = "modificationset.users";
@@ -56,14 +55,6 @@ public class ModificationSet extends Task {
         _quietPeriod = seconds * 1000;
     }
 
-    /**
-     *	Construct email address from source control login.
-     *	Assumes the logins are consistent with email addresses and
-     *	that all users have the same email suffix, i.e. @apache.org
-     */
-    public void setEmailsuffix(String emailSuffix) {
-        _emailSuffix = emailSuffix;
-    }
 
     public void setDateformat(String format) {
         if (format != null && format.length() > 0) {
@@ -182,7 +173,7 @@ public class ModificationSet extends Task {
             modFileName = "modificationset.xml";
             this.getProject().setProperty("modificationset.file", modFileName);
         }
-        
+
         FileWriter fw = new FileWriter(new File(modFileName));
         fw.write("<modifications>\n");
         for (int i=0; i < _modifications.size(); i++)
@@ -198,7 +189,7 @@ public class ModificationSet extends Task {
         StringBuffer sb = new StringBuffer();
         Iterator i = _emails.iterator();
         while (i.hasNext()) {
-            sb.append(((String) i.next()) + _emailSuffix);
+            sb.append(((String) i.next()));
             if (i.hasNext())
                 sb.append(",");
         }
