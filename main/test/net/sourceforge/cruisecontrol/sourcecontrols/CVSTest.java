@@ -142,6 +142,56 @@ public class CVSTest extends TestCase {
         assertEquals(mod3, (Modification) modifications.get(4));
     }
 
+    public void testParseStreamBranch() throws IOException, ParseException {
+        CVS cvs = new CVS();
+        cvs.setTag("BRANCH_TEST_BUILD");
+        File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11branch.txt");
+        //System.out.println(testLog.getAbsolutePath());
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
+        List modifications = cvs.parseStream(input);
+        input.close();
+        Collections.sort(modifications);
+
+        assertEquals("Should have returned 4 modifications.", 4, modifications.size());
+
+        Modification mod1 = new Modification();
+        mod1.type = "modified";
+        mod1.fileName = "test.version";
+        mod1.folderName = "";
+        mod1.modifiedTime = createDate("2002/10/03 16:05:23 GMT");
+        mod1.userName = "tim";
+        mod1.comment = "Test commit once more";
+
+        Modification mod2 = new Modification();
+        mod2.type = "modified";
+        mod2.fileName = "test.version";
+        mod2.folderName = "";
+        mod2.modifiedTime = createDate("2002/10/03 14:24:17 GMT");
+        mod2.userName = "tim";
+        mod2.comment = "Test commit";
+
+        Modification mod3 = new Modification();
+        mod3.type = "modified";
+        mod3.fileName = "test.version";
+        mod3.folderName = "";
+        mod3.modifiedTime = createDate("2002/10/02 21:54:44 GMT");
+        mod3.userName = "tim";
+        mod3.comment = "Update parameters for test";
+
+        Modification mod4 = new Modification();
+        mod4.type = "modified";
+        mod4.fileName = "test.version";
+        mod4.folderName = "";
+        mod4.modifiedTime = createDate("2002/10/02 21:49:31 GMT");
+        mod4.userName = "tim";
+        mod4.comment = "Add parameters for test";
+
+        assertEquals(mod4, (Modification) modifications.get(0));
+        assertEquals(mod3, (Modification) modifications.get(1));
+        assertEquals(mod2, (Modification) modifications.get(2));
+        assertEquals(mod1, (Modification) modifications.get(3));
+    }
+
 
     public void testGetProperties() throws IOException, ParseException {
         CVS cvs = new CVS();
@@ -249,7 +299,7 @@ public class CVSTest extends TestCase {
         element.setLocalWorkingCopy(".");
 
         String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
+                                                "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
 
         String[] actualCommand = element.buildHistoryCommand(lastBuildTime).getCommandline();
 
@@ -269,7 +319,7 @@ public class CVSTest extends TestCase {
         element.setTag("sometag");
 
         String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-rsometag"};
+                                                "-d>" + CVS.formatCVSDate(lastBuildTime), "-rsometag"};
 
         String[] actualCommand = element.buildHistoryCommand(lastBuildTime).getCommandline();
 
@@ -288,7 +338,7 @@ public class CVSTest extends TestCase {
         element.setLocalWorkingCopy(null);
 
         String[] expectedCommand = new String[]{"cvs", "-d", "cvsroot", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
+                                                "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime).getCommandline();
@@ -308,14 +358,13 @@ public class CVSTest extends TestCase {
         element.setLocalWorkingCopy(".");
 
         String[] expectedCommand = new String[]{"cvs", "-q", "log",
-                                                "-N", "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
+                                                "-d>" + CVS.formatCVSDate(lastBuildTime), "-b"};
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime).getCommandline();
         assertEquals("Mismatched lengths!", expectedCommand.length,
                      actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
-            System.out.println(actualCommand[i]);
             assertEquals(expectedCommand[i], actualCommand[i]);
         }
     }
