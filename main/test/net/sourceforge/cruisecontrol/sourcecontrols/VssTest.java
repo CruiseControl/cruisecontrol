@@ -55,7 +55,7 @@ public class VssTest extends TestCase {
     private Vss _vss;
 
     private final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
-    private final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36a";
+    private final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36";
     private final String STRANGE_DATE_TIME_STRING = "Date:  6/20/:1   Time:  10:36a";
 
     public VssTest(String name) {
@@ -111,9 +111,10 @@ public class VssTest extends TestCase {
         String testName = "1";
         Vss vss = new Vss();
         vss.setDateFormat("dd/MM/yy");
+        vss.setTimeFormat("HH:mm");
         try {
             assertEquals(
-              vss.vssDateTimeFormat.parse(ALTERNATE_DATE_TIME_STRING.trim() + "m"),
+              vss.vssDateTimeFormat.parse(ALTERNATE_DATE_TIME_STRING.trim()),
               vss.parseDate(createVSSLine(testName, ALTERNATE_DATE_TIME_STRING)));
         } catch (ParseException e) {
             fail("Could not parse date string: " + e.getMessage());
@@ -286,7 +287,7 @@ public class VssTest extends TestCase {
         for (int i = 0; i < expectedCommandWithTimeFormat.length; i++) {
             assertEquals(expectedCommandWithTimeFormat[i], actualCommandWithTimeFormat[i]);
         }
-    }
+    }    
 
     /**
      *  Utility method to easily create a given date.
