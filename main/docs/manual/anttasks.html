@@ -15,9 +15,10 @@
   <li>Niclas Olofsson</li>
   <li>Eli Tucker</li>
   <li>Richard Wagner(<a href="mailto:Richard.Wagner@alltel.com">Richard.Wagner@alltel.com</a>)</li>
+  <li>Jonny Boman</li>
 </ul>
 
-<p>Version 1.18 - 08/30/2001</p>
+<p>Version 1.19 - 09/10/2001</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -205,7 +206,7 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
     <li>Write ant task to encapsulate source pull.  At present, this can be accomplished with batch scripts using PCLI, PVCS' command line interface.
 </ul>
 </p>
-  
+
 
 <a name="p4element"></a>
 <h3>P4Element</h3>
@@ -356,7 +357,7 @@ local drive.  That's the rationale behind having the propertyondelete attribute.
   </tr>
   <tr>
       <td valign="top">dateformat</td>
-      <td valign="top">Uses the given date format rather than the default for querying SourceSafe 
+      <td valign="top">Uses the given date format rather than the default for querying SourceSafe
          and parsing SourceSafe's history results.  This should be in the form
          "MM/dd/yy", "dd/MM/yy", or any other format that adheres to
          <a href="http://java.sun.com/products/jdk/1.2/docs/api/index.html">java.text.SimpleDateFormat</a>.
@@ -403,7 +404,7 @@ a JSP file, we really don't need to compile all our source again, just repackage
 <p>Returns a list of modifications found in the repository between two dates. This element
 is meant to be used in conjuction with a ModificationSet to control a build process. The two
 property attributes are meant to provide the rest of the ant script with a means to conditionally
-build targets based on what was actually modified.  See the examples below for more details.  
+build targets based on what was actually modified.  See the examples below for more details.
 </p>
 <p>Using this requires that the SourceSafe administrator has turned on journal files.
 See the <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/ssusexp98/html/idd_adm_tab_general.asp">
@@ -467,12 +468,45 @@ Source Safe documentation</a> for information on how to do this.
 &lt;/target&gt;
 </PRE>
 
-<p>This example will recursively scan the journal file located at <code>j:\VssDir\vss-jounral-file.txt</code>
+<p>This example will recursively scan the journal file located at <code>j:\VssDir\vss-journal-file.txt</code>
 for changes made in three different folders in sourcesafe and conditionally set the
 properties named in each element.  Thus, I can call a "clean" target for each of these folders and,
 using the "depends" attribute, determine whether I need to clean.  The same applies for a target to
 get the latest source.  If no modifications have occurred within my src directory, but we've modified
 a JSP file, we really don't need to compile all our source again, just repackage our distributable.
+</p>
+
+<h4>VssJournalDateFormat</h4>
+
+<p>Specifies additional ways for interpreting the date/time format used in the journal file. The journal file can contain different
+date formats depending on what date format the client had when doing the checkin to SourceSafe.<br>
+VssJournalElement have one format as default i.e. "MM/dd/yy hh:mma", but using this tag you can specify additional formats.
+This does not however solve the problem when different date formats in the journal file have the same pattern but different positioning.
+<br>E.g.
+<PRE>
+        &lt;vssjournaldateformat format=&quot;yy-MM-dd hh:mm&quot;/&gt;
+        &lt;vssjournaldateformat format=&quot;dd-MM-yy hh:mm&quot;/&gt;
+</PRE>
+If the journal file contains "02-09-01 12:37" it can be interpreted as September 2, 2001, or September 1, 2002!<br>
+If you enter "ambigous" date formats then it is "first-fit" that will be used.
+<h5>Example</h5>
+<PRE>
+&lt;target name=&quot;modificationset&quot;&gt;
+    &lt;modificationset lastbuild=&quot;${lastGoodBuildTime}&quot;
+        quietperiod=&quot;30&quot;
+        dateformat=&quot;yyyy-MMM-dd HH:mm:ss&quot;&gt;
+
+        &lt;vssjournalelement ssdir=&quot;$/Project/src&quot;
+            journalfile=&quotj:/VssDir/vss-journal-file.txt&quot;
+            property=&quot;modificationset.src&quot;
+            propertyondelete=&quot;modificationset.src.delete&quot;&gt;
+
+            &lt;vssjournaldateformat format=&quot;yy-MM-dd hh:mm&quot;/&gt;
+
+        &lt;/vssjournalelement&gt;
+    &lt;/modificationset&gt;
+&lt;/target&gt;
+</PRE>
 </p>
 
 <h2><a name="starteamcheckout">StarTeamCheckout</a></h2>
