@@ -135,7 +135,7 @@ public class CVSElement implements SourceControlElement {
      * This task should be provided by the caller. This class
      * will use it to log information.
      */
-    private Task task;
+    private Task _task;
     
     /**
      * Sets the CVSROOT for all calls to CVS.
@@ -174,7 +174,7 @@ public class CVSElement implements SourceControlElement {
      * @param task   Task to use.
      */
     public void setTask(Task task) {
-        this.task = task;
+        _task = task;
     }
     
     /**
@@ -210,9 +210,9 @@ public class CVSElement implements SourceControlElement {
      *
      * @param message message to log.
      */
-    private void log(String message) {
-        if (task != null) {
-            this.task.getProject().log(message);
+    public void log(String message) {
+        if (_task != null) {
+            _task.log("[cvselement]" + message);
         }
     }
     
@@ -241,7 +241,7 @@ public class CVSElement implements SourceControlElement {
         for (int i = 0; i < commandArray.length; i++) {
             logCommand += commandArray[i] + " ";
         }
-        log("[cvselement] " + logCommand);
+        log(logCommand);
         
         ArrayList mods = null;
         try {
