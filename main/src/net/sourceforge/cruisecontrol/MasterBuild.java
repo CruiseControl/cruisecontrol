@@ -586,7 +586,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             return elements;
         }
 
-        StringTokenizer st = new StringTokenizer(commaDelim, ", ");
+        StringTokenizer st = new StringTokenizer(commaDelim, ",");
         while (st.hasMoreTokens()) {
             String mapped = st.nextToken().trim();
             elements.add(mapped);
