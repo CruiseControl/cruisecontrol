@@ -66,7 +66,7 @@ public class ProjectTest extends TestCase {
 
         project.build();
 
-        String expected = "<cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /></info><build /><one /><two /><three /></cruisecontrol>";
+        String expected = "<cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><two /><three /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 

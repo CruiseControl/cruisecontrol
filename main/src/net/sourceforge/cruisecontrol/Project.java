@@ -210,6 +210,8 @@ public class Project implements Serializable {
         Element lastBuildSuccessfulPropertyElement = new Element("property");
         lastBuildSuccessfulPropertyElement.setAttribute("name", "lastbuildsuccessful");
         lastBuildSuccessfulPropertyElement.setAttribute("value", _wasLastBuildSuccessful + "");
+        infoElement.addContent(lastBuildSuccessfulPropertyElement);
+
         return infoElement;
     }
 
