@@ -31,17 +31,17 @@
       <init-param>
         <!-- directory where log files are stored.  the servlet will look at these files to build the links on the left-side nav -->
         <param-name>logDir</param-name>
-        <param-value></param-value>
+        <param-value>d:/projects/CruiseControlTest/logs</param-value>
       </init-param>
       <init-param>
         <!-- absolute path to cruisecontrol.xsl stylesheet for the servlet.  should be modified in the future to just check classpath, so we won't need this anymore -->
         <param-name>xslFile</param-name>
-        <param-value></param-value>
+        <param-value>d:/jakarta-tomcat-3.2.1/webapps/buildservlet/cruisecontrol.xsl</param-value>
       </init-param>
       <init-param>
         <!-- html title for the servlet -->
         <param-name>pageTitle</param-name>
-        <param-value></param-value>
+        <param-value>Test title</param-value>
       </init-param>
       <init-param>
         <!-- configurable logo for the build servlet.  -->
@@ -64,8 +64,6 @@
         <param-value>/buildservlet/images</param-value>
       </init-param>
 
-      <!-- Load this servlet at server startup time -->
-      <load-on-startup>5</load-on-startup>
     </servlet>
     
     
