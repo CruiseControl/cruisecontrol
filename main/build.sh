@@ -74,7 +74,7 @@ if [ "$JAVABIN" = "" ] ; then
   JAVABIN=${JAVA_HOME}/bin/java
 fi
 
-CLASSPATH=lib/ant.jar:lib/ant-junit.jar:lib/ant-launcher.jar:lib/junit.jar:lib/xerces.jar
+CLASSPATH=lib/ant/ant-launcher.jar:lib/junit.jar:lib/xerces.jar
 
 # Try to include tools.jar for compilation
 if test -f ${JAVA_HOME}/lib/tools.jar ; then
@@ -94,5 +94,5 @@ fi
 echo ${CLASSPATH}
 
 # Call Ant
-${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.Main \
+${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.launch.Launcher \
            -buildfile "${BUILDFILE}" "$@"

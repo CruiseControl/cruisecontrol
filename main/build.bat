@@ -36,7 +36,7 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-set ANT_CLASSPATH=lib/ant.jar;lib/ant-launcher.jar;lib/ant-junit.jar;lib/junit.jar;lib/xerces.jar;%CLOVER_HOME%/lib/clover.jar
+set ANT_CLASSPATH=lib/ant/ant-launcher.jar;lib/junit.jar;lib/xerces.jar;%CLOVER_HOME%/lib/clover.jar
 echo %ANT_CLASSPATH%
 
 if not defined JAVA_HOME goto noJavaFound
@@ -64,7 +64,7 @@ echo Using Jikes!
 goto exec
 
 :exec
-"%JAVA_HOME%\bin\java" -classpath "%ANT_CLASSPATH%" -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.Main %*
+"%JAVA_HOME%\bin\java" -classpath "%ANT_CLASSPATH%" -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.launch.Launcher %*
 goto end
 
 :noJavaFound
