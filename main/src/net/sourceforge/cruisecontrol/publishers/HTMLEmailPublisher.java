@@ -166,11 +166,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
             try {
                 // we're probably in main/dist/cruisecontrol.jar, so three parents up
                 File rootDir = classDir.getParentFile().getParentFile().getParentFile();
-                if (classDir.getAbsolutePath().endsWith("test-classes")) {
-                    // not the expected main/dist-dir but the main/target/test-classes dir, 
-                    // so we need to go up an extra directory
-                    rootDir = rootDir.getParentFile();
-                }
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("rootDir seems to be " + rootDir.getAbsolutePath()
                             + " (classDir = " + classDir.getAbsolutePath() + ")");
