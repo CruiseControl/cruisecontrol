@@ -50,6 +50,11 @@ public interface ProjectControllerMBean {
      */
     public void resume();
 
+    /**
+     * Runs a build now
+     */
+     public void build();
+
 //    /**
 //     * Returns the duration the managed project process has been executing.
 //     *

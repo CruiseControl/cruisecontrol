@@ -84,6 +84,7 @@ public class Project implements Serializable {
     private String _name;
     private SimpleDateFormat _formatter =
             new SimpleDateFormat("yyyyMMddHHmmss");
+    private boolean _buildForced = false;
     private boolean _isPaused = false;
     private boolean _buildAfterFailed = true;
 
@@ -101,7 +102,23 @@ public class Project implements Serializable {
                 init();
                 build();
                 log.info("Sleeping for " + formatTime(_sleepMillis));
-                Thread.sleep(_sleepMillis);
+
+                // Make sure we don't force the build twice in a row
+                _buildForced = false;
+
+                // Wake up every 5 seconds to see if something was forced
+                long millisSlept = 0;
+                long sleepInterval = 5000;
+                while (millisSlept < _sleepMillis) {
+                    Thread.sleep(sleepInterval);
+                    millisSlept += sleepInterval;
+
+                    // Check to see if we should skip sleeping and get to work
+                    if (_buildForced) {
+                        log.info("aborting sleep since build is forced.");
+                        break;
+                    }
+                }
             } catch (InterruptedException e) {
                 log.error("Error sleeping.", e);
             } catch (CruiseControlException e) {
@@ -137,7 +154,11 @@ public class Project implements Serializable {
             if (_buildAfterFailed && !_wasLastBuildSuccessful) {
                 log.info("Building anyway, since buildAfterFailed is true and last build failed.");
             } else {
-                return;
+                if (_buildForced) {
+                    log.info("Building anyway, since build was explicitly forced.");
+                } else {
+                    return;
+                }
             }
         }
 
@@ -318,6 +339,14 @@ public class Project implements Serializable {
         if (_lastBuild == null)
             return null;
         return _formatter.format(_lastBuild);
+    }
+
+    public boolean getBuildForced() {
+        return _buildForced;
+    }
+
+    public void setBuildForced(boolean _buildForced) {
+        this._buildForced = _buildForced;
     }
 
     public String getLastSuccessfulBuild() {

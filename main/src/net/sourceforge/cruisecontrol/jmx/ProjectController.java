@@ -65,6 +65,10 @@ public class ProjectController implements ProjectControllerMBean {
         _project.setPaused(false);
     }
 
+    public void build() {
+        _project.setBuildForced(true);
+    }
+
 //    // TODO
 //    public long getUpTime() {
 //        return 0;
