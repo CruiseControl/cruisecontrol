@@ -209,6 +209,17 @@
     </target>
 
     <!-- **************************************************** -->
+    <!-- Run duplication check on code -->
+    <!-- **************************************************** -->
+    <target name="check-duplication" description="Check for duplicated code">
+        <fail message="SIMIAN_HOME must be set!" unless="env.SIMIAN_HOME"/>
+        <taskdef resource="simiantask.properties" classpath="${env.SIMIAN_HOME}/simian.jar"/>
+        <simian failOnDuplication="false">
+            <fileset dir="${src}" includes="**/*.java"/>
+        </simian>        
+    </target>
+
+    <!-- **************************************************** -->
     <!-- Executes the unit tests                              -->
     <!-- **************************************************** -->
     <target name="test" depends="compile-test" description="Executes the unit tests">
