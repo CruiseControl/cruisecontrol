@@ -50,13 +50,12 @@ import org.apache.tools.ant.Task;
  * 
  * @author Thomas Leseney
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
- * @version May 25, 2001
  */
 public class ClearCaseElement extends SourceControlElement {
 
 	/**
-	 *  Set of the authors that modified files. With Clear Case, it correspond the
-	 *  user names.
+	 * Set of the authors that modified files. With Clear Case, it corresponds 
+     * to the user names.
 	 */
 	private Set _emailNames = new HashSet();
 
@@ -79,12 +78,14 @@ public class ClearCaseElement extends SourceControlElement {
 	/**
 	 *  Date format required by commands passed to Clear Case
 	 */
-	final static SimpleDateFormat IN_DATE_FORMAT = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+	final static SimpleDateFormat IN_DATE_FORMAT = 
+     new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
 	/**
 	 *  Date format returned in the output of Clear Case commands.
 	 */
-	final static SimpleDateFormat OUT_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd.HHmmss");
+	final static SimpleDateFormat OUT_DATE_FORMAT = 
+     new SimpleDateFormat("yyyyMMdd.HHmmss");
 
 	/**
 	 *  Sets the local working copy to use when making queries.
@@ -145,23 +146,27 @@ public class ClearCaseElement extends SourceControlElement {
 	public List getHistory(Date lastBuild, Date now, long quietPeriod) {
 		String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
 		/*
-		 *  let's try a different clearcase command--this one just takes waaaaaaaay too long.
-		 *  String command = "cleartool find " + _viewPath +
-		 *  " -type f -exec \"cleartool lshistory" +
-		 *  " -since " + lastBuildDate;
-		 *  if(_branch != null)
-		 *  command += " -branch " + _branch;
-		 *  command += " -nco" + // exclude check out events
-		 *  " -fmt \\\" %u;%Nd;%n;%o \\n \\\" \\\"%CLEARCASE_XPN%\\\" \"";
+		 * let's try a different clearcase command--this one just takes 
+         * waaaaaaaay too long.
+		 * String command = "cleartool find " + _viewPath +
+		 * " -type f -exec \"cleartool lshistory" +
+		 * " -since " + lastBuildDate;
+		 * if(_branch != null)
+		 * command += " -branch " + _branch;
+		 * command += " -nco" + // exclude check out events
+		 * " -fmt \\\" %u;%Nd;%n;%o \\n \\\" \\\"%CLEARCASE_XPN%\\\" \"";
 		 */
 		String command = "cleartool lshistory";
-		if (_branch != null) {
+	
+        if (_branch != null) {
 			command += " -branch " + _branch;
 		}
-		if (_recursive == true) {
+		
+        if (_recursive == true) {
 			command += " -r ";
 		}
-		command += " -nco -since " + lastBuildDate;
+		
+        command += " -nco -since " + lastBuildDate;
 		command += " -fmt \"%u;%Nd;%n;%o\\n\" " + _viewPath;
 
 		log("Command to execute : " + command);
@@ -176,14 +181,15 @@ public class ClearCaseElement extends SourceControlElement {
 			modifications = parseStream(input);
 
 			p.waitFor();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log("Error in executing the Clear Case command : " + e);
 			e.printStackTrace();
 		}
+        
 		if (modifications == null) {
 			modifications = new ArrayList();
 		}
+        
 		return modifications;
 	}
 
@@ -194,8 +200,7 @@ public class ClearCaseElement extends SourceControlElement {
 	 *@return  a list of modification elements
 	 *@exception  IOException
 	 */
-	private List parseStream(InputStream input)
-			 throws IOException {
+	private List parseStream(InputStream input) throws IOException {
 		ArrayList modifications = new ArrayList();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
@@ -251,8 +256,7 @@ public class ClearCaseElement extends SourceControlElement {
 		try {
 			mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
 			updateLastModified(mod.modifiedTime);
-		}
-		catch (ParseException e) {
+		} catch (ParseException e) {
 			mod.modifiedTime = null;
 		}
 
@@ -278,9 +282,6 @@ public class ClearCaseElement extends SourceControlElement {
 	/**
 	 *  Inner class to pump the error stream during Process's runtime. Copied from
 	 *  the Ant built-in task.
-	 *
-	 * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
-	 * @created  June 11, 2001
 	 */
 	class StreamPumper implements Runnable {
 
@@ -302,12 +303,9 @@ public class ClearCaseElement extends SourceControlElement {
 					try {
 						Thread.sleep(SLEEP);
 					}
-					catch (InterruptedException e) {
-					}
+					catch (InterruptedException ignoredInterrupted) { }
 				}
-			}
-			catch (IOException e) {
-			}
+			} catch (IOException ignoredIOE) { }
 		}
 	}
 }
