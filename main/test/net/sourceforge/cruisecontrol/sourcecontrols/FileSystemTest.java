@@ -55,7 +55,7 @@ public class FileSystemTest extends TestCase {
         super(name);
     }
 
-    public void testValidate() {
+    public void testValidate() throws IOException {
         FileSystem fs = new FileSystem();
 
         try {
@@ -65,7 +65,21 @@ public class FileSystemTest extends TestCase {
             assertEquals("'folder' is a required attribute for FileSystem", e.getMessage());
         }
 
-        fs.setFolder("folder");
+        File tempFile = File.createTempFile("CruiseControl", "TEST");
+        tempFile.deleteOnExit();
+        File tempDirectory = getDirectory(tempFile);
+        //Create a subdirectory in the temp directory for us to use.
+        tempDirectory = new File(tempDirectory, "filesystemtest2" + System.currentTimeMillis());
+        fs.setFolder(tempDirectory.getAbsolutePath());
+ 
+         try {
+             fs.validate();
+            fail("FileSystem should throw exceptions when folder doesn't exist.");
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().indexOf("must exist") > -1);
+        }
+
+        assertTrue(tempDirectory.mkdir());
 
         try {
             fs.validate();
