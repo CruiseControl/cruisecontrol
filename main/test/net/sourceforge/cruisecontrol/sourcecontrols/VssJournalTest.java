@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.util.*;
 import junit.framework.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * @author Eli Tucker
@@ -60,8 +61,29 @@ public class VssJournalTest extends TestCase {
         _element.setSsDir("/");
         _element.setLastBuildDate(new Date(0));
     }
-    
-    public void testSubstringToLastSlash() {        
+
+    public void testValidate() {
+        VssJournal vj = new VssJournal();
+
+        try {
+            vj.validate();
+            fail("VssJournal should throw exceptions when required attributes are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        vj.setJournalFile("journalfile");
+        vj.setSsDir("ssdir");
+
+        try {
+            vj.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("VssJournal should not throw exceptions when required attributes are set.");
+        }
+    }
+
+    public void testSubstringToLastSlash() {
         assertTrue("$/Eclipse/src/main/com/itxc".equals(
          _element.substringToLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
     }
