@@ -150,7 +150,8 @@
     
     <!--
         These last two examples adds P4 labeling as yet annother means of communication
-        to the developers. Missing here is the p4label tasdef (don't know where that went 
+        to the developers. P4 users can view this in their clients if they want to.
+        TODO: Missing the p4label tasdef (don't know where that went). 
     -->
     
     <target name="p4-auto" depends="p4-build">
