@@ -42,11 +42,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
@@ -163,6 +163,28 @@ public class ProjectTest extends TestCase {
         } catch (CruiseControlException expected) {
 
         }
+    }
+    
+    public void testPublish() throws CruiseControlException {
+        MockPublisher publisher = new MockPublisher();
+        Publisher exceptionThrower = new MockPublisher() {
+            public void publish(Element log) throws CruiseControlException {
+                throw new CruiseControlException("exception");
+            }
+        };
+        
+        List publishers = new ArrayList();
+        publishers.add(publisher);
+        publishers.add(exceptionThrower);
+        publishers.add(publisher);
+        
+        project.setPublishers(publishers);
+        project.setName("projectName");
+        project.setLabel("label");
+        Element element = project.getProjectPropertiesElement(new Date());
+        project.publish(element);
+        
+        assertEquals(2, publisher.getPublishCount());
     }
 
     public void testSetLastBuild() throws CruiseControlException {
@@ -381,5 +403,16 @@ public class ProjectTest extends TestCase {
 
     private static String formatTime(Date time) {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(time);
+    }
+    
+    class MockPublisher implements Publisher {
+        private int publishCount = 0;
+        public void validate() { }
+        public void publish(Element log) throws CruiseControlException {
+            publishCount++;
+        }
+        int getPublishCount() {
+            return publishCount;
+        }
     }
 }

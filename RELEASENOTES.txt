@@ -19,6 +19,7 @@ ModificationSet
 Project
 ----------------------
 * Fixed a bug where value of buildForced was not being reset if modifications were found.
+* Changed publish(Element) so an exception in one publisher will no longer prevent others from being called.
 
 Schedule
 ----------------------
