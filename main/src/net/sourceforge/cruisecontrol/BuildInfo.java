@@ -138,24 +138,6 @@ public class BuildInfo implements Serializable {
     public void setLabel(String label) {
         this.label = label;
     }
-
-    /**
-     * This method delegates to the dynamically loaded LabelIncrementer. The actual
-     * implementing class can be declared in the masterbuild.properties file, or
-     * the class DefaultLabelIncrementer will be used.
-     *
-     */
-    public void incrementLabel(String labelIncrementClassName) {
-        try {
-            Class incrementerClass = Class.forName(labelIncrementClassName);
-            LabelIncrementer incr = (LabelIncrementer)incrementerClass.newInstance();
-
-            setLabel(incr.incrementLabel(getLabel(), null));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
     
     /** Getter for property lastBuildAttemptTime.
      * @return Value of property lastBuildAttemptTime.
