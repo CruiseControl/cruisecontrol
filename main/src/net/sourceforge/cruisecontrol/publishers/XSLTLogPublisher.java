@@ -36,13 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -56,7 +54,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import org.jdom.transform.JDOMSource;
 
 /**
  * Publisher Plugin which performs an xslt transform of the
@@ -188,7 +186,7 @@ public class XSLTLogPublisher implements Publisher {
     */
    protected void writeFile(Element cruisecontrolLog, String path) throws CruiseControlException {
       FileInputStream xslFileStream = null;
-      FileWriter out = null;
+      OutputStream out = null;
       File xmlFile = null;
       try {
          //Make sure that the xsltFile exists
@@ -200,9 +198,9 @@ public class XSLTLogPublisher implements Publisher {
 
          //construct a FileWriter to the outputFile path location
          try {
-            out = new FileWriter(path);
+            out = new FileOutputStream(path);
          } catch (IOException ioe) {
-            throw new CruiseControlException("Unable to write to th file location: " + path);
+            throw new CruiseControlException("Unable to write to the file location: " + path);
          }
 
          //Prepare the transformer
@@ -214,14 +212,8 @@ public class XSLTLogPublisher implements Publisher {
          String logFileName = helper.getLogFileName();
          LOG.info("Transforming the log file: " + logFileName + " to: " + path + " using the xslt: " + this.xsltFile);
 
-         //Create the temporary log file - since we do not have access to the actual log file location
-         xmlFile = writeTempLogFile(cruisecontrolLog);
-         if (xmlFile == null || !xmlFile.exists() || !xmlFile.canRead()) {
-            throw new CruiseControlException("Unable to read the log file at path: " + logFileName);
-         }
-
          //perform the transform, writing out the results to the output location
-         transformer.transform(new StreamSource(xmlFile), new StreamResult(out));
+         transformer.transform(new JDOMSource(cruisecontrolLog), new StreamResult(out));
 
       } catch (TransformerException te) {
          throw new CruiseControlException("An error occurred during the transformation process", te);
@@ -243,38 +235,6 @@ public class XSLTLogPublisher implements Publisher {
                //Do Nothing
             }
          }
-         if (xmlFile != null) {
-            try {
-               xmlFile.delete();
-            } catch (Exception e) {
-               //Do Nothing
-            }
-         }
       }
-   }
-
-   /**
-    *  Write the entire log file temporarily to disk - this has to be done
-    *  since the actual log file location is unknown
-    *  The copy of the log is written to the default temporary directory
-    *  as a temp file.
-    *  @param logElement JDOM Element representing the build log.
-    */
-   private File writeTempLogFile(Element logElement) throws CruiseControlException {
-      BufferedWriter logWriter = null;
-      File file = null;
-      try {
-         file = File.createTempFile("temp", "logfile");
-         LOG.debug("Created temp log file: " + file.getAbsolutePath());
-         XMLOutputter outputter = null;
-         outputter = new XMLOutputter("   ", true);
-         logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-         outputter.output(logElement, logWriter);
-      } catch (Exception e) {
-         throw new CruiseControlException("Failed to save temp log file", e);
-      } finally {
-         logWriter = null;
-      }
-      return file;
    }
 }
