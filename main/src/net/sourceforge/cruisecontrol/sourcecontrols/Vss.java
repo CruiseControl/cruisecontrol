@@ -44,6 +44,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -68,29 +69,29 @@ public class Vss implements SourceControl {
 	private String serverPath;
 	private String login;
 	private String dateFormat;
-    private String timeFormat;
+	private String timeFormat;
 
 	private Hashtable _properties = new Hashtable();
 	private String _property;
 	private String _propertyOnDelete;
 
-    /**
-     * Sets default values.
-     */
-    public Vss() {
-        dateFormat = "MM/dd/yy";
-        timeFormat = "hh:mma";
-        constructVssDateTimeFormat();
-    }
+	/**
+	 * Sets default values.
+	 */
+	public Vss() {
+		dateFormat = "MM/dd/yy";
+		timeFormat = "hh:mma";
+		constructVssDateTimeFormat();
+	}
 
-    /**
+	/**
 	 *  Set the project to get history from
 	 *
 	 *@param  vsspath
 	 */
-    public void setVsspath(String vsspath) {
-        this.vsspath = "$" + vsspath;
-    }
+	public void setVsspath(String vsspath) {
+		this.vsspath = "$" + vsspath;
+	}
 
 	/**
 	 *  Set the path to the ss executable
@@ -101,14 +102,14 @@ public class Vss implements SourceControl {
 		this.ssdir = ssdir;
 	}
 
-    /**
-      *  Set the path to the directory containing the srcsafe.ini file.
-      *
-      *  @param serverPath
-      */
-     public void setServerPath(String serverPath) {
-         this.serverPath = serverPath;
-     }
+	/**
+	 *  Set the path to the directory containing the srcsafe.ini file.
+	 *
+	 *  @param serverPath
+	 */
+	public void setServerPath(String serverPath) {
+		this.serverPath = serverPath;
+	}
 
 	/**
 	 *  Login for vss
@@ -139,152 +140,179 @@ public class Vss implements SourceControl {
 		_propertyOnDelete = propertyOnDelete;
 	}
 
-     /**
-      * Sets the date format to use for querying VSS and processing reports.
-      *
-      * The default date format is <code>MM/dd/yy</code> .  If your computer
-      * is set to a different region, you may wish to use a format such
-      * as <code>dd/MM/yy</code> .
-      *
-      * @see java.text.SimpleDateFormat
-      */
-     public void setDateFormat(String format) {
-        dateFormat = format;
-        constructVssDateTimeFormat();
-     }
+	/**
+	 * Sets the date format to use for querying VSS and processing reports.
+	 *
+	 * The default date format is <code>MM/dd/yy</code> .  If your computer
+	 * is set to a different region, you may wish to use a format such
+	 * as <code>dd/MM/yy</code> .
+	 *
+	 * @see java.text.SimpleDateFormat
+	 */
+	public void setDateFormat(String format) {
+		dateFormat = format;
+		constructVssDateTimeFormat();
+	}
 
 
-    /**
-     * Sets the time format to use for querying VSS and processing reports.
-     *
-     * The default time format is <code>hh:mma</code> .  If your computer
-     * is set to a different region, you may wish to use a format such
-     * as <code>HH:mm</code> .
-     *
-     * @see java.text.SimpleDateFormat
-     */
-    public void setTimeFormat(String format) {
-       timeFormat = format;
-       constructVssDateTimeFormat();
-    }
+	/**
+	 * Sets the time format to use for querying VSS and processing reports.
+	 *
+	 * The default time format is <code>hh:mma</code> .  If your computer
+	 * is set to a different region, you may wish to use a format such
+	 * as <code>HH:mm</code> .
+	 *
+	 * @see java.text.SimpleDateFormat
+	 */
+	public void setTimeFormat(String format) {
+		timeFormat = format;
+		constructVssDateTimeFormat();
+	}
 
 
-    public Hashtable getProperties() {
-        return _properties;
-    }
+	public Hashtable getProperties() {
+		return _properties;
+	}
 
-    public void validate() throws CruiseControlException {
-        if(vsspath == null)
-            throw new CruiseControlException("'vsspath' is a required attribute on Vss");
-        if(login == null)
-            throw new CruiseControlException("'login' is a required attribute on Vss");
-    }
+	public void validate() throws CruiseControlException {
+		if(vsspath == null)
+		throw new CruiseControlException("'vsspath' is a required attribute on Vss");
+	if(login == null)
+	 throw new CruiseControlException("'login' is a required attribute on Vss");
+	}
 
-		/**
-		 * Calls
-		 * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
-		 * Results written to a file since VSS will start wrapping lines if read
-		 * directly from the stream.
-		 *
-		 *@param  lastBuild
-		 *@param  now
-		 *@return List of modifications
-		 */
-		public List getModifications(Date lastBuild, Date now) {
-			//(PENDING) extract buildHistoryCommand, execHistoryCommand
-			// See CVSElement
-			ArrayList modifications = new ArrayList();
-			try {
-				Properties systemProps = System.getProperties();
-				if(serverPath != null) {
-					systemProps.put("SSDIR", serverPath);
-				}
-				String[] env = new String[systemProps.size()];
-				int index = 0;
-				Iterator systemPropIterator = systemProps.keySet().iterator();
-				while(systemPropIterator.hasNext()) {
-					String propName = (String) systemPropIterator.next();
-					env[index] = propName + "=" + systemProps.get(propName);
-					index++;
-				}
-
-				Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
-				p.waitFor();
-				p.getInputStream().close();
-				p.getOutputStream().close();
-				p.getErrorStream().close();
-
-				parseTempFile(modifications);
-
-			} catch (Exception e) {
-				e.printStackTrace();
+	/**
+	 * Calls
+	 * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
+	 * Results written to a file since VSS will start wrapping lines if read
+	 * directly from the stream.
+	 *
+	 *@param  lastBuild
+	 *@param  now
+	 *@return List of modifications
+	 */
+	public List getModifications(Date lastBuild, Date now) {
+		//(PENDING) extract buildHistoryCommand, execHistoryCommand
+		// See CVSElement
+		ArrayList modifications = new ArrayList();
+		try {
+			Properties systemProps = System.getProperties();
+			if(serverPath != null) {
+				systemProps.put("SSDIR", serverPath);
+			}
+			String[] env = new String[systemProps.size()];
+			int index = 0;
+			Iterator systemPropIterator = systemProps.keySet().iterator();
+			while(systemPropIterator.hasNext()) {
+				String propName = (String) systemPropIterator.next();
+				env[index] = propName + "=" + systemProps.get(propName);
+				index++;
 			}
 
-			if (_property != null && modifications.size() > 0) {
-				_properties.put(_property, "true");
-			}
+			log.info("Vss: getting modifications for " + vsspath);
+			Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
+			p.waitFor();
+			p.getInputStream().close();
+			p.getOutputStream().close();
+			p.getErrorStream().close();
 
-			return modifications;
+			parseTempFile(modifications);
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
-		private void parseTempFile(ArrayList modifications) throws IOException {
-			BufferedReader reader = new BufferedReader(new FileReader(
-															new File(VSS_TEMP_FILE)));
-
-			parseHistoryEntries(modifications, reader);
-
-			reader.close();
-			new File(VSS_TEMP_FILE).delete();
+		if (_property != null && modifications.size() > 0) {
+			_properties.put(_property, "true");
 		}
 
-		void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
-			String currLine = reader.readLine();
-			while (currLine != null) {
-				if (currLine.startsWith("***** ")) {
-					ArrayList vssEntry = new ArrayList();
+		return modifications;
+	}
+
+	private void parseTempFile(ArrayList modifications) throws IOException {
+		Level loggingLevel = log.getEffectiveLevel();
+		if(Level.DEBUG.equals(loggingLevel)) {
+			logVSS_TEMP_FILE();
+		}
+
+		File tempFile = new File(VSS_TEMP_FILE);
+		BufferedReader reader = new BufferedReader(new FileReader(tempFile));
+
+		parseHistoryEntries(modifications, reader);
+
+		reader.close();
+		tempFile.delete();
+	}
+
+	private void logVSS_TEMP_FILE() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(
+				new File(VSS_TEMP_FILE)));
+		String currLine = reader.readLine();
+		log.debug(" ");
+		while (currLine != null) {
+			log.debug(VSS_TEMP_FILE+": "+currLine);
+			currLine = reader.readLine();
+		}
+		log.debug(" ");
+		reader.close();
+	}
+
+	void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
+		String currLine = reader.readLine();
+		while (currLine != null) {
+			if (currLine.startsWith("***** ")) {
+				ArrayList vssEntry = new ArrayList();
+				vssEntry.add(currLine);
+				currLine = reader.readLine();
+				while (currLine != null && !currLine.startsWith("***** ")) {
 					vssEntry.add(currLine);
 					currLine = reader.readLine();
-					while (currLine != null && !currLine.startsWith("***** ")) {
-						vssEntry.add(currLine);
-						currLine = reader.readLine();
-					}
-					Modification mod = handleEntry(vssEntry);
-					if(mod != null) modifications.add(mod);
-				} else {
-					currLine = reader.readLine();
 				}
+				Modification mod = handleEntry(vssEntry);
+				if(mod != null) modifications.add(mod);
+			} else {
+				currLine = reader.readLine();
 			}
 		}
+	}
 
-    protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
-        String execCommand = null;
-        try {
-            execCommand = (ssdir != null) ? new File(ssdir, "ss.exe").getCanonicalPath() : "ss.exe";
-        } catch (IOException e) {
-            throw new CruiseControlException(e);
-        }
+	protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
+		String execCommand = null;
+		try {
+			execCommand = (ssdir != null) ? new File(ssdir, "ss.exe").getCanonicalPath() : "ss.exe";
+		} catch (IOException e) {
+			throw new CruiseControlException(e);
+		}
 
-        return new String[]{execCommand, "history", vsspath, "-R", "-Vd" +
-                formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
-                "-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
-    }
+		String[] commandLine = new String[]{execCommand, "history", vsspath, "-R", "-Vd" +
+			formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
+			"-Y" + login, "-I-N", "-O" + VSS_TEMP_FILE};
+
+		log.debug(" ");
+		for(int i=0; i<commandLine.length; i++) {
+			log.debug("Vss command line arguments: "+commandLine[i]);
+		}
+		log.debug(" ");
+
+		return commandLine;
+	}
 
 	/**
 	 *  Format a date for vss in the format specified by the dateFormat.
-     *  By default, this is in the form <code>12/21/2000;8:14A</code> (vss doesn't
-     *  like the m in am or pm).  This format can be changed with <code>setDateFormat()</code>
+	 *  By default, this is in the form <code>12/21/2000;8:14A</code> (vss doesn't
+	 *  like the m in am or pm).  This format can be changed with <code>setDateFormat()</code>
 	 *
 	 *  @param d Date to format.
 	 *  @return String of date in format that VSS requires.
-     *  @see #setDateFormat
+	 *  @see #setDateFormat
 	 */
 	private String formatDateForVSS(Date d) {
-        SimpleDateFormat sdf = new SimpleDateFormat(this.dateFormat + ";" + this.timeFormat);
+		SimpleDateFormat sdf = new SimpleDateFormat(this.dateFormat + ";" + this.timeFormat);
 		String vssFormattedDate = sdf.format(d);
 		if (this.timeFormat.endsWith("a")) {
-		  return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
+			return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
 		} else {
-		  return vssFormattedDate;
+			return vssFormattedDate;
 		}
 	}
 
@@ -297,95 +325,115 @@ public class Vss implements SourceControl {
 	 *@param  entry
 	 */
 	protected Modification handleEntry(List entry) {
+		log.debug("VSS history entry BEGIN");
+		for(Iterator i = entry.iterator(); i.hasNext(); log.debug("entry: "+i.next())) {}
+		log.debug("VSS history entry END");
+
 		try {
-            // Ignore unusual labels of directories which cause parsing errors that
-            // look like this:
-            //
-            // *****  built  *****
-            // Version 4
-            // Label: "autobuild_test"
-            // User: Etucker      Date:  6/26/01   Time: 11:53a
-            // Labeled
-            if ((entry.size() > 4) &&
-               (((String) entry.get(4)).startsWith("Labeled"))) {
-                return null;
-            }
+			// Ignore unusual labels of directories which cause parsing errors that
+			// look like this:
+			//
+			// *****  built  *****
+			// Version 4
+			// Label: "autobuild_test"
+			// User: Etucker      Date:  6/26/01   Time: 11:53a
+			// Labeled
+			if ((entry.size() > 4) &&
+					(((String) entry.get(4)).startsWith("Labeled"))) {
+				log.debug("this is a label; ignoring this entry");
+				return null;
+			}
 
-            // but need to adjust for cases where Label: line exists
-            //
-            // *****  DateChooser.java  *****
-            // Version 8
-            // Label: "Completely new version!"
-            // User: Arass        Date: 10/21/02   Time: 12:48p
-            // Checked in $/code/development/src/org/ets/cbtidg/common/gui
-            // Comment: This is where I add a completely new, but alot nicer version of the date chooser.
-            // Label comment:
+			// but need to adjust for cases where Label: line exists
+			//
+			// *****  DateChooser.java  *****
+			// Version 8
+			// Label: "Completely new version!"
+			// User: Arass        Date: 10/21/02   Time: 12:48p
+			// Checked in $/code/development/src/org/ets/cbtidg/common/gui
+			// Comment: This is where I add a completely new, but alot nicer version of the date chooser.
+			// Label comment:
 
-            int nameAndDateIndex = 2;
-            String nameAndDateLine = (String) entry.get(nameAndDateIndex);
-            if (nameAndDateLine.startsWith("Label:")) {
-                nameAndDateIndex++;
-                nameAndDateLine = (String) entry.get(nameAndDateIndex);
-            }
+			int nameAndDateIndex = 2;
+			String nameAndDateLine = (String) entry.get(nameAndDateIndex);
+			if (nameAndDateLine.startsWith("Label:")) {
+				nameAndDateIndex++;
+				nameAndDateLine = (String) entry.get(nameAndDateIndex);
+				log.debug("adjusting for the line that starts with Label");
+			}
 
-            Modification modification = new Modification();
-            modification.userName = parseUser(nameAndDateLine);
-            modification.modifiedTime = parseDate(nameAndDateLine);
+			Modification modification = new Modification();
+			modification.userName = parseUser(nameAndDateLine);
+			modification.modifiedTime = parseDate(nameAndDateLine);
 
-            String folderLine = (String) entry.get(0);
-		    int fileIndex = nameAndDateIndex+1;
-            String fileLine = (String) entry.get(fileIndex);
-            if (fileLine.startsWith("Checked in")) {
-                modification.type = "checkin";
-                int commentIndex = fileIndex+1;
-                modification.comment = parseComment(entry, commentIndex);
-                modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
-                modification.folderName = fileLine.substring(12);
-            } else if (fileLine.endsWith("Created")) {
-                modification.type = "create";
-            } else {
-                modification.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
-                int lastSpace = fileLine.lastIndexOf(" ");
-                if ( lastSpace != -1 ) {
-                    modification.fileName = fileLine.substring(0, lastSpace);
-                } else {
-                    modification.fileName = fileLine;
-                }
+			String folderLine = (String) entry.get(0);
+			int fileIndex = nameAndDateIndex+1;
+			String fileLine = (String) entry.get(fileIndex);
+			if (fileLine.startsWith("Checked in")) {
+				modification.type = "checkin";
+				log.debug("this is a checkin");
+				int commentIndex = fileIndex+1;
+				modification.comment = parseComment(entry, commentIndex);
+				modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+				modification.folderName = fileLine.substring(12);
+			} else if (fileLine.endsWith("Created")) {
+				modification.type = "create";
+				log.debug("this folder was created");
+			} else {
+				modification.folderName = folderLine.substring(7, folderLine.indexOf("  *"));
+				int lastSpace = fileLine.lastIndexOf(" ");
+				if ( lastSpace != -1 ) {
+					modification.fileName = fileLine.substring(0, lastSpace);
+				} else {
+					modification.fileName = fileLine;
+				}
 
-                if (fileLine.endsWith("added")) {
-                    modification.type = "add";
-                } else if (fileLine.endsWith("deleted")) {
-                    modification.type = "delete";
-                    addPropertyOnDelete();
-                } else if (fileLine.endsWith("recovered")) {
-                    modification.type = "recover";
-                } else if (fileLine.endsWith("shared")) {
-                    modification.type = "branch";
-                } else if (fileLine.indexOf(" renamed to ") != -1){
-                    modification.fileName = fileLine;
-                    modification.type = "rename";
-                    addPropertyOnDelete();
-                }
-            }
+				if (fileLine.endsWith("added")) {
+					modification.type = "add";
+					log.debug("this file was added");
+				} else if (fileLine.endsWith("deleted")) {
+					modification.type = "delete";
+					log.debug("this file was deleted");
+					addPropertyOnDelete();
+				} else if (fileLine.endsWith("recovered")) {
+					modification.type = "recover";
+					log.debug("this file was recovered");
+				} else if (fileLine.endsWith("shared")) {
+					modification.type = "branch";
+					log.debug("this file was branched");
+				} else if (fileLine.indexOf(" renamed to ") != -1){
+					modification.fileName = fileLine;
+					modification.type = "rename";
+					log.debug("this file was renamed");
+					addPropertyOnDelete();
+				}
+				else {
+					log.debug("action for this vss entry ("+fileLine+") is unknown");
+				}
+			}
 
-            if (_property != null) {
-                _properties.put(_property,  "true");
-            }
+			if (_property != null) {
+				_properties.put(_property,  "true");
+				log.debug("setting property " + _property + " to be true");
+			}
 
-            return modification;
+			log.debug(" ");
 
-        } catch (RuntimeException e) {
-            log.fatal("RuntimeException handling VSS entry:");
-            for (int i=0; i < entry.size(); i++) {
-                log.fatal(entry.get(i));
-            }
-            throw e;
-        }
+			return modification;
+
+		} catch (RuntimeException e) {
+			log.fatal("RuntimeException handling VSS entry:");
+			for (int i=0; i < entry.size(); i++) {
+				log.fatal(entry.get(i));
+			}
+			throw e;
+		}
 	}
 
 	private void addPropertyOnDelete() {
 		if (_propertyOnDelete != null) {
 			_properties.put(_propertyOnDelete, "true");
+			log.debug("setting property " + _propertyOnDelete + " to be true");
 		}
 	}
 
@@ -407,43 +455,43 @@ public class Vss implements SourceControl {
 
 	/**
 	 * Parse date/time from VSS file history
-     *
-     * The nameAndDateLine will look like <br>
-     * <code>User: Etucker      Date:  6/26/01   Time: 11:53a</code><br>
-     * Sometimes also this<br>
-     * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
-     * Note the ":" instead of a "0"
-     *
+	 *
+	 * The nameAndDateLine will look like <br>
+	 * <code>User: Etucker      Date:  6/26/01   Time: 11:53a</code><br>
+	 * Sometimes also this<br>
+	 * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
+	 * Note the ":" instead of a "0"
+	 *
 	 *@param  nameAndDateLine
 	 *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma", or a different form based on dateFormat
-     *@see #setDateFormat
+	 *@see #setDateFormat
 	 */
-    public Date parseDate(String nameAndDateLine) {
-        String dateAndTime =
-         nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
+	public Date parseDate(String nameAndDateLine) {
+		String dateAndTime =
+				nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
 
-        int indexOfColon = dateAndTime.indexOf("/:");
-        if(indexOfColon != -1) {
-            dateAndTime = dateAndTime.substring(0, indexOfColon)
-            + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
-            + dateAndTime.substring(indexOfColon + 2);
-        }
+		int indexOfColon = dateAndTime.indexOf("/:");
+		if(indexOfColon != -1) {
+			dateAndTime = dateAndTime.substring(0, indexOfColon)
+							 + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
+							 + dateAndTime.substring(indexOfColon + 2);
+		}
 
-        try {
-            Date lastModifiedDate = null;
-            if (this.timeFormat.endsWith("a")) {
+		try {
+			Date lastModifiedDate = null;
+			if (this.timeFormat.endsWith("a")) {
 				lastModifiedDate = this.vssDateTimeFormat.parse(dateAndTime.trim() + "m");
 			} else {
 				lastModifiedDate = this.vssDateTimeFormat.parse(dateAndTime.trim());
 			}
 
 
-            return lastModifiedDate;
-        } catch (ParseException pe) {
-            pe.printStackTrace();
-            return null;
-        }
-    }
+			return lastModifiedDate;
+		} catch (ParseException pe) {
+			pe.printStackTrace();
+			return null;
+		}
+	}
 
 	/**
 	 *  Parse username from VSS file history
@@ -452,17 +500,18 @@ public class Vss implements SourceControl {
 	 *@return the user name who made the modification
 	 */
 	public String parseUser(String userLine) {
-        final int USER_INDEX = "User: ".length();
-        String userName = userLine.substring(USER_INDEX, userLine.indexOf("Date: ") - 1).trim();
+		final int USER_INDEX = "User: ".length();
+		String userName = userLine.substring(USER_INDEX, userLine.indexOf("Date: ") - 1).trim();
 
 		return userName;
 	}
 
-    /**
-     * Constructs the vssDateTimeFormat based on the dateFormat for this element.
-     * @see #setDateFormat
-     */
-    private void constructVssDateTimeFormat() {
-        vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: 'hh:mma");
-    }
+	/**
+	 * Constructs the vssDateTimeFormat based on the dateFormat for this element.
+	 * @see #setDateFormat
+	 */
+	private void constructVssDateTimeFormat() {
+		vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: 'hh:mma");
+	}
 }
+
