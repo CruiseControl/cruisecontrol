@@ -64,6 +64,7 @@ public class AntBuilder extends Builder {
     private String _target;
     private String _tempFileName = "log.xml";
     private String _antScript;
+    private boolean _useLogger;
     List _args = new ArrayList();
     private List _properties = new ArrayList();
 
@@ -87,7 +88,7 @@ public class AntBuilder extends Builder {
 
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties, isLoggerSupported(), _antScript != null, isWindows()));
+            p = Runtime.getRuntime().exec(getCommandLineArgs(buildProperties, _useLogger, _antScript != null, isWindows()));
         } catch (IOException e) {
             throw new CruiseControlException(
                     "Encountered an IO exception while attempting to execute Ant."
@@ -142,6 +143,10 @@ public class AntBuilder extends Builder {
         _buildFile = buildFile;
     }
 
+    public void setUseLogger(boolean useLogger) {
+        _useLogger = useLogger;
+    }
+
     public Object createJVMArg() {
         JVMArg arg = new JVMArg();
         _args.add(arg);
@@ -152,31 +157,6 @@ public class AntBuilder extends Builder {
     	Property property = new Property();
     	_properties.add(property);
     	return property;
-    }
-
-    /**
-     *  Determine whether the org.apache.tools.ant.XmlLogger being
-     *  used implements the BuildLogger interface.  Using the XmlLogger
-     *  as a BuildLogger rather than a BuildListener is a newer feature
-     *  and can reduce log file size dramatically.
-     *
-     *  @return true if XmlLogger can be found and used as a BuildLogger.
-     */
-    protected boolean isLoggerSupported() {
-        try {
-            Class[] interfaces = Class.forName("org.apache.tools.ant.XmlLogger").getInterfaces();
-            for(int i=0; i<interfaces.length; i++) {
-                log.debug(interfaces[i].getName());
-            }
-            boolean isLoggerAssignableToXml = (Class.forName("org.apache.tools.ant.BuildLogger").isAssignableFrom(Class.forName("org.apache.tools.ant.XmlLogger")));
-            boolean isXmlAssignableToLogger = (Class.forName("org.apache.tools.ant.XmlLogger").isAssignableFrom(Class.forName("org.apache.tools.ant.BuildLogger")));
-            log.debug("" + isLoggerAssignableToXml);
-            log.debug("" + isXmlAssignableToLogger);
-            return (Class.forName("org.apache.tools.ant.BuildLogger").isAssignableFrom(Class.forName("org.apache.tools.ant.XmlLogger")));
-        } catch (ClassNotFoundException e) {
-            log.error("Could not find Ant XmlLogger", e);
-            return false;
-        }
     }
 
     protected boolean isWindows() {
