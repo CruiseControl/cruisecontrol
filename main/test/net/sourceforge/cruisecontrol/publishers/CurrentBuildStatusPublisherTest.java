@@ -50,66 +50,44 @@ import java.io.IOException;
 import java.io.File;
 
 public class CurrentBuildStatusPublisherTest extends TestCase {
-    private final List filesToClear = new ArrayList();
     private static final String TEST_DIR = "tmp";
 
-    public CurrentBuildStatusPublisherTest(String name) {
-        super(name);
-    }
-
-    public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-    }
-
     public void testValidate() {
-        CurrentBuildStatusPublisher cbsp = new CurrentBuildStatusPublisher();
+        CurrentBuildStatusPublisher publisher = new CurrentBuildStatusPublisher();
         try {
-            cbsp.validate();
+            publisher.validate();
             fail("'file' should be a required attribute on CurrentBuildStatusPublisher");
         } catch (CruiseControlException cce) {
         }
     }
 
-    public void testWriteFile() {
-        CurrentBuildStatusPublisher cbsb = new CurrentBuildStatusPublisher();
-        cbsb.setFile(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt");
+    public void testWriteFile() throws CruiseControlException, IOException {
+        CurrentBuildStatusPublisher publisher = new CurrentBuildStatusPublisher();
+        publisher.setFile(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt");
         Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        final String buildTime = formatter.format(new Date(date.getTime() + (300 * 1000)));
 
-        try {
-            cbsb.writeFile(date, 300);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            String expected =
-                "<span class=\"link\">Next Build Starts At:<br>"
-                    + formatter.format(new Date(date.getTime() + (300 * 1000)))
-                    + "</span>";
-            assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
-        } catch (CruiseControlException cce2) {
-            cce2.printStackTrace();
-        }
+        publisher.writeFile(date, 300);
+        String expected = "<span class=\"link\">Next Build Starts At:<br>" + buildTime + "</span>";
+        assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
     }
 
-        private String readFileToString(String fileName) {
+    private String readFileToString(String fileName) throws IOException {
+        StringBuffer contents = new StringBuffer();
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(fileName));
-            String s = br.readLine();
-            StringBuffer sb = new StringBuffer();
-            while (s != null) {
-                sb.append(s);
-                s = br.readLine();
+            String line = br.readLine();
+            while (line != null) {
+                contents.append(line);
+                line = br.readLine();
             }
-            br.close();
-            return sb.toString();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+            return contents.toString();
         } finally {
-            br = null;
+            if (br != null) {
+                br.close();
+            }
         }
-        return "";
     }
 }

@@ -51,12 +51,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
     private static final String TEST_DIR = "tmp";
-
     private final List filesToClear = new ArrayList();
-
-    public CurrentBuildStatusBootstrapperTest(String name) {
-        super(name);
-    }
 
     public void tearDown() {
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
@@ -82,7 +77,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         }
     }
 
-    public void testBootstrap() throws CruiseControlException {
+    public void testBootstrap() throws CruiseControlException, IOException {
         CurrentBuildStatusBootstrapper cbsb = new CurrentBuildStatusBootstrapper();
         cbsb.setFile(TEST_DIR  + File.separator + "_testCurrentBuildStatus.txt");
         filesToClear.add(new File(TEST_DIR  + File.separator + "_testCurrentBuildStatus.txt"));
@@ -96,23 +91,21 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
     }
 
-    private String readFileToString(String fileName) {
+    private String readFileToString(String fileName) throws IOException {
+        StringBuffer contents = new StringBuffer();
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(fileName));
-            String s = br.readLine();
-            StringBuffer sb = new StringBuffer();
-            while (s != null) {
-                sb.append(s);
-                s = br.readLine();
+            String line = br.readLine();
+            while (line != null) {
+                contents.append(line);
+                line = br.readLine();
             }
-            br.close();
-            return sb.toString();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+            return contents.toString();
         } finally {
-            br = null;
+            if (br != null) {
+                br.close();
+            }
         }
-        return "";
     }
 }
