@@ -200,6 +200,7 @@ website / documentation
 * More documentation enhancements contributed by Joe Schmetzer. For more details, see http://sourceforge.net/mailarchive/forum.php?thread_id=5363380&forum_id=2202
 * Expanded and clearer documentation for <cvs> contributed by Joe Schmetzer.
 * An important note about multiple build loop required and some missing description for the jabber protocol contributed by Jerome Lacoste.
+* Included readme.txt in lib-dirs with references to web sites and licenses (documented by Hack Kampbjørn)
 
 CruiseControl Release Notes - 2.1.6
 
