@@ -258,24 +258,49 @@
 </xsl:template>
     
 <xsl:template name="JS-escape">
-    <xsl:param name="string"/>
-    <!-- </xsl:text> on next line on purpose to get newline -->
-    <xsl:variable name="cr"><xsl:text>
-</xsl:text></xsl:variable>
+    <xsl:param name="string"/>		
+    <xsl:variable name="CR" select="'&#xD;'"/>					
+    <xsl:variable name="LF" select="'&#xA;'"/>
+    <xsl:variable name="CRLF" select="concat($CR, $LF)"/>			
     <xsl:choose>
-        <xsl:when test="contains($string,&quot;'&quot;)">
-            <xsl:value-of select="substring-before($string,&quot;'&quot;)"/>\&apos;<xsl:call-template name="JS-escape">
-                <xsl:with-param name="string" select="substring-after($string,&quot;'&quot;)"/>
-            </xsl:call-template>
-        </xsl:when> 
-        <xsl:when test="contains($string,'\')">
-            <xsl:value-of select="substring-before($string,'\')"/>\\<xsl:call-template name="JS-escape">
-                <xsl:with-param name="string" select="substring-after($string,'\')"/>
+        <!-- crlf -->
+        <xsl:when test="contains($string,$CRLF)">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,$CRLF)"/>
+            </xsl:call-template><br/><xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,$CRLF)"/>
             </xsl:call-template>
         </xsl:when>
-        <xsl:when test="contains($string,$cr)">
-            <xsl:value-of select="substring-before($string,$cr)"/><br/><xsl:call-template name="JS-escape">
-                <xsl:with-param name="string" select="substring-after($string,$cr)"/>
+        <!-- carriage return -->
+        <xsl:when test="contains($string,$CR)">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,$CR)"/>
+            </xsl:call-template><br/><xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,$CR)"/>
+            </xsl:call-template>
+        </xsl:when>
+        <!-- line feed -->
+        <xsl:when test="contains($string,$LF)">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,$LF)"/>
+            </xsl:call-template><br/><xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,$LF)"/>
+            </xsl:call-template>
+        </xsl:when>
+        <!-- single quote -->
+        <xsl:when test="contains($string,&quot;'&quot;)">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,&quot;'&quot;)"/>
+            </xsl:call-template>\&apos;<xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,&quot;'&quot;)"/>
+            </xsl:call-template>
+        </xsl:when>
+        <!-- escape -->
+        <xsl:when test="contains($string,'\')">
+            <xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-before($string,'\')"/>
+            </xsl:call-template>\\<xsl:call-template name="JS-escape">
+                <xsl:with-param name="string" select="substring-after($string,'\')"/>
             </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
@@ -283,6 +308,5 @@
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>
-
 
 </xsl:stylesheet>

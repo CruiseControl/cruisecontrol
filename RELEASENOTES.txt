@@ -63,6 +63,10 @@ SSCM & SSCMBootstrapper
 ----------------------
 * New SourceControl and Bootstrapper for SSCM-support. Contribution by Matt Harp
 
+testdetails.xsl
+----------------------
+* patch for JS-escape template so whole string is escaped and line feeds are dealt with properly. Patch by Han Wang and Roy O. Wright
+
 website / documentation
 ----------------------
 * Rework navigation for feedback, completeness and consistency. Convert navigation from images to text. Convert to semantic markup. Address inconsistency of configxml.html. Patch by Joe Schmetzer
