@@ -42,6 +42,7 @@ import org.apache.tools.ant.types.*;
  *@author  Frederic Lavigne
  *@author  Jason Yip, jcyip@thoughtworks.com
  *@author  Marc Paquette
+ *@author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  */
 public class CVSElement extends SourceControlElement {
 
@@ -227,10 +228,6 @@ public class CVSElement extends SourceControlElement {
 		String dateRange = ">" + formatCVSDate(lastBuildTime);
 		commandLine.createArgument().setValue(dateRange);
 
-		if (local != null) {
-			commandLine.createArgument().setValue(getLocalPath());
-		}
-
 		return commandLine;
 	}
 
@@ -262,9 +259,22 @@ public class CVSElement extends SourceControlElement {
 	}
 
 	private ArrayList execHistoryCommand(Commandline command) throws Exception {
-		log("Executing: " + command);
-		Process p = Runtime.getRuntime().exec(command.getCommandline());
+        Process p = null;
+        
+        if (
+         System.getProperty("os.name").equalsIgnoreCase("Linux") && local != null) {
+            log("Executing: " + command + " in directory: " + getLocalPath());
+            p = Runtime.getRuntime().exec(command.getCommandline(), 
+             new String[0], new File(getLocalPath()));
+        } else {
+            if (local != null) {
+                command.createArgument().setValue(getLocalPath());
+            }
 
+            log("Executing: " + command);
+            p = Runtime.getRuntime().exec(command.getCommandline());
+        }
+        
 		logErrorStream(p);
 		InputStream cvsLogStream = p.getInputStream();
 		ArrayList mods = parseStream(cvsLogStream);
