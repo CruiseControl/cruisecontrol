@@ -26,6 +26,11 @@ NavigationTag
 * Fixed bug to allow "L" in build label - Patch by Christopher Lenz
 * Added "startingBuildNumber" and "finalBuildNumber" attributes, to allow for ranges of builds to be output; useful for, say, creating a drop-down list after the first 10 links.
 
+PVCS
+----------------------
+* Fixed bug with UNC share paths - Patch by Dan Rollo
+* Added pvcsbin attribute for when pvcs is not on the path - Patch by Dan Rollo
+
 XSLTag
 ----------------------
 * Fixed a bug where using an unexpanded WAR file caused a NullPointerException.
