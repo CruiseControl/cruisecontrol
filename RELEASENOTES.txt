@@ -35,6 +35,11 @@ CruiseControlTagSupport
 ----------------------
 * minor change for compatibility with jdk 1.3 - Patch by Thai Thanh Ha
 
+CVS
+----------------------
+* check for changes between lastBuild and checkTime, instead of all changes since lastBuild. Patch by Patrick Lisser
+* use -N parameter to get added and removed files. Patch by Patrick Lisser
+
 DefaultLabelIncrementer
 ----------------------
 * added ability to set a default label - Patch by Garrick Olson
@@ -84,6 +89,7 @@ MergeLogger
 Modification Set
 ----------------------
 * Changed to instruct CC to do a build if a modification occurs in the future. Patch by Geoff Krapf
+* Calculate time to sleep when a modification is detected during the quiet period to be from "now" instead of when the check started. Patch by Patrick Lisser
 
 Project
 ----------------------
@@ -103,6 +109,7 @@ SVN
 ----------------------
 * fix to use execute on Commandline object instead of just using getCommandline() - Patch by Etienne Studer
 * updated to use new date format (Subversion 0.37 and later) Patch by Garrick Olson
+* find and use correct head revision instead of always using "HEAD". Patch by Garrick Olson
 
 TabSheetTag
 ----------------------

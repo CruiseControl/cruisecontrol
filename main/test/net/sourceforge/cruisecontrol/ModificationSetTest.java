@@ -294,6 +294,7 @@ public class ModificationSetTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
+        modSet = null;
     }
 
 }
