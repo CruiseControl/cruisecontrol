@@ -54,6 +54,7 @@ public class ModificationSet {
     protected List _sourceControls = new ArrayList();
     protected SimpleDateFormat _formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     protected int _quietPeriod;
+    protected Date _now;
 
     /**
      *
@@ -73,6 +74,30 @@ public class ModificationSet {
         _sourceControls.add(sourceControl);
     }
 
+    protected boolean isLastModificationInQuietPeriod(Date now, List modifications) {
+        return (getLastModificationMillis(modifications) + _quietPeriod) >= now.getTime();
+    }
+
+    protected long getLastModificationMillis(List modifications) {
+        long lastBuildMillis = 0;
+        for (int i = 0; i < modifications.size(); i++) {
+            long temp = 0;
+            if (modifications.get(i) instanceof Modification) {
+                temp = ((Modification) modifications.get(i)).modifiedTime.getTime();
+            } else if (modifications.get(i) instanceof org.jdom.Element) {
+                //set the temp date
+            }
+            lastBuildMillis = Math.max(lastBuildMillis, temp);
+        }
+
+        return lastBuildMillis;
+    }
+
+    protected long getQuietPeriodDifference(Date now, List modifications) {
+        long diff = _quietPeriod - (now.getTime() - getLastModificationMillis(modifications));
+        return Math.max(0, diff);
+    }
+
     /**
      * Returns a Hashtable of name-value pairs representing any properties set by the
      * SourceControl.
@@ -80,8 +105,8 @@ public class ModificationSet {
      */
     public Hashtable getProperties() {
         Hashtable table = new Hashtable();
-        for( Iterator iter = _sourceControls.iterator(); iter.hasNext(); ){
-            SourceControl control = (SourceControl)iter.next();
+        for (Iterator iter = _sourceControls.iterator(); iter.hasNext();) {
+            SourceControl control = (SourceControl) iter.next();
             table.putAll(control.getProperties());
         }
         return table;
@@ -91,32 +116,45 @@ public class ModificationSet {
      *
      */
     public Element getModifications(Date lastBuild) {
-        Date now = new Date();
-        Iterator sourceControlIterator = _sourceControls.iterator();
-        while (sourceControlIterator.hasNext()) {
-            SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
-            _modifications.addAll(sourceControl.getModifications(lastBuild, now));
-        }
-
-        //(REFACT) I took this out, and it is now handled by stylesheets instead.
-        // The reason is because it is screwed up by the Element node
-        //Collections.sort(_modifications);
-        Element modificationsElement = new Element("modifications");
-        Iterator modificationIterator = _modifications.iterator();
-        if(_modifications.size() > 0) {
-            log.info(_modifications.size() + ((_modifications.size() > 1) ? " modifications have been detected." : " modification has been detected."));
-        }
-        while (modificationIterator.hasNext()) {
-            Object object = (Object) modificationIterator.next();
-            if (object instanceof org.jdom.Element) {
-                modificationsElement.addContent((Element) object);
-            } else {
-                Modification modification = (Modification) object;
-                Element modificationElement = (modification).toElement(_formatter);
-                modification.log(_formatter);
-                modificationsElement.addContent(modificationElement);
+        Element modificationsElement = null;
+        do {
+            _now = new Date();
+            _modifications = new ArrayList();
+            Iterator sourceControlIterator = _sourceControls.iterator();
+            while (sourceControlIterator.hasNext()) {
+                SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
+                _modifications.addAll(sourceControl.getModifications(lastBuild, _now));
             }
-        }
+            modificationsElement = new Element("modifications");
+            Iterator modificationIterator = _modifications.iterator();
+            if (_modifications.size() > 0) {
+                log.info(_modifications.size() + ((_modifications.size() > 1) ? " modifications have been detected." : " modification has been detected."));
+            }
+            while (modificationIterator.hasNext()) {
+                Object object = (Object) modificationIterator.next();
+                if (object instanceof org.jdom.Element) {
+                    modificationsElement.addContent(((Element) object).detach());
+                } else {
+                    Modification modification = (Modification) object;
+                    Element modificationElement = (modification).toElement(_formatter);
+                    modification.log(_formatter);
+                    modificationsElement.addContent(modificationElement);
+                }
+            }
+
+            if(isLastModificationInQuietPeriod(_now, _modifications)) {
+                log.info("A modification has been detected in the quiet period.  ");
+                log.debug(_formatter.format(new Date(_now.getTime() - _quietPeriod)) + " <= Quiet Period <= " + _formatter.format(_now));
+                log.debug("Last modification: " + _formatter.format(new Date(getLastModificationMillis(_modifications))));
+                log.info("Sleeping for " + getQuietPeriodDifference(_now, _modifications)/1000 + " seconds before retrying.");
+                try {
+                    Thread.sleep(getQuietPeriodDifference(_now, _modifications));
+                } catch (InterruptedException e) {
+                    log.error("", e);
+                }
+            }
+        } while (isLastModificationInQuietPeriod(_now, _modifications));
+
 
         return modificationsElement;
     }
