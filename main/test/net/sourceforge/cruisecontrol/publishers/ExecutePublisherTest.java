@@ -35,9 +35,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+
 public class ExecutePublisherTest extends TestCase {
+
     public void testValidate() {
         ExecutePublisher publisher = new ExecutePublisher();
         try {
@@ -45,7 +48,9 @@ public class ExecutePublisherTest extends TestCase {
             fail("ExecutePublisher should throw exceptions when required fields are not set.");
         } catch (CruiseControlException cce) {
         }
+
         publisher.setCommand("command");
+
         try {
             publisher.validate();
         } catch (CruiseControlException e) {

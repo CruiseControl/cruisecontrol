@@ -40,10 +40,11 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import java.io.IOException;
 import org.apache.log4j.Logger;
+
 /**
- * Bootstrapper for Perforce. Accepts one path that we sync.
- * @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a>
- * @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
+ *  Bootstrapper for Perforce. Accepts one path that we sync. 
+ *  @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a> 
+ *  @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
  */
 public class P4Bootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(P4Bootstrapper.class);
@@ -51,18 +52,23 @@ public class P4Bootstrapper implements Bootstrapper {
     private String p4Port;
     private String p4Client;
     private String p4User;
+    
     public void setPath(String path) {
         this.path = path;
     }
+    
     public void setP4Port(String p4Port) {
         this.p4Port = p4Port;
     }
+    
     public void setP4Client(String p4Client) {
         this.p4Client = p4Client;
     }
+    
     public void setP4User(String p4User) {
         this.p4User = p4User;
     }
+    
     public void validate() throws CruiseControlException {
         if (path == null) {
             throw new CruiseControlException("Path is not set.");
@@ -72,16 +78,20 @@ public class P4Bootstrapper implements Bootstrapper {
         failIfNotNullButEmpty(p4Client, "P4Client");
         failIfNotNullButEmpty(p4User, "P4User");
     }
-    private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest) throws CruiseControlException {
+    
+    private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest)
+        throws CruiseControlException {
         if (stringToTest != null && stringToTest.equals("")) {
             throw new CruiseControlException(nameOfStringToTest + " cannot to be set empty");
         }
     }
+    
     public void bootstrap() throws CruiseControlException {
         String commandline = createCommandline();
         LOG.debug("Executing commandline [" + commandline + "]");
         executeCommandLine(commandline);
     }
+    
     public String createCommandline() throws CruiseControlException {
         validate();
         StringBuffer commandline = new StringBuffer("p4 -s ");
@@ -104,6 +114,7 @@ public class P4Bootstrapper implements Bootstrapper {
         commandline.append(path);
         return commandline.toString();
     }
+    
     // TODO: Refactor this into a class. Then we can mock it and unit test bootstrap()
     private void executeCommandLine(String commandline) throws CruiseControlException {
         try {
@@ -117,6 +128,7 @@ public class P4Bootstrapper implements Bootstrapper {
             throw new CruiseControlException("Problem trying to execute command line process", e);
         }
     }
+    
     // For 'with environment' testing. Change values if you want to try yourself
     public static void main(String[] args) throws Exception {
         P4Bootstrapper bootstrapper = new P4Bootstrapper();
