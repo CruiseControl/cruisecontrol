@@ -36,6 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
+import java.io.File;
+import java.io.IOException;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -45,37 +48,72 @@ public class CVSBootstrapperTest extends TestCase {
         super(name);
     }
 
-    public void testValidate() {
+    public void testValidate() throws IOException {
         CVSBootstrapper cbs = new CVSBootstrapper();
 
         try {
             cbs.validate();
-            fail("CVSBootstrapper should throw an exception when the required attributes are not set.");
+            fail("CVSBootstrapper should throw an exception when no attributes are set.");
         } catch (CruiseControlException e) {
-            assertEquals(
-                "exception message when required attributes not set",
-                "'file' is required for CVSBootstrapper",
-                e.getMessage());
         }
+        
+        cbs.setCvsroot("someroot");
+        try {
+            cbs.validate();
+        } catch (CruiseControlException e) {
+            fail("CVSBootstrapper should not throw an exception when a valid attribute is set.");
+        }
+        
+        cbs = new CVSBootstrapper();
         cbs.setFile("somefile");
         try {
             cbs.validate();
         } catch (CruiseControlException e) {
-            fail("CVSBootstrapper should not throw an exception when the required attributes are set.");
+            fail("CVSBootstrapper should not throw an exception when a valid attribute is set.");
+        }
+
+        File tempFile = File.createTempFile("temp", "txt");
+
+        cbs = new CVSBootstrapper();
+        cbs.setLocalWorkingCopy(tempFile.getParent());
+        try {
+            cbs.validate();
+        } catch (CruiseControlException e) {
+            fail("CVSBootstrapper should not throw an exception when a valid attribute is set.");
+        }
+
+        cbs.setLocalWorkingCopy(tempFile.getAbsolutePath());
+        try {
+            cbs.validate();
+            fail("validate() should fail when 'localWorkingCopy' is file instead of directory.");
+        } catch (CruiseControlException e) {
+        }
+        
+        String badDirName = "z:/foo/foo/foo/bar";
+        cbs.setLocalWorkingCopy(badDirName);
+        try {
+            cbs.validate();
+            fail("validate() should throw exception on non-existant directory.");
+        } catch (CruiseControlException e) {
         }
     }
 
-    public void testBuildUpdateCommand() {
+    public void testBuildUpdateCommand() throws IOException, CruiseControlException {
         CVSBootstrapper cbs = new CVSBootstrapper();
+        File tempFile = File.createTempFile("temp", "txt");
+
+        cbs.setLocalWorkingCopy(tempFile.getParent());
+        assertEquals(
+            "cvs update",
+            cbs.buildUpdateCommand().toString());
+
         cbs.setFile("somefile");
         assertEquals(
-            "Update command was not created correctly.",
             "cvs update somefile",
             cbs.buildUpdateCommand().toString());
 
         cbs.setCvsroot("somecvsroot");
         assertEquals(
-            "Update command was not created correctly.",
             "cvs -d somecvsroot update somefile",
             cbs.buildUpdateCommand().toString());
     }

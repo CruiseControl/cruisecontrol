@@ -65,23 +65,39 @@ public class CVSTest extends TestCase {
         return formatter.parse(dateString);
     }
 
-    public void testValidate() {
+    public void testValidate() throws CruiseControlException, IOException {
         CVS cvs = new CVS();
 
         try {
             cvs.validate();
             fail("CVS should throw exceptions when required fields are not set.");
         } catch (CruiseControlException e) {
-            assertTrue(true);
         }
 
         cvs.setCvsRoot("cvsroot");
 
         try {
             cvs.validate();
-            assertTrue(true);
         } catch (CruiseControlException e) {
             fail("CVS should not throw exceptions when required fields are set.");
+        }
+        
+        cvs = new CVS();
+        File tempFile = File.createTempFile("temp", "txt");
+        cvs.setLocalWorkingCopy(tempFile.getParent());
+
+        try {
+            cvs.validate();
+        } catch (CruiseControlException e) {
+            fail("CVS should not throw exceptions when required fields are set.");
+        }
+        
+        String badDirName = "z:/foo/foo/foo/bar";
+        cvs.setLocalWorkingCopy(badDirName);
+        try {
+            cvs.validate();
+            fail("CVS.validate should throw exception on non-existant directory.");
+        } catch (CruiseControlException e) {
         }
     }
 
