@@ -45,6 +45,8 @@
 
 <cruisecontrol:xsl xslFile="/xsl/maven.xsl"/>
 <p>
+<cruisecontrol:xsl xslFile="/xsl/nant.xsl"/>
+<p>
 <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
 <p>
 <cruisecontrol:xsl xslFile="/xsl/errors.xsl"/>
