@@ -179,8 +179,18 @@ public class ProjectXMLHelper {
         return schedule;
     }
 
-    public ModificationSet getModificationSet()  throws CruiseControlException {
-        ModificationSet modificationSet = new ModificationSet();
+    public ModificationSet getModificationSet() throws CruiseControlException {
+        ModificationSet modificationSet;
+        try {
+            modificationSet =
+                    (ModificationSet) Class.forName(
+                            (String) plugins.get("modificationset"))
+                    .newInstance();
+        } catch (Exception e) {
+            throw new CruiseControlException(
+                    "Couldn't create ModificationSet plugin", e);
+        }
+
         int quietPeriod =
             Integer.parseInt(
                 getRequiredAttribute(
@@ -282,5 +292,6 @@ public class ProjectXMLHelper {
         plugins.put("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
         plugins.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
         plugins.put("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
+        plugins.put("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
     }
 }
