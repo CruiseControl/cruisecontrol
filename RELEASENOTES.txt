@@ -54,6 +54,10 @@ Schedule
 ----------------------
 * Set maximum value for interval to one year
 
+StarTeam
+----------------------
+* Fixed a bug where an NPE was thrown when a user account no longer existed - Patch by kathyh@syntricity.com
+
 StarTeamBootstrapper
 ----------------------
 * StarTeamBootstrapper submitted by Lee Marlow
