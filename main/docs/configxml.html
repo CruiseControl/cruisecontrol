@@ -93,6 +93,12 @@
                      <li><a class="small" href="#cvslabelincrementer">CVSLabelIncrementer</a>
                      <li><a class="small" href="#emptylabelincrementer">EmptyLabelIncrementer</a>
                   </ul>
+               <li><a class="small" href="#ftptasks">FTP Tasks</a>
+                  <ul>
+                     <li><a class="small" href="#currentbuildstatusftpbootstrapper">CurrentBuildStatusFTPBootstrapper</a>
+                     <li><a class="small" href="#currentbuildstatusftppublisher">CurrentBuildStatusFTPPublisher</a>
+                     <li><a class="small" href="#ftppublisher">FTPPublisher</a>
+                  </ul>
             </ul>
          </ul>
 
@@ -1436,7 +1442,126 @@
          Always returns a label of "" (empty string). Class name is <code>net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer</code>
          </p>
 
+         <hr>
+         
+         <p><a name="ftptasks"><span class="small">FTP Tasks</span><br>
+         To aid the creation of a distributed build system, there are FTP related plug-ins for the status update and build results publication stages in the build.
+         All FTP tasks have the following common attributes:
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetUser</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The user used for logging into the FTP site. Default is <code>anonymous</code>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetPasswd</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The password used during FTP log in for the <code>targetUser</code>. Default is <code>eat@joes.com</code>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetHost</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Host name of the FTP server.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetPort</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Port number of the FTP server. Default is <code>21</code>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetDir</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Base directory in the FTP server to put the files. Default is '<code>.</code>'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">targetSeparator</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Directory separator character used by the FTP server. Default is '<code>/</code>'.</td>
+            </tr>
+         </table>
 
+         <p><a name="currentbuildstatusftpbootstrapper"><span class="small">CurrentBuildStatusFTPBootstrapper</span><br>
+         Include this in the <code>&lt;bootstrappers&gt;</code> portion of the <code>config.xml</code> file.
+         Class name is <code>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusFTPBootstrapper</code>.
+         This performs the same action as <a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>, except that the status file is sent to the remote site via FTP, instead of being stored locally.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The filename to write.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">destDir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The remote directory (relative to <code>targetDir</code>) to write the file.</td>
+            </tr>
+         </table>
+
+         <p><a name="currentbuildstatusftppublisher"><span class="small">CurrentBuildStatusFTPPublisher</span><br>
+         Include this in the <code>&lt;publishers&gt;</code> portion of the <code>config.xml</code> file.
+         Class name is <code>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher</code>.
+         This performs the same action as <a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>, except that the status file is sent to the remote site via FTP, instead of being stored locally.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The filename to write.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">destDir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The remote directory (relative to <code>targetDir</code>) to write the file.</td>
+            </tr>
+         </table>
+
+         <p><a name="ftppublisher"><span class="small">FTPPublisher</span><br>
+         Include this in the <code>&lt;publishers&gt;</code> portion of the <code>config.xml</code> file.
+         Class name is <code>net.sourceforge.cruisecontrol.publishers.FTPPublisher</code>.
+         This copies the XML log file from the build, and all files published by <a class="small" href="#artifactspublisher">ArtifactsPublisher</a>, onto the FTP server.
+         To publish the artifacts, the ArtifactsPublisher must occur before this publisher in the <code>config.xml</code> file.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">destDir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The remote directory (relative to <code>targetDir</code>) to publish the files.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">srcDir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">To publish the XML log file, this must be the same as the <code>dir</code> attribute of the <a class="small" href="#log">Log</a>.
+               To publish the artifacts, this must be the same as the <a class="small" href="#artifactspublisher">ArtifactsPublisher</a> directory.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">deleteArtifacts</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">If <code>yes</code>, then all files successfully sent to the FTP server will be deleted locally. Defaults to <code>no</code>.</td>
+            </tr>
+         </table>
+         
          <!-- content ends here -->
          </td></tr></table>
       </td>
