@@ -1,0 +1,90 @@
+<project default="conf">
+
+	<property file="overrides.properties" />
+	<property name="cc.home" location="../.." />
+
+
+
+	<!-- ================================= 
+          target: conf              
+         ================================= -->
+	<target name="conf"
+	        depends=""
+	        description="Configure the wrapper conf file">
+
+
+		<property name="cc.work.dir" location="c:\builds" />
+		<property name="cc.config.file" location="${cc.work.dir}/config.xml" />
+
+		<copy todir="conf" overwrite="true">
+			<fileset dir="conf">
+				<include name="*.template.conf" />
+			</fileset>
+			<filterset>
+				<filter token="ANT_HOME" value="${ant.home}" />
+				<filter token="JAVA_HOME" value="${java.home}" />
+				<filter token="CC_HOME" value="${cc.home}" />
+				<filter token="VERSION" value="v2.1.6" />
+				<filter token="PROJECT_NAME" value="MyProjct" />
+				<filter token="WORK_DIR" value="${cc.work.dir}" />
+				<filter token="CONFIG_FILE" value="${cc.config.file}" />
+				<filter token="PATH_SEPERATOR" value="${path.separator}" />
+			</filterset>
+			<mapper type="glob" from="*.template.conf" to="*.conf" />
+		</copy>
+
+
+
+	</target>
+
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: cruisecontrol          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="cruisecontrol">
+		<attribute name="command" />
+		<attribute name="failonerror" default="true" />
+		<sequential>
+			<exec dir="${basedir}/bin" executable="cmd.exe" failonerror="@{failonerror}">
+				<arg value="/c" />
+				<arg value="cruisecontrol" />
+				<arg value="@{command}" />
+			</exec>
+		</sequential>
+	</macrodef>
+
+
+
+
+	<target name="install" depends="conf">
+		<cruisecontrol command="install" />
+	</target>
+	<target name="start" depends="conf">
+		<cruisecontrol command="start" />
+	</target>
+
+	
+	<target name="stop" depends="conf">
+		<cruisecontrol command="stop" />
+	</target>
+	<target name="remove" depends="conf">
+		<cruisecontrol command="remove" />
+	</target>
+	<target name="restart" depends="conf">
+		<cruisecontrol command="restart" />
+	</target>
+	
+	
+	
+    <!-- ================================= 
+          target: reinstall              
+         ================================= -->
+    <target name="reinstall" depends="conf"  description="Remove and isstall">
+    	<cruisecontrol command="remove" failonerror="false"/>
+        <cruisecontrol command="install"/>
+    </target>
+
+
+	
+	
+</project>
