@@ -143,10 +143,11 @@ public class Project implements Serializable {
         // BUILD
         cruisecontrolElement.addContent(_schedule.build(_buildCounter, _lastBuild, _now, getProjectPropertiesMap()).detach());
 
-        // increment label if neccessary
+        // increment label if necessary
         if (!_labelIncrementer.isPreBuildIncrementer() && (new XMLLogHelper(cruisecontrolElement)).isBuildSuccessful()) {
             _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
+
 
         // collect log files and merge with CC log file
         Iterator auxLogIterator = getAuxLogElements().iterator();
