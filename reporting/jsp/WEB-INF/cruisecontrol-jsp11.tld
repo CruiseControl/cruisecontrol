@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+        PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+	"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<taglib>
+  <tlibversion>1.0</tlibversion>
+  <jspversion>1.1</jspversion>
+  <shortname>simple</shortname>
+  <uri></uri>
+  <info>
+	A simple tab library for the examples
+  </info>
+  <tag>
+    <name>xsl</name>
+    <tagclass>net.sourceforge.cruisecontrol.taglib.XSLTag</tagclass>
+    <bodycontent>JSP</bodycontent>
+    <info>
+        Transforms the xml build log using XSL.
+    </info>
+    <attribute>
+        <name>xslFile</name>
+        <required>true</required>
+    </attribute>
+  </tag>
+  <tag>
+    <name>nav</name>
+    <tagclass>net.sourceforge.cruisecontrol.taglib.NavigationTag</tagclass>
+    <teiclass>net.sourceforge.cruisecontrol.taglib.NavigationTagExtraInfo</teiclass>
+    <bodycontent>JSP</bodycontent>
+    <info>
+        Builds the navigation
+    </info>
+    <attribute>
+        <name>dateFormat</name>
+        <required>false</required>
+    </attribute>
+  </tag>
+</taglib>
