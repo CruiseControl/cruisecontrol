@@ -41,7 +41,7 @@
     <property name="build.compiler.emacs" value="true"/>
     <property name="build.dir" value="classes"/>
     <property name="dist.dir" value="dist"/>
-    <property name="masterbuild.logdir" value="logs"/>
+    <property name="logdir" value="logs"/>
     <property name="source.dir" value="src"/>
     <property name="junit.results" value="test-results"/>
 
@@ -72,7 +72,7 @@
         <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
-        <mkdir dir="${masterbuild.logdir}"/>
+        <mkdir dir="${logdir}"/>
     </target>
 
     <target name="clean" description="Clean all build products">

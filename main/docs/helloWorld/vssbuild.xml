@@ -51,7 +51,7 @@
     <property name="vss.src.path" value="/src"/>
     <property name="vss.executable.dir" value="REPLACE with VSS executable directory"/>
     <property name="vss.src.changed" value="false"/>
-    <property name="vss.src.delete" value="false"/> -->
+    <property name="vss.src.delete" value="false"/>
     
     <path id="classpath">
         <fileset dir="${ccdir}/lib">

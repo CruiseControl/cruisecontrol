@@ -37,24 +37,23 @@
  ********************************************************************************-->
 <project name="HelloWorld" basedir="." default="all">
 
-    <!-- Look in patch manager.  These tasks are to be submitted to Ant -->
-    <!--
-    <taskdef name="starteamcheckout" 
-     classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamCheckout"/>
-    <taskdef name="starteamlabel" 
-     classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamLabel"/>    -->
     <property name="build.compiler" value="jikes"/>
     <property name="build.compiler.emacs" value="true"/>
     <property name="build.dir" value="classes"/>
     <property name="dist.dir" value="dist"/>
-    <property name="masterbuild.logdir" value="logs"/>
+    <property name="logdir" value="logs"/>
     <property name="source.dir" value="src"/>
     <property name="junit.results" value="test-results"/>
 
     <property name="starteam.folder" value="src" />
-    <property name="starteam.url" value="10.1.2.65:49201/CruiseControl/CruiseControl" />
-    <property name="starteam.user" value="jcyip" />
-    <property name="starteam.passwd" value="" />
+    <property name="starteam.server" value="REPLACE WITH STARTEAM SERVER IP ADDRESS" />
+    <property name="starteam.port" value="REPLACE WITH STARTEAM SERVER PORT #" />
+    <property name="starteam.project" value="REPLACE WITH PROJECT NAME" />
+    <property name="starteam.view" value="REPLACE WITH VIEW NAME" />
+    <property name="starteam.url" 
+     value="${starteam.server}:${starteam.port}/${starteam.project}/${starteam.view}" />
+    <property name="starteam.user" value="REPLACE WITH STARTEAM USER NAME" />
+    <property name="starteam.passwd" value="REPLACE WITH STARTEAM PASSWORD" />
     
     <property name="ccdir" value="REPLACE WITH CC DIRECTORY"/>
 
@@ -68,7 +67,7 @@
         <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
-        <mkdir dir="${masterbuild.logdir}"/>
+        <mkdir dir="${logdir}"/>
     </target>
     
     <target name="clean" description="Clean all build products">
@@ -119,20 +118,9 @@
          so you need to set a depends agains clean as well-->
         <antstarteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
                  foldername="${starteam.folder}" targetfolder="${starteam.folder}" force="true" 
-                 recursion="true" projectname="CruiseControl" viewname="CruiseControl" 
-                 servername="10.1.2.65" serverport="49201" verbose="true"/>-->
-        <!-- This custom checkout task (look in patch manager, to be submitted to Ant) only updates 
-        files that changed and deletes files not in the repository -->
-        <!--<starteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
-           folder="${starteam.folder}" starteamurl="${starteam.url}" createworkingdirectories="true"/>-->           
-   </target>
-
-    <!-- Look in patch manager.  To be submitted to Ant -->
-<!--   <target name="labelbuild">
-      <starteamlabel label="${label}" lastbuild="${lastGoodBuildTime}" 
-       description="Release Build Successful." username="${starteam.user}" 
-       password="${starteam.passwd}" starteamurl="${starteam.url}"/>
-   </target> -->
+                 recursion="true" projectname="${starteam.project}" viewname="${starteam.view}" 
+                 servername="${starteam.server}" serverport="${starteam.port}" verbose="true"/>
+   	</target>
 
     <target name="modificationcheck" depends="init" description="Check modifications since last build">
         <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
@@ -144,7 +132,7 @@
         </modificationset>
     </target>
 
-    <target name="masterbuild" depends="modificationcheck,checkout,compile,test,jar,labelbuild" 
+    <target name="masterbuild" depends="modificationcheck,checkout,compile,test,jar" 
      description="Cruise control master build"/>
 
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
