@@ -86,10 +86,6 @@ public class CruiseControlProperties {
         defaultEmailSuffix = props.getProperty("defaultEmailSuffix");
                 
         mailhost = props.getProperty("mailhost");
-        if(mailhost.equals("")) {        
-            throw new IllegalArgumentException(
-            "mailhost not set correctly in " + propsFileName);
-        }
         
         servletURL = props.getProperty("servletURL");
         if(servletURL.equals("")) {        
