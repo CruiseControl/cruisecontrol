@@ -15,7 +15,7 @@
   <li>Niclas Olofsson</li>
 </ul>
 
-<p>Version 1.12 - 06/04/2001</p>
+<p>Version 1.13 - 06/04/2001</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -138,8 +138,8 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
   </tr>
   <tr>
     <td valign="top">localworkingcopy</td>
-        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy).  Defaults to current directory.</td>
-    <td valign="top" align="center">No</td>
+        <td valign="top">This should be the path to the root of the CVS project client copy (i.e., the local working copy).  Defaults to current directory.  Under Linux, Java does not execute cvs log with no local working copy correctly.  This despite the command working fine in a command shell.  Therefore, you must specify the localworkingcopy under Linux (e.g., "." for the current directory)</td>
+    <td valign="top" align="center">No (Win32), Yes (Linux)</td>
   </tr>
 </table>
 
