@@ -77,7 +77,7 @@ public class BuildServlet extends HttpServlet {
                 _logFile = getLastBuildLogFilename();
             else
                 _logFile += ".xml";
-            _logFile = _logDir + File.separator + _logFile;
+            _logFile = new File(_logDir, _logFile).getAbsolutePath();
 
             PrintWriter out = res.getWriter();
             res.setContentType("text/html");
