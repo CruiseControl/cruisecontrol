@@ -7,3 +7,6 @@ override.propertiesmyproject.ser
 cruisecontrol.log
 myproject.ser
 notLog.xml
+_*
+cc_coverage*
+clover-results
