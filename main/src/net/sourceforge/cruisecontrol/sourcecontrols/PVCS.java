@@ -42,7 +42,6 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
-import org.apache.tools.ant.Task;
 import org.apache.log4j.Category;
 
 /**

@@ -39,7 +39,6 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
-import org.apache.tools.ant.Task;
 import org.apache.log4j.Category;
 
 /**
@@ -139,12 +138,6 @@ public class MKS extends SourceControlElement {
     private Date lastModified;
 
     /**
-     * This task should be provided by the caller. This class
-     * will use it to log information.
-     */
-    private Task task;
-
-    /**
      * Sets the MKSROOT for all calls to MKS.
      *
      * @param mksroot MKSROOT to use.
@@ -163,15 +156,6 @@ public class MKS extends SourceControlElement {
      */
     public void setLocalWorkingCopy(String local) {
         this.local = new File(local);
-    }
-
-    /**
-     * Allows the caller to set the task, which will be used for logging purposes.
-     *
-     * @param task   Task to use.
-     */
-    public void setTask(Task task) {
-        this.task = task;
     }
 
     /**
