@@ -110,7 +110,12 @@
         <echo message="Application built!"/>
     </target>
 
-    <target name="checkout" depends="clean, init">
+		<target name="cleansrc">
+			<delete dir="${source.dir}"/>
+			<mkdir dir="${source.dir}"/>
+		</target>
+
+    <target name="checkout" depends="cleansrc, init">
         <!-- Note the Ant optional task AntStarTeamCheckOut does not synchronize with the repository
          so you need to set a depends agains clean as well-->
         <antstarteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
