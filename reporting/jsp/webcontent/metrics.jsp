@@ -1,4 +1,3 @@
-<%@page errorPage="/error.jsp"%>
 <%@page import="net.sourceforge.cruisecontrol.*, net.sourceforge.cruisecontrol.chart.*"%>
 <%@ taglib uri="/WEB-INF/lib/cewolf.jar" prefix="cewolf" %>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
