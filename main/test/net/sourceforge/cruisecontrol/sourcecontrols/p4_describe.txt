@@ -1,0 +1,119 @@
+text: Change 9 by non@non:all on 2002/04/23 04:12:59
+text:
+text:	Fixed support for db2. This is now the default database shipped with HPDoc. For now that is. Still has to be tested on PostgreSQL to see that it is still working there. The sea rch mechanism is also upgraded to now ALMOST support AND/OR expressions. There are thoughtsabout this, but not yet implemented (however prepared for)
+text:
+text: Affected files ...
+text:
+info1: //depot/hpdoc/main/build.xml#2 edit
+info1: //depot/hpdoc/main/hpdoc.ipr#1 add
+info1: //depot/hpdoc/main/lib/ant.jar#2 edit
+info1: //depot/hpdoc/main/lib/db2java.zip#1 add
+info1: //depot/hpdoc/main/lib/js.jar#2 edit
+info1: //depot/hpdoc/main/lib/junit.jar#2 edit
+info1: //depot/hpdoc/main/lib/libUnixSyslogAppender.so#2 edit
+info1: //depot/hpdoc/main/lib/libUnixSyslogAppender.so.1#2 edit
+info1: //depot/hpdoc/main/lib/log4j-core.jar#2 edit
+info1: //depot/hpdoc/main/lib/log4j.jar#2 edit
+info1: //depot/hpdoc/main/lib/mockobjects.jar#2 edit
+info1: //depot/hpdoc/main/lib/NTEventLogAppender.dll#2 edit
+info1: //depot/hpdoc/main/lib/openorb-1.2.0.jar#2 edit
+info1: //depot/hpdoc/main/lib/openorb_event-1.2.0.jar#2 edit
+info1: //depot/hpdoc/main/lib/openorb_time-1.2.0.jar#2 edit
+info1: //depot/hpdoc/main/lib/openorb_tools-1.2.0.jar#2 edit
+info1: //depot/hpdoc/main/lib/postgresql2.jar#2 edit
+info1: //depot/hpdoc/main/lib/servlet.jar#2 edit
+info1: //depot/hpdoc/main/lib/xalan.jar#2 edit
+info1: //depot/hpdoc/main/lib/xerces.jar#2 edit
+info1: //depot/hpdoc/main/src/java/com/ismobile/hpdoc/HpDocConnection.java#2 edit
+info1: //depot/hpdoc/main/src/java/com/ismobile/hpdoc/util/DocumentSet.java#2 edit
+info1: //depot/hpdoc/main/src/java/com/ismobile/hpdoc/util/HpDocument.java#2 edit
+info1: //depot/hpdoc/main/src/java/com/ismobile/hpdoc/util/IndexPlan.java#2 edit
+info1: //depot/hpdoc/main/src/sql/hpdoc_create.sql#2 edit
+info1: //depot/hpdoc/main/src/sql/hpdoc_create_db2.sql#1 add
+info1: //depot/hpdoc/main/src/sql/new_search_for_index_plans.sql#1 add
+info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/HpDocConnectionTest.java#2 edit
+info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/HpDocTestSuite.java#2 edit
+info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/test.xml#2 edit
+info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/test_assignment.xml#2 edit
+info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/test_task.xml#2 edit
+info1: //depot/hpdoc/main/src/test/com/ismobile/hpdoc/util/IndexPlanTest.java#2 edit
+text:
+text: Change 11 by non@non:all on 2002/04/30 06:09:05
+text:
+text:	ok, tests running smooth. Checking in mostly for backup. Not finished yet. CIMD is comming on great and I'm starting to see a framework developing.
+text:
+text: Affected files ...
+text:
+info1: //depot/k4j/main/docs/azindex.gif#2 edit
+info1: //depot/k4j/main/docs/chiclet.row.gif#2 edit
+info1: //depot/k4j/main/docs/cimd.pdf#1 add
+info1: //depot/k4j/main/docs/cimd_client_cpp.txt#1 add
+info1: //depot/k4j/main/docs/cimd_cpp.txt#1 add
+info1: //depot/k4j/main/docs/cimd_smart.pdf#1 add
+info1: //depot/k4j/main/docs/coffeecup13x10.gif#2 edit
+info1: //depot/k4j/main/docs/developer.connection.header.gif#2 edit
+info1: //depot/k4j/main/docs/Fig2Final.gif#2 edit
+info1: //depot/k4j/main/docs/Fig3Final.gif#2 edit
+info1: //depot/k4j/main/docs/Fig5Final.gif#2 edit
+info1: //depot/k4j/main/docs/Fig6Final.gif#2 edit
+info1: //depot/k4j/main/docs/figure1.gif#2 edit
+info1: //depot/k4j/main/docs/figure4.gif#2 edit
+info1: //depot/k4j/main/docs/help.gif#2 edit
+info1: //depot/k4j/main/docs/javalogo52x88.gif#2 edit
+info1: //depot/k4j/main/docs/lgsun.gif#2 edit
+info1: //depot/k4j/main/docs/online-training.gif#2 edit
+info1: //depot/k4j/main/docs/pixel.gif#2 edit
+info1: //depot/k4j/main/docs/PrintPageServlet.html#2 edit
+info1: //depot/k4j/main/docs/stripelt.gif#2 edit
+info1: //depot/k4j/main/docs/stripert.gif#2 edit
+info1: //depot/k4j/main/docs/T7.gif#2 edit
+info1: //depot/k4j/main/k4j.ipr#1 add
+info1: //depot/k4j/main/k4j.iws#1 add
+info1: //depot/k4j/main/lib/junit.jar#1 add
+info1: //depot/k4j/main/lib/log4j.jar#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/io/CIMDInputStream.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/io/CIMDOutputStream.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/pdu/Data.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/pdu/Header.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/pdu/Parameter.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/pdu/PDU.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/pdu/PDUFactory.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/server/CIMDServer.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/type/Address.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/type/Hexadecimal.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/type/Integer.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/type/String.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/cimd/type/UserData.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/client/SMPPClient.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/io/SMPPInputStream.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/io/SMPPOutputStream.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitter.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitter.java.0#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitterResp.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/BindTransmitterResp.java.0#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/Body.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/Body.java.0#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/Header.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/Parameter.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/PDU.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/pdu/PDUFactory.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/server/SMPPDispatcher.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/server/SMPPServer.java#1 add
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/type/CString.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/type/Integer.java#2 edit
+info1: //depot/k4j/main/src/java/com/ismobile/smpp/type/Parameter.java.0#2 edit
+info1: //depot/k4j/main/src/test/com/ismobile/cimd/CIMDTestSuite.java#1 add
+info1: //depot/k4j/main/src/test/com/ismobile/cimd/pdu/DataTest.java#1 add
+info1: //depot/k4j/main/src/test/com/ismobile/cimd/pdu/HeaderTest.java#1 add
+info1: //depot/k4j/main/src/test/com/ismobile/cimd/pdu/ParameterTest.java#1 add
+info1: //depot/k4j/main/src/test/com/ismobile/cimd/pdu/PDUFactoryTest.java#1 add
+info1: //depot/k4j/main/src/test/com/ismobile/cimd/pdu/PDUTest.java#1 add
+info1: //depot/k4j/main/src/test/com/ismobile/IsMobileTestSuite.java#1 add
+text:
+text: Change 15 by non@non:all on 2002/05/02 01:04:52
+text:
+text:	Testing ..
+text:	Some ..
+text:	Linebreaks.
+text:
+exit: 0
