@@ -137,6 +137,7 @@ public class ThreadQueue extends Thread {
             if (nothingWaiting || maxedOut) {
                 sleep(sleepTime);
             } else {
+                LOG.debug("handling waiting task");
                 handleWaitingTask();
             }
 
