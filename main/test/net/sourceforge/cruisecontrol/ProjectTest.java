@@ -371,6 +371,14 @@ public class ProjectTest extends TestCase {
         assertEquals("Project foo: stopped (paused)", project.toString());
     }
 
+    public void testInit() throws CruiseControlException {
+        try {
+            project.init();
+        } catch (IllegalStateException expected) {
+            assertEquals("set config file on project before calling init()", expected.getMessage());
+        }
+    }
+
     private void writeFile(String fileName, String contents) throws IOException {
 
         File theFile = new File(fileName);
