@@ -42,7 +42,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.Project;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -71,12 +71,18 @@ public class VssJournalElement extends SourceControlElement {
     private String _property;
     private String _propertyOnDelete;
     
-    private long _lastModified;
+    private long _lastModified = 0L;
     private Date _lastBuild;
     
     private ArrayList _modifications = new ArrayList();
     private Set _emails = new HashSet();
     private List moListVssJournalDateFormat = new ArrayList();
+    
+    public VssJournalElement() {
+        // Add the default date format
+        VssJournalDateFormat oVssJournalDateFormat = createVssjournaldateformat();
+        oVssJournalDateFormat.setFormat("MM/dd/yy hh:mma");
+    }
     
     /**
      * Add a nested element for date format interpretation from the journal file.
@@ -170,6 +176,8 @@ public class VssJournalElement extends SourceControlElement {
      */
     public List getHistory(Date lastBuild, Date now, long quietPeriod) {
         _lastBuild = lastBuild;
+        _modifications.clear();
+        _emails.clear();
         
         try {
             BufferedReader br = new BufferedReader(new FileReader(_journalFile));
@@ -199,6 +207,7 @@ public class VssJournalElement extends SourceControlElement {
             getAntTask().getProject().setProperty(_property, "true");
         }
         
+        log("Found "+_modifications.size()+" modified files");
         return _modifications;
     }
     
@@ -208,9 +217,9 @@ public class VssJournalElement extends SourceControlElement {
      *@param  mod
      */
     private void logModification(Modification mod) {
-        log("Type: " + mod.type + " " + mod.fileName);
-        log("User: " + mod.userName + " Date: " + mod.modifiedTime);
-        log("");
+        log("Type: " + mod.type + " " + mod.fileName, Project.MSG_VERBOSE);
+        log("User: " + mod.userName + " Date: " + mod.modifiedTime, Project.MSG_VERBOSE);
+        log("", Project.MSG_VERBOSE);
     }
     
     /**
@@ -320,24 +329,24 @@ public class VssJournalElement extends SourceControlElement {
      * @param nameAndDateLine
      */
     public Date parseDate(String nameAndDateLine) {
+        // Extract date and time into one string with just one space separating the date from the time
         String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: ")).trim();
-        
+        // Fixup for weird format
         int indexOfColon = dateAndTime.indexOf("/:");
         if(indexOfColon != -1) {
             dateAndTime = dateAndTime.substring(0, indexOfColon)
             + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
             + dateAndTime.substring(indexOfColon + 2);
         }
-        try {
-            Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime + "m");
-            
-            //(PENDING) This seems out of place
-            if (lastModifiedDate.getTime() < _lastModified) {
-                _lastModified = lastModifiedDate.getTime();
+        dateAndTime = dateAndTime.substring(5);
+        String sDate = dateAndTime.substring(0, dateAndTime.indexOf("Time:")).trim();
+        String sTime = dateAndTime.substring(dateAndTime.indexOf("Time:")+5).trim();
+        // If it is a am/pm it seems to end with just "a" or "p" so we add the "m"
+        if (sTime.endsWith("a")
+        || sTime.endsWith("p")) {
+            sTime += "m";
             }
-            
-            return lastModifiedDate;
-        } catch (ParseException pe) {
+        dateAndTime = sDate+" "+sTime;
             // The standard parsing failed so we see if there are any suggestions
             // on how to interpret the date, but first we extract date and time into one
             // string with just one space separating the date from the time
@@ -355,7 +364,11 @@ public class VssJournalElement extends SourceControlElement {
                 }
             }
             if (oDate == null) {
-                throw new org.apache.tools.ant.BuildException("Could not parse date in VssJournal file");
+            throw new org.apache.tools.ant.BuildException("vssjournalelement: Could not parse date \""+dateAndTime+"\" in VssJournal file");
+        }
+        //(PENDING) This seems out of place
+        if (oDate.getTime() > _lastModified) {
+            _lastModified = oDate.getTime();
             }
             return oDate;
         }
@@ -427,7 +440,7 @@ public class VssJournalElement extends SourceControlElement {
     }
     
     
-    public static class VssJournalDateFormat extends Task {
+    public static class VssJournalDateFormat {
         private DateFormat moDateFormat = null;
         private String msFormat = null;
         public void setFormat(String psFormat) {
