@@ -55,7 +55,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.util.Date;
-import java.util.Properties;
 
 /**
  * Used to publish an HTML e-mail that includes the build report
@@ -67,14 +66,25 @@ import java.util.Properties;
 public class HTMLEmailPublisher extends EmailPublisher {
 
     /** enable logging for this class */
-    private static Logger log = Logger.getLogger(
-            HTMLEmailPublisher.class);
+    private static Logger log = Logger.getLogger(HTMLEmailPublisher.class);
 
-    private String xslFile;
-    private String xslDir;
-    private String css;
-    private String logDir;
-    private String messageMimeType = "text/html";
+    protected String xslFile;
+    protected String xslDir;
+    protected String css;
+    protected String logDir;
+    protected String messageMimeType = "text/html";
+
+    private String[] xslFileNames = {"header.xsl",
+
+                                     "compile.xsl",
+
+                                     "javadoc.xsl",
+
+                                     "unittests.xsl",
+
+                                     "modifications.xsl",
+
+                                     "distributables.xsl"};
 
     /*
      *  Called after the configuration is read to make sure that all the mandatory parameters
@@ -87,43 +97,48 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         verifyDirectory("HTMLEmailPublisher.logDir", this.logDir);
 
-        if(this.xslFile == null) {
+        if (this.xslFile == null) {
             verifyDirectory("HTMLEmailPublisher.xslDir", this.xslDir);
             verifyFile("HTMLEmailPublisher.css", this.css);
-            verifyFile("HTMLEmailPublisher.xslDir/header.xsl", new File(this.xslDir, "header.xsl"));
-            verifyFile("HTMLEmailPublisher.xslDir/compile.xsl", new File(this.xslDir, "compile.xsl"));
-            verifyFile("HTMLEmailPublisher.xslDir/unittests.xsl", new File(this.xslDir, "unittests.xsl"));
-            verifyFile("HTMLEmailPublisher.xslDir/modifications.xsl", new File(this.xslDir, "modifications.xsl"));
-            verifyFile("HTMLEmailPublisher.xslDir/distributables.xsl", new File(this.xslDir, "distributables.xsl"));
-            verifyFile("HTMLEmailPublisher.xslDir/javadoc.xsl", new File(this.xslDir, "javadoc.xsl"));
+
+            if (xslFileNames == null) {
+                throw new CruiseControlException("HTMLEmailPublisher.xslFileNames can't be null");
+            }
+
+            for (int i = 0; i < this.xslFileNames.length; i++) {
+                String fileName = this.xslFileNames[i];
+                verifyFile("HTMLEmailPublisher.xslDir/" + fileName, new File(this.xslDir, fileName));
+            }
+        } else {
+            verifyFile("HTMLEmailPublisher.xslFile", this.xslFile);
         }
     }
 
-    private void verifyDirectory(String dirName, String dir)  throws CruiseControlException {
-        if(dir == null) {
+    private void verifyDirectory(String dirName, String dir) throws CruiseControlException {
+        if (dir == null) {
             throw new CruiseControlException(dirName + " not specified in configuration file");
         }
         File dirFile = new File(dir);
-        if(!dirFile.exists()) {
+        if (!dirFile.exists()) {
             throw new CruiseControlException(dirName + " does not exist : " + dirFile.getAbsolutePath());
         }
-        if(!dirFile.isDirectory()) {
+        if (!dirFile.isDirectory()) {
             throw new CruiseControlException(dirName + " is not a directory : " + dirFile.getAbsolutePath());
         }
     }
 
-    private void verifyFile(String fileName, String file)  throws CruiseControlException {
-        if(file == null) {
+    private void verifyFile(String fileName, String file) throws CruiseControlException {
+        if (file == null) {
             throw new CruiseControlException(fileName + " not specified in configuration file");
         }
         verifyFile(fileName, new File(file));
     }
 
-    private void verifyFile(String fileName, File file)  throws CruiseControlException {
-        if(!file.exists()) {
+    private void verifyFile(String fileName, File file) throws CruiseControlException {
+        if (!file.exists()) {
             throw new CruiseControlException(fileName + " does not exist: " + file.getAbsolutePath());
         }
-        if(!file.isFile()) {
+        if (!file.isFile()) {
             throw new CruiseControlException(fileName + " is not a file: " + file.getAbsolutePath());
         }
     }
@@ -172,18 +187,34 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     /**
-     * Directory where standard CruiseControl xsl files are located: <br>
-     * <ul>
-     *   header.xsl
-     *   compile.xsl");
-     *   unittests.xsl");
-     *   modifications.xsl");
-     *   distributables.xsl"
-     * </ul>
+     * Directory where xsl files are located.
      * @param xslDir
      */
     public void setXSLDir(String xslDir) {
         this.xslDir = xslDir;
+    }
+
+    /**
+     * Method to override the default list of file names that will be looked
+     * for in the directory specified by xslDir. By default these are the
+     * standard CruseControl xsl files: <br>
+     * <ul>
+     *   header.xsl
+     *   compile.xsl
+     *   unittests.xsl
+     *   modifications.xsl
+     *   distributables.xsl
+     * </ul>
+     * I expect this to be used by a derived class to allow someone to
+     * change the order of xsl files or to add/remove one to/from the list
+     * or a combination.
+     * @param fileNames
+     */
+    protected void setXSLFileNames(String[] fileNames) {
+        if (fileNames == null) {
+            throw new IllegalArgumentException("xslFileNames can't be null (but can be empty)");
+        }
+        this.xslFileNames = fileNames;
     }
 
     /**
@@ -193,7 +224,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
     public void setCSS(String css) {
         this.css = css;
     }
-
 
     /**
      * Path to the log file as set in the log element of the configuration
@@ -218,12 +248,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
     //TODO: address whether this should ever return null;
     // dependent also on transform(File) and createLinkLine()
     protected String createMessage(XMLLogHelper logHelper) {
-        if(logDir == null) {
-            log.error("logDir needed by HTML email publisher is not set");
-            return "";
-        }
-
         String message = "";
+
         try {
             File logDir = new File(this.logDir);
             File inFile = new File(logDir, logHelper.getLogFileName());
@@ -251,51 +277,39 @@ public class HTMLEmailPublisher extends EmailPublisher {
             File xslFile = new File(this.xslFile);
             appendTransform(inFile, messageBuffer, tFactory, xslFile);
         } else {
-            File xslDir = new File(this.xslDir);
-            File headerxsl = new File(xslDir, "header.xsl");
-            File compilexsl = new File(xslDir, "compile.xsl");
-            File unittestxsl = new File(xslDir, "unittests.xsl");
-            File modificationsxsl = new File(xslDir, "modifications.xsl");
-            File distributablesxsl = new File(xslDir, "distributables.xsl");
-            File javadocxsl = new File(xslDir, "javadoc.xsl");
-
             appendHeader(messageBuffer);
             messageBuffer.append(createLinkLine(inFile.getName()));
-            messageBuffer.append("<p>\n");
-            appendTransform(inFile, messageBuffer, tFactory, headerxsl);
-            messageBuffer.append("<p>\n");
-            appendTransform(inFile, messageBuffer, tFactory, compilexsl);
-            messageBuffer.append("<p>\n");
-            appendTransform(inFile, messageBuffer, tFactory, javadocxsl);
-            messageBuffer.append("<p>\n");
-            appendTransform(inFile, messageBuffer, tFactory, unittestxsl);
-            messageBuffer.append("<p>\n");
-            appendTransform(inFile, messageBuffer, tFactory, modificationsxsl);
-            messageBuffer.append("<p>\n");
-            appendTransform(inFile, messageBuffer, tFactory, distributablesxsl);
+
+            File xslDir = new File(this.xslDir);
+            for (int i = 0; i < xslFileNames.length; i++) {
+                String fileName = xslFileNames[i];
+                File xsl = new File(xslDir, fileName);
+                appendTransform(inFile, messageBuffer, tFactory, xsl);
+            }
+
             appendFooter(messageBuffer);
         }
 
         return messageBuffer.toString();
     }
 
-    private String createLinkLine(String logFileName) {
-        StringBuffer messageBuffer = new StringBuffer();
+    protected String createLinkLine(String logFileName) {
+        String linkLine;
 
-        String baseLogFileName = logFileName.substring(logFileName.lastIndexOf(
-                File.separator) + 1,
-                logFileName.lastIndexOf("."));
+        int startName = logFileName.lastIndexOf(File.separator) + 1;
+        int endName = logFileName.lastIndexOf(".");
+        String baseLogFileName = logFileName.substring(startName, endName);
         String url = _servletUrl + "?log=" + baseLogFileName;
 
-        messageBuffer.append("View results here -> <a href=\"" + url + "\">" + url
-                + "</a>");
+        linkLine = "View results here -> <a href=\"" + url + "\">" + url + "</a>";
 
-        return messageBuffer.toString();
+        return linkLine;
     }
 
-    private void appendTransform(File inFile, StringBuffer messageBuffer,
-                                 TransformerFactory tFactory, File xslFile)
+    protected void appendTransform(File inFile, StringBuffer messageBuffer,
+                                   TransformerFactory tFactory, File xslFile)
             throws IOException, TransformerException {
+        messageBuffer.append("<p>\n");
         Transformer transformer = tFactory.newTransformer(
                 new StreamSource(xslFile));
         File outFile = File.createTempFile("mail", ".html");
@@ -315,7 +329,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
     }
 
-    private void appendHeader(StringBuffer messageBuffer) throws IOException {
+    protected void appendHeader(StringBuffer messageBuffer) throws IOException {
         messageBuffer.append("<html><head>\n<style>\n");
 
         File cssFile = new File(css);
@@ -330,8 +344,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         messageBuffer.append("\n</style>\n</head><body>\n");
     }
 
-    private void appendFooter(StringBuffer messageBuffer) {
+    protected void appendFooter(StringBuffer messageBuffer) {
         messageBuffer.append("\n</body></html>");
     }
-
 }
