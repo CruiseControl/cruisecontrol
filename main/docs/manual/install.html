@@ -9,6 +9,7 @@
       pre { font-family:courier,serif; }
       .small { font-size:8pt; font-weight:bold; }
       .sectionheader { font-size:12pt; font-weight:bold; }
+      code { font-family:courier,serif; }
    </style>
 </head>
 
@@ -81,6 +82,7 @@ The modificationset element looks something like this:
      &lt;/modificationset&gt;
 
 </pre>
+Further details about the modificationset and nested elements are available <a href="anttasks.html">here</a>.
 The modificationset element handles general duties, such as logging and enforcing the quiet period
 between checkins. Any nested elements will handle any repository specific details. If your repository
 isn't currently supported, it's pretty easy to extend our code to add a new repository; implementing a
@@ -131,7 +133,7 @@ have been included in the lib directory, but you should occasionally check with 
 vendors for updated versions. A batch script named setclasspath.bat has also been included. This script
 should add all the required jars to your existing classpath.
 <p>
-After setting the classpath appropriately run the MasterBuild process by executing:
+After setting the classpath appropriately run the CruiseControl process by executing:
 <pre>
    java CruiseControl
 </pre>
@@ -147,7 +149,7 @@ label will be persisted for you.
 <span class="sectionheader">8. Build Label Customization</span><p>
 CruiseControl provides the ability to customize the incrementation of the build labels. Each successful
 build is given a unique build label. The beginning build label can be specified on the command line
-when starting the MasterBuild process. MasterBuild will then increment the label for each successful
+when starting the CruiseControl process. CruiseControl will then increment the label for each successful
 build.
 <p>
 CruiseControl provides a default label incrementer which will conform to many developent efforts needs. The default label incrementer expects a label in the form "x.y",
@@ -156,18 +158,18 @@ build will be assigned the original label value provided, then the label will be
 1.51.5, and MyProjectX.2.6 respectively.
 <p>
 However, this label incrementation scheme may not be suitable for all development efforts. For example, if your development effort wants to use a label like
-builddate.buildnumberfortoday the default incrementer will not know how to increment this label to match your specification. Labels following this scheme would look like
+<code>builddate.buildnumberfortoday</code> the default incrementer will not know how to increment this label to match your specification. Labels following this scheme would look like
 03.21.2001.25. The default incrementer would simply continue to increment the integer after the last dot, never changing the builddate portion of the label. The following day
 the build label might be 03.21.2001.100 when it should be 03.22.2001.1 for the first build of the day.
 <p>
 To implement a custom label incrementation scheme like the one in this example, your development effort must provide a concrete implementation of the
-org.apache.tools.ant.taskdefs.LabelIncrementer interface [NOTE: package structure in flux]. This interface specifies a single method named incrementLabel. The full method
+<code>net.sourceforge.cruisecontrol.LabelIncrementer</code> interface. This interface specifies a single method named <code>incrementLabel</code>. The full method
 signature is:
 <pre>
     public String incrementLabel(String oldLabel);
 </pre>
-Once the concrete implementation has been written, place the compiled class in the classpath. Then edit the labelIncrementerClass property value in the
-masterbuild.properties file. The value for this method, as stated in the comments provided therein, should be the fully qualified class name for the LabelIncrementer
+Once the concrete implementation has been written, place the compiled class in the classpath. Then edit the <code>labelIncrementerClass</code> property value in the
+cruisecontrol.properties file. The value for this method, as stated in the comments provided therein, should be the fully qualified class name for the <code>LabelIncrementer</code>
 implementation.
 <p>
 To implement the label incrementation scheme noted above, my development effort would write a class with the incrementLabel method as follows:
@@ -202,11 +204,11 @@ To implement the label incrementation scheme noted above, my development effort 
         }
     }
 </pre>
-After compiling the class called MyProjectLabelIncrementer and adding it to my classpath, the value for labelIncrementerClass will be myproject.MyProjectLabelIncrementer.
-The MasterBuild process will attempt to dynamically load this class and call the incrementLabel method. My development effort has now changed the behavior of
-MasterBuild to conform to our label incrementation scheme.
+After compiling the class called <code>MyProjectLabelIncrementer</code> and adding it to my classpath, the value for <code>labelIncrementerClass</code> will be <code>myproject.MyProjectLabelIncrementer</code>.
+The CruiseControl process will attempt to dynamically load this class and call the incrementLabel method. My development effort has now changed the behavior of
+CruiseControl to conform to our label incrementation scheme.
 <p>
-In my build.xml file, which MasterBuild uses, the label given to the next successful build can be referenced using the Ant property ${label}. Some development efforts will
+In my build.xml file, which CruiseControl uses, the label given to the next successful build can be referenced using the Ant property ${label}. Some development efforts will
 want to use this property to tag, or label, source and binary elements controlled by their source control mechanism when a successful build occurs.
 
 <p>&nbsp;<p>
@@ -237,16 +239,16 @@ will also append the domain name to the end of a user name when the @domain.name
 portion of the email address is left off. If your project fits into either
 of these two categories then email mapping is not for you.
 <p>
-cruisecontrol.properties includes a property named "emailmap". To specify
+cruisecontrol.properties includes a property named <code>emailmap</code>. To specify
 a properties file which will map source control user names to one or more actual
 email addresses, specify the absolute path to the file here. For example,
 my project is building on an NT machine and I put a properties map in the
-file located at "D:\projects\myfirstproject\emailmap.properties". I set the emailmap property in
+file located at "D:\projects\myfirstproject\emailmap.properties". I set the <code>emailmap</code> property in
 the cruisecontrol.properties file to read:
 <pre>
    emailmap = D:\projects\myfirstproject\emailmap.properties
 </pre>
-The filename provided will be passed directly to the java.io.File class for handling
+The filename provided will be passed directly to the <code>java.io.File</code> class for handling
 and should conform to that class's specification, i.e. on a Windows machine a "\"
 should be used as a file seperator, and on a *Nix machine a "/" should be used.
 <p>
@@ -274,7 +276,7 @@ resolve it to Joe's actual email address and the email alias pauljulius. Then Cr
 will resolve pauljulius to the addresses listed above. CruiseControl will recursively attempt
 to resolve any alias until either the address is fully specified, i.e. includes the "@" symbol,
 or it can find no alias for the name given. Note that you could enter an infinite loop by
-changing the the pauljulius alias to read:
+changing the pauljulius alias to read:
 <pre>
    pauljulius=pdjulius@thoughtworks.com, 62872223@mycellphoneprovider.com, pauljulius
 </pre>
@@ -284,6 +286,8 @@ point. Other infinite loops include circular references such as:
 buildmasters = alldevelopers
 alldevelopers = buildmasters
 </pre>
+CruiseControl does not attempt to detect circular references in the email map.  Care should be given to avoid including any circular references in the email map.
+<p>
 CruiseControl will make sure that each email appears in the mailing list only once and should never
 send email to the same email address twice for the same
 build notification. For example, in the cruisecontrol.properties file a property exists called
