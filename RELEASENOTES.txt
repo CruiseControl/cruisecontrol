@@ -1,5 +1,10 @@
 CruiseControl Release Notes - CVS
 
+AntBuilder:
+----------------------
+* Changed command to run internal ant to use the -lib switch and only include ant-launcher.jar on the classpath.
+  This should fix the error where optional tasks couldn't be found by Ant even though they where present on the classpath
+
 AntBuilderTest:
 ----------------------
 * Removed test for Ant 1.4 logfile containing invalid processing instruction, since it could fail the build with some XML Parsers.

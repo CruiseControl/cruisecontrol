@@ -289,9 +289,12 @@ public class AntBuilder extends Builder {
                     cmdLine.createArgument().setValue(arg);
                 }
             }
+            String systemClassPath = System.getProperty("java.class.path");
             cmdLine.createArgument().setValue("-classpath");
-            cmdLine.createArgument().setValue(System.getProperty("java.class.path"));
+            cmdLine.createArgument().setValue(getAntLauncherJarLocation(systemClassPath));
             cmdLine.createArgument().setValue("org.apache.tools.ant.launch.Launcher");
+            cmdLine.createArgument().setValue("-lib");
+            cmdLine.createArgument().setValue(systemClassPath);
         }
 
         if (useLogger) {
@@ -331,6 +334,21 @@ public class AntBuilder extends Builder {
         }
 
         return cmdLine.getCommandline();
+    }
+
+    /**
+     * @return the path to ant-launcher.jar taken from the given path
+     */
+    String getAntLauncherJarLocation(String path) throws CruiseControlException {
+        String separator = isWindows() ? ";" : ":";
+        StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
+        while (pathTokenizer.hasMoreTokens()) {
+            String pathElement = pathTokenizer.nextToken();
+            if (pathElement.endsWith("ant-launcher.jar")) {
+                return pathElement;
+            }
+        }
+        throw new CruiseControlException("Couldn't find path to ant-launcher.jar in this classpath: '" + path + "'");
     }
 
     protected static Element getAntLogAsElement(File file) throws CruiseControlException {
