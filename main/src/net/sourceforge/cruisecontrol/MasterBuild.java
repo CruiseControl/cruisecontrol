@@ -211,11 +211,11 @@ public class MasterBuild {
             log.debug("Using normal target: " + props.getAntTarget());
             target = props.getAntTarget();
         }
-        BuildRunner runner = new BuildRunner(props.getAntFile(), target, 
+        BuildRunner runner = new BuildRunner(props.getAntFile(), target,
                                              info.getLastGoodBuild(),
                                              info.getLastBuild (),
                                              info.getLabel(), logger);
-        
+
         boolean successful = runner.runBuild();
 
         //doing this temporarily to simulate a build log for CurrentBuildStatusPublisher.
@@ -295,7 +295,7 @@ public class MasterBuild {
         mailer.emailReport(props, info.getUserList(), message,
                            info.getLogfile(), info.isLastBuildSuccessful());
     }
-    
+
     protected long getSleepTime(Date startTime) {
         if (props.isIntervalAbsolute()) {
             // We need to sleep up until startTime + buildInterval.
@@ -309,7 +309,7 @@ public class MasterBuild {
             return props.getBuildInterval();
         }
     }
-    
+
     /**
      *  Print header for each build attempt.
      */
@@ -398,7 +398,7 @@ public class MasterBuild {
 
         //Combine all the xml log files output from the build using
         //  a FileMerger.
-        FileMerger merger = new FileMerger(proj, props.getAuxLogProperties());
-        merger.mergeAuxXmlFiles(proj, info, props.getLogDir());
+        //FileMerger merger = new FileMerger(proj, props.getAuxLogProperties());
+        //merger.mergeAuxXmlFiles(proj, info, props.getLogDir());
     }
 }
