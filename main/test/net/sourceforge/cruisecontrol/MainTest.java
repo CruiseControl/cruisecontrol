@@ -39,6 +39,22 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 
 public class MainTest extends TestCase {
+    public void testParsePassword() throws CruiseControlException {
+        String[] correctArgs = new String[] { "-password", "password" };
+        String[] missingValue = new String[] { "-password" };
+        String[] missingParam = new String[] { "" };
+        assertEquals("password", Main.parsePassword(correctArgs));
+        assertEquals(null, Main.parseUser(missingValue));
+        assertEquals(null, Main.parseUser(missingParam));
+    }
+    public void testParseUser() throws CruiseControlException {
+        String[] correctArgs = new String[] { "-user", "user" };
+        String[] missingValue = new String[] { "-user" };
+        String[] missingParam = new String[] { "" };
+        assertEquals("user", Main.parseUser(correctArgs));
+        assertEquals(null, Main.parseUser(missingValue));
+        assertEquals(null, Main.parseUser(missingParam));
+    }
 
     public void testParseConfigurationFileName() throws Exception {
         String[] correctArgs = new String[] {"-configfile", "myconfig.xml"};

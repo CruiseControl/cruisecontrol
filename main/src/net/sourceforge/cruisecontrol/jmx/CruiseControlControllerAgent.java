@@ -65,7 +65,6 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class CruiseControlControllerAgent {
-
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerAgent.class);
     private static final String JNDI_NAME = "/jndi/jrmp";
 
@@ -76,14 +75,19 @@ public class CruiseControlControllerAgent {
     private int connectorServerPort;
     private CruiseControlControllerJMXAdaptor controllerAdaptor;
     private String path;
+    private String user;
+    private String password;
 
-    public CruiseControlControllerAgent(CruiseControlController controller, int httpPort,
-            int connectorServerPort, String xslPath) {
+    public CruiseControlControllerAgent(CruiseControlController controller, int httpPort, 
+        int connectorServerPort, String user, String password, String xslPath) {
         this.httpPort = httpPort;
         this.connectorServerPort = connectorServerPort;
         path = xslPath;
         this.controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
-
+        this.user = user;
+        this.password = password;
+        
+    
         MBeanServer server = MBeanServerFactory.createMBeanServer();
         try {
             controllerAdaptor.register(server);
@@ -184,6 +188,11 @@ public class CruiseControlControllerAgent {
                 server.setAttribute(processorName, new Attribute("PathInJar", pathInJar));
             }
             server.setAttribute(adaptorName, new Attribute("ProcessorName", processorName));
+            if (user != null && password != null) {
+                LOG.info("This CruiseControl instance is password protected");
+                httpAdaptor.setAuthenticationMethod("basic");
+                httpAdaptor.addAuthorization(user, password);
+            }
         }
     }
 

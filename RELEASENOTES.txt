@@ -21,6 +21,10 @@ index.jsp:
 ----------------------
 * Use rounded corners on the right of the page (CC-113). Patch by Mark Doliner
 
+JMX:
+----------------------
+* Add ability to require username/password for JMX interface (CC-128). Patch by Glenn Brown
+
 Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
