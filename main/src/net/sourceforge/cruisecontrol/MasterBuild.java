@@ -823,7 +823,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * Wraps the XmlLogger's method with a logging level check
      */
     public void messageLogged(BuildEvent event) {
-        if (_debug == false && event.getPriority() == Project.MSG_DEBUG) {
+        int logLevel = event.getPriority();
+        
+        if (_debug == false && logLevel == Project.MSG_DEBUG) {
+            return;
+        }
+        
+        if (_verbose == false && logLevel == Project.MSG_VERBOSE) {
             return;
         }
         
