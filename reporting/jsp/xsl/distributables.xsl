@@ -42,8 +42,8 @@
 
     <xsl:output method="html"/>
     <xsl:variable name="tasklist" select="//target/task"/>
-    <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']"/>
-    <xsl:variable name="war.tasklist" select="$tasklist[@name='War']"/>
+    <xsl:variable name="jar.tasklist" select="$tasklist[@name='Jar']/message[@priority='info']"/>
+    <xsl:variable name="war.tasklist" select="$tasklist[@name='War']/message[@priority='info']"/>
     <xsl:variable name="dist.count" select="count($jar.tasklist) + count($war.tasklist)"/>
 
     <xsl:template match="/">
@@ -61,13 +61,13 @@
         </table>
     </xsl:template>
 
-    <xsl:template match="task[@name='Jar'] | task[@name='War']">
+    <xsl:template match="task[@name='Jar']/message[@priority='info'] | task[@name='War']/message[@priority='info']">
         <tr>
             <xsl:if test="position() mod 2 = 0">
                 <xsl:attribute name="class">distributables-oddrow</xsl:attribute>
             </xsl:if>
             <td class="distributables-data">
-                <xsl:value-of select="message[@priority='info']"/>
+                <xsl:value-of select="text()"/>
             </td>
         </tr>
     </xsl:template>
