@@ -36,11 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.Calendar;
 
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -61,6 +64,9 @@ public class Schedule {
 
     static final long ONE_MINUTE = 60 * 1000;
     static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
+    /** date formatting for time statements */
+    private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
+
 
     public void addBuilder(Builder builder) {
         builders.add(builder);
@@ -80,10 +86,26 @@ public class Schedule {
         PauseBuilder pause = findPause(now);
         if (pause != null) {
             LOG.info(
-                "CruiseControl is paused until: " + pause.getEndTime() + 1);
+                "CruiseControl is paused until: " + getEndTimeString(pause));
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns a String representing the time following the end time of
+     * the given {@link PauseBuilder}.
+     *
+     * @param builder the <code>PauseBuilder</code> to be considered.
+     * @return a String representing the time following the end time of
+     *         the <code>PauseBuilder</code>.
+     */
+    private String getEndTimeString(PauseBuilder builder) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, builder.getEndTime() / 100);
+        cal.set(Calendar.MINUTE, builder.getEndTime() % 100);
+        cal.add(Calendar.MINUTE, 1);
+        return TIME_FORMAT.format(cal.getTime());
     }
 
     PauseBuilder findPause(Date date) {
