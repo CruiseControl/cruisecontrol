@@ -152,9 +152,9 @@ public class Log {
 
         String logFilename = null;
         if (helper.isBuildSuccessful()) {
-            logFilename = "log" + Project.getFormatedTime(now) + "L" + helper.getLabel() + ".xml";
+            logFilename = formatLogFileName(now, helper.getLabel());
         } else {
-            logFilename = "log" + Project.getFormatedTime(now) + ".xml";
+            logFilename = formatLogFileName(now);
         }
 
         Element logFileElement = new Element("property");
@@ -188,6 +188,23 @@ public class Log {
         } finally {
             logWriter = null;
         }
+    }
+
+    static String formatLogFileName(Date date) {
+        return formatLogFileName(date, null);
+    }
+
+    static String formatLogFileName(Date date, String label) {
+        StringBuffer logFileName = new StringBuffer();
+        logFileName.append("log");
+        logFileName.append(Project.getFormatedTime(date));
+        if (label != null) {
+            logFileName.append("L");
+            logFileName.append(label);
+        }
+        logFileName.append(".xml");
+
+        return logFileName.toString();
     }
 
     public void addContent(Element newContent) {
