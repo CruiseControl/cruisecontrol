@@ -254,7 +254,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr class="oddrow">
                     <td>&lt;system&gt;</td>
                     <td>0 .. 1</td>
                     <td>Currently just a placeholder for the &lt;configuration&gt; element, 
@@ -267,7 +267,7 @@
                     <td>1 .. *</td>
                     <td>Defines a basic unit of work.</td>
                 </tr>
-                <tr>
+                <tr class="oddrow">
                     <td><a href="#plugin">&lt;plugin&gt;</a></td>
                     <td>0 .. *</td>
                     <td>Registers a classname with an alias.</td>
@@ -1101,56 +1101,57 @@
                 and if modification are detected, returns changes from a list
                 of target source controls.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#cvs">&lt;cvs&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a CVS repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#filesystem">&lt;filesystem&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a file system.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#httpfile">&lt;httpfile&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a remote file via http.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#mks">&lt;mks&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a MKS repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#p4">&lt;p4&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Perforce repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#pvcs">&lt;pvcs&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a PVCS repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#starteam">&lt;starteam&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Star Team repository.</td>
             </tr>
+            <tr class="oddrow">
                  <td><a href="#surround">&lt;surround&gt;</a></td>
                  <td>0 .. *</td>
                  <td>Checks for changes in a Surround SCM repository.</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vss">&lt;vss&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe, Journal File
@@ -2053,19 +2054,19 @@
         <p>Checks for changes in a Visual SourceSafe repository.</p>
 
         <p>This implementation doesn't require the source safe executable making
-            <thead>
         it suitable for use on non-Windows machines.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
-        </thead>
-        <tbody>
+        <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+		</thead>
+        <tbody>
             <tr class="oddrow">
                 <td>journalfile</td>
                 <td>Yes</td>
@@ -2196,8 +2197,8 @@
             <tr>
                 <td>cvstimestamp</td>
                 <td>Timestamp that indicates when the build started, using the
-                format <code>yyyy-MM-dd HH:mm:ss 'GMT'</code> so it can be used
-                as a CVS argument</td>
+                format <code>yyyy-MM-dd&nbsp;HH:mm:ss&nbsp;'GMT'</code> so it
+                can be used as a CVS argument</td>
             </tr>
             <tr class="oddrow">
                 <td>cctimestamp</td>
@@ -2253,9 +2254,9 @@
         <ol>
             <li>Using the <b><code>antscript</code></b> attribute. This is the
             preferred alternative, as it helps to ensure that builds are run
-            completely independently of the CruiseControl distribution, and that
-            extra jars required in the ant lib-directory need not be
-            duplicated within CruiseControl.</li>
+            completely independent of the CruiseControl distribution, and that
+            extra jars required in the ant lib-directory need not be duplicated
+            within CruiseControl.</li>
             <li>Using the ant binaries distributed with CruiseControl. Settings
             for the virtual machine can be specified using the nested <code>
             &lt;jvmarg&gt;</code> element.</li>
@@ -2319,8 +2320,8 @@
                 <td>Absolute filename of script (shell script or bat file) used
                 to start Ant. You can use this to make CruiseControl use your own
                 Ant installation. If this is not specified, the AntBuilder uses 
-                the Ant 1.6.2 distribution that ships with CruiseControl. See
-                below for <a href="#ant-examples">examples</a>.</td>
+                the Ant distribution that ships with CruiseControl. See below
+                for <a href="#ant-examples">examples</a>.</td>
             </tr>
             <tr>
                 <td>antWorkingDir</td>
@@ -2423,9 +2424,9 @@
             <pre>#!/bin/sh
 PROJECT_HOME=`dirname "$0"`
 ANT_HOME=${PROJECT_HOME}/tools/ant
-chmod 0777 ${ANT_HOME}/bin/ant
+chmod 0755 ${ANT_HOME}/bin/ant
 ANT_CMD=${ANT_HOME}/bin/ant
-"$ANT_CMD" "$@"</pre>
+exec "$ANT_CMD" "$@"</pre>
 
             <p>Note the double quotes around $@: this ensures that all arguments
             will be quoted, which is necessary for arguments containing spaces.</p>
