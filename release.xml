@@ -13,6 +13,17 @@
     <mkdir dir="${website}/main"/>
     <mkdir dir="${website}/reporting/jsp"/>
 
+    <fixcrlf srcdir="."
+        eol="lf" 
+        eof="remove"
+        includes="**/*.sh"
+    />
+
+    <fixcrlf srcdir="."
+        eol="crlf"
+        includes="**/*.bat"
+    />
+
     <copy todir="${website}">
         <fileset dir="${docs}"/>
     </copy>
