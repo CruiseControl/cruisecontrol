@@ -23,8 +23,10 @@ import org.apache.log4j.Category;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-import java.io.File;
 
+/**
+ * @author Niclas Olofsson
+ */
 public class ProjectController implements ProjectControllerMBean {
 
     /** enable logging for this class */
@@ -103,7 +105,7 @@ public class ProjectController implements ProjectControllerMBean {
 
     /**
      * Returns the duration the managed process has been executing.
-     * 
+     *
      * @return Execution duration.
      */
     public long getUpTime() {
@@ -113,7 +115,7 @@ public class ProjectController implements ProjectControllerMBean {
     /**
      * Returns the number of successful builds performed by the managed
      * process.
-     * 
+     *
      * @return Successful build count.
      */
     public long getSuccessfulBuildCount() {
@@ -122,7 +124,7 @@ public class ProjectController implements ProjectControllerMBean {
 
     /**
      * Is the project paused?
-     * 
+     *
      * @return Pause state
      */
     public boolean isPaused() {
@@ -141,7 +143,7 @@ public class ProjectController implements ProjectControllerMBean {
         for (int i = 0; i < args.length - 1; i++) {
             if (args[i].equals("-port")) {
                 try {
-                    return Integer.parseInt( args[i + 1] );
+                    return Integer.parseInt(args[i + 1]);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     throw new CruiseControlException(
                             "'port' argument was not specified.");
@@ -190,4 +192,5 @@ public class ProjectController implements ProjectControllerMBean {
         log.info("   -configfile file       where file is the configuration file");
         System.exit(1);
     }
+
 }

@@ -83,6 +83,7 @@ public class Main {
         log.info("java CruiseControl [options]");
         log.info("where options are:");
         log.info("");
+        log.info("   -port number           where number is the port of the Controller web site");
         log.info("   -projectname name      where name is the name of the project");
         log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
         log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
