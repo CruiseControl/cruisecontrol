@@ -72,9 +72,9 @@ public abstract class EmailPublisher implements Publisher {
     private List _failureAddresses = new ArrayList();
     private List _emailMap = new ArrayList();
     private String _returnAddress;
-    private String _defaultSuffix;
+    private String _defaultSuffix = "";
     private String _reportSuccess = "always";
-    private boolean _spamWhileBroken;
+    private boolean _spamWhileBroken = true;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -303,6 +303,10 @@ public abstract class EmailPublisher implements Publisher {
 
     public void addFailureAddress(String emailAddress) {
         _failureAddresses.add(emailAddress);
+    }
+
+    public String getReturnAddress() {
+        return _returnAddress;
     }
 
     public void setReturnAddress(String emailAddress) {
