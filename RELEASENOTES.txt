@@ -1,3 +1,9 @@
+CruiseControl Release Notes - CVS
+
+ModificationSet:
+----------------------
+* Fix for possible NPE when using ignoreFiles
+
 CruiseControl Release Notes - 2.2
 
 Ant:
