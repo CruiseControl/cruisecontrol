@@ -196,6 +196,10 @@ public class Project implements Serializable {
         _auxLogs.add(fileName);
     }
 
+    public LabelIncrementer getLabelIncrementer() {
+        return _labelIncrementer;
+    }
+
     public void setLabelIncrementer(LabelIncrementer incrementer) {
         _labelIncrementer = incrementer;
     }
@@ -254,12 +258,20 @@ public class Project implements Serializable {
         return _formatter.format(_now);
     }
 
+    public String getLogDir() {
+        return _logDir;
+    }
+
     public void setLogDir(String logDir) {
         _logDir = logDir;
     }
 
     public long getSleepMilliseconds() {
         return _sleepMillis;
+    }
+
+    public void setSleepMillis(long sleepMillis) {
+        _sleepMillis = sleepMillis;
     }
 
     protected String getLogFileName() {

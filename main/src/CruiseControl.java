@@ -38,6 +38,7 @@
 import net.sourceforge.cruisecontrol.*;
 import net.sourceforge.cruisecontrol.util.Upgrader;
 import net.sourceforge.cruisecontrol.jmx.ProjectController;
+import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
 
 /**
  * This class wraps the MasterBuild process to
