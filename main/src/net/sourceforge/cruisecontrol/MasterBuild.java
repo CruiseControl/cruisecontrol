@@ -266,7 +266,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _buildmaster = getSetFromString(props.getProperty("buildmaster"));
         _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
 
-        _logDir = props.getProperty("logdir");
+        _logDir = props.getProperty("logDir");
         new File(_logDir).mkdirs();
         
         String buildStatusFileName = _logDir + File.separator 
