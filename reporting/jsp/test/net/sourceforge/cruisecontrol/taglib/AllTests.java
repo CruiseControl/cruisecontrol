@@ -52,7 +52,7 @@ public class AllTests extends TestCase {
         suite.addTestSuite(XSLTagTest.class);
         suite.addTestSuite(TabSheetTagTest.class);
         suite.addTestSuite(TabTagTest.class);
-        suite.addTestSuite(CruiseTagSupportTest.class);
+        suite.addTestSuite(CruiseControlTagSupportTest.class);
         return suite;
     }
 }

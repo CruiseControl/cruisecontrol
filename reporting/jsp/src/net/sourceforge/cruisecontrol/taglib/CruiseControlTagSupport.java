@@ -48,7 +48,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  * A helper class to consolidate tags that deal with log files.
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
-public class CruiseTagSupport extends BodyTagSupport {
+public class CruiseControlTagSupport extends BodyTagSupport {
     protected void info(String message) {
         System.out.println(message);
     }

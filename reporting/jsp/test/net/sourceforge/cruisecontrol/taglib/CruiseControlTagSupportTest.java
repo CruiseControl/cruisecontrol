@@ -44,16 +44,16 @@ import net.sourceforge.cruisecontrol.mock.MockServletRequest;
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class CruiseTagSupportTest extends TestCase {
-    private CruiseTagSupport tag;
+public class CruiseControlTagSupportTest extends TestCase {
+    private CruiseControlTagSupport tag;
     private MockServletRequest request;
 
-    public CruiseTagSupportTest(String name) {
+    public CruiseControlTagSupportTest(String name) {
         super(name);
     }
 
     public void setUp() {
-        tag = new CruiseTagSupport();
+        tag = new CruiseControlTagSupport();
         MockPageContext pageContext = new MockPageContext();
         tag.setPageContext(pageContext);
         request = new MockServletRequest("context", "servlet");

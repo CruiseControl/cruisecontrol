@@ -42,7 +42,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import javax.servlet.jsp.JspException;
 
-public class CurrentBuildStatusTag extends CruiseTagSupport {
+public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
     public int doEndTag() throws JspException {
         writeStatus(getPageContext().getOut());
