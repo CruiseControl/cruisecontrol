@@ -8,6 +8,10 @@ ArtifactsPublisher
 ---------------
 * Added to the default plugin registry
 
+build.sh
+---------------
+* Fixed problem with eol characters preventing files from executing on unix systems
+
 CVSBootstrapper
 ---------------
 * Add -dP to update command
