@@ -51,72 +51,72 @@ import org.apache.log4j.Logger;
  */
 public class DefaultLabelIncrementer implements LabelIncrementer {
 
-	private static final Logger LOG =
-		Logger.getLogger(DefaultLabelIncrementer.class);
+    private static final Logger LOG =
+        Logger.getLogger(DefaultLabelIncrementer.class);
 
-	private boolean preIncrement = false;
+    private boolean preIncrement = false;
 
-	private String separator = ".";
+    private String separator = ".";
 
-	/**
-	 * Increments the label when a successful build occurs.
-	 * Assumes that the label will be in
-	 * the format of "x.y", where x can be anything, and y is an integer.
-	 * The y value will be incremented by one, the rest will remain the same.
-	 *
-	 * @param oldLabel Label from previous successful build.
-	 * @return Label to use for most recent successful build.
-	 */
-	public String incrementLabel(String oldLabel, Element buildLog) {
+    /**
+     * Increments the label when a successful build occurs.
+     * Assumes that the label will be in
+     * the format of "x.y", where x can be anything, and y is an integer.
+     * The y value will be incremented by one, the rest will remain the same.
+     *
+     * @param oldLabel Label from previous successful build.
+     * @return Label to use for most recent successful build.
+     */
+    public String incrementLabel(String oldLabel, Element buildLog) {
 
-		String prefix =
-			oldLabel.substring(0, oldLabel.lastIndexOf(separator) + 1);
-		String suffix =
-			oldLabel.substring(
-				oldLabel.lastIndexOf(separator) + 1,
-				oldLabel.length());
-		int i = Integer.parseInt(suffix);
-		String newLabel = prefix + ++i;
-		LOG.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
-		return newLabel;
-	}
+        String prefix =
+            oldLabel.substring(0, oldLabel.lastIndexOf(separator) + 1);
+        String suffix =
+            oldLabel.substring(
+                oldLabel.lastIndexOf(separator) + 1,
+                oldLabel.length());
+        int i = Integer.parseInt(suffix);
+        String newLabel = prefix + ++i;
+        LOG.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
+        return newLabel;
+    }
 
-	public boolean isPreBuildIncrementer() {
-		return preIncrement;
-	}
+    public boolean isPreBuildIncrementer() {
+        return preIncrement;
+    }
 
-	/**
-	 *  Set the pre/post behavior of the label incrementer.
-	 */
-	public void setPreBuildIncrementer(boolean preIncrement) {
-		this.preIncrement = preIncrement;
-	}
+    /**
+     *  Set the pre/post behavior of the label incrementer.
+     */
+    public void setPreBuildIncrementer(boolean preIncrement) {
+        this.preIncrement = preIncrement;
+    }
 
-	/**
-	 * Verify that the label specified is a valid label.  In this case a valid
-	 * label contains at least one '.' character, and an integer after the last
-	 * occurrence of the '.' character.
-	 */
-	public boolean isValidLabel(String label) {
+    /**
+     * Verify that the label specified is a valid label.  In this case a valid
+     * label contains at least one '.' character, and an integer after the last
+     * occurrence of the '.' character.
+     */
+    public boolean isValidLabel(String label) {
 
-		if (label.indexOf(separator) < 0) {
-			return false;
-		}
+        if (label.indexOf(separator) < 0) {
+            return false;
+        }
 
-		try {
-			String suffix =
-				label.substring(
-					label.lastIndexOf(separator) + 1,
-					label.length());
-			Integer.parseInt(suffix);
-			return true;
-		} catch (NumberFormatException e) {
-			return false;
-		}
-	}
+        try {
+            String suffix =
+                label.substring(
+                    label.lastIndexOf(separator) + 1,
+                    label.length());
+            Integer.parseInt(suffix);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
-	public void setSeparator(String newSeparator) {
-		separator = newSeparator;
-	}
+    public void setSeparator(String newSeparator) {
+        separator = newSeparator;
+    }
 
 }

@@ -47,8 +47,8 @@ package net.sourceforge.cruisecontrol.labelincrementers;
  */
 public class CVSLabelIncrementer extends DefaultLabelIncrementer {
 
-	public CVSLabelIncrementer() {
-		setSeparator("-");
-	}
+    public CVSLabelIncrementer() {
+        setSeparator("-");
+    }
 
 }
