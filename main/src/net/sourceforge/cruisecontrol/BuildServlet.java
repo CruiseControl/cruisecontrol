@@ -66,8 +66,6 @@ public class BuildServlet extends HttpServlet {
     private String _imageDir = "";
 
     private String _logFile;
-    private FileReader _xml;
-    private FileReader _xsl;
 
     protected String getLogDir() {
         return _logDir;
@@ -183,19 +181,10 @@ public class BuildServlet extends HttpServlet {
     private void transformBuildLogToHTML(PrintWriter out) throws FileNotFoundException, org.xml.sax.SAXException {
         File xmlFile = new File(_logFile);
         if (xmlFile.exists()) {
-            FileReader xml = new FileReader(xmlFile);
-            FileReader xsl = new FileReader(_xslFile);
-
-            // Instantiate an XSLTProcessor.
-            org.apache.xalan.xslt.XSLTProcessor processor = org.apache.xalan.xslt.XSLTProcessorFactory.getProcessor();
-
-            // Create the 3 objects the XSLTProcessor needs to perform the transformation.
-            XSLTInputSource xmlSource = new XSLTInputSource(xml);
-            XSLTInputSource xslSheet = new XSLTInputSource(xsl);
-            XSLTResultTarget xmlResult = new XSLTResultTarget(out);
-
-            // Perform the transformation.
-            processor.process(xmlSource, xslSheet, xmlResult);
+            InputStream xml = new FileInputStream(xmlFile);
+            InputStream xsl = new FileInputStream(_xslFile);
+            
+            XmlTransformer.transform(xml, xsl, out);
         }
     }
 
