@@ -129,7 +129,7 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     public void setDefaultLabel(String label) {
         final int separatorIndex = label.lastIndexOf(separator);
         defaultPrefix = label.substring(0, separatorIndex);
-        String suffix = label.substring( separatorIndex + 1, label.length());
+        String suffix = label.substring(separatorIndex + 1, label.length());
         defaultSuffix = Integer.parseInt(suffix);
     }
 
