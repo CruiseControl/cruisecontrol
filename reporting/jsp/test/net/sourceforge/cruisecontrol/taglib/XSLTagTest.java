@@ -74,16 +74,6 @@ public class XSLTagTest extends TestCase {
         logDir.delete();
     }
 
-    public void testGetLatestLog() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
-
-        XSLTag tag = new XSLTag();
-        File result = tag.getLatestLogFile(logDir);
-        assertEquals(result.getName(), "log3.xml");
-    }
-
     public void testTransform() throws Exception {
         final String styleSheetText =
                 "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
@@ -179,8 +169,7 @@ public void testIsCachedCopyCurrent() {
     }
 
     private void writeFile(File file, String body) throws Exception {
-        FileWriter writer = null;
-        writer = new FileWriter(file);
+        FileWriter writer = new FileWriter(file);
         writer.write(body);
         writer.close();
     }

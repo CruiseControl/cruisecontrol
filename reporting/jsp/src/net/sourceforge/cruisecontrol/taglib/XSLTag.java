@@ -45,7 +45,6 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Arrays;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
@@ -173,22 +172,6 @@ public class XSLTag extends CruiseControlBodyTagSupport {
             info("Using specified log file: " + xmlFile.getAbsolutePath());
         }
         return xmlFile;
-    }
-
-    /**
-     *  Gets the latest log file in a given directory.  Since all of our logs contain a date/time string, this method
-     *  is actually getting the log file that comes last alphabetically.
-     *
-     *  @return The latest log file.
-     */
-    protected File getLatestLogFile(File logDir) {
-        File[] logs = logDir.listFiles(new CruiseControlLogFileFilter());
-        if (logs != null && logs.length > 0) {
-            Arrays.sort(logs, new ReversedComparator());
-            return logs[0];
-        } else {
-            return null;
-        }
     }
 
     /**

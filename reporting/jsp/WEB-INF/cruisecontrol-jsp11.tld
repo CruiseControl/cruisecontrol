@@ -93,6 +93,15 @@
         </attribute>
     </tag>
     <tag>
+        <name>artifactsLink</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTag</tagclass>
+        <teiclass>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTagExtraInfo</teiclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Inserts link to the artifacts FileServlet
+        </info>
+    </tag>
+    <tag>
         <name>tabsheet</name>
         <tagclass>net.sourceforge.cruisecontrol.taglib.TabSheetTag</tagclass>
         <bodycontent>JSP</bodycontent>

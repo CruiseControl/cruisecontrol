@@ -39,88 +39,108 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.File;
 import java.io.FileWriter;
 
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.Tag;
+
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletRequest;
 
 /**
- *
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author jfredrick
  */
-public class CruiseControlTagSupportTest extends TestCase {
-    private CruiseControlTagSupport tag;
+public class ArtifactsLinkTagTest extends TestCase {
+
+    private ArtifactsLinkTag tag;
+    private MockPageContext pageContext;
     private MockServletRequest request;
-    
+
     private File logDir;
     private File log1;
     private File log2;
     private File log3;
     private File log4;
 
-    public CruiseControlTagSupportTest(String name) {
+    public ArtifactsLinkTagTest(String name) {
         super(name);
     }
 
-    public void setUp() {
-        tag = new CruiseControlTagSupport();
-        MockPageContext pageContext = new MockPageContext();
-        tag.setPageContext(pageContext);
+    protected void setUp() throws Exception {
+        tag = new ArtifactsLinkTag();
+
+        pageContext = new MockPageContext();
         request = new MockServletRequest("context", "servlet");
         pageContext.setHttpServletRequest(request);
+
+        tag.setPageContext(pageContext);
 
         logDir = new File("testresults/");
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
-        log1 = new File(logDir, "log1.xml");
-        log2 = new File(logDir, "log2.xml");
-        log3 = new File(logDir, "log3.xml");
+        log1 = new File(logDir, "log19920330120000.xml");
+        log2 = new File(logDir, "log19930925120000.xml");
+        log3 = new File(logDir, "log20020731220000.xml");
+        log4 = new File(logDir, "log20030611123100.xml");
     }
-    
-    public void tearDown() {
+
+    protected void tearDown() {
         tag = null;
-        request = null;
-        
+        pageContext = null;
+
         log1.delete();
         log2.delete();
         log3.delete();
         logDir.delete();
-
+        
         log1 = null;
         log2 = null;
         log3 = null;
-        logDir = null;
+        log4 = null;        
     }
+    
+    public void testGetTimeFromLogParam() {
+        assertEquals("", tag.getTimeFromLogParam());
 
-    public void testCreateUrl() {
-        assertEquals("/context/servlet?param=value", tag.createUrl("param", "value"));
+        request.addParameter("log", "log20030611123100");
+        assertEquals("20030611123100", tag.getTimeFromLogParam());
+
+        request.removeParameter("log");
+        request.addParameter("log", "log20030611123100Lbuild.1");
+        assertEquals("20030611123100", tag.getTimeFromLogParam());
     }
-
-    public void testCreateUrlReplacingParam() {
-        request.addParameter("param", "differentValue");
-        assertEquals("/context/servlet?param=value", tag.createUrl("param", "value"));
-    }
-
-    public void testCreateUrlPreservingParam() {
-        request.addParameter("otherParam", "otherValue");
-        assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
-    }
-
-    public void testCreateUrlPreservingAndReplacingParams() {
-        request.addParameter("otherParam", "otherValue");
-        request.addParameter("param", "differentValue");
-        assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
-    }
-
-    public void testGetLatestLog() throws Exception {
+    
+    public void testGetTimeFromLatestLogFile() throws Exception {
         writeFile(log1, "");
         writeFile(log2, "");
         writeFile(log3, "");
+        writeFile(log4, "");
 
-        File result = tag.getLatestLogFile(logDir);
-        assertEquals("log3.xml", result.getName());
+        MockServletConfig config = (MockServletConfig) pageContext.getServletConfig();
+        config.setInitParameter("logDir", logDir.getAbsolutePath());
+        assertEquals("20030611123100", tag.getTimeFromLatestLogFile());
     }
 
+    public void testDoStartTag() throws JspException {
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
+    }
+
+    public void testDoAfterBody() throws JspException {
+        MockBodyContent content = new MockBodyContent();
+        tag.setBodyContent(content);
+        assertEquals(Tag.SKIP_BODY, tag.doAfterBody());
+    }
+    
+    public void testDoInitBody() throws JspException {
+        request.addParameter("log", "log20030611123100");
+        tag.doInitBody();
+        String url = (String) pageContext.getAttribute(ArtifactsLinkTag.URL_ATTRIBUTE);
+        assertEquals("artifacts/20030611123100", url);
+    }
+    
     private void writeFile(File file, String body) throws Exception {
         FileWriter writer = new FileWriter(file);
         writer.write(body);

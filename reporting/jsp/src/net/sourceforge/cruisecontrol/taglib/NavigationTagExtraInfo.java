@@ -44,15 +44,15 @@ public class NavigationTagExtraInfo extends TagExtraInfo {
 
     public VariableInfo[] getVariableInfo(TagData data) {
         return new VariableInfo[] {
-            new VariableInfo("url",
+            new VariableInfo(NavigationTag.URL_ATTR,
                              "java.lang.String",
                              true,
                              VariableInfo.NESTED),
-            new VariableInfo("linktext",
+            new VariableInfo(NavigationTag.LINK_TEXT_ATTR,
                              "java.lang.String",
                              true,
                              VariableInfo.NESTED),
-            new VariableInfo("logfile",
+            new VariableInfo(NavigationTag.LOG_FILE_ATTR,
                              "java.lang.String",
                              true,
                              VariableInfo.NESTED),

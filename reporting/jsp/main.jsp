@@ -58,7 +58,15 @@
             <td bgcolor="white" >
               <cruisecontrol:tab name="buildResults" label="Build Results" >
          <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
-         <p>
+
+         <cruisecontrol:artifactsLink>
+           <table width="98%" border="0" cellspacing="0" cellpadding="2" align="center">
+           <tr><td class="header-label">
+             <a href="<%= artifacts_url %>">Build Artifacts</a>
+           </td></tr>
+           </table>
+         </cruisecontrol:artifactsLink>
+
          <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
          <p>
          <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
