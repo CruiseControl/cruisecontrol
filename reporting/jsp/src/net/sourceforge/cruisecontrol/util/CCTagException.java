@@ -45,6 +45,9 @@ import javax.servlet.jsp.JspTagException;
  */
 public class CCTagException extends JspTagException {
 
+    private Throwable initCause;
+
+
     /**
      * Constructs an instance of <code>CCTagException</code> with the specified detail message.
      * @param msg the detail message
@@ -55,6 +58,10 @@ public class CCTagException extends JspTagException {
 
         // jdk 1.3 incompatible
         // initCause(cause);
-        setStackTrace(cause.getStackTrace());
+        initCause = cause;
     }
+    
+  public StackTraceElement[] getStackTrace() {
+    return initCause.getStackTrace();
+  }
 }
