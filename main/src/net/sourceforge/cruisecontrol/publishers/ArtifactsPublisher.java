@@ -70,7 +70,7 @@ public class ArtifactsPublisher implements Publisher {
         targetFile = file;
     }
 
-    public void setPublisherOnFailure(boolean shouldPublish) {
+    public void setPublishOnFailure(boolean shouldPublish) {
         publishOnFailure = shouldPublish;
     }
 
