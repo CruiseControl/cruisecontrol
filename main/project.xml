@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--****************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************-->
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <groupId>cruisecontrol</groupId>
+  <id>cruisecontrol-buildloop</id>
+  <name>CruiseControl (Build loop)</name>
+
+  <!--organization>
+    <name></name>
+    <url></url>
+    <logo></logo>
+  </organization-->
+  <inceptionYear>2001</inceptionYear>
+  <package>net.sourceforge.cruisecontrol</package>
+  <!--logo></logo-->
+
+  <description>
+    <![CDATA[ FIXME. ]]>
+  </description>
+  <shortDescription>FIXME</shortDescription>
+  <url>http://cruisecontrol.sourceforge.net/</url>
+  <issueTrackingUrl>http://jira.public.thoughtworks.org/secure/BrowseProject.jspa?id=10020</issueTrackingUrl>
+  <!--siteAddress>cruisecontrol.sf.net</siteAddress-->
+  <siteDirectory/>
+  <distributionSite/>
+  <distributionDirectory/>
+
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot:cruisecontrol</connection>
+    <developerConnection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot:cruisecontrol</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/cruisecontrol</url>
+  </repository>
+
+
+
+  <!--developers>
+    <developer>
+      <name></name>
+      <id></id>
+      <email></email>
+      <organization/>
+      <roles>
+        <role></role>
+      </roles>
+      <timezone></timezone>
+    </developer>
+  </developers-->
+
+  <dependencies>
+    <dependency>
+      <id>activation</id>
+      <version>1.0.2</version> <!-- note: not in ibiblio-->
+      <url>http://java.sun.com/products/javabeans/glasgow/jaf.html</url>
+    </dependency>
+    <dependency>
+      <id>ant</id>
+      <version>1.6.2</version> <!-- FIXME I think it is 1.6.2 now -->
+      <url>http://ant.apache.org/</url>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant-launcher</artifactId>
+      <version>1.6.2</version>
+      <url>http://ant.apache.org/</url>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant-junit</artifactId>
+      <version>1.6.2</version>
+      <url>http://ant.apache.org/</url>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant-nodeps</artifactId>
+      <version>1.6.2</version>
+      <url>http://ant.apache.org/</url>
+    </dependency>
+    <dependency>
+      <id>comm</id>
+      <version>2.0</version> <!-- FIXME is that sure? maybe 2.0.3-->
+      <url>http://java.sun.com/products/javacomm/index.jsp</url>
+    </dependency>
+    <dependency>
+      <id>commons-net</id>
+      <version>1.1.0</version>
+      <url>http://commons.jakarta.org/</url>
+    </dependency>
+    <dependency>
+      <groupId>jakarta</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.3</version> <!-- FIXME not in ibiblio. upgrade? -->
+      <url>http://FIXME.apache.org/</url>
+    </dependency>
+    <dependency>
+      <id>jdom</id>
+      <version>b9</version>
+      <url>http://www.jdom.org/ </url>
+    </dependency>
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.4</version>
+      <url>http://log4j.apache.org/ </url>
+    </dependency>
+    <dependency>
+      <id>javamail</id>
+      <version>1.2</version>
+      <url>http://FIXME/ </url>
+    </dependency>
+    <dependency>
+      <groupId>jpeterson</groupId>
+      <artifactId>jpeterson-x10</artifactId>
+      <version>1.0.1</version> <!-- FIXME is that sure? -->
+      <url>http://www.jpeterson.com/</url>
+    </dependency>
+    <dependency>
+      <id>smack</id>
+      <version>1.3</version>
+      <url>http://www.jivesoftware.com/xmpp/smack/</url>
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+      <version>2.0.1</version>
+      <url>http://mx4j.sourceforge.net/ </url>
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-jmx</artifactId>
+      <version>2.0.1</version>
+      <url>http://mx4j.sourceforge.net/ </url>
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-tools</artifactId>
+      <version>2.0.1</version>  <!-- not in ibiblio -->
+      <url>http://mx4j.sourceforge.net/ </url>
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-remote</artifactId>
+      <version>2.0.1</version>
+      <url>http://mx4j.sourceforge.net/ </url>
+    </dependency>
+    <dependency>
+      <id>xalan</id>
+      <version>unknown</version>
+      <url>http://FIXME/ </url>
+    </dependency>
+    <dependency>
+      <id>xerces</id>
+      <version>unknown</version>
+      <url>http://FIXME/ </url>
+    </dependency>
+
+    <!-- temporary solution -->
+    <!-- FIXME: better is to download the mocks only in the release process -->
+    <dependency>
+      <groupId>mock-apis</groupId>
+      <artifactId>sametime-sdk-mock-interface</artifactId>
+      <version>0.1</version>    <!-- version number of mock -->
+      <url>http://coffeebreaks.dyndns.org/maven/mock-apis/distributions/</url> <!-- URL of real same time jar file ... -->
+    </dependency>
+    <dependency>
+      <groupId>mock-apis</groupId>
+      <artifactId>starteam-sdk-mock-interface</artifactId>
+      <version>0.1</version>    <!-- version number of mock -->
+      <url>http://coffeebreaks.dyndns.org/maven/mock-apis/distributions/</url> <!-- URL of real same time jar file ... -->
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <!--sourceModifications>
+      <sourceModification>
+        <className>com.starbase.starteam.commandline.StarTeamCmd</className>
+        <excludes>
+          <exclude>**/StarTeam*</exclude>
+        </excludes>
+      </sourceModification>
+      <sourceModification>
+        <className>com.lotus.sametime.core.types.STObject</className>
+        <excludes>
+          <exclude>**/Sametime*</exclude>
+        </excludes>
+      </sourceModification>
+    </sourceModifications-->
+    <unitTestSourceDirectory>test</unitTestSourceDirectory>
+
+    <unitTest>
+      <includes>
+        <include>**/*Test.*</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/test</directory>
+          <excludes>
+            <exclude>**/*.java</exclude>
+          </excludes>
+        </resource>
+      </resources>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>${basedir}/src</directory>
+        <!--targetPath></targetPath-->
+        <includes>
+          <include>${basedir}/*.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/xsl</directory>
+      </resource>
+    </resources>
+    <jars></jars>
+  </build>
+  
+  <reports>	
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-license-plugin</report>
+    <report>maven-simian-plugin</report>
+    <report>maven-clover-plugin</report>
+    <!--report>maven-jcoverage-plugin</report-->
+    <report>maven-junit-report-plugin</report>
+  </reports>
+</project>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--****************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************-->
+<project>
+  <extend>${basedir}/../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <groupId>cruisecontrol</groupId>
+  <id>cruisecontrol-reporting</id>
+  <name>CruiseControl (reporting)</name>
+
+  <!--organization>
+    <name></name>
+    <url></url>
+    <logo></logo>
+  </organization-->
+  <inceptionYear>2001</inceptionYear>
+  <package>net.sourceforge.cruisecontrol</package>
+  <!--logo></logo-->
+
+  <description>
+    <![CDATA[ FIXME. ]]>
+  </description>
+  <shortDescription>FIXME</shortDescription>
+  <url>http://cruisecontrol.sourceforge.net/</url>
+  <issueTrackingUrl>http://jira.public.thoughtworks.org/secure/BrowseProject.jspa?id=10020</issueTrackingUrl>
+  <!--siteAddress>cruisecontrol.sf.net</siteAddress-->
+  <siteDirectory/>
+  <distributionSite/>
+  <distributionDirectory/>
+
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot:cruisecontrol</connection>
+    <developerConnection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot:cruisecontrol</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/cruisecontrol</url>
+  </repository>
+
+  <!--developers>
+    <developer>
+      <name></name>
+      <id></id>
+      <email></email>
+      <organization/>
+      <roles>
+        <role></role>
+      </roles>
+      <timezone></timezone>
+    </developer>
+  </developers-->
+
+  <dependencies>
+    <dependency>
+      <id>servletapi</id>
+      <version>2.2</version> <!-- FIXME check -->
+      <url>http://java.sun.com/products/servlet/</url>
+    </dependency>
+    <dependency>
+      <id>cewolf</id>
+      <version>1.5.3-1</version>
+      <url>http://ant.apache.org/</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>jfreechart</groupId>
+      <artifactId>jfreechart</artifactId>
+      <version>0.9.8</version>
+      <url>http://FIXME.org/</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>xalan</id>
+      <version>unknown</version>
+      <url>http://FIXME/ </url>
+    </dependency>
+
+    <dependency>
+      <groupId>jcommon</groupId>
+      <artifactId>jcommon</artifactId>
+      <version>0.8.0</version>
+      <url>http://FIXME.org/</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>batik</groupId>
+      <artifactId>batik-util</artifactId>
+      <version>unknown</version>
+      <url>http://xml.apache.org/batik/</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>batik</groupId>
+      <artifactId>batik-svggen</artifactId>
+      <version>unknown</version>
+      <url>http://xml.apache.org/batik/</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>batik</groupId>
+      <artifactId>batik-awt-util</artifactId>
+      <version>unknown</version>
+      <url>http://xml.apache.org/batik/</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>unknown</version>
+      <url>http://jakarta.apache.org/commons/logging.html</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>unknown</version>
+      <url>http://FIXME/ </url>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <unitTestSourceDirectory>test</unitTestSourceDirectory>
+
+    <unitTest>
+      <includes>
+        <include>**/*Test.*</include>
+      </includes>
+    </unitTest>
+    <!--resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>xsl</directory>
+      </resource>
+    </resources-->
+    <jars></jars>
+  </build>
+  
+  <reports>	
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-license-plugin</report>
+    <report>maven-simian-plugin</report>
+    <report>maven-clover-plugin</report>
+    <!--report>maven-jcoverage-plugin</report-->
+    <report>maven-junit-report-plugin</report>
+  </reports>
+</project>

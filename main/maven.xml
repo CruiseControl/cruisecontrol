@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--****************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************-->
+<project
+  default="jar"
+  xmlns:maven="jelly:maven"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant">
+
+  <preGoal name="java:compile">
+    <ant:tstamp/>
+    <!-- ASK small change with ant file: exact version displayed -->
+    <ant:property name="label" value="${pom.currentVersion} Compiled on ${TODAY} ${TSTAMP}"/>
+  </preGoal>
+
+  <postGoal name="test:prepare-filesystem">
+    <ant:mkdir dir="${maven.build.dir}/tmp" />
+    <!-- for AntBuilderTest to work when running from the target directory -->
+    <ant:copy todir="${maven.build.dir}">
+      <ant:fileset dir="${pom.build.unitTestSourceDirectory}" includes="testbuild.xml"/>
+    </ant:copy>
+  </postGoal>
+
+  <postGoal name="java:compile">
+    <!-- FIXME think of defining resources in the POM instead -->
+    <!-- ASK small change with ant file: overwrite (required if one changes the tag) -->
+    <filter token="VERSION" value="${label}" />
+    <ant:copy filtering="true" todir="${maven.build.dest}" file="${basedir}/log4j.properties" verbose="true"/>
+
+    <copy todir="${maven.build.dest}" overwrite="true" verbose="true">
+      <fileset dir="${basedir}" includes="log4j.properties"/>
+      <fileset dir="${basedir}" includes="version.properties"/>
+    </copy>
+
+    <ant:copy todir="${maven.build.dest}" overwrite="true" verbose="true">
+      <fileset dir="${basedir}" includes="log4j.properties"/>
+      <fileset dir="${basedir}" includes="version.properties"/>
+    </ant:copy>
+    <!-- copy resources like properties from the src-dir -->
+    <ant:copy todir="${maven.build.dest}">
+      <fileset dir="${pom.build.sourceDirectory}" excludes="**/*.java"/>
+    </ant:copy>
+
+    <!-- FIXME or should it also be a preGoal of test:test ?? -->
+    <attainGoal name="checkstyle:report" />
+    <attainGoal name="maven-simian-plugin:report" /> <!-- FIXME or just analyze ?? -->
+  </postGoal>
+
+  <postGoal name="jar:jar">
+    <ant:mkdir dir="${basedir}/dist"/>
+    <ant:copy tofile="${basedir}/dist/cruisecontrol.jar" file="${maven.build.dir}/${maven.final.name}.jar"/>
+  </postGoal>
+
+  <preGoal name="clean:clean">
+    <ant:delete dir="${basedir}/dist" quiet="true" failonerror="false"/>
+  </preGoal>
+
+</project>
