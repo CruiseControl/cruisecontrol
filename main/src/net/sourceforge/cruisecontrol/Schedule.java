@@ -155,7 +155,7 @@ public class Schedule {
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
             int buildTime = builder.getTime();
-            boolean isTimeBuilder = buildTime > 0;
+            boolean isTimeBuilder = buildTime >= 0;
             if (isTimeBuilder) {
                 boolean didntBuildToday =
                     builderDidntBuildToday(lastBuild, now, buildTime);
