@@ -45,7 +45,7 @@ public class MockModificationSet extends ModificationSet {
         return new Element("modifications");
     }
 
-    public int size() {
-        return 1;
+    public boolean isModified() {
+        return true;
     }
 }

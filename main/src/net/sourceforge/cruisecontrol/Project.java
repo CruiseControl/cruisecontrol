@@ -119,7 +119,7 @@ public class Project implements Serializable {
         }
         bootstrap();
         cruisecontrolElement.addContent(_modificationSet.getModifications(_lastBuild));
-        if (_modificationSet.size() == 0) {
+        if (!_modificationSet.isModified()) {
             log.info("No modifications found, build not necessary.");
             return; //no need to build
         }

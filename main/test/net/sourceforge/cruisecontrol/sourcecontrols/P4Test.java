@@ -36,19 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.*;
+import junit.framework.TestCase;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
-
-import junit.framework.*;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
-import javax.swing.event.ChangeListener;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *@author  Robert Watkins
@@ -56,9 +54,9 @@ import javax.swing.event.ChangeListener;
  */
 public class P4Test extends TestCase {
 
-	public P4Test(String testName) {
-		super(testName);
-	}
+    public P4Test(String testName) {
+        super(testName);
+    }
 
     public void testParseChangelists() throws IOException, ParseException {
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/p4_changes.txt");
@@ -69,7 +67,7 @@ public class P4Test extends TestCase {
         input.close();
         assertNotNull("No changelists returned", changelists);
         assertEquals("Returned wrong number of changelists", 4, changelists.length);
-        String[] expectedChangelists = new String[]{"14","12","11"};
+        String[] expectedChangelists = new String[]{"14", "12", "11"};
         for (int i = 0; i < expectedChangelists.length; i++) {
             assertEquals("Returned wrong changelist number", expectedChangelists[i], changelists[i]);
         }
@@ -83,6 +81,16 @@ public class P4Test extends TestCase {
         List changelists = p4.parseChangeDescriptions(input);
         input.close();
         assertEquals("Returned wrong number of changelists", 3, changelists.size());
+        XMLOutputter outputter = new XMLOutputter();
+        List changelistElements = p4.changeListsToElement(changelists);
+        for (Iterator iterator = changelistElements.iterator(); iterator.hasNext();) {
+            Element element = (Element) iterator.next();
+//  Use next lines if you want to see the output of the run. This is what is inserted into the logs.
+//            outputter.setNewlines(true);
+//            outputter.setIndent(true);
+//            System.out.println(outputter.outputString(element));
+        }
+
     }
 
 //    public void testGetModifications() throws Exception {
@@ -95,8 +103,8 @@ public class P4Test extends TestCase {
 //        
 //    }
         
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(P4Test.class);
-	}
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(P4Test.class);
+    }
 
 }

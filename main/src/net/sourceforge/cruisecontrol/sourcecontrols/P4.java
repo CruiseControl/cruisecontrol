@@ -39,6 +39,8 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Category;
+import org.jdom.CDATA;
+import org.jdom.Element;
 
 import java.io.*;
 import java.util.*;
@@ -72,7 +74,6 @@ public class P4 implements SourceControl {
     private String _P4Client;
     private String _P4User;
     private String _P4View;
-    private int _P4lastChange;
     private final static java.text.SimpleDateFormat P4DATE = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private final static java.text.SimpleDateFormat P4REVISIONDATE = new java.text.SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
@@ -115,6 +116,28 @@ public class P4 implements SourceControl {
         return _properties;
     }
 
+    protected List changeListsToElement(List mods) {
+        List changelists = new ArrayList();
+        for (Iterator iterator = mods.iterator(); iterator.hasNext();) {
+            Changelist changelist = (Changelist) iterator.next();
+            changelists.add(changelist.toElement());
+        }
+        return changelists;
+    }
+
+
+    /**
+     * Get a List of modifications detailing all the changes between now and
+     * the last build. Return this as an element. It is not neccessary for
+     * sourcecontrols to acctually do anything other than returning a chunch
+     * of XML data back.
+     * 
+     * @param lastBuild     time of last build
+     * @param now           time this build started
+     * @param quietPeriod   how long the repository will judge as safe
+     * @return              a list of XML elements that contains data about the modifications
+     *                      that took place. If no changes, this method returns an empty list.
+     */
     public List getModifications(Date lastBuild, Date now, long quietPeriod) {
 
         List mods = new ArrayList();
@@ -153,7 +176,8 @@ public class P4 implements SourceControl {
             e.printStackTrace();
             log.error("Log command failed to execute succesfully", e);
         }
-        return mods;
+
+        return changeListsToElement(mods);
     }
 
     private void getRidOfLeftoverData(InputStream stream) {
@@ -219,12 +243,13 @@ public class P4 implements SourceControl {
                 st.nextToken(); // skip 'on' text
                 changelist._dateOfSubmission = st.nextToken();
             }
-
+            line = reader.readLine(); // get past a 'text:' otherwise the expression below will fail to match.
             String description = "";
             while ((line = readToNotPast(reader, "text:\t", "text:")) != null && line.startsWith("text:\t")) {
                 description += line.substring(6);
             }
-
+            changelist._description = description;
+            
             // Ok, read affected files if there are any.
             line = readToNotPast(reader, "text: Affected files ...", "exit:");
             if (line != null) {
@@ -352,12 +377,37 @@ public class P4 implements SourceControl {
         String _dateOfSubmission;
         String _description;
         Vector _affectedFiles = new Vector();
+
+        public Element toElement() {
+            Element changelistElement = new Element("changelist");
+            changelistElement.setAttribute("type", "p4");
+            changelistElement.setAttribute("changelistNumber", _changelistNumber);
+            changelistElement.setAttribute("user", _user);
+            changelistElement.setAttribute("client", _client);
+            changelistElement.setAttribute("dateOfSubmission", _dateOfSubmission);
+            Element descriptionElement = new Element("description");
+            descriptionElement.addContent(new CDATA(_description));
+            changelistElement.addContent(descriptionElement);
+            for (int i = 0; i < _affectedFiles.size(); i++) {
+                AffectedFile affectedFile = (AffectedFile) _affectedFiles.elementAt(i);
+                changelistElement.addContent(affectedFile.toElement());
+            }
+            return changelistElement;
+        }
     }
 
     class AffectedFile {
         String filename;
         String revision;
         String action;
+
+        public Element toElement() {
+            Element affectedFileElement = new Element("affectedfile");
+            affectedFileElement.setAttribute("filename", filename);
+            affectedFileElement.setAttribute("revision", revision);
+            affectedFileElement.setAttribute("action", action);
+            return affectedFileElement;
+        }
 
         public void log() {
             System.out.println("Filename:\t<" + filename + ">");
