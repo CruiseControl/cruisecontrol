@@ -41,6 +41,7 @@
     <property name="apidocs" value="${docs}/api"/>
     <property name="classes" value="classes"/>    
     <property name="dist" value="dist"/>
+    <property name="release" value="release"/> 
     <property name="images" value="images"/>
     <property name="junit.results" value="test-results" />
     <property name="lib" value="lib"/>
@@ -82,18 +83,25 @@
     <target name="init" description="Setup build system">     
         <mkdir dir="${classes}"/>
         <mkdir dir="${apidocs}"/>
+        <mkdir dir="${release}"/> 
     </target>
 
     <!-- **************************************************** -->
     <!-- Cleans out the build directories                     -->
     <!-- **************************************************** -->
     <target name="clean" description="Cleans out the build directories" >
-       <delete>
-           <fileset dir="dist" includes="*.jar, *.war, *.zip"/>
+       <delete quiet="yes">
+            <fileset dir="dist" includes="*.jar, *.war, *.zip"/>
        </delete>
+       <delete file="final.xml" quiet="yes"/>
+       <delete file="log.xml" quiet="yes"/>
+       <delete file="logFileOne.xml" quiet="yes"/>
+       <delete file="logFileTwo.xml" quiet="yes"/> 
+       <delete dir="${classes}" quiet="yes"/>
+       <delete dir="${apidocs}" quiet="yes"/>
+       <delete dir="${junit.results}" quiet="yes"/> 
+       <delete dir="${release}" quiet="yes"/>
 
-       <delete dir="${classes}"/>
-       <mkdir dir="${classes}"/>
     </target>
 
     <!-- **************************************************** -->
@@ -179,9 +187,10 @@
     <!-- Builds the release zip                               -->
     <!-- **************************************************** -->
     <target name="release" depends="jar, war" description="Build release zip">
+        <fixcrlf srcdir="${dist}" eol="lf" includes="*.sh"/>
         <property name="release.zip" value="cruisecontrol.zip"/>
-        <delete file="release\${release.zip}"/>
-        <zip zipfile="release\${release.zip}">
+        <delete file="${release}\${release.zip}"/>
+        <zip zipfile="${release}\${release.zip}">
             <fileset dir="${dist}" includes="*.*"/>
             <fileset dir="." 
              includes="${docs}/**, ${lib}/*.jar, *.txt" />
@@ -191,7 +200,7 @@
     <!-- ****************************************************** -->
     <!-- Performs a clean build, runs tests, and builds jar/war -->
     <!-- ****************************************************** -->
-    <target name="all" depends="init,clean,compile,test,jar,war" description="Performs a clean build, runs tests, and builds jar/war" />
+    <target name="all" depends="clean,init,compile,test,jar,war" description="Performs a clean build, runs tests, and builds jar/war" />
 
     <!-- ****************************************************** -->
     <!-- CRUISE EXAMPLES                                        -->
