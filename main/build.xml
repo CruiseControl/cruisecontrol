@@ -39,6 +39,7 @@
 
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
+    <property name="bin" value="bin"/>
     <property name="classes" value="classes"/>
     <property name="dist" value="dist"/>
     <property name="release" value="release"/>
@@ -169,9 +170,6 @@
         <jar jarfile="${dist}\cruisecontrol.jar" manifest="manifest.mf">
             <fileset dir="${classes}"/>
         </jar>
-        <jar jarfile="${dist}\src.jar">
-            <fileset dir="." includes="${src}/**/*.java" />
-        </jar>
     </target>
 
     <!-- **************************************************** -->
@@ -190,13 +188,25 @@
     <!-- Builds the release zip                               -->
     <!-- **************************************************** -->
     <target name="release" depends="jar" description="Build release zip">
-        <fixcrlf srcdir="${dist}" eol="lf" includes="*.sh"/>
-        <property name="release.zip" value="cruisecontrol.zip"/>
-        <delete file="${release}\${release.zip}"/>
-        <zip zipfile="${release}\${release.zip}">
-            <fileset dir="${dist}" includes="*.*"/>
-            <fileset dir="."
-             includes="${docs}/**, ${lib}/*.jar, *.txt" />
+        <fixcrlf srcdir="${bin}" eol="lf" includes="*.sh"/>
+        <zip zipfile="${release}\cruisecontrol-2-bin.zip">
+            <fileset dir=".">
+               <include name="${bin}/"/>
+               <include name="${dist}/"/>
+               <include name="${lib}/"/>
+               <include name="${docs}/"/>
+               <include name="*.txt"/>
+            </fileset>
+        </zip>
+        <zip zipfile="${release}\cruisecontrol-2-src.zip">
+            <fileset dir=".">
+               <include name="${bin}/"/>
+               <include name="${src}/"/>
+               <include name="${test}/"/>
+               <include name="${lib}/"/>
+               <include name="${docs}/"/>
+               <include name="build*"/>
+            </fileset>
         </zip>
     </target>
 
