@@ -138,6 +138,20 @@ public class ScheduleTest extends TestCase {
 
         Builder timeBuildAcrossDays = schedule.selectBuilder(11, noonWednesday, FRIDAY_0000);
         assertEquals(MIDNIGHT_BUILDER, timeBuildAcrossDays);
+
+        Schedule timeBasedSchedule = new Schedule();
+        timeBasedSchedule.addBuilder(NOON_BUILDER);
+        timeBasedSchedule.addBuilder(MIDNIGHT_BUILDER);
+
+        Builder nextTimeBuilder = timeBasedSchedule.selectBuilder(3, THURSDAY_1001, THURSDAY_1101);
+        assertEquals(NOON_BUILDER, nextTimeBuilder);
+        
+        try {
+            Schedule badSchedule = new Schedule();
+            badSchedule.selectBuilder(1, THURSDAY_1001, THURSDAY_1101);
+            fail("should fail with no builders");
+        } catch (CruiseControlException expected) {
+        }
     }
 
     public void testIsPaused() {
@@ -175,7 +189,7 @@ public class ScheduleTest extends TestCase {
 
         assertEquals(
             "next time build is tomorrow",
-            twentyFourHours - ONE_MINUTE,
+            twelveHours - ONE_MINUTE,
             schedule.getTimeToNextBuild(THURSDAY_1201, twentyFourHours * 2));
 
         assertEquals(

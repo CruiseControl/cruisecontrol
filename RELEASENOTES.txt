@@ -17,6 +17,8 @@ Schedule
 * Fixed a bug where checkPauseBuilders would not return a value larger than one day.
 * Fixed a bug where chained pauses where not respected, with builds happening after the end of the first pause and during the second.
 * Changed schedule to ignore the value of interval when there are only time based builds. This should get rid of most of the "No Builder selected" messages.
+* Fixed a bug where no builder was selected on a forced build if all the builders were time based.
+* Fixed a bug where time builders set for midnight would build later in the day
 
 CruiseControl Release Notes - 2.1.3
 
@@ -28,6 +30,10 @@ log4j.properties
 MavenBuilderTest
 ----------------------
 * Fixed bug trying to chmod test file on unix. - Patch by Andy Nguyen
+
+unittests.xsl & testdetails.xsl
+----------------------
+* Will now work with merged junitreport xml output in addition to individual xml result files. - Fixed by Jason Yip
 
 CruiseControl Release Notes - 2.1.2
 
