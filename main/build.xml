@@ -51,6 +51,7 @@
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${apidocs}"/>
+        <property name="junit.results" value="test-results.xml" />
     </target>
     
     <target name="clean">
@@ -82,8 +83,6 @@
                 <fileset dir="${classes}" includes="**/*Test.class" />
             </batchtest>
         </junit>
-
-        <property name="junit.results" value="test-results.xml" />
 
         <junitreport tofile="${junit.results}" >
             <fileset dir="./test-results" />
