@@ -56,7 +56,7 @@ public class CruiseControlProperties {
         File propFile = new File(propsFileName);
 
         if (!propFile.exists()) {
-            throw new FileNotFoundException("Properties file \"" + propFile 
+            throw new FileNotFoundException("Properties file \"" + propFile.getAbsolutePath()
                                             + "\" not found");
         }
 
