@@ -1,0 +1,27 @@
+<project name="reporting-jsp" default="war">
+	<property name="dist" value="dist"/>
+	<property name="lib" value="lib"/>
+	
+	<target name="clean">
+		<mkdir dir="${dist}"/>
+		<delete dir="${dist}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+		
+	<target name="war" depends="clean">		
+		<war warfile="${dist}/cruisecontrol.war" webxml="WEB-INF/web.xml">
+			<fileset dir=".">
+				<exclude name="${dist}/"/>
+				<exclude name="WEB-INF/web.xml"/>
+				<exclude name="src/"/>
+				<exclude name="test/"/>
+				<exclude name="${lib}/"/>
+			</fileset>
+			<lib dir="${lib}">
+				<include name="xalan.jar"/>
+				<include name="xerces.jar"/>
+			</lib>
+		</war>
+	</target>
+	
+</project>
