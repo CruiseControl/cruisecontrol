@@ -323,6 +323,9 @@ public class Schedule {
     }
 
     public void setInterval(long intervalBetweenModificationChecks) {
+    	if (intervalBetweenModificationChecks < 0) {
+    		throw new IllegalArgumentException("interval can't be less than zero");
+    	}
         interval = intervalBetweenModificationChecks * ONE_SECOND;
     }
 
