@@ -213,7 +213,11 @@ public class VssElement extends SourceControlElement {
 				mod.type = "delete";
 			} else if (fileLine.endsWith("recovered")) {
 				mod.type = "recover";
-			}
+			} else if (fileLine.endsWith("shared")) {
+                mod.type = "branch";
+            } else {
+                mod.type = "unknown";
+            }
 		}
 
 		if ("delete".equals(mod.type)) {
