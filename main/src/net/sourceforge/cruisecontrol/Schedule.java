@@ -74,10 +74,12 @@ public class Schedule {
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
     public void addBuilder(Builder builder) {
+        checkParamNotNull("builder", builder);
         builders.add(builder);
     }
 
     public void addPauseBuilder(PauseBuilder pauseBuilder) {
+        checkParamNotNull("pauseBuilder", pauseBuilder);
         pauseBuilders.add(pauseBuilder);
     }
 
@@ -88,6 +90,7 @@ public class Schedule {
      *  @return true if CruiseControl is currently paused (no build should run).
      */
     public boolean isPaused(Date now) {
+        checkParamNotNull("date", now);
         PauseBuilder pause = findPause(now);
         if (pause != null) {
             LOG.info("CruiseControl is paused until: " + getEndTimeString(pause));
@@ -113,6 +116,7 @@ public class Schedule {
     }
 
     PauseBuilder findPause(Date date) {
+        checkParamNotNull("date", date);
         Iterator pauseBuilderIterator = pauseBuilders.iterator();
         while (pauseBuilderIterator.hasNext()) {
             PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
@@ -323,9 +327,9 @@ public class Schedule {
     }
 
     public void setInterval(long intervalBetweenModificationChecks) {
-    	if (intervalBetweenModificationChecks < 0) {
-    		throw new IllegalArgumentException("interval can't be less than zero");
-    	}
+        if (intervalBetweenModificationChecks < 0) {
+            throw new IllegalArgumentException("interval can't be less than zero");
+        }
         interval = intervalBetweenModificationChecks * ONE_SECOND;
     }
 
@@ -345,6 +349,17 @@ public class Schedule {
         
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");
+        }
+    }
+
+    /**
+     * utility method to check method parameters and ensure they're not null
+     * @param paramName name of the paramter to check
+     * @param param parameter to check
+     */
+    private void checkParamNotNull(String paramName, Object param) {
+        if (param == null) {
+            throw new IllegalArgumentException(paramName + " can't be null");
         }
     }
 
