@@ -444,11 +444,14 @@ public class Project implements Serializable {
         BufferedWriter logWriter = null;
         try {
             log.debug("Writing log file: " + _logFileName);
+            XMLOutputter outputter = null;
             if(_logXmlEncoding == null) {
-                _logXmlEncoding = System.getProperty("file.encoding");
+                outputter = new XMLOutputter("   ", true);
+                logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName)));
+            } else {
+                outputter = new XMLOutputter("   ", true, _logXmlEncoding);
+                logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName), _logXmlEncoding));
             }
-            XMLOutputter outputter = new XMLOutputter("   ", true, _logXmlEncoding);
-            logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName), _logXmlEncoding));
             outputter.output(new Document(logElement), logWriter);
             logWriter = null;
         } catch (IOException e) {
