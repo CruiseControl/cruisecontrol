@@ -41,7 +41,7 @@ import junit.framework.TestCase;
 
 public class CVSLabelIncrementerTest extends TestCase {
 
-    private LabelIncrementer incrementer;
+    private CVSLabelIncrementer incrementer;
 
     public CVSLabelIncrementerTest(String name) {
         super(name);
@@ -59,5 +59,11 @@ public class CVSLabelIncrementerTest extends TestCase {
 
     public void testIncrementLabel() {
         assertEquals(incrementer.incrementLabel("x-88", null), "x-89");
+    }
+
+    public void testSetPreBuildIncrementer() {
+	assertEquals(false, incrementer.isPreBuildIncrementer());
+	incrementer.setPreBuildIncrementer(true);
+	assertEquals(true, incrementer.isPreBuildIncrementer());
     }
 }
