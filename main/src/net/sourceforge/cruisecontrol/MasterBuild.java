@@ -873,7 +873,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
     boolean canWriteXMLLoggerFile() {
         File logFile = new File(XML_LOGGER_FILE);
-        if (logFile.exists() && logFile.canWrite()) {
+        if (!logFile.exists() || logFile.canWrite()) {
             return true;
         }
         
