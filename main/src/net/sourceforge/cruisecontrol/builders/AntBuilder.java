@@ -65,6 +65,9 @@ public class AntBuilder extends Builder {
     private String _tempFileName = "log.xml";
     private String _antScript;
     List _args = new ArrayList();
+    private List _properties = new ArrayList();
+
+
 
 
     public void validate() throws CruiseControlException {
@@ -145,6 +148,12 @@ public class AntBuilder extends Builder {
         return arg;
     }
 
+    public Property createProperty() {
+    	Property property = new Property();
+    	_properties.add(property);
+    	return property;
+    }
+
     /**
      *  Determine whether the org.apache.tools.ant.XmlLogger being
      *  used implements the BuildLogger interface.  Using the XmlLogger
@@ -218,6 +227,12 @@ public class AntBuilder extends Builder {
             al.add("-D" + key + "=" + buildProperties.get(key));
         }
 
+        Iterator antPropertiesIterator = _properties.iterator();
+        while (antPropertiesIterator.hasNext()) {
+            Property property = (Property) antPropertiesIterator.next();
+            al.add("-D" + property.getName() + "=" + property.getValue());
+        }
+
         if (log.isDebugEnabled()) {
             al.add("-debug");
             al.add("-verbose");
@@ -273,6 +288,28 @@ public class AntBuilder extends Builder {
 
         public String getArg() {
             return _arg;
+        }
+    }
+
+    public class Property {
+
+        private String _name;
+        private String _value;
+
+        public void setName(String name) {
+            _name = name;
+        }
+
+        public String getName() {
+            return _name;
+        }
+
+        public void setValue(String value) {
+            _value = value;
+        }
+
+        public String getValue() {
+            return _value;
         }
     }
 }

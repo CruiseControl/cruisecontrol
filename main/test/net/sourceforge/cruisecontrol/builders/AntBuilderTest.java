@@ -94,6 +94,7 @@ public class AntBuilderTest extends TestCase {
         String[] resultInfo = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         String[] resultLogger = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-logger", "org.apache.tools.ant.XmlLogger", "-logfile", "log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
+        String[] resultDebugWithMaxMemoryAndProperty = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-Dfoo=bar", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
         String[] resultBatchFile = {"cmd.exe", "/C", "ant.bat", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         String[] resultShellScript = {"ant.sh", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
@@ -115,6 +116,10 @@ public class AntBuilderTest extends TestCase {
         arg.setArg("-Xmx256m");
         assertTrue(Arrays.equals(resultDebugWithMaxMemory, builder.getCommandLineArgs(properties, false, false, false)));
 
+        AntBuilder.Property prop = builder.createProperty();
+        prop.setName("foo");
+        prop.setValue("bar");
+        assertTrue(Arrays.equals(resultDebugWithMaxMemoryAndProperty, builder.getCommandLineArgs(properties, false, false, false)));
 
     }
 
