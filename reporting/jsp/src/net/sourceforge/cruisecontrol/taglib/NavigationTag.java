@@ -110,9 +110,8 @@ public class NavigationTag extends AbstractLogAwareTag implements Tag, BodyTag {
     }
 
     protected String getServletPath() {
-        String servletPath = ((HttpServletRequest) getPageContext().getRequest()).getServletPath();
-        String contextPath = ((HttpServletRequest) getPageContext().getRequest()).getContextPath();
-        return contextPath + servletPath;
+        final HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+        return request.getContextPath() + request.getServletPath();
     }
 
 

@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -36,21 +36,39 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
+/**
+ *
+ * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ */
+public class Tab {
+    private final String name;
+    private final String label;
+    private final boolean selected;
+    private String text = "";
 
-public class AllTests extends TestCase {
-
-    public AllTests(String name) {
-        super(name);
+    public Tab(String name, String label, boolean selected) {
+        this.name = name;
+        this.label = label;
+        this.selected = selected;
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(NavigationTagTest.class);
-        suite.addTestSuite(XSLTagTest.class);
-        suite.addTestSuite(TabSheetTagTest.class);
-        return suite;
+    public String getName() {
+        return name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getText() {
+        return text;
     }
 }

@@ -36,95 +36,145 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.mock;
 
-import java.io.Reader;
-import java.io.Writer;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.JspWriter;
 
 /**
  *
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class MockBodyContent extends BodyContent {
+    private final StringWriter writer = new StringWriter();
+    private final PrintWriter printer = new PrintWriter(writer);
 
     public MockBodyContent() {
         super(null);
     }
 
-    protected MockBodyContent(JspWriter jspWriter) {
-        super(jspWriter);
+    public void close() {
+        printer.close();
+    }
+
+    public void write(int c) {
+        printer.write(c);
+    }
+
+    public void write(char buf[], int off, int len) {
+        printer.write(buf, off, len);
+    }
+
+    public void write(char buf[]) {
+        printer.write(buf);
+    }
+
+    public void write(String s, int off, int len) {
+        printer.write(s, off, len);
+    }
+
+    public void write(String s) {
+        printer.write(s);
+    }
+
+    public void print(boolean b) {
+        printer.print(b);
+    }
+
+    public void print(char c) {
+        printer.print(c);
+    }
+
+    public void print(int i) {
+        printer.print(i);
+    }
+
+    public void print(long l) {
+        printer.print(l);
+    }
+
+    public void print(float f) {
+        printer.print(f);
+    }
+
+    public void print(double d) {
+        printer.print(d);
+    }
+
+    public void print(char s[]) {
+        printer.print(s);
+    }
+
+    public void print(String s) {
+        printer.print(s);
+    }
+
+    public void print(Object obj) {
+        printer.print(obj);
+    }
+
+    public void println() {
+        printer.println();
+    }
+
+    public void println(boolean x) {
+        printer.println(x);
+    }
+
+    public void println(char x) {
+        printer.println(x);
+    }
+
+    public void println(int x) {
+        printer.println(x);
+    }
+
+    public void println(long x) {
+        printer.println(x);
+    }
+
+    public void println(float x) {
+        printer.println(x);
+    }
+
+    public void println(double x) {
+        printer.println(x);
+    }
+
+    public void println(char x[]) {
+        printer.println(x);
+    }
+
+    public void println(String x) {
+        printer.println(x);
+    }
+
+    public void println(Object x) {
+        printer.println(x);
     }
 
     public Reader getReader() {
-        return null;
+        return new StringReader(getString());
     }
 
     public String getString() {
-        return null;
+        printer.flush();
+        writer.flush();
+        final String body = writer.toString();
+        return body;
     }
 
-    public void writeOut(Writer writer) throws IOException {
+    public void writeOut(Writer destWriter) throws IOException {
+        if (destWriter != null) {
+            destWriter.write(getString());
+        }
     }
 
     public void newLine() throws IOException {
-    }
-
-    public void print(boolean b) throws IOException {
-    }
-
-    public void print(char c) throws IOException {
-    }
-
-    public void print(int i) throws IOException {
-    }
-
-    public void print(long l) throws IOException {
-    }
-
-    public void print(float v) throws IOException {
-    }
-
-    public void print(double v) throws IOException {
-    }
-
-    public void print(char[] chars) throws IOException {
-    }
-
-    public void print(String s) throws IOException {
-    }
-
-    public void print(Object o) throws IOException {
-    }
-
-    public void println() throws IOException {
-    }
-
-    public void println(boolean b) throws IOException {
-    }
-
-    public void println(char c) throws IOException {
-    }
-
-    public void println(int i) throws IOException {
-    }
-
-    public void println(long l) throws IOException {
-    }
-
-    public void println(float v) throws IOException {
-    }
-
-    public void println(double v) throws IOException {
-    }
-
-    public void println(char[] chars) throws IOException {
-    }
-
-    public void println(String s) throws IOException {
-    }
-
-    public void println(Object o) throws IOException {
+        println();
     }
 
     public void clear() throws IOException {
@@ -133,13 +183,8 @@ public class MockBodyContent extends BodyContent {
     public void clearBuffer() throws IOException {
     }
 
-    public void close() throws IOException {
-    }
-
     public int getRemaining() {
         return 0;
     }
 
-    public void write(char cbuf[], int off, int len) throws IOException {
-    }
 }
