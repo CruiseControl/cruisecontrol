@@ -161,7 +161,7 @@ public class Project implements Serializable, Runnable {
 
         Element modifications = getModifications();
         if (modifications == null) {
-            state = IDLE_STATE;
+            setState(IDLE_STATE);
             return;
         }
 
@@ -177,8 +177,7 @@ public class Project implements Serializable, Runnable {
         // collect project information
         cruisecontrolElement.addContent(getProjectPropertiesElement(now));
 
-        // BUILD
-        state = BUILDING_STATE;
+        setState(BUILDING_STATE);
         cruisecontrolElement.addContent(
             _schedule
                 .build(
@@ -196,8 +195,7 @@ public class Project implements Serializable, Runnable {
                 _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
 
-        // collect log files and merge with CC log file
-        state = MERGING_LOGS_STATE;
+        setState(MERGING_LOGS_STATE);
         Iterator auxLogIterator = getAuxLogElements().iterator();
         while (auxLogIterator.hasNext()) {
             cruisecontrolElement.addContent((Element) auxLogIterator.next());
@@ -231,11 +229,11 @@ public class Project implements Serializable, Runnable {
 
         serializeProject();
 
-        state = PUBLISHING_STATE;
+        setState(PUBLISHING_STATE);
         publish(cruisecontrolElement);
         cruisecontrolElement = null;
 
-        state = IDLE_STATE;
+        setState(IDLE_STATE);
     }
 
     public void run() {
@@ -244,6 +242,7 @@ public class Project implements Serializable, Runnable {
             try {
                 waitIfPaused();
                 waitForNextBuild();
+                setState(QUEUED_STATE);
                 queue.requestBuild(this);
                 waitForBuildToFinish();
             }
@@ -316,15 +315,18 @@ public class Project implements Serializable, Runnable {
      * @return Element
      */
     Element getModifications() {
-        state = MODIFICATIONSET_STATE;
+        setState(MODIFICATIONSET_STATE);
         Element modifications = null;
 
-        if (_buildAfterFailed) {
-            modifications =
-                _modificationSet.getModifications(_lastSuccessfulBuild);
+        boolean checkNewChangesFirst = checkOnlySinceLastBuild();
+        if (checkNewChangesFirst) {
+            debug("getting changes since last build");
+            modifications = _modificationSet.getModifications(_lastBuild);
         }
         else {
-            modifications = _modificationSet.getModifications(_lastBuild);
+            debug("getting changes since last successful build");
+            modifications =
+                _modificationSet.getModifications(_lastSuccessfulBuild);
         }
 
         if (!_modificationSet.isModified()) {
@@ -347,14 +349,31 @@ public class Project implements Serializable, Runnable {
             }
         }
 
-        if (!_buildAfterFailed
-            && _lastBuild != null
-            && !_lastBuild.equals(_lastSuccessfulBuild)) {
+        if (checkNewChangesFirst) {
+            debug("new changes found; now getting complete set");
             modifications =
                 _modificationSet.getModifications(_lastSuccessfulBuild);
         }
 
         return modifications;
+    }
+
+    /**
+     * @return boolean
+     */
+    boolean checkOnlySinceLastBuild() {
+        if (_lastBuild == null) {
+            return false;
+        }
+
+        long lastBuildLong = _lastBuild.getTime();
+        long lastSuccessfulBuild = _lastSuccessfulBuild.getTime();
+        long timeDifference = lastBuildLong - lastSuccessfulBuild;
+        boolean moreThanASecond = timeDifference > ONE_SECOND;
+
+        boolean checkNewMods = !_buildAfterFailed && moreThanASecond;
+
+        return checkNewMods;
     }
 
     /**
@@ -520,6 +539,11 @@ public class Project implements Serializable, Runnable {
         return state;
     }
 
+    private void setState(int newState) {
+        state = newState;
+        log(getStatus());
+    }
+
     public void setBuildQueue(BuildQueue buildQueue) {
         queue = buildQueue;
     }
@@ -532,7 +556,7 @@ public class Project implements Serializable, Runnable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        log("reading settings from config file ["+_configFileName+"]");
+        log("reading settings from config file [" + _configFileName + "]");
         ProjectXMLHelper helper =
             new ProjectXMLHelper(new File(_configFileName), _name);
         buildInterval = ONE_SECOND * helper.getBuildInterval();
@@ -562,17 +586,20 @@ public class Project implements Serializable, Runnable {
         _buildAfterFailed = helper.getBuildAfterFailed();
 
         debug("buildInterval          = [" + buildInterval + "]");
-        debug("buildForced            = [" + _buildForced + "");
+        debug("buildForced            = [" + _buildForced + "]");
         debug("buildAfterFailed       = [" + _buildAfterFailed + "]");
-        debug("buildCounter           = [" + _buildCounter + "");
-        debug("isPaused               = [" + _isPaused + "");
-        debug("label                  = [" + _label + "");
-        debug("lastBuild              = [" + _lastBuild + "");
-        debug("lastSuccessfulBuild    = [" + _lastSuccessfulBuild + "");
+        debug("buildCounter           = [" + _buildCounter + "]");
+        debug("isPaused               = [" + _isPaused + "]");
+        debug("label                  = [" + _label + "]");
+        debug("lastBuild              = [" + getFormatedTime(_lastBuild) + "]");
+        debug(
+            "lastSuccessfulBuild    = ["
+                + getFormatedTime(_lastSuccessfulBuild)
+                + "]");
         debug("logDir                 = [" + _logDir + "]");
         debug("logFileName            = [" + _logFileName + "]");
         debug("logXmlEncoding         = [" + _logXmlEncoding + "]");
-        debug("wasLastBuildSuccessful = [" + _wasLastBuildSuccessful + "");
+        debug("wasLastBuildSuccessful = [" + _wasLastBuildSuccessful + "]");
     }
 
     protected Element getProjectPropertiesElement(Date now) {
@@ -667,7 +694,7 @@ public class Project implements Serializable, Runnable {
      * their respective <code>bootstrap</code> methods.
      */
     protected void bootstrap() throws CruiseControlException {
-        state = BOOTSTRAPPING_STATE;
+        setState(BOOTSTRAPPING_STATE);
         Iterator bootstrapperIterator = _bootstrappers.iterator();
         while (bootstrapperIterator.hasNext()) {
             ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
