@@ -93,7 +93,11 @@ public class HTMLEmailPublisher extends EmailPublisher {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        verifyDirectory("HTMLEmailPublisher.logDir", logDir);
+        if (logDir != null) {
+            verifyDirectory("HTMLEmailPublisher.logDir", logDir);
+        } else {
+            LOG.info("Using default logDir \"logs/<projectname>\"");
+        }
 
         if (xslFile == null) {
             verifyDirectory("HTMLEmailPublisher.xslDir", xslDir);
@@ -251,12 +255,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected String createMessage(XMLLogHelper logHelper) {
         String message = "";
 
+        File inFile = null;
         try {
-            File logDirectory = new File(logDir);
-            File inFile = new File(logDirectory, logHelper.getLogFileName());
+            if (logDir == null) {
+                // use the same default as ProjectXMLHelper.getLog()
+                logDir = "logs" + File.separator + logHelper.getProjectName();
+            }
+            inFile = new File(logDir, logHelper.getLogFileName());
             message = transform(inFile);
         } catch (Exception ex) {
-            LOG.error("", ex);
+            LOG.error("error transforming " + inFile.getAbsolutePath(), ex);
             try {
                 String logFileName = logHelper.getLogFileName();
                 message = createLinkLine(logFileName);
