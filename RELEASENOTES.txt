@@ -17,6 +17,7 @@ contrib:
 ----------------------
 * added build.xml for XmlLoggerWithStatus, minor change to readme. Patch by Brad Clarke
 * cruiseTray:  can change properties at runtime, refresh manually and make a config file to store settings. (And new icons!) Patch by Ali Eyertas
+* edit wrapper.template.conf for NtServiceWrapper to add javax.management.builder.initial property
 
 CMSynergy:
 ----------------------
