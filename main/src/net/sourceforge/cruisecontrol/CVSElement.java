@@ -245,9 +245,9 @@ public class CVSElement extends SourceControlElement {
         commandLine.createArgument().setValue("log");
         commandLine.createArgument().setValue("-N");
         commandLine.createArgument().setValue("-d");
-        String dateRange = 
-         formatCVSDate(lastBuildTime) + "<" + formatCVSDate(currentTime);
-        commandLine.createArgument().setValue(Commandline.quoteArgument(dateRange));
+        String dateRange = formatCVSDate(lastBuildTime) + "<" 
+         + formatCVSDate(currentTime);
+        commandLine.createArgument().setValue(dateRange);
 
         if (local != null) {
             commandLine.createArgument().setValue(getLocalPath());
