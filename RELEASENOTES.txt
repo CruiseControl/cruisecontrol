@@ -15,10 +15,15 @@ CVSBootstrapper
 EmailPublisher
 ---------------
 * Added nested success element - Patch by Marco Faini
+* Added failAsImportant attribute - Patch by Ian MacDonald
 
 FileServlet
 ---------------
 * Fixed a bug, brower displaying html source code, by adding the mime-type to the response.
+
+HtmlEmailPublisher
+---------------
+* Fixed a bug where username & password were ignored
 
 JMX
 ---------------
