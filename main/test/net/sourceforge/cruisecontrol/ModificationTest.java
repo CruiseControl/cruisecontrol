@@ -21,9 +21,14 @@ public class ModificationTest extends TestCase {
         mod.userName = "User<>Name";
         mod.comment = "Comment";
 
-        String expected = "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>" +
-        formatter.format(modifiedTime) + "</date><user>User&lt;&gt;Name</user><email></email><comment><![CDATA[Comment]]></comment></modification>";
-
+        String base = "<modification type=\"unknown\"><filename>File\"Name&amp;</filename><project>Folder'Name</project><date>" +
+        formatter.format(modifiedTime) + "</date><user>User&lt;&gt;Name</user><comment><![CDATA[Comment]]></comment>";
+        String closingTag = "</modification>";
+        String expected = base + closingTag;
         assertEquals(expected, mod.toXml(formatter));
+
+        String expectedWithEmail = base + "<email>foo.bar@quuuux.quuux.quux.qux</email>" + closingTag;
+        mod.emailAddress = "foo.bar@quuuux.quuux.quux.qux";
+        assertEquals(expectedWithEmail, mod.toXml(formatter));
     }
 }

@@ -76,8 +76,6 @@ public class Modification implements Comparable {
         dateElement.addContent(formatter.format(modifiedTime));
         Element userElement = new Element("user");
         userElement.addContent(userName);
-        Element emailAddressElement = new Element("email");
-        emailAddressElement.addContent(emailAddress);
         Element commentElement = new Element("comment");
         commentElement.addContent(new CDATA(comment));
 
@@ -85,8 +83,14 @@ public class Modification implements Comparable {
         modificationElement.addContent(projectElement);
         modificationElement.addContent(dateElement);
         modificationElement.addContent(userElement);
-        modificationElement.addContent(emailAddressElement);
         modificationElement.addContent(commentElement);
+
+        // not all sourcecontrols guarantee a non-null email address
+        if ( emailAddress != null ) {
+            Element emailAddressElement = new Element("email");
+            emailAddressElement.addContent(emailAddress);
+            modificationElement.addContent(emailAddressElement);
+        }
 
         return modificationElement;
     }
