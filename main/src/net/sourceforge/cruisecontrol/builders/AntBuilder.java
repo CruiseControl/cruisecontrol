@@ -104,9 +104,7 @@ public class AntBuilder extends Builder {
                     isWindows());
 
             File workingDir =
-                (antWorkingDir != null)
-                    ? (new File(antWorkingDir))
-                    : null;
+                (antWorkingDir != null) ? (new File(antWorkingDir)) : null;
 
             p = Runtime.getRuntime().exec(commandLine, null, workingDir);
         } catch (IOException e) {
@@ -147,7 +145,9 @@ public class AntBuilder extends Builder {
         }
 
         Element buildLogElement = getAntLogAsElement(logFile);
-        logFile.delete();
+        if (logFile.exists()) {
+            logFile.delete();
+        }
 
         return buildLogElement;
     }
@@ -160,7 +160,7 @@ public class AntBuilder extends Builder {
      * @param dir the directory to make the current working directory.
      */
     public void setAntWorkingDir(String dir) {
-        this.antWorkingDir = dir;
+        antWorkingDir = dir;
     }
 
     /**
@@ -286,7 +286,7 @@ public class AntBuilder extends Builder {
 
         al.add("-buildfile");
         al.add(buildFile);
-        
+
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
             al.add(targets.nextToken());
@@ -328,8 +328,16 @@ public class AntBuilder extends Builder {
                 new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             return builder.build(bufferedReader).getRootElement();
         } catch (Exception ee) {
+            File saveFile =
+                new File(
+                    f.getParentFile(),
+                    System.currentTimeMillis() + f.getName());
+            f.renameTo(saveFile);
             throw new CruiseControlException(
-                "Error reading : " + f.getAbsolutePath(),
+                "Error reading : "
+                    + f.getAbsolutePath()
+                    + ".  Saved as : "
+                    + saveFile.getAbsolutePath(),
                 ee);
         }
     }
@@ -371,11 +379,11 @@ public class AntBuilder extends Builder {
 
     }
 
-	/**
-	 * @param b
-	 */
-	public void setUseDebug(boolean debug) {
-		useDebug = debug;
-	}
+    /**
+     * @param b
+     */
+    public void setUseDebug(boolean debug) {
+        useDebug = debug;
+    }
 
 }
