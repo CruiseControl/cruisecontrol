@@ -45,6 +45,7 @@ import com.jpeterson.x10.event.OffEvent;
 import com.jpeterson.x10.event.OnEvent;
 import com.jpeterson.x10.event.X10Event;
 import com.jpeterson.x10.module.CM11A;
+import com.jpeterson.x10.module.CM17A;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -108,7 +109,7 @@ import java.io.IOException;
  * successful. If you want the opposite, i.e. on when successful and off when
  * broken, set the onWhenBroken attribute to false.
  * <p/>
- *
+ * <p/>
  * Publisher Attributes:
  * <ul>
  * <li>houseCode - required - the house code for the device to control, A -> P case insensitive</li>
@@ -117,8 +118,9 @@ import java.io.IOException;
  * connected, defaults to COM2</li>
  * <li>onWhenBroken - optional - set to false if the device should turn on when the build is successful and off
  * when failed, defaults to true</li>
+ * <li>interfaceMode - optional - set to either CM11A or CM17A depending on the model of the X10 computer interface
+ * being used, defaults to CM11A</li>
  * </ul>
- *
  *
  * @author <a href="mailto:pauljulius@users.sourceforge.net">Paul Julius</a>
  * @since August 26 2004
@@ -130,6 +132,7 @@ public class X10Publisher implements Publisher {
     private String deviceCode;
     private String port;
     private boolean onWhenBroken = true;
+    private String interfaceModel;
 
     public void publish(Element cruisecontrolLog)
             throws CruiseControlException {
@@ -170,7 +173,8 @@ public class X10Publisher implements Publisher {
     }
 
     private void send(X10Event[] events) throws CruiseControlException {
-        Transmitter transmitter = new CM11A();
+        LOG.info("Sending X10 events...");
+        Transmitter transmitter = getTransmitter();
         if (port != null) {
             ((SerialGateway) transmitter).setPortName(port);
         }
@@ -207,6 +211,17 @@ public class X10Publisher implements Publisher {
             }
             LOG.debug("Done");
         }
+        LOG.debug("Done sending X10 events...");
+    }
+
+    protected Transmitter getTransmitter() throws CruiseControlException {
+        if (interfaceModel != null && interfaceModel.equalsIgnoreCase("CM17A")) {
+            return new CM17A();
+        } else if (interfaceModel == null || interfaceModel.equals("") || interfaceModel.equalsIgnoreCase("CM11A")) {
+            return new CM11A();
+        } else {
+            throw new CruiseControlException("Unknown interface model specified [" + interfaceModel + "].");
+        }
     }
 
     public void validate() throws CruiseControlException {
@@ -228,6 +243,19 @@ public class X10Publisher implements Publisher {
                     + " 1 and 16, inclusive. You specified ["
                     + deviceCode + "]");
         }
+
+        if (!isLegalInterfaceModel(interfaceModel)) {
+            throw new CruiseControlException("The interface model must"
+                    + " is not a legal value. You specified ["
+                    + deviceCode + "]");
+        }
+    }
+
+    private static boolean isLegalInterfaceModel(String model) {
+        return model == null
+                || "".equals(model)
+                || "cm11a".equalsIgnoreCase(model)
+                || "cm17a".equalsIgnoreCase(model);
     }
 
     private static boolean isLegalDeviceCode(String deviceCode) {
@@ -286,5 +314,9 @@ public class X10Publisher implements Publisher {
 
     public void setOnWhenBroken(boolean shouldTurnOn) {
         this.onWhenBroken = shouldTurnOn;
+    }
+
+    public void setInterfaceModel(String model) {
+        this.interfaceModel = model;
     }
 }
