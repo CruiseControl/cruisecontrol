@@ -41,8 +41,10 @@ import org.jdom.Element;
 
 public class EmptyLabelIncrementer implements LabelIncrementer {
 
+    private static final String EMPTY_STRING = "";
+
     public String incrementLabel(String oldLabel, Element buildLog) {
-        return "";
+        return EMPTY_STRING;
     }
 
     public boolean isPreBuildIncrementer() {
@@ -51,6 +53,10 @@ public class EmptyLabelIncrementer implements LabelIncrementer {
 
     public boolean isValidLabel(String label) {
         return true;
+    }
+
+    public String getDefaultLabel() {
+        return EMPTY_STRING;
     }
 
 }

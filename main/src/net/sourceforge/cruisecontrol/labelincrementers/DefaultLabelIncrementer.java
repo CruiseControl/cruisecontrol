@@ -57,6 +57,9 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     private boolean preIncrement = false;
 
     private String separator = ".";
+    
+    private static String defaultPrefix = "build";
+    private static int defaultSuffix = 1;
 
     /**
      * Increments the label when a successful build occurs.
@@ -117,6 +120,10 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
 
     public void setSeparator(String newSeparator) {
         separator = newSeparator;
+    }
+
+    public String getDefaultLabel() {
+        return defaultPrefix + separator + defaultSuffix;
     }
 
 }

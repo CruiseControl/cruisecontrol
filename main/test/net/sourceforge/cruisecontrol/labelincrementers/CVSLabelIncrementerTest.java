@@ -66,4 +66,8 @@ public class CVSLabelIncrementerTest extends TestCase {
         assertEquals(true, incrementer.isPreBuildIncrementer());
     }
     
+    public void testGetDefaultLabel() {
+        assertEquals("build-1", incrementer.getDefaultLabel());
+        assertTrue(incrementer.isValidLabel(incrementer.getDefaultLabel()));
+    }
 }

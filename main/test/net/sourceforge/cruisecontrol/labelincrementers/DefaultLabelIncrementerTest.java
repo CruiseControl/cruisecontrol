@@ -76,10 +76,12 @@ public class DefaultLabelIncrementerTest extends TestCase {
         incrementer = new DefaultLabelIncrementer();
         assertFalse(incrementer.isPreBuildIncrementer());
     }
-
-    protected void tearDown() throws Exception {
-        incrementer.setPreBuildIncrementer(false);
-        incrementer.setSeparator(".");
+    
+    public void testGetDefaultLabel() {
+        assertEquals("build.1", incrementer.getDefaultLabel());
+        incrementer.setSeparator("#");
+        assertEquals("build#1", incrementer.getDefaultLabel());
+        assertTrue(incrementer.isValidLabel(incrementer.getDefaultLabel()));
     }
 
 }
