@@ -54,7 +54,7 @@ LIBDIR=${PROJECTDIR}/lib
 # No need to edit anything past here
 #--------------------------------------------
 
-CLASSPATH=lib/ant.jar:lib/optional.jar:lib/junit.jar:lib/xerces.jar
+CLASSPATH=lib/ant.jar:lib/ant-junit.jar:lib/ant-launcher.jar:lib/junit.jar:lib/xerces.jar
 echo ${CLASSPATH}
 
 # Try to find Java Home directory, from JAVA_HOME environment 

@@ -123,7 +123,7 @@
 
 
     <target name="test" depends="compile-test" description="Executes the unit tests">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath >
                 <path refid="project.runtime.classpath" />
             </classpath>
