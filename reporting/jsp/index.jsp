@@ -61,6 +61,7 @@
                String project = projectDirs[i];
                %><li><a href="buildresults/<%=project%>"><%=project%></a></li><%
            }
+           %></ul><%
        }
    }
 %>
