@@ -40,7 +40,7 @@
         </ul>
     </div>
     <div class="content">
-        <h1>Plugins</h1>
+        <h1><span class="printonly">CruiseControl</span> Plugins</h1>
 
         <p>
         It's tough to imagine all of the ways that CruiseControl can be used.
@@ -55,7 +55,7 @@
         example, exists in one place.  Encapsulating all of the functionality
         into plugins also makes testing easier.</p>
         
-        <p>There are currently five different types of plugins that
+        <p>There are currently six different types of plugins that
         CruiseControl supports. Each has a slightly different role, but all are
         designed similarly. While they all implement different interfaces and
         have slightly different method names, we will refer to them collectively
@@ -71,6 +71,7 @@
             for you to use to tag your source</li>
             <li><code>Publisher</code>: publish the results of your build, via
             email for example</li>
+            <li><code>Listener</code>: handles project events</li>
         </ul>
         
         <h2>Plugin Initialization</h2>
@@ -124,9 +125,9 @@
         within a <code>&lt;project&gt;</code> element, simply add a
         <code>&lt;plugin&nbsp;name=""&nbsp;classname=""/&gt;</code> element,
         where the name corresponds to the name you wish to use within the config
-        file, and the classname corresponds to the actual plugin Java class.
-        <br />
-        Plugins specified directly under the root element will be available
+        file, and the classname corresponds to the actual plugin Java class.</p>
+        
+        <p>Plugins specified directly under the root element will be available
         to all your projects, plugins under a project element will be only
         available within that project. This is useful to override a plugin
         like the labelincrementer for a single project.</p>
@@ -141,10 +142,13 @@
 
         <h3>Bootstrappers</h3>
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Plugin Name</th>
                 <th>Class Name</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="configxml.html#clearcasebootstrapper">clearcasebootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper</td>
@@ -177,14 +181,18 @@
                 <td><a href="configxml.html#starteambootstrapper">starteambootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Source Controls</h3>
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Plugin Name</th>
                 <th>Class Name</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="configxml.html#publishers">buildstatus</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus</td>
@@ -241,14 +249,18 @@
                 <td><a href="configxml.html#vssjournal">vssjournal</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td>
             </tr>
+            </tbody>
         </table>
         
         <h3>Builders</h3>
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Plugin Name</th>
                 <th>Class Name</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="configxml.html#ant">ant</a></td>
                 <td>net.sourceforge.cruisecontrol.builders.AntBuilder</td>
@@ -261,26 +273,34 @@
                 <td><a href="configxml.html#pause">pause</a></td>
                 <td>net.sourceforge.cruisecontrol.builders.PauseBuilder</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Label Incrementers</h3>
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Plugin Name</th>
                 <th>Class Name</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="configxml.html#labelincrementer">labelincrementer</a></td>
                 <td>net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Publishers</h3>
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Plugin Name</th>
                 <th>Class Name</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="configxml.html#artifactspublisher">artifactspublisher</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher</td>
@@ -317,6 +337,23 @@
                 <td><a href="configxml.html#xsltlogpublisher">xsltlogpublisher</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher</td>
             </tr>
+            </tbody>
+        </table>
+    
+        <h3>Listeners</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td><a href="configxml.html#currentbuildstatuslistener">currentbuildstatuslistener</a></td>
+                <td>net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener</td>
+            </tr>
+            </tbody>
         </table>
     </div>
 </div>
