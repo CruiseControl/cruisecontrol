@@ -51,12 +51,6 @@
                      <li><a class="small" href="#p4bootstrapper">P4Bootstrapper</a>
                      <li><a class="small" href="#vssbootstrapper">VSSBootstrapper</a>
                   </ul>
-               <li><a class="small" href="#schedule">Schedule</a>
-                  <ul>
-                     <li><a class="small" href="#antbuilder">AntBuilder</a>
-                     <li><a class="small" href="#mavenbuilder">MavenBuilder</a>
-                     <li><a class="small" href="#pausebuilder">PauseBuilder</a>
-                  </ul>
                <li><a class="small" href="#modificationset">ModificationSet</a>
                   <ul>
                      <li><a class="small" href="#clearcase">ClearCase</a>
@@ -68,6 +62,12 @@
                      <li><a class="small" href="#starteam">StarTeam</a>
                      <li><a class="small" href="#vss">Visual SourceSafe</a>
                      <li><a class="small" href="#vssjournal">Visual SourceSafe, Journal File Implementation</a>
+                  </ul>
+               <li><a class="small" href="#schedule">Schedule</a>
+                  <ul>
+                     <li><a class="small" href="#antbuilder">AntBuilder</a>
+                     <li><a class="small" href="#mavenbuilder">MavenBuilder</a>
+                     <li><a class="small" href="#pausebuilder">PauseBuilder</a>
                   </ul>
                <li><a class="small" href="#log">Log</a>
                   <ul>
@@ -99,11 +99,12 @@
 &lt;cruisecontrol&gt;
    &lt;project name="sampleproject"&gt;
       &lt;bootstrappers&gt;
-         &lt;currentbuildstatusbootstrapper file="logs/currentbuildstatus.txt"/&gt;
+         &lt;currentbuildstatusbootstrapper 
+             file="logs/currentbuildstatus.txt"/&gt;
       &lt;/bootstrappers&gt;
       &lt;modificationset  quietperiod=""&gt;
-         &lt;cvs cvsroot="" defaultbranchonly="" localworkingcopy=""
-                 tag="" property="" propertyondelete=""/&gt;
+         &lt;cvs cvsroot="" defaultbranchonly="" tag=""
+              localworkingcopy="" property="" propertyondelete=""/&gt;
       &lt;/modificationset&gt;
       &lt;schedule&gt;
          &lt;ant buildfile="" target=""&gt;
@@ -115,9 +116,10 @@
          &lt;merge dir=""/&gt;
       &lt;/log&gt;
       &lt;publishers&gt;
-         &lt;currentbuildstatuspublisher file="logs/currentbuildstatus.txt"/&gt;
-         &lt;email mailhost="" returnaddress="" defaultsuffix=""
-                   reportsuccess="" spamwhilebroken="" buildresultsurl=""&gt;
+         &lt;currentbuildstatuspublisher 
+             file="logs/currentbuildstatus.txt"/&gt;
+         &lt;email mailhost="" returnaddress="" buildresultsurl=""
+               reportsuccess="" spamwhilebroken="" defaultsuffix=""&gt;
             &lt;always address=""/&gt;
             &lt;failure address=""/&gt;
             &lt;map alias="" address=""/&gt;
@@ -156,19 +158,15 @@
             </tr>
          </table>
 
-
          <hr>
 
-
          <p><a name="bootstrappers"><span class="small">Bootstrappers</span><br>
-         <code>Bootstrapper</code>s are run before a build takes place, regardless of whether a build is necessary or
-         not, but not if the build is paused. [double-check this behavior]
+         Bootstrappers are run before a build takes place, regardless of whether a build is necessary or not, but not if the build is paused. Each bootstrapper element is independent of the others so it is quite possible to have multiple bootstrappers of the same time, say 3 CVS or VSSBootstrappers to update 3 different files.
 
          <p><a name="currentbuildstatusbootstrapper"><span class="small">CurrentBuildStatusBootstrapper</span><br>
-         The CruiseControl Build Results JSP will indicate whether or not CruiseControl is currently building a project.
-         To get this information to the JSP, we write an HTML snippet to disk in a location where the JSP can read it.
-         This file will consist of the time the build was started, so there is an optional attribute to customize the
-         dateformat.
+         The CruiseControl Build Results JSP can indicate whether or not CruiseControl is currently building a project.
+         To get this information to the JSP, we can use the optional currentbuildstatusbootstrapper to write an HTML snippet to disk in a location where the JSP can read it.
+         This file will consist of the time the build was started with the formatting set by the <a href="#dateformat">dateformat</a> element.
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -178,19 +176,13 @@
             <tr>
                <td class="tabledata">file</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">The filename to write</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dateformat</td>
-               <td class="tabledata">No</td>
-               <td class="tabledata">Optionally customize the dateformat used in this file</td>
+               <td class="tabledata">The filename to write, including path</td>
             </tr>
          </table>
 
 	 <p><a name="cvsbootstrapper"><span class="small">CVSBootstrapper</span><br/>
-Since there is a reliance on the build.xml to handle updating the source code, there has always been a problem with what happens when the build.xml file itself changes.  Previous workarounds have included writing a wrapper build.xml that will check out the "real" build.xml.
-
-The CVSBootstrapper will handle updating a single file from CVS before the build begins.</p>
+            Since there can be a reliance on the build.xml to handle updating the source code, there has always been a problem with what happens when the build.xml file itself changes.  The CVSBootstrapper can solve this problem either by pulling a single file (such as build.xml) or by updating the entire project. Allowing the bootstrapper to update the project makes for a simpler build.xml but allows a window where a file can be commited after the update and before the modification check.</p>
+            <p>CVSBootstrapper requires at least one of its attribute to be set.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -198,19 +190,24 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tableheader">Description</td>
             </tr>
             <tr>
+               <td class="tabledata">localWorkingCopy</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The local directory with a previous checkout of the project. CVSBootstrapper will execute the update command from this directory if specified.</td>
+            </tr>
+            <tr>
                <td class="tabledata">cvsroot</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The CVSROOT</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The CVSROOT. Not required if the current working directory is in the cvs project or if the localWorkingCopy attribute is set.</td>
             </tr>
             <tr>
                <td class="tabledata">file</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The file to update from CVS</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The file to update from CVS. If not specified either the current working directory must be in the local cvs project or the localWorkingCopy must be set.</td>
             </tr>
          </table>
 
 	 <p><a name="p4bootstrapper"><span class="small">P4Bootstrapper</span><br/>
-	Syncs a single path from Perforce before the build begins. Useful if you want to leave all SCM up to CruiseControl.</p>
+	Syncs a single path from Perforce before the build begins. Useful if you want to leave all SCM up to CruiseControl. Allowing the bootstrapper to update the project makes for a simpler build.xml but allows a window where a file can be commited after the update and before the modification check.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -240,7 +237,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
          </table>
 
 	 <p><a name="vssbootstrapper"><span class="small">VSSBootstrapper</span><br/>
-	Handles updating a single file from VSS before the build begins.</p>
+	Handles updating a single file (typically build.xml and/or build.properties) from VSS before the build begins.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -277,7 +274,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
          <hr/>
 
          <p><a name="modificationset"><span class="small">ModificationSet</span><br/>
-	 Set of modifications collected from all included SourceControl elements</p>
+	 Set of modifications collected from all included SourceControl elements. ModificationSet can contain multiple elements which can be useful to check only parts of a large project rather than checking all files every time. Combined with the property/propertyOnDelete attributes -- when supported -- this can allow for conditional building that may greatly speed the feedback cycle.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -286,8 +283,8 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">quietperiod</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The amount of time in which there is no source control activity after which it is assumed that it is safe to update from the source control system and initiate a build</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Default value is 60 (seconds). This attribute is used to avoid starting a build while someone is in mid-checkin. If a modification is detected to be within the quiet period then CC will sleep until the quiet period is finished and then recheck for modificaitons. Small values recommended if you use a bootstrapper to sync files (as opposed to getting updates as part of the build). 0 is a valid value.</td>
             </tr>
          </table>
 
@@ -313,9 +310,25 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">Yes</td>
                <td class="tabledata">Local working copy to use when making queries</td>
             </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Will set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td class="tabledata">propertyondelete</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Will set this property if a file has been deleted.  For use in conditionally
+                  controlling the build later.
+               </td>
          </table>
 
-         <p><a name="cvs"><span class="small">CVS</span></p>
+         <p><a name="cvs"><span class="small">CVS</span><br/>
+         A notable feature of the CVS element is that it will look for the file CVSROOT/Users and, if the files exists, use the information in that file to map cvs usernames to email addresses.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -324,13 +337,13 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">cvsroot</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">cvsroot that would be appropriate for the following command: <i>cvs -d CVSROOT -q log -N -d "&gt;lastbuildtime"</i></td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Required if localWorkingCopy isn't specified. cvsroot that would be appropriate for the following command: <i>cvs -d CVSROOT -q log -N -d "&gt;lastbuildtime"</i></td>
             </tr>
             <tr>
                <td class="tabledata">localworkingcopy</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">Relative or absolute path to the local working copy</td>
+               <td class="tabledata">Relative or absolute path to the local working copy. Required if cvsroot isn't specified. Directory must exist and should have files from a previous checkout.</td>
             </tr>
             <tr>
                <td class="tabledata">tag</td>
@@ -355,7 +368,8 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
          </table>
 
-         <p><a name="filesystem"><span class="small">FileSystem</span></p>
+         <p><a name="filesystem"><span class="small">FileSystem</span><br/>
+         Returns all files beneath the specified folder than have been modified since the last build time. Any modified files are reported as modifications of type "changed" by user "User". Can also have folder be just a single file. Only looks at timestamp, not for actual changes to the file.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -365,7 +379,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">folder</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">Root folder of the directories to scan</td>
+               <td class="tabledata">Root folder of the directories to scan, or path to file to check for modifications.</td>
             </tr>
             <tr>
                <td class="tabledata">property</td>
@@ -386,8 +400,8 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">localworkingcopy</td>
-               <td class="tabledata">No?</td>
-               <td class="tabledata">Path to the local working copy</td>
+               <td class="tabledata">ignored</td>
+               <td class="tabledata">Path to the local working copy. This attribute is currently ignored.</td>
             </tr>
             <tr>
                <td class="tabledata">mksroot</td>
@@ -412,7 +426,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
          </table>
 
-         <p><a name="p4"><span class="small">Perforce</span></p>
+         <p><a name="p4"><span class="small">P4 (Perforce)</span></p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -459,18 +473,24 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata"></td>
             </tr>
             <tr>
+               <td class="tabledata">pvcsbin</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Path to directory with pcli.</td>
+            </tr>
+            <tr>
                <td class="tabledata">outdateformat</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">The format to use to parse the LastModified entry as produced by your pvcs system (See vlog.txt for format) ( default "MMM dd yyyy HH:mm:ss" )</td>
+               <td class="tabledata">The format to use to parse the LastModified entry as produced by your pvcs system (See vlog.txt for format) Default is "MMM dd yyyy HH:mm:ss"</td>
             </tr>
             <tr>
                <td class="tabledata">indateformat</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">The format used to parse the lastbuild date (default "MM/dd/yyyy/HH:mm")</td>
+               <td class="tabledata">The format used to parse the lastbuild date. Default is "MM/dd/yyyy/HH:mm"</td>
             </tr>
          </table>
 
-         <p><a name="starteam"><span class="small">StarTeam</span></p>
+         <p><a name="starteam"><span class="small">StarTeam</span><br/>
+         If logged on as SERVER ADMINISTRATOR it will look up the email associated with the user account for each modification.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -496,6 +516,11 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">username</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">StarTeam user name</td>
+            </tr>
+            <tr>
+               <td class="tabledata">preloadFileInfo</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Defaults to false.</td>
             </tr>
             <tr>
                <td class="tabledata">property</td>
@@ -570,7 +595,8 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
          </table>
 
-         <p><a name="vssjournal"><span class="small">Visual Source Safe, Journal File Implementation</span></p>
+         <p><a name="vssjournal"><span class="small">Visual Source Safe, Journal File Implementation</span><br/>
+         This implementation doesn't require the source safe executable making it suitable for use on non-Windows machines.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -607,9 +633,11 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
 
          <hr/>
 
-         <p><a name="schedule"><span class="small">Schedule</span><br>
-         CruiseControl allows the user to schedule <i>n</i> different builds, either on interval or triggered to
-         run at a given date/time.
+         <p><a name="schedule"><span class="small">Schedule</span><br/>
+         CruiseControl allows the user to schedule an arbitrary number of builds, either on interval or triggered to run at a given date/time, as well as pause intervals during which no builds will be run. Be aware that builds will only run if modifications are found (or build is forced from JMX interface). Because of this it is usually not a good idea to mix time builds and multiple builds in the same project as the multiple builds will "eat" all the changes before they can be detected by the time based builds.</p>
+
+	<p><b>Note:</b> Only one builder is used for a given interval where modifications are found. Builds using the time attribute take precidence or builds using the multiple attribute. If no matching time builds are found the multiple builds are evaluated <u>in the order they appear in the file</u>, so a multiple='1' on the first builder will hide all the subsequent builders.</p>
+
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -618,13 +646,8 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">interval</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Interval period in milliseconds</td>
-            </tr>
-            <tr>
-               <td class="tabledata">intervaltype</td>
-               <td class="tabledata"></td>
-               <td class="tabledata"></td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Interval period in seconds. Default value is 300 (five minutes).</td>
             </tr>
          </table>
 
@@ -634,7 +657,6 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
          schedule an official build to run every night at midnight, if we so desire.  AntBuilder runs Ant in as a
          separate Java process and you can specify settings for the virtual machine using the nested jvmarg element.</p>
 
-	<p><b>Note:</b> Only the first ant entry for a particular interval will be run.  Any subsequent duplicate entries are ignored.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -643,27 +665,28 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">buildfile</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Path to Ant build file</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Path to Ant build file. Default is build.xml</td>
             </tr>
             <tr>
                <td class="tabledata">target</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">Ant target to run</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Ant target(s) to run. Default is "", or the default target for the build file.</td>
             </tr>
             <tr>
                <td class="tabledata">multiple</td>
-               <td class="tabledata" rowspan="2">One of These</td>
-               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds.</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds. Default value is 1. Can't be set if time is set.</td>
             </tr>
             <tr>
                <td class="tabledata">time</td>
-               <td class="tabledata">Time in the form HHmm</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Time in the form HHmm. Can't be set if multiple is set.</td>
             </tr>
             <tr>
                <td class="tabledata">day</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">Integer value of day when builds should take place.  Sunday = 1.  Does not support multiple days except for the default of every day.</td>
+               <td class="tabledata">Valid values are (case-insenstive) the english names for the days of the week (Sunday, Monday, Tuesday, etc). Does not support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                <td class="tabledata">tempfile</td>
@@ -676,11 +699,60 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">Absolute filename of ant script.  Uses ant via java if not specified.</td>
             </tr>
             <tr>
+               <td class="tabledata">antWorkingDir</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Will invoke ant in the specified directory.</td>
+            </tr>
+            <tr>
                <td class="tabledata">uselogger</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger.  'false' to call it as a Listener. Logger will log messages based on log4j setting which can make for smaller log files. Listener will echo ant messages to console which is useful when debugging your ant build. Defaults to 'false'</td>
+               <td class="tabledata">'true' if CruiseControl should call Ant's XmlLogger as a Logger; 'false' to call it as a Listener. Logger will log messages based on log4j setting which can make for smaller log files. Listener will echo ant messages to console which is useful when debugging your ant build. Defaults to 'false'</td>
+            </tr>
+            <tr>
+               <td class="tabledata">usedebug</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">If true will invoke ant with -debug -verbose, which can be useful for debugging your ant build. Defaults to 'false'</td>
             </tr>
          </table>
+
+         <ul>
+           <p><a name="jvmarg"><span class="small">JVMArg</span><br/>
+           Nested element of AntBuilder used to pass arguement to the jvm used to invoke ant. Ignored if using antscript.
+           </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">arg</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">value to pass to the jvm, such as "-Xmx120m".</td>
+            </tr>
+         </table>
+         </ul>
+         <ul>
+           <p><a name="property"><span class="small">Property</span><br/>
+           Used to define properties for the ant build.
+           </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">name</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata" rowspan="2">will be passed on the ant command-line as "-Dname=value"</td>
+            </tr>
+            <tr>
+               <td class="tabledata">value</td>
+               <td class="tabledata">Yes</td>
+            </tr>
+         </table>
+         </ul>
 
          <p><a name="mavenbuilder"><span class="small">MavenBuilder</span><br/>
 	  Specify a <a href="http://maven.apache.org">Maven</a> build to be run at a given time or build number.  
@@ -688,8 +760,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
 		over the specified project. Due to the current status of Maven (in heavy development) only the "script" start mode is supported.
 		</p>
 
-	<p><b>Note1:</b> Only the first <b>builder</b> entry for a particular interval will be run.  Any subsequent duplicate entries are ignored.</p>
-	<p><b>Note2:</b> The "goal" attribute has the following usage examples:</p>
+	<p>The <code>goal</code> attribute has the following usage examples:</p>
 							 		 <ul>
 									 		 <li>"clean" will run 'clean' goal on the project</li>
 									 		 <li>"clean java:compile" will run 'clean' goal then 'java:compile' goal on the project, within the <b>same</b> Maven session run</li>
@@ -721,12 +792,13 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">multiple</td>
-               <td class="tabledata" rowspan="2">One of These</td>
-               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds.</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Build index used to run different builders.  For example, if this is set to 3, the builder will be run every 3 builds. Default value is 1. Can't be set if time is set.</td>
             </tr>
             <tr>
                <td class="tabledata">time</td>
-               <td class="tabledata">Time in the form HHmm</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Time in the form HHmm. Can't be set if multiple is set.</td>
             </tr>
             <tr>
                <td class="tabledata">day</td>
@@ -765,7 +837,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
          <hr/>
 
          <p><a name="log"><span class="small">Log</span><br>
-         [about log]
+         Optional element specifies where cruisecontrol log files are stored and, via the nested merge element, specifies what xml files created by the build process should be merged into the CruiseControl build log.
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -774,17 +846,17 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">dir</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">The cruisecontrol log directory</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">The cruisecontrol log directory. Default is "logs/[projectname]".</td>
             </tr>
             <tr>
                <td class="tabledata">encoding</td>
                <td class="tabledata">No</td>
-               <td class="tabledata">Encoding for XML log files.</td>
+               <td class="tabledata">Encoding for CruiseControl's XML log file.</td>
             </tr>
          </table>
 
-
+<ul>
          <p><a name="merge"><span class="small">Merge</span><br>
          After the build is complete, there may be other xml artifacts to merge into the cruisecontrol log.  The most
          common of these is the junit test results that the Ant &lt;junit&gt; task creates.  We can add a merge entry for
@@ -798,14 +870,14 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             <tr>
                <td class="tabledata">file</td>
                <td rowspan="2" class="tabledata">One of These</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">path to file to merge into build log</td>
             </tr>
             <tr>
                <td class="tabledata">dir</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">all files with extension .xml will be merged into the build log.</td>
             </tr>
          </table>
-
+</ul>
          <hr>
 
          <p><a name="publishers"><span class="small">Publishers</span><br>
@@ -975,6 +1047,45 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
          </table>
 
+<ul>
+         <p><span class="small">always/failure</span><br/>
+	 All forms of the EmailPublisher allow both always and failure sub-elements.  These identify e-mail addresses that should always be sent mail or sent mail only on failed builds.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">address</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">e-mail address</td>
+            </tr>
+         </table>
+</ul>
+<ul>
+         <p><span class="small">map</span><br/>
+         Used to map a source control user name to either a valid email name or complete email address.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">alias</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">alias (username) as it appears on modifications</td>
+            </tr>
+            <tr>
+               <td class="tabledata">address</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">e-mail address</td>
+            </tr>
+         </table>
+</ul>
+
          <p><a name="linkemailpublisher"><span class="small">LinkEmailPublisher</span><br/>
 	 A version of EmailPublisher that sends an email with a URL to the build results JSP. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the LinkEmailPublisher as well.</p>
          <table cellpadding="3" cellspacing="1" border="0">
@@ -991,7 +1102,7 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
           </table>
 
          <p><a name="htmlemailpublisher"><span class="small">HTMLEmailPublisher</span><br/>
-         A version of EmailPublisher that sends an email with an HTML version of the build results embedded. By default has the same information as the JSP build results page. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the LinkEmailPublisher as well.</p>
+         A version of EmailPublisher that sends an email with an HTML version of the build results embedded. By default has the same information as the JSP build results page. All of the attributes of <a href="#emailpublisher">EmailPublisher</a> apply to the HTMLEmailPublisher as well.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -1010,8 +1121,8 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
             <tr>
                <td class="tabledata">logdir</td>
-               <td class="tabledata">unless xslfile specified</td>
-               <td class="tabledata">Path to the log file as set in the log element of the configuration xml file.</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Path to the log directory as set in the log element of the configuration xml file.</td>
             </tr>
             <tr>
                <td class="tabledata">xsldir</td>
@@ -1025,8 +1136,9 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
          </table>
 
-         <p><span class="small">always/failure</span><br/>
-	 All forms of the EmailPublisher allow both always and failure sub-elements.  These identify e-mail addresses that should always be sent mail or sent mail only on failed builds.</p>
+         <p><span class="small">ArtifactsPublisher</span><br/>
+	 Copies build products to unique destination directory based on the build timestamp.
+         </p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -1034,22 +1146,20 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tableheader">Description</td>
             </tr>
             <tr>
-               <td class="tabledata">address</td>
+               <td class="tabledata">file</td>
+               <td class="tabledata" rowspan="2">one of these</td>
+               <td class="tabledata">will copy specified file</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dir</td>
+               <td class="tabledata">will copy all files from this directory</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dest</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">e-mail address</td>
+               <td class="tabledata">parent directory of actual destination directory; actual destination directory name will be the build timestamp.</td>
             </tr>
          </table>
-
-         <hr>
-
-         <p><a name="labelincrementers"><span class="small">Label Incrementers</span><br>
-         [stuff] - no configuration necessary, just register plugin
-
-         <p><a name="defaultlabelincrementer"><span class="small">DefaultLabelIncrementer</span><br>
-         [example of plugin code]<p>
-
-         <p><a name="cvslabelincrementer"><span class="small">CVSLabelIncrementer</span><br>
-         [example of plugin code]<p>
 
          <hr>
 
@@ -1093,7 +1203,40 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
             </tr>
          </table>
 
+         <hr>
 
+         <p><a name="labelincrementers"><span class="small">Label Incrementers</span><br>
+         To switch the label incrementer used in a given project all you need to do is register a different class as a plugin with the name <code>labelincrementer</code>.
+         </p>
+
+         <p><a name="defaultlabelincrementer"><span class="small">DefaultLabelIncrementer</span><br>
+         A label incrementer that uses the format string.number. A caution on setting attributes: these values are static and will be shared across all instances of DefaultLabelIncrementer and its subclasses.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">preBuildIncrementer</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">if <code>true</code> the build number will be incremented prior to the build attempt and thus each build attempt will have a unique build number. Default is <code>false</code>.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">separator</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">specifies the separator to use between label and build count. Default is <code>'.'</code> (period).</td>
+            </tr>
+         </table>
+
+         <p><a name="cvslabelincrementer"><span class="small">CVSLabelIncrementer</span><br>
+         An extension of DefaultLabelIncrementer but with separator set to "-" by default.  Same warnings apply: separator and preBuildIncrementer are static and shared across all instances of DefaultLabelIncrementer and CVSLabelIncrementer. Classname is <code>net.sourceforge.cruisecontrol.labelincrementers.CVSLabelIncrementer</code>
+         </p>
+
+         <p><a name="emptylabelincrementer"><span class="small">EmptyLabelIncrementer</span><br>
+         Always returns a label of "" (empty string). Class name is <code>net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer</code>
+         </p>
 
 
          <!-- content ends here -->
