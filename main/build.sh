@@ -58,18 +58,10 @@ LIBDIR=${PROJECTDIR}/lib
 # or java executable found in PATH
 
 if test -z "${JAVA_HOME}" ; then
-    # JAVA_HOME is not set, try to set it if java is in PATH
-    JAVABIN=`type java`
-    if [ $? -eq 0 ]
-    then
-        # We found something, clean the path to get a valid JAVA_HOME
-        JAVA_HOME=`echo $javart | sed -e 's/\/bin\/java.*//' `
-    else
-        echo "ERROR: JAVA_HOME not found in your environment."
-        echo "Please, set the JAVA_HOME variable in your environment to match the"
-        echo "location of the Java Virtual Machine you want to use."
-        exit
-    fi
+   echo "ERROR: JAVA_HOME not found in your environment."
+   echo "Please, set the JAVA_HOME variable in your environment to match the"
+   echo "location of the Java Virtual Machine you want to use."
+   exit
 fi
 
 # convert the existing path to unix
