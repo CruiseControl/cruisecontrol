@@ -40,6 +40,7 @@ VSS
 ClearCase
 ----------------------
 * Pass properties ${clearcaselastbuild} and ${clearcasenow} to Ant for use by clearcase Ant tasks - Patch by Jeffrey Fredrick
+* Fixed exception that occured with sym. links - Patch by Gunnar Wagenknecht
 
 HTMLEmailPublisher
 ----------------------
