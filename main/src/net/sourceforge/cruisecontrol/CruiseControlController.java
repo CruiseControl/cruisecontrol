@@ -174,6 +174,7 @@ public class CruiseControlController {
             Element projectElement = (Element) projectIterator.next();
             String projectName = projectElement.getAttributeValue("name");
             if (projectName == null) {
+                // TODO: will be ignored?
                 LOG.warn("configuration file contains project element with no name");
             } else {
                 projectNames.add(projectName);

@@ -183,5 +183,24 @@ public class ScheduleTest extends TestCase {
             2 * oneHour,
             schedule.getTimeToNextBuild(cal4.getTime(), oneHour));
     }
+    
+    public void testInterval() {
+        assertEquals("default interval", 300 * 1000, schedule.getInterval());
+        schedule.setInterval(500);
+        assertEquals(500 * 1000, schedule.getInterval());
+    }
+    
+    public void testValidate() throws CruiseControlException {
+        schedule = new Schedule();
+        
+        try {
+            schedule.validate();
+            fail("validate should throw exception if it is configured with no builders");
+        } catch (CruiseControlException e) {
+        }
+        
+        schedule.addBuilder(multipleOfOne);
+        schedule.validate();
+    }
 
 }

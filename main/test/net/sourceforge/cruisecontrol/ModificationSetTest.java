@@ -47,6 +47,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
+import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -57,15 +58,9 @@ import org.jdom.output.XMLOutputter;
 public class ModificationSetTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(ModificationSetTest.class);
-
-    public ModificationSetTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        LOG.getLoggerRepository().setThreshold(Level.OFF);
-    }
-
+    
+    private ModificationSet modSet;
+    
     public void testIsLastModificationInQuietPeriod() throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         Modification mod1 = new Modification();
@@ -82,7 +77,6 @@ public class ModificationSetTest extends TestCase {
 
         Date now = formatter.parse("20020621140103");
 
-        ModificationSet modSet = new ModificationSet();
         modSet.setQuietPeriod(5);
 
         assertEquals(true, modSet.isLastModificationInQuietPeriod(now, mods1));
@@ -99,8 +93,6 @@ public class ModificationSetTest extends TestCase {
         List mods1 = new ArrayList();
         mods1.add(mod2);
         mods1.add(mod1);
-
-        ModificationSet modSet = new ModificationSet();
 
         assertEquals(mod2.modifiedTime.getTime(), modSet.getLastModificationMillis(mods1));
     }
@@ -119,7 +111,6 @@ public class ModificationSetTest extends TestCase {
         List mods2 = new ArrayList();
         mods2.add(mod2);
 
-        ModificationSet modSet = new ModificationSet();
         modSet.setQuietPeriod(5);
 
         assertEquals(0, modSet.getQuietPeriodDifference(now, mods1));
@@ -127,7 +118,6 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testGetModifications() throws Exception {
-        ModificationSet modSet = new ModificationSet();
         MockSourceControl mock1 = new MockSourceControl();
         mock1.setType(1);
         MockSourceControl mock2 = new MockSourceControl();
@@ -163,7 +153,6 @@ public class ModificationSetTest extends TestCase {
      * Uses inline sourcecontrol implementation instead of mock.
      */
     public void testGetMixedModifications() {
-        ModificationSet modSet = new ModificationSet();
         SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
 
         Modification mod1 = new Modification();
@@ -218,7 +207,6 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testGetProperties() throws Exception {
-        ModificationSet modSet = new ModificationSet();
         MockSourceControl mock1 = new MockSourceControl();
         mock1.setType(1);
         MockSourceControl mock2 = new MockSourceControl();
@@ -234,6 +222,7 @@ public class ModificationSetTest extends TestCase {
         assertEquals("Properties should be empty.", 0, table.size());
 
         modSet = new ModificationSet();
+        modSet.setQuietPeriod(0);
         mock1 = new MockSourceControl();
         mock2 = new MockSourceControl();
         mock1.setType(1);
@@ -253,6 +242,7 @@ public class ModificationSetTest extends TestCase {
         assertTrue("PropertyOnDelete not found.", table.containsKey("propertyOnDelete"));
 
         modSet = new ModificationSet();
+        modSet.setQuietPeriod(0);
         mock1 = new MockSourceControl();
         mock1.setType(1);
         mock1.setProperty("property");
@@ -263,6 +253,29 @@ public class ModificationSetTest extends TestCase {
         assertNotNull("Properties shouldn't be null.", table);
         assertEquals("Properties should should have 1 entry.", 1, table.size());
         assertTrue("Property not found.", table.containsKey("property"));
+    }
+    
+    public void testValidate() throws CruiseControlException {
+        try {
+            modSet.validate();
+            fail("modificationset should require at least one sourcecontrol");
+        } catch (CruiseControlException e) {
+        }
+        
+        modSet.addSourceControl(new Vss());
+        modSet.validate();
+    }
+
+    protected void setUp() throws Exception {
+        modSet = new ModificationSet();
+        modSet.setQuietPeriod(0);
+        
+        // Turn off logging
+        BasicConfigurator.configure();
+        LOG.getLoggerRepository().setThreshold(Level.OFF);
+    }
+
+    protected void tearDown() throws Exception {
     }
 
 }

@@ -55,7 +55,8 @@ public class PluginXMLHelper {
      *
      *  @return fully configured Object
      */
-    public Object configure(Element objectElement, String className) throws CruiseControlException {
+    public Object configure(Element objectElement, String className, boolean skipChildElements)
+        throws CruiseControlException {
         Class pluginClass = null;
         Object pluginInstance = null;
         try {
@@ -68,7 +69,7 @@ public class PluginXMLHelper {
             LOG.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: " + className);
         }
-        configureObject(objectElement, pluginInstance);
+        configureObject(objectElement, pluginInstance, skipChildElements);
 
         return pluginInstance;
     }
@@ -77,7 +78,8 @@ public class PluginXMLHelper {
      * given a JDOM Element and an object, this method will call all setters that correspond to attributes 
      * on the Element.
      */
-    protected void configureObject(Element objectElement, Object object) throws CruiseControlException {
+    protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
+        throws CruiseControlException {
         Map setters = new HashMap();
         Map creators = new HashMap();
 
@@ -94,18 +96,21 @@ public class PluginXMLHelper {
         while (attributeIterator.hasNext()) {
             Attribute attribute = (Attribute) attributeIterator.next();
             if (setters.containsKey(attribute.getName().toLowerCase())) {
-                LOG.debug("Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
+                LOG.debug(
+                    "Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
                 try {
                     Method method = (Method) setters.get(attribute.getName().toLowerCase());
                     Class[] parameters = method.getParameterTypes();
                     if (String.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{attribute.getValue()});
+                        method.invoke(object, new Object[] { attribute.getValue()});
                     } else if (int.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{new Integer(attribute.getIntValue())});
+                        method.invoke(object, new Object[] { new Integer(attribute.getIntValue())});
                     } else if (boolean.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{new Boolean(attribute.getBooleanValue())});
+                        method.invoke(
+                            object,
+                            new Object[] { new Boolean(attribute.getBooleanValue())});
                     } else {
-                        LOG.error("Couldn't invoke setter" + attribute.getName().toLowerCase());
+                        LOG.error("Couldn't invoke setter " + attribute.getName().toLowerCase());
                     }
                 } catch (Exception e) {
                     LOG.fatal("Error configuring plugin.", e);
@@ -120,24 +125,26 @@ public class PluginXMLHelper {
             }
         }
 
-        Iterator childElementIterator = objectElement.getChildren().iterator();
-        while (childElementIterator.hasNext()) {
-            Element childElement = (Element) childElementIterator.next();
-            if (creators.containsKey(childElement.getName().toLowerCase())) {
-                try {
-                    Method method = (Method) creators.get(childElement.getName().toLowerCase());
-                    Object childObject = method.invoke(object, null);
-                    configureObject(childElement, childObject);
-                } catch (Exception e) {
-                    throw new CruiseControlException(e.getMessage());
+        if (!skipChildElements) {
+            Iterator childElementIterator = objectElement.getChildren().iterator();
+            while (childElementIterator.hasNext()) {
+                Element childElement = (Element) childElementIterator.next();
+                if (creators.containsKey(childElement.getName().toLowerCase())) {
+                    try {
+                        Method method = (Method) creators.get(childElement.getName().toLowerCase());
+                        Object childObject = method.invoke(object, null);
+                        configureObject(childElement, childObject, false);
+                    } catch (Exception e) {
+                        throw new CruiseControlException(e.getMessage());
+                    }
+                } else {
+                    throw new CruiseControlException(
+                        "Nested element: '"
+                            + childElement.getName()
+                            + "' is not supported for the <"
+                            + objectElement.getName()
+                            + "> tag.");
                 }
-            } else {
-                throw new CruiseControlException(
-                    "Nested element: '"
-                        + childElement.getName()
-                        + "' is not supported for the <"
-                        + objectElement.getName()
-                        + "> tag.");
             }
         }
     }

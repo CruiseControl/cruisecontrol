@@ -73,7 +73,7 @@ public class PluginXMLHelperTest extends TestCase {
         testElement.addContent(childElement);
 
         MockPublisher plugin = (MockPublisher) helper.configure(testElement,
-                "net.sourceforge.cruisecontrol.publishers.MockPublisher");
+                "net.sourceforge.cruisecontrol.publishers.MockPublisher", false);
 
         assertEquals("expectedString", plugin.getSomeString());
         assertEquals(SOME_INT, plugin.getSomeInt());
@@ -84,7 +84,7 @@ public class PluginXMLHelperTest extends TestCase {
 
     public void testConfigureNoClass() {
         try {
-            helper.configure(new Element("irrelevant"), "noclass");
+            helper.configure(new Element("irrelevant"), "noclass", false);
             fail("Expected an exception because noclass shouldn't exist");
         } catch (CruiseControlException expected) {
         }
