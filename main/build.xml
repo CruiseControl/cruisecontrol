@@ -20,18 +20,20 @@
  *****************************************************************************-->
 <project name="CruiseControl" default="all">
 
-    <property file="cruise-build.properties" />   
+    <property name="docs" value="docs"/>
+    <property name="apidocs" value="${docs}/api"/>
+
     <property name="build.compiler" value="jikes" />
     <property name="classes" value="classes"/>        
-    <property name="webinfclasses" value="web-inf\classes"/>
+    <property file="cruise-build.properties" />   
     <property name="dist" value="dist"/>
+    <property name="images" value="images"/>
+    <property name="junit.results" value="test-results" />
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="test" value="test"/>
-    <property name="docs" value="docs"/>
-    <property name="apidocs" value="${docs}/api"/>
-    <property name="images" value="images"/>
-
+    <property name="webinfclasses" value="web-inf\classes"/>
+    
     <path id="project.classpath" >
         <fileset dir="lib">
             <include name="**/*.jar"/>
@@ -43,7 +45,6 @@
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${apidocs}"/>
-        <property name="junit.results" value="test-results.xml" />
     </target>
     
     <target name="clean">
@@ -61,25 +62,21 @@
     </target>
   
     <target name="test" depends="init">
-        <mkdir dir="test-results" />
+        <delete dir="${junit.results}"/>
+        <mkdir dir="${junit.results}" />
         <javac srcdir="${test}" destdir="${classes}" classpathref="project.classpath" />
 
-        <junit haltonfailure="true" >
+        <junit fork="yes" haltonfailure="yes" >
             <classpath >
                 <path refid="project.classpath" />
                 <pathelement location="${classes}" />
             </classpath>
             <formatter type="plain" usefile="false" />
-            <formatter type="xml" usefile="true" />
-            <batchtest todir="test-results" >
+            <formatter type="xml" />
+            <batchtest todir="${junit.results}" >
                 <fileset dir="${classes}" includes="**/*Test.class" />
             </batchtest>
         </junit>
-
-        <junitreport tofile="${junit.results}" >
-            <fileset dir="./test-results" />
-        </junitreport>
-        <delete dir="test-results" />
     </target>
     
     <target name="jar">

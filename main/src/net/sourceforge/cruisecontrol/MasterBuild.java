@@ -377,56 +377,44 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * file.  If the auxiliary xml File is a directory, all files with extension
      * xml will be appended.
      **/
-    private void mergeAuxXmlFiles(Project proj) {
-        _logFile = getFinalLogFileName(proj);
+    private void mergeAuxXmlFiles(Project antProject) {
+        _logFile = getFinalLogFileName(antProject);
 
         try {
             StringBuffer aggregatedXMLLog = new StringBuffer();
+            aggregatedXMLLog.append(readAntBuildLog(antProject));
             
-            //read in the ant build log output by the XmlLogger then throw away the last
-            //  </build> tag. We will add it later.
-            String antBuildLog = readFile(proj.getProperty("XmlLogger.file"));
-            aggregatedXMLLog.append(antBuildLog.substring(0, antBuildLog.lastIndexOf("</build>")));
-
-            //for each aux xml file, read and write to ant buildlog
+            //for each aux xml file, read and write to aggregated log
             for (Enumeration logFiles = _auxLogFiles.elements(); 
              logFiles.hasMoreElements();) {
-                String nextFile = (String)logFiles.nextElement();
+                String nextFileName = (String) logFiles.nextElement();
                 
-                File tmp = new File(nextFile);
-                if (tmp.isDirectory()) {
-                    String[] files = tmp.list(new FilenameFilter() {
-                        public boolean accept(File dir, String name) {
-                            return name.endsWith(".xml");
-                        }
-                    });
-                    if (files != null) {
-                        for (int i=0;i<files.length;i++) {
-                            //Read in the entire aux log file, stripping any xml version tags.
-                            String text = stripXMLVersionTags(readFile(nextFile+System.getProperty("file.separator")+files[i]));
-                            aggregatedXMLLog.append(text);
-                        }
-                    }
-                } else {
-                    //Read in the entire aux log file, stripping any xml version tags.
-                    String text = stripXMLVersionTags(readFile(nextFile));
-                    aggregatedXMLLog.append(text);
-                }
-                
+                //Read in the entire aux log file, stripping any xml version tags.
+                String text = stripXMLVersionTags(readFile(nextFileName));
+                aggregatedXMLLog.append(text);
             }
-            //close ant buildlog
+            
+            //close aggregated build log
             aggregatedXMLLog.append("<label>" + _label + "</label>");
             aggregatedXMLLog.append("<today>" + _today + "</today>");
             aggregatedXMLLog.append("</build>");
 
-            //write appended buildlog
             writeFile(_logFile, aggregatedXMLLog.toString());
 
         } catch (Throwable ioe) {
             ioe.printStackTrace();
         }
     }
-
+    
+    /**
+     * Read in the ant build log output by the XmlLogger then throw away the 
+     * last </build> tag. We will add it later.
+     */
+    private String readAntBuildLog(Project antProject) throws IOException {
+        String antBuildLog = readFile(antProject.getProperty("XmlLogger.file"));
+        return antBuildLog.substring(0, antBuildLog.lastIndexOf("</build>"));
+    }
+    
     /**
      * Returns the filename that should be used as the
      * composite log file. This method uses information
@@ -466,18 +454,42 @@ public class MasterBuild extends XmlLogger implements BuildListener {
      * @return String containing the text of the file.
      * @exception IOException
      */
-    private String readFile(String filename) throws IOException {
-        File f = new File(filename);
-        log("Reading file " + f.getAbsolutePath());
-        FileInputStream in = new FileInputStream(f);
+    private String readFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        StringBuffer text = new StringBuffer();
+        
+        if (file.isDirectory()) {
+            String[] files = retrieveXMLFiles(file);
+            if (files == null) {
+                return "";
+            }
+            
+            for (int i = 0; i < files.length; i++) {
+                text.append(readFile(fileName + File.separator + files[i]));
+            }
+            
+            return text.toString();
+        }
+        
+        log("Reading file " + file.getAbsolutePath());
+        
+        FileInputStream in = new FileInputStream(file);
         byte[] allBytes = new byte[in.available()];
         in.read(allBytes);
         in.close();
         in = null;
-        String text = new String(allBytes);
-        return text;
-    }
+        
+        return text.append(new String(allBytes)).toString();
+    }    
 
+    private String[] retrieveXMLFiles(File dir) {
+        return dir.list(new FilenameFilter() {
+            public boolean accept(File directory, String name) {
+                return name.endsWith(".xml");
+            }
+        });
+    }
+    
     /**
      * Writes the text to the file specified.
      *
