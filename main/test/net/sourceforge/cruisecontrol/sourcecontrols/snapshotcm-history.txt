@@ -1,0 +1,37 @@
+=============================================================
+File: /xxx/yyy/zzzz/scripts/sbin/init.d/wallawalla
+Snapshot: /RSTDevelopment/A.03.50/Develop
+Current revision: 4
+I/O mode: text
+Keyword expansion: keyword and value
+Permissions: r--r--r--
+----------------------------
+Revision: 8              Derivation:      7 --> (8)
+Date: 2004/01/07 09:51:34 -0700;  Size:     4280 bytes
+Author: pacon (Patrick Conant)
+Snapshot: /rr/rrr/Develop/brimmy
+Used in: /rr/rrr/Develop/brimmy
+Change: Content
+remove obsolete comment
+=============================================================
+File: /xxx/yyy/cccc/dddd/build.xml
+Snapshot: /RSTDevelopment/A.03.50/Develop
+Current revision: 19
+I/O mode: text
+Keyword expansion: keyword and value
+Permissions: r--r--r--
+----------------------------
+Revision: 19 (current)   Derivation:    18 --> (19)
+Date: 2004/01/06 17:00:40 -0700;  Size:    14157 bytes
+Author: pacon (Patrick Conant)
+Snapshot: /rr/rrr/Develop
+Used in: /rr/rrr/Develop
+Change: Content
+Removed -D param from SnapshotCM wco and wci commands.
+----------------------------
+Revision: 18             Derivation:    17 --> (18) --> 19
+Date: 2004/01/06 15:49:38 -0700;  Size:    14218 bytes
+Author: pacon (Patrick Conant)
+Snapshot: /rrr/ssss/tttt
+Change: Content
+Corrected capitalization for all parameters
