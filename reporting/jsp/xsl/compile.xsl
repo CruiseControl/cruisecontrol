@@ -47,9 +47,11 @@
     <xsl:template match="/">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
-            <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='error']"/>
-            <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='error']"/>
-            <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages)"/>
+            <xsl:variable name="javac.error.messages" select="$javac.tasklist/message[@priority='error']"/>
+            <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn']"/>
+            <xsl:variable name="ejbjar.error.messages" select="$ejbjar.tasklist/message[@priority='error']"/>
+            <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn']"/>
+            <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages) + count($javac.error.messages) + count($ejbjar.error.messages)"/>
 
             <xsl:if test="$total.errorMessage.count > 0">
                 <tr>
@@ -60,7 +62,9 @@
                        &#160;Errors/Warnings: (<xsl:value-of select="$total.errorMessage.count"/>)
                     </td>
                 </tr>
+                <xsl:apply-templates select="$javac.error.messages"/>
                 <xsl:apply-templates select="$javac.warn.messages"/>
+                <xsl:apply-templates select="$ejbjar.error.messages"/>
                 <xsl:apply-templates select="$ejbjar.warn.messages"/>
             </xsl:if>
 
@@ -68,6 +72,10 @@
     </xsl:template>
 
     <xsl:template match="message[@priority='error']">
+        <tr><td class="compile-data"><xsl:value-of select="text()"/></td></tr>
+    </xsl:template>
+
+    <xsl:template match="message[@priority='warn']">
         <tr><td class="compile-data"><xsl:value-of select="text()"/></td></tr>
     </xsl:template>
 
