@@ -165,6 +165,8 @@ public class MKS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(mksroot == null)
+            throw new CruiseControlException("'mksroot' is a required attribute on MKS");
     }
 
     /**
