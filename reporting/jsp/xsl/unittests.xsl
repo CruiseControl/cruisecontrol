@@ -53,7 +53,7 @@
 
             <!-- Unit Tests -->
             <tr>
-                <td class="unittests-sectionheader" colspan="2">
+                <td class="unittests-sectionheader" colspan="4">
                    &#160;Unit Tests: (<xsl:value-of select="count($testcase.list)"/>)
                 </td>
             </tr>
@@ -80,16 +80,21 @@
                     </tr>
                 </xsl:when>
             </xsl:choose>
-
-            <xsl:apply-templates select="$testcase.error.list"/>
-            <xsl:apply-templates select="$testcase.failure.list"/>
+            <tr>
+              <td>
+       	         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+            	    <xsl:apply-templates select="$testcase.error.list"/>
+            	    <xsl:apply-templates select="$testcase.failure.list"/>
+                 </table>
+              </td>
+            </tr>
             <tr/>
             <tr><td colspan="2">&#160;</td></tr>
 
             <xsl:if test="$totalErrorsAndFailures > 0">
 
               <tr>
-                <td class="unittests-sectionheader" colspan="2">
+                <td class="unittests-sectionheader" colspan="4">
                     &#160;Unit Test Error Details:&#160;(<xsl:value-of select="$totalErrorsAndFailures"/>)
                 </td>
               </tr>
@@ -121,8 +126,11 @@
             <td class="unittests-data">
                 error
             </td>
-            <td class="unittests-data">
+            <td class="unittests-data" width="40%">
                 <xsl:value-of select="../@name"/>
+            </td>
+            <td class="unittests-data" width="40%">
+                <xsl:value-of select="..//..//@name"/>
             </td>
         </tr>
     </xsl:template>
@@ -137,8 +145,11 @@
             <td class="unittests-data">
                 failure
             </td>
-            <td class="unittests-data">
+            <td class="unittests-data" width="40%">
                 <xsl:value-of select="../@name"/>
+            </td>
+            <td class="unittests-data" width="40%">
+                <xsl:value-of select="..//..//@name"/>
             </td>
         </tr>
     </xsl:template>
@@ -152,6 +163,11 @@
         <tr>
             <td colspan="2" class="unittests-data">
                 Test:&#160;<xsl:value-of select="@name"/>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="unittests-data">
+                Class:&#160;<xsl:value-of select="..//@name"/>
             </td>
         </tr>
 
