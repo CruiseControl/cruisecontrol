@@ -63,6 +63,7 @@ public class AntBuilder extends Builder {
     private static final String PROPERTY_LOGGER_FILE_NAME = "propertylogger.xml";
     private String _buildFile;
     private String _target;
+    private String _tempFileName = "log.xml";
     List _args = new ArrayList();
 
 
@@ -107,7 +108,7 @@ public class AntBuilder extends Builder {
         errorPumper.flush();
 
         //read in log file as element, return it
-        File logFile = new File("log.xml");
+        File logFile = new File(_tempFileName);
         if(!logFile.exists()) {
             log.error("Ant logfile cannot be found");
         }
@@ -128,6 +129,10 @@ public class AntBuilder extends Builder {
         propertiesLog.delete();
 
         return buildLogElement;
+    }
+
+    public void setTempFile(String tempFileName) {
+        _tempFileName = tempFileName;
     }
 
     public void setTarget(String target) {
@@ -188,10 +193,11 @@ public class AntBuilder extends Builder {
             al.add("-logger");
             al.add("org.apache.tools.ant.XmlLogger");
             al.add("-logfile");
-            al.add("log.xml");
+            al.add(_tempFileName);
         } else {
             al.add("-listener");
             al.add("org.apache.tools.ant.XmlLogger");
+            al.add("-DXmlLogger.file=" + _tempFileName);
         }
         al.add("-listener");
         al.add("net.sourceforge.cruisecontrol.builders.PropertyLogger");

@@ -90,10 +90,10 @@ public class AntBuilderTest extends TestCase {
         Hashtable properties = new Hashtable();
         properties.put("label", "200.1.23");
         String classpath = System.getProperty("java.class.path");
-        String[] resultDebug = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
-        String[] resultInfo = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
+        String[] resultDebug = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
+        String[] resultInfo = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
         String[] resultLogger = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-logger", "org.apache.tools.ant.XmlLogger", "-logfile", "log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
-        String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
+        String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-DXmlLogger.file=log.xml", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         log.getRoot().setLevel(Level.INFO);
