@@ -594,13 +594,16 @@ public class Project implements Serializable, Runnable {
         logXmlEncoding = helper.getLogXmlEncoding();
         File logDirectory = new File(logDir);
         if (!logDirectory.exists()) {
+            log("log directory specified in config file does not exist; creating: "
+                + logDirectory.getAbsolutePath());
+            if (!logDirectory.mkdirs()) {
+                throw new CruiseControlException(
+                    "Can't create log directory specified in config file: "
+                        + logDirectory.getAbsolutePath());
+            }
+        } else if (!logDirectory.isDirectory()) {
             throw new CruiseControlException(
-                "Log Directory specified in config file does not exist: "
-                    + logDirectory.getAbsolutePath());
-        }
-        if (!logDirectory.isDirectory()) {
-            throw new CruiseControlException(
-                "Log Directory specified in config file is not a directory: "
+                "Log directory specified in config file is not a directory: "
                     + logDirectory.getAbsolutePath());
         }
         bootstrappers = helper.getBootstrappers();
