@@ -64,15 +64,11 @@ public class CurrentBuildStatusPublisher implements Publisher {
      */
     public void validate() throws CruiseControlException {
         if(_fileName == null) {
-            throw new CruiseControlException ("fileName not specified in configuration file.");
+            throw new CruiseControlException ("'file' not specified in configuration file.");
         }
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        if (_fileName == null) {
-            throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
-        }
-
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
         long interval = Long.parseLong(helper.getCruiseControlInfoProperty("interval"));
         writeFile(new Date(), interval);
