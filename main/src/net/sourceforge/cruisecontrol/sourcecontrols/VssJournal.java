@@ -144,6 +144,10 @@ public class VssJournal implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(_journalFile == null)
+            throw new CruiseControlException("'journalfile' is a required attribute on VssJournal");
+        if(_ssDir == null)
+            throw new CruiseControlException("'ssdir' is a required attribute on VssJournal");
     }
 
     /**
