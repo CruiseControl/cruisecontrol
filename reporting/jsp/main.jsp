@@ -46,7 +46,7 @@
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
     <tr>
       <td valign="top">
-        <jsp:include page="navigation.jsp" flush="true" />
+        <%@ include file="navigation.jsp" %>
       </td>
       <td valign="top">
         &nbsp;<br>
