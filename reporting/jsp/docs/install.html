@@ -76,6 +76,11 @@ Just press the ENTER key when prompted for a password.
 &lt;%@ taglib uri="/WEB-INF/cruisecontrol-jsp12.tld" prefix="cruisecontrol"%&gt;
 </pre>
 
+<p>It is also possible to configure the date format used in the navigation links.  To change this, we'll need to edit
+the buildresults.jsp itself.  On the <code>&lt;cruisecontrol:nav&gt;</code> tag, we can add the <code>dateFormat</code>
+attribute.  Then we can set this value to be whatever we choose, as long as it's a valid date format as recognized by
+Java.
+
 <p>
 <span class="small">Building</span><br>
    CruiseControl uses <a href="http://jakarta.apache.org/ant">Ant</a> to build and package the build results web application.  Everything you need
