@@ -201,13 +201,14 @@ public class ProjectXMLHelper {
      *  TO DO: also check that instantiated class implements/extends correct interface/class
      */
     protected Object configurePlugin(Element pluginElement) throws CruiseControlException {
+        String name = pluginElement.getName();
         PluginXMLHelper pluginHelper = new PluginXMLHelper();
         String lowercaseName = pluginElement.getName().toLowerCase();
 
         if (_plugins.containsKey(lowercaseName)) {
             return pluginHelper.configure(pluginElement, (String) _plugins.get(lowercaseName));
         } else {
-            throw new CruiseControlException("Unknown plugin.");
+            throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
     }
 }
