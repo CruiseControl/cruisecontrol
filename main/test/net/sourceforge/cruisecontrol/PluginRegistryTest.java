@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import org.jdom.Element;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 
@@ -80,7 +82,10 @@ public class PluginRegistryTest extends TestCase {
         String antClassName = registry.getPluginClassname("ant");
         String nonExistentClassname =
             "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
-        PluginRegistry.registerToRoot("ant", nonExistentClassname);
+        Element pluginElement = new Element("plugin");
+        pluginElement.setAttribute("name", "ant");
+        pluginElement.setAttribute("classname", nonExistentClassname);
+        PluginRegistry.registerToRoot(pluginElement);
         // did the overwrite work?
         assertNotSame(antClassName, registry.getPluginClassname("ant"));
         // now override the root definition in the child registry
@@ -89,7 +94,8 @@ public class PluginRegistryTest extends TestCase {
         assertEquals(antClassName, registry.getPluginClassname("ant"));
 
         // restore the root definition, or we'll wreck the other tests
-        PluginRegistry.registerToRoot("ant", antClassName);
+        pluginElement.setAttribute("classname", antClassName);
+        PluginRegistry.registerToRoot(pluginElement);
     }
 
     public void testCaseInsensitivityPluginNames() throws Exception {

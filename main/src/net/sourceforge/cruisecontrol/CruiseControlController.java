@@ -95,13 +95,11 @@ public class CruiseControlController {
                 LOG.warn(configFile.getName() + " contains plugin without a name-attribute, ignoring it");
                 continue;
             }
-            String pluginClassname = pluginElement.getAttributeValue("classname");
-            if (pluginClassname == null) {
-                LOG.warn(configFile.getName() + " contains plugin '" + pluginName
-                        + "' without a classname-attribute, ignoring it");
-                continue;
+            try {
+                PluginRegistry.registerToRoot(pluginElement);
+            } catch (CruiseControlException e) {
+                LOG.warn("Can't register plugin '" + pluginName + "':\n" + e.getMessage());
             }
-            PluginRegistry.registerToRoot(pluginName, pluginClassname);
         }
     }
 
