@@ -130,6 +130,8 @@
 <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
 <a href="#schedule">&lt;schedule&gt;</a>
 <a href="#scp">&lt;scp&gt;</a>
+<a href="#snapshotcm">&lt;snapshotcm&gt;</a>
+<a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a>
 <a href="#starteam">&lt;starteam&gt;</a>
 <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
 <a href="#surround">&lt;surround&gt;</a>
@@ -144,6 +146,7 @@
 <a href="#vssjournal">&lt;vssjournal&gt;</a>
 <a href="#x10">&lt;x10&gt;</a>
 <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
+&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
@@ -182,6 +185,7 @@
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
+         <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper/&gt;</a>
          <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
          <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
          <a href="#surroundbootstrapper">&lt;surroundbootstrapper/&gt;</a>
@@ -203,6 +207,7 @@
          <a href="#mks">&lt;mks/&gt;</a>
          <a href="#p4">&lt;p4/&gt;</a>
          <a href="#pvcs">&lt;pvcs/&gt;</a>
+         <a href="#snapshotcm">&lt;snapshotcm/&gt;</a>
          <a href="#starteam">&lt;starteam/&gt;</a>
          <a href="#surround">&lt;surround/&gt;</a>
          <a href="#svn">&lt;svn/&gt;</a>
@@ -559,21 +564,26 @@
                 <td>Bootstraps resources from Perforce</td>
             </tr>
             <tr>
+                <td><a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from SnapshotCM</td>
+            </tr>
+            <tr class="oddrow">
                 <td><a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Star Team</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Surround SCM</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Visual Source Safe</td>
@@ -824,6 +834,43 @@
                 <td>p4Client</td>
                 <td>No</td>
                 <td>Perforce Client name to use</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;snapshotcmbootstrapper&gt;</pre>
+        </div>
+
+        <p>Can be used to pull a single file (usually build.xml and/or
+           build.properties) or directory from SnapshotCM prior to building.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>Name of the file or directory to fetch from the SnapshotCM 
+                    repository.  Updates from SnapshotCM repository will be
+                    recursive and forced (over-writing any local changes).</td>
             </tr>
             </tbody>
         </table>
@@ -1237,21 +1284,26 @@
                 <td>Checks for changes in a Star Team repository.</td>
             </tr>
             <tr>
+                <td><a href="#snapshotcm">&lt;snapshotcm&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a SnapshotCM repository.</td>
+            </tr>
+            <tr class="oddrow">
                  <td><a href="#surround">&lt;surround&gt;</a></td>
                  <td>0 .. *</td>
                  <td>Checks for changes in a Surround SCM repository.</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vss">&lt;vss&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe, Journal File
@@ -1974,6 +2026,53 @@
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="snapshotcm">&lt;snapshotcm&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;snapshotcm&gt;</pre>
+        </div>
+
+        <p>Checks for changes in a SnapshotCM repository.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>sourcepaths</td>
+                <td>Yes</td>
+                <td>A semi-colon-separated list of source paths to check 
+                    for modifications.  All paths will be checked recursively.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Property to be set if a modification has occurred. For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Property to be set if a file has been deleted. For use in
+                conditionally controlling the build later.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="starteam">&lt;starteam&gt;</a></h2>
 
         <div class="hierarchy">
@@ -2029,13 +2128,13 @@
             <tr>
                 <td>property</td>
                 <td>No</td>
-                <td>Set this property if a modification has occurred.  For use
+                <td>Property to be set if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
             <tr class="oddrow">
                 <td>propertyondelete</td>
                 <td>No</td>
-                <td>Set this property if a file has been deleted.  For use in
+                <td>Property to be set if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
             </tbody>
