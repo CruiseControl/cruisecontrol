@@ -203,7 +203,7 @@ public class CVSElement implements SourceControlElement {
                                  " log " +
                                  "-d\"" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "\" "+
                                  this.local.getAbsolutePath();
-        log("Command to execute: " + commandForLogging);
+        log("[cvselement] " + commandForLogging);
 
         try {
             Process p = Runtime.getRuntime().exec(commandArray);
@@ -244,10 +244,10 @@ public class CVSElement implements SourceControlElement {
         try{
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String nextLine = reader.readLine();
-            log("Log Input Stream found for " + type + " = " + nextLine);
+            log("[cvselement " + type + "] " + nextLine);
         }catch(Exception e)
         {
-            log("**** ERROR in loging Input Stream type = " + type + " error = " + e.toString());
+            log("[cvselement " + type + "] " + e.toString());
         }
 
     }
