@@ -61,62 +61,36 @@ import org.apache.tools.ant.*;
  * 
  * @author Christopher Charlier -- ThoughtWorks Inc. 2001
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author Neill 
  */
 public class StarTeamElement extends SourceControlElement {
 
-    /**
-     * The username for the Starteam repository.
-     */
     private String username;
-
-    /**
-     * The password for this user in the Starteam repository.
-     */
     private String password;
-
-    /**
-     * The Starteam folder to check out from the repository.
-     */
     private String folder;
-
-    /**
-     * The url of the Starteam repository to connect to.
-     */
     private String url;
-
-    /**
-     * The collection of all email addresses of anyone who made a modification.
-     */
     private Set emailAddresses = new HashSet();
-
+    private List modifications = new ArrayList();
+    private OLEDate mostRecent = new OLEDate(0);
+    private OLEDate nowDate;
+    
     /**
-     * The collection of all modifications since the last successful build.
+     * Set StarTeam user name
      */
-    private List modificationList = new ArrayList();
-
-    /**
-     * The root folder in the StarTeam directory passed in by Ant.
-     */
-    private Folder rootFolder;
-
-    /**
-     * The time of the most recent modification in StarTeam.
-     */
-    private OLEDate mostRecentModification = new OLEDate(0);
-
-    /**
-     * The time of the last successful build.
-     */
-    private Date lastSuccessfulBuild;
-
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Set password for StarTeam user
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Set repository folder
+     */
     public void setFolder(String folder) {
         this.folder = folder;
     }
@@ -137,7 +111,7 @@ public class StarTeamElement extends SourceControlElement {
      * @return
      */
     public long getLastModified() {
-        return mostRecentModification.getLongValue();
+        return mostRecent.getLongValue();
     }
 
     /**
@@ -150,186 +124,183 @@ public class StarTeamElement extends SourceControlElement {
      * @return
      */
     public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+        // Clean out the modifications list.  Otherwise we get duplicate entries
+        // when this function is called more than once in a quiet period breach
+        // We normally would need to clean out the email list as well, except we 
+        // know that all entries in current list will still be required
+        modifications.clear();
+        
+        // Store OLEDate equivalents of now and lastbuild for performance
+        nowDate = new OLEDate(now.getTime());
+        OLEDate lastBuildDate = new OLEDate(lastBuild.getTime());
+        
+        // Set up two view snapshots, one at lastbuild time, one now
+        View view = StarTeamFinder.openView(this.username + ":"
+         + this.password + "@" + this.url);
+        Server server = view.getServer();
+        
         try {
+            View snapshotAtNow = new View(view,
+            ViewConfiguration.createFromTime(nowDate));
+            View snapshotAtLastBuild = new View(view,
+            ViewConfiguration.createFromTime(lastBuildDate));
 
-            // The Starteam SDK does not like the NoExitSecurityManager that comes
-            // with Cruise Control. It throws a runtime error if it is still the
-            // current security manager, so we set it to null here and then set it
-            // back when Starteam is done.
-            System.setSecurityManager(null);
-            lastSuccessfulBuild = lastBuild;
+            Map nowFiles = new HashMap();
+            Map lastBuildFiles = new HashMap();
 
-            // Get view as of the last successful build time.
-            View view = StarTeamFinder.openView(this.username + ":" + this.password + "@" + this.url);
-            View snapshot = new View(view, ViewConfiguration.createFromTime(new OLEDate(now.getTime())));
-
-            rootFolder = StarTeamFinder.findFolder(snapshot.getRootFolder(), this.folder);
-
-            if (rootFolder == null) {
-                log("Root folder is null", org.apache.tools.ant.Project.MSG_ERR);
-                throw new FileNotFoundException();
+            // Visit all files in the snapshots and add to Maps
+            addFolderModsToList(nowFiles,
+             StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(),
+             this.folder), nowDate);
+            
+            try {
+                addFolderModsToList(lastBuildFiles,
+                 StarTeamFinder.findFolder(
+                 snapshotAtLastBuild.getRootFolder(),
+                 this.folder), lastBuildDate);
+            } catch (ServerException se) {
+                log("Server Exception occurred visiting last build view: "
+                + se.getMessage());
             }
-
-            // Inspect everything in the root folder
-            visit(rootFolder);
-
-            // Add some info to the log file
-            log(modificationList.size() + " modifications in " + this.folder);
-            System.setSecurityManager(new NoExitSecurityManager());
-
-        }
-        catch (ServerException e) {
-            // username or password are wrong
-            log("ERROR: StarTeam is returning a ServerException.");
-            log("       This is most likely caused by by a failed logon.");
-            log("       Please verify the spelling of the user name and password and try again.");
-            e.printStackTrace();
-        }
-        catch (FileNotFoundException e) {
-            // Folder is wrong
-            log("ERROR: Unable to open the folder.");
-            log("       Please verify the spelling of the folder and try again.");
-            e.printStackTrace();
-        }
-        catch (NullPointerException e) {
-            // Project name or view name is wrong
-            log("ERROR: StarTeam is returning a NullPointerException.");
-            log("       This is most likely caused by unsuccessfully opening the project or the");
-            log("       view. Please verify the spelling of the url and try again.");
-            e.printStackTrace();
-        }
-        catch (CommandException e) {
-            // port number is wrong
-            log("ERROR: StarTeam is returning a CommandException.");
-            log("       This is most likely caused by unsuccessfully attempting to read from");
-            log("       socket or Connection to server lost.Please verify the spelling of the");
-            log("       url and try again.");
-            e.printStackTrace();
-        }
-        catch (RuntimeException e) {
-            // Server Name is wrong
-            log("ERROR: StarTeam is returning a RuntimeException.");
-            log("       This is most likely caused by not finding the server name specified.");
-            log("       Please verify the spelling of the server and try again.");
-            e.printStackTrace();
-        }
-
-        return modificationList;
-    }
-
-    /**
-     * Returns the type of the revision that took place.
-     *
-     * @param revision
-     * @return
-     */
-    private String getRevisionType(File revision) {
-        //(PENDING) switch-case
-
-        try {
-            // We try to update the status once to give StarTeam another chance.
-            if (revision.getStatus() == Status.MERGE || revision.getStatus() == Status.UNKNOWN) {
-                revision.updateStatus(true, true);
+            
+            compareFileLists(nowFiles, lastBuildFiles);
+            
+            // Discard cached items so memory is not eaten up
+            snapshotAtNow.getRootFolder().discardItems(server.getTypeNames().FILE, -1);
+            
+            try {
+                snapshotAtLastBuild.getRootFolder().discardItems(server.getTypeNames().FILE, -1);
+            } catch (ServerException se) {
+                log("Server Exception occurred discarding last build file cache: " + se.getMessage());
             }
-
-            // If the File doesn't exist on the local machine, we will assume it is a new file.
-            if (revision.getStatus() == Status.MISSING) {
-                return "NEW";
-            }
-            // If the file is not in StarTeam, but is on the local machine, we assume someone deleted it.
-            else if (revision.getStatus() == Status.NEW) {
-                return "DELETED";
-            }
-            // Otherwise, we assume someone modified the file.
-            else {
-                return "MODIFIED";
-            }
-        }
-        catch (java.io.IOException e) {
-            log("ERROR: there was problems reading the local file : " + revision.getName() + "!!!!");
-            return "ERROR";
+            
+            log(modifications.size() + " modifications in " + this.folder);
+            return (ArrayList) modifications;
+        } finally {
+            server.disconnect();
         }
     }
 
     /**
-     * Visits a folder to check on the files and sub folders that exist for
-     * changes.
-     *
-     * @param folder
+     * Compare old and new file lists to determine what happened
      */
-    private void visit(Folder folder) {
-        // For all Files in this folder, we need to check to see if there have been modifications.
-        Item[] files = folder.getItems("File");
-        for (int i = 0; i < files.length; i++) {
-            File eachFile = (File) files[i];
-            visit(eachFile);
+    private void compareFileLists(Map nowFiles, Map lastBuildFiles) {
+        for (Iterator iter = nowFiles.keySet().iterator(); iter.hasNext(); ) {
+            Integer currentItemID  = (Integer) iter.next();
+            File currentFile = (File) nowFiles.get(currentItemID);
+            
+            if (lastBuildFiles.containsKey(currentItemID)) {
+                File lastBuildFile =
+                (File) lastBuildFiles.get(currentItemID);
+                
+                if (fileHasBeenModified(currentFile, lastBuildFile)) {
+                    addRevision(currentFile, "modified");
+                } else if (fileHasBeenMoved(currentFile, lastBuildFile)) {
+                    addRevision(currentFile, "moved");
+                }
+                // Remove the identified last build file from the list of
+                // last build files.  It will make processing the delete
+                // check on the last builds quicker
+                lastBuildFiles.remove(currentItemID);
+            } else {
+                // File is new
+                addRevision(currentFile, "new");
+            }
         }
-
-        // We also want to recursively call this method on all sub folders in this folder.
-        Folder[] subFolders = folder.getSubFolders();
-        for (int i = 0; i < subFolders.length; i++) {
-            visit(subFolders[i]);
-        }
+        examineOldFiles(lastBuildFiles);
     }
 
     /**
-     * Visits a file to see if there have been changes since the last successful
-     * build.
-     *
-     * @param file
+     * Now examine old files.  They have to have been deleted as we know they 
+     * are not in the new list from the processing above.
      */
-    private void visit(File file) {
-        if (file.getModifiedTime().getLongValue() < lastSuccessfulBuild.getTime()) {
-            return;
-        }
-
-        /**
-         * There is an assumption made here. It is that the call to getHistory()
-         * will return an array in Decending order sorted by the Modified time
-         * starting with the most recent modification. Currently, that is what
-         * Starteams SDK does, however, there is no reason, this will be the
-         * same in the future. Be aware.
-         */
-        Item[] history = file.getHistory();
-        for (int i = 0; i < history.length; i++) {
-            File eachRevision = (File) history[i];
-
-            if (eachRevision.getModifiedTime().getLongValue() > lastSuccessfulBuild.getTime()) {
-                addRevision(eachRevision);
-            }
-            else {
-                return;
-            }
+    private void examineOldFiles(Map lastBuildFiles) {
+        for (Iterator iter = lastBuildFiles.values().iterator(); iter.hasNext(); ) {
+            File currentLastBuildFile = (File) iter.next();
+            addRevision((File) currentLastBuildFile.getFromHistoryByDate(nowDate), 
+             "deleted");
         }
     }
+    
+    private boolean fileHasBeenModified(File currentFile, File lastBuildFile) {
+        return currentFile.getContentVersion() != lastBuildFile.getContentVersion();
+    }
+    
+    private boolean fileHasBeenMoved(File currentFile, File lastBuildFile) {        
+        return !currentFile.getParentFolder().getFolderHierarchy().equals(
+         lastBuildFile.getParentFolder().getFolderHierarchy());       
+    }
 
+	private void addFolderModsToList(Map fileList, Folder folder, 
+     OLEDate snapshotDate) {
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException ignoredInterruptedException) {}
+
+		Item[] files = folder.getItems("File");
+		for (int i = 0; i < files.length; i++) {
+			File file = (File) files[i];
+			addFileModsToList(fileList, file, snapshotDate);
+		}
+
+		Folder[] folders = folder.getSubFolders();
+		for (int i = 0; i < folders.length; i++) {
+			addFolderModsToList(fileList, folders[i], snapshotDate);
+		}
+	}    
+    
+	private void addFileModsToList(Map fileList, File file, 
+     OLEDate snapshotDate) {
+		File revision = (File) file.getFromHistoryByDate(snapshotDate);
+		fileList.put(new Integer(revision.getItemID()), revision);
+	}    
+    
     /**
      * Adds the revision to the modification set.
      *
      * @param revision
      */
-    private void addRevision(File revision) {
+    private void addRevision(File revision, String status) {
+        User user = revision.getServer().getUser(revision.getModifiedBy());
+        
+        if ((user != null) && (user.getName().equals("BuildMaster"))) {
+            return;
+        }
+        
+        //  Only get emails for users still on the system
+        if (user != null) {
+            
+             // Try to obtain email to add.  This is only allowed if logged on 
+             // user is SERVER ADMINISTRATOR
+            try {
+                emailAddresses.add(
+                 user.getServer().getAdministration().findUserAccount(
+                 user.getID()).getEmailAddress());
+            } catch (ServerException sx) {
+                // Logged on user does not have permission to get user's email.  
+                // Return the modifying user's name instead. Then use the 
+                // email.properties file to map the name to an email address 
+                // outside of StarTeam
+                emailAddresses.add(user.getName());
+            }
+        }
+        
         Modification mod = new Modification();
-        UserAccount account = revision.getServer().getAdministration().findUserAccount(revision.getModifiedBy());
-
-        // Populate the Modification Object
-        mod.type = getRevisionType(revision);
+        mod.type = status;
         mod.fileName = revision.getName();
         mod.folderName = revision.getParentFolder().getFolderHierarchy();
         mod.modifiedTime = revision.getModifiedTime().createDate();
-        mod.userName = account.getName();
+        mod.userName = user.getName();
         mod.comment = revision.getComment();
-
-        // Add this modification to our appropriate lists
-        modificationList.add(mod);
-        emailAddresses.add(account.getEmailAddress());
-
-        // Update the most recent modification time, if appropriate.
-        if (revision.getModifiedTime().getLongValue() > mostRecentModification.getLongValue()) {
-            mostRecentModification = revision.getModifiedTime();
-        }
-
+        
+        modifications.add(mod);
+        
         log("File: " + mod.fileName);
+        
         log("userName: " + mod.userName + " Date: " + mod.modifiedTime);
+        if (revision.getModifiedTime().getLongValue() > mostRecent.getLongValue()) {
+            mostRecent = revision.getModifiedTime();
+        }
     }
+    
 }
