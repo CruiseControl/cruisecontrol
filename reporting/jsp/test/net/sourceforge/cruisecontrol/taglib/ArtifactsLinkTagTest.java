@@ -77,7 +77,7 @@ public class ArtifactsLinkTagTest extends TestCase {
 
         tag.setPageContext(pageContext);
 
-        logDir = new File("testresults/");
+        logDir = new File("testresults/ArtifactsLinkTagTest");
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
