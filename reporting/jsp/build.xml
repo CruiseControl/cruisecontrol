@@ -66,7 +66,6 @@
     <target name="checkstyle" description="Generates a report of code convention violations.">
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
         <checkstyle config="checkstyle.xml" failOnViolation="true">
-            <formatter type="plain" />
             <formatter type="plain" tofile="checkstyleResults.txt"/>
             <fileset dir="src" includes="**/*.java"/>
             <fileset dir="test" includes="**/*.java"/>
