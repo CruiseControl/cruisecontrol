@@ -84,7 +84,7 @@ public class CVS implements SourceControl {
      * If CVSROOT/users exists, it's contents will be parsed and stored in this
      * hashtable.
      */
-    private Hashtable mailAliases = new Hashtable();
+    private Hashtable mailAliases;
 
     /**
      * The caller must provide the CVSROOT to use when calling CVS.
@@ -237,6 +237,8 @@ public class CVS implements SourceControl {
      *@return maybe empty, never null.
      */
     public List getModifications(Date lastBuild, Date now) {
+        mailAliases = getMailAliases();
+        
         List mods = null;
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild));
@@ -251,7 +253,8 @@ public class CVS implements SourceControl {
     }
 
     /**
-     * Get CVS's idea of user/address mapping.
+     * Get CVS's idea of user/address mapping. Only runs once per class 
+     * instance. Won't run if the mailAlias was already set.
      *
      * @return a Hashtable containing the mapping defined in CVSROOT/users.
      * If CVSROOT/users doesn't exist, an empty Hashtable is returned.
@@ -278,24 +281,8 @@ public class CVS implements SourceControl {
                 BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
                 String line;
-
                 while ((line = in.readLine()) != null) {
-                    log.debug("Mapping " + line);
-                    int colon = line.indexOf(':');
-
-                    if (colon >= 0) {
-                        String user = line.substring(0, colon);
-                        String address = line.substring(colon + 1);
-                        mailAliases.put(user, address);
-
-                    }
-                    //                    if (colon < 1) {
-                    //                        // log an error
-                    //                    } else {
-                    //                        String user = line.substring(0, colon);
-                    //                        String address = line.substring(colon + 1);
-                    //                        mailAliases.put(user, address);
-                    //                    }
+                    addAliasToMap(line);
                 }
 
                 p.waitFor();
@@ -307,11 +294,29 @@ public class CVS implements SourceControl {
             }
 
             if (p == null || p.exitValue() != 0) {
+                if (p == null) {
+                    log.debug("Process p was null in CVS.getMailAliases()");
+                } else {
+                    log.debug("Process exit value = " + p.exitValue());
+                }
+                log.warn("problem getting CVSROOT/users; using empty email map");
                 mailAliases = new Hashtable();
             }
         }
 
         return mailAliases;
+    }
+
+    void addAliasToMap(String line) {
+        log.debug("Mapping " + line);
+        int colon = line.indexOf(':');
+        
+        if (colon >= 0) {
+            String user = line.substring(0, colon);
+            String address = line.substring(colon + 1);
+            mailAliases.put(user, address);
+        
+        }
     }
 
     /**
@@ -422,8 +427,6 @@ public class CVS implements SourceControl {
         p.getInputStream().close();
         p.getOutputStream().close();
         p.getErrorStream().close();
-
-        mailAliases = getMailAliases();
 
         return mods;
     }

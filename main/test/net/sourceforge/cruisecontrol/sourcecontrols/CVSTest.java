@@ -245,6 +245,7 @@ public class CVSTest extends TestCase {
 
     public void testGetProperties() throws IOException, ParseException {
         CVS cvs = new CVS();
+        cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog =
@@ -266,6 +267,7 @@ public class CVSTest extends TestCase {
 
         //negative test
         CVS cvs2 = new CVS();
+        cvs2.setMailAliases(new Hashtable());
         input = new BufferedInputStream(new FileInputStream(testLog));
         cvs2.parseStream(input);
         input.close();
@@ -279,6 +281,7 @@ public class CVSTest extends TestCase {
     public void testGetPropertiesNoModifications()
         throws IOException, ParseException {
         CVS cvs = new CVS();
+        cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog =
@@ -297,6 +300,7 @@ public class CVSTest extends TestCase {
     public void testGetPropertiesOnlyModifications()
         throws IOException, ParseException {
         CVS cvs = new CVS();
+        cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog =
@@ -314,6 +318,7 @@ public class CVSTest extends TestCase {
 
         //negative test
         CVS cvs2 = new CVS();
+        cvs2.setMailAliases(new Hashtable());
         cvs2.setPropertyOnDelete("propertyOnDelete");
         input = new BufferedInputStream(new FileInputStream(testLog));
         cvs2.parseStream(input);
@@ -328,6 +333,7 @@ public class CVSTest extends TestCase {
     public void testGetPropertiesOnlyDeletions()
         throws IOException, ParseException {
         CVS cvs = new CVS();
+        cvs.setMailAliases(new Hashtable());        
         cvs.setPropertyOnDelete("propertyOnDelete");
         File testLog =
             new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11del.txt");
@@ -346,6 +352,7 @@ public class CVSTest extends TestCase {
 
         //negative test
         CVS cvs2 = new CVS();
+        cvs2.setMailAliases(new Hashtable());
         input = new BufferedInputStream(new FileInputStream(testLog));
         cvs2.parseStream(input);
         input.close();
@@ -513,6 +520,25 @@ public class CVSTest extends TestCase {
         assertEquals(
             "2001-05-18 18:00:00 GMT",
             CVS.formatCVSDate(may18EightAM2001));
+    }
+
+    public void testAddAliasToMap() {
+        CVS cvs = new CVS();
+        Hashtable aliasMap = new Hashtable();
+        cvs.setMailAliases(aliasMap);
+        String userline = "roberto:'Roberto DaMana <damana@cs.unipr.it>'";
+        cvs.addAliasToMap(userline);
+        userline = "hill:hill@cs.unipr.it";
+        cvs.addAliasToMap(userline);
+        userline = "zolo:zolo";
+        cvs.addAliasToMap(userline);
+        assertEquals("'Roberto DaMana <damana@cs.unipr.it>'", aliasMap.get("roberto"));
+        assertEquals("hill@cs.unipr.it", aliasMap.get("hill"));
+        assertEquals("zolo", aliasMap.get("zolo"));
+
+        userline = "me";
+        cvs.addAliasToMap(userline);
+        assertNull(aliasMap.get("me"));
     }
 
 }
