@@ -479,7 +479,13 @@ public class Project implements Serializable {
         try {
             SAXBuilder builder =
                     new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            return builder.build(fileName).getRootElement();
+            Element element = builder.build(fileName).getRootElement();
+            if(element.getName().equals("testsuite")) {
+                if(element.getChild("properties") != null) {
+                    element.getChild("properties").detach();
+                }
+            }
+            return element;
         } catch (JDOMException e) {
             log.debug("Could not read aux log: " + fileName + ".  Skipping...");
             e.printStackTrace();
