@@ -719,7 +719,14 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         //get the exact filenames from the ant properties that tell us what aux xml files we have...
         _auxLogFiles = new Vector();
         for (Enumeration e = _auxLogProperties.elements(); e.hasMoreElements();) {
-            _auxLogFiles.add(proj.getProperty((String) e.nextElement()));
+            String propertyName = (String)e.nextElement();
+            String fileName = proj.getProperty(propertyName);
+            if (fileName == null) {
+                log("Auxillary Log File Property '" + propertyName + "' not set.");
+            }
+            else {
+                _auxLogFiles.add(fileName);
+            }
         }
 
         //If the XmlLogger.file property doesn't exist, we will set it here to a default
