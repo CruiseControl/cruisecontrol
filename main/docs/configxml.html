@@ -75,6 +75,7 @@
             <a href="#httpfile">&lt;httpfile&gt;</a>
             <a href="#log">&lt;log&gt;</a>
             <a href="#maven">&lt;maven&gt;</a>
+            <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
             <a href="#merge">&lt;merge&gt;</a>
             <a href="#mks">&lt;mks&gt;</a>
             <a href="#modificationset">&lt;modificationset&gt;</a>
@@ -123,6 +124,7 @@
             <a href="#cvs">&lt;cvs/&gt;</a>
             <a href="#filesystem">&lt;filesystem/&gt;</a>
             <a href="#httpfile">&lt;httpfile/&gt;</a>
+            <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
             <a href="#mks">&lt;mks/&gt;</a>
             <a href="#p4">&lt;p4/&gt;</a>
             <a href="#pvcs">&lt;pvcs/&gt;</a>
@@ -961,6 +963,52 @@
                 <td>url</td>
                 <td>Yes</td>
                 <td>The HTTP URL of a file to check the modification date of</td>
+            </tr>
+        </table>
+
+        <h3>Parent Element</h3>
+
+        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+
+        <h2><a name="mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a></h2>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+               <td>projectFile</td>
+               <td>Yes</td>
+               <td>Maven POM file.</td>
+            </tr>
+            <tr>
+               <td>user</td>
+               <td>Yes</td>
+               <td>The username to use when reporting modifications.</td>
+            </tr>
+            <tr class="oddrow">
+               <td>localRepository</td>
+               <td>No</td>
+               <td>Local Maven JAR repository. Defaults to <code>{user.home}/.maven/repository</code>.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr class="oddrow">
+                <td>propertyondelete</td>
+                <td>Ignored</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later. This attribute is currently
+                ignored.</td>
             </tr>
         </table>
 
