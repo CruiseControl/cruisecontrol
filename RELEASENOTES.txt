@@ -7,6 +7,11 @@ AntBuilder
 * Fixed getCommandLineArgs to handle EmptyLabelIncrementer
 * Added timeout attribute. Patch by Igor Fedorenko
 
+BuildInfoTag
+----------------------
+* Added a tag to obtain summary and metric data about builds from the log
+  files. This is used in the metris.jsp page.
+
 compile.xsl
 ----------------------
 * Ignore empty lines. Patch by Brad Clarke
@@ -55,6 +60,15 @@ jmx
 Main
 ----------------------
 * Display command-line options if "-?" is passed as an argument.
+
+main.jsp
+----------------------
+* Added a metrics tab.
+
+metrics.jsp
+----------------------
+* New Metrics tab. This uses the new <buildinfo> tag, and renders charts using
+  the cewolf tag libraries.
 
 ModificationSet
 ----------------------
