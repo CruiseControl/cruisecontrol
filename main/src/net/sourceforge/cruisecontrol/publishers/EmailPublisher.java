@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,14 +33,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -50,8 +55,12 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import java.io.UnsupportedEncodingException;
-import java.util.*;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * Abstract implementation of the <code>Publisher</code> interface, specifically
@@ -66,24 +75,23 @@ import java.util.*;
  */
 public abstract class EmailPublisher implements Publisher {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(EmailPublisher.class);
+    private static final Logger LOG = Logger.getLogger(EmailPublisher.class);
 
     private String _mailHost;
     private String _username;
     private String _password;
     private String _mailPort;
-    protected String _servletUrl;
+    private String _buildResultsURL;
     private List _alwaysAddresses = new ArrayList();
     private List _failureAddresses = new ArrayList();
     private List _emailMap = new ArrayList();
     private String _returnAddress;
-    private String returnName;
+    private String _returnName;
     private String _defaultSuffix = "";
     private String _reportSuccess = "always";
     private boolean _spamWhileBroken = true;
     private boolean _skipUsers = false;
-    protected String _subjectPrefix;
+    private String _subjectPrefix;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -100,16 +108,16 @@ public abstract class EmailPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if(getMailHost() == null) {
+        if (getMailHost() == null) {
             throw new CruiseControlException("'mailhost' not specified in configuration file.");
         }
-        if(getReturnAddress() == null) {
+        if (getReturnAddress() == null) {
             throw new CruiseControlException("'returnaddress' not specified in configuration file.");
         }
-        if(getUsername() != null && getPassword() == null) {
+        if (getUsername() != null && getPassword() == null) {
             throw new CruiseControlException("'password' is required if 'username' is set for email.");
         }
-        if(getPassword() != null && getUsername() == null) {
+        if (getPassword() != null && getUsername() == null) {
             throw new CruiseControlException("'username' is required if 'password' is set for email.");
         }
     }
@@ -122,7 +130,7 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
         StringBuffer subjectLine = new StringBuffer();
-        if(_subjectPrefix != null) {
+        if (_subjectPrefix != null) {
             subjectLine.append(_subjectPrefix);
             subjectLine.append(" ");
         }
@@ -156,19 +164,19 @@ public abstract class EmailPublisher implements Publisher {
                 return true;
             } else if (_reportSuccess.equalsIgnoreCase("fixes")) {
                 if (logHelper.wasPreviousBuildSuccessful()) {
-                    log.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
+                    LOG.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
                     return false;
                 } else {
                     return true;
                 }
             } else if (_reportSuccess.equalsIgnoreCase("never")) {
-                log.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
+                LOG.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
                 return false;
             }
         } else { //build wasn't successful
             if (!logHelper.wasPreviousBuildSuccessful()
                     && logHelper.isBuildNecessary() && !_spamWhileBroken) {
-                log.debug("spamWhileBroken is set to false, not sending email");
+                LOG.debug("spamWhileBroken is set to false, not sending email");
                 return false;
             }
         }
@@ -191,7 +199,7 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected String createUserList(XMLLogHelper logHelper) {
         Set users = logHelper.getBuildParticipants();
-        if(_skipUsers) {
+        if (_skipUsers) {
             users = new HashSet();
         }
 
@@ -232,7 +240,7 @@ public abstract class EmailPublisher implements Publisher {
         Iterator emailMapIterator = _emailMap.iterator();
         while (emailMapIterator.hasNext()) {
             Map map = (Map) emailMapIterator.next();
-            log.debug("Mapping alias: " + map.getAlias() + " to address: "
+            LOG.debug("Mapping alias: " + map.getAlias() + " to address: "
                     + map.getAddress());
             emailMap.put(map.getAlias(), map.getAddress());
         }
@@ -241,14 +249,14 @@ public abstract class EmailPublisher implements Publisher {
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
             if (emailMap.containsKey(user)) {
-                log.debug("User found in email map.  Mailing to: "
+                LOG.debug("User found in email map.  Mailing to: "
                         + emailMap.get(user));
                 emails.add(emailMap.get(user));
             } else {
                 if (user.indexOf("@") < 0) {
                     user = user + _defaultSuffix;
                 }
-                log.debug("User not found in email map.  Mailing to: " + user);
+                LOG.debug("User not found in email map.  Mailing to: " + user);
                 emails.add(user);
             }
         }
@@ -264,7 +272,7 @@ public abstract class EmailPublisher implements Publisher {
             }
             emailCount++;
         }
-        log.debug("Final list of emails: " + commaDelimitedString.toString());
+        LOG.debug("Final list of emails: " + commaDelimitedString.toString());
 
         return commaDelimitedString.toString();
     }
@@ -280,7 +288,7 @@ public abstract class EmailPublisher implements Publisher {
                         createMessage(helper));
             }
         } catch (CruiseControlException e) {
-            log.error("", e);
+            LOG.error("", e);
         }
     }
 
@@ -295,9 +303,11 @@ public abstract class EmailPublisher implements Publisher {
         if (_mailPort != null) {
             props.put("mail.smtp.port", _mailPort);
         }
-        log.debug("mailHost is " + _mailHost + ", mailPort is " +
-                   _mailPort==null?"default":_mailPort);
-        if(_username != null && _password != null) {
+        LOG.debug(
+            "mailHost is " + _mailHost + ", mailPort is " + _mailPort == null
+                ? "default"
+                : _mailPort);
+        if (_username != null && _password != null) {
             props.put("mail.smtp.auth", "true");
         }
         return props;
@@ -313,19 +323,19 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected void sendMail(String toList, String subject, String message)
             throws CruiseControlException {
-        log.info("Sending mail notifications.");
+        LOG.info("Sending mail notifications.");
         Session session = Session.getDefaultInstance(getMailProperties(), null);
-        session.setDebug(log.isDebugEnabled());
+        session.setDebug(LOG.isDebugEnabled());
 
         try {
             Message msg = new MimeMessage(session);
-			msg.setFrom(getFromAddress());
+            msg.setFrom(getFromAddress());
             msg.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(toList, false));
             msg.setSubject(subject);
             msg.setText(message);
             msg.setSentDate(new Date());
-            if(_username != null && _password != null) {
+            if (_username != null && _password != null) {
                 msg.saveChanges(); // implicit with send()
                 Transport transport = session.getTransport("smtp");
                 transport.connect(_mailHost, _username, _password);
@@ -339,18 +349,22 @@ public abstract class EmailPublisher implements Publisher {
         }
     }
     
-	protected InternetAddress getFromAddress() throws AddressException {
-		InternetAddress fromAddress = new InternetAddress(_returnAddress);
-		if (returnName!=null) {
-			try {
-				fromAddress = new InternetAddress(_returnAddress, returnName);
-			} catch (UnsupportedEncodingException e) {
-				log.error("error setting returnName ["+returnName+"]: " + e.getMessage());
-				fromAddress = new InternetAddress(_returnAddress);
-			}
-		}
-		return fromAddress;
-	}
+    protected InternetAddress getFromAddress() throws AddressException {
+        InternetAddress fromAddress = new InternetAddress(_returnAddress);
+        if (_returnName != null) {
+            try {
+                fromAddress = new InternetAddress(_returnAddress, _returnName);
+            } catch (UnsupportedEncodingException e) {
+                LOG.error(
+                    "error setting returnName ["
+                        + _returnName
+                        + "]: "
+                        + e.getMessage());
+                fromAddress = new InternetAddress(_returnAddress);
+            }
+        }
+        return fromAddress;
+    }
 
     public void setMailHost(String mailHost) {
         _mailHost = mailHost;
@@ -392,8 +406,12 @@ public abstract class EmailPublisher implements Publisher {
         return _subjectPrefix;
     }
 
-    public void setBuildResultsUrl(String servletUrl) {
-        _servletUrl = servletUrl;
+    public String getBuildResultsURL() {
+        return _buildResultsURL;
+    }
+
+    public void setBuildResultsURL(String url) {
+        _buildResultsURL = url;
     }
 
     public void addAlwaysAddress(String emailAddress) {
@@ -412,13 +430,13 @@ public abstract class EmailPublisher implements Publisher {
         _returnAddress = emailAddress;
     }
 
-	public String getReturnName() {
-		return returnName;
-	}
+    public String getReturnName() {
+        return _returnName;
+    }
 
-	public void setReturnName(String emailReturnName) {
-		returnName = emailReturnName;
-	}
+    public void setReturnName(String emailReturnName) {
+        _returnName = emailReturnName;
+    }
 
     public void setDefaultSuffix(String defaultEmailSuffix) {
         _defaultSuffix = defaultEmailSuffix;
@@ -513,7 +531,7 @@ public abstract class EmailPublisher implements Publisher {
         try {
             pub.sendMail(args[4], "test subject", "test message");
         } catch (CruiseControlException e) {
-            log.error("test failed", e);
+            LOG.error("test failed", e);
         }
     }
 

@@ -47,8 +47,7 @@ import java.util.Map;
 
 public class PluginXMLHelper {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(PluginXMLHelper.class);
+    private static final Logger LOG = Logger.getLogger(PluginXMLHelper.class);
 
     /**
      *  given a JDOM Element and a classname, this method will instantiate an object of type className, and
@@ -63,10 +62,10 @@ public class PluginXMLHelper {
             pluginClass = Class.forName(className);
             pluginInstance = pluginClass.getConstructor(null).newInstance(null);
         } catch (ClassNotFoundException e) {
-            log.fatal("Could not find class", e);
+            LOG.fatal("Could not find class", e);
             throw new CruiseControlException("Could not find class: " + className);
         } catch (Exception e) {
-            log.fatal("Could not instantiate class", e);
+            LOG.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: " + className);
         }
         configureObject(objectElement, pluginInstance);
@@ -95,7 +94,7 @@ public class PluginXMLHelper {
         while (attributeIterator.hasNext()) {
             Attribute attribute = (Attribute) attributeIterator.next();
             if (setters.containsKey(attribute.getName().toLowerCase())) {
-                log.debug("Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
+                LOG.debug("Setting " + attribute.getName().toLowerCase() + " to " + attribute.getValue());
                 try {
                     Method method = (Method) setters.get(attribute.getName().toLowerCase());
                     Class[] parameters = method.getParameterTypes();
@@ -106,13 +105,18 @@ public class PluginXMLHelper {
                     } else if (boolean.class.isAssignableFrom(parameters[0])) {
                         method.invoke(object, new Object[]{new Boolean(attribute.getBooleanValue())});
                     } else {
-                        log.error("Couldn't invoke setter" + attribute.getName().toLowerCase());
+                        LOG.error("Couldn't invoke setter" + attribute.getName().toLowerCase());
                     }
                 } catch (Exception e) {
-                    log.fatal("Error configuring plugin.", e);
+                    LOG.fatal("Error configuring plugin.", e);
                 }
             } else {
-                throw new CruiseControlException("Attribute: '" + attribute.getName() + "' is not supported for class: '" + object.getClass().getName() + "'.");
+                throw new CruiseControlException(
+                    "Attribute: '"
+                        + attribute.getName()
+                        + "' is not supported for class: '"
+                        + object.getClass().getName()
+                        + "'.");
             }
         }
 
@@ -128,7 +132,12 @@ public class PluginXMLHelper {
                     throw new CruiseControlException(e.getMessage());
                 }
             } else {
-                throw new CruiseControlException("Nested element: '" + childElement.getName() + "' is not supported for the <" + objectElement.getName() + "> tag.");
+                throw new CruiseControlException(
+                    "Nested element: '"
+                        + childElement.getName()
+                        + "' is not supported for the <"
+                        + objectElement.getName()
+                        + "> tag.");
             }
         }
     }

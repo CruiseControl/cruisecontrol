@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,14 +33,18 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
-import org.apache.log4j.Logger;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Properties;
+
+import net.sourceforge.cruisecontrol.jmx.ProjectControllerAgent;
+
+import org.apache.log4j.Logger;
 
 /**
  * Command line entry point.
@@ -50,8 +54,7 @@ import java.util.Properties;
  */
 public class Main {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(Main.class);
+    private static final Logger LOG = Logger.getLogger(Main.class);
 
     /**
      * Print the version, configure the project with serialized build info
@@ -75,13 +78,12 @@ public class Main {
                     new ProjectControllerAgent(project, parsePort(args));
                 agent.start();
             }
-        }
-        catch (CruiseControlException e) {
-            log.fatal(e.getMessage());
+        } catch (CruiseControlException e) {
+            LOG.fatal(e.getMessage());
             usage();
         }
 
-        Thread projectSchedulingThread = new Thread(project, "Project "+project.getName()+" thread");
+        Thread projectSchedulingThread = new Thread(project, "Project " + project.getName() + " thread");
         projectSchedulingThread.start();
     }
 
@@ -89,22 +91,22 @@ public class Main {
      *  Displays the standard usage message and exit.
      */
     public static void usage() {
-        log.info("Usage:");
-        log.info("");
-        log.info("Starts a continuous integration loop");
-        log.info("");
-        log.info("java CruiseControl [options]");
-        log.info("where options are:");
-        log.info("");
-        log.info(
+        LOG.info("Usage:");
+        LOG.info("");
+        LOG.info("Starts a continuous integration loop");
+        LOG.info("");
+        LOG.info("java CruiseControl [options]");
+        LOG.info("where options are:");
+        LOG.info("");
+        LOG.info(
             "   -port number           where number is the port of the Controller web site");
-        log.info(
+        LOG.info(
             "   -projectname name      where name is the name of the project");
-        log.info(
+        LOG.info(
             "   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-        log.info(
+        LOG.info(
             "   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-        log.info(
+        LOG.info(
             "   -configfile file       where file is the configuration file");
         System.exit(1);
     }
@@ -206,12 +208,12 @@ public class Main {
     private static boolean shouldStartProjectController(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-port")) {
-                log.debug(
+                LOG.debug(
                     "Main: -port parameter found. will start ProjectControllerAgent.");
                 return true;
             }
         }
-        log.debug(
+        LOG.debug(
             "Main: -port parameter not found. will not start ProjectControllerAgent.");
         return false;
     }
@@ -235,8 +237,7 @@ public class Main {
         int port;
         try {
             port = Integer.parseInt(portString);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
                 "-port parameter, specified as '"
                     + portString
@@ -256,25 +257,23 @@ public class Main {
      */
     private Project readProject(String fileName) {
         File serializedProjectFile = new File(fileName);
-        log.debug(
+        LOG.debug(
             "Reading serialized project from: "
                 + serializedProjectFile.getAbsolutePath());
         if (!serializedProjectFile.exists()
             || !serializedProjectFile.canRead()) {
-            log.warn(
+            LOG.warn(
                 "No previously serialized project found: "
                     + serializedProjectFile.getAbsolutePath());
-        }
-        else {
+        } else {
             try {
                 ObjectInputStream s =
                     new ObjectInputStream(
                         new FileInputStream(serializedProjectFile));
                 Project project = (Project) s.readObject();
                 return project;
-            }
-            catch (Exception e) {
-                log.warn(
+            } catch (Exception e) {
+                LOG.warn(
                     "Error deserializing project file from "
                         + serializedProjectFile.getAbsolutePath(),
                     e);
@@ -292,11 +291,10 @@ public class Main {
         Properties props = new Properties();
         try {
             props.load(getClass().getResourceAsStream("/version.properties"));
+        } catch (IOException e) {
+            LOG.error("Error reading version properties", e);
         }
-        catch (IOException e) {
-            log.error("Error reading version properties", e);
-        }
-        log.info("CruiseControl Version " + props.getProperty("version"));
+        LOG.info("CruiseControl Version " + props.getProperty("version"));
     }
 
     /**
@@ -333,14 +331,13 @@ public class Main {
             if (args[i].equals("-" + argName)) {
                 try {
                     returnArgValue = args[i + 1];
-                    log.debug(
+                    LOG.debug(
                         "Main: value of parameter "
                             + argName
                             + " is ["
                             + returnArgValue
                             + "]");
-                }
-                catch (ArrayIndexOutOfBoundsException e) {
+                } catch (ArrayIndexOutOfBoundsException e) {
                     throw new CruiseControlException(
                         "'" + argName + "' argument was not specified.");
                 }

@@ -38,27 +38,21 @@
 package net.sourceforge.cruisecontrol;
 
 public class CruiseControlException extends Exception {
-	/**
-	 * Constructor for CruiseControlException
-	 */
-	public CruiseControlException() {
-		super();
-	}
-	/**
-	 * Constructor for CruiseControlException
-	 */
-	public CruiseControlException(String message) {
-		super(message);
-	}
 
-	public CruiseControlException(Throwable cause) {
-		// q&d implementation.
-		super(cause.getMessage());
-	}
+    public CruiseControlException() {
+        super();
+    }
+
+    public CruiseControlException(String message) {
+        super(message);
+    }
+
+    public CruiseControlException(Throwable cause) {
+        super(cause.getMessage());
+    }
 
     public CruiseControlException(String message, Throwable cause) {
-        // q&d implementation.
         super(message + " : " + cause.getMessage());
     }
-}
 
+}

@@ -36,36 +36,42 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Logger;
-
-import java.util.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 /**
  *  class to instantiate a project from a JDOM Element
  */
 public class ProjectXMLHelper {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ProjectXMLHelper.class);
+    private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
 
     private Map _plugins = new HashMap();
     private Element _projectElement;
 
-    public ProjectXMLHelper() {};
+    public ProjectXMLHelper() {
+    };
 
     public ProjectXMLHelper(File configFile, String projectName) throws CruiseControlException {
         Iterator projectIterator = loadConfigFile(configFile).getChildren("project").iterator();
-        while(projectIterator.hasNext()) {
+        while (projectIterator.hasNext()) {
             Element projectElement = (Element) projectIterator.next();
-            if(projectElement.getAttributeValue("name") != null && projectElement.getAttributeValue("name").equals(projectName))
+            if (projectElement.getAttributeValue("name") != null
+                && projectElement.getAttributeValue("name").equals(projectName)) {
                 _projectElement = projectElement;
+            }
         }
-        if(_projectElement == null) {
+        if (_projectElement == null) {
             throw new CruiseControlException("Project not found in config file: " + projectName);
         }
 
@@ -80,28 +86,31 @@ public class ProjectXMLHelper {
             if (pluginName == null || pluginClassName == null) {
                 throw new CruiseControlException("name and classname are required on <plugin>");
             }
-            log.debug("Registering plugin: " + pluginName);
-            log.debug("to classname: " + pluginClassName);
-            log.debug("");
+            LOG.debug("Registering plugin: " + pluginName);
+            LOG.debug("to classname: " + pluginClassName);
+            LOG.debug("");
             _plugins.put(pluginName.toLowerCase(), pluginClassName);
         }
     }
 
     protected void setDateFormat(Element projectElement) {
-        if(projectElement.getChild("dateformat") != null &&
-           projectElement.getChild("dateformat").getAttributeValue("format") != null) {
-            DateFormatFactory.setFormat(projectElement.getChild("dateformat").getAttributeValue("format"));
+        if (projectElement.getChild("dateformat") != null
+            && projectElement.getChild("dateformat").getAttributeValue("format")
+                != null) {
+            DateFormatFactory.setFormat(
+                projectElement.getChild("dateformat").getAttributeValue(
+                    "format"));
         }
     }
 
     public boolean getBuildAfterFailed() {
         String buildAfterFailedAttr = _projectElement.getAttributeValue("buildafterfailed");
-        if(!"false".equalsIgnoreCase(buildAfterFailedAttr)) {
+        if (!"false".equalsIgnoreCase(buildAfterFailedAttr)) {
             // default if not specified and all other cases
             buildAfterFailedAttr = "true";
         }
         boolean buildafterfailed = Boolean.valueOf(buildAfterFailedAttr).booleanValue();
-        log.debug("Setting BuildAfterFailed to " + buildafterfailed);
+        LOG.debug("Setting BuildAfterFailed to " + buildafterfailed);
         return buildafterfailed;
     }
 
@@ -147,7 +156,7 @@ public class ProjectXMLHelper {
         return auxLogs;
     }
 
-	public String getLogXmlEncoding() throws CruiseControlException {
+    public String getLogXmlEncoding() throws CruiseControlException {
         String encoding = _projectElement.getChild("log").getAttributeValue("encoding");
         return encoding;
     }
@@ -155,9 +164,9 @@ public class ProjectXMLHelper {
     public Schedule getSchedule() throws CruiseControlException {
         Schedule schedule = new Schedule();
         Iterator builderIterator = _projectElement.getChild("schedule").getChildren().iterator();
-        while(builderIterator.hasNext()) {
+        while (builderIterator.hasNext()) {
             Element builderElement = (Element) builderIterator.next();
-            if(builderElement.getName().equalsIgnoreCase("pause")) {
+            if (builderElement.getName().equalsIgnoreCase("pause")) {
                 PauseBuilder pauseBuilder = (PauseBuilder) configurePlugin(builderElement);
                 pauseBuilder.validate();
                 schedule.addPauseBuilder(pauseBuilder);
@@ -172,7 +181,11 @@ public class ProjectXMLHelper {
 
     public ModificationSet getModificationSet()  throws CruiseControlException {
         ModificationSet modificationSet = new ModificationSet();
-        int quietPeriod = Integer.parseInt(getRequiredAttribute(_projectElement.getChild("modificationset"), "quietperiod"));
+        int quietPeriod =
+            Integer.parseInt(
+                getRequiredAttribute(
+                    _projectElement.getChild("modificationset"),
+                    "quietperiod"));
         modificationSet.setQuietPeriod(quietPeriod);
         Iterator sourceControlIterator = _projectElement.getChild("modificationset").getChildren().iterator();
         while (sourceControlIterator.hasNext()) {
@@ -189,7 +202,7 @@ public class ProjectXMLHelper {
         try {
             return (LabelIncrementer) Class.forName(classname).newInstance();
         } catch (Exception e) {
-            log.error("Error instantiating label incrementer, using DefaultLabelIncrementer.", e);
+            LOG.error("Error instantiating label incrementer, using DefaultLabelIncrementer.", e);
             return new DefaultLabelIncrementer();
         }
     }
@@ -200,7 +213,7 @@ public class ProjectXMLHelper {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             cruisecontrolElement = builder.build(configFile).getRootElement();
         } catch (Exception e) {
-            log.fatal("", e);
+            LOG.fatal("", e);
         }
         return cruisecontrolElement;
     }
@@ -250,7 +263,9 @@ public class ProjectXMLHelper {
 
     protected void initDefaultPluginRegistry() {
         _plugins = new HashMap();
-        _plugins.put("currentbuildstatusbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
+        _plugins.put(
+            "currentbuildstatusbootstrapper",
+            "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
         _plugins.put("cvsbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
         _plugins.put("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
         _plugins.put("vssbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
@@ -263,13 +278,17 @@ public class ProjectXMLHelper {
         _plugins.put("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
         _plugins.put("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         _plugins.put("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
-        _plugins.put("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
+        _plugins.put(
+            "vssjournal",
+            "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
 
         _plugins.put("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
 
         _plugins.put("labelincrementer", "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
 
-        _plugins.put("currentbuildstatuspublisher", "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
+        _plugins.put(
+            "currentbuildstatuspublisher",
+            "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
         _plugins.put("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
         _plugins.put("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
         _plugins.put("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");

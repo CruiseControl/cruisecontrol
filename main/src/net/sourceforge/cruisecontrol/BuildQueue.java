@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import java.util.LinkedList;
@@ -43,34 +43,35 @@ import org.apache.log4j.Logger;
 /**
  * Provides an independent thread of execution that knows how to
  * build Projects.  Consumes {@link Project} objects from a blocking queue.
+ * 
  * @author Peter Mei <pmei@users.sourceforge.net>
  * @author jfredrick
  */
 public class BuildQueue implements Runnable {
-    static public Logger log = Logger.getLogger(BuildQueue.class);
+    private static final Logger LOG = Logger.getLogger(BuildQueue.class);
 
-    private LinkedList queue = new LinkedList();
-    private boolean alive = false;
-    private boolean waiting = false;
+    private LinkedList _queue = new LinkedList();
+    private boolean _alive = false;
+    private boolean _waiting = false;
 
     /**
      * @param project
      */
     public void requestBuild(Project project) {
-        synchronized (queue) {
-            queue.add(project);
-            queue.notify();
+        synchronized (_queue) {
+            _queue.add(project);
+            _queue.notify();
         }
     }
 
     void serviceQueue() {
-        while (!queue.isEmpty()) {
+        while (!_queue.isEmpty()) {
             Project nextProject = null;
-            synchronized (queue) {
-                nextProject = (Project) queue.remove(0);
+            synchronized (_queue) {
+                nextProject = (Project) _queue.remove(0);
             }
             if (nextProject != null) {
-                log.info("now building: " + nextProject.getName());
+                LOG.info("now building: " + nextProject.getName());
                 nextProject.execute();
             }
         }
@@ -78,24 +79,22 @@ public class BuildQueue implements Runnable {
 
     public void run() {
         try {
-            while (alive) {
-                synchronized (queue) {
-                    if (queue.isEmpty()) {
+            while (_alive) {
+                synchronized (_queue) {
+                    if (_queue.isEmpty()) {
                         try {
-                            waiting = true;
-                            queue.wait();
-                        }
-                        catch (InterruptedException e) {
+                            _waiting = true;
+                            _queue.wait();
+                        } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                     }
-                    waiting = false;
+                    _waiting = false;
                 }
                 serviceQueue();
             }
-        }
-        finally {
-            log.info("BuildQueue thread is no longer alive");
+        } finally {
+            LOG.info("BuildQueue thread is no longer alive");
         }
     }
 
@@ -106,27 +105,26 @@ public class BuildQueue implements Runnable {
         while (!buildQueueThread.isAlive()) {
             try {
                 Thread.sleep(500);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-        alive = true;
+        _alive = true;
     }
     
     void stop() {
-        alive = false;
-        synchronized (queue) {
-            queue.notify();
+        _alive = false;
+        synchronized (_queue) {
+            _queue.notify();
         }        
     }
     
     public boolean isAlive() {
-        return alive;
+        return _alive;
     }
     
     public boolean isWaiting() {
-        return waiting;
+        return _waiting;
     }
 
     BuildQueue(boolean startQueue) {

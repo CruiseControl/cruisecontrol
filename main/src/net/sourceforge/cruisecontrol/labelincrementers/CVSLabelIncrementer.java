@@ -1,6 +1,6 @@
-/******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
@@ -51,8 +51,7 @@ import org.apache.log4j.Logger;
  */
 public class CVSLabelIncrementer implements LabelIncrementer {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(CVSLabelIncrementer.class);
+    private static final Logger LOG = Logger.getLogger(CVSLabelIncrementer.class);
 
     /**
      * Increments the label when a successful build occurs.
@@ -70,7 +69,7 @@ public class CVSLabelIncrementer implements LabelIncrementer {
                 oldLabel.length());
         int i = Integer.parseInt(suffix);
         String newLabel = prefix + ++i;
-        log.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
+        LOG.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
         return newLabel;
     }
 
@@ -88,7 +87,7 @@ public class CVSLabelIncrementer implements LabelIncrementer {
      */
     public boolean isValidLabel(String label) {
 
-        if(label.indexOf("-") < 0) {
+        if (label.indexOf("-") < 0) {
             return false;
         }
 

@@ -150,6 +150,7 @@
         <checkstyle config="checkstyle.xml" failOnViolation="true">
             <formatter type="plain" tofile="checkstyleResults.txt"/>
             <fileset dir="src" includes="**/*.java"/>
+            <fileset dir="test" includes="**/*.java"/>
         </checkstyle>
     </target>
 

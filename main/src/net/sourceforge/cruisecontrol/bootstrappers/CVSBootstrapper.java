@@ -61,8 +61,7 @@ import java.io.PrintWriter;
  */
 public class CVSBootstrapper implements Bootstrapper {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(CVSBootstrapper.class);
+    private static final Logger LOG = Logger.getLogger(CVSBootstrapper.class);
 
     private String _filename;
     private String _cvsroot;
@@ -82,7 +81,7 @@ public class CVSBootstrapper implements Bootstrapper {
         Commandline commandLine = buildUpdateCommand();
         Process p = null;
 
-        log.debug("Executing: " + commandLine.toString());
+        LOG.debug("Executing: " + commandLine.toString());
         try {
             p = Runtime.getRuntime().exec(commandLine.getCommandline());
             StreamPumper errorPumper = new StreamPumper(p.getErrorStream(),
@@ -93,12 +92,12 @@ public class CVSBootstrapper implements Bootstrapper {
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (Exception e) {
-            log.error("Error executing CVS update command", e);
+            LOG.error("Error executing CVS update command", e);
         }
     }
 
     public void validate() throws CruiseControlException {
-        if(_filename == null) {
+        if (_filename == null) {
             throw new CruiseControlException("'file' is required for CVSBootstrapper");
         }
     }

@@ -1,6 +1,6 @@
-/*******************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ******************************************************************************/
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -48,8 +48,7 @@ import org.apache.log4j.Logger;
  */
 public class ProjectController implements ProjectControllerMBean {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ProjectController.class);
+    private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
     private Project _project;
 
@@ -110,9 +109,8 @@ public class ProjectController implements ProjectControllerMBean {
         try {
             incrementer =
                 (LabelIncrementer) Class.forName(classname).newInstance();
-        }
-        catch (Exception e) {
-            log.error(
+        } catch (Exception e) {
+            LOG.error(
                 "Error instantiating label incrementer."
                     + "  Using DefaultLabelIncrementer.",
                 e);
@@ -173,6 +171,6 @@ public class ProjectController implements ProjectControllerMBean {
     }
 
     private void log(String message) {
-        log.info(_project.getName() + " Controller: " + message);
+        LOG.info(_project.getName() + " Controller: " + message);
     }
 }

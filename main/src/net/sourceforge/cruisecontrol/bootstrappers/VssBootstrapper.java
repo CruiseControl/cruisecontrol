@@ -51,28 +51,27 @@ import java.util.Properties;
 
 public class VssBootstrapper implements Bootstrapper {
 
-  /** enable logging for this class */
-  private static Logger log = Logger.getLogger(VssBootstrapper.class.getName());
+  private static final Logger LOG = Logger.getLogger(VssBootstrapper.class);
 
-  private String ssDir;
-  private String serverPath;
+  private String _ssDir;
+  private String _serverPath;
 
-  private String vssPath;
-  private String localDirectory;
-  private String login;
+  private String _vssPath;
+  private String _localDirectory;
+  private String _login;
 
   public void bootstrap() throws CruiseControlException {
     String commandLine = generateCommandLine();
 
     try {
       Properties systemProps = System.getProperties();
-      if(this.serverPath != null) {
-        systemProps.put("SSDIR", this.serverPath);
+      if (_serverPath != null) {
+        systemProps.put("SSDIR", _serverPath);
       }
       String[] env = new String[systemProps.size()];
       int index = 0;
       Iterator systemPropIterator = systemProps.keySet().iterator();
-      while(systemPropIterator.hasNext()) {
+      while (systemPropIterator.hasNext()) {
         String propName = (String) systemPropIterator.next();
         env[index] = propName + "=" + systemProps.get(propName);
         index++;
@@ -87,51 +86,61 @@ public class VssBootstrapper implements Bootstrapper {
       p.getInputStream().close();
       p.getOutputStream().close();
       p.getErrorStream().close();
-    }
-    catch (IOException ex) {
-      log.debug("exception trying to exec ss.exe", ex);
+    } catch (IOException ex) {
+      LOG.debug("exception trying to exec ss.exe", ex);
       throw new CruiseControlException(ex);
-    }
-    catch (InterruptedException ex) {
-      log.debug("interrupted during get", ex);
+    } catch (InterruptedException ex) {
+      LOG.debug("interrupted during get", ex);
       throw new CruiseControlException(ex);
     }
   }
 
   public void validate() throws CruiseControlException {
-    if (vssPath == null || localDirectory == null) throw new CruiseControlException("VssBootstrapper has required attributes vssPath and filePath");
-    File localDirForFile = new File(localDirectory);
+    if (_vssPath == null || _localDirectory == null) {
+        throw new CruiseControlException("VssBootstrapper has required attributes vssPath and filePath");
+    }
+    File localDirForFile = new File(_localDirectory);
     boolean dirExists = localDirForFile.exists();
     if (!dirExists) {
-      log.debug("local directory [" + localDirectory + "] does not exist");
-      throw new CruiseControlException("file path attribute value " + localDirectory + " must specify an existing directory.");
+        LOG.debug("local directory [" + _localDirectory + "] does not exist");
+        throw new CruiseControlException(
+            "file path attribute value "
+                + _localDirectory
+                + " must specify an existing directory.");
     }
     boolean isDir = localDirForFile.isDirectory();
     if (!isDir) {
-      log.debug("local directory [" + localDirectory + "] is not a directory");
-      throw new CruiseControlException("file path attribute value " + localDirectory + " must specify an existing directory, not a file.");
+        LOG.debug(
+            "local directory [" + _localDirectory + "] is not a directory");
+        throw new CruiseControlException(
+            "file path attribute value "
+                + _localDirectory
+                + " must specify an existing directory, not a file.");
     }
     setLocalDirectory(localDirForFile.getAbsolutePath());
   }
 
   String generateCommandLine() {
     StringBuffer commandLine = new StringBuffer();
-    final String BACKSLASH = "\\";
+    final String backslash = "\\";
     // optionally prefix the executable
-    if (this.ssDir != null ) {
-        commandLine.append(this.ssDir).append(this.ssDir.endsWith(BACKSLASH) ? "" : BACKSLASH);
+    if (_ssDir != null) {
+        commandLine.append(_ssDir).append(_ssDir.endsWith(backslash) ? "" : backslash);
     }
-    final String QUOTE = "\"";
+    final String quote = "\"";
     commandLine.append("ss.exe get ");
     // check for leading "$", to be argument-compatible with other tasks
-    if (this.vssPath != null) {
-        String pathPrefix = this.vssPath.startsWith("$") ? "" : "$";
-        commandLine.append(QUOTE + pathPrefix + this.vssPath + QUOTE);
+    if (_vssPath != null) {
+        String pathPrefix = _vssPath.startsWith("$") ? "" : "$";
+        commandLine.append(quote + pathPrefix + _vssPath + quote);
     }
     commandLine.append(" -GL");
-    commandLine.append(QUOTE + this.localDirectory + QUOTE);
+    commandLine.append(quote + _localDirectory + quote);
     commandLine.append(" -I-N");
-    if (login != null) commandLine.append(" -Y" + login);
+    if (_login != null) { 
+        commandLine.append(" -Y" + _login);
+    }
+    
     return commandLine.toString();
   }
 
@@ -140,7 +149,7 @@ public class VssBootstrapper implements Bootstrapper {
    * @param vssPath fully qualified VSS path to the file ($/Project/subproject/filename.ext)
    */
   public void setVssPath(String vssPath) {
-    this.vssPath = vssPath;
+    this._vssPath = vssPath;
   }
 
   /***
@@ -148,7 +157,7 @@ public class VssBootstrapper implements Bootstrapper {
    * @param ssDir Path to the directory containing ss.exe. Assumes that ss.exe is in the path by default.
    */
    public void setSsDir(String ssDir) {
-     this.ssDir = ssDir;
+     this._ssDir = ssDir;
    }
 
   /**
@@ -156,7 +165,7 @@ public class VssBootstrapper implements Bootstrapper {
    * @param serverPath The path to the directory containing the srcsafe.ini file.
    */
   public void setServerPath(String serverPath) {
-    this.serverPath = serverPath;
+    this._serverPath = serverPath;
   }
 
   /**
@@ -164,7 +173,7 @@ public class VssBootstrapper implements Bootstrapper {
    * @param localDirectory fully qualified path for the destination directory (c:\directory\subdirectory\)
    */
   public void setLocalDirectory(String localDirectory) {
-    this.localDirectory = localDirectory;
+    this._localDirectory = localDirectory;
   }
 
   /**
@@ -172,6 +181,6 @@ public class VssBootstrapper implements Bootstrapper {
    * @param login vss login information in the form username,password\
    */
   public void setLogin(String login) {
-    this.login = login;
+    this._login = login;
   }
 }
