@@ -266,12 +266,13 @@ public class Vss implements SourceControl {
     void parseHistoryEntries(ArrayList modifications, BufferedReader reader)
         throws IOException {
         String currLine = reader.readLine();
+
         while (currLine != null) {
-            if (currLine.startsWith("***** ")) {
+            if (currLine.startsWith("*****")) {
                 ArrayList vssEntry = new ArrayList();
                 vssEntry.add(currLine);
                 currLine = reader.readLine();
-                while (currLine != null && !currLine.startsWith("***** ")) {
+                while (currLine != null && !currLine.startsWith("*****")) {
                     vssEntry.add(currLine);
                     currLine = reader.readLine();
                 }
@@ -356,6 +357,11 @@ public class Vss implements SourceControl {
         LOG.debug("VSS history entry END");
 
         try {
+            boolean isLabelEntry = false;
+
+            final String labelDelimiter = "**********************";
+            isLabelEntry = labelDelimiter.equals(entry.get(0));
+
             // Ignore unusual labels of directories which cause parsing errors that
             // look like this:
             //
@@ -364,8 +370,11 @@ public class Vss implements SourceControl {
             // Label: "autobuild_test"
             // User: Etucker      Date:  6/26/01   Time: 11:53a
             // Labeled
-            if ((entry.size() > 4)
-                && (((String) entry.get(4)).startsWith("Labeled"))) {
+            if (!isLabelEntry) {
+                isLabelEntry = (entry.size() > 4) && (((String) entry.get(4)).startsWith("Labeled"));
+            }
+
+            if (isLabelEntry) {
                 LOG.debug("this is a label; ignoring this entry");
                 return null;
             }
@@ -381,6 +390,9 @@ public class Vss implements SourceControl {
             // Label comment:
 
             int nameAndDateIndex = 2;
+            if (((String)entry.get(0)).startsWith("***************** ")) {
+                nameAndDateIndex = 1;
+            }
             String nameAndDateLine = (String) entry.get(nameAndDateIndex);
             if (nameAndDateLine.startsWith("Label:")) {
                 nameAndDateIndex++;
@@ -407,13 +419,21 @@ public class Vss implements SourceControl {
                 modification.type = "create";
                 LOG.debug("this folder was created");
             } else {
-                modification.folderName =
-                    folderLine.substring(7, folderLine.indexOf("  *"));
+                if (nameAndDateIndex == 1) {
+                    modification.folderName=vssPath;
+                } else {
+                    modification.folderName = vssPath + "\\" +
+                        folderLine.substring(7, folderLine.indexOf("  *"));
+                }
                 int lastSpace = fileLine.lastIndexOf(" ");
                 if (lastSpace != -1) {
                     modification.fileName = fileLine.substring(0, lastSpace);
                 } else {
                     modification.fileName = fileLine;
+                    if (modification.fileName.equals("Branched")) {
+                        LOG.debug("this is a branched file; ignoring this entry, as the directory with the branch is handled separately");
+                        return null;
+                    }
                 }
 
                 if (fileLine.endsWith("added")) {
@@ -431,6 +451,9 @@ public class Vss implements SourceControl {
                     modification.type = "recover";
                     LOG.debug("this file was recovered");
                 } else if (fileLine.endsWith("shared")) {
+                    modification.type = "share";
+                    LOG.debug("this file was shared");
+                } else if (fileLine.endsWith("branched")) {
                     modification.type = "branch";
                     LOG.debug("this file was branched");
                 } else if (fileLine.indexOf(" renamed to ") != -1) {
@@ -541,7 +564,6 @@ public class Vss implements SourceControl {
      */
     public String parseUser(String userLine) {
         final int userIndex = "User: ".length();
-        
         String userName =
             userLine
                 .substring(userIndex, userLine.indexOf("Date: ") - 1)
@@ -559,7 +581,7 @@ public class Vss implements SourceControl {
             new SimpleDateFormat(
                 "'Date: '" + dateFormat + "   'Time: '" + timeFormat);
     }
-    
+
     protected SimpleDateFormat getVssDateTimeFormat() {
         return vssDateTimeFormat;
     }
