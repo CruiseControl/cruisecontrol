@@ -54,6 +54,9 @@ LIBDIR=${PROJECTDIR}/lib
 # No need to edit anything past here
 #--------------------------------------------
 
+CLASSPATH=lib/ant.jar:lib/optional.jar:lib/junit.jar:lib/xerces.jar
+echo ${CLASSPATH}
+
 # Try to find Java Home directory, from JAVA_HOME environment 
 # or java executable found in PATH
 
@@ -74,12 +77,6 @@ fi
 if [ "$JAVABIN" = "" ] ; then
   JAVABIN=${JAVA_HOME}/bin/java
 fi
-
-# Find all jars defined in LIBDIR and add them to the classpath
-for lib in ${LIBDIR:-.}/*.jar
-do
-    CLASSPATH=${CLASSPATH}:${lib}
-done
 
 # Try to include tools.jar for compilation
 if test -f ${JAVA_HOME}/lib/tools.jar ; then

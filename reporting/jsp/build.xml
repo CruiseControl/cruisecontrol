@@ -95,6 +95,8 @@
             <classpath>
                 <pathelement location="${lib}/servlet.jar"/>
                 <pathelement location="${lib}/xalan.jar"/>
+                <pathelement location="${lib}/cewolf.jar"/>
+                <pathelement location="${lib}/jfreechart-0.9.8.jar"/>
             </classpath>
         </javac>
     </target>
@@ -105,7 +107,7 @@
                 <pathelement location="${lib}/servlet.jar"/>
                 <pathelement location="${lib}/xalan.jar"/>
                 <pathelement location="${lib}/junit.jar"/>
-            </classpath>
+           </classpath>
         </javac>
         <junit fork="yes" haltonfailure="yes" printsummary="on">
             <classpath>
@@ -190,6 +192,12 @@
             <lib dir="${lib}">
                 <include name="xalan.jar"/>
                 <include name="xerces.jar"/>
+                <include name="cewolf.jar"/>
+                <include name="jfreechart-0.9.8.jar"/>
+                <include name="jcommon-0.8.0.jar"/>
+                <include name="batik-svggen.jar"/>
+                <include name="batik-awt-util.jar"/>
+                <include name="batik-util.jar"/>
             </lib>
             <classes dir="${classes}"/>
         </war>
