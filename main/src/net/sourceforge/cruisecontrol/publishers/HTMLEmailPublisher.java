@@ -82,6 +82,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             "header.xsl",
             "maven.xsl",
             "checkstyle.xsl",
+            "macker.xsl",
             "errors.xsl",
             "javadoc.xsl",
             "unittests.xsl",
