@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
@@ -86,7 +87,7 @@ public class ProjectTest extends TestCase {
 
         assertTrue(project.isLastBuildSuccessful());
 
-        String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
+        String expected = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"builddate\" value=\"" + new SimpleDateFormat(DateFormatFactory.getFormat()).format(project.getNow()) + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
         assertEquals("Didn't increment the label", "1.2.3",
                 project.getLabel().intern());
