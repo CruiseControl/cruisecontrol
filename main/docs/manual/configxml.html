@@ -51,6 +51,7 @@
                   <ul>
                      <li><a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>
                      <li><a class="small" href="#cvsbootstrapper">CVSBootstrapper</a>
+		      <li><a class="small" href="#vssbootstrapper">VSSBootstrapper</a>
                   </ul>
                <li><a class="small" href="#schedule">Schedule</a>
                   <ul>
@@ -186,7 +187,54 @@
             </tr>
          </table>
 
-         <hr>
+	 <p><a name="cvsbootstrapper"><span class="small">CVSBootstrapper</span><br/>
+Since there is a reliance on the build.xml to handle updating the source code, there has always been a problem with what happens when the build.xml file itself changes.  Previous workarounds have included writing a wrapper build.xml that will check out the "real" build.xml.
+
+The CVSBootstrapper will handle updating a single file from CVS before the build begins.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">cvsroot</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The CVSROOT</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The file to update from CVS</td>
+            </tr>
+         </table>
+
+	 <p><a name="vssbootstrapper"><span class="small">VSSBootstrapper</span><br/>
+	Handles updating a single file from VSS before the build begins.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">vsspath</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Fully qualified VSS path to the target file. <b>Example:</b> $/Project/subproject/filename.ext</td>
+            </tr>
+            <tr>
+               <td class="tabledata">localdirectory</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Fully qualified path for the destination directory. <b>Example:</b> c:\directory\subdirectory\</td>
+            </tr>
+            <tr>
+               <td class="tabledata">login</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">VSS login information in the form <i>username,password</i></td>
+            </tr>
+         </table>
+
+         <hr/>
 
          <p><a name="modificationset"><span class="small">ModificationSet</span><br/>
 	 Set of modifications collected from all included SourceControl elements</p>
