@@ -59,7 +59,9 @@ public class CruiseControl {
         }
 
         if(upgrader) {
-            Upgrader.main(args);
+            String[] upgraderArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, upgraderArgs, 0, upgraderArgs.length);
+            Upgrader.main(upgraderArgs);
         } else {
             Main.main(args);
         }
