@@ -34,129 +34,156 @@ import java.util.Date;
 import org.apache.tools.ant.*;
 
 public class StarTeamElement implements SourceControlElement {
-    
+
     private Set emailAddresses = new HashSet();
     private List modifications = new ArrayList();
     private long startTime;
     private long mostRecent = 0;
     private Folder folder;
     private String folderName;
+    private String targetFolderPath = "";
     private org.apache.tools.ant.Task task;
     private String url;
     private String username;
     private String password;
-    
-    
-    
+
+
+
     /**
      *	set the parent task for logging purposes
      */
     public void setTask(org.apache.tools.ant.Task t) {
         this.task = t;
     }
-    
-    
+
+
     /**
      *
      */
     public long getLastModified() {
         return mostRecent;
     }
-    
+
     /**
      *
      */
     public ArrayList getHistory(Date lastBuild, Date now, long quietPeriod) {
+
         View view = StarTeamFinder.openView(this.username + ":" + this.password + "@" + this.url);
         Server server = view.getServer();
-        View snapshot = new View(view, ViewConfiguration.createFromTime(new OLEDate(now.getTime())));
-        
+
+        OLEDate snapshotDate = new OLEDate(now.getTime());
+        View snapshot = new View(view, ViewConfiguration.createFromTime(snapshotDate));
+
+		if (!"".equals(targetFolderPath)) {
+			snapshot.getRootFolder().setAlternatePathFragment(this.targetFolderPath);
+		}
+
         this.folder = StarTeamFinder.findFolder(snapshot.getRootFolder(), this.folderName);
-        
+
         startTime = lastBuild.getTime();
-        
-        visit(folder);
-        
+
+        visit(folder, snapshotDate);
+
         //need to check the mostRecent and make sure it's within the quiet period...
-        
+
         this.task.getProject().log(modifications.size() + " modifications in " + folderName);
         return (ArrayList) modifications;
     }
-    
-    
-    
+
+
+
     /**
      *
      */
     public Set getEmails() {
         return emailAddresses;
     }
-    
+
     public void setFolder(String folder) {
         this.folderName = folder;
     }
-    
+
+    public void setToDir(String toDir) {
+		this.targetFolderPath = toDir.trim();
+    }
+
     public void setStarteamurl(String url) {
         this.url = url;
     }
-    
+
     public void setUsername(String username) {
         this.username = username;
     }
-    
+
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    
+
+
     public boolean isEmpty() {
         return modifications.isEmpty();
     }
-    
+
     public String[] getEmailAddresses() {
         return (String[]) emailAddresses.toArray(new String[emailAddresses.size()]);
     }
-    
+
     public long getMostRecent() {
         return mostRecent;
     }
-    
-    
+
+
     private void addRevision(File revision) {
-        UserAccount account = revision.getServer().getAdministration().findUserAccount(revision.getModifiedBy());
-        if ((account != null) && (account.getName().equals("BuildMaster")))
+
+		User user = revision.getServer().getUser(revision.getModifiedBy());
+
+        if ((user != null) && (user.getName().equals("BuildMaster")))
             return;
-        
+
+        // Get the modification status before we check the current file out from StarTeam.  Must do this as afterwards the status will always be CURRENT
+        Modification mod = new Modification();
+        mod.type = getModificationType(revision);
+
         try {
             revision.checkout(Item.LockType.UNCHANGED, true, true, true);
         } catch (java.io.IOException ioe) {
             ioe.printStackTrace();
         }
-        
-        if (account != null) {
-            emailAddresses.add(account.getEmailAddress());
-        }
-        
-        Modification mod = new Modification();
-        
-        mod.type = getModificationType(revision);
+
+		/* Only get emails for users still on the system */
+		if (user != null) {
+
+			/* Try to obtain email to add.  This is only allowed if logged on user is SERVER ADMINISTRATOR */
+			try {
+				emailAddresses.add(user.getServer().getAdministration().findUserAccount(user.getID()).getEmailAddress());
+			}
+			catch (ServerException sx) {
+				/*
+				 * Logged on user does not have permission to get user's email.  Return the modifying user's name instead.
+				 * Then use the email.properties file to map the name to an email address outside of StarTeam
+				 */
+				emailAddresses.add(user.getName());
+			}
+		}
+
         mod.fileName = revision.getName();
         mod.folderName = revision.getParentFolder().getFolderHierarchy();
         mod.modifiedTime = revision.getModifiedTime().createDate();
-        mod.userName = account.getName();
+        mod.userName = user.getName();
         mod.comment = revision.getComment();
-        
+
         modifications.add(mod);
-        
+
         this.task.getProject().log("File: " + mod.fileName);
-        
+
         this.task.getProject().log("userName: " + mod.userName + " Date: " + mod.modifiedTime);
         if (revision.getModifiedTime().getLongValue() > mostRecent) {
             mostRecent = revision.getModifiedTime().getLongValue();
         }
     }
-    
-    private void visit(Folder folder) {
+
+    private void visit(Folder folder, OLEDate snapshotDate) {
         try {
             Thread.sleep(1000);
         } catch(InterruptedException exc)
@@ -165,63 +192,53 @@ public class StarTeamElement implements SourceControlElement {
         Item[] files = folder.getItems("File");
         for (int i = 0; i < files.length; i++) {
             File file = (File) files[i];
-            visit(file);
+            visit(file, snapshotDate);
         }
-        
+
         Folder[] folders = folder.getSubFolders();
         for (int i = 0; i < folders.length; i++) {
-            visit(folders[i]);
+            visit(folders[i], snapshotDate);
         }
     }
-    
-    private void visit(File file) {
+
+    private void visit(File file, OLEDate snapshotDate) {
         if (file.getModifiedTime().getLongValue() < startTime)
             return;
-        
-        Item[] history = file.getHistory();
-        for (int i = history.length - 1; i >= 0; i--) {
-/* Must get revisions in reverse order, so that the last checked out revision is the 
-most recent change */ 
-            File revision = (File) history[i];
-            
-            if (revision.getModifiedTime().getLongValue() > startTime) {
-                addRevision(revision);
-            } else {
-                return;
-            }
-        }
+
+        File revision = (File) file.getFromHistoryByDate(snapshotDate);
+        addRevision(revision);
+
     }
-    
+
     private String getModificationType(File file) {
-        
+
         try{
             if (file.getStatus() == Status.MERGE || file.getStatus() == Status.UNKNOWN) {
                 file.updateStatus(true, true);
             }
-            
+
             switch(file.getStatus()) {
                 case Status.MERGE:
                     return "merge";
-                    
+
                 case Status.MISSING:
                     return "new";
-                    
+
                 case Status.MODIFIED:
                     return "checkin";
-                    
+
                 case Status.NEW:
                     return "delete";
-                    
+
                 case Status.OUTOFDATE:
                     return "outofdate";
-                    
+
                 case Status.UNKNOWN:
                     return "unknown";
-                    
+
                 default:
-                    return "unknownfilestatus";
+                    return "unknownfilestatus - " + file.getStatus();
             }
         } catch (java.io.IOException e) { return "";}
     }
-    
 }
