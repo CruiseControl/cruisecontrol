@@ -79,7 +79,7 @@ public class MasterBuild {
     private String _projectName;
     
     protected BuildInfo info;
-    protected CruiseControlProperties props;
+    protected ProjectPropertiesHelper props;
 
     protected int _buildCounter;
     
@@ -110,10 +110,10 @@ public class MasterBuild {
 
     /**
      * Returns the properties instance controlling this process.
-     * 
-     * @return CruiseControlProperties being used by this process.
+     *
+     * @return ProjectPropertiesHelper being used by this process.
      */
-    public CruiseControlProperties getProperties() {
+    public ProjectPropertiesHelper getProperties() {
         return props;
     }
 
@@ -162,7 +162,7 @@ public class MasterBuild {
                 Date startTime = new Date();
                 startLog();
                 //Reload the properties file.
-                props = new CruiseControlProperties(_propsFileName);
+                props = new ProjectPropertiesHelper(_propsFileName);
                 performBuild(startTime);
                 long timeToSleep = getSleepTime(startTime);
                 endLog(timeToSleep);
