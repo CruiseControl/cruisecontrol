@@ -17,6 +17,10 @@ distributables.xsl
 ----------------------
 * Added info for the ejbjar and ear tasks. Patch by Joris Kuipers
 
+jmx
+----------------------
+* Now using MX4J instead of Sun's reference implementation. Patch by Michael Kloss
+
 ModificationSet
 ----------------------
 * Fixed bogus "A modification was detected in the future" message
