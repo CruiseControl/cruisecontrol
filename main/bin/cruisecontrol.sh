@@ -71,7 +71,7 @@ DISTDIR=$CCDIR/dist
 
 CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant/ant.jar:$LIBDIR/ant/ant-launcher.jar:$LIBDIR/xerces.jar:$LIBDIR/xalan.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:.
 
-EXEC="java -cp $CRUISE_PATH CruiseControl $@"
+EXEC="java -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControl $@"
 echo $EXEC
 $EXEC
 
