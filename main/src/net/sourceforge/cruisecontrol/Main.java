@@ -111,6 +111,10 @@ public final class Main {
         LOG.info("where options (all optional) are:");
         LOG.info("");
         LOG.info("  -port [number]       where number is the port of the Controller web site; defaults to 8000");
+        LOG.info("  -user username       where username is the login used to logon to the Controller web site; "
+                + "by default no login is required");
+        LOG.info("  -password pwd        where pwd is the password used to logon to the Controller web site; "
+                + "by default no login is required");
         LOG.info("  -rmiport [number]    where number is the RMI port of the Controller; defaults to 1099");
         LOG.info("  -xslpath directory   where directory is location of jmx xsl files;"
                  + " defaults to files in package");
@@ -191,8 +195,7 @@ public final class Main {
      * @return final value of password.         
      */
     static String parsePassword(String[] args) {
-        String password = parseArgument(args, "password", null, null);
-        return password;
+        return parseArgument(args, "password", null, null);
     }
 
     /**
@@ -202,8 +205,7 @@ public final class Main {
      * @return final value of user.
      */
     static String parseUser(String[] args) {
-        String user = parseArgument(args, "user", null, null);
-        return user;
+        return parseArgument(args, "user", null, null);
     }
 
     /**
