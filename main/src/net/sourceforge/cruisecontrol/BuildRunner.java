@@ -81,7 +81,12 @@ public class BuildRunner {
 
     public BuildRunner(java.io.File buildFile, String target, String lastBuildTime, String label, CruiseLogger logger) {
         _logger = logger;
-        _buildFile = buildFile;
+        try {
+            _buildFile = buildFile.getCanonicalFile();
+        }
+        catch (java.io.IOException e) {
+            throw new RuntimeException("Could not get the canonical form of " + buildFile.toString());
+        }
         loadProject();
         _target = target;
         _lastBuildTime = lastBuildTime;
@@ -135,12 +140,6 @@ public class BuildRunner {
 
     void loadProject() {
         _project = new CruiseProject();
-        try {
-            _project.setBaseDir(_buildFile.getCanonicalFile().getParentFile());
-        }
-        catch (java.io.IOException e) {
-            throw new RuntimeException("Could not get the parent directory for " + _buildFile.toString());
-        }
         setDefaultLogger();
         _project.addBuildListener(_logger);
     }
