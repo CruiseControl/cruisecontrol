@@ -8,6 +8,10 @@ build.xml (jsp)
 ----------------------
 * will build war w/out jars in WEB-INF/lib if property jdk1.4 is defined.
 
+CruiseControlTagSupport
+----------------------
+* minor change for compatibility with jdk 1.3 - Patch by Thai Thanh Ha
+
 Project
 ----------------------
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
