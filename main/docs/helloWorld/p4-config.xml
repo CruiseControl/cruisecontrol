@@ -2,16 +2,18 @@
    <project name="helloworld">
       <bootstrappers>
          <currentbuildstatusbootstrapper file="currentbuild.txt" />
-         <p4bootstrapper path="//depot/mycruise/build.xml" p4Port="localhost:1666" p4User="mroberts" p4Client="robertsm"/>
+         <p4bootstrapper path="//depot/mycruise/build.xml" p4Port="HOST:1666" p4User="USER" p4Client="CLIENT"/>
       </bootstrappers>
-      <modificationset quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
+      <modificationset quietperiod="30" >
          <p4 port="${p4.port}" user="${p4.user}" client="${p4.client}" view="${p4.view}" />
       </modificationset>
-      <schedule interval="30" intervaltype="relative">
+      <schedule interval="30" >
          <ant buildfile="build.xml" target="cleanbuild" multiple="5" />
          <ant buildfile="build.xml" target="masterbuild" multiple="1" />
       </schedule>
-      <log dir="logs" />
+      <log dir="logs">
+         <merge dir="test-results"/>
+      </log>  
       <publishers>
          <currentbuildstatuspublisher file="currentbuild.txt" />
          <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/cruisecontrol/buildresults">
@@ -19,11 +21,5 @@
             <failure address="REPLACE WITH FAILURE EMAIL ADDRESS" />
          </email>
       </publishers>
-      <plugin name="p4" classname="net.sourceforge.cruisecontrol.sourcecontrols.P4" />
-      <plugin name="currentbuildstatusbootstrapper" classname="net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper" />
-      <plugin name="ant" classname="net.sourceforge.cruisecontrol.builders.AntBuilder" />
-      <plugin name="email" classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher" />
-      <plugin name="currentbuildstatuspublisher" classname="net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher" />
-      <plugin name="labelincrementer" classname="net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer" />
    </project>
 </cruisecontrol>
