@@ -41,7 +41,8 @@ import java.text.*;
 import java.util.*;
 import javax.mail.*;
 import org.apache.tools.ant.*;
-import org.w3c.dom.*;
+import org.jdom.*;
+import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
 
 /**
  * Class that will run the "Master Build" -- a
@@ -184,7 +185,9 @@ public class MasterBuild {
         
         boolean previousBuildSuccessful = (info.getLastBuild() == info.getLastGoodBuild());       
 
-        logCurrentBuildStatus(true, startTime);
+        //logCurrentBuildStatus(true, startTime);
+        Bootstrapper currentBuildStatusBootstrapper = props.createCurrentBuildStatusBootstrapper();
+        currentBuildStatusBootstrapper.bootstrap();
 
         int messageLevel = props.isDebug() ? Project.MSG_DEBUG :
                                     (props.isVerbose() ? Project.MSG_VERBOSE : Project.MSG_INFO);
@@ -208,8 +211,18 @@ public class MasterBuild {
                                              info.getLabel(), logger);
         
         boolean successful = runner.runBuild();
-        
-        logCurrentBuildStatus(false, startTime);
+
+        //doing this temporarily to simulate a build log for CurrentBuildStatusPublisher.
+        Element buildLog = new Element("build");
+        Element cruisecontrolLog = new Element("cruisecontrol");
+        cruisecontrolLog.addContent(info.toElement());
+        cruisecontrolLog.addContent(props.toElement());
+        buildLog.addContent(cruisecontrolLog);
+
+        //logCurrentBuildStatus(false, startTime);
+        CurrentBuildStatusPublisher currentBuildStatusPublisher = props.createCurrentBuildStatusPublisher();
+        currentBuildStatusPublisher.publish(buildLog);
+
 
         checkModificationSetInvoked(runner.getProject());
         
@@ -356,6 +369,7 @@ public class MasterBuild {
      * @param isRunning true if the build is currently
      *                  running, otherwise false.
      */
+    /*
     private void logCurrentBuildStatus(boolean isRunning, Date startTime) {
         String currentlyRunning = "<br>&nbsp;<br><b>Current Build Started At:</b><br>";
         String notRunning = "<br>&nbsp;<br><b>Next Build Starts At:</b><br>";
@@ -380,6 +394,7 @@ public class MasterBuild {
             ioe.printStackTrace();
         }
     }
+    */
 
     /**
      * Overrides method in XmlLogger.  Gets us the timestamp that we performed 
