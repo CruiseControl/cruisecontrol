@@ -341,6 +341,12 @@ public class ProjectTest extends TestCase {
             negativeTime,
             Project.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
     }
+    
+    public void testNeedToWait() {
+        assertTrue(Project.needToWaitForNextBuild(1));
+        assertFalse(Project.needToWaitForNextBuild(0));
+        assertFalse(Project.needToWaitForNextBuild(-1));
+    }
 
     private String readFileToString(String filename) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(filename));
