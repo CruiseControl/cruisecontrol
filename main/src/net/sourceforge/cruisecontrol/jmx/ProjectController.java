@@ -129,6 +129,11 @@ public class ProjectController extends NotificationBroadcasterSupport
         project.setBuildForced(true);
     }
 
+    public void buildWithTarget(String buildTarget) {
+        log("forcing build with target \"" + buildTarget + "\"");
+        project.forceBuildWithTarget(buildTarget);
+    }
+    
     public void serialize() {
         log("serializing");
         project.serializeProject();

@@ -189,6 +189,13 @@ public class MavenBuilder extends Builder implements StreamConsumer {
     }
 
     /**
+     * Used to invoke the builder via JMX with a different goal.
+     */
+    protected void overrideTarget(String target) {
+        setGoal(target);    
+    }
+
+    /**
      * project.xml to use
      */
     public void setProjectFile(String projectFile) {

@@ -121,4 +121,12 @@ public class PauseBuilder extends Builder {
         throw new UnsupportedOperationException("Should not call build on a PauseBuilder");
     }
 
+    /**
+     * Used to invoke builders via JMX with a different target; we don't need this.
+     */
+    protected void overrideTarget(String target) {
+        // Do nothing    
+    }
+
+
 }

@@ -55,4 +55,7 @@ public class MockBuilder extends Builder {
     public void setBuildLogXML(Element buildLog) {
         this.buildLog = buildLog;
     }
+    
+    protected void overrideTarget(String target) {
+    }
 }
