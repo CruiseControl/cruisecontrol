@@ -93,8 +93,7 @@ public class Modification implements Comparable {
             cd = new CDATA(comment);
         } catch (org.jdom.IllegalDataException e) {
             LOG.error(e);
-            cd =
-                new CDATA("Unable to parse comment.  It contains illegal data.");
+            cd = new CDATA("Unable to parse comment.  It contains illegal data.");
         }
         commentElement.addContent(cd);
 
@@ -202,12 +201,18 @@ public class Modification implements Comparable {
         type = modification.getAttributeValue(TAGNAME_TYPE);
         fileName = modification.getChildText(TAGNAME_FILENAME);
         folderName = modification.getChildText(TAGNAME_FOLDERNAME);
+        LOG.debug("type = " + type);
+        LOG.debug("fileName = " + fileName);
+        LOG.debug("folderName = " + folderName);
         try {
             modifiedTime =
                 formatter.parse(modification.getChildText(TAGNAME_DATE));
+            LOG.debug("modifiedTime = " + modifiedTime);
         } catch (ParseException e) {
-            //maybe we should do something different
+            // todo: maybe we should do something different
+            LOG.error("could not parse " + TAGNAME_DATE + " from element " + modification, e);
             modifiedTime = new Date();
+            LOG.debug("modifiedTime = " + modifiedTime);
         }
         revision = modification.getChildText(TAGNAME_REVISION);
         userName = modification.getChildText(TAGNAME_USER);
