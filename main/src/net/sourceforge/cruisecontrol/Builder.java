@@ -53,10 +53,17 @@ public abstract class Builder implements Comparable {
     private boolean buildAfterFailed = false;
 
     //should return log from build
-    public abstract Element build(Map properties) throws CruiseControlException;
+    public abstract Element build(Map properties)
+        throws CruiseControlException;
 
     public void validate() throws CruiseControlException {
-        if ((time < 0) && (multiple < 0)) {
+        boolean timeSet = time >= 0;
+        boolean multipleSet = multiple > 0;
+
+        boolean neitherSet = !timeSet && !multipleSet;
+        boolean bothSet = timeSet && multipleSet;
+
+        if (bothSet || neitherSet) {
             throw new CruiseControlException("One of 'time' or 'multiple' are required on builders.");
         }
     }
@@ -125,7 +132,7 @@ public abstract class Builder implements Comparable {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
-        return cal.get(Calendar.DAY_OF_WEEK) == (day + 1);
+        return cal.get(Calendar.DAY_OF_WEEK) == day;
     }
 
     /**
