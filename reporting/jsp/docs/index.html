@@ -1,0 +1,118 @@
+<html>
+<head>
+   <title>The CruiseControl Build Results JSP</title>
+   <style type="text/css">
+      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
+      .header { font-size:12pt; font-weight:bold; }
+      pre { font-family:courier,serif; }
+      .small { font-size:8pt; font-weight:bold; }
+      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
+   </style>
+</head>
+
+
+<body class="body" leftmargin="0" topmargin="0">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+   <tr>
+      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
+      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
+   <tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+   <tr>
+      <td valign="top" width="80">
+         <img src="menutop.gif" border="0"><br>
+         <a href="index.html"><img src="menujsp.gif" border="0"></a><br>
+         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
+         <img src="menubottom.gif" border="0">
+      </td>
+      <td valign="top" align="left" width="650">
+         <table cellpadding="5" border="0" width="70%"><tr><td>
+         <!-- content begins here -->
+
+<p>
+<span class="header">The Build Results JSP</span>
+<p>
+
+    <span class="small">What Is It?</span><br>
+    <a href="buildresultsjspscreenshot.gif"><img align="right" src="buildresultsjspthumb.gif" border="0"></a>
+    The Build Results JSP is designed to present the results of the cruisecontrol build loop.  The left side of the
+    page tells us about whether CruiseControl is currently building your project, and provides links to the details
+    of previous builds.  The right side of the page presents the results of the build -- including compilation errors,
+    test results, and details about what files have changed since the last build.
+
+    <p>
+    <span class="small">How Does It Work?</span><br>
+    The JSP uses custom tags to handle most of its processing.  This gives us a clean separation between code and
+    content, leaving developers to modify code without worrying about page design, and designers can concentrate on
+    modifying the layout without having to understand any Java code.  All of the fonts and colors are controlled using
+    CSS, so that these details can be configured in an easy and centralized manner. The build details on the right-hand
+    side of the page are created using XSL to transform our XML build logs created by the CruiseControl build loop
+    into HTML that can be added into our JSP. The links on the left-hand side of the page are created by listing the
+    files in the CruiseControl log directory.  Each build log follows a naming convention so that the JSP can easily
+    parse the directory listing into links to a particular build.  The details about whether the build is running come
+    from a text file which is written by the CruiseControl build loop at the beginning of the build and at the end of
+    the build.  This file contains a snippet of HTML which is then included in the build results JSP.
+
+    <p>
+    Note that the latest version of the JSP may not be compatible with build logs created using the CruiseControl 1.x
+    build loop.  See the <a href="#knownissues">Known Issues</a> section below for more details.
+
+<p>
+<a name="newfeatures"/>
+<span class="header">New Features</span>
+
+    <p>
+    <span class="small">Split XSL For Easier Configurability</span><br>
+    Previous versions of the Servlet/JSP used one cruisecontrol.xsl stylesheet to transform the build log to HTML.  By
+    splitting it into pieces, it's easier to insert your own custom XSL into the JSP.  It's also easier to edit
+    a smaller piece of XSL than to deal with the unwieldy large XSL styleshee that we had.
+
+    <p>
+    <span class="small">Less Configuration Necessary</span><br>
+    The 1.x version of the JSP/Servlet required a lot of configuration in the web.xml.  We've boiled this down to 2
+    parameters that need to be configured, thus helping to get you up and running quicker.  The missing parameters are
+    still configurable, but you won't have to worry about them if you're going to use the default values.
+
+    <p>
+    <span class="small">XSL Transform Caching</span><br>
+    Running the XSL transform takes some resources on the server.  There's no reason to do this
+    operation every time.  The latest buildresults.jsp will run the transform upon the first page request, and keep the
+    results cached until any of the files involved (the log file or the xsl stylesheet) are out of date with the
+    cached file.
+
+    <p>
+    <span class="small">JSP Custom Tags and CSS</span><br>
+    We've pulled most of the Java code into custom JSP tags.  As a result, the HTML produced by the buildresults.jsp is
+    much easier to customize to your needs.  All of the font/color information has been pulled into a CSS stylesheet so
+    there is no need to wade in the XSL to change the color of an error message, for example.  It also helps keep the
+    look of the page more consistent.
+
+    <p>
+    <span class="small">Sample Logs</span><br>
+    The latest version of the source code for the JSP includes a directory of sample log files.  These are useful for
+    confirming that your JSP is running correctly, should you be experiencing any problems.
+
+<p>
+<a name="knownissues"/>
+<span class="header">Known Issues</span>
+
+    <p>
+    <span class="small">Date Format In The Page Header</span><br>
+    On the build results page, there is a header which contains a line beginning with: "Date of build:".  This date
+    format should match the other date formats on the page, but right now is limited to the pattern "yyyyMMddHHmmss".
+
+    <p>
+    <span class="small">Incompatibility with CruiseControl 1.x Log Files</span><br>
+    The log file format has changed, and as a result, log files created with the CruiseControl 1.x build loop may not
+    render correctly.  A semi trivial upgrader could be developed if demand warrants.
+
+         <!-- content ends here -->
+         </td></tr></table>
+      </td>
+   </tr>
+</table>
+</body>
+</html>
