@@ -137,7 +137,7 @@ public class Project implements Serializable, Runnable {
     /**
      *  Unless paused, runs any bootstrappers and then the entire build.
      */
-    public void build() throws CruiseControlException {
+    protected void build() throws CruiseControlException {
         buildStartTime = new Date();
         if (schedule.isPaused(buildStartTime)) {
             return; //we've paused
