@@ -154,6 +154,7 @@ public class ProjectXMLHelper {
         while (sourceControlIterator.hasNext()) {
             Element sourceControlElement = (Element) sourceControlIterator.next();
             SourceControl sourceControl = (SourceControl) configurePlugin(sourceControlElement);
+            sourceControl.validate();
             modificationSet.addSourceControl(sourceControl);
         }
         return modificationSet;

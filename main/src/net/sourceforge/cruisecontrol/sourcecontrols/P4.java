@@ -3,39 +3,40 @@
  * Copyright (c) 2001, isMobile.com - http://www.ismobile.com
  * Aurorum 2, S-977 75 Luleå, Sweden
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
+ *
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
- *     + Redistributions of source code must retain the above copyright 
- *       notice, this list of conditions and the following disclaimer. 
- *       
- *     + Redistributions in binary form must reproduce the above 
- *       copyright notice, this list of conditions and the following 
- *       disclaimer in the documentation and/or other materials provided 
- *       with the distribution. 
- *       
- *     + Neither the name of isMobile.com, ThoughtWorks, Inc., 
- *       CruiseControl, nor the names of its contributors may be used 
- *       to endorse or promote products derived from this software 
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of isMobile.com, ThoughtWorks, Inc.,
+ *       CruiseControl, nor the names of its contributors may be used
+ *       to endorse or promote products derived from this software
  *       without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
@@ -49,16 +50,16 @@ import java.util.*;
  * This class implements the SourceControlElement methods for a P4 depot. The
  * call to CVS is assumed to work without any setup. This implies that if the
  * authentication type is pserver the call to cvs login should be done prior to
- * calling this class. 
+ * calling this class.
  * <p>
  * P4Element depends on the optional P4 package delivered with Ant v1.3. But
  * since it probably doesn't make much sense using the P4Element without other
  * P4 support it shouldn't be a problem.
  * <p>
  * P4Element sets the property ${p4element.change} with the latest changelist
- * number or the changelist with the latest date. This should then be passed 
+ * number or the changelist with the latest date. This should then be passed
  * into p4sync or other p4 commands.
- * 
+ *
  * @author <a href="mailto:niclas.olofsson@ismobile.com">Niclas Olofsson - isMobile.com</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
@@ -119,13 +120,15 @@ public class P4 implements SourceControl {
         return changelists;
     }
 
+    public void validate() throws CruiseControlException {
+    }
 
     /**
      * Get a List of modifications detailing all the changes between now and
      * the last build. Return this as an element. It is not neccessary for
      * sourcecontrols to acctually do anything other than returning a chunch
      * of XML data back.
-     * 
+     *
      * @param lastBuild     time of last build
      * @param now           time this build started
      * @return              a list of XML elements that contains data about the modifications
@@ -209,7 +212,7 @@ public class P4 implements SourceControl {
         ArrayList changelists = new ArrayList();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        
+
         // Find first Changelist item if there is one.
         String line;
         while ((line = readToNotPast(reader, "text: Change", "exit:")) != null) {
@@ -242,7 +245,7 @@ public class P4 implements SourceControl {
                 description += line.substring(6);
             }
             changelist._description = description;
-            
+
             // Ok, read affected files if there are any.
             line = readToNotPast(reader, "text: Affected files ...", "exit:");
             if (line != null) {
@@ -295,7 +298,7 @@ public class P4 implements SourceControl {
         }
 
 //        execP4Command("changes -m 1 -s submitted " + _P4View,
-        
+
         commandLine.createArgument().setValue("changes");
         commandLine.createArgument().setValue("-s");
         commandLine.createArgument().setValue("submitted");
@@ -326,7 +329,7 @@ public class P4 implements SourceControl {
         }
 
 //        execP4Command("describe -s " + changeNumber.toString(),
-        
+
         commandLine.createArgument().setValue("describe");
         commandLine.createArgument().setValue("-s");
 
@@ -338,7 +341,7 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * This is a modified version of the one in the CVS element. I found it far 
+     * This is a modified version of the one in the CVS element. I found it far
      * more useful if you acctually return either or, because otherwise it would
      * be darn hard to use in places where I acctually need the notPast line.
      * Or did I missunderatnd something?
@@ -348,7 +351,7 @@ public class P4 implements SourceControl {
         boolean checkingNotPast = notPast != null;
 
         String nextLine = reader.readLine();
-        
+
         // (!A && !B) || (!A && !C) || (!B && !C)
         // !A || !B || !C
         while (!(nextLine == null || nextLine.startsWith(beginsWith) || nextLine.startsWith(notPast))) {

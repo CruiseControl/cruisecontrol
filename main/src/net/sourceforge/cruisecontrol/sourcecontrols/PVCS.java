@@ -42,6 +42,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
@@ -105,6 +106,9 @@ public class PVCS implements SourceControl {
 
     public Hashtable getProperties() {
         return _properties;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
 	/**

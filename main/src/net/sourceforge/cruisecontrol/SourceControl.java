@@ -62,6 +62,8 @@ public interface SourceControl {
     public List getModifications(Date lastBuild, Date now);
 
 
+    public void validate() throws CruiseControlException;
+
     /**
      *  Any properties that have been set in this sourcecontrol.  Formerly set on the Ant Project.
      */

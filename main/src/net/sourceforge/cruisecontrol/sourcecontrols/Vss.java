@@ -42,6 +42,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import org.apache.log4j.Logger;
 
@@ -134,6 +135,9 @@ public class Vss implements SourceControl {
 
     public Hashtable getProperties() {
         return _properties;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
 	/**

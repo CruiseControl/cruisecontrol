@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +71,9 @@ public class MockSourceControl implements SourceControl {
 
     public void setType(int version) {
         _version = version;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
     public List getModifications(Date lastBuild, Date now) {

@@ -42,6 +42,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import org.apache.log4j.Logger;
 
 /**
@@ -140,6 +141,9 @@ public class VssJournal implements SourceControl {
 
     public Hashtable getProperties() {
         return _properties;
+    }
+
+    public void validate() throws CruiseControlException {
     }
 
     /**
@@ -324,7 +328,7 @@ public class VssJournal implements SourceControl {
                 }
             }
             if (oDate == null) {
-                throw new org.apache.tools.ant.BuildException("Could not parse date in VssJournal file");
+                log.error("Could not parse date in VssJournal file");
             }
             return oDate;
         }
