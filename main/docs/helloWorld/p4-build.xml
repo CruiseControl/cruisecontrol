@@ -120,16 +120,7 @@
         <p4sync view="${p4.view}" force="true" />
     </target>
 
-    <!-- P4 version of helloWorld modificationcheck -->
-    <target name="modificationcheck" depends="init" description="Check modifications since last build">
-        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
-        <echo message="Checking for modifications..."/>
-        <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
-    	    <p4element port="${p4.port}" user="${p4.user}" client="${p4.client}" view="${p4.view}" />
-        </modificationset>
-    </target>
-
-    <target name="masterbuild" depends="modificationcheck,sync,compile,test,jar" description="Cruise control master build"/> 
+    <target name="masterbuild" depends="sync,compile,test,jar" description="Cruise control master build"/>
 
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
 
@@ -138,12 +129,12 @@
     <!-- Should acctually work with this setup too, but I didn't test it. -->
     
     <!-- run build from target build.xml -->
-    <target name="p4-build"  depends="modificationcheck, sync">
+    <target name="p4-build"  depends="sync">
     	<ant dir="${p4.base}" target="build"/>
     </target>
 
     <!-- run clean build from target build.xml -->
-    <target name="p4-cleanbuild"  depends="modificationcheck, sync">
+    <target name="p4-cleanbuild"  depends="sync">
         <ant dir="${p4.base}" target="clean"/>
         <ant dir="${p4.base}"/>
     </target>

@@ -122,17 +122,7 @@
                  servername="${starteam.server}" serverport="${starteam.port}" verbose="true"/>
    	</target>
 
-    <target name="modificationcheck" depends="init" description="Check modifications since last build">
-        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
-        <echo message="Checking for modifications..."/>
-        <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="30" 
-         dateformat="yyyy-MMM-dd HH:mm:ss">
-            <starteamelement username="${starteam.user}" password="${starteam.passwd}" 
-             folder="${starteam.folder}" starteamurl="${starteam.url}" />
-        </modificationset>
-    </target>
-
-    <target name="masterbuild" depends="modificationcheck,checkout,compile,test,jar" 
+    <target name="masterbuild" depends="checkout,compile,test,jar"
      description="Cruise control master build"/>
 
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
