@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.element;
 
+import java.text.*;
 import java.util.*;
 import junit.framework.*;
 
@@ -45,6 +46,8 @@ public class VSSElementTest extends TestCase {
     
     private final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
     
+    private final String STRANGE_DATE_TIME_STRING = "Date:  6/20/:1   Time:  10:36a";
+    
     public VSSElementTest(String name) {
         super(name);
     }
@@ -52,9 +55,7 @@ public class VSSElementTest extends TestCase {
     protected void setUp() {
         _element = new VssElement();
     }
-    
-    // Sample of what the VSS line will look like:
-    // User: Username     Date:  6/14/01   Time:  6:39p
+
     public void testParseUserSingleCharName() {
         String testName = "1";
         assertEquals(testName, _element.parseUser(createVSSLine(testName)));
@@ -63,10 +64,28 @@ public class VSSElementTest extends TestCase {
     public void testParseDateSingleCharName() {
         String testName = "1";
         try {
-            assertEquals(VssElement.VSS_OUT_FORMAT.parse(DATE_TIME_STRING.trim() + "m"), 
+            assertEquals(
+             VssElement.VSS_OUT_FORMAT.parse(DATE_TIME_STRING.trim() + "m"), 
              _element.parseDate(createVSSLine(testName)));
-        } catch (java.text.ParseException e) {
-            fail("Could not parse date string");
+        } catch (ParseException e) {
+            fail("Could not parse date string: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Some people are seeing strange date outputs from their VSS history that
+     * looks like this:
+     *  User: Aaggarwa     Date:  6/29/:1   Time:  3:40p
+     * Note the ":" rather than a "0"
+     */
+    public void testParseDateStrangeDate() {
+        String strangeDateLine = "User: Aaggarwa     Date:  6/20/:1   Time: 10:36a";
+        try {
+            assertEquals(
+             VssElement.VSS_OUT_FORMAT.parse(DATE_TIME_STRING.trim() + "m"),
+             _element.parseDate(strangeDateLine));
+        } catch (ParseException e) {
+            fail("Could not parse strange date string: " + e.getMessage());
         }
     }
     
@@ -80,6 +99,12 @@ public class VSSElementTest extends TestCase {
         assertEquals(testName, _element.parseUser(createVSSLine(testName)));
     }
 
+    /**
+     * Produces a VSS line that looks something like this:
+     * User: Username     Date:  6/14/01   Time:  6:39p
+     *
+     * @param testName Replaces the Username in above example
+     */
     private String createVSSLine(String testName) {
         return "User: " + testName + " " + DATE_TIME_STRING;
     }

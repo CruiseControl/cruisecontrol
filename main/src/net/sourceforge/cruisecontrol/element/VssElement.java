@@ -51,6 +51,7 @@ import org.apache.tools.ant.Task;
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author Eli Tucker
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @author Arun Aggarwal
  */
 public class VssElement extends SourceControlElement {
 
@@ -144,7 +145,7 @@ public class VssElement extends SourceControlElement {
         //(PENDING) buildHistoryCommand, execHistoryCommand
 		//call vss, write output to intermediate file
 		try {
-			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", "-Vd" +
+			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", 
 					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
                     "-Y" + _login, "-I-N", "-O" + VSS_TEMP_FILE};
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -287,24 +288,43 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  Parse date/time from VSS file history
-	 *
+	 * Parse date/time from VSS file history
+     *
+     * The nameAndDateLine will look like 
+     *  User: Etucker      Date:  6/26/01   Time: 11:53a
+     * Sometimes also this
+     *  User: Aaggarwa     Date:  6/29/:1   Time:  3:40p
+     * Note the ":" instead of a "0"
+     *
 	 *@param  dateLine
 	 *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma"
 	 */
-	Date parseDate(String dateLine) {
-		try {
-			Date lastModifiedDate =
-             VSS_OUT_FORMAT.parse(dateLine.substring(dateLine.indexOf("Date: ")).trim() + "m");
-			if (lastModifiedDate.getTime() < _lastModified) {
-				_lastModified = lastModifiedDate.getTime();
-			}
-			return lastModifiedDate;
-		} catch (ParseException pe) {
-			pe.printStackTrace();
-			return null;
-		}
-	}
+    public Date parseDate(String nameAndDateLine) {
+        String dateAndTime = 
+         nameAndDateLine.substring(nameAndDateLine.indexOf("Date:"));
+
+        int indexOfColon = dateAndTime.indexOf("/:");
+        if(indexOfColon != -1) {
+            dateAndTime = dateAndTime.substring(0, indexOfColon)
+            + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
+            + dateAndTime.substring(indexOfColon + 2);
+        }
+        
+        try {
+            Date lastModifiedDate = VSS_OUT_FORMAT.parse(
+             dateAndTime.trim() + "m");
+            
+            //(PENDING) This seems out of place
+            if (lastModifiedDate.getTime() < _lastModified) {
+                _lastModified = lastModifiedDate.getTime();
+            }
+            
+            return lastModifiedDate;
+        } catch (ParseException pe) {
+            pe.printStackTrace();
+            return null;
+        }
+    }
 
 	/**
 	 *  Parse username from VSS file history
@@ -312,7 +332,7 @@ public class VssElement extends SourceControlElement {
 	 *@param  userLine
 	 *@return the user name who made the modification
 	 */
-	String parseUser(String userLine) {
+	public String parseUser(String userLine) {
         final int START_OF_USER_NAME = 6;
 		String userName = userLine.substring(
          START_OF_USER_NAME, userLine.indexOf("Date: ") - 1).trim();

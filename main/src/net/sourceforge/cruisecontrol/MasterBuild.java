@@ -402,8 +402,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             long sleepTime = startTime.getTime() + _buildInterval - now.getTime();
             sleepTime = (sleepTime < 0 ? 0 : sleepTime);
             return sleepTime;
-        }
-        else {
+        } else {
             return _buildInterval;
         }
     }
