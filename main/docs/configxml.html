@@ -1,169 +1,222 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-   <title>CruiseControl Configuration Reference</title>
-   <link href="../../docs/cruisecontrol.css" type="text/css" rel="stylesheet"/>
+    <title>CruiseControl Configuration Reference</title>
+    <style type="text/css" media="all">
+        @import "../../docs/cruisecontrol.css";
+
+        .index h2 {
+            margin-top: 1em;
+        }
+
+        #alphabetical {
+            float: right;
+            width: 43%;
+        }
+
+        #hierarchical {
+            float: left;
+            width: 55%;
+        }
+
+        a.toplink {
+            float: right;
+            font-size: smaller;
+            font-weight: bold;
+        }
+
+        @media print {
+            .elementdocumentation p,
+            .hierarchy {
+                page-break-inside: avoid;
+            }
+
+            #alphabetical,
+            #hierarchical,
+            a.toplink {
+                display: none;
+            }
+        }
+    </style>
+    <link href="../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
 </head>
 <body>
 <div class="header">
     <div class="hostedby">
         Hosted By:<br/>
-        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
     </div>
-    <img alt="CruiseControl" src="banner.gif"/>
+    <img alt="CruiseControl" src="../../docs/banner.png"/>
 </div>
 <div class="container">&nbsp;
     <div id="menu">
         <ul id="menulist">
             <li><a href="../../docs/index.html">home</a></li>
             <li><a href="../../docs/download.html">download</a></li>
-            <li><h2>documentation</h2>
-                <ul>
-                    <li><a href="index.html">build loop</a></li>
-                    <li><a href="../../reporting/jsp/docs/index.html">results jsp</a></li>
-                    <li><p id="menuselected">config</p></li>
-                    <li><a href="../../docs/faq.html">faq</a></li>
-                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
-                </ul>
-            </li>
-            <li><h2>contributing</h2>
-                <ul>
-                    <li><a href="../../docs/developers.html">developers</a></li>
-                    <li><a href="../../docs/contact.html">mailing lists</a></li>
-                    <li><a href="../../docs/cvs.html">cvs repository</a></li>
-                </ul>
-            </li>
+            <li><h2>documentation</h2></li>
+            <li><a class="expandmenu" href="index.html">build loop</a></li>
+            <li><a class="expandmenu" href="../../reporting/jsp/docs/index.html">results jsp</a></li>
+            <li><p id="menuselected">config</p></li>
+            <li><a href="../../docs/faq.html">faq</a></li>
+            <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+            <li><h2>contributing</h2></li>
+            <li><a class="expandmenu" href="../../docs/developers.html">developers</a></li>
+            <li><a href="../../docs/contact.html">mailing lists</a></li>
+            <li><a href="../../docs/cvs.html">cvs repository</a></li>
             <li><p id="menubottom">&nbsp;</p></li>
         </ul>
     </div>
     <div class="content">
-        <h1>Configuration Reference</h1>
+        <h1><span class="printonly">CruiseControl</span> Configuration Reference</h1>
 
         <p>CruiseControl configuration files are written in XML. This document
         describes the XML elements and attributes for a valid configuration
         file.</p>
-        
+
         <p>The use of <a href="plugins.html">plugins</a> means that other
         elements not documented here can also be used in the configuration.
         At a minimum, though, the config file contains a single top level
         <code>&lt;cruisecontrol&gt;</code> element, with one or more child
         <code>&lt;project&gt;</code> elements.</p>
 
+        <div>
+        <div id="alphabetical" class="index">
         <h2>Alphabetical Index</h2>
-        
-        <pre style="white-space: normal; font-size: smaller;">
-            <a href="#ant">&lt;ant&gt;</a>
-            <a href="#artifactspublisher">&lt;artifactspublisher&gt;</a>
-            <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
-            <a href="#buildstatus">&lt;buildstatus&gt;</a>
-            <a href="#clearcase">&lt;clearcase&gt;</a>
-            <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
-            <a href="#compound">&lt;compound&gt;</a>
-            <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-            <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
-            <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
-            <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
-            <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
-            <a href="#cvs">&lt;cvs&gt;</a>
-            <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
-            <a href="#dateformat">&lt;dateformat&gt;</a>
-            <a href="#email">&lt;email&gt;</a>
-            <a href="#execute">&lt;execute&gt;</a>
-            <a href="#filesystem">&lt;filesystem&gt;</a>
-            <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
-            <a href="#htmlemail">&lt;htmlemail&gt;</a>
-            <a href="#httpfile">&lt;httpfile&gt;</a>
-            <a href="#jabber">&lt;jabber&gt;</a>
-            <a href="#log">&lt;log&gt;</a>
-            <a href="#maven">&lt;maven&gt;</a>
-            <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
-            <a href="#merge">&lt;merge&gt;</a>
-            <a href="#mks">&lt;mks&gt;</a>
-            <a href="#modificationset">&lt;modificationset&gt;</a>
-            <a href="#p4">&lt;p4&gt;</a>
-            <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
-            <a href="#pause">&lt;pause&gt;</a>
-            <a href="#plugin">&lt;plugin&gt;</a>
-            <a href="#plugin">&lt;plugin&gt;</a>
-            <a href="#project">&lt;project&gt;</a>
-            <a href="#publishers">&lt;publishers&gt;</a>
-            <a href="#pvcs">&lt;pvcs&gt;</a>
-            <a href="#schedule">&lt;schedule&gt;</a>
-            <a href="#scp">&lt;scp&gt;</a>
-            <a href="#starteam">&lt;starteam&gt;</a>
-            <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
-            <a href="#surround">&lt;surround&gt;</a>
-            <a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a>
-            <a href="#svn">&lt;svn&gt;</a>
-            <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
-            <a href="#targets">&lt;targets&gt;</a>
-            <a href="#triggers">&lt;triggers&gt;</a>
-            <a href="#vss">&lt;vss&gt;</a>
-            <a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
-            <a href="#vssjournal">&lt;vssjournal&gt;</a>
-        </pre>
 
+        <pre style="font-size: smaller;"><a href="#ant">&lt;ant&gt;</a>
+<a href="#artifactspublisher">&lt;artifactspublisher&gt;</a>
+<a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+<a href="#buildstatus">&lt;buildstatus&gt;</a>
+<a href="#clearcase">&lt;clearcase&gt;</a>
+<a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
+<a href="#compound">&lt;compound&gt;</a>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+<a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
+<a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
+<a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
+<a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
+<a href="#cvs">&lt;cvs&gt;</a>
+<a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
+<a href="#dateformat">&lt;dateformat&gt;</a>
+<a href="#email">&lt;email&gt;</a>
+<a href="#execute">&lt;execute&gt;</a>
+<a href="#filesystem">&lt;filesystem&gt;</a>
+<a href="#ftppublisher">&lt;ftppublisher&gt;</a>
+<a href="#htmlemail">&lt;htmlemail&gt;</a>
+<a href="#httpfile">&lt;httpfile&gt;</a>
+<a href="#jabber">&lt;jabber&gt;</a>
+<a href="#labelincrementer">&lt;labelincrementer&gt;</a>
+<a href="#log">&lt;log&gt;</a>
+<a href="#maven">&lt;maven&gt;</a>
+<a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
+<a href="#merge">&lt;merge&gt;</a>
+<a href="#mks">&lt;mks&gt;</a>
+<a href="#modificationset">&lt;modificationset&gt;</a>
+<a href="#p4">&lt;p4&gt;</a>
+<a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
+<a href="#pause">&lt;pause&gt;</a>
+<a href="#plugin">&lt;plugin&gt;</a>
+<a href="#plugin">&lt;plugin&gt;</a>
+<a href="#project">&lt;project&gt;</a>
+<a href="#publishers">&lt;publishers&gt;</a>
+<a href="#pvcs">&lt;pvcs&gt;</a>
+<a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
+<a href="#schedule">&lt;schedule&gt;</a>
+<a href="#scp">&lt;scp&gt;</a>
+<a href="#starteam">&lt;starteam&gt;</a>
+<a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
+<a href="#svn">&lt;svn&gt;</a>
+<a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
+<a href="#compound">&lt;targets&gt;</a>
+<a href="#compound">&lt;triggers&gt;</a>
+<a href="#vss">&lt;vss&gt;</a>
+<a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
+<a href="#vssjournal">&lt;vssjournal&gt;</a>
+<a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;</pre>
+        </div>
+
+        <div id="hierarchical" class="index">
         <h2>Hierarchical Index</h2>
-        
+
 <pre style="font-size: smaller;">
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-    <a href="#plugin">&lt;plugin/&gt;</a>
-    <a href="#project">&lt;project&gt;</a>
-        <a href="#plugin">&lt;plugin/&gt;</a>
-        <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
-            <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
-            <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
-            <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
-            <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
-            <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
-            <a href="#surroundbootstrapper">&lt;surroundbootstrapper/&gt;</a>
-            <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
-            <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
-            <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
-        &lt;/bootstrappers&gt;
-        <a href="#modificationset">&lt;modificationset&gt;</a>
-            <a href="#buildstatus">&lt;buildstatus/&gt;</a>
-            <a href="#clearcase">&lt;clearcase/&gt;</a>
-            <a href="#compound">&lt;compound/&gt;</a>
-            <a href="#cvs">&lt;cvs/&gt;</a>
-            <a href="#filesystem">&lt;filesystem/&gt;</a>
-            <a href="#httpfile">&lt;httpfile/&gt;</a>
-            <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
-            <a href="#mks">&lt;mks/&gt;</a>
-            <a href="#p4">&lt;p4/&gt;</a>
-            <a href="#pvcs">&lt;pvcs/&gt;</a>
-            <a href="#surround">&lt;surround/&gt;</a>
-            <a href="#starteam">&lt;starteam/&gt;</a>
-            <a href="#svn">&lt;svn/&gt;</a>
-            <a href="#targets">&lt;targets/&gt;</a>
-            <a href="#triggers">&lt;triggers/&gt;</a>
-            <a href="#vss">&lt;vss/&gt;</a>
-            <a href="#vssjournal">&lt;vssjournal/&gt;</a>
-        &lt;/modificationset&gt;
-        <a href="#schedule">&lt;schedule&gt;</a>
-            <a href="#ant">&lt;ant/&gt;</a>
-            <a href="#maven">&lt;maven/&gt;</a>
-            <a href="#pause">&lt;pause/&gt;</a>
-        &lt;/schedule&gt;
-        <a href="#log">&lt;log&gt;</a>
-            <a href="#merge">&lt;merge/&gt;</a>
-        &lt;/log&gt;
-        <a href="#publishers">&lt;publishers&gt;</a>
-            <a href="#artifactspublisher">&lt;artifactspublisher/&gt;</a>
-            <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
-            <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
-            <a href="#email">&lt;email/&gt;</a>
-            <a href="#execute">&lt;execute/&gt;</a>
-            <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
-            <a href="#htmlemail">&lt;htmlemail/&gt;</a>
-            <a href="#jabber">&lt;jabber/&gt;</a>
-            <a href="#scp">&lt;scp/&gt;</a>
-        &lt;/publishers&gt;
-        <a href="#dateformat">&lt;dateformat/&gt;</a>
-    &lt;/project&gt;
+   <a href="#plugin">&lt;plugin/&gt;</a>
+   <a href="#project">&lt;project&gt;</a>
+      <a href="#plugin">&lt;plugin/&gt;</a>
+      <a href="#dateformat">&lt;dateformat/&gt;</a>
+      <a href="#labelincrementer">&lt;labelincrementer/&gt;</a>
+      <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+         <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
+         <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
+         <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
+         <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
+         <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
+         <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
+         <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
+         <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
+      &lt;/bootstrappers&gt;
+      <a href="#modificationset">&lt;modificationset&gt;</a>
+         <a href="#buildstatus">&lt;buildstatus/&gt;</a>
+         <a href="#clearcase">&lt;clearcase/&gt;</a>
+         <a href="#compound">&lt;compound&gt;</a>
+            <a href="#compound">&lt;targets/&gt;</a>
+            <a href="#compound">&lt;triggers/&gt;</a>
+         &lt;/compound&gt;
+         <a href="#cvs">&lt;cvs/&gt;</a>
+         <a href="#filesystem">&lt;filesystem/&gt;</a>
+         <a href="#httpfile">&lt;httpfile/&gt;</a>
+         <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
+         <a href="#mks">&lt;mks/&gt;</a>
+         <a href="#p4">&lt;p4/&gt;</a>
+         <a href="#pvcs">&lt;pvcs/&gt;</a>
+         <a href="#starteam">&lt;starteam/&gt;</a>
+         <a href="#svn">&lt;svn/&gt;</a>
+         <a href="#vss">&lt;vss/&gt;</a>
+         <a href="#vssjournal">&lt;vssjournal/&gt;</a>
+      &lt;/modificationset&gt;
+      <a href="#schedule">&lt;schedule&gt;</a>
+         <a href="#ant">&lt;ant/&gt;</a>
+         <a href="#maven">&lt;maven/&gt;</a>
+         <a href="#pause">&lt;pause/&gt;</a>
+      &lt;/schedule&gt;
+      <a href="#log">&lt;log&gt;</a>
+         <a href="#merge">&lt;merge/&gt;</a>
+      &lt;/log&gt;
+      <a href="#publishers">&lt;publishers&gt;</a>
+         <a href="#artifactspublisher">&lt;artifactspublisher/&gt;</a>
+         <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
+         <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
+         <a href="#email">&lt;email/&gt;</a>
+         <a href="#execute">&lt;execute/&gt;</a>
+         <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
+         <a href="#htmlemail">&lt;htmlemail/&gt;</a>
+         <a href="#jabber">&lt;jabber/&gt;</a>
+         <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
+         <a href="#scp">&lt;scp/&gt;</a>
+         <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
+      &lt;/publishers&gt;
+   &lt;/project&gt;
 &lt;/cruisecontrol&gt;</pre>
+        </div>
+        </div>
 
+        <p style="clear: both">&nbsp;</p>
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="cruisecontrol">&lt;cruisecontrol&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+&lt;cruisecontrol&gt;</pre>
+        </div>
 
         <p>The <code>&lt;cruisecontrol&gt;</code> element is the root element
         of the configuration, and acts as a container to the rest of the
@@ -172,28 +225,37 @@
         <h3>Child Elements</h3>
 
         <table class="documentation">
-            <tr>
-                <th>Element</th>
-                <th>Cardinality</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td><a href="#project">&lt;project&gt;</a></td>
-                <td>1 .. *</td>
-                <td>Defines a basic unit of work.</td>
-            </tr>
-            <tr>
-                <td><a href="#plugin">&lt;plugin&gt;</a></td>
-                <td>0 .. 1</td>
-                <td>Registers a classname with an alias.</td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <th>Cardinality</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href="#project">&lt;project&gt;</a></td>
+                    <td>1 .. *</td>
+                    <td>Defines a basic unit of work.</td>
+                </tr>
+                <tr>
+                    <td><a href="#plugin">&lt;plugin&gt;</a></td>
+                    <td>0 .. 1</td>
+                    <td>Registers a classname with an alias.</td>
+                </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p>None, as <code>&lt;cruisecontrol&gt;</code> is the root element.</p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="project">&lt;project&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  &lt;project&gt;</pre>
+        </div>
 
         <p>A <code>&lt;project&gt;</code> is the basic unit of work &mdash; it
         will handle checking for modifications, building, and publishing the
@@ -202,11 +264,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>name</td>
                 <td>Yes</td>
@@ -221,16 +286,20 @@
                 build fails because of outside dependecies (like temporary
                 failing database connection).</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="#bootstrappers">&lt;bootstrappers&gt;</a></td>
                 <td>0 .. 1</td>
@@ -267,13 +336,20 @@
                 <td>0 .. *</td>
                 <td>Registers a classname with an alias.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#cruisecontrol"><code>&lt;cruisecontrol&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="bootstrappers">&lt;bootstrappers&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;bootstrappers&gt;</pre>
+        </div>
 
         <p>The <code>&lt;bootstrappers&gt;</code> element is a container element
         for Bootstrapper plugin instances.</p>
@@ -287,11 +363,14 @@
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a></td>
                 <td>0 .. *</td>
@@ -323,27 +402,30 @@
                 <td>Bootstraps resources from Star Team</td>
             </tr>
             <tr class="oddrow">
-                <td><a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></td>
-                <td>0 .. *</td>
-                <td>Bootstraps resources from Surround SCM</td>
-            </tr>
-            <tr>
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Visual Source Safe</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;clearcasebootstrapper&gt;</pre>
+        </div>
 
         <p>Can be used to pull a single file (usually build.xml and/or
         build.properties) from ClearCase prior to building.</p>
@@ -351,11 +433,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>file</td>
                 <td>Yes</td>
@@ -366,18 +451,26 @@
                 <td>No</td>
                 <td>local path to the file</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;currentbuildstatusbootstrapper&gt;</pre>
+        </div>
 
         <p>The CruiseControl Build Results JSP can indicate whether or not
         CruiseControl is currently building a project. To get this information
         to the JSP, we can use the optional
-        <code>&lt;currentbuildstatusbootstrapper&lt;</code> to write an HTML
+        <code>&lt;currentbuildstatusbootstrapper&gt;</code> to write an HTML
         snippet to disk in a location where the JSP can read it. This file will
         consist of the time the build was started with the formatting set by the
         <a href="#dateformat">dateformat</a> element.</p>
@@ -385,23 +478,34 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write, including path</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;currentbuildstatusftpbootstrapper&gt;</pre>
+        </div>
 
         <p>This performs the same action as <a href="#currentbuildstatusbootstrapper"><code>&lt;currentbuildstatusbootstrapper&gt;</code></a>,
         except that the status file is sent to the remote site via FTP, instead
@@ -412,13 +516,16 @@
         <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
         <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
         attributes.</p>
-        
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>file</td>
                 <td>Yes</td>
@@ -430,13 +537,21 @@
                 <td>The remote directory (relative to <code>targetDir</code>)
                 to write the file.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;cvsbootstrapper&gt;</pre>
+        </div>
 
         <p>Since there can be a reliance on the build.xml to handle updating
         the source code, there has always been a problem with what happens when
@@ -453,11 +568,14 @@
         attributes to be set.</p>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>localWorkingCopy</td>
                 <td>No</td>
@@ -482,13 +600,21 @@
                 in the local cvs project or the localWorkingCopy must be
                 set.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="p4bootstrapper">&lt;p4bootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;p4bootstrapper&gt;</pre>
+        </div>
 
         <p>Syncs a single path from Perforce before the build begins. Useful
         if you want to leave all SCM up to CruiseControl. Allowing the
@@ -499,11 +625,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>path</td>
                 <td>Yes</td>
@@ -524,88 +653,21 @@
                 <td>No</td>
                 <td>Perforce Client name to use</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
-        <h2><a name="surroundbootstrapper">&lt;surroundbootstrapper&gt;</a></h2>
-
-        <p>Fetches a single repository (and optionally it's sub-repositories) 
-        from Surround SCM before starting the build.</p>
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            <tr class="oddrow">
-                <td>branch</td>
-                <td>No</td>
-                <td>Surround SCM branch name. The default is pulled from the local working directory.</td>
-            </tr>
-            <tr>
-                <td>repository</td>
-                <td>No</td>
-                <td>Surround SCM repository path. The default is pulled from the local working directory.</td>
-            </tr>
-            <tr class="oddrow">
-                <td>label</td>
-                <td>No</td>
-                <td>Enter a label to search for when getting files.</td>
-            </tr>
-            <tr>
-                <td>includeremovedfiles</td>
-                <td>No</td>
-                <td>Include removed files when getting files by label or timestamp. Default is true. 
-                    Ignored if a label is not specified. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
-            </tr>
-            <tr class="oddrow">
-                <td>overwrite</td>
-                <td>No</td>
-                <td>Enter how to handle a local writable file. 
-                    Options are <strong>1</strong> to overwrite or <strong>0</strong> (default) to skip.</td>
-            </tr>
-            <tr>
-                <td>recursive</td>
-                <td>No</td>
-                <td>Recursively get files and sub-repositories. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
-            </tr>
-            <tr class="oddrow">
-                <td>forcefetch</td>
-                <td>No</td>
-                <td>Force file retrieval from server regardless of the local copy status. 
-                    Options are <strong>1</strong> or <strong>0</strong> (default).</td>
-            </tr>
-            <tr>
-                <td>makewritable</td>
-                <td>No</td>
-                <td>Make local file editable or writable. Default is read-only. 
-                    Options are <strong>1</strong> or <strong>0</strong> (default).</td>
-            </tr>
-            <tr class="oddrow">
-                <td>serverconnect</td>
-                <td>No</td>
-                <td>Enter the address and port number of the Surround SCM server host computer. 
-                    Format is server:port. If not entered, the last saved connection parameters are used.</td>
-            </tr>
-            <tr class="oddrow">
-               <td>serverlogin</td>
-                <td>No</td>
-                <td>Enter the username and password used to login to the Surround SCM server. 
-                    Format is username:password. If not entered, the last saved login parameters are used.</td>
-             </tr>
-        </table>
-
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="starteambootstrapper">&lt;starteambootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;starteamftpbootstrapper&gt;</pre>
+        </div>
 
         <p>Handles updating multiple files (space separated list) from StarTeam
         before the build begins.</p>
@@ -613,11 +675,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>files</td>
                 <td>Yes</td>
@@ -663,13 +728,21 @@
                 <td>Yes</td>
                 <td>StarTeam view</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="svnbootstrapper">&lt;svnbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;svnbootstrapper&gt;</pre>
+        </div>
 
         <p>Handles updating a single file (typically build.xml and/or
         build.properties) from a Subversion repository before the build
@@ -678,11 +751,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>localWorkingCopy</td>
                 <td rowspan="2">One of these</td>
@@ -704,13 +780,21 @@
                 <td>No</td>
                 <td>used for authentication.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="vssbootstrapper">&lt;vssbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;vssbootstrapper&gt;</pre>
+        </div>
 
         <p>Handles updating a single file (typically build.xml and/or
         build.properties) from VSS before the build begins.</p>
@@ -718,11 +802,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>vsspath</td>
                 <td>Yes</td>
@@ -754,13 +841,20 @@
                 <td>No</td>
                 <td>Path to the directory containing srcsafe.ini.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#bootstrappers"><code>&lt;bootstrappers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="modificationset">&lt;modificationset&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;modificationset&gt;</pre>
+        </div>
 
         <p>A container element for a set of modifications collected from all
         included SourceControl elements. <code>&lt;modificationset&gt;</code>
@@ -773,11 +867,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>requiremodification</td>
                <td>No (defaults to true)</td>
@@ -798,16 +895,20 @@
                bootstrapper to sync files (as opposed to getting updates as part
                of the build). 0 is a valid value.</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="#buildstatus">&lt;buildstatus&gt;</a></td>
                 <td>0 .. *</td>
@@ -817,6 +918,13 @@
                 <td><a href="#clearcase">&lt;clearcase&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a ClearCase repository.</td>
+            </tr>
+            <tr class="oddrow">
+                <td><a href="#compound">&lt;compound&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes from a list of trigger source controls,
+                and if modification are detected, returns changes from a list
+                of target source controls.</td>
             </tr>
             <tr class="oddrow">
                 <td><a href="#cvs">&lt;cvs&gt;</a></td>
@@ -849,38 +957,41 @@
                 <td>Checks for changes in a PVCS repository.</td>
             </tr>
             <tr class="oddrow">
-                <td><a href="#surround">&lt;surround&gt;</a></td>
-                <td>0 .. *</td>
-                <td>Checks for changes in a Surround SCM repository.</td>
-            </tr>
-            <tr>
                 <td><a href="#starteam">&lt;starteam&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Star Team repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#vss">&lt;vss&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe, Journal File
                 Implementation.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="buildstatus">&lt;buildstatus&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;buildstatus&gt;</pre>
+        </div>
 
         <p>Used to trigger a build when another CruiseControl project has a
         successful build.</p>
@@ -888,33 +999,49 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>logdir</td>
                <td>Yes</td>
                <td>Path to CruiseControl log directory for the project to
                monitor.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="clearcase">&lt;clearcase&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;clearcase&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within a ClearCase repository.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>branch</td>
                <td>Yes</td>
@@ -943,13 +1070,129 @@
                in conditionally controlling the build later.
                </td>
             </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="compound">&lt;compound&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;compound&gt;</pre>
+        </div>
+
+        <p>Contains two separate lists of source controls:
+        <code>&lt;triggers&gt;</code> and <code>&lt;targets&gt;</code>. Triggers
+        are checked for modifications every scheduled poll. Targets are
+        only checked for modifications if there was any modifications detected
+        in the triggers.</p>
+
+        <p>Arbirary nesting of source controls under <code>&lt;triggers&gt;</code>
+        and <code>&lt;targets&gt;</code> is possible.</p>
+
+        <p>The <code>&lt;compound&gt;</code> element allows optimised access to
+        source repositories, avoiding a full scan of the repository every
+        scheduled interval. A typical usage scenario is to configure the source
+        repository to update a single file after a commit, meaning that only a
+        single file need be checked in the triggers section.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>includeTriggerChanges</td>
+                <td>No (defaults to false)</td>
+                <td>Add the trigger modifications to the list of returned
+                modifications? By default, the list of returned modifications
+                only includes the the source controls from the
+                <code>&lt;targets&gt;</code> element. By setting this attribute
+                to true, the list of modifications will include both
+                <code>&lt;triggers&gt;</code> and <code>&lt;targets&gt;</code>
+                modifications.</td>
+            </tr>
+            </tbody>
         </table>
 
-        <h3>Parent Element</h3>
+        <h3>Child Elements</h3>
 
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td><code>&lt;triggers&gt;</code></td>
+                <td>1</td>
+                <td>A container for one or more source control elements that
+                trigger a full check of the targets. Any child element of
+                <a href="#modificationset"><code>&lt;modificationset&gt;</code></a>
+                can be used as a child element of <code>&lt;triggers&gt;</code>.</td>
+            </tr>
+            <tr>
+                <td><code>&lt;targets&gt;</code></td>
+                <td>1</td>
+                <td>A container for one or more source control elements that
+                collectively represent the modificationset of the
+                <code>&lt;compound&gt;</code> element.  Any child element of
+                <a href="#modificationset"><code>&lt;modificationset&gt;</code></a>
+                can be used as a child element of <code>&lt;targets&gt;</code>.</td>
+            </tr>
+            </tbody>
+        </table>
 
+        <h3>Example</h3>
+
+        <p>This example polls the file <code>mod_file.txt</code> every
+        scheduled interval using
+        <a href="#filesystem"><code>&lt;filesystem&gt;</code></a>. When a change
+        is detected, <a href="#cvs"><code>&lt;cvs&gt;</code></a> is used to
+        determine the full list of modifications. If <code>mod_file.txt</code>
+        is never modified, cvs is never accessed.</p>
+
+        <pre>&lt;modificationset quietperiod="1" &gt;
+    &lt;compound includeTriggerChanges="false"&gt;
+        &lt;triggers&gt;
+            &lt;filesystem folder="./mod_file.txt" /&gt;
+        &lt;/triggers&gt;
+        &lt;targets&gt;
+            &lt;cvs
+                cvsroot=":pserver:user@cvs_repo.com:/cvs"
+            /&gt;
+        &lt;/targets&gt;
+    &lt;/compound&gt;
+&lt;/modificationset&gt;</pre>
+</div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="cvs">&lt;cvs&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;cvs&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within a CVS repository.</p>
 
         <p>A notable feature of the CVS element is that it will look for the
         file CVSROOT/Users and, if the files exists, use the information in
@@ -958,11 +1201,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>cvsroot</td>
                 <td>No</td>
@@ -996,13 +1242,21 @@
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="filesystem">&lt;filesystem&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;filesystem&gt;</pre>
+        </div>
 
         <p>Returns all files beneath the specified folder than have been
         modified since the last build time. Any modified files are reported as
@@ -1013,11 +1267,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>folder</td>
                 <td>Yes</td>
@@ -1030,13 +1287,21 @@
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="httpfile">&lt;httpfile&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;httpfile&gt;</pre>
+        </div>
 
         <p>Checks a single file on a web server supporting modification dates
         (such as Apache). Intended to be used in a Compound mofication set as
@@ -1045,32 +1310,48 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>url</td>
                 <td>Yes</td>
                 <td>The HTTP URL of a file to check the modification date of</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;mavensnapshotdependency&gt;</pre>
+        </div>
+
+        <p>Triggers a build if a Maven snapshop detects a change.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>projectFile</td>
                <td>Yes</td>
@@ -1101,22 +1382,35 @@
                 conditionally controlling the build later. This attribute is currently
                 ignored.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="mks">&lt;mks&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;mks&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within an MKS repository.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>localworkingcopy</td>
                 <td>ignored</td>
@@ -1140,22 +1434,35 @@
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="p4">&lt;p4&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;p4&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within an Perforce repository.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>port</td>
                 <td>Yes</td>
@@ -1176,22 +1483,35 @@
                 <td>Yes</td>
                 <td>Valid Perforce view (i.o.w a depot path)</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="pvcs">&lt;pvcs&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;pvcs&gt;</pre>
+        </div>
+
+        <p>Checks for changes in a PVCS repository.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>loginid</td>
                 <td>no</td>
@@ -1223,64 +1543,23 @@
                 <td>No (defaults to "MM/dd/yyyy/HH:mm")</td>
                 <td>The format used to parse the lastbuild date.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
-        <h2><a name="surround">&lt;surround&gt;</a></h2>
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            <tr class="oddrow">
-                <td>branch</td>
-                <td>No</td>
-                <td>Surround SCM branch name. The default is pulled from the local working directory.</td>
-            </tr>
-            <tr>
-                <td>repository</td>
-                <td>No</td>
-                <td>Surround SCM repository path. The default is pulled from the local working directory.</td>
-            </tr>
-            <tr class="oddrow">
-                <td>file</td>
-                <td>No</td>
-                <td>Enter a file or repository name or a searchable pattern. Can be / or empty, which means the repository specified by the repository option or the default repository.</td>
-            </tr>
-            <tr>
-                <td>searchregexp</td>
-                <td>No</td>
-                <td>If set to <strong>1</strong>, the <strong>file</strong> parameter will be interpreted as a regular expression. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
-            </tr>
-            <tr class="oddrow">
-                <td>recursive</td>
-                <td>No</td>
-                <td>Recursively check files and sub-repositories. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
-            </tr>
-            <tr>
-                <td>serverconnect</td>
-                <td>No</td>
-                <td>Enter the address and port number of the Surround SCM server host computer. Format is server:port. If not entered, the last saved connection parameters are used.</td>
-            </tr>
-            <tr class="oddrow">
-               <td>serverlogin</td>
-                <td>No</td>
-                <td>Enter the username and password used to login to the Surround SCM server. Format is username:password. If not entered, the last saved login parameters are used.</td>
-             </tr>
-        </table>
-
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="starteam">&lt;starteam&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;starteam&gt;</pre>
+        </div>
+
+        <p>Checks for changes in a Star Team repository.</p>
 
         <p>If logged on as SERVER ADMINISTRATOR it will look up the email
         associated with the user account for each modification.</p>
@@ -1288,11 +1567,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>folder</td>
                 <td>Yes</td>
@@ -1331,24 +1613,35 @@
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="svn">&lt;svn&gt;</a></h2>
 
-        Checks for changes within a Subversion repository.
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;svn&gt;</pre>
+        </div>
+
+        <p>Checks for changes within a Subversion repository.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>LocalWorkingCopy</td>
                 <td rowspan="2">One of these</td>
@@ -1370,22 +1663,35 @@
                 <td>No</td>
                 <td>used for authentication.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="vss">&lt;vss&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;vss&gt;</pre>
+        </div>
+
+        <p>Checks for changes in a Visual SourceSafe repository.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>dateformat</td>
                 <td>No (defaults to default is <i>MM/dd/yy</i>)</td>
@@ -1436,20 +1742,33 @@
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="vssjournal">&lt;vssjournal&gt;</a></h2>
 
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;vssjournal&gt;</pre>
+        </div>
+
+        <p>Checks for changes in a Visual SourceSafe repository.</p>
+
         <p>This implementation doesn't require the source safe executable making
+            <thead>
         it suitable for use on non-Windows machines.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+        </thead>
+        <tbody>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
@@ -1477,13 +1796,20 @@
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#modificationset"><code>&lt;modificationset&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="schedule">&lt;schedule&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;schedule&gt;</pre>
+        </div>
 
         <p>CruiseControl allows the user to schedule an arbitrary number of
         builds, either on interval or triggered to run at a given date/time,
@@ -1504,11 +1830,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>interval</td>
                 <td>No</td>
@@ -1518,16 +1847,20 @@
                 value is 604800 (one week). Ignored if schedule only has time
                 based builders.</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="#ant">&lt;ant&gt;</a></td>
                 <td>0 .. *</td>
@@ -1543,13 +1876,21 @@
                 <td>0 .. *</td>
                 <td>Pauses the build.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="ant">&lt;ant&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;ant&gt;</pre>
+        </div>
 
         <p>Specify an Ant build to be run at a given time or build number.
         For instance, we can run a clean build every 5 builds, or run more
@@ -1562,11 +1903,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>buildfile</td>
                 <td>No (defaults to build.xml)</td>
@@ -1634,23 +1978,27 @@
                 <td>If true will invoke ant with -debug -verbose, which can be
                 useful for debugging your ant build. Defaults to 'false'</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>&lt;jvmarg&gt;</td>
                 <td>0 .. *</td>
                 <td>Pass specified arguement to the jvm used to invoke ant.
                 Ignored if using antscript. The element has a single required
                 attribute: "arg".<br/>
-                <b>Example:</b> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</td>
+                <b>Example:</b> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</code></td>
             </tr>
             <tr class="oddrow">
                 <td>&lt;property&gt;</td>
@@ -1658,15 +2006,23 @@
                 <td>Used to define properties for the ant build. The element
                 has a two required attributes: "name" and "value". These will
                 be passed on the ant command-line as "-Dname=value"<br/>
-                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</td>
+                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#schedule"><code>&lt;schedule&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="maven">&lt;maven&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;maven&gt;</pre>
+        </div>
 
         <p>Specify a <a href="http://maven.apache.org">Maven</a> build to be
         run at a given time or build number. Basically, it behaves like the
@@ -1692,11 +2048,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>mavenscript</td>
                <td>Yes</td>
@@ -1733,13 +2092,21 @@
                Sunday&nbsp;=&nbsp;1.  Does not support multiple days except for
                the default of every day.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#schedule"><code>&lt;schedule&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="pause">&lt;pause&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;pause&gt;</pre>
+        </div>
 
         <p>It may be necessary for CruiseControl to halt executing in some
         circumstances.  A disk backup could lock the source control repository,
@@ -1750,11 +2117,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>day</td>
                <td>No</td>
@@ -1772,13 +2142,20 @@
                <td>Yes</td>
                <td>End of the pause in HHmm format</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#schedule"><code>&lt;schedule&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="log">&lt;log&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;log&gt;</pre>
+        </div>
 
         <p>Optional element specifies where cruisecontrol log files are stored
         and, via the nested merge element, specifies what xml files created by
@@ -1787,11 +2164,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>dir</td>
                 <td>No</td>
@@ -1802,28 +2182,40 @@
                 <td>No</td>
                 <td>Encoding for CruiseControl's XML log file.</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="#merge"><code>&lt;merge&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Merges log file together.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="merge">&lt;merge&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#log">&lt;log&gt;</a>
+      &lt;merge&gt;</pre>
+        </div>
 
         <p>After the build is complete, there may be other xml artifacts to
         merge into the cruisecontrol log.  The most common of these is the
@@ -1834,11 +2226,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                <td>file</td>
                <td rowspan="2">One of file or dir.</td>
@@ -1853,13 +2248,20 @@
                <td>No (defaults to true)</td>
                <td>when merging a JUnit xml file should the properties section be removed.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#log"><code>&lt;log&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="publishers">&lt;publishers&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;publishers&gt;</pre>
+        </div>
 
         <p>Publishers are run after a build has completed.  They will be run
         regardless of whether the build was successful or not.</p>
@@ -1867,11 +2269,14 @@
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a></td>
                 <td>0 .. *</td>
@@ -1893,32 +2298,51 @@
                 <td></td>
             </tr>
             <tr class="oddrow">
+                <td><a href="#ftppublisher"><code>&lt;ftppublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr>
                 <td><a href="#htmlemail"><code>&lt;htmlemail&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td></td>
             </tr>
+            <tr class="oddrow">
             <tr>
                 <td><a href="#jabber"><code>&lt;jabber&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td></td>
             </tr>
             <tr>
-                <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
+                <td><a href="#sametimeannouncement"><code>&lt;sametimeannouncement&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td></td>
             </tr>
             <tr class="oddrow">
+                <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td></td>
+            </tr>
+            <tr>
                 <td><a href="#xsltlogpublisher"><code>&lt;xsltlogpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td></td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="artifactspublisher">&lt;artifactspublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;artifactspublisher&gt;</pre>
+        </div>
 
         <p>Copies build products to unique destination directory based on the
         build timestamp.</p>
@@ -1926,11 +2350,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>file</td>
                 <td rowspan="2">one of file or dir</td>
@@ -1950,13 +2377,21 @@
                 <td>No</td>
                 <td>subdirectory under the unique (timestamp) directory to contain artifacts</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;currentbuildstatuspublisher&gt;</pre>
+        </div>
 
         <p>The CruiseControl Build Results JSP will indicate whether or not
         CruiseControl is currently building a project. To get this information
@@ -1968,11 +2403,14 @@
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>file</td>
                 <td>Yes</td>
@@ -1983,47 +2421,69 @@
                 <td>No</td>
                 <td>Optionally customize the dateformat used in this file</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="execute">&lt;execute&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;execute&gt;</pre>
+        </div>
 
         <p>Execute a command as part of the publishing phase.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>command</td>
                 <td>Yes</td>
                 <td>The command to execute</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="scp">&lt;scp&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;scp&gt;</pre>
+        </div>
 
         <p>SCP a file as part of the publishing process.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>sourceuser</td>
                 <td>Yes if sourcehost is specified</td>
@@ -2075,24 +2535,35 @@
                 <td>No (defaults to the current logfile)</td>
                 <td>The filename to copy.</td>
             </tr>
+            </tbody>
          </table>
+         </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="email">&lt;email&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;email&gt;</pre>
+        </div>
 
         <p>Sends an email with a URL to the build results JSP.</p>
 
         <h3>Attributes</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>buildresultsurl</td>
                 <td>Yes</td>
@@ -2138,7 +2609,7 @@
                     and the first successful build after a failed build.</dd>
                     <dt>never:</dt>
                     <dd>only publishes on failed builds</dd>
-                </ul></td>
+                </dl></td>
             </tr>
             <tr>
                 <td>returnaddress</td>
@@ -2170,32 +2641,40 @@
                 <td>Prefix for subject line of email. Useful for easily
                 filtering email.</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Child Elements</h3>
 
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Element</th>
                 <th>Cardinality</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td><a name="always"><code>&lt;always&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Mail address to be emailed notification after all builds.
                     <code>&lt;always&gt;</code> has the following attributes:
                     <table class="documentation">
+                        <thead>
                         <tr>
                             <th>Attribute</th>
                             <th>Required</th>
                             <th>Description</th>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr class="oddrow">
                             <td>address</td>
                             <td>Yes</td>
                             <td>e-mail address</td>
                         </tr>
+                        </tbody>
                     </table>
                 </td>
             </tr>
@@ -2205,11 +2684,14 @@
                 <td>Mail address to be emailed notification after failed builds.
                     <code>&lt;failure&gt;</code> has the following attributes:
                     <table class="documentation">
+                        <thead>
                         <tr>
                             <th>Attribute</th>
                             <th>Required</th>
                             <th>Description</th>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr class="oddrow">
                             <td>address</td>
                             <td>Yes</td>
@@ -2220,6 +2702,7 @@
                             <td>No</td>
                             <td>either true or false; defaults to false</td>
                         </tr>
+                        </tbody>
                     </table>
                 </td>
             </tr>
@@ -2229,16 +2712,20 @@
                 <td>Mail address to be emailed notification after successful builds.
                     <code>&lt;success&gt;</code> has the following attributes:
                     <table class="documentation">
+                        <thead>
                         <tr>
                             <th>Attribute</th>
                             <th>Required</th>
                             <th>Description</th>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr class="oddrow">
                             <td>address</td>
                             <td>Yes</td>
                             <td>e-mail address</td>
                         </tr>
+                        </tbody>
                     </table>
                 </td>
             </tr>
@@ -2248,11 +2735,14 @@
                 <td>Maps a source control user id to an email address.
                     <code>&lt;map&gt;</code> has the following attributes:
                     <table class="documentation">
+                        <thead>
                         <tr>
                             <th>Attribute</th>
                             <th>Required</th>
                             <th>Description</th>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr class="oddrow">
                             <td>alias</td>
                             <td>Yes</td>
@@ -2263,6 +2753,7 @@
                             <td>Yes</td>
                             <td>e-mail address</td>
                         </tr>
+                        </tbody>
                     </table>
                 </td>
             </tr>
@@ -2273,11 +2764,14 @@
                 or complete email addresses. <code>&lt;propertiesmapper&gt;</code>
                 has the following attributes:
                     <table class="documentation">
+                        <thead>
                         <tr>
                             <th>Attribute</th>
                             <th>Required</th>
                             <th>Description</th>
                         </tr>
+                        </thead>
+                        <tbody>
                         <tr>
                             <td>file</td>
                             <td>Yes</td>
@@ -2286,31 +2780,44 @@
                             mapped to the property value, which is assumed to
                             be valid email name or a complete email address.</td>
                         </tr>
+                        </tbody>
                     </table>
                 </td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="htmlemail">&lt;htmlemail&gt;</a></h2>
-        
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;htmlemail&gt;</pre>
+        </div>
+
         <p>Sends an email with the build results embedded as HTML. By default
-        the same information as the JSP build results page is sent.
-                
+        the same information as the JSP build results page is sent.</p>
+
         <h3>Attributes</h3>
         <p>All of the attributes and child elements of <a href="#email"><code>&lt;email&gt;</code></a>
         apply to <code>&lt;htmlemail&gt;</code> as well. The following table
+            <thead>
         specifies the additional or changed attributes.</p>
-        
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>buildresultsurl</td>
                 <td>No</td>
@@ -2325,10 +2832,9 @@
             </tr>
             <tr class="oddrow">
                 <td>logdir</td>
-                <td>No (Yes for versions &lt; 2.1.7)</td>
+                <td>Yes</td>
                 <td>Path to the log directory as set in the log element of
-                the configuration xml file. 
-                Follows default of <a href="#log">log</a>'s dir-attribute since version 2.1.7.</td>
+                the configuration xml file.</td>
             </tr>
             <tr>
                 <td>xsldir</td>
@@ -2342,26 +2848,110 @@
                 <td>If specified, both xsldir and css are ignored.  Must
                 handle the entire document.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="jabber">&lt;jabber&gt;</a></h2>
 
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
-        <h2><a name="sametimeannouncement">&lt;sametimeannouncement&gt;</a></h2>
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;jabber&gt;</pre>
+        </div>
         
-        <p>A publisher that sends Sametime announcements (optionally with a URL
-        to the build results JSP) with the overall result of the build. Almost
-        all of the attributes of <a href="#email"><code>&lt;email&gt;</code></a>
-        apply to <code>&lt;sametimeannouncement&gt;</code> as well.</p>
-        
+        <p>Sends an instant message with a link to the build results via a Jabber server
+        using XMPP.
+
         <h3>Attributes</h3>
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>host</td>
+                <td>Yes</td>
+                <td>The host of the Jabber server.</td>
+            </tr>
+            <tr>
+                <td>port</td>
+                <td>No</td>
+                <td>Port of the Jabber server. Defaults to 5222. Note: SSL typically
+                    runs on port 5223.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>username</td>
+                <td>Yes</td>
+                <td>Username of the account used to send the instant message. For individuals,
+                    this is typically of the form 'foo' as opposed to 'foo@bar.com'</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password of the sender account</td>
+            </tr>
+            <tr class="oddrow">
+                <td>recipient</td>
+                <td>Yes</td>
+                <td>Username of the recipient of the instant message. Reciepent username
+                    is typically fully qualified: foo@bar.com</td>
+            </tr>
+            <tr>
+                <td>chatroom</td>
+                <td>No</td>
+                <td>Whether the recipient is a group versus an individual.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>ssl</td>
+                <td>No</td>
+                <td>Whether the XMPP connection on host:port is using SSL.</td>
+            </tr>
+            <tr>
+                <td>buildresultsurl</td>
+                <td>Yes</td>
+                <td>Email will include link to the build results.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="sametimeannouncement">&lt;sametimeannouncement&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;sametimeannouncement&gt;</pre>
+        </div>
+
+        <p>A publisher that sends Sametime announcements (optionally with a URL
+        to the build results JSP) with the overall result of the build. Almost
+        all of the attributes of <a href="#email"><code>&lt;email&gt;</code></a>
+        apply to <code>&lt;sametimeannouncement&gt;</code> as well.</p>
+
+        <h3>Attributes</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>buildresultsurl</td>
                 <td>No</td>
@@ -2420,7 +3010,7 @@
                     <dt>recipient:</dt>
                     <dd>treat all conflicting addresses as recipients of the
                     announcement</dd>
-                </ul></td>
+                </dl></td>
             </tr>
             <tr>
                 <td>handleresolvefails</td>
@@ -2433,7 +3023,7 @@
                     <dd>log a warning and proceed</dd>
                     <dt>ignore:</dt>
                     <dd>ignore the failure</dd>
-                </ul></td>
+                </dl></td>
             </tr>
             <tr class="oddrow">
                 <td>handlequerygroupcontentfails</td>
@@ -2446,90 +3036,40 @@
                     <dd>log a warning and proceed</dd>
                     <dt>ignore:</dt>
                     <dd>ignore the failure</dd>
-                </ul></td>
+                </dl></td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
 
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
-        <h2><a name="jabber">&lt;jabber&gt;</a></h2>
-
-        <p>Sends an instant message with a link to the build results via a Jabber server
-        using XMPP.
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            <tr class="oddrow">
-                <td>host</td>
-                <td>Yes</td>
-                <td>The host of the Jabber server.</td>
-            </tr>
-            <tr>
-                <td>port</td>
-                <td>No</td>
-                <td>Port of the Jabber server. Defaults to 5222. Note: SSL typically
-                    runs on port 5223.</td>
-            </tr>
-            <tr class="oddrow">
-                <td>username</td>
-                <td>Yes</td>
-                <td>Username of the account used to send the instant message. For individuals,
-                    this is typically of the form 'foo' as opposed to 'foo@bar.com'</td>
-            </tr>
-            <tr>
-                <td>password</td>
-                <td>Yes</td>
-                <td>Password of the sender account</td>
-            </tr>
-            <tr class="oddrow">
-                <td>recipient</td>
-                <td>Yes</td>
-                <td>Username of the recipient of the instant message. Reciepent username
-                    is typically fully qualified: foo@bar.com</td>
-            </tr>
-            <tr>
-                <td>chatroom</td>
-                <td>No</td>
-                <td>Whether the recipient is a group versus an individual.</td>
-            </tr>
-            <tr class="oddrow">
-                <td>ssl</td>
-                <td>No</td>
-                <td>Whether the XMPP connection on host:port is using SSL.</td>
-            </tr>
-            <tr>
-                <td>buildresultsurl</td>
-                <td>Yes</td>
-                <td>Email will include link to the build results.</td>
-            </tr>
-        </table>
-
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="xsltlogpublisher">&lt;xsltlogpublisher&gt;</a></h2>
-        
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;xsltlogpublisher&gt;</pre>
+        </div>
+
         <p>Performs an transformation of the log file. The obvious use is to
         generate HTML files to a website, but could be used to generate other
         sorts of output files as well.</p>
-        
+
         <h3>Attributes</h3>
-        
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>directory</td>
                 <td>Yes</td>
@@ -2550,53 +3090,74 @@
                 <td>Yes</td>
                 <td>XSL file to used for the transform.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="dateformat">&lt;dateformat&gt;</a></h2>
-        
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;dateformat&gt;</pre>
+        </div>
+
         <p>The optional <code>&lt;dateformat&gt;</code> element overrides the
         default date format for presentation. If this element is not specified,
         the default date format is "<code>MM/dd/yyyy HH:mm:ss</code>".</p>
-        
-        <h2>Attributes</h2>
-         
+
+        <h3>Attributes</h3>
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>format</td>
                 <td>Yes</td>
                 <td>A DateFormat String that specifies the date format for
                 presentation.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="plugin">&lt;plugin&gt;</a></h2>
-        
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  &lt;plugin&gt;
+  <a href="#project">&lt;project&gt;</a>
+    &lt;plugin&gt;</pre>
+        </div>
+
         <p>A <code>&lt;plugin&gt;</code> element registers a classname with an
         alias for use within the configuration file.</p>
-        
+
         <p>The <a href="plugins.html">plugins</a> page contains a discussion of
         the plugin architecture used with CruiseControl.</p>
-        
+
         <h3>Attributes</h3>
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>name</td>
                 <td>Yes</td>
@@ -2608,31 +3169,38 @@
                 <td>Yes</td>
                 <td>The class that implements the plugin.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><code>&lt;plugin&gt;</code> can be a child of either
-        <a href="#project"><code>&lt;project&gt;</code></a> or
-        <a href="#cruisecontrol"><code>&lt;cruisecontrol&gt;</code></a></p>
-
-        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="labelincrementer">&lt;labelincrementer&gt;</a></h2>
-        
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;labelincrementer&gt;</pre>
+        </div>
+
         <p>Handle incrementing the label used to tag each build.</p>
-        
+
         <h3>Attributes</h3>
-        
+
         <p>The following attributes are valid for the default label incrementer.
         If the label incrementer plugin is overridden, other attributes may be
         applicable.</p>
-        
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>defaultLabel</td>
                 <td>No (default to "build.1")</td>
@@ -2651,59 +3219,71 @@
                 <td>specifies the separator to use between label and build
                 count.</td>
             </tr>
+            </tbody>
         </table>
 
         <h3>Overriding the Default Label Incrementer</h3>
-        
+
         <p>If this element is not specified, the default label incrementer will
         use the format <code>string.number</code>, providing the default label of
         <code>build.1</code>.</p>
-        
+
         <p>To override the label incrementer used in a given project all you
         need to do is register a different class as a <a href="#plugin">plugin</a>
         with the name <code>labelincrementer</code>. CVSLabelIncrementer and
-        EmptyLabelIncrementer are two alternate plugins distributed with 
+        EmptyLabelIncrementer are two alternate plugins distributed with
         CruiseControl.</p>
-        
+
         <h4>CVSLabelIncrementer</h4>
-        
+
         <p>An extension of the default label incrementer but with the separator
         set to "-" by default. Provides default label of "build-1".</p>
-        
+
         <pre>
 &lt;plugin&nbsp;name="labelincrementer"
         class="net.sourceforge.cruisecontrol.labelincrementers.CVSLabelIncrementer"/&gt;</pre>
-        
+
         <h4>EmptyLabelIncrementer</h4>
-        
+
         <p>Always returns a label of "" (empty string).</p>
 
         <pre>
 &lt;plugin&nbsp;name="labelincrementer"
         class="net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer"/&gt;</pre>
-         
-        <h3>Parent Element</h3>
+        </div>
 
-        <p><a href="#project"><code>&lt;project&gt;</code></a></p>
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a></h2>
 
-         <p><a name="currentbuildstatusftppublisher"><span class="small">CurrentBuildStatusFTPPublisher</span><br>
-         Include this in the <code>&lt;publishers&gt;</code> portion of the <code>config.xml</code> file.
-         Class name is <code>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher</code>.
-         This performs the same action as <a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>, except that the status file is sent to the remote site via FTP, instead of being stored locally.
-         </p>
-        
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;currentbuildstatusftppublisher&gt;</pre>
+        </div>
+
+        <p>This performs the same action as
+        <a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a>,
+        except that the status file is sent to the remote site via FTP, instead
+        of being stored locally.</p>
+
         <h3>Attributes</h3>
 
         <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
         <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
         attributes.</p>
-        
+
          <table class="documentation">
+            <thead>
             <tr>
                <th>Attribute</th>
                <th>Required</th>
                <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr>
                <td>file</td>
                <td>Yes</td>
@@ -2714,28 +3294,43 @@
                <td>Yes</td>
                <td>The remote directory (relative to <code>targetDir</code>) to write the file.</td>
             </tr>
+            </tbody>
          </table>
+         </div>
 
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="ftppublisher">&lt;ftppublisher&gt;</a></h2>
-        
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;ftppublisher&gt;</pre>
+        </div>
+
         <p>Copies the XML log file from the build, and all files published by
         <a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a>,
         onto the FTP server. To publish the artifacts, the
         <code>&lt;artifactspublisher&gt;</code> element must occur before this
         publisher in the configuration file.</p>
-         
+
         <h3>Attributes</h3>
 
         <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
         <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
         attributes.</p>
-        
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>destDir</td>
                 <td>Yes</td>
@@ -2757,25 +3352,28 @@
                 <td>If <code>yes</code>, then all files successfully sent to
                 the FTP server will be deleted locally.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
-        <h3>Parent Element</h3>
-
-        <p><a href="#publishers"><code>&lt;publishers&gt;</code></a></p>
-
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="ftpattributes">Common FTP Attributes</a></h2>
-        
+
         <p>The following attributes are common to the
-        <a href="#currentbuildstatusftpbootstrapper"><code>&lt;currentbuildstatusftpbootstrapper&gt;<code></a>,
-        <a href="#currentbuildstatusftppublisher"><code>&lt;currentbuildstatusftppublisher&gt;<code></a> and the
-        <a href="#ftppublisher"><code>&lt;ftppublisher&gt;<code></a>.</p>
-         
+        <a href="#currentbuildstatusftpbootstrapper"><code>&lt;currentbuildstatusftpbootstrapper&gt;</code></a>,
+        <a href="#currentbuildstatusftppublisher"><code>&lt;currentbuildstatusftppublisher&gt;</code></a> and the
+        <a href="#ftppublisher"><code>&lt;ftppublisher&gt;</code></a>.</p>
+
         <table class="documentation">
+            <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Required</th>
                 <th>Description</th>
             </tr>
+            </thead>
+            <tbody>
             <tr class="oddrow">
                 <td>targetHost</td>
                 <td>Yes</td>
@@ -2807,7 +3405,9 @@
                 <td>No (defaults to '<code>/</code>'.</td>
                 <td>Directory separator character used by the FTP server.</td>
             </tr>
+            </tbody>
         </table>
+        </div>
 
     </div>
 </div>

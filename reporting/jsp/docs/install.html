@@ -2,47 +2,44 @@
 <html>
 <head>
    <title>CruiseControl Build Results JSP Installation Guide</title>
-   <link href="../../../docs/cruisecontrol.css" type="text/css" rel="stylesheet"/>
+   <style type="text/css" media="all">
+       @import "../../../docs/cruisecontrol.css";
+   </style>
+   <link href="../../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
 </head>
 <body>
 <div class="header">
     <div class="hostedby">
         Hosted By:<br/>
-        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
     </div>
-    <img alt="CruiseControl" src="banner.gif"/>
+    <img alt="CruiseControl" src="../../../docs/banner.png"/>
 </div>
 <div class="container">&nbsp;
     <div id="menu">
         <ul id="menulist">
             <li><a href="../../../docs/index.html">home</a></li>
             <li><a href="../../../docs/download.html">download</a></li>
-            <li><h2>documentation</h2>
+            <li><h2>documentation</h2></li>
+            <li><a class="expandmenu" href="../../../main/docs/index.html">build loop</a></li>
+            <li><a class="expandedmenu" href="index.html">results jsp</a>
                 <ul>
-                    <li><a href="../../../main/docs/index.html">build loop</a></li>
-                    <li><a href="index.html">results jsp</a>
-                        <ul>
-                            <li><p id="menuselected">install</p></li>
-                        </ul>
-                    </li>
-                    <li><a href="../../../main/docs/configxml.html">config</a></li>
-                    <li><a href="../../../docs/faq.html">faq</a></li>
-                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                    <li><p id="menuselected">install</p></li>
                 </ul>
             </li>
-            <li><h2>contributing</h2>
-                <ul>
-                    <li><a href="../../../docs/developers.html">developers</a></li>
-                    <li><a href="../../../docs/contact.html">mailing lists</a></li>
-                    <li><a href="../../../docs/cvs.html">cvs repository</a></li>
-                </ul>
-            </li>
+            <li><a href="../../../main/docs/configxml.html">config</a></li>
+            <li><a href="../../../docs/faq.html">faq</a></li>
+            <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+            <li><h2>contributing</h2></li>
+            <li><a class="expandmenu" href="../../../docs/developers.html">developers</a></li>
+            <li><a href="../../../docs/contact.html">mailing lists</a></li>
+            <li><a href="../../../docs/cvs.html">cvs repository</a></li>
             <li><p id="menubottom">&nbsp;</p></li>
         </ul>
     </div>
     <div class="content">
-        <h1>Build Results JSP Installation Guide</h1>
-    
+        <h1><span class="printonly">CruiseControl</span> Build Results JSP Installation Guide</h1>
+
         <h2>Getting The Source</h2>
    If you have CVS installed, you can get the entire CruiseControl source by running:
 
@@ -61,7 +58,7 @@ Just press the ENTER key when prompted for a password.
 
 
         <h2>Configuring</h2>
-        
+
         <p>The WEB-INF/web.xml file holds the required configuration for the
         JSP.  There are currently 2 parameters that need to be set.  The first
         is the path to the log directory.  This is required so that the JSP can
@@ -70,10 +67,10 @@ Just press the ENTER key when prompted for a password.
         file that is written by the CruiseControl build loop to let the JSP
         know whether it is currently building, or when the next build will
         occur.</p>
-        
+
         <p> You can edit them directly in the WEB-INF/web.xml file, or you can
         set them when you <a href="#Building">build the WAR file</a></p>
-        
+
         <p>Depending on the version of the JSP specification that is
         implemented by your app server, you may need to make one minor edit to
         the buildresults.jsp file.  If you are using a server that is JSP 1.2
@@ -98,15 +95,15 @@ Just press the ENTER key when prompted for a password.
         format as recognized by Java.</p>
 
         <h2><a name="#Building">Building</a></h2>
-        
-        <p>CruiseControl uses <a href="http://jakarta.apache.org/ant">Ant</a> to
+
+        <p>CruiseControl uses <a class="external" href="http://jakarta.apache.org/ant">Ant</a> to
         build and package the build results web application.  Everything you
         need to build has been included with the source that you obtained from
         CVS.  There is a batch file and a shell script (build.bat and build.sh
         respectively) provided to make building the CruiseControl web
         application as easy as possible.  The configured cruisecontrol.war file
         has been created in the dist directory.</p>
-        
+
         <p>You can include options to configure the log directory and status file
         that you wish to use. The properties to set are <code>user.log.dir</code>
         and <code>user.build.status.file</code>. An example (for Windows) of
@@ -116,8 +113,10 @@ build.bat -Duser.log.dir=C:\Cruise\logs -Duser.build.status.file=C:\Cruise\logs\
 </pre>
 
         <h2>Deploying</h2>
-        <p>Tomcat<br>
-        Copy the cruisecontrol.war file from the dist directory to the
+
+        <h3>Tomcat</h3>
+
+        <p>Copy the cruisecontrol.war file from the dist directory to the
         %TOMCAT_HOME%/webapps directory.  Then startup the server by going to
         the %TOMCAT_HOME%/bin directory and using the startup script.  The
         cruisecontrol web application should deploy and you should be able to
