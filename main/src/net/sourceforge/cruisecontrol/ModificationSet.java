@@ -93,7 +93,8 @@ public class ModificationSet {
         Element modificationsElement = new Element("modifications");
         Iterator modificationIterator = _modifications.iterator();
         if (modificationIterator.hasNext()) {
-            log.info("A number of modifications have been detected");
+            log.info("A number of modifications (" + _modifications.size()
+                    + ") have been detected");
         }
         while (modificationIterator.hasNext()) {
             Object object = (Object) modificationIterator.next();
