@@ -180,11 +180,11 @@
     <!-- **************************************************** -->
     <target name="release" depends="jar, war" description="Build release zip">
         <property name="release.zip" value="cruisecontrol.zip"/>
-        <delete file="${dist}\${release.zip}"/>
-        <zip zipfile="${dist}\${release.zip}">
+        <delete file="release\${release.zip}"/>
+        <zip zipfile="release\${release.zip}">
             <fileset dir="${dist}" includes="*.jar, *.war"/>
             <fileset dir="." 
-             includes="${docs}/**, ${lib}/**, *.*"/>
+             includes="${docs}/**, ${lib}/**"/>
         </zip>
     </target>
                   
