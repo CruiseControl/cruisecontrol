@@ -294,7 +294,7 @@ public class AntBuilder extends Builder {
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
             String key = (String) propertiesIterator.next();
-            final String value = buildProperties.get(key).toString();
+            final String value = (String) buildProperties.get(key);
             if (value != null & !value.equals("")) {
                 arguments.add("-D" + key + "=" + value);
             }
