@@ -83,7 +83,7 @@ public class ProjectXMLHelperTest extends TestCase {
     public void testGetSchedule() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         try {
-            Schedule schedule = helper.getSchedule();
+            helper.getSchedule();
             fail("schedule should be a required element");
         } catch (CruiseControlException e) {
         }
@@ -96,7 +96,7 @@ public class ProjectXMLHelperTest extends TestCase {
     public void testGetModificationSet() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         try {
-            ModificationSet modSet = helper.getModificationSet();
+            helper.getModificationSet();
             fail("modificationset should be a required element");
         } catch (CruiseControlException e) {
         }
@@ -122,6 +122,8 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals("logs" + File.separatorChar + "project1", helper.getLogDir());
         helper = new ProjectXMLHelper(configFile, "project2");
         assertEquals("c:/foo", helper.getLogDir());
+        helper = new ProjectXMLHelper(configFile, "project3");
+        assertEquals("logs" + File.separatorChar + "project3", helper.getLogDir());
     }
 
     public void testLogXmlEncoding() throws CruiseControlException {
@@ -204,7 +206,7 @@ public class ProjectXMLHelperTest extends TestCase {
         String className = helper.getClassNameForPlugin(pluginName);
         assertEquals(expectedName, className);
         Class pluginClass = Class.forName(className);
-        Object pluginInstance = pluginClass.getConstructor(null).newInstance(null);
+        pluginClass.getConstructor(null).newInstance(null);
 
     }
 
@@ -231,6 +233,9 @@ public class ProjectXMLHelperTest extends TestCase {
                 + "      <merge file='blah' />"
                 + "    </log>"
                 + "    <labelincrementer separator='#' />"
+                + "  </project>"
+                + "  <project name='project3' >"
+                + "    <log/>"
                 + "  </project>"
                 + "</cruisecontrol>";
 
