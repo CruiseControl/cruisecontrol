@@ -49,6 +49,7 @@ import junit.framework.TestCase;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 
@@ -113,9 +114,7 @@ public class LogTest extends TestCase {
         String[] encodings = { "UTF-8", "ISO-8859-1", null };
 
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        //XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
-        XMLOutputter outputter = new XMLOutputter("  ", true);
-        outputter.setTrimAllWhite(true);
+        XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         for (int i = 0;  i < encodings.length; i++) {
             Log log = new Log("testXMLEncoding");
             if (encodings[i] != null) {
