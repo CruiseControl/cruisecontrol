@@ -40,6 +40,7 @@ import java.text.*;
 import java.util.*;
 import junit.framework.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -60,7 +61,28 @@ public class VssTest extends TestCase {
     protected void setUp() {
         _vss = new Vss();
     }
-    
+
+    public void testValidate() {
+        Vss vss = new Vss();
+
+        try {
+            vss.validate();
+            fail("Vss should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        vss.setSsDir("ssdir");
+        vss.setLogin("login");
+
+        try {
+            vss.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("Vss should not throw exceptions when required fields are set.");
+        }
+    }
+
     //(PENDING) test the form of the history command used
 
     public void testParseUserSingleCharName() {

@@ -138,6 +138,10 @@ public class Vss implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
+        if(ssdir == null)
+            throw new CruiseControlException("'ssdir' is a required attribute on Vss");
+        if(login == null)
+            throw new CruiseControlException("'login' is a required attribute on Vss");
     }
 
 	/**
