@@ -132,8 +132,8 @@ public class P4Element extends SourceControlElement {
             
             Execute exe = new Execute(handler, null);
             
-            if (getTask() != null) {
-                exe.setAntRun(getTask().getProject());
+            if (getAntTask() != null) {
+                exe.setAntRun(getAntTask().getProject());
             }
             
             exe.setCommandline(commandline.getCommandline());
@@ -260,7 +260,7 @@ public class P4Element extends SourceControlElement {
         if (modifiedTime.compareTo(lastBuild) > 0) {
             // if it differs, we build,
             _P4lastChange = Integer.parseInt(sbChangenumber.toString());
-            getTask().getProject().setProperty("p4element.change", sbChangenumber.toString());
+            getAntTask().getProject().setProperty("p4element.change", sbChangenumber.toString());
             
             // the rest should be a list of the files affected and the resp action
             String affectedFiles = util.substitute("s/Change\\s([0-9]*?)\\sby\\s(.*?)\\@.*?\\son\\s(.*?\\s.*?)\\n\\n(.*)\\n\\nAffected\\sfiles.*?\\n\\n(.*)\\n\\n/$5/s", sbDescription.toString());

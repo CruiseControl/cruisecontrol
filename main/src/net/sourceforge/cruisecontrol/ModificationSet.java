@@ -133,7 +133,7 @@ public class ModificationSet extends Task {
      */
     public VssElement createVsselement() {
         VssElement ve = new VssElement();
-        ve.setTask(this); //for logging in the sub elements
+        ve.setAntTask(this); //for logging in the sub elements
         _sourceControlElements.add(ve);
 
         return ve;
@@ -144,7 +144,7 @@ public class ModificationSet extends Task {
      */
        public StarTeamElement createStarteamelement() {
            StarTeamElement ste = new StarTeamElement();
-           ste.setTask(this); //for logging in the sub elements
+           ste.setAntTask(this); //for logging in the sub elements
            _sourceControlElements.add(ste);
 
            return ste;
@@ -156,7 +156,7 @@ public class ModificationSet extends Task {
      */
     public CVSElement createCvselement() {
         CVSElement ce = new CVSElement();
-        ce.setTask(this); //for logging in the sub elements
+        ce.setAntTask(this); //for logging in the sub elements
         _sourceControlElements.add(ce);
 
         return ce;
@@ -168,7 +168,7 @@ public class ModificationSet extends Task {
      */
     public P4Element createP4element() {
         P4Element p4e = new P4Element();
-        p4e.setTask(this); //for logging in the sub elements
+        p4e.setAntTask(this); //for logging in the sub elements
         _sourceControlElements.add(p4e);
 
         return p4e;
@@ -179,7 +179,7 @@ public class ModificationSet extends Task {
      */
     public ClearCaseElement createClearcaseelement() {
         ClearCaseElement cce = new ClearCaseElement();
-        cce.setTask(this); //for logging in the sub elements
+        cce.setAntTask(this); //for logging in the sub elements
         _sourceControlElements.add(cce);
 
         return cce;
