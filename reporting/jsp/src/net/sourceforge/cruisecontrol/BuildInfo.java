@@ -74,12 +74,12 @@ public class BuildInfo implements Comparable {
     private String deriveLabel(String infoText) {
         boolean buildSuccessful = (infoText.length() > 21);
         String theLabel;
-        if (buildSuccessful == false) {
-            theLabel = null;
-        } else {
+        if (buildSuccessful) {
             int labelStartIndex = (LOG_PREFIX + LOG_DATE_PATTERN + LABEL_SEPARATOR).length();
             int labelEndIndex = infoText.length() - LOG_SUFFIX.length();
             theLabel = infoText.substring(labelStartIndex, labelEndIndex);
+        } else {
+            theLabel = null;
         }
         return theLabel;
     }
@@ -122,8 +122,14 @@ public class BuildInfo implements Comparable {
      * @param file
      * @return
      */
-    public static List loadFromDir(File logDir) {
+    public static List loadFromDir(File logDir) throws CruiseControlException {
         String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
+        if (logFileNames == null) {
+            throw new CruiseControlException("Could not access the directory " + logDir.getAbsolutePath());
+        } else if (logFileNames.length == 0) {
+            throw new CruiseControlException("Configuration problem? No logs found in logDir: "
+                                             + logDir.getAbsolutePath());
+        }
         List buildInfoList = new ArrayList(logFileNames.length);
         for (int i = 0; i < logFileNames.length; i++) {
             String logFileName = logFileNames[i];
