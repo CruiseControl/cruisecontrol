@@ -19,6 +19,10 @@ CruiseControl
 ----------------------
 * Now obeys to Checkstyle 3.4 rules HideUtilityClassConstructor and FinalClass (CC-56). Patch by Jerome Lacoste
 
+CruiseControlControllerAgent
+----------------------
+* Uses new JMXConnectorServer instead of RmiAdapter because of MX4J upgrade. Patch by Mark Doliner
+
 cruisecontrol-jsp12.tld
 ----------------------
 * Fix id attribute typo for LinkTag. Patch by Gareth Reakes
@@ -30,6 +34,10 @@ EmailPublisher & friends
 (Link)JabberPublisher
 ----------------------
 * Added new JabberPublisher and subclass to report buildresults through Jabber (CC-63). Patch by Jonas Edgeworth
+
+JMX Support
+----------------------
+* Upgraded to MX4J 2.0.1 (including support for JSR 160)
 
 LoggerController
 ----------------------
