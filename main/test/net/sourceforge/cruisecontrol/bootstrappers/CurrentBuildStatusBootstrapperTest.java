@@ -69,13 +69,13 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         try {
             cbsb.writeFile(date);
             SimpleDateFormat formatter = new SimpleDateFormat("MMM/dd/yyyy HH:mm");
-            String expected = "<br>&nbsp;<br><b>Current Build Started At:</b><br>" + formatter.format(date);
+            String expected = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
             assertEquals(expected, readFileToString("_testCurrentBuildStatus.txt"));
 
             cbsb.setDateFormat("dd/MMM/yyyy");
             cbsb.writeFile(date);
             formatter = new SimpleDateFormat("dd/MMM/yyyy");
-            String expected2 = "<br>&nbsp;<br><b>Current Build Started At:</b><br>" + formatter.format(date);
+            String expected2 = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
             assertEquals(expected2, readFileToString("_testCurrentBuildStatus.txt"));
         } catch (CruiseControlException cce2) {
             cce2.printStackTrace();
