@@ -1,3 +1,4 @@
+<%@ page import="java.io.File, java.util.Arrays"%>
 <%--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
@@ -38,6 +39,24 @@
         <img src="images/blank8.gif" border="0"><br>
         <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
         <table border="0" align="center" width="98%">
+<%
+    String singleProjectMode = application.getInitParameter("singleProject");
+    if (Boolean.valueOf(singleProjectMode).booleanValue() == false) {  %>
+            <tr><td><a class="link" href="index">Project</a></td></tr>
+            <tr><td>
+              <form action="index" >
+                <select name="projecttarget" onchange="self.location.href = this.form.projecttarget.options[this.form.projecttarget.selectedIndex].value">
+                  <cruisecontrol:projectnav>
+                    <option <%=selected%> value="<%=projecturl%>"><%=linktext%></option>
+                  </cruisecontrol:projectnav>
+                </select>
+              </form>
+            </td></tr>
+            <tr><td>&nbsp;</td></tr>
+    <%
+    } 
+ %>
+            <tr><td>&nbsp;</td></tr>
             <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
             <tr><td>&nbsp;</td></tr>
             <cruisecontrol:link id="baseUrl" />
