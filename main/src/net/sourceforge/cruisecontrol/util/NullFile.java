@@ -11,7 +11,7 @@ public class NullFile extends java.io.File {
     }
     
     public String getPath() {
-        return " ";
+        return "";
     }
     
 }

@@ -237,21 +237,31 @@ public class CVSElement extends SourceControlElement {
         if (cvsroot == null) {
 	    // omit -d CVSROOT
 	    return new String[] {"cvs", "log", "-d", 
-                "\"" + CVSDATE.format(lastBuildTime) + "<" 
-                + CVSDATE.format(currentTime) + "\"", 
+                CVSDATE.format(lastBuildTime) + "<" 
+                + CVSDATE.format(currentTime), 
                 getLocalPath() };
 	} else {
 	    return new String[] {"cvs", "-d", cvsroot, "log", "-d", 
-                "\"" + CVSDATE.format(lastBuildTime) + "<" 
-                + CVSDATE.format(currentTime) + "\"", 
+                CVSDATE.format(lastBuildTime) + "<" 
+                + CVSDATE.format(currentTime), 
                 getLocalPath() };
 	}
     }
 
     String prepareCommandForDisplay(String[] commandArray) {
+        // Quote element if necessary.  Since we've programatically made that
+        // array above, we can keep it simple : look for ' ', '<' or '>'.
+        // These 3 are command-line separator characters in command interpreters.
         String logCommand = "";
         for (int i = 0; i < commandArray.length; i++) {
-            logCommand += commandArray[i] + " ";
+ 	    if (commandArray[i].indexOf(" ") >= 0
+ 		|| commandArray[i].indexOf("<") >= 0
+ 		|| commandArray[i].indexOf(">") >= 0) {
+ 		logCommand += "\"" + commandArray[i] + "\"" + " ";
+ 	    } else {
+ 		// no need to quote
+ 		logCommand += commandArray[i] + " ";
+ 	    }                
         }
         
         return logCommand;
