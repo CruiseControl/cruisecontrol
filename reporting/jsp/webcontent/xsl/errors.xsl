@@ -44,7 +44,7 @@
 
     <xsl:variable name="tasklist" select="/cruisecontrol/build//target/task"/>
 
-    <xsl:template match="/" mode="error">
+    <xsl:template match="/" mode="errors">
 
         <xsl:variable name="error.messages" select="$tasklist/message[@priority='error']"/>
         <xsl:variable name="warn.messages" select="$tasklist/message[@priority='warn']"/>
@@ -61,7 +61,7 @@
                     <tr>
                         <td>
                            <pre class="compile-error-data">
-                            <xsl:apply-templates select="$error.messages" mode="error"/>
+                            <xsl:apply-templates select="$error.messages" mode="errors"/>
                            </pre>
                         </td>
                     </tr>
@@ -70,7 +70,7 @@
                     <tr>
                         <td>
                            <pre class="compile-data">
-                            <xsl:apply-templates select="$warn.messages" mode="error"/>
+                            <xsl:apply-templates select="$warn.messages" mode="errors"/>
                            </pre>
                         </td>
                     </tr>
@@ -80,20 +80,20 @@
 
     </xsl:template>
 
-    <xsl:template match="message[@priority='error']" mode="error">
+    <xsl:template match="message[@priority='error']" mode="errors">
         <xsl:value-of select="text()"/>
         <xsl:if test="count(./../message[@priority='error']) != position()">
             <br class="none"/>
         </xsl:if>
     </xsl:template>
 
-    <xsl:template match="message[@priority='warn']" mode="error">
+    <xsl:template match="message[@priority='warn']" mode="errors">
         <xsl:if test="not(starts-with(text(),'cvs update'))">
             <xsl:value-of select="text()"/><br class="none"/>
         </xsl:if>
     </xsl:template>
 
     <xsl:template match="/">
-        <xsl:apply-templates select="." mode="error"/>
+        <xsl:apply-templates select="." mode="errors"/>
     </xsl:template>
 </xsl:stylesheet>
