@@ -69,14 +69,13 @@ public class AntBuilderTest extends TestCase {
         if (builder.isWindows()) {
             javaCmd = "java.exe";
         }
-        
+
         properties = new Hashtable();
         properties.put("label", "200.1.23");
 
         classpath = System.getProperty("java.class.path");
-        
-        BasicConfigurator.configure(
-            new ConsoleAppender(new PatternLayout("%m%n")));
+
+        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
     }
 
     public void tearDown() {
@@ -86,7 +85,7 @@ public class AntBuilderTest extends TestCase {
                 file.delete();
             }
         }
-        
+
         builder = null;
         classpath = null;
         properties = null;
@@ -110,7 +109,7 @@ public class AntBuilderTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("validate should not throw exceptions when options are set.");
         }
-        
+
         builder.setMultiple(2);
 
         try {
@@ -122,215 +121,217 @@ public class AntBuilderTest extends TestCase {
 
     public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
-            {
-                javaCmd,
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        assertTrue(
-            Arrays.equals(
-                resultInfo,
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
+        assertTrue(Arrays.equals(resultInfo,
                 builder.getCommandLineArgs(properties, false, false, false)));
 
         String[] resultLogger =
-            {
-                javaCmd,
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        assertTrue(
-            Arrays.equals(
-                resultLogger,
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-logger",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-logfile",
+                    "log.xml",
+                    "-Dlabel=200.1.23",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
+        assertTrue(Arrays.equals(resultLogger,
                 builder.getCommandLineArgs(properties, true, false, false)));
     }
 
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
         String[] resultInfo =
-            {
-                javaCmd,
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         properties.put("label", "");
-        assertTrue(
-            Arrays.equals(
-                resultInfo,
+        assertTrue(Arrays.equals(resultInfo,
                 builder.getCommandLineArgs(properties, false, false, false)));
 
         String[] resultLogger =
-            {
-                javaCmd,
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        assertTrue(
-            Arrays.equals(
-                resultLogger,
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-logger",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-logfile",
+                    "log.xml",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
+        assertTrue(Arrays.equals(resultLogger,
                 builder.getCommandLineArgs(properties, true, false, false)));
     }
 
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
         String[] resultDebug =
-            {
-                javaCmd,
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-debug",
-                "-verbose",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-debug",
+                    "-verbose",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         builder.setUseDebug(true);
-        assertTrue(
-            Arrays.equals(
-                resultDebug,
+        assertTrue(Arrays.equals(resultDebug,
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
     public void testGetCommandLineArgs_DebugMaxMemory() throws CruiseControlException {
         String[] resultDebugWithMaxMemory =
-            {
-                javaCmd,
-                "-Xmx256m",
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-debug",
-                "-verbose",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    javaCmd,
+                    "-Xmx256m",
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-debug",
+                    "-verbose",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         builder.setUseDebug(true);
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
-        assertTrue(
-            Arrays.equals(
-                resultDebugWithMaxMemory,
+        assertTrue(Arrays.equals(resultDebugWithMaxMemory,
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
     public void testGetCommandLineArgs_DebugMaxMemoryAndProperty() throws CruiseControlException {
         String[] resultDebugWithMaxMemoryAndProperty =
-            {
-                javaCmd,
-                "-Xmx256m",
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-Dfoo=bar",
-                "-debug",
-                "-verbose",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    javaCmd,
+                    "-Xmx256m",
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-Dfoo=bar",
+                    "-debug",
+                    "-verbose",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         builder.setUseDebug(true);
         AntBuilder.JVMArg arg = (AntBuilder.JVMArg) builder.createJVMArg();
         arg.setArg("-Xmx256m");
         AntBuilder.Property prop = builder.createProperty();
         prop.setName("foo");
         prop.setValue("bar");
-        assertTrue(
-            Arrays.equals(
-                resultDebugWithMaxMemoryAndProperty,
+        assertTrue(Arrays.equals(resultDebugWithMaxMemoryAndProperty,
                 builder.getCommandLineArgs(properties, false, false, false)));
     }
 
     public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
         String[] resultBatchFile =
-            {
-                "ant.bat",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    "ant.bat",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         builder.setAntScript("ant.bat");
-        assertTrue(
-            Arrays.equals(
-                resultBatchFile,
+        assertTrue(Arrays.equals(resultBatchFile,
                 builder.getCommandLineArgs(properties, false, true, true)));
     }
 
     public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
         String[] resultShellScript =
-            {
-                "ant.sh",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    "ant.sh",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         builder.setAntScript("ant.sh");
-        assertTrue(
-            Arrays.equals(
-                resultShellScript,
+        assertTrue(Arrays.equals(resultShellScript,
                 builder.getCommandLineArgs(properties, false, true, false)));
     }
-    
+
     public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
         String[] args =
-            {
-                javaCmd,
-                "-classpath",
-                classpath,
-                "org.apache.tools.ant.Main",
-                "-listener",
-                "com.canoo.Logger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "com.canoo.Logger",
+                    "-DXmlLogger.file=log.xml",
+                    "-Dlabel=200.1.23",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
         builder.setLoggerClassName("com.canoo.Logger");
-        assertTrue(
-            Arrays.equals(
-                args,
+        assertTrue(Arrays.equals(args,
                 builder.getCommandLineArgs(properties, false, false, false)));
+    }
+
+    public void testGetCommandLineArgs_ProperlyQuoted() throws CruiseControlException {
+        String[] resultInfo =
+                {
+                    javaCmd,
+                    "-classpath",
+                    classpath,
+                    "org.apache.tools.ant.Main",
+                    "-listener",
+                    "org.apache.tools.ant.XmlLogger",
+                    "-DXmlLogger.file=log.xml",
+                    "\"-Dcvstimestamp=2004-07-29 11:24:05 GMT\"",
+                    "-buildfile",
+                    "buildfile",
+                    "target"};
+        properties.put("cvstimestamp", "2004-07-29 11:24:05 GMT");
+        properties.put("label", "");
+        final String[] actualArgs =
+                builder.getCommandLineArgs(properties, false, false, false);
+        assertTrue("Expected " + Arrays.asList(resultInfo) + " but got " + Arrays.asList(actualArgs),
+                Arrays.equals(resultInfo, actualArgs));
     }
 
     public void testGetAntLogAsElement() throws IOException, CruiseControlException {
@@ -338,24 +339,20 @@ public class AntBuilderTest extends TestCase {
         File logFile = new File("_tempAntLog14.xml");
         filesToClear.add(logFile);
         BufferedWriter bw1 = new BufferedWriter(new FileWriter(logFile));
-        bw1.write(
-                "<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
+        bw1.write("<?xml:stylesheet type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
         bw1.flush();
         bw1.close();
         File logFile2 = new File("_tempAntLog141.xml");
         filesToClear.add(logFile2);
         BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
-        bw2.write(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
+        bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?><build></build>");
         bw2.flush();
         bw2.close();
 
-        assertEquals(
-                buildLogElement.toString(),
+        assertEquals(buildLogElement.toString(),
                 AntBuilder.getAntLogAsElement(logFile).toString());
-        assertEquals(
-                buildLogElement.toString(),
+        assertEquals(buildLogElement.toString(),
                 AntBuilder.getAntLogAsElement(logFile2).toString());
     }
 
@@ -379,8 +376,7 @@ public class AntBuilderTest extends TestCase {
         File logFile2 = new File("_tempAntLog141.xml");
         filesToClear.add(logFile2);
         BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile2));
-        bw2.write(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
+        bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><?xml:stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?><notbuild></notbuild>");
         bw2.flush();
         bw2.close();
@@ -395,7 +391,7 @@ public class AntBuilderTest extends TestCase {
         try {
             AntBuilder.getAntLogAsElement(logFile2);
         } catch (CruiseControlException expected) {
-            assertEquals("build tag not found in " + logFile2.getAbsolutePath(), expected.getMessage());            
+            assertEquals("build tag not found in " + logFile2.getAbsolutePath(), expected.getMessage());
         }
     }
 
@@ -413,14 +409,14 @@ public class AntBuilderTest extends TestCase {
         initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
     }
-    
+
     public void testIsWindows() {
         builder = new AntBuilder() {
             protected String getOsName() {
                 return "Windows 2000";
             }
         };
-        
+
         assertTrue(builder.isWindows());
     }
 
