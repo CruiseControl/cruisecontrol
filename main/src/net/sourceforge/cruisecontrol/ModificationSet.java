@@ -54,6 +54,7 @@ import org.jdom.Element;
  */
 public class ModificationSet {
 
+    private boolean lieOnIsModified = false;
     private static final Logger LOG = Logger.getLogger(ModificationSet.class);
     private static final int ONE_SECOND = 1000;
 
@@ -75,16 +76,16 @@ public class ModificationSet {
         sourceControls.add(sourceControl);
     }
 
-    protected boolean isLastModificationInQuietPeriod(Date now, List modifications) {
-        return (getLastModificationMillis(modifications) + quietPeriod) >= now.getTime();
+    protected boolean isLastModificationInQuietPeriod(Date now, List modificationList) {
+        return (getLastModificationMillis(modificationList) + quietPeriod) >= now.getTime();
     }
 
-    protected long getLastModificationMillis(List modifications) {
+    protected long getLastModificationMillis(List modificationList) {
         long lastBuildMillis = 0;
-        for (int i = 0; i < modifications.size(); i++) {
+        for (int i = 0; i < modificationList.size(); i++) {
             long temp = 0;
-            if (modifications.get(i) instanceof Modification) {
-                temp = ((Modification) modifications.get(i)).modifiedTime.getTime();
+            if (modificationList.get(i) instanceof Modification) {
+                temp = ((Modification) modificationList.get(i)).modifiedTime.getTime();
             } 
 //            else if (modifications.get(i) instanceof org.jdom.Element) {
 //                //set the temp date
@@ -95,8 +96,8 @@ public class ModificationSet {
         return lastBuildMillis;
     }
 
-    protected long getQuietPeriodDifference(Date now, List modifications) {
-        long diff = quietPeriod - (now.getTime() - getLastModificationMillis(modifications));
+    protected long getQuietPeriodDifference(Date now, List modificationList) {
+        long diff = quietPeriod - (now.getTime() - getLastModificationMillis(modificationList));
         return Math.max(0, diff);
     }
 
@@ -183,7 +184,7 @@ public class ModificationSet {
     }
 
     public boolean isModified() {
-        return modifications.size() > 0;
+        return (modifications.size() > 0) || lieOnIsModified;
     }
 
     public void validate() throws CruiseControlException {
@@ -195,5 +196,9 @@ public class ModificationSet {
 
     int getQuietPeriod() {
         return quietPeriod;
+    }
+
+    public void setRequireModification(boolean isModifiedAccurate) {
+        lieOnIsModified = !isModifiedAccurate;
     }
 }

@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+ModificationSet
+----------------------
+* Added requiremodification attribute. Useful for building even when no modifications are found.
+
 Project
 ----------------------
 * Fixed a bug where value of buildForced was not being reset if modifications were found.

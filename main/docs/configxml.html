@@ -363,6 +363,11 @@
                <td class="tableheader">Description</td>
             </tr>
             <tr>
+               <td class="tabledata">requiremodification</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Is a modification required for the build to continue? Default value is true. Useful to set to false when the schedule has only time based builds or if you want to run tests to verify an external resource (such as a database).</td>
+            </tr>
+            <tr>
                <td class="tabledata">quietperiod</td>
                <td class="tabledata">No</td>
                <td class="tabledata">Default value is 60 (seconds). This attribute is used to avoid starting a build while someone is in mid-checkin. If a modification is detected to be within the quiet period then CC will sleep until the quiet period is finished and then recheck for modificaitons. Small values recommended if you use a bootstrapper to sync files (as opposed to getting updates as part of the build). 0 is a valid value.</td>
