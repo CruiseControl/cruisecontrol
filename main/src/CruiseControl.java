@@ -50,6 +50,7 @@ import net.sourceforge.cruisecontrol.*;
 public class CruiseControl {
 
     public static void main(String[] args) {
+        //Temporary change.
         MasterBuild.main(args);
     }
 
