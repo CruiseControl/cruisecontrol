@@ -91,16 +91,19 @@ public final class TestUtil {
         return cruisecontrolElement;
     }
 
-    public static Element createInfoElement(String label, boolean lastBuildSuccess) {
+    public static Element createInfoElement(String label, boolean lastSuccessful) {
         Element infoElement = new Element("info");
-
+    
         Hashtable properties = new Hashtable();
+        properties.put("projectname", "someproject");
         properties.put("label", label);
-        properties.put("lastbuildsuccessful", lastBuildSuccess + "");
-        properties.put("logfile", "log20020206120000.xml");
-        properties.put("projectname", "TestProject");
-        properties.put("builddate", "12/09/2002 13:43:15");
-
+        properties.put("lastbuildtime", "");
+        properties.put("lastgoodbuildtime", "");
+        properties.put("lastbuildsuccessful", lastSuccessful + "");
+        properties.put("buildfile", "");
+        properties.put("target", "");
+        properties.put("logfile", "log20020313120000.xml");
+    
         Iterator propertyIterator = properties.keySet().iterator();
         while (propertyIterator.hasNext()) {
             String propertyName = (String) propertyIterator.next();
@@ -109,7 +112,7 @@ public final class TestUtil {
             propertyElement.setAttribute("value", (String) properties.get(propertyName));
             infoElement.addContent(propertyElement);
         }
-
+    
         return infoElement;
     }
 }
