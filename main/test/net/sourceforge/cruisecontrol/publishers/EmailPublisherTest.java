@@ -76,7 +76,7 @@ public class EmailPublisherTest extends TestCase {
         xml.append("<always address=\"always1\"/>");
         xml.append("<always address=\"always2@host.com\"/>");
         xml.append("<failure address=\"failure1\"/>");
-        xml.append("<failure address=\"failure2@host.com\"/>");
+        xml.append("<failure address=\"failure2@host.com\" reportWhenFixed=\"true\"/>");
         xml.append("<success address='success1' />");
         xml.append("<success address='success2@host.com' />");
         xml.append("<map alias=\"user3\" address=\"user3@host2.com\"/>");
@@ -168,7 +168,8 @@ public class EmailPublisherTest extends TestCase {
             "TestProject somelabel Build Fixed",
             emailPublisher.createSubject(fixedLogHelper));
 
-        assertEquals("TestProject Build Failed", emailPublisher.createSubject(failureLogHelper));
+        assertEquals("TestProject Build Failed",
+                emailPublisher.createSubject(failureLogHelper));
 
         emailPublisher.setSubjectPrefix("[CC]");
         emailPublisher.setReportSuccess("always");
@@ -184,9 +185,20 @@ public class EmailPublisherTest extends TestCase {
             "[CC] TestProject Build Failed",
             emailPublisher.createSubject(failureLogHelper));
 
+        //Anytime it is a "fixed" build, the subject should read "fixed".
+        emailPublisher.setReportSuccess("always");
+        assertEquals(
+            "[CC] TestProject somelabel Build Fixed",
+            emailPublisher.createSubject(fixedLogHelper));
+
+        emailPublisher.setReportSuccess("failures");
+        assertEquals(
+            "[CC] TestProject somelabel Build Fixed",
+            emailPublisher.createSubject(fixedLogHelper));
+
     }
 
-    public void testCreateUserList() {
+    public void testCreateUserList() throws Exception {
         PropertyConfigurator.configure("log4j.properties");
         assertEquals(
             "always1@host.com,always2@host.com,"
@@ -197,6 +209,12 @@ public class EmailPublisherTest extends TestCase {
             "always1@host.com,always2@host.com,failure1@host.com,"
                 + "failure2@host.com,user1@host.com,user2@host.com,user3@host2.com",
             emailPublisher.createUserList(failureLogHelper));
+        assertEquals(
+            "always1@host.com,always2@host.com,"
+                + "failure2@host.com,"
+                + "success1@host.com,success2@host.com,"
+                + "user1@host.com,user2@host.com,user3@host2.com",
+            emailPublisher.createUserList(fixedLogHelper));
 
         emailPublisher.setSkipUsers(true);
         assertEquals(
