@@ -135,7 +135,7 @@
     <target name="test" depends="init" description="Executes the unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}" />
-        <javac srcdir="${test}" destdir="${classes}" classpathref="project.classpath" />
+        <javac debug="on" srcdir="${test}" destdir="${classes}" classpathref="project.classpath" />
         <copy todir="${classes}">
             <fileset dir="${test}" includes="**/*.xml"/>
         </copy>
