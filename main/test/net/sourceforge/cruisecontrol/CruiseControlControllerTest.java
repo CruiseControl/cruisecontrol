@@ -36,11 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import junit.framework.TestCase;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import junit.framework.TestCase;
 
 /**
  *
@@ -49,15 +49,20 @@ import junit.framework.TestCase;
 public class CruiseControlControllerTest extends TestCase {
     
     private File configFile = new File("_tempConfigFile");
+    private CruiseControlController test;
+
+    protected void setUp() throws Exception {
+        test = new CruiseControlController();
+    }
 
     public void tearDown() {
         if (configFile.exists()) {
             configFile.delete();
         }
+        test = null;
     }
 
     public void testSetNoFile() {
-        CruiseControlController test = new CruiseControlController();
         try {
             test.setConfigFile(null);
             fail("Allowed to not set a config file");
@@ -73,7 +78,6 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadEmptyProjects() throws IOException, CruiseControlException {
-        CruiseControlController test = new CruiseControlController();
         FileWriter configOut = new FileWriter(configFile);
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
@@ -86,7 +90,7 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadSomeProjects() throws IOException, CruiseControlException {
-        CruiseControlController test = new CruiseControlController() {
+        test = new CruiseControlController() {
             protected Project configureProject(String projectName) {
                 final Project project = new Project();
                 project.setName(projectName);
@@ -104,6 +108,13 @@ public class CruiseControlControllerTest extends TestCase {
         test.setConfigFile(configFile);
         assertEquals(configFile, test.getConfigFile());
         assertEquals(2, test.getProjects().size());
+    }
+
+    public void testReadProject() throws IOException {
+        File tempFile = File.createTempFile("foo", ".tmp");
+        String tempDir = tempFile.getParent();
+        Project project = test.readProject(tempDir);
+        assertNotNull(project);
     }
 
     private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {

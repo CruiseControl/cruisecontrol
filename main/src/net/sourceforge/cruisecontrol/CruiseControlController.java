@@ -159,7 +159,7 @@ public class CruiseControlController {
      * @return Deserialized Project or a new Project if there are any problems
      * reading the serialized Project; should never return null
      */
-    private Project readProject(String fileName) {
+    Project readProject(String fileName) {
         //look for fileName.ser first
         File serializedProjectFile = new File(fileName + ".ser");
         LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
@@ -168,7 +168,9 @@ public class CruiseControlController {
             //filename.ser doesn't exist, try finding fileName
             serializedProjectFile = new File(fileName);
             LOG.debug(fileName + ".ser not found, looking for serialized project file: " + fileName);
-            if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
+            if (!serializedProjectFile.exists()
+                    || !serializedProjectFile.canRead()
+                    || serializedProjectFile.isDirectory()) {
                 LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
                 return new Project();
             }
