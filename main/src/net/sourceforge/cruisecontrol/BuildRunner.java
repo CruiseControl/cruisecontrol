@@ -36,7 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.apache.tools.ant.Target;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.ProjectHelper;
 import org.apache.tools.ant.XmlLogger;
 
 /**
@@ -56,16 +57,19 @@ public class BuildRunner {
      */
     
     private CruiseProject _project;
-    private Target _target;
+    private String _target;
     
     private String _lastBuildTime;
     private String _label;
+    private java.io.File _buildFile;
 
     private java.io.PrintStream _out = System.out;
     private java.io.PrintStream _err = System.err;
     
     private CruiseLogger _logger;
     
+    private Throwable _error = null;
+
     /* ========================================================================
      * Constructors
      */
@@ -77,9 +81,9 @@ public class BuildRunner {
 
     public BuildRunner(java.io.File buildFile, String target, String lastBuildTime, String label, CruiseLogger logger) {
         _logger = logger;
-        loadProject(buildFile);
-        loadTarget(target);
-
+        _buildFile = buildFile;
+        loadProject();
+        _target = target;
         _lastBuildTime = lastBuildTime;
         _label = label;
     }
@@ -89,25 +93,27 @@ public class BuildRunner {
      */
 
     public boolean runBuild() {
-        setDefaultLogger();
-        getProject().fireBuildStarted();
+        CruiseProject project = getProject();
+
+        project.fireBuildStarted();
+        _project.init();
+        configureProject();
         
-        getProject().init();
-        
-        getProject().setUserProperty("lastGoodBuildTime", _lastBuildTime);
-        getProject().setUserProperty("label", _label);
-        
-        Throwable error = null;
         try {
-            getProject().executeTarget(getTarget().getName());
+            project.setUserProperty("ant.version", "1.4alpha");
+            project.setUserProperty("lastGoodBuildTime", _lastBuildTime);
+            project.setUserProperty("label", _label);
+            project.setUserProperty("ant.file" , _buildFile.getAbsolutePath() );
+
+            project.executeTarget(_target);
             return true;
         }
         catch (Throwable theError) {
-            error = theError;
+            _error = theError;
             return false;
         }
         finally {
-            getProject().fireBuildFinished(error);
+            project.fireBuildFinished(_error);
         }
     }
     
@@ -115,42 +121,45 @@ public class BuildRunner {
         return _project;
     }
     
-    public Target getTarget() {
-        return _target;
-    }
-    
     public void reset() {
         getProject().reset();
     }
     
+    public Throwable getError() {
+       return _error;
+    }
+
     /* ========================================================================
      * Public Methods.
      */
 
-    void loadProject(java.io.File buildFile) {
+    void loadProject() {
         _project = new CruiseProject();
         try {
-            _project.setBaseDir(buildFile.getCanonicalFile().getParentFile());
+            _project.setBaseDir(_buildFile.getCanonicalFile().getParentFile());
         }
         catch (java.io.IOException e) {
-            throw new RuntimeException("Could not get the parent directory for " + buildFile.toString());
+            throw new RuntimeException("Could not get the parent directory for " + _buildFile.toString());
         }
-        org.apache.tools.ant.ProjectHelper.configureProject(_project, buildFile);
+        setDefaultLogger();
         _project.addBuildListener(_logger);
     }
     
-    void loadTarget(String targetName) {
-        String theTarget = targetName;
-        if (targetName == null || "".equals(targetName)) {
-            theTarget = getProject().getDefaultTarget();
-        }
-
-        _target = (Target)getProject().getTargets().get(theTarget);
-        if (_target == null) {
-            throw new RuntimeException("There is no target called '" + targetName + "'");
+    void configureProject() throws BuildException {
+        // first use the ProjectHelper to create the project object
+        // from the given build file.
+        try {
+            Class.forName("javax.xml.parsers.SAXParserFactory");
+            ProjectHelper.configureProject(getProject(), _buildFile);
+        } catch (NoClassDefFoundError ncdfe) {
+            throw new BuildException("No JAXP compliant XML parser found. See http://java.sun.com/xml for the\nreference implementation.", ncdfe);
+        } catch (ClassNotFoundException cnfe) {
+            throw new BuildException("No JAXP compliant XML parser found. See http://java.sun.com/xml for the\nreference implementation.", cnfe);
+        } catch (NullPointerException npe) {
+            throw new BuildException("No JAXP compliant XML parser found. See http://java.sun.com/xml for the\nreference implementation.", npe);
         }
     }
-    
+
     void setDefaultLogger() {
         org.apache.tools.ant.DefaultLogger defaultLogger = new org.apache.tools.ant.DefaultLogger();
         defaultLogger.setMessageOutputLevel(_logger.getMessageLevel());

@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol;
 
 import org.apache.tools.ant.Project;
 import junit.framework.*;
-import org.apache.tools.ant.Target;
 import org.apache.tools.ant.XmlLogger;
 
 /**
@@ -98,19 +97,16 @@ public class BuildRunnerTest extends TestCase {
     /** Test of getProject method, of class net.sourceforge.cruisecontrol.BuildRunner. */
     public void testGetProject() {
         assertNotNull(test.getProject());
-        assertEquals("test", test.getProject().getName());
         assertTrue(test.getProject().getBuildListeners().contains(logger));
     }
     
-    /** Test of getTarget method, of class net.sourceforge.cruisecontrol.BuildRunner. */
-    public void testGetTarget() {
-        assertNotNull(test.getTarget());
-        assertEquals("work", test.getTarget().getName());
-    }
-    
     /** Test of runBuild method, of class net.sourceforge.cruisecontrol.BuildRunner. */
-    public void testRunBuild() {
-        assertTrue(test.runBuild());
+    public void testRunBuild() throws Throwable {
+        test.runBuild();
+        if (test.getError() != null) {
+            throw test.getError();
+        }
+        assertEquals("test", test.getProject().getName());
         assertEquals("test", test.getProject().getProperties().get("testProperty"));
         assertEquals("test", test.getProject().getProperties().get("testInitProperty"));
     }
