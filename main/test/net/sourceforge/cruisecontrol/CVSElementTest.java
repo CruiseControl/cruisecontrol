@@ -24,6 +24,8 @@ package net.sourceforge.cruisecontrol;
 import java.util.*;
 import junit.framework.*;
 
+import net.sourceforge.cruisecontrol.testutil.MockTask;
+
 /**
  * @author  robertdw, jchyip
  */
@@ -33,6 +35,17 @@ public class CVSElementTest extends TestCase {
         super(testName);
     }
 
+    public void testLogPrepend() {
+        CVSElement element = new CVSElement();
+        MockTask task = new MockTask();
+        element.setAntTask(task);
+
+        String logMessage = "log message";
+        element.log(logMessage);
+        
+        assertEquals("[cvselement]" + " " + logMessage, task.getSentLog());
+    }
+    
     public void testFormatLogDate() {
         Date may18_2001_6pm = 
          new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
