@@ -55,10 +55,17 @@ import javax.servlet.jsp.tagext.TagSupport;
  */
 public class CruiseControlTagSupport extends TagSupport {
 
-    private static final FilenameFilter FILTER = new CruiseControlLogFileFilter();
+    private static final FilenameFilter LOG_FILTER = new CruiseControlLogFileFilter();
+
     private static final FilenameFilter SUCCESSFUL_FILTER = new CruiseControlLogFileFilter() {
         public boolean accept(File dir, String name) {
             return super.accept(dir, name) && name.length() > 16 && name.charAt(17) == 'L';
+        }
+    };
+
+    private static final FilenameFilter DIR_FILTER = new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+            return (new File(dir, name).isDirectory());
         }
     };
 
@@ -74,17 +81,30 @@ public class CruiseControlTagSupport extends TagSupport {
         exception.printStackTrace();
     }
 
-    protected File findLogDir() throws JspException {
+    protected String getBaseLogDir() throws JspException {
         String logDirName = getContextParam("logDir");
         if (logDirName == null) {
             throw new JspException("You need to specify a log directory as a context param");
         }
-        logDirName += getProject();
+        return logDirName;
+    }
+        
+    protected File findLogDir() throws JspException {
+        String logDirName = getBaseLogDir() + getProject();
         File logDir = new File(logDirName);
-        if (!logDir.exists() || !logDir.isDirectory()) {
+        if (!logDir.isDirectory()) {
             throw new JspException(logDirName + " either does not exist, or is not a directory");
         }
         return logDir;
+    }
+
+    protected String[] findProjects() throws JspException {
+        String logDirName = getBaseLogDir();
+        File logDir = new File(logDirName);
+        if (!logDir.isDirectory()) {
+            throw new JspException(logDirName + " either does not exist, or is not a directory");
+        }
+        return logDir.list(DIR_FILTER);
     }
 
     protected String getContextParam(final String name) {
@@ -174,7 +194,7 @@ public class CruiseControlTagSupport extends TagSupport {
      *  @return The latest log file.
      */
     public static File getLatestLogFile(File logDir) {
-        File[] logs = logDir.listFiles(FILTER);
+        File[] logs = logDir.listFiles(LOG_FILTER);
         if (logs != null && logs.length > 0) {
             return (File) Collections.max(Arrays.asList(logs));
         } else {

@@ -90,6 +90,15 @@
         </attribute>
     </tag>
     <tag>
+        <name>projectnav</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.ProjectNavigationTag</tagclass>
+        <teiclass>net.sourceforge.cruisecontrol.taglib.ProjectNavigationTagExtraInfo</teiclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Builds the navigation for projects
+        </info>
+    </tag>
+    <tag>
         <name>artifactsLink</name>
         <tag-class>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTag</tag-class>
         <tei-class>net.sourceforge.cruisecontrol.taglib.ArtifactsLinkTagExtraInfo</tei-class>
