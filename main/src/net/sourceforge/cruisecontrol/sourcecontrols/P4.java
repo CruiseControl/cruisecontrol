@@ -151,6 +151,7 @@ public class P4 implements SourceControl {
             String[] changelistNumbers = null;
             {
                 Commandline command = buildChangesCommand(lastBuild, now);
+                log.debug("Executing: " + command.toString());
                 Process p = Runtime.getRuntime().exec(command.getCommandline());
 
                 logErrorStream(p.getErrorStream());
