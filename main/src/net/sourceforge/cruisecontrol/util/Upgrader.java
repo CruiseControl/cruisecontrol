@@ -4,8 +4,8 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import org.apache.log4j.Category;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.output.XMLOutputter;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 import java.io.*;
 import java.util.Iterator;
@@ -22,32 +22,58 @@ public class Upgrader {
     /** enable logging for this class */
     private static Category log = Category.getInstance(Upgrader.class.getName());
 
-    private String _buildFileName;
-    private String _configFileName;
-    private String _propertiesFileName;
+    private File _buildFile = null;
+    private File _configFile = null;
+    private File _propertiesFile = null;
+
+    public void setBuildFile(File buildFile) {
+        _buildFile = buildFile;
+    }
+
+    public void setConfigFile(File configFile) {
+        _configFile = configFile;
+    }
+
+    public void setPropertiesFile(File propertiesFile) {
+        _propertiesFile = propertiesFile;
+    }
+
+    protected void validate() throws CruiseControlException {
+        if (_buildFile == null) {
+            throw new CruiseControlException("No build file specified.");
+        }
+        if (_propertiesFile == null) {
+            throw new CruiseControlException("No properties file specified.");
+        }
+        if (_configFile == null) {
+            throw new CruiseControlException("No configuration file specified.");
+        }
+
+        if (!_buildFile.exists()) {
+            throw new CruiseControlException("The specified build file: '" +
+                    _buildFile.getAbsolutePath() + "' does not exist.");
+        }
+        if (!_propertiesFile.exists()) {
+            throw new CruiseControlException("The specified properties file: '" +
+                    _propertiesFile.getAbsolutePath() + "' does not exist.");
+        }
+        if (_configFile.exists()) {
+            throw new CruiseControlException("The specified configuration file: '" +
+                    _configFile.getAbsolutePath() + "' exists.  Delete and try again.");
+        }
+
+    }
 
     public void execute() throws CruiseControlException {
-        File buildFile = new File(_buildFileName);
-        if (!buildFile.exists()) {
-            throw new CruiseControlException("The specified build file: '" + buildFile.getAbsolutePath() + "' does not exist.");
-        }
-        File propertiesFile = new File(_propertiesFileName);
-        if (!propertiesFile.exists()) {
-            throw new CruiseControlException("The specified properties file: '" + propertiesFile.getAbsolutePath() + "' does not exist.");
-        }
-        File configFile = new File(_configFileName);
-        if (configFile.exists()) {
-            throw new CruiseControlException("The specified configuration file: '" + configFile.getAbsolutePath() + "' exists.  Delete and try again.");
-        }
+        // test for valid members. A controlable NPE.
+        validate();
 
-        Properties properties = loadProperties(_propertiesFileName);
-        Element buildFileElement = readFileToElement(buildFile.getAbsolutePath());
+        Properties properties = loadProperties(_propertiesFile);
+        Element buildFileElement = readFileToElement(_buildFile);
         try {
             writeXMLFile(createXML(properties, findModificationSet(buildFileElement)));
         } catch (JDOMException e) {
-            log.fatal("", e);
-        } catch (CruiseControlException e) {
-            log.fatal("", e);
+            throw new CruiseControlException(e);
         }
     }
 
@@ -133,7 +159,7 @@ public class Upgrader {
     }
 
     public boolean isMapEnabled(Properties properties) {
-        if(properties.getProperty("mapSourceControlUsersToEmail") != null && properties.getProperty("mapSourceControlUsersToEmail").equalsIgnoreCase("true")) {
+        if (properties.getProperty("mapSourceControlUsersToEmail") != null && properties.getProperty("mapSourceControlUsersToEmail").equalsIgnoreCase("true")) {
             return new File(properties.getProperty("emailmap")).exists();
         }
         return false;
@@ -141,13 +167,13 @@ public class Upgrader {
 
     public String createEmailMap(Properties emailmap) {
         StringBuffer map = new StringBuffer();
-        if(emailmap.size() == 0) {
+        if (emailmap.size() == 0) {
             return "";
         }
 
         map.append("<map>");
         Iterator emailmapIterator = emailmap.keySet().iterator();
-        while(emailmapIterator.hasNext()) {
+        while (emailmapIterator.hasNext()) {
             String key = (String) emailmapIterator.next();
             map.append("<map alias=\"" + key + "\" address=\"" + emailmap.getProperty(key) + "\"/>");
         }
@@ -171,17 +197,17 @@ public class Upgrader {
         publishers.append(" buildresultsurl=\"" + properties.getProperty("servletURL") + "\"");
         publishers.append(">");
         StringTokenizer buildmasterTokenizer = new StringTokenizer(properties.getProperty("buildmaster"), ", ");
-        while(buildmasterTokenizer.hasMoreTokens()) {
+        while (buildmasterTokenizer.hasMoreTokens()) {
             publishers.append("<always address=\"" + buildmasterTokenizer.nextToken() + "\"/>");
         }
         StringTokenizer failureTokenizer = new StringTokenizer(properties.getProperty("notifyOnFailure"), ", ");
-        while(failureTokenizer.hasMoreTokens()) {
+        while (failureTokenizer.hasMoreTokens()) {
             publishers.append("<failure address=\"" + failureTokenizer.nextToken() + "\"/>");
         }
-        if(isMapEnabled(properties)) {
-            Properties emailmap = loadProperties(properties.getProperty("emailmap"));
+        if (isMapEnabled(properties)) {
+            Properties emailmap = loadProperties(new File(properties.getProperty("emailmap")));
             Iterator emailmapIterator = emailmap.keySet().iterator();
-            while(emailmapIterator.hasNext()) {
+            while (emailmapIterator.hasNext()) {
                 String key = (String) emailmapIterator.next();
                 publishers.append("<map alias=\"" + key + "\" address=\"" + emailmap.getProperty(key) + "\"/>");
             }
@@ -215,23 +241,11 @@ public class Upgrader {
         return builder.build(new StringReader(config.toString())).getRootElement();
     }
 
-    public void setBuildFile(String buildFile) {
-        _buildFileName = buildFile;
-    }
-
-    public void setConfigFile(String configFile) {
-        _configFileName = configFile;
-    }
-
-    public void setPropertiesFile(String propertiesFile) {
-        _propertiesFileName = propertiesFile;
-    }
-
-    protected Element readFileToElement(String filename) {
+    protected Element readFileToElement(File file) {
         Element buildFileElement = null;
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            buildFileElement = builder.build(filename).getRootElement();
+            buildFileElement = builder.build(file).getRootElement();
         } catch (Exception e) {
             log.fatal("", e);
         }
@@ -242,7 +256,7 @@ public class Upgrader {
         XMLOutputter outputter = new XMLOutputter("   ", true);
         FileWriter fw = null;
         try {
-            fw = new FileWriter(_configFileName);
+            fw = new FileWriter(_configFile);
             outputter.output(element, fw);
             fw.close();
         } catch (IOException e) {
@@ -255,11 +269,11 @@ public class Upgrader {
     /**
      *  Load a properties file.
      */
-    protected Properties loadProperties(String propertiesFileName) {
+    protected Properties loadProperties(File propertiesFile) {
         Properties properties = new Properties();
         FileInputStream fis = null;
         try {
-            fis = new FileInputStream(propertiesFileName);
+            fis = new FileInputStream(propertiesFile);
             properties.load(fis);
             fis.close();
         } catch (IOException ioe) {
@@ -270,12 +284,18 @@ public class Upgrader {
         return properties;
     }
 
+
     public static void main(String args[]) {
         Upgrader upgrader = new Upgrader();
         try {
-            upgrader.setBuildFile(args[0]);
-            upgrader.setPropertiesFile(args[1]);
-            upgrader.setConfigFile(args[2]);
+            upgrader.setBuildFile(new File(args[0]));
+            upgrader.setPropertiesFile(new File(args[1]));
+            upgrader.setConfigFile(new File(args[2]));
+            try {
+                upgrader.validate();
+            } catch (CruiseControlException e) {
+                log.fatal("Usage: net.sourceforge.cruisecontrol.util.Upgrader <build file> <properties file> <config file>");
+            }
             upgrader.execute();
         } catch (CruiseControlException e) {
             log.fatal("", e);
