@@ -3,3 +3,4 @@ dist
 test-results
 checkstyle.cache
 checkstyle*.txt
+override.properties

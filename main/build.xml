@@ -36,6 +36,7 @@
  ********************************************************************************-->
 
 <project name="CruiseControl" default="all" basedir=".">
+    <property file="override.properties"/>
 
     <property name="docs" value="docs"/>
     <property name="apidocs" value="${docs}/api"/>
@@ -48,6 +49,7 @@
     <property name="src" value="src"/>
     <property name="test" value="test"/>
 
+    <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
 
     <!-- ****************************************************
@@ -150,7 +152,7 @@
           description="Generates a report of code convention violations.">
 
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
-        <checkstyle config="checkstyle.xml" failOnViolation="true">
+        <checkstyle config="checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
             <formatter type="plain"/>
             <formatter type="plain" tofile="checkstyleResults.txt"/>
             <fileset dir="src" includes="**/*.java"/>
