@@ -312,9 +312,11 @@ public class StarTeam implements SourceControl {
         }
 
         Modification mod = new Modification();
-        mod.type = status;
-        mod.fileName = revision.getName();
-        mod.folderName = revision.getParentFolder().getFolderHierarchy();
+        mod.type = "StarTeam";
+        String fileName = revision.getName();
+        String folderName = revision.getParentFolder().getFolderHierarchy();
+        Modification.ModifiedFile modFile = mod.createModifiedFile(fileName, folderName);
+        modFile.action = status;
         mod.modifiedTime = revision.getModifiedTime().createDate();
         mod.userName = user.getName();
         mod.comment = revision.getComment();
