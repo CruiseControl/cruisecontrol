@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit                              *
  * Copyright (C) 2001  ThoughtWorks, Inc.                                       *
@@ -20,92 +19,84 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  *****************************************************************************-->
-
 <project name="HelloWorld" basedir="." default="all">
-
     <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
-    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
+
     <!-- Uncomment for StarTeam -->
-<!--    <taskdef name="starteamcheckout" 
+    <!--    <taskdef name="starteamcheckout" 
      classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamCheckout"/>
     <taskdef name="starteamlabel" 
      classname="net.sourceforge.cruisecontrol.element.starteam.StarTeamLabel"/>    -->
-    
     <property name="build.compiler" value="jikes"/>
-    <property name="build.compiler.emacs" value="true"/>    
-
+    <property name="build.compiler.emacs" value="true"/>
     <property name="build.dir" value="classes"/>
     <property name="dist.dir" value="dist"/>
     <property name="masterbuild.logdir" value="logs"/>
     <property name="source.dir" value="src"/>
-
-    <property name="junit.results" value="test-results" />
-
+    <property name="junit.results" value="test-results"/>
     <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
     <property name="cvs.package" value="CruiseControlTest/src"/>
-
     <!-- Uncomment for StarTeam -->
-<!--    <property name="starteam.folder" value="src" />
+    <!--    <property name="starteam.folder" value="src" />
     <property name="starteam.url" value="10.1.2.65:49201/CruiseControl/CruiseControl" />
     <property name="starteam.user" value="jcyip" />
     <property name="starteam.passwd" value="" /> -->
-
-    <path id="classpath" >
+    <!-- Uncomment for VSS -->
+    <!--    <property name="ccdir" value="where cruisecontrol lives"/>
+    <property name="vss.login" value=""/>
+    <property name="vss.password" value=""/>
+    <property name="vss.src.path" value="/src"/>
+    <property name="vss.executable.dir" value="where ss.exe lives"/>
+    <property name="vss.src.changed" value="false"/>
+    <property name="vss.src.delete" value="false"/> -->
+    <path id="classpath">
         <fileset dir="${ccdir}/lib">
             <include name="**/*.jar"/>
         </fileset>
     </path>
-
     <target name="init" description="Prepare for build">
         <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${masterbuild.logdir}"/>
     </target>
-
     <target name="clean" description="Clean all build products">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${dist.dir}"/>
     </target>
-
     <target name="compile" depends="init" description="Compile application without cleaning">
         <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="classpath" includes="**/*.java" debug="true" deprecation="true"/>
     </target>
-
     <target name="test" depends="init" description="Run unit tests">
         <delete dir="${junit.results}"/>
         <mkdir dir="${junit.results}"/>
         <echo message="Running unit tests..."/>
         <junit fork="yes" haltonfailure="yes">
-            <classpath >
-                <path refid="classpath" />
-                <pathelement location="${build.dir}" />
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement location="${build.dir}"/>
             </classpath>
-            <formatter type="plain" usefile="false" />
-            <formatter type="xml" />
-            <batchtest todir="${junit.results}" >
-                <fileset dir="${build.dir}" includes="**/*Test.class" />
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+            <batchtest todir="${junit.results}">
+                <fileset dir="${build.dir}" includes="**/*Test.class"/>
             </batchtest>
         </junit>
-        
     </target>
-
     <target name="jar">
         <jar jarfile="${dist.dir}\helloWorld.jar">
             <fileset dir="${build.dir}"/>
         </jar>
     </target>
-
     <target name="all" depends="init,clean,compile,test,jar" description="Build application">
         <echo message="Application built!"/>
     </target>
 
     <target name="checkout" description="Update package from CVS">
-        <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".." />
+        <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".."/>
     </target>
-
     <!-- Uncomment for StarTeam -->
     <!-- <target name="checkout" depends="init">
       <starteamcheckout username="${starteam.user}" password="${starteam.passwd}" 
@@ -117,21 +108,28 @@
        description="Release Build Successful." username="${starteam.user}" 
        password="${starteam.passwd}" starteamurl="${starteam.url}"/>
    </target> -->
-
+    <!-- Uncomment for VSS -->
+    <!--<target name="vssget" description="gets the latest source from vss" if="vss.src.changed" depends="init, modificationset">
+        <vssget login="${vss.login},${vss.password}" ssdir="${vss.executable.dir}" vsspath="${vss.src.path}" localPath="${source.dir}" recursive="true" writable="false"/>
+    </target>
+    <target name="labelbuild">
+        <vsslabel login="${vss.login},${vss.password}" ssdir="${vss.executable.path}" vsspath="{vss.src.path}" label="${label}"/>
+    </target> -->
     <target name="modificationset" depends="init" description="Check modifications since last build">
         <echo message="Checking for modifications..."/>
-        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30" 
-          dateformat="yyyy-MMM-dd HH:mm:ss">
-            <cvselement cvsroot="${cvs.repository}" />
+        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
+            <cvselement cvsroot="${cvs.repository}"/> 
             <!-- Uncomment for StarTeam -->
             <!--<starteamelement username="${starteam.user}" password="${starteam.passwd}" 
              folder="${starteam.folder}" starteamurl="${starteam.url}" />-->
+            <!-- Uncomment for VSS -->
+            <!-- <vsselement ssdir="${vss.src.path}" login="${vss.login}" property="vss.src.changed" propertyOnDelete="vss.src.delete"/> -->
         </modificationset>
     </target>
-
-    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" description="Cruise control master build"/>
+    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar" description="Cruise control master build"/> 
     <!-- Uncomment for StarTeam -->
-<!--    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar,labelbuild" description="Cruise control master build"/>-->
+    <!--    <target name="masterbuild" depends="modificationset,checkout,compile,test,jar,labelbuild" description="Cruise control master build"/>-->
+    <!-- Uncomment for VSS -->
+    <!--<target name="masterbuild" depends="modificationset,vssget,compile,test,jar,labelbuild" description="Cruise control master build"/> -->
     <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
-    
 </project>
