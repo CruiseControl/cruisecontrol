@@ -6,6 +6,10 @@ AntBuilder & MavenBuilder:
   This means you'll have to use 'ant.bat' or 'maven.bat' instead of just 'ant' or 'maven'!
 * getCommandLineArgs now uses Commandline-class
 
+AntBuilder:
+----------------------
+* No longer use UTF-8 to read Ant log files, but use default encoding. Patch by Mark Doliner
+
 build.xml (jsp)
 ----------------------
 * Reverted to using 'war' as the default target instead of 'test'.
