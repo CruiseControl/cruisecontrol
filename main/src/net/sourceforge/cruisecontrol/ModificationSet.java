@@ -36,15 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import org.apache.log4j.Category;
 import org.jdom.Element;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  */
 public class ModificationSet {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(ModificationSet.class.getName());
 
     protected List _modifications = new ArrayList();
     protected List _sourceControls = new ArrayList();
@@ -85,6 +92,9 @@ public class ModificationSet {
         //Collections.sort(_modifications);
         Element modificationsElement = new Element("modifications");
         Iterator modificationIterator = _modifications.iterator();
+        if (modificationIterator.hasNext()) {
+            log.info("A number of modifications have been detected");
+        }
         while (modificationIterator.hasNext()) {
             Object object = (Object) modificationIterator.next();
             if (object instanceof org.jdom.Element) {

@@ -74,10 +74,14 @@ public class Project implements Serializable {
     private String _fileName;
     private String _name;
     private SimpleDateFormat _formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+    private boolean _isPaused = false;
 
     public void execute() {
         while (true) {
             try {
+                while(_isPaused) {
+                    Thread.yield();
+                }
                 init();
                 build();
                 log.info("Sleeping for " + formatTime(_sleepMillis));
@@ -97,11 +101,11 @@ public class Project implements Serializable {
         seconds = seconds % 60;
 
         StringBuffer sb = new StringBuffer();
-        if(hours > 0)
+        if (hours > 0)
             sb.append(hours + " hours ");
-        if(minutes > 0)
+        if (minutes > 0)
             sb.append(minutes + " minutes ");
-        if(seconds > 0)
+        if (seconds > 0)
             sb.append(seconds + " seconds ");
 
         return sb.toString();
@@ -117,24 +121,34 @@ public class Project implements Serializable {
         if (_schedule.isPaused(_now)) {
             return; //we've paused
         }
+        
+        // bootstrap the build
         bootstrap();
+        
+        // check for modifications
         cruisecontrolElement.addContent(_modificationSet.getModifications(_lastBuild));
         if (!_modificationSet.isModified()) {
             log.info("No modifications found, build not necessary.");
             return; //no need to build
         }
 
+        // increment label if nesseccary
         if (_labelIncrementer.isPreBuildIncrementer()) {
-            _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
+            _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
-
+        
+        // collect project information
         cruisecontrolElement.addContent(getProjectPropertiesElement());
+        
+        // BUILD
         cruisecontrolElement.addContent(_schedule.build(_buildCounter, _lastBuild, _now, getProjectPropertiesMap()).detach());
 
+        // increment label if nesseccary
         if (!_labelIncrementer.isPreBuildIncrementer()) {
-            _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
+            _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
         }
 
+        // collect log files and merge with CC log file
         Iterator auxLogIterator = getAuxLogElements().iterator();
         while (auxLogIterator.hasNext()) {
             cruisecontrolElement.addContent((Element) auxLogIterator.next());
@@ -153,6 +167,9 @@ public class Project implements Serializable {
         _buildCounter++;
     }
 
+    /**
+     * Initialize the project. Uses ProjectXMLHelper to parse a project file.
+     */
     protected void init() {
         try {
             ProjectXMLHelper helper = new ProjectXMLHelper(new File(_fileName), _name);
@@ -186,7 +203,7 @@ public class Project implements Serializable {
 
         Element intervalElement = new Element("property");
         intervalElement.setAttribute("name", "interval");
-        intervalElement.setAttribute("value", "" + (_sleepMillis/1000));
+        intervalElement.setAttribute("value", "" + (_sleepMillis / 1000));
         infoElement.addContent(intervalElement);
 
         Element lastBuildSuccessfulPropertyElement = new Element("property");
@@ -245,7 +262,7 @@ public class Project implements Serializable {
             outputter.output(logElement, logWriter);
             logWriter = null;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CruiseControlException(e);
         } finally {
             logWriter = null;
         }
@@ -383,5 +400,13 @@ public class Project implements Serializable {
 
     protected String getLogFileName() {
         return _logFileName;
+    }
+
+    public boolean isPaused() {
+        return _isPaused;
+    }
+
+    public void setPaused(boolean paused) {
+        _isPaused = paused;
     }
 }

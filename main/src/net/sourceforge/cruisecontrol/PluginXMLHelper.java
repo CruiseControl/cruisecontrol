@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import org.apache.log4j.Category;
 import org.jdom.Attribute;
 import org.jdom.Element;
-import org.apache.log4j.Category;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -63,9 +63,10 @@ public class PluginXMLHelper {
             pluginClass = Class.forName(className);
             pluginInstance = pluginClass.getConstructor(null).newInstance(null);
         } catch (ClassNotFoundException e) {
-            log.fatal("", e);
+            log.fatal("Could not find class", e);
             throw new CruiseControlException("Could not find class: " + className);
         } catch (Exception e) {
+            log.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: " + className);
         }
         configureObject(objectElement, pluginInstance);
@@ -74,7 +75,8 @@ public class PluginXMLHelper {
     }
 
     /**
-     *
+     * given a JDOM Element and an object, this method will call all setters that correspond to attributes 
+     * on the Element.
      */
     protected void configureObject(Element objectElement, Object object) throws CruiseControlException {
         Map setters = new HashMap();
@@ -97,9 +99,9 @@ public class PluginXMLHelper {
                     Method method = (Method) setters.get(attribute.getName().toLowerCase());
                     Class[] parameters = method.getParameterTypes();
                     if (String.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{ attribute.getValue() });
+                        method.invoke(object, new Object[]{attribute.getValue()});
                     } else if (int.class.isAssignableFrom(parameters[0])) {
-                        method.invoke(object, new Object[]{ new Integer(attribute.getIntValue()) });
+                        method.invoke(object, new Object[]{new Integer(attribute.getIntValue())});
                     }
                 } catch (Exception e) {
                     log.fatal("Error configuring plugin.", e);

@@ -109,13 +109,13 @@ public class Modification implements Comparable {
     }
 
     public void log(DateFormat formatter) {
-        log.info("FileName: " + fileName);
-        log.info("FolderName: " + folderName);
-        log.info("Last Modified: " + formatter.format(modifiedTime));
-        log.info("UserName: " + userName);
-        log.info("EmailAddress: " + emailAddress);
-        log.info("Comment: " + comment);
-        log.info("");
+        log.debug("FileName: " + fileName);
+        log.debug("FolderName: " + folderName);
+        log.debug("Last Modified: " + formatter.format(modifiedTime));
+        log.debug("UserName: " + userName);
+        log.debug("EmailAddress: " + emailAddress);
+        log.debug("Comment: " + comment);
+        log.debug("");
     }
 
     public int compareTo(Object o) {

@@ -286,6 +286,7 @@ public class Upgrader {
 
 
     public static void main(String args[]) {
+        log.info("started updgrader...");
         Upgrader upgrader = new Upgrader();
         try {
             upgrader.setBuildFile(new File(args[0]));
@@ -297,6 +298,7 @@ public class Upgrader {
                 log.fatal("Usage: net.sourceforge.cruisecontrol.util.Upgrader <build file> <properties file> <config file>");
             }
             upgrader.execute();
+            log.info("upgrader finished");
         } catch (CruiseControlException e) {
             log.fatal("", e);
         }

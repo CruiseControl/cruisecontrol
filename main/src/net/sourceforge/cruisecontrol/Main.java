@@ -81,14 +81,14 @@ public class Main {
         File serializedProjectFile = new File(fileName);
         log.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
         if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
-            log.error("Cannot read serialized project: " + serializedProjectFile.getAbsolutePath());
+            log.warn("Cannot read serialized project: " + serializedProjectFile.getAbsolutePath());
         } else {
             try {
                 ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
                 Project project = (Project) s.readObject();
                 return project;
             } catch (Exception e) {
-                log.error("Error deserializing project.", e);
+                log.warn("Error deserializing project.", e);
             }
         }
         return new Project();
@@ -187,3 +187,9 @@ public class Main {
         System.exit(1);
     }
 }
+//
+// -lastbuild 20001122010203 -label 1.1 -configfile config.xml -projectname HelloWorld
+//log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+//log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
+//log.info("   -configfile file       where file is the configuration file");
+//log.info("   -projectname name      where name is the name of the project");

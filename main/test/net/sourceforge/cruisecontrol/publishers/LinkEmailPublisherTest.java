@@ -37,19 +37,13 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.apache.log4j.PropertyConfigurator;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.apache.log4j.PropertyConfigurator;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
-import java.io.FileWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.StringReader;
-import java.util.Properties;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -69,7 +63,7 @@ public class LinkEmailPublisherTest extends TestCase {
         Element buildElement = new Element("build");
         Element modificationsElement = new Element("modifications");
         String[] users = new String[]{"user1", "user2", "user2", "user3"};
-        for(int i=0; i<users.length; i++) {
+        for (int i = 0; i < users.length; i++) {
             Element modificationElement = new Element("modification");
             Element userElement = new Element("user");
             userElement.addContent(users[i]);
@@ -84,7 +78,7 @@ public class LinkEmailPublisherTest extends TestCase {
         propertiesElement.addContent(propertyElement);
         buildElement.addContent(propertiesElement);
 
-        if(!success) {
+        if (!success) {
             buildElement.setAttribute("error", "No Build Necessary");
         }
 
@@ -104,7 +98,7 @@ public class LinkEmailPublisherTest extends TestCase {
         properties.put("logfile", "log20020206120000.xml");
 
         Iterator propertyIterator = properties.keySet().iterator();
-        while(propertyIterator.hasNext()) {
+        while (propertyIterator.hasNext()) {
             String propertyName = (String) propertyIterator.next();
             Element propertyElement = new Element("property");
             propertyElement.setAttribute("name", propertyName);
@@ -115,7 +109,7 @@ public class LinkEmailPublisherTest extends TestCase {
         return infoElement;
     }
 
-    public void setUp() {
+    public void setUp() throws Exception {
         //pass in some xml and create the publisher
         StringBuffer xml = new StringBuffer();
         xml.append("<email defaultsuffix=\"@host.com\">");
@@ -127,43 +121,32 @@ public class LinkEmailPublisherTest extends TestCase {
         xml.append("</email>");
 
         Element emailPublisherElement = null;
-        try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        }
+
+        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
 
         PluginXMLHelper xmlHelper = new PluginXMLHelper();
-        try {
-            _emailPublisher = (LinkEmailPublisher) xmlHelper.configure(emailPublisherElement, "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
-        } catch (CruiseControlException e) {
-            e.printStackTrace();
-        }
+        _emailPublisher = (LinkEmailPublisher) xmlHelper.configure(emailPublisherElement, "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
 
         _successLogHelper = createLogHelper(true, true);
         _failureLogHelper = createLogHelper(false, false);
         _fixedLogHelper = createLogHelper(true, true);
     }
 
-    public void testShouldSend() {
-        try {
-            //build not necessary, spam while broken=true
-            _emailPublisher.setSpamWhileBroken(true);
-            assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
+    public void testShouldSend() throws Exception {
+        //build not necessary, spam while broken=true
+        _emailPublisher.setSpamWhileBroken(true);
+        assertEquals(true, _emailPublisher.shouldSend(_failureLogHelper));
 
-            //build necessary, spam while broken = true
-            assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
+        //build necessary, spam while broken = true
+        assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
 
-            //build not necessary, spam while broken=false
-            _emailPublisher.setSpamWhileBroken(false);
-            assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
+        //build not necessary, spam while broken=false
+        _emailPublisher.setSpamWhileBroken(false);
+        assertEquals(false, _emailPublisher.shouldSend(_failureLogHelper));
 
-            //build necessary, spam while broken = false
-            assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        //build necessary, spam while broken = false
+        assertEquals(true, _emailPublisher.shouldSend(_successLogHelper));
     }
 
     public void testCreateMessage() {
@@ -171,17 +154,13 @@ public class LinkEmailPublisherTest extends TestCase {
         assertEquals("View results here -> http://mybuildserver.com:8080/buildservlet/BuildServlet?log20020206120000", _emailPublisher.createMessage(_successLogHelper));
     }
 
-    public void testCreateSubject() {
-        try {
-            _emailPublisher.setReportSuccess("always");
-            assertEquals("some project somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
-            _emailPublisher.setReportSuccess("fixes");
-            assertEquals("some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
+    public void testCreateSubject() throws Exception {
+        _emailPublisher.setReportSuccess("always");
+        assertEquals("some project somelabel Build Successful", _emailPublisher.createSubject(_successLogHelper));
+        _emailPublisher.setReportSuccess("fixes");
+        assertEquals("some project somelabel Build Fixed", _emailPublisher.createSubject(_fixedLogHelper));
 
-            assertEquals("some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
-        } catch (CruiseControlException e) {
-            assertTrue(false);
-        }
+        assertEquals("some project Build Failed", _emailPublisher.createSubject(_failureLogHelper));
     }
 
     public void testCreateUserList() {
