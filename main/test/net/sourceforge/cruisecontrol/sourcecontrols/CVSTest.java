@@ -380,7 +380,7 @@ public class CVSTest extends TestCase {
                     "-q",
                     "log",
                     "-N",
-                    "\"-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(checkTime) + "\"",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(checkTime),
                     "-b"};
 
         String[] actualCommand =
@@ -411,7 +411,7 @@ public class CVSTest extends TestCase {
                     "cvsroot",
                     "-q",
                     "log",
-                    "\"-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime)  + "\"",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-rsometag"};
 
         String[] actualCommand =
@@ -441,7 +441,7 @@ public class CVSTest extends TestCase {
                     "-q",
                     "log",
                     "-N",
-                    "\"-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime) + "\"",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-b"};
 
         String[] actualCommand =
@@ -469,7 +469,7 @@ public class CVSTest extends TestCase {
                     "-q",
                     "log",
                     "-N",
-                    "\"-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime) + "\"",
+                    "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
                     "-b"};
 
         String[] actualCommand =
