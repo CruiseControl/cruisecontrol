@@ -47,9 +47,6 @@
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
 
     <target name="clean">
-<!--        <mkdir dir="${dist}"/>-->
-<!--        <mkdir dir="${classes}"/>-->
-<!--        <mkdir dir="${test.results}"/>-->
         <delete dir="${dist}"/>
         <delete dir="${classes}"/>
         <delete dir="${test.results}"/>
@@ -105,15 +102,27 @@
         </junit>
     </target>
 
-    <target name="create-web-xml" >
-        <!-- Do not change these properties, but override them on the command line to Ant! -->
-        <property name="user.log.dir" value="YOUR CRUISECONTROL LOG DIRECTORY" />
-        <property name="user.build.status.file" value="CURRENT BUILD STATUS FILE" />
+    <target name="create-web-xml"  depends="-set.log.dir, -set.status.file, -set.artifacts.dir">
         <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
         <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
         <copy filtering="true" todir="${temp.dir}" file="WEB-INF/web.xml" />
     </target>
 
+    <target name="-set.log.dir" unless="user.log.dir">
+        <input message="WARNING! Property user.log.dir not set!  Please enter the absolute path to the CruiseControl logs directory:"
+            addproperty="user.log.dir"/>
+    </target>
+
+    <target name="-set.status.file" unless="user.build.status.file">
+        <input message="WARNING! Property user.build.status.file not set!  Please enter the absolute path to the current build status file:"
+            addproperty="user.build.status.file"/>
+    </target>
+
+    <target name="-set.artifacts.dir" unless="cruise.build.artifacts.dir">
+        <input message="WARNING! Property cruise.build.artifacts.dir not set!  Please enter the absolute path to the directory where additional build artifacts are stored:"
+            addproperty="cruise.build.artifacts.dir"/>
+    </target>
+    
     <target name="war" depends="test,create-web-xml">
         <war warfile="${dist}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir=".">
