@@ -45,6 +45,7 @@
     <xsl:variable name="tasklist" select="/cruisecontrol/build//target/task"/>
     <xsl:variable name="javac.tasklist" select="$tasklist[@name='Javac'] | $tasklist[@name='javac'] | $tasklist[@name='compilewithwalls']"/>
     <xsl:variable name="ejbjar.tasklist" select="$tasklist[@name='EjbJar'] | $tasklist[@name='ejbjar']"/>
+    <xsl:variable name="subant.tasklist" select="$tasklist[@name='Subant'] | $tasklist[@name='subant']"/>
 
     <xsl:template match="/" mode="compile">
 
@@ -52,7 +53,9 @@
         <xsl:variable name="javac.warn.messages" select="$javac.tasklist/message[@priority='warn'][text() != '']"/>
         <xsl:variable name="ejbjar.error.messages" select="$ejbjar.tasklist/message[@priority='error'][text() != '']"/>
         <xsl:variable name="ejbjar.warn.messages" select="$ejbjar.tasklist/message[@priority='warn'][text() != '']"/>
-        <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages) + count($javac.error.messages) + count($ejbjar.error.messages)"/>
+        <xsl:variable name="subant.error.messages" select="$subant.tasklist/message[@priority='error'][text() != '']"/>
+        <xsl:variable name="subant.warn.messages" select="$subant.tasklist/message[@priority='warn'][text() != '']"/>
+        <xsl:variable name="total.errorMessage.count" select="count($javac.warn.messages) + count($ejbjar.warn.messages) + count($javac.error.messages) + count($ejbjar.error.messages) + count($subant.error.messages) + count($subant.warn.messages)"/>
 
         <xsl:if test="$total.errorMessage.count > 0">
             <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
@@ -96,6 +99,24 @@
                         <td>
                            <pre class="compile-warn-data">
                             <xsl:apply-templates select="$ejbjar.warn.messages" mode="compile"/>
+                           </pre>
+                        </td>
+                    </tr>
+                </xsl:if>
+                <xsl:if test="count($subant.error.messages) > 0">
+                    <tr>
+                        <td>
+                           <pre class="compile-error-data">
+                            <xsl:apply-templates select="$subant.error.messages"/>
+                           </pre>
+                        </td>
+                    </tr>
+                </xsl:if>
+                <xsl:if test="count($subant.warn.messages) > 0">
+                    <tr>
+                        <td>
+                           <pre class="compile-warn-data">
+                            <xsl:apply-templates select="$subant.warn.messages"/>
                            </pre>
                         </td>
                     </tr>
