@@ -259,7 +259,7 @@ public class Schedule {
         return timeToEndOfPause + ONE_MINUTE;
     }
 
-    public void setInterval(int intervalBetweenModificationChecks) {
+    public void setInterval(long intervalBetweenModificationChecks) {
         interval = intervalBetweenModificationChecks * ONE_SECOND;
     }
 
