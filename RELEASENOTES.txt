@@ -72,6 +72,10 @@ main.jsp & navigation.jsp
 * Fix for compatability with Tomcat 5.0. Patch from Robert Pearse
 * Include sub-jsps instead of having all the content in main.jsp
 
+MergeLogger
+----------------------
+* Added flag to control if properties are removed from JUnit results. Formerly they were always removed to reduce the size of the log file.
+
 Modification Set
 ----------------------
 * Changed to instruct CC to do a build if a modification occurs in the future. Patch by Geoff Krapf

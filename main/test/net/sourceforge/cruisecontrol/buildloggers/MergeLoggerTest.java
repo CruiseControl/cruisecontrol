@@ -50,78 +50,129 @@ import java.io.IOException;
 import java.io.StringReader;
 
 public class MergeLoggerTest extends TestCase {
+    private MergeLogger logger;
+    private File tempSubdir;
+    private Element log;
+    private XMLOutputter outputter = new XMLOutputter();
 
-    private static final String BASIC_LOG_CONTENT =
-            "<cruisecontrol></cruisecontrol>";
+    private static final String BASIC_LOG_CONTENT = "<cruisecontrol></cruisecontrol>";
 
-    private File directoryToDelete;
+    protected void setUp() throws Exception {
+        logger = new MergeLogger();
+        log = getBasicLog();
+
+        File tempFile = File.createTempFile(MergeLoggerTest.class.getName(), ".test");
+        File tempDir = tempFile.getParentFile();
+
+        tempSubdir = new File(tempDir, "cruisecontroltest" + System.currentTimeMillis());
+        tempSubdir.mkdir();
+    }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
-
-        Util.deleteFile(directoryToDelete);
+        logger = null;
+        Util.deleteFile(tempSubdir);
+        tempSubdir = null;
+        log = null;
     }
 
     public void testMergingFile() throws Exception {
-        Element basicLog = getBasicLog();
-
-        //Create a temp file, and write some XML to it so that it will
-        //  be merged.
-        File tempFile = File.createTempFile(
-                MergeLoggerTest.class.getName(), "testfile");
-        tempFile.deleteOnExit();
-
         String content = "<name>John Doe</name>";
-        writeFileContents(tempFile, content);
+        File fileToMerge = createFile(content);
 
-        MergeLogger logger = new MergeLogger();
-        logger.setFile(tempFile.getAbsolutePath());
+        logger.setFile(fileToMerge.getAbsolutePath());
         logger.validate();
-        logger.log(basicLog);
+        logger.log(log);
 
-        //See if the merge worked...
         String expected = "<cruisecontrol>" + content + "</cruisecontrol>";
-        XMLOutputter outputter = new XMLOutputter();
-        String actual = outputter.outputString(basicLog);
+        String actual = outputter.outputString(log);
         assertEquals(expected, actual);
     }
 
     public void testMergingDirectory() throws Exception {
-        Element basicLog = getBasicLog();
-
-        //Find the system temp directory.
-        File tempFile = File.createTempFile(
-                MergeLoggerTest.class.getName(), "testfile");
-        final String tempFileAbsPath = tempFile.getAbsolutePath();
-        String systemTempDir = tempFileAbsPath.substring(
-                0, tempFileAbsPath.lastIndexOf(File.separator));
-
-        //Create a subdirectory and write some files to it.
-        File tempSubdir = new File(systemTempDir,
-                "cruisecontroltest" + System.currentTimeMillis());
-        tempSubdir.mkdir();
-        directoryToDelete = tempSubdir; //Will be deleted in tearDown
-
-        File file1 = new File(tempSubdir, System.currentTimeMillis() + Math.random() + ".xml");
-        writeFileContents(file1, "<test1>pass</test1>");
-
-        File file2 = new File(tempSubdir, System.currentTimeMillis() + Math.random() + ".xml");
-        writeFileContents(file2, "<test2>pass</test2>");
+        createFile("<test1>pass</test1>");
+        createFile("<test2>pass</test2>");
 
         //Merge the xml files from the subdirectory.
-        MergeLogger logger = new MergeLogger();
         logger.setDir(tempSubdir.getAbsolutePath());
         logger.validate();
-        logger.log(basicLog);
+        logger.log(log);
 
-        //Since the order isn't guaranteed, the expected value is one of two
-        //  things
+        //Since the order isn't guaranteed, the expected value is one of two things
         String expected1 = "<cruisecontrol><test1>pass</test1><test2>pass</test2></cruisecontrol>";
         String expected2 = "<cruisecontrol><test2>pass</test2><test1>pass</test1></cruisecontrol>";
 
-        XMLOutputter outputter = new XMLOutputter();
-        String actual = outputter.outputString(basicLog);
+        String actual = outputter.outputString(log);
         assertEqualsEither(expected1, expected2, actual);
+    }
+
+    public void testValidation() throws CruiseControlException {
+        try {
+            logger.validate();
+            fail("Expected an exception because we didn't set a file or directory.");
+        } catch (CruiseControlException expected) {
+            assertEquals("one of file or dir are required attributes", expected.getMessage());
+        }
+
+        logger.setDir("temp");
+        logger.setFile("tempfile.xml");
+        try {
+            logger.validate();
+            fail("Expected an exception because we set a file and a directory.");
+        } catch (CruiseControlException expected) {
+            assertEquals("only one of file or dir may be specified", expected.getMessage());
+        }
+
+        logger.setDir(null);
+        logger.validate();
+
+        logger.setDir("temp");
+        logger.setFile(null);
+        logger.validate();
+    }
+
+    public void testGetElement() throws IOException {
+        String withProperties = "<testsuite><properties /></testsuite>";
+        String withoutProperties = "<testsuite />";
+
+        File with = createFile(withProperties);
+        File without = createFile(withoutProperties);
+
+        Element elementWith = logger.getElement(with);
+        Element elementWithout = logger.getElement(without);
+
+        String actualWith = outputter.outputString(elementWith);
+        String actualWithout = outputter.outputString(elementWithout);
+
+        assertEquals(withoutProperties, actualWithout);
+        assertEquals(withoutProperties, actualWith);
+
+        logger.setRemoveProperties(false);
+
+        elementWith = logger.getElement(with);
+        elementWithout = logger.getElement(without);
+
+        actualWith = outputter.outputString(elementWith);
+        actualWithout = outputter.outputString(elementWithout);
+
+        assertEquals(withoutProperties, actualWithout);
+        assertEquals(withProperties, actualWith);
+    }
+
+    private Element getBasicLog() throws JDOMException {
+        SAXBuilder saxBuilder = new SAXBuilder();
+        return saxBuilder.build(new StringReader(BASIC_LOG_CONTENT)).getRootElement();
+    }
+
+    private static void writeFileContents(File theFile, String contents) throws IOException {
+        FileWriter fw = new FileWriter(theFile);
+        fw.write(contents);
+        fw.close();
+    }
+
+    private File createFile(String content) throws IOException {
+        File fileToMerge = File.createTempFile(MergeLoggerTest.class.getName(), ".xml", tempSubdir);
+        writeFileContents(fileToMerge, content);
+        return fileToMerge;
     }
 
     /**
@@ -134,48 +185,4 @@ public class MergeLoggerTest extends TestCase {
         }
     }
 
-    public void testValidation() throws CruiseControlException {
-        //Should get an exception if we don't set anything
-        MergeLogger logger = new MergeLogger();
-        try {
-            logger.validate();
-            fail("Expected an exception because"
-                    + " we didn't set a file or directory.");
-        } catch (CruiseControlException expected) {
-            //Good, expected this exception
-        }
-
-        //Should get an exception if we set both a directory and a file.
-        logger.setDir("temp");
-        logger.setFile("tempfile.xml");
-        try {
-            logger.validate();
-            fail("Expected an exception because"
-                    + " we set a file and a directory.");
-        } catch (CruiseControlException expected) {
-            //Good, expected this exception
-        }
-
-        //With just a file or a directory set...all should be well.
-        logger.setDir(null);
-        logger.validate();
-
-        logger.setDir("temp");
-        logger.setFile(null);
-        logger.validate();
-    }
-
-    private Element getBasicLog() throws JDOMException {
-        SAXBuilder saxBuilder = new SAXBuilder();
-        return saxBuilder.build(
-                new StringReader(BASIC_LOG_CONTENT)).getRootElement();
-    }
-
-    private static void writeFileContents(File theFile, String contents)
-            throws IOException {
-
-        FileWriter fw = new FileWriter(theFile);
-        fw.write(contents);
-        fw.close();
-    }
 }

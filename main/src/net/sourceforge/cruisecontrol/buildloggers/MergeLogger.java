@@ -59,6 +59,7 @@ public class MergeLogger implements BuildLogger {
 
     private String file;
     private String dir;
+    private boolean removeProperties = true;
 
     public void setFile(String file) {
         this.file = file;
@@ -115,12 +116,12 @@ public class MergeLogger implements BuildLogger {
      *  @param xmlFile The file name to read.
      *  @return JDOM <code>Element</code> representing that xml file.
      */
-    private Element getElement(File xmlFile) {
+    Element getElement(File xmlFile) {
         try {
             SAXBuilder builder =
                     new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             Element element = builder.build(xmlFile).getRootElement();
-            if (element.getName().equals("testsuite")) {
+            if (element.getName().equals("testsuite") && removeProperties) {
                 if (element.getChild("properties") != null) {
                     element.getChild("properties").detach();
                 }
@@ -131,5 +132,9 @@ public class MergeLogger implements BuildLogger {
         }
 
         return null;
+    }
+
+    public void setRemoveProperties(boolean b) {
+        removeProperties = b;
     }
 }
