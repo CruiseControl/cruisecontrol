@@ -71,51 +71,17 @@ public class MasterBuild {
     //label/modificationset/build participants
     private String  _labelIncrementerClassName;
 
-    private boolean _spamWhileBroken = true;
-    
-    private String  _logDir;
-    
-    //build iteration info
-    private long _buildInterval;
-    private boolean _isIntervalAbsolute;
-    private int _cleanBuildEvery;
-
     //build properties
-    private Properties _properties;
     private String _propsFileName;
 
     //xml merge stuff
     private Vector _auxLogFiles = new Vector();
-    private Vector _auxLogProperties = new Vector();
     private String _today;
 
-    //email stuff
-    private String _defaultEmailSuffix;
-    private String _mailhost;
-    private String _returnAddress;
-    private Set _buildmaster;
-    private Set _notifyOnFailure;
-    private boolean _reportSuccess;
     private String _projectName;
-    private boolean _useEmailMap;
-    private String _emailmapFilename;
-
-    //ant specific stuff
-    private String _antFile;
-    private String _antTarget;
-    private String _cleanAntTarget;
     
-    //(PENDING) Extract class to handle logging
-    private boolean _debug;
-    private boolean _verbose;
-    
-    private boolean _mapSourceControlUsersToEmail;
-    
-    //build servlet info
-    private String _servletURL;
-    private File _currentBuildStatusFile;
-
     private BuildInfo info;
+    private CruiseControlProperties props;
 
     private int _buildCounter;
     /**
@@ -196,141 +162,7 @@ public class MasterBuild {
         
         return true;
     }
-    //////////////////////////
-    // END handling arguments
-    //////////////////////////
-    /**
-     * Serialize the label and timestamp of the last good build
-     */
-    private void writeBuildInfo() {
-        info.write();
-    }
-
-    /**
-     * Load properties file, see cruisecontrol.properties for descriptions of 
-     * properties.
-     */
-    private void loadProperties() throws Exception {
-        File propFile = new File(_propsFileName);
-        
-        if (!propFile.exists()) {
-            throw new FileNotFoundException("Properties file \"" + propFile 
-             + "\" not found");
-        }
-        
-        Properties props = new Properties();
-        props.load(new FileInputStream(propFile));
-        
-        StringTokenizer st = new StringTokenizer(
-         props.getProperty("auxlogfiles"), ",");
-        _auxLogProperties = new Vector();
-        while (st.hasMoreTokens()) {
-            String nextFile = st.nextToken().trim();
-            _auxLogProperties.add(nextFile);
-        }
-        
-        try {
-            _buildInterval = Integer.parseInt(
-             props.getProperty("buildinterval"))*1000;
-        } catch (NumberFormatException nfe) {
-            throw new IllegalArgumentException(
-             "buildinterval not set correctly in " + _propsFileName);
-        }
-        
-        _debug = getBooleanProperty(props, "debug");
-        _verbose = getBooleanProperty(props, "verbose");
-        _mapSourceControlUsersToEmail = getBooleanProperty(props, 
-         "mapSourceControlUsersToEmail");
-        
-        _defaultEmailSuffix = props.getProperty("defaultEmailSuffix");
-        _mailhost = props.getProperty("mailhost");
-        if (_mailhost.equals("")) {
-            throw new IllegalArgumentException(
-             "mailhost not set in " + _propsFileName);
-        }
-        
-        _servletURL = props.getProperty("servletURL");
-        if (_servletURL.equals("")) {
-            throw new IllegalArgumentException(
-             "servletURL not set in " + _propsFileName);
-        }
-        
-        _returnAddress = props.getProperty("returnAddress");
-        if (_returnAddress.equals("")) {
-            throw new IllegalArgumentException(
-             "returnAddress not set in " + _propsFileName);
-        }
-        
-        _buildmaster = getSetFromString(props.getProperty("buildmaster"));
-        _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
-        
-        _reportSuccess = getBooleanProperty(props, "reportSuccess");
-        _spamWhileBroken = getBooleanProperty(props, "spamWhileBroken");
-        
-        _logDir = props.getProperty("logDir", DEFAULT_LOG_DIR); 
-        new File(_logDir).mkdirs();
-        
-        String buildStatusFileName = _logDir + File.separator 
-         + props.getProperty("currentBuildStatusFile", 
-         DEFAULT_BUILD_STATUS_FILENAME);
-        log("Creating " + buildStatusFileName);
-        _currentBuildStatusFile = new File(buildStatusFileName);
-        _currentBuildStatusFile.createNewFile();
-        
-        _antFile = props.getProperty("antfile", DEFAULT_BUILD_FILE);
-        _antTarget = props.getProperty("target", DEFAULT_TARGET);
-        _cleanAntTarget = props.getProperty("cleantarget", DEFAULT_CLEAN_TARGET);
-        
-        try {
-        _cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
-        } catch (NumberFormatException nfe) {
-            throw new IllegalArgumentException(
-             "cleanBuildEvery not set correctly in " + _propsFileName);
-        }
-        
-        _labelIncrementerClassName = props.getProperty("labelIncrementerClass");
-        if (_labelIncrementerClassName == null) {
-            _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
-        }
-        
-        _emailmapFilename = props.getProperty("emailmap");
-        _useEmailMap = usingEmailMap(_emailmapFilename);
-        
-        if (_debug || _verbose) {
-            props.list(System.out);
-        }
-    }
-
-    private boolean getBooleanProperty(Properties props, String key) {
-        try {
-            return props.getProperty(key).equals("true");
-        } catch (NullPointerException npe) {
-            log("Missing " + key + " property.  Using 'false'.");
-            return false;
-        }
-    }    
     
-    /**
-     * This method infers from the value of the email
-     * map filename, whether or not the email map is being
-     * used. For example, if the filename is blank
-     * or null, then the map is not being used.
-     * 
-     * @param emailMapFileName
-     *               Name provided by the user.
-     * @return true if the email map should be consulted, otherwise false.
-     */
-    private boolean usingEmailMap(String emailMapFileName) {
-        //If the user specified name is null or blank or doesn't exist, then 
-        //  the email map is not being used.
-        if (emailMapFileName == null || emailMapFileName.trim().length() == 0) {
-            return false;
-        }
-        //Otherwise, check to see if the filename provided exists and is readable.
-        File userEmailMap = new File(emailMapFileName);
-        return userEmailMap.exists() && userEmailMap.canRead();
-    }
-
     /**
      * Loop infinitely, firing off the build as necessary.  Reloads the 
      * properties file every time so that the build process need not be stopped,
@@ -359,24 +191,28 @@ public class MasterBuild {
     }
 
     private void performBuild() throws Exception {
-        loadProperties();
+        //Reload the properties file.
+        props = new CruiseControlProperties(_propsFileName);
 
         logCurrentBuildStatus(true);
 
-        int messageLevel = _debug ? Project.MSG_DEBUG :
-                                    (_verbose ? Project.MSG_VERBOSE : Project.MSG_INFO);
+        int messageLevel = props.isDebug() ? Project.MSG_DEBUG :
+                                    (props.isVerbose() ? Project.MSG_VERBOSE : Project.MSG_INFO);
         CruiseLogger logger = new CruiseLogger(messageLevel);
         
-        log("Opening build file: " + _antFile);
+        log("Opening build file: " + props.getAntFile());
         String target = null; // remember: Null target means default target.
-        if (((_buildCounter % _cleanBuildEvery) == 0) && _cleanAntTarget != "") {
-            log("Using clean target: " + _cleanAntTarget);
-            target = _cleanAntTarget;
-        } else if (_antTarget != "") {
-            log("Using normal target: " + _antTarget);
-            target = _antTarget;
+        if (((_buildCounter % props.getCleanBuildEvery()) == 0) 
+            && props.getCleanAntTarget() != "") {
+
+            log("Using clean target: " + props.getCleanAntTarget());
+            target = props.getCleanAntTarget();
+
+        } else if (props.getAntTarget() != "") {
+            log("Using normal target: " + props.getAntTarget());
+            target = props.getAntTarget();
         }
-        BuildRunner runner = new BuildRunner(_antFile, target, 
+        BuildRunner runner = new BuildRunner(props.getAntFile(), target, 
                                              info.getLastGoodBuild(),
                                              info.getLabel(), logger);
         
@@ -388,13 +224,13 @@ public class MasterBuild {
 
         //(PENDING) do this in buildFinished?
         if (info.isBuildNotNecessary()) {
-            if (!info.isLastBuildSuccessful() && _spamWhileBroken) {
+            if (!info.isLastBuildSuccessful() && props.shouldSpamWhileBroken()) {
                 sendBuildEmail(_projectName + "Build still failing...");
             }
         } else {
             if (info.isLastBuildSuccessful()) {
                 _buildCounter++;
-                if(_reportSuccess) {
+                if(props.shouldReportSuccess()) {
                     sendBuildEmail(_projectName + " Build " + info.getLabel() + " Successful");
                 } else {
                     log("Skipping email notifications for successful builds");
@@ -403,7 +239,7 @@ public class MasterBuild {
             } else {
                 sendBuildEmail(_projectName + "Build Failed");
             }
-            writeBuildInfo();
+            info.write();
         }
         runner.reset();
     }
@@ -414,16 +250,16 @@ public class MasterBuild {
     }
     
     private long getSleepTime(Date startTime) {
-        if (_isIntervalAbsolute) {
+        if (props.isIntervalAbsolute()) {
             // We need to sleep up until startTime + buildInterval.
             // Therefore, we need startTime + buildInterval - now.
             Date now = new Date();
-            long sleepTime = startTime.getTime() + _buildInterval - now.getTime();
+            long sleepTime = startTime.getTime() + props.getBuildInterval() - now.getTime();
             sleepTime = (sleepTime < 0 ? 0 : sleepTime);
             return sleepTime;
         }
         else {
-            return _buildInterval;
+            return props.getBuildInterval();
         }
     }
     
@@ -473,7 +309,7 @@ public class MasterBuild {
             logFileName += "L" + info.getLabel();
         }
         logFileName += ".xml";
-        logFileName = _logDir + File.separator + logFileName;
+        logFileName = props.getLogDir() + File.separator + logFileName;
 
         return logFileName;
     }
@@ -489,7 +325,7 @@ public class MasterBuild {
         //REDTAG - Paul - How explicit should we make the error messages? Is ClassCastException
         //  enough?
         try {
-            Class incrementerClass = Class.forName(_labelIncrementerClassName);
+            Class incrementerClass = Class.forName(props.getLabelIncrementerClassName());
             LabelIncrementer incr = (LabelIncrementer)incrementerClass.newInstance();
             info.setLabel(incr.incrementLabel(info.getLabel()));
         } catch (Exception e) {
@@ -502,14 +338,14 @@ public class MasterBuild {
     //(PENDING) Extract e-mail stuff into another class
     private Set getEmails(String list) {
         //The buildmaster is always included in the email names.
-        Set emails = new HashSet(_buildmaster);
+        Set emails = new HashSet(props.getBuildmaster());
 
         //If the build failed then the failure notification emails are included.
         if (!info.isLastBuildSuccessful()) {
-            emails.addAll(_notifyOnFailure);
+            emails.addAll(props.getNotifyOnFailure());
         }
         
-        if (_mapSourceControlUsersToEmail) {
+        if (props.isMapSourceControlUsersToEmail()) {
             log("Adding source control users to e-mail list: " + list);
             emails.addAll(getSetFromString(list));
         }
@@ -525,12 +361,12 @@ public class MasterBuild {
         log(logMessage.toString());
 
         String logFile = info.getLogfile();
-        String message = "View results here -> " + _servletURL + "?"
+        String message = "View results here -> " + props.getServletURL() + "?"
          + logFile.substring(logFile.lastIndexOf(File.separator) + 1, 
          logFile.lastIndexOf("."));
 
         try {
-            Mailer mailer = new Mailer(_mailhost, _returnAddress);
+            Mailer mailer = new Mailer(props.getMailhost(), props.getReturnAddress());
             mailer.sendMessage(emails, subject, message);
         } catch (javax.mail.MessagingException me) {
             System.out.println("Unable to send email.");
@@ -569,20 +405,20 @@ public class MasterBuild {
             if (nextName.indexOf("@") > -1) {
                 //The address is already fully qualified.
                 returnAddresses.add(nextName);
-            } else if (_useEmailMap) {
-                File emailmapFile = new File(_emailmapFilename);
+            } else if (props.useEmailMap()) {
+                File emailmapFile = new File(props.getEmailmapFilename());
                 Properties emailmap = new Properties();
                 try {
                     emailmap.load(new FileInputStream(emailmapFile));
                 } catch (Exception e) {
-                    log("error reading email map file: " + _emailmapFilename);
+                    log("error reading email map file: " + props.getEmailmapFilename());
                     e.printStackTrace();
                 }
 
                 String mappedNames = emailmap.getProperty(nextName);
                 if (mappedNames == null) {
-                    if (_defaultEmailSuffix != null) {
-                        nextName += _defaultEmailSuffix;
+                    if (props.getDefaultEmailSuffix() != null) {
+                        nextName += props.getDefaultEmailSuffix();
                     }
                     returnAddresses.add(nextName);
                 } else {
@@ -590,8 +426,8 @@ public class MasterBuild {
                     aliasPossible = true;
                 }
             } else {
-                if (_defaultEmailSuffix != null) {
-                    nextName += _defaultEmailSuffix;
+                if (props.getDefaultEmailSuffix() != null) {
+                    nextName += props.getDefaultEmailSuffix();
                 }
                 returnAddresses.add(nextName);
             }
@@ -674,11 +510,11 @@ public class MasterBuild {
          = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         Date buildTime = new Date();
         if (!isRunning) {
-            buildTime = new Date(buildTime.getTime() + _buildInterval);
+            buildTime = new Date(buildTime.getTime() + props.getBuildInterval());
         }
 
         try {        
-            FileWriter currentBuildWriter = new FileWriter(_currentBuildStatusFile);
+            FileWriter currentBuildWriter = new FileWriter(props.getCurrentBuildStatusFile());
             currentBuildWriter.write((isRunning ? currentlyRunning : notRunning) 
              + numericDateFormatter.format(buildTime) + "<br>");
             currentBuildWriter.close();
@@ -715,8 +551,9 @@ public class MasterBuild {
 
         //get the exact filenames from the ant properties that tell us what aux xml files we have...
         _auxLogFiles = new Vector();
-        for (Enumeration e = _auxLogProperties.elements(); e.hasMoreElements();) {
-            String propertyName = (String)e.nextElement();
+        for (Iterator e = props.getAuxLogProperties().iterator(); 
+             e.hasNext();) {
+            String propertyName = (String)e.next();
             String fileName = proj.getProperty(propertyName);
             if (fileName == null) {
                 log("Auxillary Log File Property '" + propertyName + "' not set.");
