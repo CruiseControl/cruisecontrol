@@ -40,44 +40,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <taglib>
-  <tlibversion>1.0</tlibversion>
-  <jspversion>1.1</jspversion>
-  <shortname>simple</shortname>
-  <uri></uri>
-  <info>
-	A simple tab library for the examples
-  </info>
-  <tag>
-    <name>xsl</name>
-    <tagclass>net.sourceforge.cruisecontrol.taglib.XSLTag</tagclass>
-    <bodycontent>JSP</bodycontent>
+    <tlibversion>1.0</tlibversion>
+    <jspversion>1.1</jspversion>
+    <shortname>simple</shortname>
+    <uri></uri>
     <info>
-        Transforms the xml build log using XSL.
+        A simple tab library for the examples
     </info>
-    <attribute>
-        <name>xslFile</name>
-        <required>true</required>
-    </attribute>
-  </tag>
-  <tag>
-    <name>currentbuildstatus</name>
-    <tagclass>net.sourceforge.cruisecontrol.taglib.CurrentBuildStatusTag</tagclass>
-    <bodycontent>JSP</bodycontent>
-    <info>
-        Report when the build started, or when it will start again.
-    </info>
-  </tag>
-  <tag>
-    <name>nav</name>
-    <tagclass>net.sourceforge.cruisecontrol.taglib.NavigationTag</tagclass>
-    <teiclass>net.sourceforge.cruisecontrol.taglib.NavigationTagExtraInfo</teiclass>
-    <bodycontent>JSP</bodycontent>
-    <info>
-        Builds the navigation
-    </info>
-    <attribute>
-        <name>dateFormat</name>
-        <required>false</required>
-    </attribute>
-  </tag>
+    <tag>
+        <name>xsl</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.XSLTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Transforms the xml build log using XSL.
+        </info>
+        <attribute>
+            <name>xslFile</name>
+            <required>true</required>
+        </attribute>
+    </tag>
+    <tag>
+        <name>currentbuildstatus</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.CurrentBuildStatusTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Report when the build started, or when it will start again.
+        </info>
+    </tag>
+    <tag>
+        <name>nav</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.NavigationTag</tagclass>
+        <teiclass>net.sourceforge.cruisecontrol.taglib.NavigationTagExtraInfo</teiclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Builds the navigation
+        </info>
+        <attribute>
+            <name>dateFormat</name>
+            <required>false</required>
+        </attribute>
+        <attribute>
+            <name>startingBuildNumber</name>
+            <required>false</required>
+        </attribute>
+        <attribute>
+            <name>finalBuildNumber</name>
+            <required>false</required>
+        </attribute>
+    </tag>
 </taglib>
