@@ -68,9 +68,6 @@ public class MasterBuild {
     private final String DEFAULT_TARGET = "masterbuild";
     private final String DEFAULT_CLEAN_TARGET = "cleanbuild";
 
-    //label/modificationset/build participants
-    private String  _labelIncrementerClassName;
-
     //build properties
     private String _propsFileName;
 
@@ -94,7 +91,6 @@ public class MasterBuild {
 
         mb.readBuildInfo();
         mb.overwriteWithUserArguments(args);
-        mb.setDefaultPropsFileIfNecessary();
 
         if (mb.buildInfoSpecified()) {
             mb.execute();
@@ -119,7 +115,7 @@ public class MasterBuild {
         for (int i = 0; i < args.length - 1; i++) {
             try {
                 if (args[i].equals("-lastbuild")) {
-                    info.setLastBuild(processLastBuildArg(args[i + 1]));
+                    info.setLastBuild(args[i + 1]);
                     info.setLastGoodBuild(info.getLastBuild());
                 } else if (args[i].equals("-label")) {
                     //(PENDING) check format of label
@@ -133,34 +129,9 @@ public class MasterBuild {
             }
         }
     }
-
-    public void setDefaultPropsFileIfNecessary() {
-        if (_propsFileName == null) {
-            if (new File(DEFAULT_PROPERTIES_FILENAME).exists()) {
-                _propsFileName = DEFAULT_PROPERTIES_FILENAME;
-            }
-        }
-    }
     
     public boolean buildInfoSpecified() {
         return info.ready();
-    }
-
-    private String processLastBuildArg(String lastBuild) {
-        if (!isCompleteTime(lastBuild)) {
-            throw new IllegalArgumentException(
-             "Bad format for last build: " + lastBuild);
-        }
-        return lastBuild;
-    }    
-
-    private boolean isCompleteTime(String time) {
-        int expectedLength = 14;
-        if (time.length() < expectedLength) {
-            return false;
-        }
-        
-        return true;
     }
     
     /**
@@ -235,7 +206,7 @@ public class MasterBuild {
                 } else {
                     log("Skipping email notifications for successful builds");
                 }
-                incrementLabel();
+                info.incrementLabel(props.getLabelIncrementerClassName());
             } else {
                 sendBuildEmail(_projectName + "Build Failed");
             }
@@ -245,8 +216,10 @@ public class MasterBuild {
     }
 
     private void sendBuildEmail(String message) {
-        Set emails = getEmails(info.getUserList());
-        emailReport(emails, message);
+        CruiseControlMailer mailer = new CruiseControlMailer(props.getMailhost(),
+                                                             props.getReturnAddress());
+        mailer.emailReport(props, info.getUserList(), message,
+                           info.getLogfile(), info.isLastBuildSuccessful());
     }
     
     private long getSleepTime(Date startTime) {
@@ -312,132 +285,6 @@ public class MasterBuild {
         logFileName = props.getLogDir() + File.separator + logFileName;
 
         return logFileName;
-    }
-
-    /**
-     * This method delegates to the dynamically loaded LabelIncrementer. The actual
-     * implementing class can be declared in the masterbuild.properties file, or
-     * the class DefaultLabelIncrementer will be used.
-     *
-     * @see loadProperties
-     */
-    private void incrementLabel() {
-        //REDTAG - Paul - How explicit should we make the error messages? Is ClassCastException
-        //  enough?
-        try {
-            Class incrementerClass = Class.forName(props.getLabelIncrementerClassName());
-            LabelIncrementer incr = (LabelIncrementer)incrementerClass.newInstance();
-            info.setLabel(incr.incrementLabel(info.getLabel()));
-        } catch (Exception e) {
-            log("Error incrementing label.");
-            e.printStackTrace();
-        }
-
-    }
-
-    //(PENDING) Extract e-mail stuff into another class
-    private Set getEmails(String list) {
-        //The buildmaster is always included in the email names.
-        Set emails = new HashSet(props.getBuildmaster());
-
-        //If the build failed then the failure notification emails are included.
-        if (!info.isLastBuildSuccessful()) {
-            emails.addAll(props.getNotifyOnFailure());
-        }
-        
-        if (props.isMapSourceControlUsersToEmail()) {
-            log("Adding source control users to e-mail list: " + list);
-            emails.addAll(getSetFromString(list));
-        }
-
-        return translateAliases(emails);
-    }
-
-    private void emailReport(Set emails, String subject) {
-        StringBuffer logMessage = new StringBuffer("Sending mail to:");
-        for(Iterator iter = emails.iterator(); iter.hasNext();) {
-            logMessage.append(" " + iter.next());
-        }
-        log(logMessage.toString());
-
-        String logFile = info.getLogfile();
-        String message = "View results here -> " + props.getServletURL() + "?"
-         + logFile.substring(logFile.lastIndexOf(File.separator) + 1, 
-         logFile.lastIndexOf("."));
-
-        try {
-            Mailer mailer = new Mailer(props.getMailhost(), props.getReturnAddress());
-            mailer.sendMessage(emails, subject, message);
-        } catch (javax.mail.MessagingException me) {
-            System.out.println("Unable to send email.");
-            me.printStackTrace();
-        }
-    }
-
-    /**
-     * Forms a set of unique words/names from the comma
-     * delimited list provided. Maybe empty, never null.
-     * 
-     * @param commaDelim String containing a comma delimited list of words,
-     *                   e.g. "paul,Paul, Tim, Alden,,Frank".
-     * @return Set of words; maybe empty, never null.
-     */
-    private Set getSetFromString(String commaDelim) {
-        Set elements = new TreeSet();
-        if (commaDelim == null) {
-            return elements;
-        }
-
-        StringTokenizer st = new StringTokenizer(commaDelim, ",");
-        while (st.hasMoreTokens()) {
-            String mapped = st.nextToken().trim();
-            elements.add(mapped);
-        }
-
-        return elements;
-    }
-
-    private Set translateAliases(Set possibleAliases) {
-        Set returnAddresses = new HashSet();
-        boolean aliasPossible = false;
-        for (Iterator iter = possibleAliases.iterator(); iter.hasNext();) {
-            String nextName = (String) iter.next();
-            if (nextName.indexOf("@") > -1) {
-                //The address is already fully qualified.
-                returnAddresses.add(nextName);
-            } else if (props.useEmailMap()) {
-                File emailmapFile = new File(props.getEmailmapFilename());
-                Properties emailmap = new Properties();
-                try {
-                    emailmap.load(new FileInputStream(emailmapFile));
-                } catch (Exception e) {
-                    log("error reading email map file: " + props.getEmailmapFilename());
-                    e.printStackTrace();
-                }
-
-                String mappedNames = emailmap.getProperty(nextName);
-                if (mappedNames == null) {
-                    if (props.getDefaultEmailSuffix() != null) {
-                        nextName += props.getDefaultEmailSuffix();
-                    }
-                    returnAddresses.add(nextName);
-                } else {
-                    returnAddresses.addAll(getSetFromString(mappedNames));
-                    aliasPossible = true;
-                }
-            } else {
-                if (props.getDefaultEmailSuffix() != null) {
-                    nextName += props.getDefaultEmailSuffix();
-                }
-                returnAddresses.add(nextName);
-            }
-        }
-        
-        if (aliasPossible) {
-            returnAddresses = translateAliases(returnAddresses);
-        }
-        
-        return returnAddresses;
     }
 
     /**
