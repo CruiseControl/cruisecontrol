@@ -99,7 +99,7 @@ public class AntBuilder extends Builder {
      */
     public Element build(Map buildProperties) throws CruiseControlException {
 
-        Process p = null;
+        Process p;
         try {
             String[] commandLine = getCommandLineArgs(buildProperties, useLogger, antScript != null, isWindows());
 
@@ -111,7 +111,7 @@ public class AntBuilder extends Builder {
                 for (int i = 0; i < commandLine.length; i++) {
                     sb.append(commandLine[i]).append(" ");
                 }
-                if (antWorkingDir != null) {
+                if (workingDir != null) {
                     sb.append("in directory " + workingDir.getCanonicalPath());
                 }
                 LOG.debug(sb);

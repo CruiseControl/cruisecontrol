@@ -187,7 +187,7 @@ public class VssJournal implements SourceControl {
                     modifications.add(mod);
                 }
 
-                if (s.equals("")) {
+                if ("".equals(s)) {
                     s = br.readLine();
                 }
             }
@@ -297,11 +297,8 @@ public class VssJournal implements SourceControl {
      */
     private String parseComment(List a) {
         StringBuffer comment = new StringBuffer();
-        if (a.size() > 4) {
-            comment.append(((String) a.get(4)) + " ");
-            for (int i = 5; i < a.size(); i++) {
-                comment.append(((String) a.get(i)) + " ");
-            }
+        for (int i = 4; i < a.size(); i++) {
+            comment.append(a.get(i) + " ");
         }
         return comment.toString().trim();
     }

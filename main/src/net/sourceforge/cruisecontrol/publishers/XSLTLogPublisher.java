@@ -187,7 +187,6 @@ public class XSLTLogPublisher implements Publisher {
    protected void writeFile(Element cruisecontrolLog, String path) throws CruiseControlException {
       FileInputStream xslFileStream = null;
       OutputStream out = null;
-      File xmlFile = null;
       try {
          //Make sure that the xsltFile exists
          try {
@@ -224,14 +223,14 @@ public class XSLTLogPublisher implements Publisher {
          if (xslFileStream != null) {
             try {
                xslFileStream.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                //Do nothing
             }
          }
          if (out != null) {
             try {
                out.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                //Do Nothing
             }
          }

@@ -172,7 +172,7 @@ public class ModificationSet {
      *
      */
     public Element getModifications(Date lastBuild) {
-        Element modificationsElement = null;
+        Element modificationsElement;
         do {
             timeOfCheck = new Date();
             modifications = new ArrayList();
@@ -208,8 +208,11 @@ public class ModificationSet {
 
             if (isLastModificationInQuietPeriod(timeOfCheck, modifications)) {
                 LOG.info("A modification has been detected in the quiet period.  ");
-                final Date quietPeriodStart = new Date(timeOfCheck.getTime() - quietPeriod);
-                LOG.debug(formatter.format(quietPeriodStart) + " <= Quiet Period <= " + formatter.format(timeOfCheck));
+                if (LOG.isDebugEnabled()) {
+                    final Date quietPeriodStart = new Date(timeOfCheck.getTime() - quietPeriod);
+                    LOG.debug(formatter.format(quietPeriodStart) + " <= Quiet Period <= " 
+                            + formatter.format(timeOfCheck));
+                }
                 Date now = new Date();
                 long timeToSleep = getQuietPeriodDifference(now, modifications);
                 LOG.info("Sleeping for " + (timeToSleep / 1000) + " seconds before retrying.");

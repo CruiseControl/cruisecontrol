@@ -147,16 +147,14 @@ public final class PluginRegistry {
      *
      * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    public Class getPluginClass(String pluginName)
-            throws CruiseControlException {
+    public Class getPluginClass(String pluginName) throws CruiseControlException {
         if (!isPluginRegistered(pluginName)) {
             return null;
         }
         String pluginClassname = getPluginClassname(pluginName);
 
-        Class pluginClass = null;
         try {
-            pluginClass = Class.forName(pluginClassname);
+            return Class.forName(pluginClassname);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             throw new CruiseControlException(
@@ -164,7 +162,6 @@ public final class PluginRegistry {
                     + "], but couldn't load corresponding class ["
                     + pluginClassname + "].");
         }
-        return pluginClass;
     }
 
     /**

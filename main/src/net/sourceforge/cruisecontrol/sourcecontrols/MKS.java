@@ -352,7 +352,7 @@ public class MKS implements SourceControl {
             }
 
             Modification nextModification = new Modification("mks");
-            Modification.ModifiedFile modfile = nextModification.createModifiedFile(workingFilename, null);
+            nextModification.createModifiedFile(workingFilename, null);
 
             try {
 

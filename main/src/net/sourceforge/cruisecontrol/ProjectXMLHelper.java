@@ -60,7 +60,7 @@ public class ProjectXMLHelper {
     private String overrideTarget = null;
     public static final String LABEL_INCREMENTER = "labelincrementer";
 
-    public ProjectXMLHelper() throws CruiseControlException {
+    public ProjectXMLHelper() {
         plugins = PluginRegistry.createRegistry();
     }
 

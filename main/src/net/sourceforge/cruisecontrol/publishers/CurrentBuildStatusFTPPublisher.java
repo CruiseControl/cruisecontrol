@@ -131,11 +131,14 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
         } catch (IOException ioe) {
             throw new CruiseControlException(ioe.getMessage());
         } finally {
-            try {
-                fr.close();
-            } catch (IOException ioe) {
-                // ignore
+            if (fr != null) {
+                try {
+                    fr.close();
+                } catch (IOException ioe) {
+                    // ignore
+                }
             }
+                
         }
         return out.toString();
     }

@@ -50,7 +50,7 @@ import java.util.EventObject;
  */
 public class BuildProgressEvent extends EventObject {
 
-    private ProjectState state;
+    private final ProjectState state;
 
     /**
      * Constructs the event indicating the state of the build.

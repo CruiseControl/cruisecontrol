@@ -144,16 +144,15 @@ public final class Main {
      * @return port number
      * @throws IllegalArgumentException if port argument is invalid
      */
-    static int parseHttpPort(String[] args) throws CruiseControlException {
+    static int parseHttpPort(String[] args) {
         return parseInt(args, "port", NOT_FOUND, 8000);
     }
 
-    static int parseRmiPort(String[] args) throws CruiseControlException {
+    static int parseRmiPort(String[] args) {
         return parseInt(args, "rmiport", NOT_FOUND, 1099);
     }
 
-    private static int parseInt(String[] args, String argName, int defaultIfNoParam, int defaultIfNoValue) 
-            throws CruiseControlException {
+    private static int parseInt(String[] args, String argName, int defaultIfNoParam, int defaultIfNoValue) {
         String intString = parseArgument(args, 
                                          argName, 
                                          Integer.toString(defaultIfNoParam), 
@@ -166,7 +165,7 @@ public final class Main {
         }
     }
 
-    static String parseXslPath(String[] args) throws CruiseControlException {
+    static String parseXslPath(String[] args) {
         String xslpath = parseArgument(args, "xslpath", null, null);
         if (xslpath != null) {
             File directory = new File(xslpath);
@@ -212,8 +211,7 @@ public final class Main {
      *      in case the parameter argName was specified without a value
      * @return The argument value found, or the default if none was found.
      */
-    static String parseArgument(String[] args, String argName, String defaultIfNoParam, String defaultIfNoValue)
-            throws CruiseControlException {
+    static String parseArgument(String[] args, String argName, String defaultIfNoParam, String defaultIfNoValue) {
         int argIndex = findIndex(args, argName);
         if (argIndex == NOT_FOUND) {
             return defaultIfNoParam;
