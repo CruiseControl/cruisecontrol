@@ -57,4 +57,9 @@ public class MockSchedule extends Schedule {
     protected Map getBuildProperties() {
         return _properties;
     }
+    
+    
+    public long getTimeToNextBuild(Date date, long interval) {
+        return interval;
+    }
 }
