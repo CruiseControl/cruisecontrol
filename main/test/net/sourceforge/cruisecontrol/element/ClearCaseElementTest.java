@@ -113,7 +113,7 @@ public class ClearCaseElementTest extends TestCase {
             assertEquals("", mod.comment);
         }
         catch (java.io.IOException e) {
-            assert("An exception occured while passing the stream", true);
+            assertTrue("An exception occured while passing the stream", true);
         }
     }
 

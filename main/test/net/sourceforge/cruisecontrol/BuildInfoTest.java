@@ -77,11 +77,11 @@ public class BuildInfoTest extends TestCase {
         info.write(tempFile.getAbsolutePath());
 
         //Make sure the tempfile exists and has some data in it.
-        assert("The temp file should have been written, but it doesn't exist.", 
+        assertTrue("The temp file should have been written, but it doesn't exist.",
                tempFile.exists());
-        assert("Cannot read the temp file.", tempFile.canRead());
+        assertTrue("Cannot read the temp file.", tempFile.canRead());
         InputStream in = new FileInputStream(tempFile);
-        assert("The tempfile contains zero bytes, but it should contain at"
+        assertTrue("The tempfile contains zero bytes, but it should contain at"
                + " least enough bytes to represent the attributes set.", 
                in.available() > 0);
 
