@@ -19,6 +19,7 @@ Multiple Classes
 DefaultLabelIncrementer & CVSLabelIncrementer
 ----------------------
 * Added preBuildIncrementer attribute. - Patch by Brett Wooldridge
+* Added separator attribute to DefaultLabelIncrementer. CVSLabelIncrementor is just the default with separator="-".  - Patch by Jeffrey Fredrick
 
 HTMLEmailPublisher
 ----------------------
