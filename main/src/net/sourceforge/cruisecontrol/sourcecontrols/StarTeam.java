@@ -340,7 +340,7 @@ public class StarTeam implements SourceControl {
                 // Return the modifying user's name instead. Then use the
                 // email.properties file to map the name to an email address
                 // outside of StarTeam
-                LOG.warn("Error looking up user email address.", sx);
+                LOG.debug("Error looking up user email address.", sx);
                 canLookupEmails = false;
             }
         }
