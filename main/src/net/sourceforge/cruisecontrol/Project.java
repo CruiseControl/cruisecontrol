@@ -322,7 +322,7 @@ public class Project implements Serializable, Runnable {
      */
     Element getModifications() {
         setState(ProjectState.MODIFICATIONSET);
-        Element modifications = null;
+        Element modifications;
 
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
         if (checkNewChangesFirst) {
@@ -701,16 +701,14 @@ public class Project implements Serializable, Runnable {
      */
     protected void publish() throws CruiseControlException {
         Iterator publisherIterator = publishers.iterator();
-        Publisher publisher = null;
+        Publisher publisher;
         while (publisherIterator.hasNext()) {
+            publisher = (Publisher) publisherIterator.next();
             try {
-                publisher = (Publisher) publisherIterator.next();
                 publisher.publish(getLog().getContent());
             } catch (CruiseControlException e) {
                 StringBuffer message = new StringBuffer("exception publishing results");
-                if (publisher != null) {
-                    message.append(" with " + publisher.getClass().getName());
-                }
+                message.append(" with " + publisher.getClass().getName());
                 message.append(" for project " + name);
                 LOG.error(message.toString(), e);
             }
@@ -764,7 +762,7 @@ public class Project implements Serializable, Runnable {
     public Date parseFormatedTime(String timeString, String description)
             throws CruiseControlException {
 
-        Date date = null;
+        Date date;
         if (timeString == null) {
             throw new IllegalArgumentException("Null date string for " + description);
         }
@@ -815,6 +813,7 @@ public class Project implements Serializable, Runnable {
         }
         return sb.toString();
     }
+
     public void addBuildProgressListener(BuildProgressListener listener) {
         synchronized (progressListeners) {
             progressListeners.add(listener);
