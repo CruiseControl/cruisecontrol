@@ -145,7 +145,7 @@ public class VssElement extends SourceControlElement {
         //(PENDING) buildHistoryCommand, execHistoryCommand
 		//call vss, write output to intermediate file
 		try {
-			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", 
+			String[] cmdArray = {"ss.exe", "history", _ssDir, "-R", "-Vd" +
 					formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild),
                     "-Y" + _login, "-I-N", "-O" + VSS_TEMP_FILE};
 			Process p = Runtime.getRuntime().exec(cmdArray);
@@ -216,7 +216,7 @@ public class VssElement extends SourceControlElement {
 	 *
 	 *@param  historyEntry
 	 */
-	private void handleEntry(List historyEntry) {
+	protected void handleEntry(List historyEntry) {
         // Ignore unusual labels of directories which cause parsing errors that 
         // look like this:
         //
