@@ -109,9 +109,25 @@ public abstract class EmailPublisher implements Publisher {
      *  @return whether or not the mail message should be sent.
      */
     protected boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
-        if (!logHelper.isBuildNecessary() && !_spamWhileBroken) {
-            log.debug("spamWhileBroken is set to false, not sending email");
-            return false;
+        if(logHelper.isBuildSuccessful()) {
+            if(_reportSuccess.equalsIgnoreCase("success")) {
+                return true;
+            } else if(_reportSuccess.equalsIgnoreCase("fixes")) {
+                if(logHelper.wasPreviousBuildSuccessful()) {
+                    log.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
+                    return false;
+                } else {
+                    return true;
+                }
+            } else if(_reportSuccess.equalsIgnoreCase("never")) {
+                log.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
+                return false;
+            }
+        } else { //build wasn't successful
+            if(!logHelper.wasPreviousBuildSuccessful() && !logHelper.isBuildNecessary() && !_spamWhileBroken) {
+                log.debug("spamWhileBroken is set to false, not sending email");
+                return false;
+            }
         }
         return true;
     }
