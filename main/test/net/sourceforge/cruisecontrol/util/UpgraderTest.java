@@ -3,16 +3,25 @@ package net.sourceforge.cruisecontrol.util;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.Properties;
 
 public class UpgraderTest extends TestCase {
+    private static Logger log = Logger.getLogger(UpgraderTest.class);
 
     public UpgraderTest(String name) {
         super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        log.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void testCreateBootstappers() throws Exception {
@@ -69,7 +78,7 @@ public class UpgraderTest extends TestCase {
 
     }
 
-    public void testCreatePublishers() throws Exception {
+    public void testCreatePublishersNoEmailMap() throws Exception {
         StringBuffer expected = new StringBuffer();
         expected.append("<publishers>");
         expected.append("<currentbuildstatuspublisher file=\"currentbuildstatus.txt\"/>");
@@ -88,6 +97,7 @@ public class UpgraderTest extends TestCase {
         properties.put("servletURL", "http://host.com");
         properties.put("buildmaster", "user1@host.com, user2@host.com");
         properties.put("notifyOnFailure", "user3@host.com");
+        properties.put("emailmap", "");
 
         XMLOutputter outputter = new XMLOutputter();
         Upgrader upgrader = new Upgrader();
@@ -97,7 +107,46 @@ public class UpgraderTest extends TestCase {
         Element actualElement = builder.build(new StringReader(upgrader.createPublishers(properties))).getRootElement();
 
         assertEquals(outputter.outputString(expectedElement), outputter.outputString(actualElement));
+    }
 
+    public void testCreatePublishersEmailMap() throws JDOMException {
+        StringBuffer expected = new StringBuffer();
+        expected.append("<publishers>");
+        expected.append("<currentbuildstatuspublisher "
+                + "file=\"currentbuildstatus.txt\"/>");
+        expected.append("<email mailhost=\"mail@mail.com\" "
+                + "returnaddress=\"user@host.com\" defaultsuffix=\"@host.com\" "
+                + "buildresultsurl=\"http://host.com\">");
+        expected.append("<always address=\"user1@host.com\"/>");
+        expected.append("<always address=\"user2@host.com\"/>");
+        expected.append("<failure address=\"user3@host.com\"/>");
+        expected.append("<map alias=\"user1\" address=\"user1@host.com\"/>");
+        expected.append("</email>");
+        expected.append("</publishers>");
+
+        Properties properties = new Properties();
+        properties.put("currentBuildStatusFile", "currentbuildstatus.txt");
+        properties.put("mailhost", "mail@mail.com");
+        properties.put("returnAddress", "user@host.com");
+        properties.put("defaultEmailSuffix", "@host.com");
+        properties.put("servletURL", "http://host.com");
+        properties.put("buildmaster", "user1@host.com, user2@host.com");
+        properties.put("notifyOnFailure", "user3@host.com");
+        properties.put("emailmap",
+                "test/net/sourceforge/cruisecontrol/util/emailmap.properties");
+
+        SAXBuilder builder = new SAXBuilder(
+                "org.apache.xerces.parsers.SAXParser");
+        Element expectedElement = builder.build(
+                new StringReader(expected.toString())).getRootElement();
+
+        Upgrader upgrader = new Upgrader();
+        Element actualElement = builder.build(new StringReader(
+                upgrader.createPublishers(properties))).getRootElement();
+
+        XMLOutputter outputter = new XMLOutputter();
+        assertEquals(outputter.outputString(expectedElement),
+                outputter.outputString(actualElement));
     }
 
     public void testCreateSchedule() throws Exception {
