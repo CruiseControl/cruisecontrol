@@ -38,6 +38,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 import org.apache.log4j.Category;
 
@@ -50,10 +51,14 @@ import org.apache.log4j.Category;
  *
  * @author Suresh K Bathala Skila, Inc.
  */
-public class MKS extends SourceControlElement {
+public class MKS implements SourceControl {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(MKS.class.getName());
+
+    private Hashtable _properties = new Hashtable();
+    private String _property;
+    private String _propertyOnDelete;
 
     /**
      * This is the date format required by commands passed
@@ -125,19 +130,6 @@ public class MKS extends SourceControlElement {
     private File local;
 
     /**
-     * This is a set of the authors that modified files.
-     * In many projects the author name for MKS corresponds
-     * to the author's email address, without the domain name.
-     */
-    private Set emailNames = new HashSet();
-    /**
-     * This date indicates the latest modification time
-     * found in the history, i.e. the most recent modification
-     * time.
-     */
-    private Date lastModified;
-
-    /**
      * Sets the MKSROOT for all calls to MKS.
      *
      * @param mksroot MKSROOT to use.
@@ -158,32 +150,16 @@ public class MKS extends SourceControlElement {
         this.local = new File(local);
     }
 
-    /**
-     * Returns a Set of email addresses.  MKS doesn't track actual email addresses,
-     * so we'll just return the usernames here, which may correspond to
-     * email ids. We'll tack on the suffix, i.e. @apache.org, in MasterBuild.java before mailing
-     * results of the build.
-     *
-     * @return Set of author names; maybe empty, never null.
-     */
-    public Set getEmails() {
-        if (emailNames == null) {
-            emailNames = new HashSet();
-        }
-        return emailNames;
+    public void setProperty(String property) {
+        _property = property;
     }
 
-    /**
-     * Gets the last modified time for this set of files
-     * queried in the getHistory() method.
-     *
-     * @return Latest revision time.
-     */
-    public long getLastModified() {
-        if (lastModified == null) {
-            return 0;
-        }
-        return lastModified.getTime();
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        _propertyOnDelete = propertyOnDelete;
+    }
+
+    public Hashtable getProperties() {
+        return _properties;
     }
 
     /**
@@ -196,11 +172,9 @@ public class MKS extends SourceControlElement {
      *                  NOT USED.
      * @return maybe empty, never null.
      */
-    public List getHistory(Date lastBuild, Date now, long quietPeriod) {
+    public List getModifications(Date lastBuild, Date now, long quietPeriod) {
         List mods = null;
 
-        //Init last modified to last build date.
-        lastModified = lastBuild;
         String dateRange = "\""+MKSDATE.format(lastBuild) +"<" + MKSDATE.format(now)+"\"";
         String commandArray = "rlog -q -d"+dateRange+ " -P"+mksroot;
         log.debug("Executing: " + commandArray);
@@ -362,13 +336,11 @@ public class MKS extends SourceControlElement {
 
                // nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
                 nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
-                updateLastModified(nextModification.modifiedTime);
             } catch (ParseException pe) {
-                //REDTAG - what to do?
+                log.error("Error parsing date stamp.", pe);
             }
 
             nextModification.userName = authorName;
-            emailNames.add(authorName);
 
             nextModification.comment = (message != null ? message : "");
 
@@ -381,22 +353,6 @@ public class MKS extends SourceControlElement {
             mods.add(nextModification);
         }
         return mods;
-    }
-
-    /**
-     * Updates the lastModified date if necessary. The new
-     * possible date must be after the current lastModified
-     * date to make an update occur. If the current
-     * lastModified date has not been set, then it will be
-     * set to the new possible date.
-     *
-     * @param newPossible
-     *               New possible date.
-     */
-    private void updateLastModified(Date newPossible) {
-        if (lastModified == null || lastModified.before(newPossible)) {
-            lastModified = newPossible;
-        }
     }
 
     /**
