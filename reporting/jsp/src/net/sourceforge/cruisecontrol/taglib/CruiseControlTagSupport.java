@@ -42,13 +42,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.TagSupport;
 
 /**
  * A helper class to consolidate tags that deal with log files.
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
-public class CruiseControlTagSupport extends BodyTagSupport {
+public class CruiseControlTagSupport extends TagSupport {
     protected void info(String message) {
         System.out.println(message);
     }

@@ -57,16 +57,30 @@
           <tr>
             <td bgcolor="white" >
               <cruisecontrol:tab name="buildResults" label="Build Results" >
-                <jsp:include page="buildresults.jsp" flush="true" />
+         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
+         <p>
+         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
               </cruisecontrol:tab>
               <cruisecontrol:tab name="testResults" label="Test Results" >
-                <jsp:include page="testdetails.jsp" flush="true" />
+         Test Details
+         &nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>
               </cruisecontrol:tab>
               <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
-                <jsp:include page="xmllog.jsp" flush="true" />
+        <pre class="modifications-data"><cruisecontrol:xsl xslFile="/xsl/logfile.xsl"/></pre>
               </cruisecontrol:tab>
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
-                <jsp:include page="controlpanel.jsp" flush="true" />
+        Control Panel
+        &nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>
               </cruisecontrol:tab>
             </td>
           </tr>

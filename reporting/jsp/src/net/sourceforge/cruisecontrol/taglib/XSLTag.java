@@ -46,10 +46,9 @@ import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
+
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.Tag;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -62,7 +61,7 @@ import javax.xml.transform.stream.StreamSource;
  *
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
-public class XSLTag extends CruiseControlTagSupport implements Tag, BodyTag {
+public class XSLTag extends CruiseControlBodyTagSupport {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
     private String xslFileName;
     private String xslRootContext = DEFAULT_XSL_ROOT;
