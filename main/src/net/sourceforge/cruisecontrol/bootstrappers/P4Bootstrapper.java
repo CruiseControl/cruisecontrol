@@ -112,7 +112,10 @@ public class P4Bootstrapper implements Bootstrapper {
             commandline.append(' ');
         }
         commandline.append("sync ");
+        commandline.append("\"");
         commandline.append(path);
+        commandline.append("\"");
+
         return commandline.toString();
     }
     

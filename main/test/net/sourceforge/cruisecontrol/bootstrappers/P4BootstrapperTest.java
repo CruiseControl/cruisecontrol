@@ -54,7 +54,7 @@ public class P4BootstrapperTest extends TestCase {
         try {
             p4Bootstrapper.validate();
             fail("Should be Exception if path is not set.");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -63,7 +63,7 @@ public class P4BootstrapperTest extends TestCase {
         try {
             p4Bootstrapper.validate();
             fail("Empty path not allowed");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -73,7 +73,7 @@ public class P4BootstrapperTest extends TestCase {
         try {
             p4Bootstrapper.validate();
             fail("Empty port not allowed");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -83,7 +83,7 @@ public class P4BootstrapperTest extends TestCase {
         try {
             p4Bootstrapper.validate();
             fail("Empty client not allowed");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -93,13 +93,13 @@ public class P4BootstrapperTest extends TestCase {
         try {
             p4Bootstrapper.validate();
             fail("Empty user not allowed");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
     }
 
     public void testCreateCommandlineWithPathSet() throws CruiseControlException {
         p4Bootstrapper.setPath("foo");
-        assertEquals("p4 -s sync foo", p4Bootstrapper.createCommandline());
+        assertEquals("p4 -s sync \"foo\"", p4Bootstrapper.createCommandline());
     }
 
     public void testCreateCommandlineWithP4PortSet() throws CruiseControlException {
