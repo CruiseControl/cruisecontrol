@@ -405,7 +405,6 @@ public class P4 implements SourceControl {
     }
 
     private static class P4Modification extends Modification {
-
         public String client;
 
         public int compareTo(Object o) {
@@ -414,7 +413,6 @@ public class P4 implements SourceControl {
         }
 
         public boolean equals(Object o) {
-
             if (o == null || !(o instanceof P4Modification)) {
                 return false;
             }
@@ -423,10 +421,13 @@ public class P4 implements SourceControl {
             return getChangelistNumber() == modification.getChangelistNumber();
         }
 
+        public int hashCode() {
+            return getChangelistNumber();
+        }
+
         private int getChangelistNumber() {
             return Integer.parseInt(revision);
         }
-
 
         P4Modification() {
             super("p4");
@@ -443,6 +444,5 @@ public class P4 implements SourceControl {
 
             return element;
         }
-
     }
 }
