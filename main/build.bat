@@ -2,7 +2,7 @@
 REM ################################################################################
 REM # CruiseControl, a Continuous Integration Toolkit
 REM # Copyright (c) 2001, ThoughtWorks, Inc.
-REM # 651 W Washington Ave. Suite 500
+REM # 651 W Washington Ave. Suite 600
 REM # Chicago, IL 60661 USA
 REM # All rights reserved.
 REM # 
