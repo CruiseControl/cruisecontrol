@@ -1,4 +1,4 @@
-<%@page contentType="text/html" import="net.sourceforge.cruisecontrol.*, net.sourceforge.cruisecontrol.chart.*"%>
+<%@page import="net.sourceforge.cruisecontrol.*, net.sourceforge.cruisecontrol.chart.*"%>
 <%@taglib uri='http://cewolf.sourceforge.net/taglib/cewolf.tld' prefix='cewolf' %>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 
