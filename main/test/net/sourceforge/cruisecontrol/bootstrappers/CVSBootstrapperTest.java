@@ -73,6 +73,7 @@ public class CVSBootstrapperTest extends TestCase {
         }
 
         File tempFile = File.createTempFile("temp", "txt");
+        tempFile.deleteOnExit();
 
         bootStrapper.setLocalWorkingCopy(tempFile.getParent());
         try {

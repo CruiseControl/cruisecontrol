@@ -104,6 +104,7 @@ public class SVNBootstrapperTest extends TestCase {
         File tempFile = File.createTempFile("temp", "txt");
 
         bootStrapper.setLocalWorkingCopy(tempFile.getParent());
+        tempFile.delete();
         String command = bootStrapper.buildUpdateCommand().toString();
         assertEquals("svn update --non-interactive", command);
 
