@@ -201,6 +201,17 @@ public class ScheduleTest extends TestCase {
         
         schedule.addBuilder(multipleOfOne);
         schedule.validate();
+        
+        long oneYearInSeconds = 60 * 60 * 24 * 365;
+        schedule.setInterval(oneYearInSeconds);
+        schedule.validate();
+        
+        schedule.setInterval(oneYearInSeconds + 1);
+        try {
+            schedule.validate();
+            fail("validate should throw exception if interval is greater than " + oneYearInSeconds);
+        } catch (CruiseControlException e) {
+        }
     }
 
 }

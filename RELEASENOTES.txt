@@ -46,6 +46,10 @@ ProjectXMLHelper
 ----------------------
 * Fixed a bug where if the log element existed dir was a required attribute
 
+Schedule
+----------------------
+* Set maximum value for interval to one year
+
 StarTeamBootstrapper
 ----------------------
 * StarTeamBootstrapper submitted by Lee Marlow

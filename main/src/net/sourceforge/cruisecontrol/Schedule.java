@@ -62,6 +62,7 @@ public class Schedule {
     static final long ONE_SECOND = 1000;
     static final long ONE_MINUTE = 60 * ONE_SECOND;
     static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
+    static final long ONE_YEAR = ONE_DAY * 365;
 
     private List builders = new ArrayList();
     private List pauseBuilders = new ArrayList();
@@ -270,6 +271,11 @@ public class Schedule {
     public void validate() throws CruiseControlException {
         if (builders.size() == 0) {
             throw new CruiseControlException("schedule element requires at least one nested builder element");
+        }
+        
+        if (interval > ONE_YEAR) {
+            final long oneYearInSeconds = 60 * 60 * 24 * 365;
+            throw new CruiseControlException("maximum interval value is " + oneYearInSeconds + ", which is one year");
         }
     }
     
