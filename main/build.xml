@@ -128,7 +128,6 @@
         <javac destdir="${classes}" debug="true" deprecation="true" fork="true">
            <classpath refid="project.classpath"/>
            <src path="${src}"/>
-           <exclude name="**/element/"/>
            <exclude name="**/StarTeam*"/>
            <exclude name="**/Sametime*"/>
         </javac>
@@ -150,7 +149,6 @@
             <classpath refid="project.classpath"/>
             <src path="${src}"/>
             <include name="**/StarTeam*"/>
-            <exclude name="**/element/"/>
         </javac>
     </target>
 
@@ -159,7 +157,6 @@
             <classpath refid="project.classpath"/>
             <src path="${src}"/>
             <include name="**/Sametime*"/>
-            <exclude name="**/element/"/>
         </javac>
     </target>
 
@@ -167,7 +164,7 @@
         description="Compile test code">
 
         <javac debug="on" deprecation="true" srcdir="${test}" fork="true"
-            destdir="${test.classes}" excludes="**/element/,**/*StarTeam*,**/*Sametime*"
+            destdir="${test.classes}" excludes="**/*StarTeam*,**/*Sametime*"
             classpathref="project.runtime.classpath" />
 
         <copy todir="${test.classes}">
@@ -221,7 +218,7 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${test.classes}" includes="**/${tests}.class" excludes="**/element/" />
+                <fileset dir="${test.classes}" includes="**/${tests}.class" />
             </batchtest>
         </junit>
     </target>
