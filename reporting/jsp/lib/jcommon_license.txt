@@ -1,0 +1,2 @@
+JCommon is published under the GPL which should be provided with this library.
+Please consult http://www.object-refinery.com/jcommon/ for information on JFreeChart.

@@ -34,39 +34,28 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.taglib;
+package net.sourceforge.cruisecontrol.chart;
 
-import java.io.File;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
-
-import net.sourceforge.cruisecontrol.BuildInfo;
-import net.sourceforge.cruisecontrol.BuildInfoSummary;
+import de.laures.cewolf.DatasetProducer;
 
 /**
  * TODO: TYpe comment.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class BuildInfoTag extends CruiseControlTagSupport {
+public abstract class AbstractCruiseControlChartData implements DatasetProducer, Serializable {
+    private static final long FIVE_SECONDS = 5000L;
+    
+    /**
+     * Helper method to see if the graph is out of date. We will assume that the graph is out of date if it is older
+     * than 5 seconds.
+     */
+    public boolean hasExpired(Map params, Date since) {     
+        return (System.currentTimeMillis() - since.getTime())  > FIVE_SECONDS;
+    }
 
-    public static final String INFO_ATTRIBUTE = "build_info";
     
-    
-    /*
-     * @see javax.servlet.jsp.tagext.Tag#doEndTag()
-     */
-    public int doEndTag() throws JspException {
-        File logDir = findLogDir();
-        BuildInfoSummary buildInfoSummary = BuildInfo.loadFromDir(logDir);
-        getPageContext().setAttribute(INFO_ATTRIBUTE, buildInfoSummary);
-        return Tag.EVAL_PAGE;
-    }
-    
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.Tag#doStartTag()
-     */
-    public int doStartTag() throws JspException {
-        return Tag.SKIP_BODY;
-    }
 }

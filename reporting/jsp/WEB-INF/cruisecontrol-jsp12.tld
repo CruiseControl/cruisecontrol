@@ -102,7 +102,7 @@
         <name>buildInfo</name>
         <tag-class>net.sourceforge.cruisecontrol.taglib.BuildInfoTag</tag-class>
         <tei-class>net.sourceforge.cruisecontrol.taglib.BuildInfoTagExtraInfo</tei-class>
-        <body-content>empty</bodycontent>
+        <body-content>empty</body-content>
         <description>
             Inserts information about the various builds into the page scope.
         </description>

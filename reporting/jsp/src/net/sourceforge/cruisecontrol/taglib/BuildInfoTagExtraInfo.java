@@ -40,7 +40,7 @@ import javax.servlet.jsp.tagext.TagData;
 import javax.servlet.jsp.tagext.TagExtraInfo;
 import javax.servlet.jsp.tagext.VariableInfo;
 
-import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.BuildInfoSummary;
 
 /**
  * @author <a href="robertdw@users.sourceforge.net">Robert Watkins</a>
@@ -50,7 +50,7 @@ public class BuildInfoTagExtraInfo extends TagExtraInfo {
     public VariableInfo[] getVariableInfo(TagData data) {
         return new VariableInfo[] {
             new VariableInfo(BuildInfoTag.INFO_ATTRIBUTE,
-                             BuildInfo.Summary.class.getName(),
+                             BuildInfoSummary.class.getName(),
                              true,
                              VariableInfo.AT_END)
         };

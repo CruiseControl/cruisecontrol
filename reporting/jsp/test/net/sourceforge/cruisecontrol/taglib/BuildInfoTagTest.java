@@ -42,7 +42,7 @@ import javax.servlet.jsp.tagext.Tag;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.BuildInfoSummary;
 import net.sourceforge.cruisecontrol.LogFileSetupDecorator;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
@@ -76,7 +76,7 @@ public class BuildInfoTagTest extends TestCase {
     public void testTagCreatesBuildInfo() throws JspException {
         assertEquals(Tag.SKIP_BODY, tag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, tag.doEndTag());
-        BuildInfo.Summary buildInfoSummary = (BuildInfo.Summary) pageContext.getAttribute(BuildInfoTag.INFO_ATTRIBUTE);
+        BuildInfoSummary buildInfoSummary = (BuildInfoSummary) pageContext.getAttribute(BuildInfoTag.INFO_ATTRIBUTE);
         assertNotNull(buildInfoSummary);
         assertEquals(4, buildInfoSummary.size());
     }

@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2004, ThoughtWorks, Inc.
+ * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,39 +34,27 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.taglib;
+package net.sourceforge.cruisecontrol.chart;
 
-import java.io.File;
+import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
-
-import net.sourceforge.cruisecontrol.BuildInfo;
 import net.sourceforge.cruisecontrol.BuildInfoSummary;
 
-/**
- * TODO: TYpe comment.
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
- */
-public class BuildInfoTag extends CruiseControlTagSupport {
+import org.jfree.data.DefaultPieDataset;
 
-    public static final String INFO_ATTRIBUTE = "build_info";
-    
-    
-    /*
-     * @see javax.servlet.jsp.tagext.Tag#doEndTag()
-     */
-    public int doEndTag() throws JspException {
-        File logDir = findLogDir();
-        BuildInfoSummary buildInfoSummary = BuildInfo.loadFromDir(logDir);
-        getPageContext().setAttribute(INFO_ATTRIBUTE, buildInfoSummary);
-        return Tag.EVAL_PAGE;
+import de.laures.cewolf.DatasetProduceException;
+
+public class PieChartData extends AbstractCruiseControlChartData {
+
+    public Object produceDataset(Map params) throws DatasetProduceException {
+        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo"); 
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Broken Builds", summary.getNumBrokenBuilds());
+        dataset.setValue("Good Builds", summary.getNumSuccessfulBuilds());
+        return dataset;
     }
-    
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.Tag#doStartTag()
-     */
-    public int doStartTag() throws JspException {
-        return Tag.SKIP_BODY;
+
+    public String getProducerId() {
+        return "PieChartData DatasetProducer";
     }
 }
