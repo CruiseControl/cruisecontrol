@@ -51,7 +51,7 @@ import java.util.Date;
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
-public class Modification {
+public class Modification implements Comparable {
 
     public String type = "unknown";
     public String fileName;
@@ -96,6 +96,11 @@ public class Modification {
         sb.append("UserName: " + userName + "\n");
         sb.append("Comment: " + comment + "\n\n");
         return sb.toString();
+    }
+
+    public int compareTo(Object o) {
+        Modification modification = (Modification) o;
+        return modifiedTime.compareTo(modification.modifiedTime);
     }
 
     //for brief testing only
