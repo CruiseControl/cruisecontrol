@@ -393,7 +393,6 @@ public abstract class EmailPublisher implements Publisher {
                 fromAddress = new InternetAddress(returnAddress, returnName);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("error setting returnName [" + returnName + "]: " + e.getMessage());
-                fromAddress = new InternetAddress(returnAddress);
             }
         }
         return fromAddress;
