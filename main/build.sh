@@ -75,11 +75,7 @@ if [ "$JAVABIN" = "" ] ; then
   JAVABIN=${JAVA_HOME}/bin/java
 fi
 
-# Find all jars defined in LIBDIR and add them to the classpath
-for lib in ${LIBDIR:-.}/*.jar
-do
-    CLASSPATH=${CLASSPATH}:${lib}
-done
+set CLASSPATH=lib/ant.jar:lib/optional.jar:lib/junit.jar:lib/xerces.jar
 
 # Try to include tools.jar for compilation
 if test -f ${JAVA_HOME}/lib/tools.jar ; then
@@ -96,6 +92,8 @@ if [ "$OSTYPE" = "cygwin32" ] || [ "$OSTYPE" = "cygwin" ] ; then
    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
 fi
+
+echo ${CLASSPATH}
 
 # Call Ant
 ${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.Main \
