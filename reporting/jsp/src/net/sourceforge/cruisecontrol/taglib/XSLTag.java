@@ -50,6 +50,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  *  JSP custom tag to handle xsl transforms.  This tag also caches the output of the transform to disk, reducing the
@@ -168,7 +170,12 @@ public class XSLTag implements Tag, BodyTag {
             }
         });
         if(logs != null && logs.length > 0) {
-            return logs[logs.length-1];
+            Arrays.sort(logs, new Comparator(){
+                public int compare(Object o1, Object o2){
+                    return ((File)o2).getName().compareTo(((File)o1).getName());
+                }
+            });
+            return logs[0];
         } else {
             return null;
         }
