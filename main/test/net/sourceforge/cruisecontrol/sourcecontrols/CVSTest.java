@@ -59,14 +59,14 @@ public class CVSTest extends TestCase {
 	}
 
     private Date createDate(String dateString) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
         return formatter.parse(dateString);
     }
 
     public void testParseStream() throws IOException, ParseException {
         CVS cvs = new CVS();
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
-        System.out.println(testLog.getAbsolutePath());
+        //System.out.println(testLog.getAbsolutePath());
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
         List modifications = cvs.parseStream(input);
         input.close();
@@ -79,7 +79,7 @@ public class CVSTest extends TestCase {
         mod1.type = "modified";
         mod1.fileName = "log4j.properties";
         mod1.folderName = "main";
-        mod1.modifiedTime = createDate("2002/03/13 13:45:50");
+        mod1.modifiedTime = createDate("2002/03/13 13:45:50 GMT-6:00");
         mod1.userName = "alden";
         mod1.comment = "Shortening ConversionPattern so we don't use up all of the available screen space.";
 
@@ -87,7 +87,7 @@ public class CVSTest extends TestCase {
         mod2.type = "modified";
         mod2.fileName = "build.xml";
         mod2.folderName = "main";
-        mod2.modifiedTime = createDate("2002/03/13 19:56:34");
+        mod2.modifiedTime = createDate("2002/03/13 19:56:34 GMT-6:00");
         mod2.userName = "alden";
         mod2.comment = "Added target to clean up test results.";
 
@@ -95,7 +95,7 @@ public class CVSTest extends TestCase {
         mod3.type = "modified";
         mod3.fileName = "build.xml";
         mod3.folderName = "main";
-        mod3.modifiedTime = createDate("2002/03/15 13:20:28");
+        mod3.modifiedTime = createDate("2002/03/15 13:20:28 GMT-6:00");
         mod3.userName = "alden";
         mod3.comment = "enabled debug info when compiling tests.";
 
