@@ -76,6 +76,7 @@ public abstract class EmailPublisher implements Publisher {
     private String _defaultSuffix = "";
     private String _reportSuccess = "always";
     private boolean _spamWhileBroken = true;
+    private boolean _skipUsers = false;
     protected String _subjectPrefix;
 
     /**
@@ -181,6 +182,9 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected String createUserList(XMLLogHelper logHelper) {
         Set users = logHelper.getBuildParticipants();
+        if(_skipUsers) {
+            users = new HashSet();
+        }
 
         //add always addresses
         Iterator alwaysAddressIterator = _alwaysAddresses.iterator();
@@ -365,6 +369,10 @@ public abstract class EmailPublisher implements Publisher {
 
     public void setReportSuccess(String reportSuccess) {
         _reportSuccess = reportSuccess;
+    }
+
+    public void setSkipUsers(boolean skip) {
+        _skipUsers = skip;
     }
 
     public void setSpamWhileBroken(boolean spam) {
