@@ -14,9 +14,10 @@
   <li>Jason Yip (<a href="mailto:jcyip@thoughtworks.com">jcyip@thoughtworks.com</a>)</li>
   <li>Niclas Olofsson</li>
   <li>Eli Tucker</li>
+  <li>Richard Wagner(<a href="mailto:Richard.Wagner@alltel.com">Richard.Wagner@alltel.com</a>)</li>
 </ul>
 
-<p>Version 1.17 - 07/28/2001</p>
+<p>Version 1.18 - 08/30/2001</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -24,6 +25,7 @@
   <ul>
 	  <li><a href="#clearcaseelement">ClearCaseElement</a></li>
 	  <li><a href="#cvselement">CvsElement</a></li>
+          <li><a href="#pvcselement">PVCSElement</a></li>
 	  <li><a href="#p4element">P4Element</a></li>
 	  <li><a href="#starteamelement">StarTeamElement</a></li>
 	  <li><a href="#vsselement">VssElement</a></li>
@@ -161,6 +163,49 @@ is meant to be used in conjuction with a ModificationSet to control a build proc
     &lt;/modificationset&gt;
 &lt;/target&gt;
 </PRE>
+
+<a name="pvcselement"></a>
+<h3>PVCSElement</h3>
+
+<p>Returns a list of modifications found in the repository between two dates. This element
+is meant to be used in conjuction with a ModificationSet to control a build process.</p>
+<h4>Parameters</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+  <tr>
+    <td valign="top"><b>Attribute</b></td>
+    <td valign="top"><b>Description</b></td>
+    <td align="center" valign="top"><b>Required</b></td>
+  </tr>
+  <tr>
+    <td valign="top">pvcsproject</td>
+    <td valign="top">The project to be polled for changes. Includes the mapped drive letter.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+  <tr>
+    <td valign="top">pvcssubproject</td>
+        <td valign="top">Extension to path for desired project.</td>
+    <td valign="top" align="center">Yes</td>
+  </tr>
+</table>
+
+<h4>Example</h4>
+<PRE>
+&lt;target name=&quot;modificationset&quot;&gt;
+    &lt;modificationset lastbuild=&quot;${lastGoodBuildTime}&quot;
+        quietperiod=&quot;30&quot;
+        dateformat=&quot;yyyy-MMM-dd HH:mm:ss&quot;&gt;
+        &lt;pvcselement pvcsproject=&quot;v:\esa&quot pvcssubproject=&quot;\cruisecontrol\CruiseControlExampleApp&quot; /&gt;
+    &lt;/modificationset&gt;
+&lt;/target&gt;
+</PRE>
+
+<h4>Future Enhancement</h4>
+<p>
+<ul>
+    <li>Write ant task to encapsulate source pull.  At present, this can be accomplished with batch scripts using PCLI, PVCS' command line interface.
+</ul>
+</p>
+  
 
 <a name="p4element"></a>
 <h3>P4Element</h3>
