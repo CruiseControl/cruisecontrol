@@ -371,7 +371,9 @@ public class Vss implements SourceControl {
             // User: Etucker      Date:  6/26/01   Time: 11:53a
             // Labeled
             if (!isLabelEntry) {
-                isLabelEntry = (entry.size() > 4) && (((String) entry.get(4)).startsWith("Labeled"));
+                isLabelEntry =
+                    (entry.size() > 4)
+                        && (((String) entry.get(4)).startsWith("Labeled"));
             }
 
             if (isLabelEntry) {
@@ -390,7 +392,7 @@ public class Vss implements SourceControl {
             // Label comment:
 
             int nameAndDateIndex = 2;
-            if (((String)entry.get(0)).startsWith("***************** ")) {
+            if (((String) entry.get(0)).startsWith("***************** ")) {
                 nameAndDateIndex = 1;
             }
             String nameAndDateLine = (String) entry.get(nameAndDateIndex);
@@ -420,10 +422,12 @@ public class Vss implements SourceControl {
                 LOG.debug("this folder was created");
             } else {
                 if (nameAndDateIndex == 1) {
-                    modification.folderName=vssPath;
+                    modification.folderName = vssPath;
                 } else {
-                    modification.folderName = vssPath + "\\" +
-                        folderLine.substring(7, folderLine.indexOf("  *"));
+                    modification.folderName =
+                        vssPath
+                            + "\\"
+                            + folderLine.substring(7, folderLine.indexOf("  *"));
                 }
                 int lastSpace = fileLine.lastIndexOf(" ");
                 if (lastSpace != -1) {
@@ -431,7 +435,8 @@ public class Vss implements SourceControl {
                 } else {
                     modification.fileName = fileLine;
                     if (modification.fileName.equals("Branched")) {
-                        LOG.debug("this is a branched file; ignoring this entry, as the directory with the branch is handled separately");
+                        LOG.debug(
+                            "Branched file, ignoring as branch directory is handled separately");
                         return null;
                     }
                 }
@@ -545,8 +550,7 @@ public class Vss implements SourceControl {
                 lastModifiedDate =
                     vssDateTimeFormat.parse(dateAndTime.trim() + "m");
             } else {
-                lastModifiedDate =
-                    vssDateTimeFormat.parse(dateAndTime.trim());
+                lastModifiedDate = vssDateTimeFormat.parse(dateAndTime.trim());
             }
 
             return lastModifiedDate;

@@ -167,21 +167,21 @@ public class MainTest extends TestCase {
         String[] missingArgs = new String[] {""};
         String[] incorrectArgs = new String[] {"-configfile"};
 
-        assertEquals(main.parseConfigFileName(correctArgs, null), "config.xml");
+        assertEquals(Main.parseConfigFileName(correctArgs, null), "config.xml");
 
         assertEquals(
-            main.parseConfigFileName(missingArgs, "config.xml"),
+            Main.parseConfigFileName(missingArgs, "config.xml"),
             "config.xml");
 
         try {
-            main.parseConfigFileName(incorrectArgs, null);
+            Main.parseConfigFileName(incorrectArgs, null);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
         }
 
         try {
-            main.parseConfigFileName(missingArgs, null);
+            Main.parseConfigFileName(missingArgs, null);
             fail("Expected exception");
         } catch (CruiseControlException e) {
             // expected
