@@ -287,7 +287,7 @@ public class AntBuilder extends Builder {
                 arguments.add("cmd.exe");
                 arguments.add("/C");
             }
-            arguments.add("\"" + antScript + "\"");
+            arguments.add(antScript);
         } else {
             arguments.add("java");
             Iterator argsIterator = args.iterator();
