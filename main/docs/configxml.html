@@ -50,7 +50,8 @@
                      <li><a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>
                      <li><a class="small" href="#cvsbootstrapper">CVSBootstrapper</a>
                      <li><a class="small" href="#p4bootstrapper">P4Bootstrapper</a>
-                     <li><a class="small" href="#vssbootstrapper">VSSBootstrapper</a>
+                     <li><a class="small" href="#starteambootstrapper">StarTeamBootstrapper</a>
+                     <li><a class="small" href="#vssbootstrapper">VssBootstrapper</a>
                   </ul>
                <li><a class="small" href="#modificationset">ModificationSet</a>
                   <ul>
@@ -164,7 +165,7 @@
          <hr>
 
          <p><a name="bootstrappers"><span class="small">Bootstrappers</span><br>
-         Bootstrappers are run before a build takes place, regardless of whether a build is necessary or not, but not if the build is paused. Each bootstrapper element is independent of the others so it is quite possible to have multiple bootstrappers of the same time, say 3 CVS or VSSBootstrappers to update 3 different files.
+         Bootstrappers are run before a build takes place, regardless of whether a build is necessary or not, but not if the build is paused. Each bootstrapper element is independent of the others so it is quite possible to have multiple bootstrappers of the same time, say 3 CVS or VssBootstrappers to update 3 different files.
 
          <p><a name="clearcasebootstrapper"><span class="small">ClearCaseBootstrapper</span><br>
          Can be used to pull a single file (usually build.xml and/or build.properties) from ClearCase prior to building.
@@ -260,7 +261,63 @@
             </tr>
          </table>
 
-	 <p><a name="vssbootstrapper"><span class="small">VSSBootstrapper</span><br/>
+	 <p><a name="starteambootstrapper"><span class="small">StarTeamBootstrapper</span><br/>
+	Handles updating multiple files (space separated list) from StarTeam before the build begins.</p>
+
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">files</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Space separated list of files to retrieve</td>
+            </tr>
+            <tr>
+               <td class="tabledata">folder</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The repository folder</td>
+            </tr>
+            <tr>
+               <td class="tabledata">localfolder</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Path to the folder on the local file system</td>
+            </tr>
+            <tr>
+               <td class="tabledata">password</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">port</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Port StarTeam server is using</td>
+            </tr>
+            <tr>
+               <td class="tabledata">project</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">StarTeam project</td>
+            </tr>
+            <tr>
+               <td class="tabledata">server</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Hostname for StarTeam server</td>
+            </tr>
+            <tr>
+               <td class="tabledata">username</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">&nbsp;</td>
+            </tr>
+            <tr>
+               <td class="tabledata">view</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">StarTeam view</td>
+            </tr>
+         </table>
+
+	 <p><a name="vssbootstrapper"><span class="small">VssBootstrapper</span><br/>
 	Handles updating a single file (typically build.xml and/or build.properties) from VSS before the build begins.</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
