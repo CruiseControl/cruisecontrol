@@ -65,8 +65,7 @@ if test -z "${JAVA_HOME}" ; then
 fi
 
 # convert the existing path to unix
-if [ "$OSTYPE" = "cygwin32" ] || [ "$OSTYPE" = "cygwin" ] ; then
-   CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
+if [ `uname | grep -n CYGWIN` ]; then
    JAVA_HOME=`cygpath --path --unix "$JAVA_HOME"`
 fi
 
@@ -88,9 +87,8 @@ if test -f ${CLOVER_HOME}/lib/clover.jar ; then
 fi
 
 # convert the unix path to windows
-if [ "$OSTYPE" = "cygwin32" ] || [ "$OSTYPE" = "cygwin" ] ; then
+if [ `uname | grep -n CYGWIN` ]; then
    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-   JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
 fi
 
 echo ${CLASSPATH}
