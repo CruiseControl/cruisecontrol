@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.jmx;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
-import net.sourceforge.cruisecontrol.Main;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import org.apache.log4j.Logger;
@@ -144,70 +143,6 @@ public class ProjectController implements ProjectControllerMBean {
 
     public long getBuildInterval() {
         return _project.getSleepMilliseconds();
-    }
-
-    // TODO: Remove duplication between this and Main.main
-    public static void main(String[] args) {
-        Main main = new Main();
-
-        Project project = null;
-        int port;
-        try {
-            project = main.configureProject(args);
-            port = parsePort(args);
-        } catch (CruiseControlException e) {
-            log.fatal(e.getMessage());
-            usage();
-            return;
-        }
-
-        ProjectControllerAgent agent =
-                new ProjectControllerAgent(project, port);
-        agent.start();
-
-        project.execute();
-    }
-
-    /**
-     *  Displays the standard usage message for ProjectController, and exit.
-     */
-    public static void usage() {
-        log.info("Usage:");
-        log.info("");
-        log.info("Starts an http build controller");
-        log.info("");
-        log.info("java CruiseControl [options]");
-        log.info("where options are:");
-        log.info("");
-        log.info("   -port number           where number is the port of the Controller web site");
-        log.info("   -projectname name      where name is the name of the project");
-        log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-        log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-        log.info("   -configfile file       where file is the configuration file");
-        System.exit(1);
-    }
-
-    /**
-     * Parse port number from arguments.  port should always be specified
-     * in arguments for ProjectController.
-     *
-     * @return port number;
-     * @throws CruiseControlException if port is not specified
-     */
-    protected static int parsePort(String args[])
-            throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-port")) {
-                try {
-                    return Integer.parseInt(args[i + 1]);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException(
-                            "'port' argument was not specified.");
-                }
-            }
-        }
-        throw new CruiseControlException(
-                "'port' is a required argument to ProjectController.");
     }
 
 }
