@@ -433,10 +433,10 @@ public class Project implements Serializable {
                 _logFileName = new File(_logDir, "log" + _formatter.format(_now)
                         + ".xml").getAbsolutePath();
             log.debug("Writing log file: " + _logFileName);
-            XMLOutputter outputter = new XMLOutputter("   ", true, _logXmlEncoding);
             if(_logXmlEncoding == null) {
                 _logXmlEncoding = System.getProperty("file.encoding");
             }
+            XMLOutputter outputter = new XMLOutputter("   ", true, _logXmlEncoding);
             logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_logFileName), _logXmlEncoding));
             outputter.output(new Document(logElement), logWriter);
             logWriter = null;
