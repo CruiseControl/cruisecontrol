@@ -39,8 +39,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import com.starbase.starteam.*;
 import com.starbase.util.OLEDate;
 
-import java.io.File;
-import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,18 +47,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.Folder;
-import javax.swing.text.View;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 
 import org.apache.log4j.Logger;
-
-import com.sun.corba.se.ActivationIDL.Server;
-import com.sun.mail.imap.protocol.Item;
 
 /**
  * This class logs into StarTeam and collects information on any modifications
