@@ -111,6 +111,11 @@ public class Mailer {
      */
     public void sendMessage(String subject, String message) 
       throws IOException {
+        if (mailhost == null || mailhost.equals("") == false) {
+            System.out.println("\nMail was not sent, as no mailhost has been specified");
+            return;
+        }
+
         MailMessage msg = new MailMessage(mailhost);
         msg.from(from);
         msg.to(to);
