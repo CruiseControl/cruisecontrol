@@ -55,6 +55,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,7 +79,7 @@ public class Project implements Serializable, Runnable {
     private transient Log log;
     private transient List publishers;
     private transient LabelIncrementer labelIncrementer;
-    private transient List listeners;
+    private transient List listeners = Collections.EMPTY_LIST;
 
     /**
      * If this attribute is set, then it means that the user has overriden
@@ -92,10 +93,10 @@ public class Project implements Serializable, Runnable {
     private transient Object scheduleMutex;
     private transient Object waitMutex;
     private transient BuildQueue queue;
-    private transient ArrayList progressListeners;
-    private transient ArrayList resultListeners;
+    private transient List progressListeners;
+    private transient List resultListeners;
 
-    private static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private int buildCounter = 0;
     private Date lastBuild = Util.getMidnight();
@@ -167,7 +168,10 @@ public class Project implements Serializable, Runnable {
 
             bootstrap();
 
+            // getModifications will only return null if we don't need to build
             Element modifications = getModifications();
+            buildForced = false;
+
             if (modifications == null) {
                 return;
             }
@@ -198,7 +202,7 @@ public class Project implements Serializable, Runnable {
 
             // If we only want to build after a check in, even when broken, set the last build to now,
             // regardless of success or failure (buildAfterFailed = false in config.xml)
-            if (!getBuildAfterFailed()) {
+            if (!buildAfterFailed) {
                 lastBuild = now;
             }
 
@@ -216,7 +220,6 @@ public class Project implements Serializable, Runnable {
 
             serializeProject();
 
-            setState(ProjectState.PUBLISHING);
             publish();
             log.reset();
         } finally {
@@ -350,10 +353,6 @@ public class Project implements Serializable, Runnable {
                     return null;
                 }
             }
-        }
-
-        if (buildForced) {
-            buildForced = false;
         }
 
         if (checkNewChangesFirst) {
@@ -531,10 +530,6 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    public boolean getBuildAfterFailed() {
-        return buildAfterFailed;
-    }
-
     public void setBuildAfterFailed(boolean rebuildEvenWithNoNewModifications) {
         buildAfterFailed = rebuildEvenWithNoNewModifications;
     }
@@ -597,86 +592,50 @@ public class Project implements Serializable, Runnable {
             lastSuccessfulBuild = lastBuild;
         }
 
-        debug("buildInterval          = [" + getBuildInterval() + "]");
-        debug("buildForced            = [" + buildForced + "]");
-        debug("buildAfterFailed       = [" + buildAfterFailed + "]");
-        debug("buildCounter           = [" + buildCounter + "]");
-        debug("isPaused               = [" + isPaused + "]");
-        debug("label                  = [" + label + "]");
-        debug("lastBuild              = [" + getFormatedTime(lastBuild) + "]");
-        debug("lastSuccessfulBuild    = [" + getFormatedTime(lastSuccessfulBuild) + "]");
-        debug("logDir                 = [" + log.getLogDir() + "]");
-        debug("logXmlEncoding         = [" + log.getLogXmlEncoding() + "]");
-        debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
+        if (LOG.isDebugEnabled()) {
+            debug("buildInterval          = [" + getBuildInterval() + "]");
+            debug("buildForced            = [" + buildForced + "]");
+            debug("buildAfterFailed       = [" + buildAfterFailed + "]");
+            debug("buildCounter           = [" + buildCounter + "]");
+            debug("isPaused               = [" + isPaused + "]");
+            debug("label                  = [" + label + "]");
+            debug("lastBuild              = [" + getFormatedTime(lastBuild) + "]");
+            debug("lastSuccessfulBuild    = [" + getFormatedTime(lastSuccessfulBuild) + "]");
+            debug("logDir                 = [" + log.getLogDir() + "]");
+            debug("logXmlEncoding         = [" + log.getLogXmlEncoding() + "]");
+            debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
+        }
     }
 
     protected void setPublishers(List listOfPublishers) {
         publishers = listOfPublishers;
-
     }
 
     protected Element getProjectPropertiesElement(Date now) {
         Element infoElement = new Element("info");
-        Element projectNameElement = new Element("property");
-        projectNameElement.setAttribute("name", "projectname");
-        projectNameElement.setAttribute("value", name);
-        infoElement.addContent(projectNameElement);
-
-        Element lastBuildPropertyElement = new Element("property");
-        lastBuildPropertyElement.setAttribute("name", "lastbuild");
-        if (lastBuild == null) {
-            lastBuildPropertyElement.setAttribute("value", getFormatedTime(now));
-        } else {
-            lastBuildPropertyElement.setAttribute("value", getFormatedTime(lastBuild));
-        }
-        infoElement.addContent(lastBuildPropertyElement);
-
-        Element lastSuccessfulBuildPropertyElement = new Element("property");
-        lastSuccessfulBuildPropertyElement.setAttribute("name", "lastsuccessfulbuild");
-        if (lastSuccessfulBuild == null) {
-            lastSuccessfulBuildPropertyElement.setAttribute("value", getFormatedTime(now));
-        } else {
-            lastSuccessfulBuildPropertyElement.setAttribute("value",
-                    getFormatedTime(lastSuccessfulBuild));
-        }
-        infoElement.addContent(lastSuccessfulBuildPropertyElement);
-
-        Element buildDateElement = new Element("property");
-        buildDateElement.setAttribute("name", "builddate");
-        buildDateElement.setAttribute("value",
-                new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
-        infoElement.addContent(buildDateElement);
-
+        addProperty(infoElement, "projectname", name);
+        String lastBuildString = getFormatedTime(lastBuild == null ? now : lastBuild); 
+        addProperty(infoElement, "lastbuild", lastBuildString);
+        String lastSuccessfulBuildString = getFormatedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
+        addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
+        addProperty(infoElement, "builddate", new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
         if (now != null) {
-            Element ccTimeStampPropertyElement = createBuildTimestampElement(now);
-            infoElement.addContent(ccTimeStampPropertyElement);
+            addProperty(infoElement, "cctimestamp", getFormatedTime(now));
         }
-
-        Element labelPropertyElement = new Element("property");
-        labelPropertyElement.setAttribute("name", "label");
-        labelPropertyElement.setAttribute("value", label);
-        infoElement.addContent(labelPropertyElement);
-
-        Element intervalElement = new Element("property");
-        intervalElement.setAttribute("name", "interval");
-        intervalElement.setAttribute("value", "" + (getBuildInterval() / 1000));
-        infoElement.addContent(intervalElement);
-
-        Element lastBuildSuccessfulPropertyElement = new Element("property");
-        lastBuildSuccessfulPropertyElement.setAttribute("name", "lastbuildsuccessful");
-        lastBuildSuccessfulPropertyElement.setAttribute("value", wasLastBuildSuccessful + "");
-        infoElement.addContent(lastBuildSuccessfulPropertyElement);
-
+        addProperty(infoElement, "label", label);
+        addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));
+        addProperty(infoElement, "lastbuildsuccessful", new Boolean(wasLastBuildSuccessful).toString());
+        
         return infoElement;
     }
 
-    public static Element createBuildTimestampElement(Date now) {
-        Element ccTimeStampPropertyElement = new Element("property");
-        ccTimeStampPropertyElement.setAttribute("name", "cctimestamp");
-        ccTimeStampPropertyElement.setAttribute("value", getFormatedTime(now));
-        return ccTimeStampPropertyElement;
+    private void addProperty(Element parent, String key, String value) {
+        Element propertyElement = new Element("property");
+        propertyElement.setAttribute("name", key);
+        propertyElement.setAttribute("value", value);
+        parent.addContent(propertyElement);
     }
-
+    
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
         buildProperties.put("label", label);
@@ -696,10 +655,9 @@ public class Project implements Serializable, Runnable {
      * their respective <code>publish</code> methods.
      */
     protected void publish() throws CruiseControlException {
-        Iterator publisherIterator = publishers.iterator();
-        Publisher publisher;
-        while (publisherIterator.hasNext()) {
-            publisher = (Publisher) publisherIterator.next();
+        setState(ProjectState.PUBLISHING);
+        for (Iterator i = publishers.iterator(); i.hasNext(); ) {
+            Publisher publisher = (Publisher) i.next();
             try {
                 publisher.publish(getLog().getContent());
             } catch (CruiseControlException e) {
@@ -717,9 +675,8 @@ public class Project implements Serializable, Runnable {
      */
     protected void bootstrap() throws CruiseControlException {
         setState(ProjectState.BOOTSTRAPPING);
-        Iterator bootstrapperIterator = bootstrappers.iterator();
-        while (bootstrapperIterator.hasNext()) {
-            ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
+        for (Iterator i = bootstrappers.iterator(); i.hasNext(); ) {
+            ((Bootstrapper) i.next()).bootstrap();
         }
     }
 
@@ -752,7 +709,7 @@ public class Project implements Serializable, Runnable {
         if (date == null) {
             return null;
         }
-        return formatter.format(date);
+        return FORMATTER.format(date);
     }
 
     public Date parseFormatedTime(String timeString, String description)
@@ -763,7 +720,7 @@ public class Project implements Serializable, Runnable {
             throw new IllegalArgumentException("Null date string for " + description);
         }
         try {
-            date = formatter.parse(timeString);
+            date = FORMATTER.parse(timeString);
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + description + "]", e);
             throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
@@ -843,20 +800,16 @@ public class Project implements Serializable, Runnable {
         this.listeners = listeners;
     }
 
-    public void notifyListeners(ProjectEvent event) {
-        if (listeners != null) {
-            Iterator listenerIterator = listeners.iterator();
-            Listener listener;
-            while (listenerIterator.hasNext()) {
-                listener = (Listener) listenerIterator.next();
-                try {
-                    listener.handleEvent(event);
-                } catch (CruiseControlException e) {
-                    StringBuffer message = new StringBuffer("exception notifying listener ");
-                    message.append(listener.getClass().getName());
-                    message.append(" for project " + name);
-                    LOG.error(message.toString(), e);
-                }
+    void notifyListeners(ProjectEvent event) {
+        for (Iterator i = listeners.iterator(); i.hasNext(); ) {
+            Listener listener = (Listener) i.next();
+            try {
+                listener.handleEvent(event);
+            } catch (CruiseControlException e) {
+                StringBuffer message = new StringBuffer("exception notifying listener ");
+                message.append(listener.getClass().getName());
+                message.append(" for project " + name);
+                LOG.error(message.toString(), e);
             }
         }
     }

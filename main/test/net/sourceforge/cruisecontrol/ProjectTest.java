@@ -265,13 +265,12 @@ public class ProjectTest extends TestCase {
 
         project.setBuildForced(true);
         assertEquals(modifications, project.getModifications());
-        assertFalse(project.getBuildForced());
+        project.setBuildForced(false);
         assertEquals(null, project.getModifications());
 
         project.setBuildForced(true);
         modSet.setModified(true);
         assertEquals(modifications, project.getModifications());
-        assertFalse(project.getBuildForced());
 
         modSet.setModified(false);
         project.setBuildForced(false);
