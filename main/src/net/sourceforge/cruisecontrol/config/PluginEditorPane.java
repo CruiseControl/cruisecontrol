@@ -126,7 +126,7 @@ public class PluginEditorPane extends JPanel {
             Component nextField = null;
             if (nextProperty.getPropertyType() == boolean.class) {
                 JComboBox booleanCombo = new JComboBox(booleanOptions);
-                booleanCombo.setBackground(Color.WHITE);
+                booleanCombo.setBackground(Color.white);
                 nextField = booleanCombo;
             } else {
                 nextField = new JTextField(25);

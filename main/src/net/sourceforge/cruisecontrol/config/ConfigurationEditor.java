@@ -113,10 +113,10 @@ public class ConfigurationEditor {
 
     private void refreshSplitPane() throws IntrospectionException {
         JPanel editorPanel = new PluginEditorPane(null);
-        editorPanel.setBackground(Color.LIGHT_GRAY);
+        editorPanel.setBackground(Color.lightGray);
 
         JScrollPane treePanel = new JScrollPane(createTree(splitPane));
-        treePanel.setBackground(Color.GRAY);
+        treePanel.setBackground(Color.gray);
 
         splitPane.setLeftComponent(treePanel);
         splitPane.setRightComponent(editorPanel);
