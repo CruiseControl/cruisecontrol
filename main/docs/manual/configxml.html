@@ -98,10 +98,10 @@
       &lt;bootstrappers&gt;
          &lt;currentbuildstatusbootstrapper file="logs/currentbuildstatus.txt" dateformat=""/&gt;
       &lt;/bootstrappers&gt;
-      &lt;modificationset &gt;
+      &lt;modificationset  quietperiod="" dateformat=""&gt;
          &lt;cvs cvsroot="" defaultbranchonly="" localworkingcopy=""
                  tag="" property="" propertyondelete=""/&gt;
-      &lt;/modificationset quietperiod="" dateformat=""&gt;
+      &lt;/modificationset&gt;
       &lt;schedule&gt;
          &lt;ant file="" target=""&gt;
             &lt;jvmarg arg=""/&gt;
@@ -161,7 +161,7 @@
 
          <p><a name="bootstrappers"><span class="small">Bootstrappers</span><br>
          <code>Bootstrapper</code>s are run before a build takes place, regardless of whether a build is necessary or
-         not. [double-check this behavior]
+         not, but not if the build is paused. [double-check this behavior]
 
          <p><a name="currentbuildstatusbootstrapper"><span class="small">CurrentBuildStatusBootstrapper</span><br>
          The CruiseControl Build Results JSP will indicate whether or not CruiseControl is currently building a project.
@@ -188,8 +188,8 @@
 
          <hr>
 
-         <p><a name="modificationset"><span class="small">ModificationSet</span><br>
-         [about modset]<p>
+         <p><a name="modificationset"><span class="small">ModificationSet</span></p>
+	 <p>Set of modifications collected from all included SourceControl elements</p>
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
@@ -199,18 +199,17 @@
             <tr>
                <td class="tabledata">quietperiod</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">The amount of time in which there is no source control activity after which it is assumed that it is safe to update from the source control system and initiate a build</td>
             </tr>
             <tr>
                <td class="tabledata">dateformat</td>
                <td class="tabledata">Yes</td>
-               <td class="tabledata">&nbsp;</td>
+               <td class="tabledata">Pattern describing date and time format; See java.text.SimpleDateFormat for examples</td>
             </tr>
          </table>
 
 
          <hr>
-
 
          <p><a name="schedule"><span class="small">Schedule</span><br>
          CruiseControl allows the user to schedule <i>n</i> different builds, either on interval or triggered to
