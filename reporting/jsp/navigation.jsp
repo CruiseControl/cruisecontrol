@@ -36,9 +36,6 @@
  ********************************************************************************--%>
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<table>
-    <tr>
-      <td valign="top">
         <img src="images/blank8.gif" border="0"><br>
         <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
         <table border="0" align="center" width="98%">
@@ -57,7 +54,3 @@
               </form>
             </td></tr>
         </table>
-      </td>
-      <td>&nbsp;</td>
-    </tr>
-</table>
