@@ -42,16 +42,6 @@ public class StarTeamElement extends SourceControlElement {
     private Hashtable nowFiles = new Hashtable();
     private Hashtable lastBuildFiles = new Hashtable();
 
-    /**
-     * The String prepended to log messages from the source control element.  For
-     * example, CVSElement should implement this as return "[cvselement]";
-     *
-     * @return prefix for log messages
-     */
-    protected String logPrefix() {
-        return "[starteamelement]";
-    }
-
     public long getLastModified() {
         return mostRecent;
     }

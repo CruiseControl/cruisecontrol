@@ -36,7 +36,11 @@ import org.apache.tools.ant.types.*;
  * any setup. This implies that if the authentication type is pserver
  * the call to cvs login should be done prior to calling this class.
  *
- * @author Paul Julius ThoughtWorks Inc., robertdw, Frederic Lavigne, jchyip, marcpa
+ * @author Paul Julius ThoughtWorks Inc.
+ * @author Robert Watkins
+ * @author Frederic Lavigne
+ * @author Jason Yip, jcyip@thoughtworks.com
+ * @author marcpa
  */
 public class CVSElement extends SourceControlElement {
     
@@ -134,15 +138,6 @@ public class CVSElement extends SourceControlElement {
      */
     private Date lastModified;
     
-   /**
-    * The String prepended to log messages from the source control element.
-    *
-    * @return prefix for log messages
-    */    
-    protected String logPrefix() {
-        return "[cvselement]";
-    }
-    
     public static String formatCVSDate(Date date) {
         return CVSDATE.format(date);
     }
@@ -166,13 +161,12 @@ public class CVSElement extends SourceControlElement {
      */
     public void setLocalWorkingCopy(String local) {
         //(PENDING) stick with the string, throw exception if File does not exist
-        if (local == null) {
-            this.local = new NullFile();
-            return;
+        if (local != null) {
+            this.local = new File(local);
         }
-        this.local = new File(local);
     }
     
+    //(PENDING) not currently used
     /**
      * Set the tag to use when running CVS log.  See CVS documentation for more
      * information on the -r option of the log command
@@ -223,8 +217,7 @@ public class CVSElement extends SourceControlElement {
 
         ArrayList mods = null;
         try {
-            mods = execHistoryCommand(
-             buildHistoryCommand(lastBuild, now).getCommandline());
+            mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
         } catch (Exception e) {
             log("Log command failed to execute succesfully");
             e.printStackTrace();
@@ -262,15 +255,6 @@ public class CVSElement extends SourceControlElement {
         return commandLine;
     }
  
-    String prepareCommandForDisplay(String[] commandArray) {
-        String logCommand = "";
-        for (int i = 0; i < commandArray.length; i++) {
-            logCommand += commandArray[i] + " "; 
-        }
-        
-        return logCommand;
-    }
-
     private void setLastModified(Date lastModified) {
         if (lastModified == null) {
             lastModified = new NullDate();
@@ -280,9 +264,9 @@ public class CVSElement extends SourceControlElement {
         this.lastModified = lastModified;
     }    
     
-    private ArrayList execHistoryCommand(String[] commandArray) throws Exception {
-        log("Executing: " + prepareCommandForDisplay(commandArray));
-        Process p = Runtime.getRuntime().exec(commandArray);            
+    private ArrayList execHistoryCommand(Commandline command) throws Exception {
+        log("Executing: " + command);
+        Process p = Runtime.getRuntime().exec(command.getCommandline());            
  
         logErrorStream(p);
         InputStream cvsLogStream = p.getInputStream();
@@ -543,40 +527,6 @@ public class CVSElement extends SourceControlElement {
                 dataStream.close();
             } catch (IOException ignoredIOException) {}
         }
-    }
-    
-    private class CVSStreamHandler implements ExecuteStreamHandler {
-        private StreamPumper _errorPumper;
-        private InputStream _inputStream;
-        private List _modifications;
-        
-        public List getModifications() {
-            return _modifications;
-        }
-        
-        public void start() throws IOException {
-            _errorPumper.start();        
-            _modifications = parseStream(_inputStream);
-        }
-        
-        public void stop() {
-        }
-        
-        public void setProcessErrorStream(InputStream errorStream) 
-         throws IOException {
-            _errorPumper = new StreamPumper(errorStream, null, 
-             new PrintWriter(System.err, true));
-        }
-        
-        public void setProcessInputStream(OutputStream outputStream) 
-         throws IOException {
-        }
-        
-        public void setProcessOutputStream(InputStream inputStream) 
-         throws IOException {
-             _inputStream = inputStream;
-        }
-        
     }
     
 }

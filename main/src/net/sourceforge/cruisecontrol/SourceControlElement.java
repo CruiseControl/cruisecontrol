@@ -29,7 +29,8 @@ import org.apache.tools.ant.*;
  * gathering information about the changes made to whatever source control tool 
  * that you choose.
  *
- * @author alden almagro, ThoughtWorks, Inc. 2001, jchyip
+ * @author alden almagro, ThoughtWorks, Inc. 2001, 
+ * @author Jason Yip, jcyip@thoughtworks.com
  */
 
 //(PENDING) move all source control elements to net.sourceforge.cruisecontrol.element
@@ -37,14 +38,6 @@ import org.apache.tools.ant.*;
 public abstract class SourceControlElement {
 
     private Task _task;
-
-   /**
-    * The String prepended to log messages from the source control element.  For
-    * example, CVSElement should implement this as return "[cvselement]"; 
-    *
-    * @return prefix for log messages
-    */
-   protected abstract String logPrefix();
     
    //(PENDING) pull these up too
    
@@ -80,16 +73,23 @@ public abstract class SourceControlElement {
     */
    protected void log(String message, int msgLevel) {
         if (_task != null) {
-            _task.log(logPrefix() + " " + message, msgLevel);
+            _task.log(message, msgLevel);
         }
    }
    
    protected Task getAntTask() {
        return _task;
    }
-   
+ 
+   /**
+    * Sets Ant task which is used for logging.  Also sets the task name to be
+    * equivalent to the class name of the particular source control element 
+    * implementation.
+    */
    public void setAntTask(Task task) {
-       _task = task;
+        _task = task;
+        String classname = this.getClass().getName();
+	_task.setTaskName(classname.substring(classname.lastIndexOf(".") + 1));       
    }
    
 }

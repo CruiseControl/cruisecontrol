@@ -60,16 +60,6 @@ public class P4Element extends SourceControlElement {
     private int _P4lastChange;
 
     /**
-     * The String prepended to log messages from the source control element.  For
-     * example, CVSElement should implement this as return "[cvselement]";
-     *
-     * @return prefix for log messages
-     */
-    protected String logPrefix() {
-        return "[p4element]";
-    }
-    
-    /**
      * @throws BuildException
      */
     protected void execP4Command(String command) throws BuildException {
@@ -130,7 +120,7 @@ public class P4Element extends SourceControlElement {
                 
             }
             
-            Execute exe = new Execute(handler, null);
+            Execute exe = new Execute(handler);
             
             if (getAntTask() != null) {
                 exe.setAntRun(getAntTask().getProject());
