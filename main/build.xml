@@ -48,6 +48,7 @@
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="test" value="test"/>
+    <property name="tests" value="*Test"/>
 
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.0.jar"/>
@@ -177,7 +178,7 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${classes}" includes="**/*Test.class" excludes="**/element/" />
+                <fileset dir="${classes}" includes="**/${tests}.class" excludes="**/element/" />
             </batchtest>
         </junit>
     </target>
