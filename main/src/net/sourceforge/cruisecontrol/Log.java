@@ -138,8 +138,7 @@ public class Log {
     /**
      * Writes the current build log to the appropriate directory and filename.
      */
-    public void writeLogFile(Date now)
-            throws CruiseControlException {
+    public void writeLogFile(Date now) throws CruiseControlException {
 
         //Call the Loggers to let them do their thing
         for (int i = 0; i < loggers.size(); i++) {
@@ -184,11 +183,16 @@ public class Log {
                         new OutputStreamWriter(new FileOutputStream(lastLogFile), logXmlEncoding));
             }
             outputter.output(new Document(buildLog), logWriter);
-            logWriter = null;
         } catch (IOException e) {
             throw new CruiseControlException(e);
         } finally {
-            logWriter = null;
+            if (logWriter != null) {
+            	try {
+					logWriter.close();
+				} catch (IOException e1) {
+					// nevermind, then
+				}
+            }
         }
     }
 
