@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.File;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -46,7 +47,6 @@ public class PVCSTest extends TestCase {
     }
 
     public void testValidate() {
-
         PVCS pvcs = new PVCS();
 
         try {
@@ -66,5 +66,29 @@ public class PVCSTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("PVCS should not throw exceptions when required attributes are set.");
         }
+    }
+
+    public void testGetExecutable() {
+        PVCS pvcs = new PVCS();
+
+        String testExe = "testexe";
+        assertEquals("Wrong pvcs bin setting w/out bin set.",
+                testExe, pvcs.getExecutable(testExe));
+
+        pvcs.setPvcsbin("mybindir");
+        assertEquals("Wrong pvcs bin setting w/ bin set.",
+                "mybindir" + File.separator + testExe, pvcs.getExecutable(testExe));
+    }
+
+    public void testGetFixedLines() {
+	PVCS pvcs = new PVCS();
+	String line1 = "hello world";
+	assertEquals("hello world", pvcs.getFixedLine(line1));
+
+	String line2 = "\"\\\\\\fa la la";
+	assertEquals("\"\\\\\\fa la la", pvcs.getFixedLine(line2));
+
+	String uncSharePath = "\"\\\\hostname\\dir\"";
+	assertEquals("\"\\\\\\hostname\\dir\"", pvcs.getFixedLine(uncSharePath));
     }
 }

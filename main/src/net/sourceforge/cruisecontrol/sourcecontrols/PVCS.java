@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -61,18 +62,21 @@ import org.apache.log4j.Logger;
 /**
  *  This class implements the SourceControlElement methods for a PVCS
  *  repository.
- * 
+ *
  *  @author <a href="mailto:Richard.Wagner@alltel.com">Richard Wagner</a>
  */
 public class PVCS implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(PVCS.class);
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String DOUBLE_QUOTE = "\"";
 
     private Hashtable properties = new Hashtable();
     private String property;
     private String propertyOnDelete;
     private Date lastBuild;
 
+    private String pvcsbin;
     private String pvcsProject;
     // i.e. "esa";
     // i.e. "esa/uihub2";
@@ -93,7 +97,24 @@ public class PVCS implements SourceControl {
     private static final String PVCS_INSTRUCTIONS_FILE =
         "CruiseControlPVCS.pcli";
     private static final String PVCS_TEMP_WORK_FILE = "files.tmp";
-    private static final String PVCS_RESULTS_FILE = "";
+    private static final String PVCS_RESULTS_FILE = "vlog.txt";
+
+
+    /**
+     * Get name of the PVCS bin directory
+     * @return String
+     */
+    public String getPvcsbin() {
+      return pvcsbin;
+    }
+
+    /**
+     * Specifies the location of the PVCS bin directory
+     * @param bin Specifies the location of the PVCS bin directory
+     */
+    public void setPvcsbin(String bin) {
+      this.pvcsbin = bin;
+    }
 
     public void setPvcsproject(String project) {
         pvcsProject = project;
@@ -148,29 +169,43 @@ public class PVCS implements SourceControl {
         // build file of PVCS command line instructions
         String lastBuildDate = inDateFormat.format(lastBuild);
         String nowDate = inDateFormat.format(now);
-        buildExecFile(lastBuildDate, nowDate);
-        String command = "pcli run -sCruiseControlPVCS.pcli";
-        List modifications = null;
+        final String command = getExecutable("pcli") + " run -s" + PVCS_INSTRUCTIONS_FILE;
         try {
-            Process p = Runtime.getRuntime().exec(command);
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-            new Thread(errorPumper).start();
-            InputStream input = p.getInputStream();
-            p.waitFor();
-            p.getOutputStream();
-            p.getInputStream();
-            p.getErrorStream();
+            buildExecFilePre();
+            exec(command);
+            fixFilesTmp();
+            buildExecFilePost(lastBuildDate, nowDate);
+            exec(command);
         } catch (Exception e) {
             LOG.error("Error in executing the PVCS command : ", e);
             return new ArrayList();
         }
-        modifications = makeModificationsList();
-
-        if (modifications == null) {
-            modifications = new ArrayList();
-        }
+        List modifications = makeModificationsList();
 
         return modifications;
+    }
+
+    String getExecutable(String exe) {
+        StringBuffer correctedExe = new StringBuffer();
+        if (getPvcsbin() != null) {
+            if (getPvcsbin().endsWith(File.separator)) {
+                correctedExe.append(getPvcsbin());
+            } else {
+                correctedExe.append(getPvcsbin()).append(File.separator);
+            }
+        }
+        return correctedExe.append(exe).toString();
+    }
+
+    private void exec(String command) throws IOException, InterruptedException {
+        Process p = Runtime.getRuntime().exec(command);
+        StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
+        new Thread(errorPumper).start();
+        InputStream input = p.getInputStream();
+        p.waitFor();
+        p.getOutputStream();
+        p.getInputStream();
+        p.getErrorStream();
     }
 
     /**
@@ -178,8 +213,8 @@ public class PVCS implements SourceControl {
      * Once we've read the file, produce a list of changes.
      */
     private List makeModificationsList() {
-        List theList = new ArrayList();
-        File inputFile = new File("vlog.txt");
+        List theList;
+        File inputFile = new File(PVCS_RESULTS_FILE);
         BufferedReader brIn;
         ModificationBuilder modificationBuilder = new ModificationBuilder();
         try {
@@ -193,71 +228,177 @@ public class PVCS implements SourceControl {
             LOG.error("Error in reading vlog file of PVCS modifications : ", e);
         }
         theList = modificationBuilder.getList();
+
+        if (theList == null) {
+            theList = new ArrayList();
+        }
+
         return theList;
     }
 
     /**
      * Builds a file of PVCS instructions to execute.  The format should be roughly:
      *
-     * set -vProject "-prv:\esa"
+     *  set -vProject "-prv:\esa"
      *  set -vSubProject "/esa/uihub2"
      *  Echo Getting list of files
      *  run ->files.tmp listversionedfiles -z -aw $Project $SubProject
+     *
+     * vlog command will be executed later, after tmp file cleanup
+     *
+     */
+    private void buildExecFilePre() {
+        String line1 =
+            "set -vProject "
+                + DOUBLE_QUOTE
+                + "-pr"
+                + pvcsProject
+                + DOUBLE_QUOTE;
+        String line2 =
+            "set -vSubProject " + DOUBLE_QUOTE + pvcsSubProject + DOUBLE_QUOTE;
+        String line3 =
+            "run ->files.tmp listversionedfiles -z -aw $Project $SubProject";
+
+        LOG.debug(
+            "#### PVCSElement about to write this line:\n " + line3);
+
+	String[] instructions = new String[] {line1, line2, line3};
+	writeInstructionFile(instructions);
+    }
+
+    /**
+     * Builds a file of PVCS instructions to execute.  The format should be roughly:
+     *
+     *  set -vProject "-prv:\esa"
+     *  set -vSubProject "/esa/uihub2"
      *  Echo Getting History
      *  run -e vlog  "-xo+evlog.txt" "-d07/20/2001/10:49*07/30/2001" "@files.tmp"
      *
      */
-    private void buildExecFile(String lastBuild, String now) {
-        File outputFile = new File(PVCS_INSTRUCTIONS_FILE);
-
-        String doubleQuotes = "\"";
-        String atSign = "@";
-
+    private void buildExecFilePost(String lastBuild, String now) {
         String line1 =
             "set -vProject "
-                + doubleQuotes
+                + DOUBLE_QUOTE
                 + "-pr"
                 + pvcsProject
-                + doubleQuotes;
+                + DOUBLE_QUOTE;
         String line2 =
-            "set -vSubProject " + doubleQuotes + pvcsSubProject + doubleQuotes;
-        String line3 =
-            "run ->files.tmp listversionedfiles -z -aw $Project $SubProject";
-        String line4Subline1 =
+            "set -vSubProject " + DOUBLE_QUOTE + pvcsSubProject + DOUBLE_QUOTE;
+
+        String line3Subline1 =
             "run -e vlog "
-                + doubleQuotes
-                + "-xo+evlog.txt"
-                + doubleQuotes
+                + DOUBLE_QUOTE
+                + "-xo+e" + PVCS_RESULTS_FILE
+                + DOUBLE_QUOTE
                 + " ";
-        String line4Subline2 =
-            doubleQuotes + "-d" + lastBuild + "*" + now + doubleQuotes + " ";
-        String line4Subline3 =
-            doubleQuotes + atSign + PVCS_TEMP_WORK_FILE + doubleQuotes;
-        String line4 = line4Subline1 + line4Subline2 + line4Subline3;
+        String line3Subline2 =
+            DOUBLE_QUOTE + "-d" + lastBuild + "*" + now + DOUBLE_QUOTE + " ";
+        String line3Subline3 =
+            DOUBLE_QUOTE + "@" + PVCS_TEMP_WORK_FILE + DOUBLE_QUOTE;
+        String line3 = line3Subline1 + line3Subline2 + line3Subline3;
 
         LOG.debug(
-            "#### PVCSElement about to write this line:\n " + line4Subline2);
+            "#### PVCSElement about to write this line:\n " + line3Subline2);
 
-        BufferedWriter bwOut;
+	String[] instructions = new String[] {line1, line2, line3};
+
+	writeInstructionFile(instructions);
+    }
+
+    void writeInstructionFile(String[] instructions) {
+        File outputFile = new File(PVCS_INSTRUCTIONS_FILE);
+        BufferedWriter bwOut = null;
         try {
             bwOut = new BufferedWriter(new FileWriter(outputFile));
-            bwOut.write(line1);
-            bwOut.write("\n");
-            bwOut.write(line2);
-            bwOut.write("\n");
-            bwOut.write(line3);
-            bwOut.write("\n");
-            bwOut.write(line4);
-            bwOut.write("\n");
-            bwOut.close();
+	    for(int i=0;i<instructions.length;i++) {
+		String instruction = instructions[i];
+		bwOut.write(instruction);
+		bwOut.write(LINE_SEPARATOR);
+	    }
         } catch (IOException e) {
             LOG.error("Error in building PVCS pcli file : ", e);
+        } finally {
+	    if (bwOut != null) {
+		try {
+		    bwOut.close();
+		} catch (Exception e) {
+		}
+	    }
+	}
+    }
+
+    // ugly but it's a temporary fix that works...
+    private void fixFilesTmp() throws Exception {
+        final File file = new File(PVCS_TEMP_WORK_FILE);
+
+        List lines = readFile(file);
+	writeFileAndFixLines(lines, file);
+    }
+
+    List readFile(File file) throws IOException {
+	List lines = new ArrayList();
+        // read files.tmp into List...
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = in.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            LOG.debug("Error in reading " + PVCS_TEMP_WORK_FILE +
+                    " file of PVCS file listing: " + e);
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (in != null) {
+		    in.close();
+		}
+            } catch (Exception e) {
+            }
         }
+	return lines;
+    }
+
+    void writeFileAndFixLines(List lines, File file) throws IOException {
+        // ...now write out lines to to files.tmp
+        FileWriter out = null;
+        try {
+            out = new FileWriter(file);
+            final Iterator iter = lines.iterator();
+            while (iter.hasNext()) {
+                String line = (String) iter.next();
+		line = getFixedLine(line);
+                out.write(line);
+                out.write(LINE_SEPARATOR);
+            }
+        } catch (IOException e) {
+            LOG.debug("Error in writing " + PVCS_TEMP_WORK_FILE +
+                    " file of PVCS file listing: " + e);
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (out != null) {
+		    out.close();
+		}
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    String getFixedLine(String line) {
+	String fixedLine = line;
+	if (line.startsWith("\"\\\\") && !line.startsWith("\"\\\\\\")) {
+	    fixedLine = "\"\\\\\\" + line.substring(3);
+	}
+	return fixedLine;
     }
 
     /**
      * Inner class to build Modifications and verify the order of the lines
-     * used to build them. 
+     * used to build them.
      */
     class ModificationBuilder {
 
@@ -340,7 +481,7 @@ public class PVCS implements SourceControl {
             } // end of Author id
 
         } // end of addLine
-          
+
     } // end of class ModificationBuilder
-    
+
 } // end class PVCSElement
