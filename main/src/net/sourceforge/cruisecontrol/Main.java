@@ -36,7 +36,7 @@
  ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +53,7 @@ import java.util.Properties;
 public class Main {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Main.class.getName());
+    private static Logger log = Logger.getLogger(Main.class);
 
     /**
      * Print the version, configure the project with serialized build info

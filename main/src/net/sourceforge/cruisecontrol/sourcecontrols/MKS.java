@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods
@@ -55,7 +55,7 @@ import org.apache.log4j.Category;
 public class MKS implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(MKS.class.getName());
+    private static Logger log = Logger.getLogger(MKS.class);
 
     private Hashtable _properties = new Hashtable();
     private String _property;

@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.io.File;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  *  Concrete implementation of the <code>EmailPublisher</code> abstract class.  This class handles the simplest
@@ -52,7 +52,7 @@ import org.apache.log4j.Category;
 public class LinkEmailPublisher extends EmailPublisher {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(LinkEmailPublisher.class.getName());
+    private static Logger log = Logger.getLogger(LinkEmailPublisher.class);
 
     /**
      *  Creates the email message body.  This implementation of <code>EmailPublisher</code> just creates a message

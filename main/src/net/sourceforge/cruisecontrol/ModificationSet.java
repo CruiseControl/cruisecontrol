@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.text.SimpleDateFormat;
@@ -48,7 +48,7 @@ import java.util.*;
 public class ModificationSet {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(ModificationSet.class.getName());
+    private static Logger log = Logger.getLogger(ModificationSet.class);
 
     protected List _modifications = new ArrayList();
     protected List _sourceControls = new ArrayList();

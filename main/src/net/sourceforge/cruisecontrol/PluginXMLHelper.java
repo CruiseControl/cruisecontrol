@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -48,7 +48,7 @@ import java.util.Map;
 public class PluginXMLHelper {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(PluginXMLHelper.class.getName());
+    private static Logger log = Logger.getLogger(PluginXMLHelper.class);
 
     /**
      *  given a JDOM Element and a classname, this method will instantiate an object of type className, and

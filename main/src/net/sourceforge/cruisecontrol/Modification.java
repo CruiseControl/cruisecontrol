@@ -40,7 +40,7 @@ package net.sourceforge.cruisecontrol;
 import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -55,7 +55,7 @@ import java.util.Date;
 public class Modification implements Comparable {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Modification.class.getName());
+    private static Logger log = Logger.getLogger(Modification.class);
 
     public String type = "unknown";
     public String fileName;

@@ -43,7 +43,7 @@ import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -57,7 +57,7 @@ import org.apache.log4j.Category;
 public class Vss implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Vss.class.getName());
+    private static Logger log = Logger.getLogger(Vss.class);
 
     private final String VSS_TEMP_FILE = "vsstempfile.txt";
     protected SimpleDateFormat vssDateTimeFormat;
@@ -112,7 +112,7 @@ public class Vss implements SourceControl {
   	/**
 	 *  Choose a property to be set if the project has deletions
 	 *
-	 *@param  property
+	 *@param  propertyOnDelete
 	 */
      public void setPropertyOnDelete(String propertyOnDelete) {
 		propertyOnDelete = propertyOnDelete;

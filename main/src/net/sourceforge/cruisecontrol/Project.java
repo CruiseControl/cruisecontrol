@@ -37,7 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -58,7 +58,7 @@ public class Project implements Serializable {
     static final long serialVersionUID = 2656877748476842326L;
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Project.class.getName());
+    private static Logger log = Logger.getLogger(Project.class);
 
     private transient Schedule _schedule;
     private transient List _bootstrappers = new ArrayList();

@@ -59,7 +59,7 @@ import java.io.File;
 import java.util.Vector;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -87,7 +87,7 @@ import org.apache.log4j.Category;
 public class Commandline implements Cloneable {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Commandline.class.getName());
+    private static Logger log = Logger.getLogger(Commandline.class);
 
     private Vector arguments = new Vector();
     private String executable = null;

@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,11 +33,11 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -49,7 +49,7 @@ import java.util.*;
 public class Schedule {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(Schedule.class.getName());
+    private static Logger log = Logger.getLogger(Schedule.class);
 
     private List _builders = new ArrayList();
     private List _pauseBuilders = new ArrayList();
@@ -75,7 +75,8 @@ public class Schedule {
             if (builder.getStartTime() <= getTimeFromDate(now) &&
                     getTimeFromDate(now) <= builder.getEndTime() &&
                     builder.isValidDay(now)) {
-                    log.info("CruiseControl is paused until: " + builder.getEndTime()+1);
+                    log.info("CruiseControl is paused until: "
+                            + builder.getEndTime()+1);
                 return true;
             }
         }
@@ -85,14 +86,17 @@ public class Schedule {
     /**
      *  Select the correct <code>Builder</code> and start a build.
      *
-     *  @param buildNumber The sequential build number.
-     *  @param lastBuild The date of the last build.
-     *  @param now The current time.
-     *  @param properties Properties that would need to be passed in to the actual build tool.
+     * @param buildNumber The sequential build number.
+     * @param lastBuild The date of the last build.
+     * @param now The current time.
+     * @param properties Properties that would need to be passed in to the
+     * actual build tool.
      *
      *  @return JDOM Element representation of build log.
      */
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
+    public Element build(int buildNumber, Date lastBuild, Date now,
+                         Map properties)
+            throws CruiseControlException {
         Builder builder = selectBuilder(buildNumber, lastBuild, now);
         return builder.build(properties);
     }
@@ -100,19 +104,21 @@ public class Schedule {
     /**
      *  Select the correct build based on the current buildNumber and time.
      *
-     *  @param lastBuild The date of the last build.
-     *  @param now The current time.
-     *  @param properties Properties that would need to be passed in to the actual build tool.
+     * @param buildNumber The sequential build number
+     * @param lastBuild The date of the last build.
+     * @param now The current time.
      *
      *  @return The <code>Builder</code> that should be run.
      */
-    protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now) throws CruiseControlException {
+    protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now)
+            throws CruiseControlException {
         Iterator builderIterator = _builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
             if (builder.getTime() > 0) {
                 if (getTimeFromDate(lastBuild) < builder.getTime() &&
-                        builder.getTime() < getTimeFromDate(now) && builder.isValidDay(now)) {
+                        builder.getTime() < getTimeFromDate(now)
+                        && builder.isValidDay(now)) {
                     return builder;
                 }
             } else if (builder.getMultiple() > 0) {
@@ -120,7 +126,8 @@ public class Schedule {
                     return builder;
                 }
             } else {
-                throw new CruiseControlException("The selected Builder is not properly configured");
+                throw new CruiseControlException(
+                        "The selected Builder is not properly configured");
             }
         }
         throw new CruiseControlException("No Builder selected.");
@@ -139,4 +146,5 @@ public class Schedule {
         int minute = calendar.get(Calendar.MINUTE);
         return hour + minute;
     }
+
 }

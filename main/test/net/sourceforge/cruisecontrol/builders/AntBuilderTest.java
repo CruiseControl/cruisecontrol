@@ -37,25 +37,23 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.log4j.*;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 public class AntBuilderTest extends TestCase {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(AntBuilderTest.class.getName());
+    private static Logger log = Logger.getLogger(AntBuilderTest.class);
 
     public AntBuilderTest(String name) {
         super(name);
@@ -68,9 +66,9 @@ public class AntBuilderTest extends TestCase {
         Hashtable properties = new Hashtable();
         properties.put("label", "200.1.23");
         String classpath = System.getProperty("java.class.path");
-        String[] resultDebug = { "java", "-classpath", classpath, "org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-debug","-verbose","-buildfile","buildfile","target"};
-        String[] resultInfo = { "java","-classpath", classpath, "org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-buildfile","buildfile","target"};
-        String[] resultDebugWithMaxMemory = { "java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main","-listener","org.apache.tools.ant.XmlLogger","-listener","net.sourceforge.cruisecontrol.builders.PropertyLogger","-Dlabel=200.1.23","-debug","-verbose","-buildfile","buildfile","target"};
+        String[] resultDebug = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
+        String[] resultInfo = {"java", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-buildfile", "buildfile", "target"};
+        String[] resultDebugWithMaxMemory = {"java", "-Xmx256m", "-classpath", classpath, "org.apache.tools.ant.Main", "-listener", "org.apache.tools.ant.XmlLogger", "-listener", "net.sourceforge.cruisecontrol.builders.PropertyLogger", "-Dlabel=200.1.23", "-debug", "-verbose", "-buildfile", "buildfile", "target"};
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         log.getRoot().setPriority(Priority.INFO);
@@ -114,18 +112,18 @@ public class AntBuilderTest extends TestCase {
         Element buildElement = builder.build(buildProperties);
 
         Iterator targetIterator = buildElement.getChildren("target").iterator();
-        while(targetIterator.hasNext()) {
+        while (targetIterator.hasNext()) {
             Element targetElement = (Element) targetIterator.next();
-            if(targetElement.getAttributeValue("name").equals("init")) {
+            if (targetElement.getAttributeValue("name").equals("init")) {
                 assertTrue(true);
             }
         }
 
         Element propertiesElement = buildElement.getChild("properties");
         Iterator propertyIterator = propertiesElement.getChildren("property").iterator();
-        while(propertyIterator.hasNext()) {
+        while (propertyIterator.hasNext()) {
             Element propertyElement = (Element) propertyIterator.next();
-            if(propertyElement.getAttributeValue("name").equals("src")) {
+            if (propertyElement.getAttributeValue("name").equals("src")) {
                 assertEquals("src", propertyElement.getAttributeValue("value"));
             }
         }

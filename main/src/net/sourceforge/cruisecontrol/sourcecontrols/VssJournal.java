@@ -42,7 +42,7 @@ import java.text.*;
 import java.util.*;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  *  This class handles all VSS-related aspects of determining the modifications
@@ -64,7 +64,7 @@ import org.apache.log4j.Category;
 public class VssJournal implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(VssJournal.class.getName());
+    private static Logger log = Logger.getLogger(VssJournal.class);
 
     public static final SimpleDateFormat VSS_OUT_FORMAT =
         new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma");
@@ -121,7 +121,7 @@ public class VssJournal implements SourceControl {
      *  change that only requires repackaging, i.e. jsp, we don't need to recompile
      *  everything, just rejar.
      *
-     *@param  s
+     *@param  property
      */
     public void setProperty(String property) {
         _property = property;

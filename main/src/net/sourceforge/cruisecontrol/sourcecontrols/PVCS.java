@@ -44,7 +44,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  *  This class implements the SourceControlElement methods for a PVCS
@@ -55,7 +55,7 @@ import org.apache.log4j.Category;
 public class PVCS implements SourceControl {
 
     /** enable logging for this class */
-    private static Category log = Category.getInstance(PVCS.class.getName());
+    private static Logger log = Logger.getLogger(PVCS.class);
 
     private Hashtable _properties = new Hashtable();
     private String _property;
@@ -126,7 +126,6 @@ public class PVCS implements SourceControl {
                 String command = "pcli run -sCruiseControlPVCS.pcli";
 		List modifications = null;
                 try {
-                        int exitValue;
       			Process p = Runtime.getRuntime().exec(command);
                         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
 			new Thread(errorPumper).start();
@@ -185,8 +184,6 @@ public class PVCS implements SourceControl {
         private void buildExecFile(String lastBuild,String now){
           File outputFile = new File(PVCS_INSTRUCTIONS_FILE);
 
-          String forwardSlash = "/";
-          String backSlash = "\\";
           String doubleQuotes = "\"";
           String atSign = "@";
           
