@@ -61,8 +61,7 @@
                      messages. This accurately represents the number of errors ONLY if the Ant property
                      build.compiler.emacs is set to "true" -->
                     <td class="compile-sectionheader">
-                        &#160;Errors/Warnings: (
-                        <xsl:value-of select="$total.errorMessage.count"/>)
+                        &#160;Errors/Warnings: (<xsl:value-of select="$total.errorMessage.count"/>)
                     </td>
                 </tr>
                 <xsl:if test="count($javac.error.messages) > 0">
