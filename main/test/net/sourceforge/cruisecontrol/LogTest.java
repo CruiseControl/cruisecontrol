@@ -129,7 +129,7 @@ public class LogTest extends TestCase {
             log.addContent(new Element("modifications"));
 
             // Add 8-bit characters 
-            build.setText("Something with special characters: ∆ÿ≈");
+            build.setText("Something with special characters: \\u00c6\\u00d8\\u00c5");
 
             // Write and read the file
             log.writeLogFile(new Date());
