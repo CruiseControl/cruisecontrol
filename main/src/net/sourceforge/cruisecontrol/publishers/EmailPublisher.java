@@ -272,11 +272,11 @@ public abstract class EmailPublisher implements Publisher {
             if (mappedUser != null) {
                 LOG.debug("User found in email map.  Mailing to: " + mappedUser);
             } else {
+                LOG.debug("User not found in email map.  Mailing to: " + mappedUser);
                 mappedUser = user;
             }
             if (mappedUser.indexOf("@") < 0) {
                 mappedUser = mappedUser + defaultSuffix;
-                LOG.debug("User not found in email map.  Mailing to: " + mappedUser);
             }
             emails.add(mappedUser);
         }
