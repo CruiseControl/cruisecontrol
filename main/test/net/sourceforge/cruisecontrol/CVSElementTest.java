@@ -25,8 +25,7 @@ import java.util.*;
 import junit.framework.*;
 
 /**
- * @author  robertdw, jhcyip
- * @version 23 May 2001
+ * @author  robertdw, jchyip
  */
 public class CVSElementTest extends TestCase {
     
@@ -34,6 +33,14 @@ public class CVSElementTest extends TestCase {
         super(testName);
     }
 
+    public void testFormatLogDate() {
+        Date may18_2001_6pm = 
+         new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
+        assertEquals("2001/05/18 18:00:00 " 
+         + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT), 
+         CVSElement.LOGDATE.format(may18_2001_6pm));
+    }
+    
     public void testFormatCVSDateGMTPlusZero() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+0:00"));
         Date may18_2001_6pm = 
