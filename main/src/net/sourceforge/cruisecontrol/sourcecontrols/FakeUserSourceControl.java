@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -36,64 +36,53 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 /**
- * Returns "true" always, so that a build will happen repeatedly.
- *
- * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
+ * Abstract superclass for SourceControls that use a static user
+ * for all Modifications reported.
+ * 
+ * @author <a href="mailto:joriskuipers@xs4all.nl">Joris Kuipers</a>
  */
-public class AlwaysBuild extends FakeUserSourceControl {
+public abstract class FakeUserSourceControl implements SourceControl {
 
-    private Hashtable properties = new Hashtable();
+    private String userName = "User";
+    
+    public String getUserName() {
+        return userName;
+    }
+    
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+    
+    /**
+     * @see net.sourceforge.cruisecontrol.SourceControl#getModifications(java.util.Date, java.util.Date)
+     */
+    public abstract List getModifications(Date lastBuild, Date now);
 
     /**
-     * Unsupported by AlwaysBuild.
+     * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */
-    public void setProperty(String property) {
-
-    }
+    public abstract void validate() throws CruiseControlException;
+    
+    /**
+     * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
+     */
+    public abstract Hashtable getProperties();
 
     /**
-     * Unsupported by AlwaysBuild.
+     * @see net.sourceforge.cruisecontrol.SourceControl#setProperty(java.lang.String)
      */
-    public void setPropertyOnDelete(String propertyOnDelete) {
-    }
-
-    public Hashtable getProperties() {
-        return properties;
-    }
-
-    public void validate() throws CruiseControlException {
-
-    }
-
+    public abstract void setProperty(String property);
+    
     /**
-     * For this case, we don't care about the quietperiod, only that
-     * one user is modifying the build.
-     *
-     * @param lastBuild date of last build
-     * @param now       IGNORED
+     * @see net.sourceforge.cruisecontrol.SourceControl#setPropertyOnDelete(java.lang.String)
      */
-    public List getModifications(Date lastBuild, Date now) {
-        List modifications = new ArrayList();
-
-        Modification mod = new Modification("always");
-        Modification.ModifiedFile modfile = mod.createModifiedFile("force build", "force build");
-        modfile.action = "change";
-
-        mod.userName = getUserName();
-        mod.modifiedTime = new Date((new Date()).getTime() - 100000);
-        mod.comment = "";
-        modifications.add(mod);
-        return modifications;
-    }
-
-
+    public abstract void setPropertyOnDelete(String property);
 }

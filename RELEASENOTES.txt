@@ -1,5 +1,9 @@
 CruiseControl Release Notes - CVS
 
+AlwaysBuild:
+----------------------
+* Configurable username for reported Modification
+
 AntBootstrapper:
 ----------------------
 * Submitted by Robert Smith
@@ -59,9 +63,17 @@ FileServlet:
 ----------------------
 * Added missing quotes around href attribute, which caused problems for filenames that contain spaces
 
+FileSystem:
+----------------------
+* Configurable username for reported Modifications
+
 HTMLEmailPublisher:
 ----------------------
 * Add xslFileList attribute as a mechanism to customize the list of .xsl files used. Patch by Peter Buckner
+
+HttpFile:
+----------------------
+* Configurable username for reported Modification
 
 JabberPublisher:
 ----------------------
