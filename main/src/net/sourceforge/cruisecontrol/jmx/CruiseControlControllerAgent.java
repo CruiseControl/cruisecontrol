@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import java.io.IOException;
+import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +52,8 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 
 import mx4j.tools.adaptor.http.HttpAdaptor;
+import mx4j.tools.naming.NamingService;
+import mx4j.tools.naming.NamingServiceMBean;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.Main;
 
@@ -63,9 +67,11 @@ import org.apache.log4j.Logger;
 public class CruiseControlControllerAgent {
 
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerAgent.class);
+    private static final String JNDI_NAME = "/jndi/jrmp";
 
     private HttpAdaptor httpAdaptor = new HttpAdaptor();
     private int httpPort;
+    private NamingServiceMBean rmiRegistry;
     private JMXConnectorServer connectorServer;
     private int connectorServerPort;
     private CruiseControlControllerJMXAdaptor controllerAdaptor;
@@ -114,24 +120,49 @@ public class CruiseControlControllerAgent {
         }
         if (useConnectorServer()) {
             try {
+                LOG.info("starting rmiRegistry");
+                rmiRegistry.start();
+            } catch (RemoteException e) {
+                if (e.getMessage().startsWith("Port already in use")) {
+                    LOG.warn("Port " + connectorServerPort + " is already in use, so no new rmiRegistry is started");
+                } else {
+                    LOG.error("Exception starting rmiRegistry", e);
+                }
+            }
+            try {
                 LOG.info("starting connectorServer");
                 connectorServer.start();
             } catch (Exception e) {
-                LOG.error("Exception starting connectorServer", e);
+                if (e.getMessage().startsWith("javax.naming.NameAlreadyBoundException")) {
+                    LOG.warn("Couldn't start connectorServer since its name (" + JNDI_NAME 
+                            + ") is already bound; you might need to restart your rmi registry");
+                } else {
+                    LOG.error("Exception starting connectorServer", e);
+                }
             }
         }
     }
 
     public void stop() {
-        if (useHttpAdaptor()) {
+        if (useHttpAdaptor() && httpAdaptor.isActive()) {
             httpAdaptor.stop();
         }
         if (useConnectorServer()) {
-            try {
-                LOG.info("stopping connectorServer");
-                connectorServer.stop();
-            } catch (Exception e) {
-                LOG.error("Exception stopping connectorServer", e);
+            if (connectorServer.isActive()) {
+                try {
+                    LOG.info("stopping connectorServer");
+                    connectorServer.stop();
+                } catch (IOException e) {
+                    LOG.error("IOException stopping connectorServer", e);
+                }
+            }
+            if (rmiRegistry.isRunning()) {
+                try {
+                    LOG.info("stopping rmiRegistry");
+                    rmiRegistry.stop();
+                } catch (NoSuchObjectException e) {
+                    LOG.error("NoSuchObjectException stopping rmiRegistry", e);
+                }
             }
         }
     }
@@ -162,8 +193,12 @@ public class CruiseControlControllerAgent {
 
     private void registerConnectorServer(MBeanServer server) throws Exception {
         if (useConnectorServer()) {
-            final String jndiName = "/jndi/jrmp";
-            JMXServiceURL address = new JMXServiceURL("rmi", "localhost", 0, jndiName);
+            // Create and start the naming service
+            ObjectName naming = new ObjectName("Naming:type=rmiregistry");
+            rmiRegistry = new NamingService(connectorServerPort);
+            server.registerMBean(rmiRegistry, naming);
+
+            JMXServiceURL address = new JMXServiceURL("rmi", "localhost", 0, JNDI_NAME);
 
             Map environment = new HashMap();
             final String registryContextFactory = "com.sun.jndi.rmi.registry.RegistryContextFactory";
@@ -171,7 +206,7 @@ public class CruiseControlControllerAgent {
             environment.put(Context.PROVIDER_URL, "rmi://localhost:" + connectorServerPort);
             
             connectorServer = JMXConnectorServerFactory.newJMXConnectorServer(address, environment, server);
-            ObjectName connServerName = new ObjectName("ConnectorServer:name=" + jndiName);
+            ObjectName connServerName = new ObjectName("ConnectorServer:name=" + JNDI_NAME);
             server.registerMBean(connectorServer, connServerName);
         }
     }
