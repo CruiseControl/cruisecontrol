@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+CVSBootstrapper
+---------------
+* Add -dP to update command
+
 CruiseControl Release Notes - 2.1.1
 
 main/build.xml

@@ -140,7 +140,8 @@ public class CVSBootstrapper implements Bootstrapper {
 
         if (localWorkingCopy != null) {
             commandLine.setWorkingDirectory(localWorkingCopy);
-        }
+        }        
+
         commandLine.setExecutable("cvs");
 
         if (cvsroot != null) {
@@ -148,6 +149,8 @@ public class CVSBootstrapper implements Bootstrapper {
             commandLine.createArgument().setValue(cvsroot);
         }
         commandLine.createArgument().setValue("update");
+        commandLine.createArgument().setValue("-dP");
+
         if (filename != null) {
             commandLine.createArgument().setValue(filename);
         }
