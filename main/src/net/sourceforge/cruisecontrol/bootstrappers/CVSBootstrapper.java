@@ -93,10 +93,17 @@ public class CVSBootstrapper implements Bootstrapper {
         try {
             Commandline commandLine = buildUpdateCommand();
             Process p = commandLine.execute();
+            final boolean autoFlushOn = true;
             StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
+                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, autoFlushOn));
+            StreamPumper outPumper = new StreamPumper(p.getInputStream(), new PrintWriter(System.out, autoFlushOn));
+            Thread errorPumperThread = new Thread(errorPumper);
+            Thread outPumperThread = new Thread(outPumper);
+            errorPumperThread.start();
+            outPumperThread.start();
             p.waitFor();
+            errorPumperThread.join();
+            outPumperThread.join();
             p.getInputStream().close();
             p.getOutputStream().close();
             p.getErrorStream().close();
