@@ -225,7 +225,9 @@
                <include name="${test}/"/>
                <include name="${lib}/"/>
                <include name="${docs}/"/>
-               <include name="build*"/>
+               <include name="build.*"/>
+               <include name="log4j.properties"/>
+               <include name="manifest.mf"/>
             </fileset>
         </zip>
     </target>
