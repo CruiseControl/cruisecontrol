@@ -21,6 +21,9 @@ REM  * along with this program; if not, write to the Free Software              
 REM  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
 REM  ********************************************************************************/
 
+REM Set this if you're using SSH-based CVS
+REM set CVS_RSH=
+
 if "%OS%"=="Windows_NT" goto NtStart
 
 :win9xStart
