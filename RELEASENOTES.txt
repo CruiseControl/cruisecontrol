@@ -8,6 +8,10 @@ ModificationSet:
 ----------------------
 * Fix for possible NPE when using ignoreFiles
 
+Project:
+----------------------
+* Catch Throwable during publishing, so errors don't propagate to build()
+
 CruiseControl Release Notes - 2.2
 
 Ant:
