@@ -44,8 +44,8 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 import java.io.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -199,6 +199,7 @@ public class Project implements Serializable {
     }
 
     public void setConfigFileName(String fileName) {
+        log.debug("Config file set to: " + fileName);
         _configFileName = fileName;
     }
 
@@ -222,11 +223,22 @@ public class Project implements Serializable {
         return _label;
     }
 
-    public void setLastBuild(String lastBuild) {
+    /**
+     * @param lastBuild string containing the build date in the format
+     * yyyyMMddHHmmss
+     * @throws CruiseControlException if the date cannot be extracted from the
+     * input string
+     */
+    public void setLastBuild(String lastBuild) throws CruiseControlException {
+        if (lastBuild == null) {
+            throw new IllegalArgumentException("Null last build date string");
+        }
         try {
             _lastBuild = _formatter.parse(lastBuild);
         } catch (ParseException e) {
             log.error("Error parsing last build timestamp.", e);
+            throw new CruiseControlException("Cannot parse last build string: "
+                    + lastBuild);
         }
     }
 
@@ -456,7 +468,7 @@ public class Project implements Serializable {
      * @throws CruiseControlException if label is not valid
      */
     protected void validateLabel(String label,
-                               LabelIncrementer labelIncrementer)
+                                 LabelIncrementer labelIncrementer)
             throws CruiseControlException {
 
         if (!labelIncrementer.isValidLabel(label)) {
