@@ -132,7 +132,7 @@
         <property name="modificationset.file" value="modifications.xml" />
         <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet" />
 
-        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="300">
+        <modificationset lastbuild="${lastBuildAttemptTime}" quietperiod="300">
             <cvselement cvsroot=":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol" 
                         localworkingcopy="${localCopy}/cruisecontrol" />
         </modificationset>
