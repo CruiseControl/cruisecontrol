@@ -85,6 +85,15 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     private String _servletURL;
     private static File _currentBuildStatusFile;
 
+    private static boolean isCompleteTime(String time) {
+        int expectedLength = 14;
+        if (time.length() < expectedLength) {
+            return false;
+        }
+        
+        return true;
+    }
+    
     /**
      * Entry point.  Verifies that all command line arguments are correctly 
      * specified.
@@ -101,7 +110,12 @@ public class MasterBuild extends XmlLogger implements BuildListener {
 
             if (args[i].equals("-lastbuild")) {
                 try {
+                    //(PENDING) Check lastGoodBuildTime for correct length
                     _lastGoodBuildTime = args[i+1];
+                    if (!isCompleteTime(_lastGoodBuildTime)) {
+                        log("Bad format for last build");
+                        mb.usage();
+                    }
                     lastBuildSpecified = true;
                 } catch (ArrayIndexOutOfBoundsException aioobe) {
                     log("The last successful build time must be specified.");
