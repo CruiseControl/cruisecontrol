@@ -63,8 +63,7 @@
   <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
   <%
-     if (autoRefresh)
-     { 
+     if (autoRefresh) { 
   %>
   <META HTTP-EQUIV="Refresh" CONTENT="10">
   <%
@@ -74,38 +73,26 @@
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
 <p>&nbsp;</p>
 
-<table id="header" align="center" border="0" cellpadding="0" cellspacing="0" width="70%">
-  <tr>
-  <td>
-   <span class="whitetitle" align="center">CruiseControl Status Page</span>
-  </td>
-  <td>
-  <div style="text-align: right; "> 
-  <span class="whitesmallbold">
-  REFRESH:
-  <%
-     if (autoRefresh)
-     {
-  %>
-    <span class="redbold">ON</span> | <a href="?auto_refresh=false">OFF</a>
-  <%
-     } else {
-  %>
-    <a href="?auto_refresh=true">ON</a> | <span class="redbold">OFF</span>
-  <%
-     }
-  %>
-  </span>
-  </div>
-  </tr>
-  </td>
-</table>
+<h1 class="white" align="center">CruiseControl Status Page</h1>
 
 <table align="center" border="0" cellpadding="0" cellspacing="0" width="70%">
 <tfoot>
   <tr><td class="link">listing generated at <%=reportTime.toString()%></td></tr>
 </tfoot>
 <tbody>
+<tr><td align="right">
+  <%
+     if (autoRefresh) {
+  %>
+    <a class="white" href="?auto_refresh=false">Turn autorefresh off</a>
+  <%
+     } else {
+  %>
+    <a class="white" href="?auto_refresh=true">Turn autorefresh on</a>
+  <%
+     }
+  %>
+  </td></tr>
   <tr><td>&nbsp;</td></tr>
   <tr><td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"></td></tr>
   <tr><td><table class="index" width="100%">
@@ -156,3 +143,4 @@
 </table>
 </body>
 </html>
+
