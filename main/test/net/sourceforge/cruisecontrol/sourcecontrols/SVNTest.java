@@ -43,12 +43,14 @@ import org.jdom.JDOMException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.ArrayList;
 
 /**
  * @see    <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
@@ -116,7 +118,9 @@ public class SVNTest extends TestCase {
     public void testBuildHistoryCommand() throws IOException, CruiseControlException {
         svn.setLocalWorkingCopy(".");
 
-        Date lastBuild = new Date();
+        Date checkTime = new Date();
+        long tenMinutes = 10 * 60 * 1000;
+        Date lastBuild = new Date(checkTime.getTime() - tenMinutes);
 
         String[] expectedCmd =
             new String[] {
@@ -126,20 +130,8 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.SVN_DATE_FORMAT_IN.format(lastBuild) + "}:25" };
-        String[] actualCmd = svn.buildHistoryCommand(lastBuild, "25").getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
-
-        expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
-                "HEAD:COMMITTED" };
-        actualCmd = svn.buildHistoryCommand(null, null).getCommandline();
+                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}"};
+        String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
@@ -152,9 +144,9 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.SVN_DATE_FORMAT_IN.format(lastBuild) + "}:HEAD",
+                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild, "HEAD").getCommandline();
+        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setUsername("lee");
@@ -168,13 +160,13 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.SVN_DATE_FORMAT_IN.format(lastBuild) + "}:HEAD",
+                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}",
                 "--username",
                 "lee",
                 "--password",
                 "secret",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild, "HEAD").getCommandline();
+        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
     }
 
@@ -210,7 +202,7 @@ public class SVNTest extends TestCase {
                 + "  </logentry>\n"
                 + "</log>";
 
-        Modification[] modifications = SVN.SVNLogXMLParser.parse(svnLog);
+        Modification[] modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(5, modifications.length);
 
         Modification modification =
@@ -273,7 +265,7 @@ public class SVNTest extends TestCase {
         String svnLog =
             "<?xml version=\"1.0\" encoding = \"ISO-8859-1\"?>\n " + "<log>\n" + "</log>";
 
-        Modification[] modifications = SVN.SVNLogXMLParser.parse(svnLog);
+        Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(0, modifications.length);
     }
 
@@ -311,7 +303,7 @@ public class SVNTest extends TestCase {
         Date julyTwentynineSixPM2003 =
             new GregorianCalendar(2003, Calendar.JULY, 29, 18, 0, 0).getTime();
 
-        List modifications = SVN.SVNLogXMLParser.parseAndFilter(svnLog, julyTwentynineSixPM2003);
+        List modifications = SVN.SVNLogXMLParser.parseAndFilter(new StringReader(svnLog), julyTwentynineSixPM2003);
         assertEquals(2, modifications.size());
 
         Modification modification =
@@ -336,7 +328,10 @@ public class SVNTest extends TestCase {
                 "deleted");
         assertEquals(modification, modifications.get(1));
 
-        modifications = SVN.SVNLogXMLParser.parseAndFilter(svnLog, null);
+        Date julyTwentyeightZeroPM2003 =
+                new GregorianCalendar(2003, Calendar.JULY, 28, 0, 0, 0).getTime();
+
+        modifications = SVN.SVNLogXMLParser.parseAndFilter(new StringReader(svnLog), julyTwentyeightZeroPM2003);
         assertEquals(3, modifications.size());
     }
 
@@ -368,22 +363,60 @@ public class SVNTest extends TestCase {
         assertEquals("2003-03-12T20:00:00Z", SVN.SVN_DATE_FORMAT_IN.format(marchTwelfTenAM2003));
     }
 
-    public void testSetProperty() {
-        try {
-            svn.setProperty("blowup");
-            fail();
-        } catch (UnsupportedOperationException expected) {
-            assertEquals("attribute 'property' is not supported", expected.getMessage());
-        }
+    public void testSetProperty() throws ParseException {
+        svn.setProperty("hasChanges?");
+
+        List noModifications = new ArrayList();
+        svn.fillPropertiesIfNeeded(noModifications);
+        assertEquals(null, svn.getProperties().get("hasChanges?"));
+
+        List hasModifications = new ArrayList();
+        hasModifications.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/trunk/playground/bbb",
+                "added"));
+        svn.fillPropertiesIfNeeded(hasModifications);
+        assertEquals("true", svn.getProperties().get("hasChanges?"));
     }
 
-    public void testSetPropertyOnDelete() {
-        try {
-            svn.setPropertyOnDelete("blowup");
-            fail();
-        } catch (UnsupportedOperationException expected) {
-            assertEquals("attribute 'propertyOnDelete' is not supported", expected.getMessage());
-        }
+    public void testSetPropertyOnDelete() throws ParseException {
+        svn.setPropertyOnDelete("hasDeletions?");
+
+        List noModifications = new ArrayList();
+        svn.fillPropertiesIfNeeded(noModifications);
+        assertEquals(null, svn.getProperties().get("hasDeletions?"));
+
+        List noDeletions = new ArrayList();
+        noDeletions.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/trunk/playground/bbb",
+                "added"));
+        svn.fillPropertiesIfNeeded(noDeletions);
+        assertEquals(null, svn.getProperties().get("hasDeletions?"));
+
+        List hasDeletions = new ArrayList();
+        hasDeletions.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/trunk/playground/aaa",
+                "added"));
+        hasDeletions.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/trunk/playground/bbb",
+                "deleted"));
+        svn.fillPropertiesIfNeeded(hasDeletions);
+        assertEquals("true", svn.getProperties().get("hasDeletions?"));
     }
 
 

@@ -47,12 +47,12 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -95,6 +95,8 @@ public class SVN implements SourceControl {
     }
 
     private Hashtable properties = new Hashtable();
+    private String property;
+    private String propertyOnDelete;
 
     /** Configuration parameters */
     private String repositoryLocation;
@@ -106,12 +108,12 @@ public class SVN implements SourceControl {
         return properties;
     }
 
-    public void setProperty(String unused) {
-        throw new UnsupportedOperationException("attribute 'property' is not supported");
+    public void setProperty(String property) {
+        this.property = property;
     }
 
-    public void setPropertyOnDelete(String unused) {
-        throw new UnsupportedOperationException("attribute 'propertyOnDelete' is not supported");
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        this.propertyOnDelete = propertyOnDelete;
     }
 
     /**
@@ -180,30 +182,15 @@ public class SVN implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
         List modifications = new ArrayList();
         try {
-            String headRevision = getHeadRevision();
-            properties.put("svn.revision", headRevision);
-
-            Commandline command = buildHistoryCommand(lastBuild, headRevision);
+            Commandline command = buildHistoryCommand(lastBuild, now);
             modifications = execHistoryCommand(command, lastBuild);
+            fillPropertiesIfNeeded(modifications);
         } catch (Exception e) {
             LOG.error("Error executing svn log command", e);
         }
         return modifications;
     }
 
-    private String getHeadRevision()
-            throws CruiseControlException, InterruptedException, IOException, ParseException, JDOMException {
-        String headRevision = "HEAD";
-        Commandline command = buildHistoryCommand(null, headRevision);
-        List revisionCheck = execHistoryCommand(command, null);
-
-        if (revisionCheck.size() == 0) {
-            LOG.error("Unable to determine HEAD revision (svn.revision will be set to 'HEAD')");
-        } else {
-            headRevision = ((Modification) revisionCheck.get(0)).revision;
-        }
-        return headRevision;
-    }
 
     /**
      * Generates the command line for the svn log command.
@@ -212,7 +199,7 @@ public class SVN implements SourceControl {
      *
      * 'svn log --non-interactive --xml -v -r {lastbuildTime}:headRevision repositoryLocation'
      */
-    Commandline buildHistoryCommand(Date lastBuild, String headRevision) throws CruiseControlException {
+    Commandline buildHistoryCommand(Date lastBuild, Date checkTime) throws CruiseControlException {
         Commandline command = new Commandline();
         command.setExecutable("svn");
 
@@ -225,12 +212,9 @@ public class SVN implements SourceControl {
         command.createArgument().setValue("--xml");
         command.createArgument().setValue("-v");
         command.createArgument().setValue("-r");
-        if (lastBuild == null) {
-            command.createArgument().setValue("HEAD:COMMITTED");
-        } else {
-            command.createArgument().setValue(
-                "{" + SVN_DATE_FORMAT_IN.format(lastBuild) + "}" + ":" + headRevision);
-        }
+        command.createArgument().setValue("{" + formatSVNDate(lastBuild) + "}" + ":"
+                + "{" + formatSVNDate(checkTime) + "}");
+
         if (userName != null) {
             command.createArgument().setValue("--username");
             command.createArgument().setValue(userName);
@@ -247,6 +231,12 @@ public class SVN implements SourceControl {
 
         return command;
     }
+
+
+    static String formatSVNDate(Date lastBuild) {
+        return SVN_DATE_FORMAT_IN.format(lastBuild);
+    }
+
 
     private List execHistoryCommand(Commandline command, Date lastBuild)
         throws InterruptedException, IOException, ParseException, JDOMException {
@@ -274,42 +264,47 @@ public class SVN implements SourceControl {
     private List parseStream(InputStream svnStream, Date lastBuild)
         throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
 
-        return SVNLogXMLParser.parseAndFilter(svnStream, lastBuild);
+        InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
+        return SVNLogXMLParser.parseAndFilter(reader, lastBuild);
+    }
+
+    void fillPropertiesIfNeeded(List modifications) {
+        if (property != null) {
+            if (modifications.size() > 0) {
+                properties.put(property, "true");
+            }
+        }
+
+        if (propertyOnDelete != null) {
+            for (int i = 0; i < modifications.size(); i++) {
+                Modification modification = (Modification) modifications.get(i);
+                if (modification.type.equals("deleted")) {
+                    properties.put(propertyOnDelete, "true");
+                    break;
+                }
+            }
+        }
     }
 
     static final class SVNLogXMLParser {
-        
+
         private SVNLogXMLParser() {
-            
         }
-        
-        static List parseAndFilter(InputStream inputStream, Date lastBuild)
-            throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
 
-            Modification[] modifications = parse(inputStream);
+
+        static List parseAndFilter(Reader reader, Date lastBuild)
+                throws JDOMException, ParseException {
+
+            Modification[] modifications = parse(reader);
             return filterModifications(modifications, lastBuild);
         }
 
-        static List parseAndFilter(String xmlContent, Date lastBuild)
-            throws JDOMException, ParseException, IOException {
-            // TODO: why isn't this delegating to the InputStream version?
-            Modification[] modifications = parse(xmlContent);
-            return filterModifications(modifications, lastBuild);
-        }
 
-        static Modification[] parse(InputStream inputStream)
-            throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
-                
-            SAXBuilder builder = new SAXBuilder(false);
-            Document document = builder.build(new InputStreamReader(inputStream, "UTF-8"));
-            return parseDOMTree(document);
-        }
+        static Modification[] parse(Reader reader)
+                throws JDOMException, ParseException {
 
-        static Modification[] parse(String xmlContent) throws JDOMException, ParseException, IOException {
-            // TODO: why isn't this delegating to the inputStream version?
             SAXBuilder builder = new SAXBuilder(false);
-            // getBytes()?!? TODO: write the test to show how this is broken for i18n
-            Document document = builder.build(new ByteArrayInputStream(xmlContent.getBytes()));
+            Document document = builder.build(reader);
             return parseDOMTree(document);
         }
 
@@ -383,7 +378,7 @@ public class SVN implements SourceControl {
             List filtered = new ArrayList();
             for (int i = 0; i < modifications.length; i++) {
                 Modification modification = modifications[i];
-                if (lastBuild == null || modification.modifiedTime.getTime() > lastBuild.getTime()) {
+                if (modification.modifiedTime.getTime() > lastBuild.getTime()) {
                     filtered.add(modification);
                 }
             }
