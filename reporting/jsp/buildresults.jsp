@@ -63,6 +63,8 @@
          <p>
          <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
          <p>
+         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
+         <p>
          <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
          <p>
          <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
