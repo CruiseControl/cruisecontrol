@@ -76,6 +76,7 @@ public abstract class EmailPublisher implements Publisher {
     private String _defaultSuffix = "";
     private String _reportSuccess = "always";
     private boolean _spamWhileBroken = true;
+    protected String _subjectPrefix;
 
     /**
      *  Implementations of this method will create the email message body.
@@ -109,19 +110,26 @@ public abstract class EmailPublisher implements Publisher {
      *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
      *  @return <code>String</code> containing the subject line.
      */
-    protected String createSubject(XMLLogHelper logHelper)
-            throws CruiseControlException {
+    protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
+        StringBuffer subjectLine = new StringBuffer();
+        if(_subjectPrefix != null) {
+            subjectLine.append(_subjectPrefix);
+            subjectLine.append(" ");
+        }
+        subjectLine.append(logHelper.getProjectName());
         if (logHelper.isBuildSuccessful()) {
-            if (_reportSuccess.equalsIgnoreCase("fixes")
-                    && !logHelper.wasPreviousBuildSuccessful()) {
-                return logHelper.getProjectName() + " " + logHelper.getLabel()
-                        + " Build Fixed";
+            subjectLine.append(" ");
+            subjectLine.append(logHelper.getLabel());
+            if (_reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
+                subjectLine.append(" Build Fixed");
+                return subjectLine.toString();
             } else {
-                return logHelper.getProjectName() + " " + logHelper.getLabel()
-                        + " Build Successful";
+                subjectLine.append(" Build Successful");
+                return subjectLine.toString();
             }
         } else {
-            return logHelper.getProjectName() + " Build Failed";
+            subjectLine.append(" Build Failed");
+            return subjectLine.toString();
         }
     }
 
@@ -321,6 +329,14 @@ public abstract class EmailPublisher implements Publisher {
 
     public String getMailPort() {
         return _mailPort;
+    }
+
+    public void setSubjectPrefix(String prefix) {
+        _subjectPrefix = prefix;
+    }
+
+    public String getSubjectPrefix() {
+        return _subjectPrefix;
     }
 
     public void setBuildResultsUrl(String servletUrl) {
