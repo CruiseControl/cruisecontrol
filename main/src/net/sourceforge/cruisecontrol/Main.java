@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,27 +33,32 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import org.apache.log4j.Category;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Properties;
 
 /**
- *  Command line entry point.
+ * Command line entry point.
  *
- *  @author alden almagro, ThoughtWorks, Inc. 2002
+ * @author alden almagro, ThoughtWorks, Inc. 2002
+ * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class Main {
 
     /** enable logging for this class */
     private static Category log = Category.getInstance(Main.class.getName());
 
+    /**
+     * Print the version, configure the project with serialized build info
+     * and/or arguments and start the project build process.
+     */
     public static void main(String args[]) {
         Main main = new Main();
         main.printVersion();
@@ -67,6 +72,187 @@ public class Main {
         project.execute();
     }
 
+    /**
+     *  Displays the standard usage message and exit.
+     */
+    public static void usage() {
+        log.info("Usage:");
+        log.info("");
+        log.info("Starts a continuous integration loop");
+        log.info("");
+        log.info("java CruiseControl [options]");
+        log.info("where options are:");
+        log.info("");
+        log.info("   -configfile timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
+        log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
+        log.info("   -configfile file       where file is the configuration file");
+        log.info("   -projectname name      where name is the name of the project");
+        System.exit(1);
+    }
+
+    /**
+     * Set Project attributes from previously serialized project if it exists
+     * and then overrides attributes using command line arguments if they exist.
+     *
+     * @return configured Project; should never return null
+     * @throws CruiseControlException
+     */
+    public Project configureProject(String args[])
+            throws CruiseControlException {
+        Project project = readProject(parseProjectName(args));
+
+        project.setLastBuild(parseLastBuild(args, project.getLastBuild()));
+        project.setLabel(parseLabel(args, project.getLabel()));
+        project.setName(parseProjectName(args));
+        project.setConfigFileName(parseConfigFileName(args,
+                project.getConfigFileName()));
+
+        return project;
+    }
+
+    // TODO: Jason Yip - Introduce Command Pattern to remove duplication in
+    // parsing arguments
+
+    /**
+     * Parse lastbuild from arguments and override any existing lastbuild value
+     * from reading serialized Project info.
+     *
+     * @param lastBuild existing lastbuild value read from serialized Project
+     * info
+     * @return final value of lastbuild; never null
+     * @throws CruiseControlException if final lastbuild value is null
+     */
+    protected String parseLastBuild(String args[], String lastBuild)
+            throws CruiseControlException {
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-lastbuild")) {
+                try {
+                    lastBuild = args[i + 1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                            "'lastbuild' argument was not specified.");
+                }
+            }
+        }
+
+        if (lastBuild == null) {
+            throw new CruiseControlException(
+                    "'lastbuild' is a required argument to CruiseControl.");
+        }
+        return lastBuild;
+    }
+
+    /**
+     * Parse label from arguments and override any existing lastbuild value
+     * from reading serialized Project info.
+     *
+     * @param label existing label value read from serialized Project
+     * info
+     * @return final value of label; never null
+     * @throws CruiseControlException if final label value is null
+     */
+    protected String parseLabel(String args[], String label)
+            throws CruiseControlException {
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-label")) {
+                try {
+                    label = args[i + 1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                            "'label' argument was not specified.");
+                }
+            }
+        }
+        if (label == null) {
+            throw new CruiseControlException(
+                    "'label' is a required argument to CruiseControl.");
+        }
+        return label;
+    }
+
+    /**
+     * Parse configfile from arguments and override any existing configfile value
+     * from reading serialized Project info.
+     *
+     * @param configFileName existing configfile value read from serialized Project
+     * info
+     * @return final value of configFileName; never null
+     * @throws CruiseControlException if final configfile value is null
+     */
+    protected String parseConfigFileName(String args[], String configFileName)
+            throws CruiseControlException {
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-configfile")) {
+                try {
+                    configFileName = args[i + 1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                            "'configfile' argument was not specified.");
+                }
+            }
+        }
+
+        if (configFileName == null) {
+            throw new CruiseControlException(
+                    "'configfile' is a required argument to CruiseControl.");
+        }
+        return configFileName;
+    }
+
+    /**
+     * Parse projectname from arguments.  projectname should always be specified
+     * in arguments.
+     *
+     * @return project name; never null
+     * @throws CruiseControlException if projectname is not specified
+     */
+    protected String parseProjectName(String args[])
+            throws CruiseControlException {
+        for (int i = 0; i < args.length - 1; i++) {
+            if (args[i].equals("-projectname")) {
+                try {
+                    return args[i + 1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new CruiseControlException(
+                            "'projectname' argument was not specified.");
+                }
+            }
+        }
+        throw new CruiseControlException(
+                "'projectname' is a required argument to CruiseControl.");
+    }
+
+    /**
+     * Reads project configuration from a previously serialized Project.  The
+     * name of the serialized project file is equivalent to the name of the
+     * project.
+     *
+     * @param fileName name of the serialized project file
+     * @return Deserialized Project or a new Project if there are any problems
+     * reading the serialized Project; should never return null
+     */
+    private Project readProject(String fileName) {
+        File serializedProjectFile = new File(fileName);
+        log.debug("Reading serialized project from: "
+                + serializedProjectFile.getAbsolutePath());
+        if (!serializedProjectFile.exists()
+                || !serializedProjectFile.canRead()) {
+            log.warn("Cannot read serialized project: "
+                    + serializedProjectFile.getAbsolutePath());
+        } else {
+            try {
+                ObjectInputStream s = new ObjectInputStream(
+                        new FileInputStream(serializedProjectFile));
+                Project project = (Project) s.readObject();
+                return project;
+            } catch (Exception e) {
+                log.warn("Error deserializing project.", e);
+            }
+        }
+
+        return new Project();
+    }
+
     private void printVersion() {
         Properties props = new Properties();
         try {
@@ -77,126 +263,4 @@ public class Main {
         log.info("CruiseControl Version " + props.getProperty("version"));
     }
 
-    public Project configureProject(String args[]) throws CruiseControlException {
-        Project project = null;
-        project = readProject(parseProjectName(args));
-        project.setLastBuild(parseLastBuild(args, project.getLastBuild()));
-        project.setLabel(parseLabel(args, project.getLabel()));
-        project.setName(parseProjectName(args));
-        project.setConfigFileName(parseConfigFileName(args, project.getConfigFileName()));
-        return project;
-    }
-
-    /**
-     *  see if there's a serialized project already here
-     */
-    public Project readProject(String fileName) {
-        File serializedProjectFile = new File(fileName);
-        log.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
-        if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
-            log.warn("Cannot read serialized project: " + serializedProjectFile.getAbsolutePath());
-        } else {
-            try {
-                ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
-                Project project = (Project) s.readObject();
-                return project;
-            } catch (Exception e) {
-                log.warn("Error deserializing project.", e);
-            }
-        }
-        return new Project();
-    }
-
-    /**
-     *  required if not in a serialized project
-     */
-    public String parseLastBuild(String args[], String lastBuild) throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-lastbuild")) {
-                try {
-                    lastBuild = args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'lastbuild' argument was not specified.");
-                }
-            }
-        }
-
-        if(lastBuild == null) {
-            throw new CruiseControlException("'lastbuild' is a required argument to CruiseControl.");
-        }
-        return lastBuild;
-    }
-
-    /**
-     *  required if not in a serialized project
-     */
-    public String parseLabel(String args[], String label) throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-label")) {
-                try {
-                    label = args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'label' argument was not specified.");
-                }
-            }
-        }
-        if(label == null) {
-            throw new CruiseControlException("'label' is a required argument to CruiseControl.");
-        }
-        return label;
-    }
-
-    /**
-     *  required if not in a serialized project
-     */
-    public String parseConfigFileName(String args[], String configFileName) throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-configfile")) {
-                try {
-                    configFileName = args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'configfile' argument was not specified.");
-                }
-            }
-        }
-
-        if(configFileName == null) {
-            throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
-        }
-        return configFileName;
-    }
-
-    /**
-     *  always required
-     */
-    public String parseProjectName(String args[]) throws CruiseControlException {
-        for (int i = 0; i < args.length - 1; i++) {
-            if (args[i].equals("-projectname")) {
-                try {
-                    return args[i + 1];
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new CruiseControlException("'projectname' argument was not specified.");
-                }
-            }
-        }
-        throw new CruiseControlException("'projectname' is a required argument to CruiseControl.");
-    }
-
-    /**
-     *  Display the standard usage message and exit.
-     */
-    public static void usage() {
-        log.info("Usage:");
-        log.info("");
-        log.info("Starts a continuous integration loop");
-        log.info("");
-        log.info("java CruiseControl [options]");
-        log.info("where options are:");
-        log.info("");
-        log.info("   -lastbuild timestamp   where timestamp is in yyyyMMddHHmmss format.  note HH is the 24 hour clock.");
-        log.info("   -label label           where label is in x.y format, y being an integer.  x can be any string.");
-        log.info("   -configfile file       where file is the configuration file");
-        log.info("   -projectname name      where name is the name of the project");
-        System.exit(1);
-    }
 }
