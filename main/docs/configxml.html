@@ -55,6 +55,7 @@
                   </ul>
                <li><a class="small" href="#modificationset">ModificationSet</a>
                   <ul>
+                     <li><a class="small" href="#buildstatus">BuildStatus</a>
                      <li><a class="small" href="#clearcase">ClearCase</a>
                      <li><a class="small" href="#cvs">CVS</a>
                      <li><a class="small" href="#filesystem">File System</a>
@@ -378,6 +379,21 @@
                <td class="tabledata">quietperiod</td>
                <td class="tabledata">No</td>
                <td class="tabledata">Default value is 60 (seconds). This attribute is used to avoid starting a build while someone is in mid-checkin. If a modification is detected to be within the quiet period then CC will sleep until the quiet period is finished and then recheck for modificaitons. Small values recommended if you use a bootstrapper to sync files (as opposed to getting updates as part of the build). 0 is a valid value.</td>
+            </tr>
+         </table>
+
+         <p><a name="buildstatus"><span class="small">BuildStatus</span><br/>
+         Used to trigger a build when another CruiseControl project has a successful build.</p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">logdir</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Path to CruiseControl log directory for the project to monitor.</td>
             </tr>
          </table>
 

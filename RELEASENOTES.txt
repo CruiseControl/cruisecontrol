@@ -4,6 +4,10 @@ BuildLogger
 ----------------------
 * New interface to handle the Log subelements from the CruiseControl config. Implementers have the opportunity to manipulate the CruiseControl build log just before it gets written to disk.
 
+BuildStatus
+----------------------
+* New SourceControl implementation. Used to trigger a build when another CruiseControl project has a successfuil build. Works by monitoring the log directory for the "target" project. - Patch by Garrick Olson
+
 build.xml (jsp)
 ----------------------
 * will build war w/out jars in WEB-INF/lib if property jdk1.4 is defined.

@@ -158,6 +158,7 @@ public final class PluginRegistry {
             "vssbootstrapper",
             "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
         // sourcecontrols
+        registry.register("buildstatus", "net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus");
         registry.register("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
         registry.register("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
         registry.register("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
