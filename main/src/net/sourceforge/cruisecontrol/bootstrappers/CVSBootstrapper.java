@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.PrintWriter;
 
 /**
@@ -63,6 +64,7 @@ public class CVSBootstrapper implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(CVSBootstrapper.class);
 
+    private String localWorkingCopy;
     private String filename;
     private String cvsroot;
 
@@ -75,17 +77,24 @@ public class CVSBootstrapper implements Bootstrapper {
     }
 
     /**
+     * Sets the local working copy to use when making calls to CVS.
+     *
+     *@param local String relative or absolute path to the local
+     *      working copy of the CVS module which contains the target file.
+     */
+    public void setLocalWorkingCopy(String local) {
+        localWorkingCopy = local;
+    }
+
+    /**
      *  Update the specified file.
      */
     public void bootstrap() {
-        Commandline commandLine = buildUpdateCommand();
-        Process p = null;
-
-        LOG.debug("Executing: " + commandLine.toString());
         try {
-            p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(),
-                    new PrintWriter(System.err, true));
+            Commandline commandLine = buildUpdateCommand();
+            Process p = commandLine.execute();
+            StreamPumper errorPumper =
+                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             p.waitFor();
             p.getInputStream().close();
@@ -97,21 +106,44 @@ public class CVSBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (filename == null) {
-            throw new CruiseControlException("'file' is required for CVSBootstrapper");
+        if (filename == null && cvsroot == null && localWorkingCopy == null) {
+            throw new CruiseControlException(
+                "at least one of 'file', 'cvsroot' or 'localworkingcopy' "
+                    + "is required as an attribute for CVSBootstrapper");
+        }
+
+        if (localWorkingCopy != null) {
+            File workingDir = new File(localWorkingCopy);
+            if (!workingDir.exists()) {
+                throw new CruiseControlException(
+                    "'localWorkingCopy' must be an existing directory.  Was <"
+                        + localWorkingCopy
+                        + ">");
+            } else if (!workingDir.isDirectory()) {
+                throw new CruiseControlException(
+                    "'localWorkingCopy' must be an existing directory, not a file.  Was <"
+                        + localWorkingCopy
+                        + ">");
+            }
         }
     }
 
-    protected Commandline buildUpdateCommand() {
+    protected Commandline buildUpdateCommand() throws CruiseControlException {
         Commandline commandLine = new Commandline();
+
+        if (localWorkingCopy != null) {
+            commandLine.setWorkingDirectory(localWorkingCopy);
+        }
         commandLine.setExecutable("cvs");
+
         if (cvsroot != null) {
             commandLine.createArgument().setValue("-d");
             commandLine.createArgument().setValue(cvsroot);
         }
-
         commandLine.createArgument().setValue("update");
-        commandLine.createArgument().setValue(filename);
+        if (filename != null) {
+            commandLine.createArgument().setValue(filename);
+        }
 
         return commandLine;
     }
@@ -119,7 +151,8 @@ public class CVSBootstrapper implements Bootstrapper {
     /** for testing */
     public static void main(String[] args) {
         CVSBootstrapper bootstrapper = new CVSBootstrapper();
-        bootstrapper.setCvsroot(":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol");
+        bootstrapper.setCvsroot(
+            ":pserver:anonymous@cvs.cruisecontrol.sourceforge.net:/cvsroot/cruisecontrol");
         bootstrapper.setFile("build.xml");
         bootstrapper.bootstrap();
     }

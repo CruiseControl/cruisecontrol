@@ -92,6 +92,7 @@ package net.sourceforge.cruisecontrol.util;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 import java.util.StringTokenizer;
 
@@ -125,6 +126,7 @@ public class Commandline implements Cloneable {
 
     private Vector arguments = new Vector();
     private String executable = null;
+    private File workingDir = null;
 
     public Commandline(String toProcess) {
         super();
@@ -270,9 +272,7 @@ public class Commandline implements Cloneable {
             return;
         }
         this.executable =
-            executable.replace('/', File.separatorChar).replace(
-                '\\',
-                File.separatorChar);
+            executable.replace('/', File.separatorChar).replace('\\', File.separatorChar);
     }
 
     public String getExecutable() {
@@ -334,8 +334,7 @@ public class Commandline implements Cloneable {
      * @exception CruiseControlException if the argument contains both, single
      *                           and double quotes.
      */
-    public static String quoteArgument(String argument)
-        throws CruiseControlException {
+    public static String quoteArgument(String argument) throws CruiseControlException {
         if (argument.indexOf("\"") > -1) {
             if (argument.indexOf("\'") > -1) {
                 throw new CruiseControlException("Can't handle single and double quotes in same argument");
@@ -370,8 +369,7 @@ public class Commandline implements Cloneable {
         return result.toString();
     }
 
-    public static String[] translateCommandline(String toProcess)
-        throws CruiseControlException {
+    public static String[] translateCommandline(String toProcess) throws CruiseControlException {
         if (toProcess == null || toProcess.length() == 0) {
             return new String[0];
         }
@@ -425,8 +423,7 @@ public class Commandline implements Cloneable {
         }
 
         if (state == inQuote || state == inDoubleQuote) {
-            throw new CruiseControlException(
-                "unbalanced quotes in " + toProcess);
+            throw new CruiseControlException("unbalanced quotes in " + toProcess);
         }
 
         String[] args = new String[v.size()];
@@ -469,4 +466,50 @@ public class Commandline implements Cloneable {
     public Marker createMarker() {
         return new Marker(arguments.size());
     }
+
+    /**
+     * Sets execution directory.
+     */
+    public void setWorkingDirectory(String path) throws CruiseControlException {
+        if (path != null) {
+            File dir = new File(path);
+            if (!dir.exists()) {
+                throw new CruiseControlException(
+                    "Working directory \"" + path + "\" does not exist!");
+            } else if (!dir.isDirectory()) {
+                throw new CruiseControlException(
+                    "Path \"" + path + "\" does not specify a directory.");
+            } else {
+                workingDir = dir;
+            }
+        } else {
+            workingDir = null;
+        }
+    }
+
+    public File getWorkingDirectory() {
+        return workingDir;
+    }
+
+    /**
+     * Executes the command.
+     */
+    public Process execute() throws IOException {
+        Process process = null;
+
+        if (workingDir == null) {
+            LOG.debug("Executing \"" + this + "\"");
+            process = Runtime.getRuntime().exec(getCommandline());
+        } else {
+            LOG.debug(
+                "Executing \""
+                    + this
+                    + "\" in directory "
+                    + (workingDir != null ? workingDir.getAbsolutePath() : null));
+            process = Runtime.getRuntime().exec(getCommandline(), null, workingDir);
+        }
+
+        return process;
+    }
+
 }
