@@ -74,6 +74,7 @@ public class AntBuilder extends Builder {
     private boolean useLogger;
     private List args = new ArrayList();
     private List properties = new ArrayList();
+    private boolean useDebug = false;
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -278,7 +279,7 @@ public class AntBuilder extends Builder {
             al.add("-D" + property.getName() + "=" + property.getValue());
         }
 
-        if (LOG.isDebugEnabled()) {
+        if (useDebug) {
             al.add("-debug");
             al.add("-verbose");
         }
@@ -369,5 +370,12 @@ public class AntBuilder extends Builder {
         }
 
     }
+
+	/**
+	 * @param b
+	 */
+	public void setUseDebug(boolean debug) {
+		useDebug = debug;
+	}
 
 }
