@@ -88,7 +88,7 @@ public class ArtifactsPublisher implements Publisher {
     File getDestinationDirectory(String timestamp) {
         String targetDir = timestamp;
         if (subdirectory != null) {
-            targetDir = subdirectory + File.separatorChar + timestamp;
+            targetDir = timestamp + File.separatorChar + subdirectory;
         }
         File destinationDirectory = new File(destDir, targetDir);
         return destinationDirectory;

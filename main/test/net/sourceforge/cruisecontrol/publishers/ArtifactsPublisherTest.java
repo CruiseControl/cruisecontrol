@@ -143,7 +143,7 @@ public class ArtifactsPublisherTest extends TestCase {
         final String subdir = "subdir";
         publisher.setSubdirectory(subdir);
         destinationDir = publisher.getDestinationDirectory(timestamp);
-        expected = tempDir + File.separatorChar + subdir + File.separatorChar + timestamp;
+        expected = tempDir + File.separatorChar + timestamp + File.separatorChar + subdir;
         assertEquals(expected, destinationDir.getPath());
 
     }
