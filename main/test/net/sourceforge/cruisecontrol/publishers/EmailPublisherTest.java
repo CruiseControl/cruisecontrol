@@ -216,5 +216,10 @@ public class EmailPublisherTest extends TestCase {
         PropertyConfigurator.configure("log4j.properties");
         assertEquals("always1@host.com,always2@host.com,user1@host.com,user2@host.com,user3@host2.com", _emailPublisher.createUserList(_successLogHelper));
         assertEquals("always1@host.com,always2@host.com,failure1@host.com,failure2@host.com,user1@host.com,user2@host.com,user3@host2.com", _emailPublisher.createUserList(_failureLogHelper));
+
+        _emailPublisher.setSkipUsers(true);
+        assertEquals("always1@host.com,always2@host.com", _emailPublisher.createUserList(_successLogHelper));
+        assertEquals("always1@host.com,always2@host.com,failure1@host.com,failure2@host.com", _emailPublisher.createUserList(_failureLogHelper));
+
     }
 }
