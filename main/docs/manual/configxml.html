@@ -97,8 +97,11 @@
          &lt;cvs cvsroot="" defaultbranchonly="" localworkingcopy=""
                  tag="" property="" propertyondelete=""/&gt;
       &lt;/modificationset quietperiod="" dateformat=""&gt;
-      &lt;schedule<&gt;
-         &lt;ant file="" target=""/&gt;
+      &lt;schedule&gt;
+         &lt;ant file="" target=""&gt;
+            &lt;jvmarg arg=""/&gt;
+         &lt;/ant&gt;
+      &lt;/schedule&gt;
       &lt;log dir=""&gt;
          &lt;merge file=""/&gt;
          &lt;merge dir=""/&gt;
@@ -112,6 +115,8 @@
             &lt;map alias="" address=""/&gt;
          &lt;/email&gt;
       &lt;/publishers&gt;
+      &lt;plugin name="ant"
+                 classname="net.sourceforge.cruisecontrol.builders.AntBuilder"/&gt;
       &lt;plugin name="currentbuildstatusbootstrapper"
                  classname="...bootstrappers.CurrentBuildStatusBootstrapper"/&gt;
       &lt;plugin name="cvs"
@@ -221,7 +226,8 @@
          <p><a name="antbuilder"><span class="small">AntBuilder</span><br>
          Specify an Ant build to be run at a given time or build number.  For instance, we can run a clean build
          every 5 builds, or run more comprehensive (and time intensive) system tests every 10 builds.  We can also
-         schedule an official build to run every night at midnight, if we so desire.
+         schedule an official build to run every night at midnight, if we so desire.  AntBuilder runs Ant in as a
+         separate Java process and you can specify settings for the virtual machine using the nested jvmarg element.
          <table cellpadding="3" cellspacing="1" border="0">
             <tr>
                <td class="tableheader">Attribute</td>
