@@ -87,6 +87,20 @@
         <jsp-file>/index.jsp</jsp-file>
     </servlet>
 
+    <servlet>
+        <servlet-name>BuildLogs</servlet-name>
+        <servlet-class>net.sourceforge.cruisecontrol.servlet.FileServlet</servlet-class>
+        <init-param>
+            <param-name>rootDir</param-name>
+            <param-value>@cruise.build.artifacts.dir@</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>BuildLogs</servlet-name>
+        <url-pattern>/buildlogs/*</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
       <servlet-name>buildresults</servlet-name>
       <!-- Strictly speaking, this should be /buildresults for single-project mode. But it works anyway. -->

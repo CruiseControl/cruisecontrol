@@ -71,6 +71,12 @@
             <xsl:apply-templates select="$modification.list">
                 <xsl:sort select="date" order="descending" data-type="text" />
             </xsl:apply-templates>
+            <xsl:if test="cruisecontrol/info/property[@name='cctimestamp']/@value">
+	     	    <xsl:variable name="logDir" select="cruisecontrol/info/property[@name='cctimestamp']/@value"/>
+                <tr><td class="header-title">
+                    <a href="buildlogs/{$logDir}">Build Artifacts</a>
+                </td></tr>
+            </xsl:if>
         </table>
     </xsl:template>
 
