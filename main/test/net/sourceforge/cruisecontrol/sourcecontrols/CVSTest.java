@@ -85,6 +85,11 @@ public class CVSTest extends TestCase {
 
     public void testParseStream() throws IOException, ParseException {
         CVS cvs = new CVS();
+        Hashtable emailAliases = new Hashtable();
+        emailAliases.put("alden", "alden@users.sourceforge.net");
+        emailAliases.put("tim", "tim@tim.net");
+        cvs.setMailAliases(emailAliases);
+
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11.txt");
         //System.out.println(testLog.getAbsolutePath());
         BufferedInputStream input = new BufferedInputStream(new FileInputStream(testLog));
@@ -102,6 +107,7 @@ public class CVSTest extends TestCase {
         mod1.modifiedTime = createDate("2002/03/13 13:45:50 GMT-6:00");
         mod1.userName = "alden";
         mod1.comment = "Shortening ConversionPattern so we don't use up all of the available screen space.";
+        mod1.emailAddress = "alden@users.sourceforge.net";
 
         Modification mod2 = new Modification();
         mod2.type = "modified";
@@ -110,6 +116,7 @@ public class CVSTest extends TestCase {
         mod2.modifiedTime = createDate("2002/03/13 19:56:34 GMT-6:00");
         mod2.userName = "alden";
         mod2.comment = "Added target to clean up test results.";
+        mod2.emailAddress = "alden@users.sourceforge.net";
 
         Modification mod3 = new Modification();
         mod3.type = "modified";
@@ -118,6 +125,7 @@ public class CVSTest extends TestCase {
         mod3.modifiedTime = createDate("2002/03/15 13:20:28 GMT-6:00");
         mod3.userName = "alden";
         mod3.comment = "enabled debug info when compiling tests.";
+        mod3.emailAddress = "alden@users.sourceforge.net";
 
         Modification mod4 = new Modification();
         mod4.type = "deleted";
@@ -126,6 +134,7 @@ public class CVSTest extends TestCase {
         mod4.modifiedTime = createDate("2002/03/13 13:45:42 GMT-6:00");
         mod4.userName = "alden";
         mod4.comment = "Hey, look, a deleted file.";
+        mod4.emailAddress = "alden@users.sourceforge.net";
 
         Modification mod5 = new Modification();
         mod5.type = "deleted";
@@ -134,6 +143,7 @@ public class CVSTest extends TestCase {
         mod5.modifiedTime = createDate("2002/03/13 13:38:42 GMT-6:00");
         mod5.userName = "alden";
         mod5.comment = "Hey, look, another deleted file.";
+        mod5.emailAddress = "alden@users.sourceforge.net";
 
         assertEquals(mod5, (Modification) modifications.get(0));
         assertEquals(mod4, (Modification) modifications.get(1));
@@ -144,6 +154,10 @@ public class CVSTest extends TestCase {
 
     public void testParseStreamBranch() throws IOException, ParseException {
         CVS cvs = new CVS();
+        Hashtable emailAliases = new Hashtable();
+        emailAliases.put("alden", "alden@users.sourceforge.net");
+        cvs.setMailAliases(emailAliases);
+
         cvs.setTag("BRANCH_TEST_BUILD");
         File testLog = new File("test/net/sourceforge/cruisecontrol/sourcecontrols/cvslog1-11branch.txt");
         //System.out.println(testLog.getAbsolutePath());
