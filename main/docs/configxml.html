@@ -85,6 +85,7 @@
                      <li><a class="small" href="#linkemailpublisher">LinkEmailPublisher</a>
                      <li><a class="small" href="#scppublisher">SCPPublisher</a>
                      <li><a class="small" href="#sametimeannouncementpublisher">SametimeAnnouncementPublisher</a>
+                     <li><a class="small" href="#xsltlogpublisher">XSLTLogPublisher</a>
                   </ul>
                <li><a class="small" href="#dateformat">DateFormat</a>
                <li><a class="small" href="#plugin">Plugin</a>
@@ -1390,6 +1391,36 @@
                <td class="tabledata">How to handle group content query failures.  Valid values are 'error' (abort the announcement), 'warn' (log a warning and proceed), 'ignore' (ignore the failure).  Default is 'error'.</td>
             </tr>
           </table>
+
+         <p><a name="xsltlogpublisher"><span class="small">XSLTLogPublisher</span><br/>
+	 Obvious use is to generate HTML files to a website, but could be used to generate other sorts of output files as well.
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">directory</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">Directory for output file</td>
+            </tr>
+            <tr>
+               <td class="tabledata">outfilename</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Name for the output file. Default uses the build label, 'label.log'</td>
+            </tr>
+            <tr>
+               <td class="tabledata">publishonfail</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">Generate file if the build failed? Default is 'true'.</td>
+            </tr>
+            <tr>
+               <td class="tabledata">xsltfile</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">XSL file to used for the transform.</td>
+            </tr>
+         </table>
 
          <hr>
 

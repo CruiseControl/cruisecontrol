@@ -188,6 +188,7 @@ public final class PluginRegistry {
         registry.register("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
         registry.register("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
         registry.register("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
+        registry.register("xsltlogpublisher", "net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher");
         // other
         registry.register("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
         registry.register("schedule", "net.sourceforge.cruisecontrol.Schedule");
