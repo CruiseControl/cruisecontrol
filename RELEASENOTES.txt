@@ -1,5 +1,7 @@
 CruiseControl Release Notes - Latest CVS
 
+* added Subversion and SubversionBootstrapper - Submitted by Etienne Studer
+
 build.xml
 ----------------------
 * Constrain checkstyle to only run against cruisecontrol code; ignore other packages.
