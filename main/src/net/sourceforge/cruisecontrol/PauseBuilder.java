@@ -38,13 +38,14 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 /**
  *  Used by <code>Schedule</code> to define periods of time when CruiseControl
  *  should not even attempt a build.  Useful for making sure CruiseControl does
  *  not run during server backup times, etc.
  *
- *  @author alden almagro, ThoughtWorks, Inc. 2001-2
+ *  @author Alden Almagro
  */
 public class PauseBuilder {
 
@@ -103,17 +104,22 @@ public class PauseBuilder {
     }
 
     /**
-     *  Determine if <code>now</code is valid for today.
+     *  Determine if the build is paused at the given time.
      *
-     *  @param now The current date
-     *  @return true if the date matches the day set in <code>setDay(String dayString)</code>
+     *  @param now Calendar set to the current time
+     *
+     *  @return true if the build is paused
      */
-    public boolean isValidDay(Date now) {
-        if(_day < 0)
-            return true;
+    public boolean isPaused(Calendar now) {
+        int currentTime = (now.get(Calendar.HOUR_OF_DAY) * 100) + now.get(Calendar.MINUTE);
+        int currentDay = now.get(Calendar.DAY_OF_WEEK);
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        return cal.get(Calendar.DAY_OF_WEEK) == _day;
+        boolean isValidDay = ((_day < 0) || (_day == currentDay));
+
+        if(_startTime < _endTime)
+            return (_startTime <= currentTime && currentTime <= _endTime && isValidDay);
+
+        return ((_startTime <= currentTime && (_day < 0 || _day == currentDay)) ||
+                   (currentTime <= _endTime && (_day < 0 || _day == (currentDay - 1))));
     }
 }
