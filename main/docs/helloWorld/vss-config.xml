@@ -1,0 +1,36 @@
+<cruisecontrol>
+   <project name="helloworld">
+      <bootstrappers>
+         <currentbuildstatusbootstrapper file="currentbuild.txt" />
+      </bootstrappers>
+      <modificationset quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
+         <vsselement ssdir="${vss.src.path}" login="${vss.login},${vss.password}" property="vss.src.changed" propertyOnDelete="vss.src.delete" />
+      </modificationset>
+      <schedule interval="30" intervaltype="relative">
+         <ant buildfile="build.xml" target="cleanbuild" multiple="5" />
+         <ant buildfile="build.xml" target="masterbuild" multiple="1" />
+      </schedule>
+      <log dir="logs" />
+      <publishers>
+         <currentbuildstatuspublisher file="currentbuild.txt" />
+         <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/buildservlet/BuildServlet">
+            <always address="REPLACE" />
+            <always address="WITH" />
+            <always address="BUILD" />
+            <always address="MASTER" />
+            <always address="EMAIL" />
+            <always address="ADDRESS" />
+            <failure address="REPLACE" />
+            <failure address="WITH" />
+            <failure address="NOTIFY" />
+            <failure address="EMAIL" />
+            <failure address="ADDRESS" />
+         </email>
+      </publishers>
+      <plugin name="currentbuildstatusbootstrapper" classname="net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper" />
+      <plugin name="ant" classname="net.sourceforge.cruisecontrol.builders.AntBuilder" />
+      <plugin name="email" classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher" />
+      <plugin name="currentbuildstatuspublisher" classname="net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher" />
+      <plugin name="labelincrementer" classname="net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer" />
+   </project>
+</cruisecontrol>
