@@ -252,7 +252,7 @@ public class CVS implements SourceControl {
 
     /**
      *@param lastBuildTime
-     *@return CommandLine for "cvs -d CVSROOT -q log -N -d ">lastbuildtime" "
+     *@return CommandLine for "cvs -d CVSROOT -q log -d ">lastbuildtime" "
      */
     public Commandline buildHistoryCommand(Date lastBuildTime) {
         Commandline commandLine = new Commandline();
@@ -265,7 +265,6 @@ public class CVS implements SourceControl {
         commandLine.createArgument().setValue("-q");
 
         commandLine.createArgument().setValue("log");
-        commandLine.createArgument().setValue("-N");
         String dateRange = ">" + formatCVSDate(lastBuildTime);
         commandLine.createArgument().setValue("-d" + dateRange);
 
