@@ -43,8 +43,9 @@ import org.jdom.Element;
 
 /**
  * This class provides a default label incrementation.
- * This class expects the label format to be "x.y",
- * where x is any String and y is an integer.
+ * This class expects the label format to be "x<sep>y",
+ * where x is any String and y is an integer and <sep> a separator.
+ * The default separator is "." and can be modified using {@link #setSeparator}.
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
@@ -60,6 +61,8 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     
     private String defaultPrefix = "build";
     private int defaultSuffix = 1;
+    /* temporary variable, only used at instance setup time */
+    private String defaultLabel = null;
 
     /**
      * Increments the label when a successful build occurs.
@@ -71,7 +74,6 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
      * @return Label to use for most recent successful build.
      */
     public String incrementLabel(String oldLabel, Element buildLog) {
-
         String prefix =
             oldLabel.substring(0, oldLabel.lastIndexOf(separator) + 1);
         String suffix =
@@ -97,8 +99,8 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
 
     /**
      * Verify that the label specified is a valid label.  In this case a valid
-     * label contains at least one '.' character, and an integer after the last
-     * occurrence of the '.' character.
+     * label contains at least one separator character, and an integer after the last
+     * occurrence of the separator character.
      */
     public boolean isValidLabel(String label) {
 
@@ -122,15 +124,28 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
         separator = newSeparator;
     }
 
+    /**
+     * The instance must be fully initialized before calling this method.
+     * @throws IllegalStateException if the instance is not properly initialized 
+     * e.g. if the {@setSeparator set separator} doesn't match the 
+     * {@setDefaultLabel set default label}
+     */
     public String getDefaultLabel() {
+        if (defaultLabel != null) {
+            final int separatorIndex = defaultLabel.lastIndexOf(separator);
+            if (separatorIndex == -1) {
+                 throw new IllegalStateException("separator \"" + separator
+                       + "\" not found in default Label " + defaultLabel);
+            }
+            defaultPrefix = defaultLabel.substring(0, separatorIndex);
+            String suffix = defaultLabel.substring(separatorIndex + 1);
+            defaultSuffix = Integer.parseInt(suffix);
+            defaultLabel = null;
+        }    
         return defaultPrefix + separator + defaultSuffix;
     }
 
     public void setDefaultLabel(String label) {
-        final int separatorIndex = label.lastIndexOf(separator);
-        defaultPrefix = label.substring(0, separatorIndex);
-        String suffix = label.substring(separatorIndex + 1, label.length());
-        defaultSuffix = Integer.parseInt(suffix);
+        defaultLabel = label;
     }
-
 }
