@@ -19,17 +19,17 @@ public class CurrentBuildStatusListener implements Listener {
     private static final Logger LOG = Logger.getLogger(CurrentBuildStatusListener.class);
     private String fileName;
 
-    public void handleEvent(final ProjectStateChangedEvent stateChanged) throws CruiseControlException {
-        LOG.debug("updating status to " + stateChanged.getNewState().getName()
-                + " for project " + stateChanged.getProjectName());
-        final ProjectState newState = stateChanged.getNewState();
-        final String text = "<span class=\"link\">" + newState.getDescription() + " as of:<br>";
-        CurrentBuildFileWriter.writefile(text, new Date(), fileName);
-    }
-
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
-        // ignore other ProjectEvents
-        LOG.debug("ignoring event " + event.getClass().getName() + " for project " + event.getProjectName());
+        if (event instanceof ProjectStateChangedEvent) {
+            final ProjectStateChangedEvent stateChanged = (ProjectStateChangedEvent) event;
+            final ProjectState newState = stateChanged.getNewState();
+            LOG.debug("updating status to " + newState.getName()  + " for project " + stateChanged.getProjectName());
+            final String text = "<span class=\"link\">" + newState.getDescription() + " as of:<br>";
+            CurrentBuildFileWriter.writefile(text, new Date(), fileName);
+        } else {
+            // ignore other ProjectEvents
+            LOG.debug("ignoring event " + event.getClass().getName() + " for project " + event.getProjectName());
+        }
     }
 
     public void validate() throws CruiseControlException {
