@@ -139,7 +139,7 @@ public class OSEnvironment {
             command = "command.com /c set";
         } else if (
             (os.indexOf("nt") > -1)
-                || (os.indexOf("windows 2000") > -1)
+                || (os.indexOf("windows 200") > -1)
                 || (os.indexOf("windows xp") > -1)
                 || (os.indexOf("os/2") > -1)) {
             command = "cmd.exe /c set";
