@@ -89,4 +89,10 @@ public class DefaultLabelIncrementerTest extends TestCase {
         assertEquals("foo.69", incrementer.getDefaultLabel());
     }
 
+    public void testDefaultLabelNonDefaultSeparator() {
+        incrementer.setDefaultLabel("R_604");
+        incrementer.setSeparator("_");
+        assertEquals("R_604", incrementer.getDefaultLabel());
+    }
+
 }
