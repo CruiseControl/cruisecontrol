@@ -118,8 +118,7 @@ public class AntBuilder extends Builder {
         Element propertiesElement = null;
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            InputStreamReader propertyLogReader = new InputStreamReader(new FileInputStream(PROPERTY_LOGGER_FILE_NAME), "UTF-8");
-            propertiesElement = builder.build(propertyLogReader).getRootElement();
+            propertiesElement = builder.build(PROPERTY_LOGGER_FILE_NAME).getRootElement();
             buildLogElement.addContent(propertiesElement.detach());
         } catch (Exception ee) {
             throw new CruiseControlException("Error reading " + PROPERTY_LOGGER_FILE_NAME, ee);
