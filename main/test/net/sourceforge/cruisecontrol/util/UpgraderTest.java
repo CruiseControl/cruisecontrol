@@ -180,7 +180,7 @@ public class UpgraderTest extends TestCase {
         assertEquals(outputter.outputString(expectedElement), outputter.outputString(actualElement));
     }
 
-    public void testCreatePublishersEmailMap() throws JDOMException {
+    public void testCreatePublishersEmailMap() throws JDOMException, IOException {
         StringBuffer expected = new StringBuffer();
         expected.append("<publishers>");
         expected.append("<currentbuildstatuspublisher "

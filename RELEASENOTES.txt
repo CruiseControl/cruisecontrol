@@ -57,6 +57,11 @@ index.jsp
 ----------------------
 * Table of projects with status from last build. Adapted from a patch by Jared Richardson
 
+JDOM support
+----------------------
+* Updated signatures for compatibility with JDOM beta-9. Patch by Alban Peignier
+* Fix to ConcurrentModificationException in Updater when using JDOM beta-9. Patch by Matt Albrecht
+
 JMX Interface
 ----------------------
 * Added a halt operation on the CruiseControl process JMX interface. Patch from Matt Albrecht

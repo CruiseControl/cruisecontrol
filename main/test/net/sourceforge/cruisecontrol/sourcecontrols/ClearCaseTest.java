@@ -76,7 +76,7 @@ public class ClearCaseTest extends TestCase {
     private ClearCase clearCase;
     private List mods;
 
-    protected void setUp() throws JDOMException {
+    protected void setUp() throws JDOMException, IOException {
         // Initialize our ClearCase element
         clearCase = new ClearCase();
         mods = new Vector();

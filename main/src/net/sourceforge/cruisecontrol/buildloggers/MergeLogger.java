@@ -44,6 +44,7 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 
 /**
  * This BuildLogger implementation merges other XML logs into the CruiseControl
@@ -118,9 +119,7 @@ public class MergeLogger implements BuildLogger {
      */
     Element getElement(File xmlFile) {
         try {
-            SAXBuilder builder =
-                    new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            Element element = builder.build(xmlFile).getRootElement();
+            Element element = getElementFromFile(xmlFile);
             if (element.getName().equals("testsuite") && removeProperties) {
                 if (element.getChild("properties") != null) {
                     element.getChild("properties").detach();
@@ -129,9 +128,23 @@ public class MergeLogger implements BuildLogger {
             return element;
         } catch (JDOMException e) {
             LOG4J.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
+        } catch (IOException e) {
+            LOG4J.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
         }
 
         return null;
+    }
+
+    /*
+      TODO:
+      IOException is in signature for jdom b9 compatability. This method can be inlined
+      when CruiseControl version of jdom is updated.
+    */
+    private static Element getElementFromFile(File xmlFile) throws JDOMException, IOException {
+        SAXBuilder builder =
+                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        Element element = builder.build(xmlFile).getRootElement();
+        return element;
     }
 
     public void setRemoveProperties(boolean b) {

@@ -133,6 +133,8 @@ public class Upgrader {
             writeXMLFile(createXML(properties, findModificationSet(buildFileElement)));
         } catch (JDOMException e) {
             throw new CruiseControlException(e);
+        } catch (IOException e) {
+            throw new CruiseControlException(e);
         }
     }
 
@@ -247,7 +249,7 @@ public class Upgrader {
 
         Iterator elementIterator = modificationSetElement.getChildren().iterator();
         while (elementIterator.hasNext()) {
-            Element childElement = (Element) elementIterator.next();
+            Element childElement = (Element) ((Element) elementIterator.next()).clone();
             if (childElement.getName().equalsIgnoreCase("vsselement")) {
                 Iterator vssAttributeIterator = childElement.getAttributes().iterator();
                 while (vssAttributeIterator.hasNext()) {
@@ -338,7 +340,7 @@ public class Upgrader {
         }
     }
 
-    public Element createXML(Properties properties, Element modificationsetElement) throws JDOMException {
+    public Element createXML(Properties properties, Element modificationsetElement) throws JDOMException, IOException {
         StringBuffer config = new StringBuffer();
         config.append("<cruisecontrol><project name=\"" + projectName + "\">");
         config.append(createBootstrappers(properties));
