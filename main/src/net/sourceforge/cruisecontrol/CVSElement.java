@@ -194,24 +194,21 @@ public class CVSElement implements SourceControlElement {
                                  "-d", cvsroot,
                                  "log",
                                  "-d" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "",
-                                 this.local.getAbsolutePath()};
-        // I tried to make a logging command string from the above commandArray
-        // but knowing where to put the REAL quotes needed to
-        // run the command from my shell got very ugly. I do not like the duplicity here... but...
-        String commandForLogging = "cvs "+
-                                 "-d " + cvsroot +
-                                 " log " +
-                                 "-d\"" + CVSDATE.format(lastBuild) +"<" + CVSDATE.format(now) + "\" "+
-                                 this.local.getAbsolutePath();
-        log("[cvselement] " + commandForLogging);
+                                 getLocalPath()};
+        String logCommand = "";
+        for (int i=0; i<commandArray.length; i++) {
+            logCommand += commandArray[i] + " ";
+        }
+        log("[cvselement] " + logCommand);
 
         try {
             Process p = Runtime.getRuntime().exec(commandArray);
 
-            //log the Error
-            logInputStream(p.getErrorStream(),"STDERR");
-            //Going to ignore the error stream. It is not interesting for us.
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), "STDERR", new PrintWriter(new StringWriter(), true));
+            //Logging the error stream.
+            StreamPumper errorPumper = 
+                new StreamPumper(p.getErrorStream(), 
+                                 null, 
+                                 new PrintWriter(System.err, true));
             errorPumper.start();
             
             //The input stream has the log information that we want to parse.
@@ -219,7 +216,7 @@ public class CVSElement implements SourceControlElement {
             mods = parseStream(input);
             
             //Using another stream pumper here will get rid of any leftover data in the stream.
-            StreamPumper outPumper = new StreamPumper(input, "STDOUT", new PrintWriter(new StringWriter(), true));
+            StreamPumper outPumper = new StreamPumper(input, null, null);
             outPumper.start();
 
             p.waitFor();
@@ -233,23 +230,21 @@ public class CVSElement implements SourceControlElement {
 
         return mods;
     }
-    
-    /**
-     * Sends to provided input to the log with the provided input stream type.
-     *
-     * @param input The InputStream to log.
-     * @param type The input source like STDERR.
-     */
-    private void logInputStream(InputStream input, String type){
-        try{
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String nextLine = reader.readLine();
-            log("[cvselement " + type + "] " + nextLine);
-        }catch(Exception e)
-        {
-            log("[cvselement " + type + "] " + e.toString());
-        }
 
+    /**
+     * This method encapsulates the strange behavior that
+     * the windows CVS client wants relative paths to use
+     * the forward-slash character (/) rather than the
+     * windows standard back-slash (\). This should work
+     * fine on *Nix machines and windows machines.
+     * 
+     * @return The relative path to the working copy using (/) characters
+     *         as path separator.
+     */
+    private String getLocalPath() {
+        String basicPath = this.local.getPath();
+        String formattedPath = basicPath.replace('\\', '/');
+        return formattedPath;
     }
     
     /**
@@ -440,11 +435,17 @@ public class CVSElement implements SourceControlElement {
         private boolean endOfStream = false;
         private int SLEEP_TIME = 5;
         private PrintWriter fos;
-
+        
         public StreamPumper(InputStream is, String name, PrintWriter fos) {
             this.din     = new BufferedReader(new InputStreamReader(is));
-            this.name    = name;
+            
             this.fos     = fos;
+
+            if (name != null) {
+                this.name = "[cvselement "+name+"] ";
+            } else {
+                this.name = "[cvselement] ";
+            }
         }
 
         public void pumpStream()
@@ -454,9 +455,9 @@ public class CVSElement implements SourceControlElement {
             if (!endOfStream) {
                 String line = din.readLine();
 
-                if (line != null) {
+                if (line != null && fos != null) {
                     /*DO NOTHING, IGNORE*/
-                    //fos.println(line);
+                    fos.println(name + line);
                 } else {
                     endOfStream = true;
                 }
