@@ -50,9 +50,18 @@
         <table border="0" align="center" width="98%">
             <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
             <tr><td>&nbsp;</td></tr>
-            <cruisecontrol:nav>
+            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
                 <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
             </cruisecontrol:nav>
+            <tr><td>
+              <form method="GET" action="<%=request.getContextPath() + request.getServletPath()%>" >
+                <select name="log" onchange="form.submit()">
+                  <cruisecontrol:nav startingBuildNumber="10">
+                    <option value="<%=logfile%>"><%= linktext %></option>
+                  </cruisecontrol:nav>
+                </select>
+              </form>
+            </td></tr>
         </table>
       </td>
       <td>&nbsp;</td>
