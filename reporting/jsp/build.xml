@@ -102,7 +102,7 @@
     </target>
 
     <target name="test" depends="compile" description="Executes the unit tests">
-        <javac srcdir="${test}" destdir="${classes}">
+        <javac srcdir="${test}" destdir="${classes}" debug="true">
             <classpath>
                 <pathelement location="${lib}/servlet.jar"/>
                 <pathelement location="${lib}/xalan.jar"/>
