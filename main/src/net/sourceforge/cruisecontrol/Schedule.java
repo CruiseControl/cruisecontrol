@@ -64,13 +64,15 @@ public class Schedule {
     static final long ONE_DAY = 24 * 60 * ONE_MINUTE;
     static final long ONE_YEAR = ONE_DAY * 365;
 
+    static final long MAX_INTERVAL_SECONDS = 60 * 60 * 24 * 365;
+    static final long MAX_INTERVAL_MILLISECONDS = MAX_INTERVAL_SECONDS * 1000;
+
     private List builders = new ArrayList();
     private List pauseBuilders = new ArrayList();
     private long interval = 300 * ONE_SECOND;
 
     /** date formatting for time statements */
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
-
 
     public void addBuilder(Builder builder) {
         builders.add(builder);
@@ -240,24 +242,44 @@ public class Schedule {
     }
 
     long checkPauseBuilders(Date now, long proposedTime) {
-        long futureMillis = now.getTime() + proposedTime;
-        Date futureDate = new Date(futureMillis);
+        long oldTime = proposedTime;
+        long newTime = checkForPauseAtProposedTime(now, oldTime);
+        while (oldTime != newTime) {
+            oldTime = newTime;
+            newTime = checkForPauseAtProposedTime(now, oldTime);    
+        }        
+        
+        return newTime;
+    }
+
+    private long checkForPauseAtProposedTime(Date now, long proposedTime) {
+        Date futureDate = getFutureDate(now, proposedTime);
         PauseBuilder pause = findPause(futureDate);
         if (pause == null) {
             return proposedTime;
         }
 
-        long timeToEndOfPause = proposedTime;
         int endPause = pause.getEndTime();
         int currentTime = Util.getTimeFromDate(now);
-        boolean pauseIsTomorrow = currentTime > endPause;
-        if (pauseIsTomorrow) {
-            timeToEndOfPause =
-                ONE_DAY - Util.milliTimeDiffernce(endPause, currentTime);
-        } else {
-            timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
+        
+        long timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
+        
+        while (timeToEndOfPause < proposedTime) {
+            timeToEndOfPause += ONE_DAY;
         }
+        
+        if (timeToEndOfPause > MAX_INTERVAL_MILLISECONDS) {
+            LOG.error("maximum pause interval exceeded! project perpetually paused?");
+            return MAX_INTERVAL_MILLISECONDS;
+        }        
+        
         return timeToEndOfPause + ONE_MINUTE;
+    }
+
+    private Date getFutureDate(Date now, long delay) {
+        long futureMillis = now.getTime() + delay;
+        Date futureDate = new Date(futureMillis);
+        return futureDate;
     }
 
     public void setInterval(long intervalBetweenModificationChecks) {
@@ -274,8 +296,7 @@ public class Schedule {
         }
         
         if (interval > ONE_YEAR) {
-            final long oneYearInSeconds = 60 * 60 * 24 * 365;
-            throw new CruiseControlException("maximum interval value is " + oneYearInSeconds + ", which is one year");
+            throw new CruiseControlException("maximum interval value is " + MAX_INTERVAL_SECONDS + ", which is one year");
         }
     }
     
