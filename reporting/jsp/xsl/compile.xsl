@@ -108,12 +108,12 @@
     <xsl:template match="message[@priority='error']">
         <xsl:value-of select="text()"/>
         <xsl:if test="count(./../message[@priority='error']) != position()">
-            <br/>
+            <br class="none"/>
         </xsl:if>
     </xsl:template>
 
     <xsl:template match="message[@priority='warn']">
-        <xsl:value-of select="text()"/><br/>
+        <xsl:value-of select="text()"/><br class="none"/>
     </xsl:template>
 
 </xsl:stylesheet>
