@@ -250,11 +250,11 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         }
         
         _buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
-        _debug = props.getProperty("debug").equals("true");
-        _verbose = props.getProperty("verbose").equals("true");
         
-        _mapSourceControlUsersToEmail = 
-         props.getProperty("mapSourceControlUsersToEmail").equals("true");
+        _debug = getBooleanProperty(props, "debug");
+        _verbose = getBooleanProperty(props, "verbose");
+        _mapSourceControlUsersToEmail = getBooleanProperty(props, 
+         "mapSourceControlUsersToEmail");
         
         _mailhost = props.getProperty("mailhost");
         _servletURL = props.getProperty("servletURL");
@@ -287,6 +287,15 @@ public class MasterBuild extends XmlLogger implements BuildListener {
             props.list(System.out);
     }
 
+    private boolean getBooleanProperty(Properties props, String key) {
+        try {
+            return props.getProperty(key).equals("true");
+        } catch (NullPointerException npe) {
+            log("Missing " + key + " property.  Using 'false'.");
+            return false;
+        }
+    }    
+    
     /**
      * This method infers from the value of the email
      * map filename, whether or not the email map is being
