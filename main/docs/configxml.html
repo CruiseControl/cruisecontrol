@@ -76,6 +76,7 @@
                   </ul>
                <li><a class="small" href="#publishers">Publishers</a>
                   <ul>
+                     <li><a class="small" href="#artifactspublisher">ArtifactsPublisher</a>
                      <li><a class="small" href="#currentbuildstatuspublisher">CurrentBuildStatusPublisher</a>
                      <li><a class="small" href="#executepublisher">ExecutePublisher</a>
                      <li><a class="small" href="#htmlemailpublisher">HTMLEmailPublisher</a></li>
@@ -906,6 +907,31 @@
          <code>Publisher</code>s are run after a build has completed.  They will be run regardless of whether the build
          was successful or not.
 
+         <p><a name="artifactspublisher"><span class="small">ArtifactsPublisher</span><br/>
+	 Copies build products to unique destination directory based on the build timestamp.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata" rowspan="2">one of these</td>
+               <td class="tabledata">will copy specified file</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dir</td>
+               <td class="tabledata">will copy all files from this directory</td>
+            </tr>
+            <tr>
+               <td class="tabledata">dest</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">parent directory of actual destination directory; actual destination directory name will be the build timestamp.</td>
+            </tr>
+         </table>
+
          <p><a name="currentbuildstatuspublisher"><span class="small">CurrentBuildStatusPublisher</span><br>
          The CruiseControl Build Results JSP will indicate whether or not CruiseControl is currently building a project.
          To get this information to the JSP, we write an HTML snippet to disk in a location where the JSP can read it.
@@ -1155,31 +1181,6 @@
                <td class="tabledata">xslfile</td>
                <td class="tabledata">No</td>
                <td class="tabledata">If specified, both xsldir and css are ignored.  Must handle the entire document.</td>
-            </tr>
-         </table>
-
-         <p><span class="small">ArtifactsPublisher</span><br/>
-	 Copies build products to unique destination directory based on the build timestamp.
-         </p>
-         <table cellpadding="3" cellspacing="1" border="0">
-            <tr>
-               <td class="tableheader">Attribute</td>
-               <td class="tableheader">Required</td>
-               <td class="tableheader">Description</td>
-            </tr>
-            <tr>
-               <td class="tabledata">file</td>
-               <td class="tabledata" rowspan="2">one of these</td>
-               <td class="tabledata">will copy specified file</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dir</td>
-               <td class="tabledata">will copy all files from this directory</td>
-            </tr>
-            <tr>
-               <td class="tabledata">dest</td>
-               <td class="tabledata">Yes</td>
-               <td class="tabledata">parent directory of actual destination directory; actual destination directory name will be the build timestamp.</td>
             </tr>
          </table>
 
