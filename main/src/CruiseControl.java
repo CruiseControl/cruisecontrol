@@ -36,22 +36,21 @@
  ********************************************************************************/
 
 import net.sourceforge.cruisecontrol.*;
+import net.sourceforge.cruisecontrol.setup.*;
 
 /**
  * This class wraps the MasterBuild process to
  * snazzify the command line.
- * (instead of "java net.sourceforge.cruisecontrol.MasterBuild"
+ * (instead of "java net.sourceforge.cruisecontrol.Main"
  *  the command line is snazzier, in the form of "java CruiseControl")
  *
- * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:alden@mac.com">alden almagro</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 
 public class CruiseControl {
 
     public static void main(String[] args) {
-        //Temporary change.
-        MasterBuild.main(args);
+        Main.main(args);
     }
-
 }
