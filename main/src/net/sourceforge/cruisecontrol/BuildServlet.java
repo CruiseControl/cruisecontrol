@@ -233,6 +233,8 @@ public class BuildServlet extends HttpServlet {
         
         Arrays.sort(prevBuildLogs);
         
+        //(PENDING) print first N logs as links, place remaining in a drop down
+        
         for (int i = prevBuildLogs.length - 1; i >= 0; i--) {
             String currFileName = prevBuildLogs[i];
             
