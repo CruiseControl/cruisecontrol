@@ -168,9 +168,9 @@
             addproperty="cruise.build.artifacts.dir"/>
     </target>
     
-    <target name="war" depends="test,create-web-xml,war_jdk14,war_pre14"/>
+    <target name="war" depends="test,create-web-xml,war,war_pre14"/>
 
-    <target name="war_jdk14" if="jdk1.4">
+    <target name="war" unless="pre1.4">
         <war warfile="${deploy.dir}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir=".">
                 <exclude name="samplelogs/_cache/"/>
@@ -200,7 +200,7 @@
         </war>
     </target>
 
-    <target name="war_pre14" unless="jdk1.4">
+    <target name="war_pre14" if="pre1.4">
         <war warfile="${deploy.dir}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir=".">
                 <exclude name="samplelogs/_cache/"/>
