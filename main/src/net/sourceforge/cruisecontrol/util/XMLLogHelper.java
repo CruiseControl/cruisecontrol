@@ -71,6 +71,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  *          </modifications>
  *      </cruisecontrol>
  *  </pre>
+ *
+ *  @author Alden Almagro
+ *  @author Jonny Boman
  */
 public class XMLLogHelper {
 
@@ -144,7 +147,11 @@ public class XMLLogHelper {
         Iterator modificationIterator = _log.getChild("modifications").getChildren("modification").iterator();
         while (modificationIterator.hasNext()) {
             Element modification = (Element) modificationIterator.next();
-            results.add(modification.getChild("user").getText());
+            Element emailElement = modification.getChild("email");
+            if (emailElement == null) {
+                emailElement = modification.getChild("user");
+            }
+            results.add(emailElement.getText());
         }
         return results;
     }
