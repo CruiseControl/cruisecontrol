@@ -1,14 +1,16 @@
 <project name="continuous integration" default="all">
-    <target name="init">
-        <property name="build.compiler" value="jikes"/>
-        <property name="classes" value="classes"/>
+
+    <property name="build.compiler" value="jikes"/>
+    <property name="classes" value="classes"/>        
+    <property name="classpath" value="lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar"/>
+    <property name="webinfclasses" value="web-inf\classes"/>
+    <property name="dist" value="dist"/>
+    <property name="lib" value="lib"/>
+    <property name="src" value="src"/>
+    <property name="images" value="images"/>
+
+    <target name="init">        
         <mkdir dir="${classes}"/>
-        <property name="classpath" value="lib\mail.jar;lib\activation.jar;lib\servlet.jar;lib\xerces.jar;lib\xalan.jar"/>
-        <property name="webinfclasses" value="web-inf\classes"/>
-        <property name="dist" value="dist"/>
-        <property name="lib" value="lib"/>
-        <property name="src" value="src"/>
-        <property name="images" value="images"/>
         <mkdir dir="${dist}"/>
     </target>
     
@@ -32,7 +34,7 @@
     
     <target name="buildwar">
         <javac srcdir="${src}" destdir="${classes}" classpath="${classpath}"/>
-        <war warfile="${dist}\buildservlet.war" webxml="web-inf\web.xml">
+        <war warfile="${dist}\buildservlet.war" webxml="web.xml">
            <lib dir="${lib}">
               <include name="servlet.jar"/>
               <include name="xerces.jar"/>
