@@ -96,9 +96,9 @@ public class TabTagTest extends TestCase {
     }
 
     class TestTabSheetTag extends TabSheetTag {
-        final String expectedName;
-        final String expectedLabel;
-        boolean tabsWereAdded;
+        private final String expectedName;
+        private final String expectedLabel;
+        private boolean tabsWereAdded;
         private final boolean expectedSelected;
 
         public TestTabSheetTag(String expectedName, String expectedLabel, boolean expectedSelected) {

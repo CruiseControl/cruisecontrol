@@ -39,17 +39,16 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.PageContext;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 /**
  *
