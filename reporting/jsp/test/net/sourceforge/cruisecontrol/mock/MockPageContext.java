@@ -58,8 +58,8 @@ public class MockPageContext extends PageContext {
     private JspWriter out = new MockBodyContent();
 
     private HashMap[] scopes = { new HashMap(), new HashMap(), new HashMap(), new HashMap() };
-    private MockServletContext servletContext;
-    private MockServletConfig servletConfig;
+    private MockServletContext servletContext = new MockServletContext();
+    private MockServletConfig servletConfig = new MockServletConfig();
 
     public void initialize(Servlet servlet, ServletRequest servletRequest, ServletResponse servletResponse,
                            String errorPageURL, boolean needsSession, int bufferSize, boolean autoFlush)
@@ -147,14 +147,6 @@ public class MockPageContext extends PageContext {
     }
 
     public void handlePageException(Exception e) throws ServletException, IOException {
-    }
-
-    public void setServletContext(MockServletContext context) {
-        servletContext = context;
-    }
-
-    public void setServletConfig(MockServletConfig config) {
-        servletConfig = config;
     }
 
     public void setHttpServletRequest(MockServletRequest mockRequest) {

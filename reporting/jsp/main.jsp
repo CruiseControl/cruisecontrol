@@ -39,6 +39,7 @@
 <html>
 <head>
   <title>CruiseControl Build Results</title>
+  <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%>/<%=request.getContextPath()%>/" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
 </head>
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">

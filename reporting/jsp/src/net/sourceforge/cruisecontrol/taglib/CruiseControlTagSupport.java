@@ -62,15 +62,33 @@ public class CruiseControlTagSupport extends BodyTagSupport {
     }
 
     protected File findLogDir() throws JspException {
-        String logDirName = pageContext.getServletConfig().getInitParameter("logDir");
+        String logDirName = getContextParam("logDir");
         if (logDirName == null) {
-            logDirName = pageContext.getServletContext().getInitParameter("logDir");
+            throw new JspException("You need to specify a log directory as a context param");
         }
+        logDirName += getProject();
         File logDir = new File(logDirName);
         if (!logDir.exists() || !logDir.isDirectory()) {
             throw new JspException(logDirName + " either does not exist, or is not a directory");
         }
         return logDir;
+    }
+
+    protected String getContextParam(final String name) {
+        String value = pageContext.getServletConfig().getInitParameter(name);
+        if (value == null) {
+            value = pageContext.getServletContext().getInitParameter(name);
+        }
+        return value;
+    }
+
+    private String getProject() {
+        String singleProjectMode = getContextParam("singleProject");
+        if (Boolean.valueOf(singleProjectMode).booleanValue()) {
+            return "";
+        }
+        String pathInfo = getRequest().getPathInfo();
+        return (pathInfo == null ? "" : pathInfo);
     }
 
     public void setPageContext(PageContext pageContext) {
@@ -82,8 +100,12 @@ public class CruiseControlTagSupport extends BodyTagSupport {
     }
 
     protected String getServletPath() {
-        final HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+        final HttpServletRequest request = getRequest();
         return request.getContextPath() + request.getServletPath();
+    }
+
+    protected HttpServletRequest getRequest() {
+        return (HttpServletRequest) getPageContext().getRequest();
     }
 
     /**
@@ -94,6 +116,7 @@ public class CruiseControlTagSupport extends BodyTagSupport {
      */
     protected String createUrl(String paramName, String paramValue) {
         StringBuffer url = new StringBuffer(getServletPath());
+        url.append(getProject());
         StringBuffer queryString = new StringBuffer("?");
         final ServletRequest request = getPageContext().getRequest();
         Enumeration requestParams = request.getParameterNames();

@@ -131,8 +131,7 @@ public class XSLTagTest extends TestCase {
 
         XSLTag tag = new XSLTag();
         final MockPageContext pageContext = new MockPageContext();
-        final MockServletContext servletContext = new MockServletContext();
-        pageContext.setServletContext(servletContext);
+        final MockServletContext servletContext = (MockServletContext) pageContext.getServletContext();
         servletContext.setBaseResourceDir(logDir);
         tag.setPageContext(pageContext);
         tag.setXslRootContext("/");

@@ -38,28 +38,63 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
-
 <web-app>
+    <display-name>CruiseControl Reporting App</display-name>
+    <description>The reporting application for CruiseControl. Provides a simple but rich
+        interface for viewing CruiseControl build reports.
+    </description>
+
+    <context-param>
+        <param-name>singleProject</param-name>
+        <param-value>false</param-value>
+        <description>Indicates if the CruiseControl instance is to report on only one project.
+            If it is, then you should set this to true.
+        </description>
+    </context-param>
 
     <context-param>
       <!-- You can set this value via the user.log.dir property in Ant, when building the WAR file. -->
       <param-name>logDir</param-name>
       <param-value>@YOUR CRUISECONTROL LOG DIRECTORY@ </param-value>
+      <description> This should be the full path to your CruiseControl log directory. If you
+          are in single project mode, this will contain only the logs for your project. If you
+          are in multi-project mode, it is expected that you will have multiple sub-directories
+          inside this log directory, one for each project.
+      </description>
     </context-param>
+
     <context-param>
       <!-- You can set this value via the user.build.status.file property in Ant, when building the WAR file. -->
       <param-name>currentBuildStatusFile</param-name>
       <param-value>@CURRENT BUILD STATUS FILE@ </param-value>
+      <description>This should be the path to your current build status file, which is relative
+          to the log directory (or, in single-project mode, relative to the project's log
+          directory)
+      </description>
     </context-param>
 
     <servlet>
       <servlet-name>buildresults</servlet-name>
+      <display-name>Build Result Reporter</display-name>
+      <description>Presents build results in a human-readable and intuitive format.</description>
       <jsp-file>/main.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>index</servlet-name>
+        <display-name>Index/Summary page</display-name>
+        <description>Presents a summary of all projects, allowing easy navigation to each.</description>
+        <jsp-file>/index.jsp</jsp-file>
     </servlet>
 
     <servlet-mapping>
       <servlet-name>buildresults</servlet-name>
-      <url-pattern>/buildresults</url-pattern>
+      <!-- Strictly speaking, this should be /buildresults for single-project mode. But it works anyway. -->
+      <url-pattern>/buildresults/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>index</servlet-name>
+        <url-pattern>/index</url-pattern>
+    </servlet-mapping>
 </web-app>
