@@ -38,6 +38,7 @@
 package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
+import org.jdom.Element;
 
 /**
  * This class provides a default label incrementation.
@@ -58,11 +59,18 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
      * @param oldLabel Label from previous successful build.
      * @return Label to use for most recent successful build.
      */
-    public String incrementLabel(String oldLabel) {
+    public String incrementLabel(String oldLabel, Element buildLog) {
 
         String prefix = oldLabel.substring(0, oldLabel.lastIndexOf(".") + 1);
         String suffix = oldLabel.substring(oldLabel.lastIndexOf(".") + 1, oldLabel.length());
         int i = Integer.parseInt(suffix);
         return prefix + ++i;
+    }
+
+    /**
+     *  This label incrementer should be called after the build.
+     */
+    public boolean isPreBuildIncrementer() {
+        return false;
     }
 }

@@ -150,7 +150,7 @@ public class BuildInfo implements Serializable {
             Class incrementerClass = Class.forName(labelIncrementClassName);
             LabelIncrementer incr = (LabelIncrementer)incrementerClass.newInstance();
 
-            setLabel(incr.incrementLabel(getLabel()));
+            setLabel(incr.incrementLabel(getLabel(), null));
         } catch (Exception e) {
             e.printStackTrace();
         }
