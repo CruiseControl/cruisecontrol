@@ -202,4 +202,94 @@
         </tr>
     </xsl:template>
 
+    <!-- Used by CM Synergy -->
+    <xsl:template match="modification[@type='ccmtask']">
+        <tr>
+            <td class="modifications-sectionheader">Task</td>
+            <td class="modifications-sectionheader">Owner</td>
+            <td class="modifications-sectionheader">Release</td>
+            <td class="modifications-sectionheader">Change Request(s)</td>
+            <td class="modifications-sectionheader">Completion Date</td>
+            <td class="modifications-sectionheader">Synopsis</td>
+        </tr>
+        <tr valign="top">
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">changelists-evenrow</xsl:attribute>
+            </xsl:if>
+            <td class="modifications-data">
+                <b><xsl:copy-of select="task"/></b>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="revision"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:apply-templates select="ccmcr"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
+        </tr>
+        <xsl:if test="count(ccmobject) > 0">
+            <tr valign="top">
+                <xsl:if test="position() mod 2=0">
+                    <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
+                </xsl:if>
+                <xsl:if test="position() mod 2!=0">
+                    <xsl:attribute name="class">changelists-evenrow</xsl:attribute>
+                </xsl:if>
+                <td class="modifications-data" colspan="6">
+                    <table align="right" cellpadding="1" cellspacing="1" border="0" width="95%">
+                        <tr>
+                            <td class="changelists-file-header" colspan="7">
+                                &#160;Objects associated with this task:&#160;
+                                (<xsl:value-of select="count(ccmobject)"/>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="changelists-file-header">Object</td>
+                            <td class="changelists-file-header">Version</td>
+                            <td class="changelists-file-header">Type</td>
+                            <td class="changelists-file-header">Instance</td>
+                            <td class="changelists-file-header">Project</td>
+                            <td class="changelists-file-header">Comment</td>
+                        </tr>
+                        <xsl:apply-templates select="ccmobject"/>
+                    </table>
+                </td>
+            </tr>
+        </xsl:if>
+    </xsl:template>
+    <xsl:template match="ccmobject">
+        <tr valign="top" >
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">changelists-file-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">changelists-file-evenrow</xsl:attribute>
+            </xsl:if>
+            <td class="modifications-data"><b><xsl:value-of select="name"/></b></td>
+            <td class="modifications-data"><xsl:value-of select="version"/></td>
+            <td class="modifications-data"><xsl:value-of select="type"/></td>
+            <td class="modifications-data"><xsl:value-of select="instance"/></td>
+            <td class="modifications-data"><xsl:value-of select="project"/></td>
+            <td class="modifications-data"><xsl:value-of select="comment"/></td>
+        </tr>
+    </xsl:template>
+    <xsl:template match="ccmcr">
+        <xsl:if test="position() != 1">
+            ,
+        </xsl:if>
+        <xsl:copy-of select="*"/>
+    </xsl:template>
+
+
 </xsl:stylesheet>
