@@ -51,7 +51,6 @@ import com.starbase.util.OLEDate;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.NoExitSecurityManager;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -163,9 +162,6 @@ public class StarTeam implements SourceControl {
         nowDate = new OLEDate(now.getTime());
         OLEDate lastBuildDate = new OLEDate(lastBuild.getTime());
 
-        //StarTeam SDK does not like NoExitSecurityManager
-        System.setSecurityManager(null);
-
         Server server = null;
         try {
             // Set up two view snapshots, one at lastbuild time, one now
@@ -235,7 +231,6 @@ public class StarTeam implements SourceControl {
             if (server != null) {
                 server.disconnect();
             }
-            System.setSecurityManager(new NoExitSecurityManager());
         }
     }
 
