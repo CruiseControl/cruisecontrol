@@ -139,6 +139,10 @@ web.xml
 ----------------------
 * Added a welcome-file-list containing index.jsp; necessary for WebSphere (and maybe other appservers)
 
+XSLTag.java
+----------------------
+* Changed serveCachedCopy to use Reader and char-array instead of InputStream and reading/writing char-by-char. Patch by Thai Ha
+
 CruiseControl Release Notes - 2.1.5
 
 ArtifactsPublisher
