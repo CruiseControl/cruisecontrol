@@ -36,15 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 /**
  * Scans a directory tree on a local drive rather than in a repository.
@@ -97,6 +97,7 @@ public class FileSystem implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
         modifications = new ArrayList();
+        
         visit(folder, lastBuild.getTime());
 
         return modifications;
