@@ -58,10 +58,15 @@ import org.w3c.dom.*;
  */
 public class MasterBuild extends XmlLogger implements BuildListener {
 
-    private static final String BUILDINFO_FILENAME = "buildcycleinfo";
-    private static final String DEFAULT_MAP = "emailmap.properties";
+    private static String BUILDINFO_FILENAME = "buildcycleinfo";
+    private final String DEFAULT_EMAILMAP = "emailmap.properties";
     private final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
-    private static final String XML_LOGGER_FILE = "log.xml";
+    private final String XML_LOGGER_FILE = "log.xml";
+    private final String DEFAULT_BUILD_STATUS_FILENAME = "currentbuild.txt";
+    private final String DEFAULT_LOG_DIR = "logs";
+    private final String DEFAULT_BUILD_FILE = "build.xml";
+    private final String DEFAULT_TARGET = "masterbuild";
+    private final String DEFAULT_CLEAN_TARGET = "cleanbuild";
 
     // Needs to be static since new instance used each build
     //label/modificationset/build participants
@@ -236,7 +241,7 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     }
 
     /**
-     * Load properties file, see masterbuild.properties for descriptions of 
+     * Load properties file, see cruisecontrol.properties for descriptions of 
      * properties.
      */
     private void loadProperties() throws Exception {
@@ -250,14 +255,21 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         Properties props = new Properties();
         props.load(new FileInputStream(propFile));
         
-        StringTokenizer st = new StringTokenizer(props.getProperty("auxlogfiles"), ",");
+        StringTokenizer st = new StringTokenizer(
+         props.getProperty("auxlogfiles"), ",");
         _auxLogProperties = new Vector();
         while (st.hasMoreTokens()) {
             String nextFile = st.nextToken().trim();
             _auxLogProperties.add(nextFile);
         }
         
-        _buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
+        try {
+            _buildInterval = Integer.parseInt(
+             props.getProperty("buildinterval"))*1000;
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException(
+             "buildinterval not set correctly in " + _propsFileName);
+        }
         
         _debug = getBooleanProperty(props, "debug");
         _verbose = getBooleanProperty(props, "verbose");
@@ -266,26 +278,50 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         
         _defaultEmailSuffix = props.getProperty("defaultEmailSuffix");
         _mailhost = props.getProperty("mailhost");
+        if (_mailhost.equals("")) {
+            throw new IllegalArgumentException(
+             "mailhost not set in " + _propsFileName);
+        }
+        
         _servletURL = props.getProperty("servletURL");
+        if (_servletURL.equals("")) {
+            throw new IllegalArgumentException(
+             "servletURL not set in " + _propsFileName);
+        }
+        
         _returnAddress = props.getProperty("returnAddress");
+        if (_returnAddress.equals("")) {
+            throw new IllegalArgumentException(
+             "returnAddress not set in " + _propsFileName);
+        }
+        
         _buildmaster = getSetFromString(props.getProperty("buildmaster"));
         _notifyOnFailure = getSetFromString(props.getProperty("notifyOnFailure"));
+        
         _reportSuccess = getBooleanProperty(props, "reportSuccess");
         _spamWhileBroken = getBooleanProperty(props, "spamWhileBroken");
         
-        _logDir = props.getProperty("logDir"); 
+        _logDir = props.getProperty("logDir", DEFAULT_LOG_DIR); 
         new File(_logDir).mkdirs();
         
         String buildStatusFileName = _logDir + File.separator 
-         + props.getProperty("currentBuildStatusFile");
+         + props.getProperty("currentBuildStatusFile", 
+         DEFAULT_BUILD_STATUS_FILENAME);
         log("Creating " + buildStatusFileName);
         _currentBuildStatusFile = new File(buildStatusFileName);
         _currentBuildStatusFile.createNewFile();
         
-        _antFile = props.getProperty("antfile");
-        _antTarget = props.getProperty("target");
-        _cleanAntTarget = props.getProperty("cleantarget");
+        _antFile = props.getProperty("antfile", DEFAULT_BUILD_FILE);
+        _antTarget = props.getProperty("target", DEFAULT_TARGET);
+        _cleanAntTarget = props.getProperty("cleantarget", DEFAULT_CLEAN_TARGET);
+        
+        try {
         _cleanBuildEvery = Integer.parseInt(props.getProperty("cleanBuildEvery"));
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException(
+             "cleanBuildEvery not set correctly in " + _propsFileName);
+        }
+        
         _labelIncrementerClassName = props.getProperty("labelIncrementerClass");
         if (_labelIncrementerClassName == null) {
             _labelIncrementerClassName = DefaultLabelIncrementer.class.getName();
@@ -294,8 +330,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _emailmapFilename = props.getProperty("emailmap");
         _useEmailMap = usingEmailMap(_emailmapFilename);
         
-        if (_debug || _verbose)
+        if (_debug || _verbose) {
             props.list(System.out);
+        }
     }
 
     private boolean getBooleanProperty(Properties props, String key) {
