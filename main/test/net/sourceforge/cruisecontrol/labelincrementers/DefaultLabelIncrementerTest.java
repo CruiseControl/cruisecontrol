@@ -84,4 +84,9 @@ public class DefaultLabelIncrementerTest extends TestCase {
         assertTrue(incrementer.isValidLabel(incrementer.getDefaultLabel()));
     }
 
+    public void testDefaultLabel() {
+        incrementer.setDefaultLabel("foo.69");
+        assertEquals("foo.69", incrementer.getDefaultLabel());
+    }
+
 }
