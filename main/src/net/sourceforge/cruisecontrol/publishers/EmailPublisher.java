@@ -75,7 +75,6 @@ import org.jdom.Element;
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
 public abstract class EmailPublisher implements Publisher {
-
     private static final Logger LOG = Logger.getLogger(EmailPublisher.class);
 
     private String mailHost;
@@ -85,6 +84,7 @@ public abstract class EmailPublisher implements Publisher {
     private String buildResultsURL;
     private Always[] alwaysAddresses = new Always[0];
     private Failure[] failureAddresses = new Failure[0];
+    private Success[] successAddresses = new Success[0];
     private EmailMapping[] emailMap = new EmailMapping[0];
     private String returnAddress;
     private String returnName;
@@ -142,7 +142,8 @@ public abstract class EmailPublisher implements Publisher {
                 subjectLine.append(" ");
                 subjectLine.append(logHelper.getLabel());
             }
-            if (reportSuccess.equalsIgnoreCase("fixes") && !logHelper.wasPreviousBuildSuccessful()) {
+            if (reportSuccess.equalsIgnoreCase("fixes")
+                && !logHelper.wasPreviousBuildSuccessful()) {
                 subjectLine.append(" Build Fixed");
                 return subjectLine.toString();
             } else {
@@ -161,25 +162,27 @@ public abstract class EmailPublisher implements Publisher {
      *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
      *  @return whether or not the mail message should be sent.
      */
-    protected boolean shouldSend(XMLLogHelper logHelper)
-            throws CruiseControlException {
+    protected boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
             if (reportSuccess.equalsIgnoreCase("always")) {
                 return true;
             } else if (reportSuccess.equalsIgnoreCase("fixes")) {
                 if (logHelper.wasPreviousBuildSuccessful()) {
-                    LOG.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
+                    LOG.debug(
+                        "reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
                     return false;
                 } else {
                     return true;
                 }
             } else if (reportSuccess.equalsIgnoreCase("never")) {
-                LOG.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
+                LOG.debug(
+                    "reportSuccess is set to 'never', not sending emails for successful builds.");
                 return false;
             }
         } else { //build wasn't successful
             if (!logHelper.wasPreviousBuildSuccessful()
-                    && logHelper.isBuildNecessary() && !spamWhileBroken) {
+                && logHelper.isBuildNecessary()
+                && !spamWhileBroken) {
                 LOG.debug("spamWhileBroken is set to false, not sending email");
                 return false;
             }
@@ -219,13 +222,20 @@ public abstract class EmailPublisher implements Publisher {
             }
         }
 
+        //if build succeeded, add success addresses
+        if (logHelper.isBuildSuccessful()) {
+            for (int i = 0; i < successAddresses.length; i++) {
+                users.add(successAddresses[i].getAddress());
+            }
+        }
+
         //move map to hashtable
         Set emails = new TreeSet();
         Hashtable emailMappings = new Hashtable();
         for (int i = 0; i < emailMap.length; i++) {
             EmailMapping mapping = emailMap[i];
-            LOG.debug("Mapping alias: " + mapping.getAlias() + " to address: "
-                    + mapping.getAddress());
+            LOG.debug(
+                "Mapping alias: " + mapping.getAlias() + " to address: " + mapping.getAddress());
             emailMappings.put(mapping.getAlias(), mapping.getAddress());
         }
 
@@ -233,8 +243,7 @@ public abstract class EmailPublisher implements Publisher {
         while (userIterator.hasNext()) {
             String user = (String) userIterator.next();
             if (emailMappings.containsKey(user)) {
-                LOG.debug("User found in email map.  Mailing to: "
-                        + emailMappings.get(user));
+                LOG.debug("User found in email map.  Mailing to: " + emailMappings.get(user));
                 emails.add(emailMappings.get(user));
             } else {
                 if (user.indexOf("@") < 0) {
@@ -268,14 +277,12 @@ public abstract class EmailPublisher implements Publisher {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
         try {
             if (shouldSend(helper)) {
-                sendMail(createUserList(helper), createSubject(helper),
-                        createMessage(helper));
+                sendMail(createUserList(helper), createSubject(helper), createMessage(helper));
             }
         } catch (CruiseControlException e) {
             LOG.error("", e);
         }
     }
-
 
     /**
      * builds the properties object for the mail session
@@ -288,15 +295,12 @@ public abstract class EmailPublisher implements Publisher {
             props.put("mail.smtp.port", mailPort);
         }
         LOG.debug(
-            "mailHost is " + mailHost + ", mailPort is " + mailPort == null
-                ? "default"
-                : mailPort);
+            "mailHost is " + mailHost + ", mailPort is " + mailPort == null ? "default" : mailPort);
         if (userName != null && password != null) {
             props.put("mail.smtp.auth", "true");
         }
         return props;
     }
-
 
     /**
      *  Sends an email message.
@@ -306,7 +310,7 @@ public abstract class EmailPublisher implements Publisher {
      *  @param message body of the message
      */
     protected void sendMail(String toList, String subject, String message)
-            throws CruiseControlException {
+        throws CruiseControlException {
         LOG.info("Sending mail notifications.");
         Session session = Session.getDefaultInstance(getMailProperties(), null);
         session.setDebug(LOG.isDebugEnabled());
@@ -314,8 +318,7 @@ public abstract class EmailPublisher implements Publisher {
         try {
             Message msg = new MimeMessage(session);
             msg.setFrom(getFromAddress());
-            msg.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(toList, false));
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toList, false));
             msg.setSubject(subject);
             msg.setText(message);
             msg.setSentDate(new Date());
@@ -339,11 +342,7 @@ public abstract class EmailPublisher implements Publisher {
             try {
                 fromAddress = new InternetAddress(returnAddress, returnName);
             } catch (UnsupportedEncodingException e) {
-                LOG.error(
-                    "error setting returnName ["
-                        + returnName
-                        + "]: "
-                        + e.getMessage());
+                LOG.error("error setting returnName [" + returnName + "]: " + e.getMessage());
                 fromAddress = new InternetAddress(returnAddress);
             }
         }
@@ -434,7 +433,6 @@ public abstract class EmailPublisher implements Publisher {
         List alwaysList = new ArrayList();
         alwaysList.addAll(Arrays.asList(alwaysAddresses));
 
-
         Always always = new Always();
         alwaysList.add(always);
 
@@ -453,6 +451,18 @@ public abstract class EmailPublisher implements Publisher {
         failureAddresses = (Failure[]) failureList.toArray(new Failure[0]);
 
         return failure;
+    }
+
+    public Success createSuccess() {
+        List successList = new ArrayList();
+        successList.addAll(Arrays.asList(successAddresses));
+
+        Success success = new Success();
+        successList.add(success);
+
+        successAddresses = (Success[]) successList.toArray(new Success[0]);
+
+        return success;
     }
 
     public EmailMapping createMap() {
@@ -491,6 +501,18 @@ public abstract class EmailPublisher implements Publisher {
         }
     }
 
+    public class Success {
+        private String address;
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+    }
+
     public class EmailMapping {
         private String alias;
         private String address;
@@ -511,7 +533,6 @@ public abstract class EmailPublisher implements Publisher {
             this.address = address;
         }
     }
-
 
     public static void main(String[] args) {
         EmailPublisher pub = new EmailPublisher() {
