@@ -4,7 +4,7 @@
          <currentbuildstatusbootstrapper file="currentbuild.txt" />
       </bootstrappers>
       <modificationset quietperiod="30" dateformat="yyyy-MMM-dd HH:mm:ss">
-         <vsselement ssdir="${vss.src.path}" login="${vss.login},${vss.password}" property="vss.src.changed" propertyOnDelete="vss.src.delete" />
+         <vss ssdir="${vss.src.path}" login="${vss.login},${vss.password}" property="vss.src.changed" propertyOnDelete="vss.src.delete" />
       </modificationset>
       <schedule interval="30" intervaltype="relative">
          <ant buildfile="build.xml" target="cleanbuild" multiple="5" />
@@ -27,6 +27,7 @@
             <failure address="ADDRESS" />
          </email>
       </publishers>
+      <plugin name="vss" classname="net.sourceforge.cruisecontrol.sourcecontrols.Vss" />
       <plugin name="currentbuildstatusbootstrapper" classname="net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper" />
       <plugin name="ant" classname="net.sourceforge.cruisecontrol.builders.AntBuilder" />
       <plugin name="email" classname="net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher" />
