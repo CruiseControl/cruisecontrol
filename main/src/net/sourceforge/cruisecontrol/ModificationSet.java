@@ -46,7 +46,8 @@ import org.apache.tools.ant.*;
  * This class is designed to record the modifications made to the source control
  * management system since the last build.
  * 
- * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
+ * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
+ * @author Suresh K Bathala
  */
 public class ModificationSet extends Task {
 
@@ -163,17 +164,59 @@ public class ModificationSet extends Task {
     }
 
     /**
-     * add a nested element for sourcesafe specific code.
+     * add a nested element for clearcase specific code.
      *
      * @return
      */
-    public VssElement createVsselement() {
-        VssElement ve = new VssElement();
-        ve.setAntTask(this);
+    public ClearCaseElement createClearcaseelement() {
+        ClearCaseElement cce = new ClearCaseElement();
+        cce.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(ve);
+        _sourceControlElements.add(cce);
 
-        return ve;
+        return cce;
+    }
+
+    /**
+     * add a nested element for cvs specific code.
+     *
+     * @return
+     */
+    public CVSElement createCvselement() {
+        CVSElement ce = new CVSElement();
+        ce.setAntTask(this);
+        //for logging in the sub elements
+        _sourceControlElements.add(ce);
+
+        return ce;
+    }
+
+    /**
+     * Add a nested element for MKS specific code.
+     *
+     * @return
+     */
+    public MKSElement createMKSelement() {
+        MKSElement me = new MKSElement();
+        me.setAntTask(this);
+        //for logging in the sub elements
+        _sourceControlElements.add(me);
+
+        return me;
+    }    
+    
+    /**
+     * add a nested element for p4 specific code.
+     *
+     * @return
+     */
+    public P4Element createP4element() {
+        P4Element p4e = new P4Element();
+        p4e.setAntTask(this);
+        //for logging in the sub elements
+        _sourceControlElements.add(p4e);
+
+        return p4e;
     }
 
     /**
@@ -190,50 +233,20 @@ public class ModificationSet extends Task {
         return ste;
     }
 
-
     /**
-     * add a nested element for cvs specific code.
+     * add a nested element for sourcesafe specific code.
      *
      * @return
      */
-    public CVSElement createCvselement() {
-        CVSElement ce = new CVSElement();
-        ce.setAntTask(this);
+    public VssElement createVsselement() {
+        VssElement ve = new VssElement();
+        ve.setAntTask(this);
         //for logging in the sub elements
-        _sourceControlElements.add(ce);
+        _sourceControlElements.add(ve);
 
-        return ce;
+        return ve;
     }
-
-
-    /**
-     * add a nested element for p4 specific code.
-     *
-     * @return
-     */
-    public P4Element createP4element() {
-        P4Element p4e = new P4Element();
-        p4e.setAntTask(this);
-        //for logging in the sub elements
-        _sourceControlElements.add(p4e);
-
-        return p4e;
-    }
-
-    /**
-     * add a nested element for clearcase specific code.
-     *
-     * @return
-     */
-    public ClearCaseElement createClearcaseelement() {
-        ClearCaseElement cce = new ClearCaseElement();
-        cce.setAntTask(this);
-        //for logging in the sub elements
-        _sourceControlElements.add(cce);
-
-        return cce;
-    }
-
+    
     private boolean tooMuchRepositoryActivity(long currentTime) {
         if (_lastModified > currentTime) {
             return true;
