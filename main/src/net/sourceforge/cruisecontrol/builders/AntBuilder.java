@@ -37,27 +37,27 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
-import net.sourceforge.cruisecontrol.Builder;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.xml.sax.XMLFilter;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.xml.sax.XMLFilter;
 
 /**
  * we often see builds that fail because the previous build is still holding on to some resource.
@@ -292,8 +292,7 @@ public class AntBuilder extends Builder {
             } else {
                 cmdLine.setExecutable("java");
             }
-            Iterator argsIterator = args.iterator();
-            while (argsIterator.hasNext()) {
+            for (Iterator argsIterator = args.iterator(); argsIterator.hasNext(); ) {
                 String arg = ((JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
@@ -315,18 +314,16 @@ public class AntBuilder extends Builder {
             cmdLine.createArgument().setValue(getLoggerClassName());
             cmdLine.createArgument().setValue("-DXmlLogger.file=" + tempFileName);
         }
-
-        Iterator propertiesIterator = buildProperties.keySet().iterator();
-        while (propertiesIterator.hasNext()) {
-            String key = (String) propertiesIterator.next();
-            final String value = (String) buildProperties.get(key);
-            if (value != null & !value.equals("")) {
-                cmdLine.createArgument().setValue("-D" + key + "=" + value);
+        
+        for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
+            Map.Entry property = (Map.Entry) propertiesIter.next();
+            String value = (String) property.getValue();
+            if (!"".equals(value)) {
+                cmdLine.createArgument().setValue("-D" + property.getKey() + "=" + value);
             }
         }
 
-        Iterator antPropertiesIterator = properties.iterator();
-        while (antPropertiesIterator.hasNext()) {
+        for (Iterator antPropertiesIterator = properties.iterator(); antPropertiesIterator.hasNext(); ) {
             Property property = (Property) antPropertiesIterator.next();
             cmdLine.createArgument().setValue("-D" + property.getName() + "=" + property.getValue());
         }
@@ -362,8 +359,7 @@ public class AntBuilder extends Builder {
                 throw new CruiseControlException("build tag not found in " + file.getAbsolutePath());
             }
 
-            BufferedReader bufferedReader =
-                    new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
             bufferedReader.skip(skip);
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             // get rid of empty <task>- and <message>-elements created by Ant's XmlLogger
@@ -384,7 +380,7 @@ public class AntBuilder extends Builder {
     }
 
     private static String getFileContent(File f) throws IOException {
-        Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8");
+        Reader r = new FileReader(f);
         try {
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 150; i++) {
