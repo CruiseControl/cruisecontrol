@@ -36,10 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
@@ -88,11 +90,11 @@ public class XSLTagTest extends TestCase {
                 + "</xsl:stylesheet>";
         writeFile(log1, styleSheetText);
         writeFile(log3, "<test sub=\"1\">3</test>");
-        InputStream in = new FileInputStream(log1);
-        StringWriter out = new StringWriter();
+        InputStream style = new FileInputStream(log1);
+        OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = new XSLTag();
-        tag.transform(log3, in, out);
+        tag.transform(log3, style, out);
         assertEquals("test=3.1", out.toString());
     }
 
@@ -116,8 +118,8 @@ public class XSLTagTest extends TestCase {
                 + "</xsl:stylesheet>";
         writeFile(log2, outerStyleSheetText);
         writeFile(log3, "<test sub=\"1\">3</test>");
-        InputStream in = new FileInputStream(log2);
-        StringWriter out = new StringWriter();
+        InputStream style = new FileInputStream(log2);
+        OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = new XSLTag();
         final MockPageContext pageContext = new MockPageContext();
@@ -125,7 +127,7 @@ public class XSLTagTest extends TestCase {
         servletContext.setBaseResourceDir(logDir);
         tag.setPageContext(pageContext);
         tag.setXslRootContext("/");
-        tag.transform(log3, in, out);
+        tag.transform(log3, style, out);
         assertEquals("test=3.1", out.toString());
     }
 

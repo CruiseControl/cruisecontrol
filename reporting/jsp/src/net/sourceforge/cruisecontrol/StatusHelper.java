@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -49,71 +48,71 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
  * @author Jared Richardson
  * User: jfredrick
  * Adapted from StatusPage.java, submitted by Jared to the cruisecontrol-devel mailing list.
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class StatusHelper {
-    private File newestLogfile;
-    private File newestSuccessfulLogfile;
+    private BuildInfo newestBuild;
+    private BuildInfo newestSuccessfulBuild;
 
     private static final String PASSED = "passed";
     private static final String FAILED = "failed";
 
-    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
-
     public void setProjectDirectory(File directory) {
-        newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
-        newestSuccessfulLogfile = CruiseControlTagSupport.getLatestSuccessfulLogFile(directory);
+        File newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
+        if (newestLogfile == null) {
+            newestBuild = null;
+        } else {
+            try {
+                newestBuild = new BuildInfo(newestLogfile.getName());
+            } catch (ParseException pe) {
+                newestBuild = null;
+            }
+        }
+        File newestSuccessfulLogfile = CruiseControlTagSupport.getLatestSuccessfulLogFile(directory);
+        if (newestSuccessfulLogfile == null) {
+            newestSuccessfulBuild = null;
+        } else {
+            try {
+                newestSuccessfulBuild = new BuildInfo(newestSuccessfulLogfile.getName());
+            } catch (ParseException pe) {
+                newestBuild = null;
+            }
+        }
     }
 
     public String getLastBuildResult() {
-        if (newestLogfile == null) {
+        if (newestBuild == null) {
             return null;
         }
 
-        if (newestLogfile.equals(newestSuccessfulLogfile)) {
-            return PASSED;
-        }
-
-        return FAILED;
+        return newestBuild.isSuccessful() ? PASSED : FAILED;
     }
 
     public String getLastBuildTimeString(Locale locale) {
-        if (newestLogfile == null) {
+        if (newestBuild == null) {
             return null;
         }
-        String filename = newestLogfile.getName();
-        return getBuildTimeString(filename, locale);
+        return getBuildTimeString(newestBuild, locale);
     }
 
     public String getLastSuccessfulBuildLabel() {
-        if (newestSuccessfulLogfile == null) {
+        if (newestSuccessfulBuild == null) {
             return null;
         }
 
-        String filename = newestSuccessfulLogfile.getName();
-
-        // passing log file name is of form log20020102030405L.*.xml
-        // look for L
-        return filename.substring(18, (filename.length() - 4));
+        return newestSuccessfulBuild.getLabel();
     }
 
     public String getLastSuccessfulBuildTimeString(Locale locale) {
-        if (newestSuccessfulLogfile == null) {
+        if (newestSuccessfulBuild == null) {
             return null;
         }
-        String filename = newestSuccessfulLogfile.getName();
-        return getBuildTimeString(filename, locale);
+        return getBuildTimeString(newestSuccessfulBuild, locale);
     }
 
-    private String getBuildTimeString(String filename, Locale locale) {
-        String dateFromFilename = filename.substring(3, 17);
-        String dateString = "error";
-        try {
-            Date date = LOG_TIME_FORMAT_SECONDS.parse(dateFromFilename);
-            dateString = DateUtil.createDateFormat(locale).format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return dateString;
+    private String getBuildTimeString(BuildInfo logInfo, Locale locale) {
+        Date date = logInfo.getBuildDate();
+        return DateUtil.createDateFormat(locale).format(date);
     }    
 
 }
