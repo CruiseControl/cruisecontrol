@@ -73,8 +73,6 @@ public class Project implements Serializable {
     private transient String _logDir;
     private transient String _status;
     private transient Date _buildStartTime;
-    private transient Object mutex = new Object();
-    private static final transient long ONE_MINUTE = 60 * 1000;
 
     private int _buildCounter = 0;
     private Date _lastBuild;
@@ -88,6 +86,8 @@ public class Project implements Serializable {
     private boolean _buildForced = false;
     private boolean _isPaused = false;
     private boolean _buildAfterFailed = true;
+    private Object mutex = new Object();
+    private static final long ONE_MINUTE = 60 * 1000;
 
 	// this variable only exists at the moment for methods needed for 
 	// ProjectTest.testBuild()
@@ -102,11 +102,11 @@ public class Project implements Serializable {
     public void execute() {
         while (true) {
             try {
-            	synchronized(mutex){
-					while (_isPaused) {
-						mutex.wait(10 * ONE_MINUTE);
-					}
-            	}
+                synchronized(mutex){
+                    while (_isPaused) {
+                        mutex.wait(10 * ONE_MINUTE);
+                    }
+                }
                 init();
                 build();
                 Date now = new Date();

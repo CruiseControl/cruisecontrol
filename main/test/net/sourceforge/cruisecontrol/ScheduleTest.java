@@ -119,9 +119,10 @@ public class ScheduleTest extends TestCase {
 
     public void testGetTimeToNextBuild() {
     	long fiveSeconds = 5 * 1000;
-    	long elevenHours = 11 * 60 * ONE_MINUTE;
-    	long oneHourFiftyNineMinutes = (60+59) * ONE_MINUTE;
-		long twelveHours = 12 * 60 * ONE_MINUTE;
+        long oneHour = 60 * ONE_MINUTE;
+    	long elevenHours = 11 * oneHour;
+    	long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
+		long twelveHours = 12 * oneHour;
 		long twentyFourHours = 2 * twelveHours;
     	
     	// time till next time build > build interval
@@ -132,5 +133,21 @@ public class ScheduleTest extends TestCase {
 		assertEquals(twelveHours-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal3.getTime(),elevenHours));
 		// time till next time build is tomorrow
 		assertEquals(twentyFourHours-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal3.getTime(),twentyFourHours*2));
+        // time till end of pause that we're currently in
+        assertEquals(oneHour-ONE_MINUTE, _schedule.getTimeToNextBuild(_cal4.getTime(),fiveSeconds));
 	}
+    
+    public void testFormatTime() {
+        long fiveSeconds = 5 * 1000;
+        long oneHour = 60 * ONE_MINUTE;
+        long oneHourFiftyNineMinutes = 2 * oneHour - ONE_MINUTE;
+        
+        String seconds = "5 seconds";
+        String hoursMinutesSeconds = "1 hours 59 minutes 5 seconds";
+        String negativeTime = "-1 hours -59 minutes -5 seconds";
+        
+        assertEquals(seconds, Schedule.formatTime(fiveSeconds));
+        assertEquals(hoursMinutesSeconds, Schedule.formatTime(oneHourFiftyNineMinutes+fiveSeconds));
+        assertEquals(negativeTime, Schedule.formatTime(-1*(oneHourFiftyNineMinutes+fiveSeconds)));
+    }
 }
