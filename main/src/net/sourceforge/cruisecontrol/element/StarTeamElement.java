@@ -41,7 +41,6 @@ import org.apache.tools.ant.*;
  * @author Christopher Charlier, ThoughtWorks, Inc. 2001
  * @author Jason Yip, jcyip@thoughtworks.com
  */
-//(PENDING) common StarTeam super class
 public class StarTeamElement extends SourceControlElement {
 
     /**
