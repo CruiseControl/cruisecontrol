@@ -52,15 +52,13 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
         super(name);
     }
 
-    public void testPublish() {
-        Element buildLog = new Element("cruisecontrol");
+    public void testValidate() {
         CurrentBuildStatusPublisher cbsp = new CurrentBuildStatusPublisher();
         try {
-            cbsp.publish(buildLog);
-            assertTrue("'file' should be a required attribute on CurrentBuildStatusPublisher", false);
+            cbsp.validate();
+            fail("'file' should be a required attribute on CurrentBuildStatusPublisher");
         } catch (CruiseControlException cce) {
         }
-
     }
 
     public void testWriteFile() {
