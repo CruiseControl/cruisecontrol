@@ -28,6 +28,7 @@ index.jsp:
 JMX:
 ----------------------
 * Add ability to require username/password for JMX interface (CC-128). Patch by Glenn Brown
+* Upgraded to MX4J 3.0.1
 
 Macker:
 ----------------------
