@@ -39,7 +39,7 @@ import org.w3c.dom.*;
 public class MasterBuild extends XmlLogger implements BuildListener {
 
     private static final String BUILDINFO_FILENAME = "buildcycleinfo";
-    private static final String DEFAULT_EMAILMAP = "emailmap.properties";
+    private static final String DEFAULT_MAP = "emailmap.properties";
     private static final String DEFAULT_PROPERTIES_FILENAME = "cruisecontrol.properties";
     
     //label/modificationset/build participants
@@ -84,7 +84,9 @@ public class MasterBuild extends XmlLogger implements BuildListener {
     // static because a new instance is used to do logging
     private static boolean _debug;
     private static boolean _verbose;
-
+    
+    private boolean _mapSourceControlUsersToEmail;
+    
     //build servlet info
     private String _servletURL;
     private static File _currentBuildStatusFile;
@@ -250,6 +252,10 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         _buildInterval = Integer.parseInt(props.getProperty("buildinterval"))*1000;
         _debug = props.getProperty("debug").equals("true");
         _verbose = props.getProperty("verbose").equals("true");
+        
+        _mapSourceControlUsersToEmail = 
+         props.getProperty("mapSourceControlUsersToEmail").equals("true");
+        
         _mailhost = props.getProperty("mailhost");
         _servletURL = props.getProperty("servletURL");
         _returnAddress = props.getProperty("returnAddress");
@@ -615,15 +621,13 @@ public class MasterBuild extends XmlLogger implements BuildListener {
         if (_debug) {
             log("List of emails is: " + list);
         }
-        
 
         //If the build failed then the failure notification emails are included.
         if (!_lastBuildSuccessful) {
             emails.addAll(_notifyOnFailure);
         }
         
-        //we aren't using the email map, so the list provided is real email names.
-        if (!_debug) {
+        if (_mapSourceControlUsersToEmail) {
             emails.addAll(getSetFromString(list));
         }
 
