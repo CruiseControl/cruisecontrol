@@ -13,7 +13,7 @@
       <log dir="logs" />
       <publishers>
          <currentbuildstatuspublisher file="currentbuild.txt" />
-         <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/buildservlet/BuildServlet">
+         <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/cruisecontrol/buildresults">
             <always address="REPLACE" />
             <always address="WITH" />
             <always address="BUILD" />
