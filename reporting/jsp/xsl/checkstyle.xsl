@@ -1,4 +1,5 @@
-<%--********************************************************************************
+<?xml version="1.0"?>
+<!--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,19 +34,35 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************--%>
-<%@page contentType="text/html"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-         <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/checkstyle.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/compile.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/javadoc.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/unittests.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/modifications.xsl"/>
-         <p>
-         <cruisecontrol:xsl xslFile="/xsl/distributables.xsl"/>
+ ********************************************************************************-->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:output method="html"/>
+
+    <xsl:template match="/">
+        <xsl:apply-templates select="cruisecontrol/checkstyle"/>
+    </xsl:template>
+
+    <xsl:template match="checkstyle[file/error]">
+        <xsl:variable name="file.error.count" select="count(file[error])" />
+        <xsl:variable name="total.error.count" select="count(file/error)" />
+        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+          <tr>
+            <td class="checkstyle-sectionheader" colspan="3">
+                Checkstyle errors (<xsl:value-of select="$total.error.count" />)
+            </td>
+          </tr>
+          <xsl:for-each select="file/error" >
+            <tr>
+              <xsl:if test="position() mod 2 = 1">
+                <xsl:attribute name="class">checkstyle-oddrow</xsl:attribute>
+              </xsl:if>
+              <td class="checkstyle-data"><xsl:value-of select="../@name" /></td>
+              <td class="checkstyle-data"><xsl:value-of select="@line" /></td>
+              <td class="checkstyle-data"><xsl:value-of select="@message" /></td>
+            </tr>
+          </xsl:for-each>
+        </table>
+    </xsl:template>
+
+<!--    <xsl:template match="*|@*|text()" />-->
+</xsl:stylesheet>
