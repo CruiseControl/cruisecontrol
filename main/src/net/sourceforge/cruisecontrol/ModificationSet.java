@@ -84,10 +84,10 @@ public class ModificationSet extends Task {
 		try {
 			Date currentDate = new Date();
 			_lastModified = _lastBuild.getTime();
-
-			while (tooMuchRepositoryActivity(currentDate.getTime())) {
-				long sleepTime =
-						_quietPeriod - (currentDate.getTime() - _lastModified);
+            
+            long currentTime = currentDate.getTime();
+			while (tooMuchRepositoryActivity(currentTime)) {
+                long sleepTime = calculateSleepTime(currentTime);
 
 				log("[modificationset] Too much repository activity...sleeping for: "
 						 + (sleepTime / 1000.0) + " seconds.");
@@ -192,9 +192,20 @@ public class ModificationSet extends Task {
 	}
 
 	private boolean tooMuchRepositoryActivity(long currentTime) {
+        if (_lastModified > currentTime) {
+            return true;
+        }
 		return (_lastModified > (currentTime - _quietPeriod));
 	}
 
+    private long calculateSleepTime(long currentTime) {
+        if (_lastModified > currentTime) {
+            return _lastModified - currentTime + _quietPeriod;
+        } else {
+            return _quietPeriod - currentTime - _lastModified;                    
+        }        
+    }    
+    
 	/**
 	 *  Loop over all nested source control elements and get modifications and
 	 *  users that made modifications
