@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class ProjectTest extends TestCase {
     private static final org.apache.log4j.Logger LOG4J =
@@ -166,7 +167,7 @@ public class ProjectTest extends TestCase {
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
-        assertEquals("Should be 7 build properties.", 7, props.size());
+        assertEquals("Build property count.", 8, props.size());
         assertTrue("filemodified not found.", props.containsKey("filemodified"));
         assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
         assertEquals(project.getLastSuccessfulBuild(), props.get("cclastgoodbuildtimestamp"));
@@ -426,6 +427,25 @@ public class ProjectTest extends TestCase {
         );
     }
 
+    public void testGetProjectPropertiesMap() throws CruiseControlException {
+        String label = "LaBeL";
+        project.setLabel(label);
+        String lastBuild = "20000101120000";
+        project.setLastBuild(lastBuild);
+        String lastGoodBuild = "19990101120000";
+        project.setLastSuccessfulBuild(lastGoodBuild);
+        project.setWasLastBuildSuccessful(true);
+        Date now = new Date();
+
+        Map map = project.getProjectPropertiesMap(now);
+
+        assertEquals(label, map.get("label"));
+        assertEquals(Project.getFormatedTime(now), map.get("cctimestamp"));
+        assertEquals(lastGoodBuild, map.get("cclastgoodbuildtimestamp"));
+        assertEquals(lastBuild, map.get("cclastbuildtimestamp"));
+        assertEquals("true", map.get("lastbuildsuccessful"));
+    }
+
     private void writeFile(String fileName, String contents) throws IOException {
 
         File theFile = new File(fileName);
@@ -438,7 +458,7 @@ public class ProjectTest extends TestCase {
     private static String formatTime(Date time) {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(time);
     }
-    
+
     class MockPublisher implements Publisher {
         private int publishCount = 0;
         public void validate() { }

@@ -206,7 +206,7 @@ public class Project implements Serializable, Runnable {
         }
 
         buildCounter++;
-        wasLastBuildSuccessful = buildSuccessful;
+        setWasLastBuildSuccessful(buildSuccessful);
 
         serializeProject();
 
@@ -665,7 +665,10 @@ public class Project implements Serializable, Runnable {
         buildProperties.put("cctimestamp", getFormatedTime(now));
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
-        buildProperties.putAll(modificationSet.getProperties());
+        buildProperties.put("lastbuildsuccessful", String.valueOf(isLastBuildSuccessful()));
+        if (modificationSet != null) {
+            buildProperties.putAll(modificationSet.getProperties());
+        }
         return buildProperties;
     }
 
@@ -723,6 +726,10 @@ public class Project implements Serializable, Runnable {
 
     public boolean isLastBuildSuccessful() {
         return wasLastBuildSuccessful;
+    }
+
+    void setWasLastBuildSuccessful(boolean buildSuccessful) {
+        wasLastBuildSuccessful = buildSuccessful;
     }
 
     public static String getFormatedTime(Date date) {
