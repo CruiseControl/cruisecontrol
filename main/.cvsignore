@@ -4,3 +4,6 @@ test-results
 checkstyle.cache
 checkstyle*.txt
 override.propertiesmyproject.ser
+cruisecontrol.log
+myproject.ser
+notLog.xml
