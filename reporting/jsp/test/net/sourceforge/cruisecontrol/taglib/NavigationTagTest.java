@@ -38,6 +38,9 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import junit.framework.TestCase;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class NavigationTagTest extends TestCase {
 
     public NavigationTagTest(String name) {
@@ -56,9 +59,14 @@ public class NavigationTagTest extends TestCase {
         assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
 
 
-        tag.setDateFormat("dd-MMM-yyyy HH:mm:ss");
+        String formatString = "dd-MMM-yyyy HH:mm:ss";
+        tag.setDateFormat(formatString);
+        SimpleDateFormat sdf = new SimpleDateFormat(formatString);
+        Calendar cal = Calendar.getInstance();
+        cal.set(2002, Calendar.FEBRUARY, 22, 12, 0, 0);  //22-Feb-2002 12:00:00
+        String dateString = sdf.format(cal.getTime());
 
-        assertEquals("22-Feb-2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
-        assertEquals("22-Feb-2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
+        assertEquals(dateString, tag.getLinkText("log20020222120000.xml"));
+        assertEquals(dateString + " (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
     }
 }
