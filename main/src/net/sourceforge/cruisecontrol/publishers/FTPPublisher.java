@@ -123,13 +123,9 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
             setBinary(ftp);
             
             // get the log file
-            String lFile1 = "log" + uniqueDir + ".xml";
-            String lFile2 = "log" + uniqueDir + "L.xml";
-            String lname = destdir + File.separator + lFile1;
-            File lf = new File(srcdir + File.separator + lFile1);
-            if (!lf.exists()) {
-                lf = new File(srcdir + File.separator + lFile2);
-            }
+            String logName = getLogFileName(srcdir, uniqueDir);
+            String lname = destdir + File.separator + logName;
+            File lf = new File(srcdir, logName);
             if (lf.exists()) {
                 makeDirsForFile(ftp, lname, knownDirs);
                 sendFile(ftp, lf, lname);
@@ -181,5 +177,27 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
                 }
             }
         }
+    }
+    
+    
+    /**
+     * Since build failures mark the log file as "log[date].xml", and
+     * successes mark the log file as "log[date]L[label].xml", we
+     * need a good way to track down which log file to use.
+     */
+    private String getLogFileName(String srcdir, String uniqueDir) {
+        File dir = new File(srcdir);
+        String basename = "log" + uniqueDir;
+        if (dir.exists() && dir.isDirectory()) {
+            String[] list = dir.list();
+            for (int i = 0; i < list.length; ++i) {
+                if (list[i].startsWith(basename) && list[i].endsWith(".xml")) {
+                    return list[i];
+                }
+            }
+        }
+        // no logfile with the uniquedir was found, so consider the
+        // build as failed.
+        return basename + ".xml";
     }
 }
