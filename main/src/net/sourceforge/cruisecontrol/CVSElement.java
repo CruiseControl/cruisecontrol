@@ -233,7 +233,7 @@ public class CVSElement extends SourceControlElement {
      * @return CommandLine for "cvs -d CVSROOT log -N -d "lastbuildtime<currtime" "
      */
     public Commandline buildHistoryCommand(Date lastBuildTime, Date currentTime) {
-        //(PENDING) OS check, if Linux setExecutable to be shell script
+        //(PENDING) OS check, if Linux setExecutable to be shell 
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cvs");
     
@@ -247,7 +247,7 @@ public class CVSElement extends SourceControlElement {
         commandLine.createArgument().setValue("-d");
         String dateRange = 
          formatCVSDate(lastBuildTime) + "<" + formatCVSDate(currentTime);
-        commandLine.createArgument().setValue(dateRange);
+        commandLine.createArgument().setValue(Commandline.quoteArgument(dateRange));
 
         if (local != null) {
             commandLine.createArgument().setValue(getLocalPath());
