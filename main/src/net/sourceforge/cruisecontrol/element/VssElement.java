@@ -55,19 +55,27 @@ import org.apache.tools.ant.Task;
  */
 public class VssElement extends SourceControlElement {
 
-    private final String VSS_TEMP_FILE = "vsstempfile.txt";
-    public static final SimpleDateFormat VSS_OUT_FORMAT =
-         new SimpleDateFormat("'Date: 'MM/dd/yy   'Time: 'hh:mma");
-
+    private final String VSS_TEMP_FILE = "vsstempfile.txt";    
+    protected SimpleDateFormat vssDateTimeFormat;
+    
 	private String ssdir;
 	private String login;
 	private String property;
 	private String propertyOnDelete;
-	private long lastModified;
-
+    private String dateFormat;
+	private long lastModified;    
+    
 	private ArrayList modifications = new ArrayList();
 	private Set emails = new HashSet();
 
+    /** 
+     * Sets default values.
+     */
+    public VssElement() {
+        dateFormat = "MM/dd/yy";
+        constructVssDateTimeFormat();
+    }
+    
 	/**
 	 *  Set the project to get history from
 	 *
@@ -85,7 +93,7 @@ public class VssElement extends SourceControlElement {
 	public void setLogin(String login) {
 		this.login = login;
 	}
-
+    
 	/**
 	 *  Choose a property to be set if the project has modifications if we have a
 	 *  change that only requires repackaging, i.e. jsp, we don't need to recompile
@@ -106,6 +114,20 @@ public class VssElement extends SourceControlElement {
 		propertyOnDelete = property;
      }
 
+     /**
+      * Sets the date format to use for querying VSS and processing reports.
+      *
+      * The default date format is <code>MM/dd/yy</code> .  If your computer
+      * is set to a different region, you may wish to use a format such
+      * as <code>dd/MM/yy</code> .
+      *
+      * @see java.text.SimpleDateFormat
+      */
+     public void setDateFormat(String format) {
+        dateFormat = format;
+        constructVssDateTimeFormat();
+     }
+     
 	/**
 	 *  For parent modificationset to find out the time of last modification for
 	 *  this project
@@ -192,14 +214,16 @@ public class VssElement extends SourceControlElement {
 	}
 
 	/**
-	 *  format a date for vss in 12/21/2000;8:14A format (vss doesn't like the m in
-	 *  am or pm)
+	 *  Format a date for vss in the format specified by the dateFormat.
+     *  By default, this is in the form <code>12/21/2000;8:14A</code> (vss doesn't 
+     *  like the m in am or pm).  This format can be changed with <code>setDateFormat()</code>
 	 *
-	 *@param  d
-	 *@return
+	 *  @param d Date to format.
+	 *  @return String of date in format that VSS requires.
+     *  @see #setDateFormat
 	 */
 	private String formatDateForVSS(Date d) {
-		SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy;hh:mma");
+        SimpleDateFormat sdf = new SimpleDateFormat(this.dateFormat + ";hh:mma");
 		String vssFormattedDate = sdf.format(d);
 		return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
 	}
@@ -297,18 +321,19 @@ public class VssElement extends SourceControlElement {
 	/**
 	 * Parse date/time from VSS file history
      *
-     * The nameAndDateLine will look like 
-     *  User: Etucker      Date:  6/26/01   Time: 11:53a
-     * Sometimes also this
-     *  User: Aaggarwa     Date:  6/29/:1   Time:  3:40p
+     * The nameAndDateLine will look like <br>
+     * <code>User: Etucker      Date:  6/26/01   Time: 11:53a</code><br>
+     * Sometimes also this<br>
+     * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
      * Note the ":" instead of a "0"
      *
-	 *@param  dateLine
-	 *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma"
+	 *@param  nameAndDateLine
+	 *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma", or a different form based on dateFormat
+     *@see #setDateFormat
 	 */
     public Date parseDate(String nameAndDateLine) {
         String dateAndTime = 
-         nameAndDateLine.substring(nameAndDateLine.indexOf("Date:"));
+         nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
 
         int indexOfColon = dateAndTime.indexOf("/:");
         if(indexOfColon != -1) {
@@ -318,7 +343,7 @@ public class VssElement extends SourceControlElement {
         }
         
         try {
-            Date lastModifiedDate = VSS_OUT_FORMAT.parse(
+            Date lastModifiedDate = this.vssDateTimeFormat.parse(
              dateAndTime.trim() + "m");
             
             //(PENDING) This seems out of place
@@ -348,4 +373,11 @@ public class VssElement extends SourceControlElement {
 		return userName;
 	}
 
+    /**
+     * Constructs the vssDateTimeFormat based on the dateFormat for this element.
+     * @see #setDateFormat
+     */
+    private void constructVssDateTimeFormat() {
+        vssDateTimeFormat = new SimpleDateFormat("'Date: '" + this.dateFormat + "   'Time: 'hh:mma");        
+    }
 }
