@@ -40,6 +40,7 @@
   <xsl:import href="maven.xsl"/>
   <xsl:import href="nant.xsl"/>
   <xsl:import href="checkstyle.xsl"/>
+  <xsl:import href="macker.xsl"/>
   <xsl:import href="errors.xsl"/>
   <xsl:import href="compile.xsl"/>
   <xsl:import href="javadoc.xsl"/>
@@ -55,6 +56,7 @@
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="maven"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="nant"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="checkstyle"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="macker"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="errors"/></p>
     <!--
       for traditional cc display of only compile errors and warnings

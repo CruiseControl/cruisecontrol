@@ -49,3 +49,8 @@
 .checkstyle-oddrow { background-color:#CCCCCC }
 .checkstyle-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .checkstyle-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
+
+.macker-oddrow { background-color:#CCCCCC }
+.macker-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
+.macker-data-error { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FF0000; }
+.macker-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }

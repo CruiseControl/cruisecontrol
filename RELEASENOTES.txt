@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+Macker:
+----------------------
+* Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
+
 P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.
