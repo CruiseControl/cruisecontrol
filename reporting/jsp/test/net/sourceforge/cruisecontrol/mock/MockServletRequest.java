@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -52,6 +54,18 @@ import javax.servlet.http.HttpSession;
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class MockServletRequest implements HttpServletRequest {
+    private String contextPath = "";
+    private String servletPath;
+    private Map params = new HashMap();
+
+    public MockServletRequest() {
+    }
+
+    public MockServletRequest(String contextPath, String servletPath) {
+        this.contextPath = contextPath;
+        this.servletPath = servletPath;
+    }
+
     public Object getAttribute(String s) {
         return null;
     }
@@ -76,8 +90,8 @@ public class MockServletRequest implements HttpServletRequest {
         return null;
     }
 
-    public String getParameter(String s) {
-        return null;
+    public String getParameter(String paramName) {
+        return (String) params.get(paramName);
     }
 
     public Enumeration getParameterNames() {
@@ -183,7 +197,7 @@ public class MockServletRequest implements HttpServletRequest {
     }
 
     public String getContextPath() {
-        return null;
+        return (contextPath.length() == 0 ? "" : "/" + contextPath);
     }
 
     public String getQueryString() {
@@ -211,7 +225,7 @@ public class MockServletRequest implements HttpServletRequest {
     }
 
     public String getServletPath() {
-        return null;
+        return "/" + servletPath;
     }
 
     public HttpSession getSession(boolean b) {
@@ -236,5 +250,9 @@ public class MockServletRequest implements HttpServletRequest {
 
     public boolean isRequestedSessionIdFromUrl() {
         return false;
+    }
+
+    public void addParameter(String paramName, String paramValue) {
+        params.put(paramName, paramValue);
     }
 }
