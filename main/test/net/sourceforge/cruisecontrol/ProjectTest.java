@@ -151,6 +151,7 @@ public class ProjectTest extends TestCase {
         });
 
         project.build();
+        filesToClear.add(project.getLog().getLastLogFile());
 
         assertTrue(project.isLastBuildSuccessful());
 
