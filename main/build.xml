@@ -49,6 +49,7 @@
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="test" value="test"/>
+    <property name="test.classes" value="test-classes" />
     <property name="tests" value="*Test"/>
     <property name="xsl" value="xsl"/>
 
@@ -80,6 +81,7 @@
     <path id="project.runtime.classpath" >
         <path refid="project.classpath" />
         <pathelement location="${classes}" />
+        <pathelement location="${test.classes}" />
         <pathelement path="${java.class.path}"/>
         <path refid="clover.classpath"/>
     </path>
@@ -89,6 +91,7 @@
     <!-- **************************************************** -->
     <target name="init" description="Setup build system">
         <mkdir dir="${classes}"/>
+        <mkdir dir="${test.classes}"/>
         <mkdir dir="${dist}"/>
         <mkdir dir="${junit.results}"/>
         <mkdir dir="${clover.results}"/>
@@ -106,6 +109,7 @@
             <fileset dir="dist" includes="*.jar, *.war, *.zip"/>
        </delete>
        <delete dir="${classes}" quiet="yes"/>
+       <delete dir="${test.classes}" quiet="yes"/>
        <delete dir="${apidocs}" quiet="yes"/>
        <delete dir="${junit.results}" quiet="yes"/>
        <delete dir="${clover.results}" quiet="yes"/>
@@ -174,10 +178,10 @@
         description="Compile test code">
 
         <javac debug="on" deprecation="true" srcdir="${test}" 
-            destdir="${classes}" excludes="**/element/,**/*StarTeam*,**/*Sametime*"
-            classpathref="project.classpath" />
+            destdir="${test.classes}" excludes="**/element/,**/*StarTeam*,**/*Sametime*"
+            classpathref="project.runtime.classpath" />
 
-        <copy todir="${classes}">
+        <copy todir="${test.classes}">
             <fileset dir="${test}" includes="**/*.xml"/>
         </copy>
     </target>
@@ -242,13 +246,13 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${classes}" includes="**/${tests}.class" excludes="**/element/" />
+                <fileset dir="${test.classes}" includes="**/${tests}.class" excludes="**/element/" />
             </batchtest>
         </junit>
     </target>
 
     <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present">
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}" classpathref="project.classpath">
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" classpathref="project.classpath">
             <classpath refid="project.classpath"/>
             <src path="${test}"/>
             <include name="**/StarTeam*"/>
@@ -260,14 +264,14 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${classes}" includes="**/StarTeam*Test.class" />
+                <fileset dir="${test.classes}" includes="**/StarTeam*Test.class" />
             </batchtest>
         </junit>
 
     </target>
 
     <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present">
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${classes}"
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}"
                 classpathref="project.classpath">
             <classpath refid="project.classpath"/>
             <src path="${test}"/>
@@ -280,7 +284,7 @@
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}" >
-                <fileset dir="${classes}" includes="**/Sametime*Test.class" />
+                <fileset dir="${test.classes}" includes="**/Sametime*Test.class" />
             </batchtest>
         </junit>
 
