@@ -171,7 +171,7 @@
             <td colspan="2" class="unittests-error">
                 <PRE>
                     <xsl:call-template name="br-replace">
-                        <xsl:value-of name="word" select="error" />
+                        <xsl:with-param name="word" select="error" />
                     </xsl:call-template>
                 </PRE>
             </td>
