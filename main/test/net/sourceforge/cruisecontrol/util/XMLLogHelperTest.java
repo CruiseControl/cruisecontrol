@@ -27,8 +27,17 @@ public class XMLLogHelperTest extends TestCase {
         Element userElement2 = new Element("user");
         userElement2.addContent(username2);
         modificationElement2.addContent(userElement2);
+        Element modificationElement3 = new Element("modification");
+        Element userElement3 = new Element("user");
+        userElement3.addContent("user3");
+        Element emailElement = new Element("email");
+        emailElement.addContent("user3@host.com");
+        modificationElement3.addContent(userElement3);
+        modificationElement3.addContent(emailElement);
+
         modificationsElement.addContent(modificationElement1);
         modificationsElement.addContent(modificationElement2);
+        modificationsElement.addContent(modificationElement3);
 
         return modificationsElement;
     }
@@ -178,5 +187,6 @@ public class XMLLogHelperTest extends TestCase {
         assertEquals(true, successHelperParticipants.contains("username1"));
         assertEquals(true, successHelperParticipants.contains("username2"));
         assertEquals(false, successHelperParticipants.contains("notaperson"));
+        assertEquals(true, successHelperParticipants.contains("user3@host.com"));
     }
 }
