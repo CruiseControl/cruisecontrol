@@ -98,16 +98,16 @@
         <delete file="${dist}\${release.zip}"/>
         <zip zipfile="${dist}\${release.zip}">
             <fileset dir="${dist}" includes="*.jar, *.war"/>
-            <fileset dir="." includes="*.txt"/>
+            <fileset dir="." 
+             includes="${docs}/**, ${lib}/**, *.txt, cruiseControl.bat, cruiseControl.sh"/>
+            <fileset dir="${src}" includes="*.properties" />
         </zip>
     </target>
     
     <target name="jar" depends="compile">
         <jar jarfile="${dist}\cruisecontrol.jar">
             <fileset dir="${classes}"/>
-            <fileset dir="." 
-             includes="${docs}/**, ${src}/**, ${lib}/**, cruiseControl.bat, cruiseControl.sh" 
-             excludes="${src}/**/*.properties"/>
+            <fileset dir="." includes="${src}/**" excludes="${src}/**/*.properties"/>
         </jar>
     </target>
     
