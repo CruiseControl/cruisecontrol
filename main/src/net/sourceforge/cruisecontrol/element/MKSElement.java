@@ -49,7 +49,6 @@ import org.apache.tools.ant.Task;
  * is developed from the CVSElement code base from ThoughtWorks Inc.
  *
  * @author Suresh K Bathala Skila, Inc.
- * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
 public class MKSElement extends SourceControlElement {
 
