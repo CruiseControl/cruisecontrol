@@ -1,5 +1,7 @@
 CruiseControl Release Notes - Latest CVS
 
+CruiseControl Release Notes - 2.1.4
+
 AntBuilder
 ----------------------
 * Added loggerClassName attribute to allow alternative ant listener/logger - Patch by Patrick Lisser
