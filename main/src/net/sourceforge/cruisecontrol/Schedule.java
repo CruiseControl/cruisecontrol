@@ -251,17 +251,18 @@ public class Schedule {
             boolean isTimeBuilder = thisBuildTime != Builder.NOT_SET;
             if (isTimeBuilder) {
                 long timeToThisBuild = Long.MAX_VALUE;
-                boolean isBeforeBuild = nowTime <= thisBuildTime;
-                boolean isValidDay = builder.isValidDay(now);
-                if (isBeforeBuild && isValidDay) {
-                    timeToThisBuild = Util.milliTimeDiffernce(nowTime, thisBuildTime);
-                } else {
-                    Date tomorrow = new Date(now.getTime() + ONE_DAY);
-                    boolean tomorrowIsValid = builder.isValidDay(tomorrow);
-                    if (tomorrowIsValid) {
-                        long remainingTimeToday = ONE_DAY - Util.convertToMillis(nowTime);
-                        long timeTomorrow = Util.convertToMillis(thisBuildTime);
-                        timeToThisBuild = remainingTimeToday + timeTomorrow;
+                long maxDays = MAX_INTERVAL_MILLISECONDS;
+                for (long daysInTheFuture = 0; daysInTheFuture < maxDays; daysInTheFuture += ONE_DAY) {
+                    Date day = new Date(now.getTime() + daysInTheFuture);
+                    boolean dayIsValid = builder.isValidDay(day);
+                    if (dayIsValid) {
+                        long timeDifference = Util.milliTimeDiffernce(nowTime, thisBuildTime);
+                        long daysInBetween = daysInTheFuture;
+                        boolean timePassedToday = timeDifference + daysInBetween < 0;
+                        if (!timePassedToday) {
+                            timeToThisBuild = timeDifference + daysInBetween;
+                            break;
+                        }
                     }
                 }
                 if (timeToThisBuild < timeToNextBuild) {
