@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol;
 import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Category;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,9 @@ import java.util.Date;
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
 public class Modification implements Comparable {
+
+    /** enable logging for this class */
+    private static Category log = Category.getInstance(Modification.class.getName());
 
     public String type = "unknown";
     public String fileName;
@@ -88,14 +92,13 @@ public class Modification implements Comparable {
         return outputter.outputString(toElement(formatter));
     }
 
-    public String toString(DateFormat formatter) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("FileName: " + fileName + "\n");
-        sb.append("FolderName: " + folderName + "\n");
-        sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
-        sb.append("UserName: " + userName + "\n");
-        sb.append("Comment: " + comment + "\n\n");
-        return sb.toString();
+    public void log(DateFormat formatter) {
+        log.info("FileName: " + fileName);
+        log.info("FolderName: " + folderName);
+        log.info("Last Modified: " + formatter.format(modifiedTime));
+        log.info("UserName: " + userName);
+        log.info("Comment: " + comment);
+        log.info("");
     }
 
     public int compareTo(Object o) {
