@@ -25,6 +25,11 @@ NavigationTag
 * Fixed bug to allow "L" in build label - Patch by Christopher Lenz
 * Added "startingBuildNumber" and "finalBuildNumber" attributes, to allow for ranges of builds to be output; useful for, say, creating a drop-down list after the first 10 links.
 
+XSLTag
+----------------------
+* Fixed a bug where using an unexpanded WAR file caused a NullPointerException.
+* Added "xslRootContext" property, so that nested stylesheets know where the default directory is.
+
 
 CruiseControl Release Notes - 2.0.2
 
