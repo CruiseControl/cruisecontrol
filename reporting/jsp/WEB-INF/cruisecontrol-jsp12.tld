@@ -135,7 +135,7 @@
         <description>Builds up a link URL</description>
         <attribute>
             <name>id</name>
-            <required>required</required>
+            <required>true</required>
         </attribute>
         <attribute>
             <name>exclude</name>

@@ -8,6 +8,10 @@ BuildQueue
 ----------------------
 * Add support for multiple build threads (ThreadQueue). Patch by Jared Richardson
 
+cruisecontrol-jsp12.tld
+----------------------
+* Fix id attribute typo for LinkTag. Patch by Gareth Reakes
+
 MavenBuilder
 ----------------------
 * Fix for CC-40 where download failures were treated as success. Patch by Tim Shadel
