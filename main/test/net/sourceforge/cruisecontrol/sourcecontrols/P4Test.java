@@ -55,6 +55,15 @@ import net.sourceforge.cruisecontrol.util.Commandline;
  *@author  Jason Yip, jcyip@thoughtworks.com
  */
 public class P4Test extends TestCase {
+  
+    public void testGetQuoteChar() {
+        boolean windows = true;
+        String quoteChar = P4.getQuoteChar(windows);
+        assertEquals("\"", quoteChar);
+        
+        quoteChar = P4.getQuoteChar(!windows);
+        assertEquals("'", quoteChar);
+    }
 
     public void testValidate() {
         P4 p4 = new P4();
@@ -83,7 +92,7 @@ public class P4Test extends TestCase {
 
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Date date = dateFormat.parse("12/30/2004");
-        Commandline cmdLine = p4.buildChangesCommand(date, date);
+        Commandline cmdLine = p4.buildChangesCommand(date, date, true);
         
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
@@ -93,6 +102,24 @@ public class P4Test extends TestCase {
         }
       
         assertEquals("p4 -s changes -s submitted \"foo@2004/12/30:00:00:00,@2004/12/30:00:00:00\"", cmd.toString());
+    }
+    
+    public void testBuildChangesCommand_Unix() throws ParseException {
+        P4 p4 = new P4();
+        p4.setView("foo");
+
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Date date = dateFormat.parse("12/30/2004");
+        Commandline cmdLine = p4.buildChangesCommand(date, date, false);
+      
+        String[] args = cmdLine.getCommandline();
+        StringBuffer cmd = new StringBuffer();
+        cmd.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            cmd.append(" " + args[i]);
+        }
+    
+        assertEquals("p4 -s changes -s submitted 'foo@2004/12/30:00:00:00,@2004/12/30:00:00:00'", cmd.toString());
     }
 
     private InputStream loadTestLog(String name) {

@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+P4:
+----------------------
+* Use double quote only on Windows, single quote otherwise.
+
 CruiseControl Release Notes - 2.2.1
 
 AlwaysBuild:

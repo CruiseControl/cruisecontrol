@@ -41,6 +41,8 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
+
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -182,7 +184,7 @@ public class P4 implements SourceControl {
     private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now)
         throws IOException, InterruptedException {
 
-        Commandline command = buildChangesCommand(lastBuild, now);
+        Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
         LOG.debug("Executing: " + command.toString());
         Process p = Runtime.getRuntime().exec(command.getCommandline());
 
@@ -325,19 +327,20 @@ public class P4 implements SourceControl {
     /**
      * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      */
-    public Commandline buildChangesCommand(Date lastBuildTime, Date now) {
+    public Commandline buildChangesCommand(Date lastBuildTime, Date now, boolean isWindows) {
+        String quoteChar = getQuoteChar(isWindows);
         Commandline commandLine = buildBaseP4Command();
 
         commandLine.createArgument().setValue("changes");
         commandLine.createArgument().setValue("-s");
         commandLine.createArgument().setValue("submitted");
-        commandLine.createArgument().setValue("\""
+        commandLine.createArgument().setValue(quoteChar
             + p4View
             + "@"
             + P4_REVISION_DATE.format(lastBuildTime)
             + ",@"
             + P4_REVISION_DATE.format(now)
-            + "\"");
+            + quoteChar);
 
         return commandLine;
     }
@@ -443,5 +446,9 @@ public class P4 implements SourceControl {
 
             return element;
         }
+    }
+
+    static String getQuoteChar(boolean isWindows) {
+        return isWindows ? "\"" : "'";
     }
 }
