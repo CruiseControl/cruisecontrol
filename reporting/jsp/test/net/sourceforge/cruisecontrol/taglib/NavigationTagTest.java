@@ -57,7 +57,7 @@ public class NavigationTagTest extends TestCase {
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000.xml"));
         assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200.xml"));
         assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11.xml"));
-
+        assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0.xml"));        
 
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
