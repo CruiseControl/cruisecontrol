@@ -1,8 +1,5 @@
 /********************************************************************************
- * CruiseControl, a Continuous Integration Toolkit                              *
- * Copyright (C) 2001  ThoughtWorks, Inc.                                       *
- * 651 W Washington Ave. Suite 500                                              *
- * Chicago, IL 60661 USA                                                        *
+ * COPYRIGHT isMobile.com AB 2000                                                  *
  *                                                                              *
  * This program is free software; you can redistribute it and/or                *
  * modify it under the terms of the GNU General Public License                  *
@@ -72,6 +69,9 @@ public class P4Element extends SourceControlElement {
         return "[p4element]";
     }
     
+    /**
+     * @throws BuildException
+     */
     protected void execP4Command(String command) throws BuildException {
         execP4Command(command, null);
     }
@@ -81,7 +81,7 @@ public class P4Element extends SourceControlElement {
      *
      * @param  command             The command to run
      * @param  handler             A P4Handler to process any input and output
-     * @exception  BuildException  Description of Exception
+     * @throws  BuildException  Description of Exception
      */
     protected void execP4Command(String command, P4Handler handler) throws BuildException {
         
