@@ -42,12 +42,35 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 /**
  *  Wrapper for the cruisecontrol build log.  This class serves two purposes:<br>
  *  <ul>
  *      <li>Provide a convenient way to get relevant information about the build</li>
  *      <li>Abstract the build information so that the XML for the build log can change easily</li>
  *  </ul>
+ *  <p>
+ *  The CruiseControl log is expected to be in the following format: <p>
+ *
+ *  <pre>
+ *      <cruisecontrol>
+ *          <info>
+ *              <property name="label" value=""/>
+ *              <property name="lastbuildtime" value=""/>
+ *              <property name="lastgoodbuildtime" value=""/>
+ *              <property name="lastbuildsuccessful" value=""/>
+ *              <property name="buildfile" value=""/>
+ *              <property name="buildtarget" value=""/>
+ *          </info>
+ *          <build error="">
+ *              <properties>
+ *              </properties>
+ *          </build>
+ *          <modifications>
+ *          </modifications>
+ *      </cruisecontrol>
+ *  </pre>
  */
 public class XMLLogHelper {
 
@@ -58,47 +81,39 @@ public class XMLLogHelper {
     }
 
     /**
+     *  @return true if a <code>ModificationSet</code> was invoked in the build
+     */
+    public boolean wasModificationSetInvoked() throws CruiseControlException {
+        return getAntProperty("modificationset.invoked") == null;
+    }
+
+    /**
      *  @return the build log name
      */
-    public String getLogFileName() {
-        return _log.getChild("cruisecontrol").getChild("logfile").getAttributeValue("value");
+    public String getLogFileName() throws CruiseControlException {
+        return getCruiseControlInfoProperty("logfile");
     }
 
     /**
      *  @return the label for this build
      */
-    public String getLabel() {
-        return _log.getChild("cruisecontrol").getChild("label").getAttributeValue("value");
+    public String getLabel() throws CruiseControlException {
+        return getCruiseControlInfoProperty("label");
     }
 
     /**
      *  @return true if the previous build was successful, false if it was not
      */
-    public boolean wasPreviousBuildSuccessful() {
-        return _log.getChild("cruisecontrol").getChild("lastbuildsuccessful").getAttributeValue("value").equals("true");
-    }
-
-    /**
-     *  @param propertyName the name of the ant property
-     *  @return the value of the ant property
-     */
-    protected String getAntProperty(String propertyName) {
-        Iterator propertyIterator = _log.getChild("properties").getChildren("property").iterator();
-        while(propertyIterator.hasNext()) {
-            Element property = (Element) propertyIterator.next();
-            if(property.getAttributeValue("name").equals(propertyName)) {
-                return property.getAttributeValue("value");
-            }
-        }
-        return null;
+    public boolean wasPreviousBuildSuccessful() throws CruiseControlException {
+        return getCruiseControlInfoProperty("lastbuildsuccessful").equals("true");
     }
 
     /**
      *  @return true if the build was necessary
      */
     public boolean isBuildNecessary() {
-        if(_log.getAttribute("error") != null) {
-            return !_log.getAttributeValue("error").equalsIgnoreCase("Build Not Necessary");
+        if(_log.getChild("build") != null && _log.getChild("build").getAttributeValue("error") != null) {
+            return !_log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
         }
         return true;
     }
@@ -106,7 +121,7 @@ public class XMLLogHelper {
     /**
      *  @return project name as defined in the ant build file
      */
-    public String getProjectName() {
+    public String getProjectName() throws CruiseControlException {
         return getAntProperty("ant.project.name");
     }
 
@@ -114,7 +129,7 @@ public class XMLLogHelper {
      *  @return true if the build was successful, false otherwise
      */
     public boolean isBuildSuccessful() {
-        if (_log.getAttribute("error") != null) {
+        if (_log.getChild("build").getAttribute("error") != null) {
             return false;
         } else {
             return true;
@@ -122,7 +137,7 @@ public class XMLLogHelper {
     }
 
     /**
-     *  <code>Set</code> of usernames that have modified code since the last build
+     *  @return <code>Set</code> of usernames that have modified code since the last build
      */
     public Set getBuildParticipants() {
         Set results = new HashSet();
@@ -132,5 +147,31 @@ public class XMLLogHelper {
             results.add(modification.getChild("user").getText());
         }
         return results;
+    }
+
+    /**
+     *  @param propertyName the name of the ant property
+     *  @return the value of the ant property
+     */
+    public String getAntProperty(String propertyName) throws CruiseControlException {
+        Iterator propertyIterator = _log.getChild("build").getChild("properties").getChildren("property").iterator();
+        while(propertyIterator.hasNext()) {
+            Element property = (Element) propertyIterator.next();
+            if(property.getAttributeValue("name").equals(propertyName)) {
+                return property.getAttributeValue("value");
+            }
+        }
+        throw new CruiseControlException("Property: " + propertyName + " not found.");
+    }
+
+    public String getCruiseControlInfoProperty(String propertyName) throws CruiseControlException {
+        Iterator propertyIterator = _log.getChild("info").getChildren("property").iterator();
+        while(propertyIterator.hasNext()) {
+            Element property = (Element) propertyIterator.next();
+            if(property.getAttributeValue("name").equals(propertyName)) {
+                return property.getAttributeValue("value");
+            }
+        }
+        throw new CruiseControlException("Property: " + propertyName + " not found.");
     }
 }
