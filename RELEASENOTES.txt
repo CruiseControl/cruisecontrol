@@ -39,6 +39,10 @@ Project
 ----------------------
 * Reset ProjectState to IDLE in case of an exception while building. Patch by Will Gwaltney
 
+website / documentation
+----------------------
+* Rework navigation for feedback, completeness and consistency. Convert navigation from images to text. Convert to semantic markup. Address inconsistency of configxml.html. Patch by Joe Schmetzer
+
 CruiseControl Release Notes - 2.1.6
 
 AlwaysBuild

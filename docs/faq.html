@@ -1,212 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
    <title>CruiseControl Frequently Asked Questions</title>
-   <style type="text/css">
-      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
-      .header { font-size:12pt; font-weight:bold; }
-      pre { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
-   </style>
+   <link href="cruisecontrol.css" type="text/css" rel="stylesheet"/>
 </head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+    </div>
+    <img alt="CruiseControl" src="banner.gif"/>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><a href="index.html">home</a></li>
+            <li><a href="download.html">download</a></li>
+            <li><h2>documentation</h2>
+                <ul>
+                    <li><a href="../main/docs/index.html">build loop</a></li>
+                    <li><a href="../reporting/jsp/docs/index.html">results jsp</a></li>
+                    <li><a href="../main/docs/configxml.html">config</a></li>
+                    <li><p id="menuselected">faq</p></li>
+                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                </ul>
+            </li>
+            <li><h2>contributing</h2>
+                <ul>
+                    <li><a href="developers.html">developers</a></li>
+                    <li><a href="contact.html">mailing lists</a></li>
+                    <li><a href="cvs.html">cvs repository</a></li>
+                </ul>
+            </li>
+            <li><p id="menubottom">&nbsp;</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Frequently Asked Questions</h1>
 
+        <h2>CruiseControl 2.0 FAQ</h2>
+        <ul>
+            <li><a href="#whyupgrade">Why should I upgrade to CruiseControl 2.0?</a></li>
+            <li><a href="#nojunit">Why don't my jUnit results show up on the web page?</a></li>
+            <li><a href="#toomuchrepository">What does "Too much repository activity" mean?</a></li>
+            <li><a href="#nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></li>
+            <li><a href="#nullnav">Why does my jsp page show "null" instead of build names and dates?</a></li>
+        </ul>
 
-<body class="body" leftmargin="0" topmargin="0">
+        <h2>CruiseControl 1.x FAQ</h2>
+        <ul>
+            <li><a class="small" href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></li>
+            <li><a class="small" href="#cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></li>
+            <li><a class="small" href="#servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></li>
+            <li><a class="small" href="#noCompileErrors">Why don't javac compilation errors show up on the web page?</a></li>
+        </ul>
 
-<table width="100%" cellpadding="0" cellspacing="0">
-   <tr>
-      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
-      <td bgcolor="#000033"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   <tr>
-</table>
+        <h2>General Project FAQ</h2>
+        <ul>
+            <li><a class="small" href="#cantSearch">How can I search the mailing lists?</a></li>
+            <li><a class="small" href="#howtohelp">How do I submit bugs/patches/features?</a></li>
+            <li><a class="small" href="#moreinformation">Where can I go for more information?</a></li>
+        </ul>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-   <tr>
-      <td valign="top" width="80">
-         <img src="menutop.gif" border="0"><br>
-         <a href="index.html"><img src="menuhome.gif" border="0"></a><br>
-         <a href="download.html"><img src="menudownload.gif" border="0"></a><br>
-         <a href="contact.html"><img src="menucontact.gif" border="0"></a><br>
-         <a href="developers.html"><img src="menudevelopers.gif" border="0"></a><br>
-         <a href="faq.html"><img src="menufaq.gif" border="0"></a><br>
-         <img src="menublank.gif" border="0"><br>
-         <a href="main/docs/index.html"><img src="menubuildloop.gif" border="0"></a><br>
-         <a href="reporting/jsp/docs/index.html"><img src="menujsp.gif" border="0"></a><br>
-         <img src="menubottom.gif" border="0">
-      </td>
-      <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%"><tr><td>
-         <!-- content begins here -->
+        <h2>Answers</h2>
 
-<p>&nbsp;<p>
-<span class="">CruiseControl 2.0 FAQ</span>
-<ul>
-    <li><a class="small" href="#whyupgrade">Why should I upgrade to CruiseControl 2.0?</a></li>
-    <li><a class="small" href="#nojunit">Why don't my jUnit results show up on the web page?</a></li>
-    <li><a class="small" href="#toomuchrepository">What does "Too much repository activity" mean?</a></li>
-    <li><a class="small" href="#nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></li>
-    <li><a class="small" href="#nullnav">Why does my jsp page show "null" instead of build names and dates?</a></li>
-</ul>
+        <h3><a name="whyupgrade">Why should I upgrade to CruiseControl 2.0?</a></h3>
+            <p>
+        CruiseControl has been pretty much rewritten from the 1.2.x line to the 2.0 line.  A more pluggable
+        architecture has been implemented.  There's better test coverage.  XML configuration is more
+        flexible.  See the <a href="../main/docs/index.html">build loop page</a> for more details.
+            </p>
 
-<p>
-<span class="">CruiseControl 1.x FAQ</span>
-<ul>
-	<li><a class="small" href="#JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></li>
-	<li><a class="small" href="#cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></li>
-	<li><a class="small" href="#servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></li>
-    <li><a class="small" href="#noCompileErrors">Why don't javac compilation errors show up on the web page?</a></li>
-</ul>
+        <h3><a name="nojunit">Why don't my jUnit results show up on the web page?</a></h3>
+            <p>
+        Perhaps the JUnit results are not being captured correctly.
+        Ensure that your &lt;junit&gt; ant task contains the proper formatting directive to
+        instruct JUnit to output the results in XML format: &lt;formatter type="xml"/&gt;.
+        If you are directing JUnit to send output to a subdirectory, make sure to tell
+        CC about it - use the &lt;merge&gt; element in the &lt;log&gt; section of your config.xml.
+            </p>
 
-<p>
-<span class="">General Project FAQ</span>
-<ul>
-    <li><a class="small" href="#cantSearch">How can I search the mailing lists?</a></li>
-    <li><a class="small" href="#howtohelp">How do I submit bugs/patches/features?</a></li>
-    <li><a class="small" href="#moreinformation">Where can I go for more information?</a></li>
-</ul>
-<p></p>
+        <h3><a name="toomuchrepository">What does "Too much repository activity" mean?</a></h3>
+            <p>
+        This means there is currently code being committed to the repository, and CC
+        is afraid of doing a build that may potentially contain partial check-ins. CC
+        will not kick off a build until it is sure that a developer is done committing
+        code. CC uses the "quietperiod" setting to determine the amount of time it
+        should wait after the last commit before doing a build. If you get this
+        message in your CC log and not many builds are run, you may want to lower your
+        "quietperiod" setting to a smaller time value.
+            </p>
+            <p>
+        The amount of time that CruiseControl waits is based on the (quietperiod&nbsp;-&nbsp;(now&nbsp;-&nbsp;checkin&nbsp;time)).  If we are only 5
+        seconds away from the end of the quiet period, we'll just wait that long rather than waiting for the full quiet
+        period.  Some issues may arise if the clocks are not synchronized between the CruiseControl machine and the CVS
+        machine -- you might get large/odd sleep times if the CVS machine is ahead of the CruiseControl machine.
+            </p>
 
+        <h3><a name="nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></h3>
+            <p>
+        Your xml log file encoding is incorrect.
+        CC puts the JVM system encoding at the top of every xml log file that it
+        generates, and the xsl tranformer on your system is not happy transforming
+        that specific encoding. Use the "encoding" parameter of the "log" entry in the
+        config.xml to override the xml encoding name. Try "UTF-8" or "ISO-8859-1".
+            </p>
 
-<span class="small"><a name="whyupgrade">Why should I upgrade to CruiseControl 2.0?</a></span>
-    <p>
-CruiseControl has been pretty much rewritten from the 1.2.x line to the 2.0 line.  A more pluggable
-architecture has been implemented.  There's better test coverage.  XML configuration is more
-flexible.  See the <a href="../main/docs/index.html">build loop page</a> for more details.
-    </p>
+        <h3><a name="nullnav">Why does my jsp page show "null" instead of build names and dates?</a></h3>
+            <p>
+        There were issues with some JSP containers with respect to reusing instances of the custom tags.  This has been
+        fixed in CVS and is part of the 2.1 release.
+            </p>
 
-    <hr width="90%">
-    <p>
-<span class="small"><a name="nojunit">Why don't my jUnit results show up on the web page?</a></span>
-    <p>
-Perhaps the JUnit results are not being captured correctly.
-Ensure that your &lt;junit&gt; ant task contains the proper formatting directive to
-instruct JUnit to output the results in XML format: &lt;formatter type="xml"/&gt;.
-If you are directing JUnit to send output to a subdirectory, make sure to tell
-CC about it - use the &lt;merge&gt; element in the &lt;log&gt; section of your config.xml.
-    </p>
+        <h3><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></h3>
 
-    <hr width="90%">
-    <p>
+            <p>Usually this problem manifests itself like:</p>
 
-<span class="small"><a name="toomuchrepository">What does "Too much repository activity" mean?</a></span>
-    <p>
-This means there is currently code being committed to the repository, and CC
-is afraid of doing a build that may potentially contain partial check-ins. CC
-will not kick off a build until it is sure that a developer is done committing
-code. CC uses the "quietperiod" setting to determine the amount of time it
-should wait after the last commit before doing a build. If you get this
-message in your CC log and not many builds are run, you may want to lower your
-"quietperiod" setting to a smaller time value.
-    </p>
-    <p>
-The amount of time that CruiseControl waits is based on the <nobr>(quietperiod - (now - checkin time)).</nobr>  If we are only 5
-seconds away from the end of the quiet period, we'll just wait that long rather than waiting for the full quiet
-period.  Some issues may arise if the clocks are not synchronized between the CruiseControl machine and the CVS
-machine -- you might get large/odd sleep times if the CVS machine is ahead of the CruiseControl machine.
-    </p>
-    <hr width="90%">
-    <p>
+            <pre>
+My CruiseControl builds are failing because ant can't use the modern java
+compiler and my project won't compile with the classic compiler.  But my
+JAVA_HOME env var is set properly--in fact I can run the various ant targets
+myself just fine.</pre>
 
-<span class="small"><a name="nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></span>
-    <p>
-Your xml log file encoding is incorrect.
-CC puts the JVM system encoding at the top of every xml log file that it
-generates, and the xsl tranformer on your system is not happy transforming
-that specific encoding. Use the "encoding" parameter of the "log" entry in the
-config.xml to override the xml encoding name. Try "UTF-8" or "ISO-8859-1".
-    </p>
-    <hr width="90%">
-    <p>
+            <p>Usually this is because tools.jar is not in the CLASSPATH. It's worth noting here
+            that the Ant scripts pick up JAVA_HOME and add tools.jar to the classpath automatically.
+            However, at the time of writing, CruiseControl does not.</p>
 
-<span class="small"><a name="nullnav">Why does my jsp page show "null" instead of build names and dates?</a></span>
-    <p>
-There were issues with some JSP containers with respect to reusing instances of the custom tags.  This has been
-fixed in CVS and is part of the 2.1 release.
-    </p>
-    <hr width="90%">
-    <p>
+            <p>The main reason for this is that, if you are not using the classic or modern
+            compilers, you don't need it. Furthermore, due to problems with javac
+            locking JAR files, it is advisable to use a different compiler (such as
+            Jikes).</p>
 
-<span class="small"><a name="JAVA_HOME.ignored">Why is my JAVA_HOME environment variable being ignored?</a></span>
+        <h3><a name="cantUseJikes">How do I deal with javac locking jars if I can't switch to jikes?</a></h3>
 
-	<p>Usually this problem manifests itself like:</p>
+            <p>This solution requires Ant 1.4.  Set the property "build.compiler" to "extJavac".
+            This tells Ant to fork a separate process for using Javac, which will release the lock when it terminates.
+            Alternatively, set the "fork" attribute of the javac task to true.</p>
 
-	<pre>My CruiseControl builds are failing because ant can't use the modern java
-	compiler and my project won't compile with the classic compiler.  But my
-	JAVA_HOME env var is set properly--in fact I can run the various ant targets
-	myself just fine.</pre>
+        <h3><a name="servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></h3>
 
-	<p>Usually this is because tools.jar is not in the CLASSPATH. It's worth noting here
-	that the Ant scripts pick up JAVA_HOME and add tools.jar to the classpath automatically.
-	However, at the time of writing, CruiseControl does not.</p>
+            <p>Usually this problem manifests itself with an Exception containing text similar to this:</p>
 
-	<p>The main reason for this is that, if you are not using the classic or modern
-	compilers, you don't need it. Furthermore, due to problems with javac
-	locking JAR files, it is advisable to use a different compiler (such as
-	Jikes).</p>
+            <pre>DefaultServletConfig does not implement interface javax.servlet.ServletConfig</pre>
 
-    <hr width="90%">
-    <p>
-<span class="small"><a name="JAVA_HOME.ignored">How do I deal with javac locking jars if I can't switch to jikes?</a></span>
+            <p>The solution to this is normaly very simple. Remove servlet.jar from your WEB-INF/lib directory.
+            The reason for it being there in the first place is probably because you copied all files in the lib
+            directory to your WEB-INF. Should be fixed later on with somewhat more organized release builds.</p>
 
-	<p>This solution requires Ant 1.4.  Set the property "build.compiler" to "extJavac".
-	This tells Ant to fork a separate process for using Javac, which will release the lock when it terminates.
-	Alternatively, set the "fork" attribute of the javac task to true.</p>
+        <h3><a name="noCompileErrors">Why don't javac compilation errors show up on the web page?</a></h3>
 
-    <hr width="90%">
-    <p>
-<span class="small"><a name="servletVersion">DefaultServletConfig does not implement interface javax.servlet.ServletConfig?</a></span>
+            <p>The CruiseControl XSL was developed and tested against Ant 1.3.  If you have an older version of CruiseControl,
+            you may need to modify the XSL so that CruiseControl can correctly transform the build log.</p>
 
-	<p>Usually this problem manifests itself with an Exception containing text similar to this:</p>
+            <p>Abraham Alvarez and Scot Doyle did a very good job of summing up the
+            <a href="http://www.geocrawler.com/archives/3/10938/2002/4/0/8468120/">issues</a>
+            on the mailing list.</p>
 
-	<pre>DefaultServletConfig does not implement interface javax.servlet.ServletConfig</pre>
+        <h3><a name="cantSearch">How can I search the mailing lists?</a></h3>
 
-	<p>The solution to this is normaly very simple. Remove servlet.jar from your WEB-INF/lib directory.
-	The reason for it being there in the first place is probably because you copied all files in the lib
-	directory to your WEB-INF. Should be fixed later on with somewhat more organized release builds.</p>
+            <p>The GeoCrawler mailing list archive doesn't allow searching. However,
+            the SF Mail Archive does allow searching.</p>
+            <ul>
+                <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2203">cruisecontrol-user</a></li>
+                <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2202">cruisecontrol-devel</a></li>
+                <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2204">cruisecontrol-announce</a></li>
+            </ul>
 
-    <hr width="90%">
-    <p>
-<span class="small"><a name="noCompileErrors">Why don't javac compilation errors show up on the web page?</a></span>
+        <h3><a name="howtohelp">How do I submit bugs/patches/features?</a></h3>
 
-    <p>The CruiseControl XSL was developed and tested against Ant 1.3.  If you have an older version of CruiseControl,
-    you may need to modify the XSL so that CruiseControl can correctly transform the build log.<p>
-    Abraham Alvarez and Scot Doyle did a very good job of summing up the <a href="http://www.geocrawler.com/archives/3/10938/2002/4/0/8468120/">issues</a> on the mailing list.
+            <p>
+        Send patches to the <a href="">cruisecontrol-devel</a> mailing list.  Ideally patches should be a diff
+        against the existing CVS version and should provide unit tests.  If you're adding new features, an informal
+        use case is useful so that others can quickly understand the utility of your patch.
+            </p>
 
-    <hr width="90%">
-    <p>
-<span class="small"><a name="cantSearch">How can I search the mailing lists?</a></span>
+        <h3><a name="moreinformation">Where can I go for more information?</a></h3>
 
-    <p>
-    The GeoCrawler mailing list archive doesn't allow searching.  However, the SF Mail Archive does allow searching.
-    <p>
-    <ul>
-        <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2203">cruisecontrol-user</a>
-        <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2202">cruisecontrol-devel</a>
-        <li><a href="http://sourceforge.net/mailarchive/forum.php?forum_id=2204">cruisecontrol-announce</a>
-    </ul>
+            <p>
+        The <a href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl Wiki</a> is an ever growing knowledge-base of the CruiseControl community, with its own (longer) <a href="http://confluence.public.thoughtworks.org/display/CC/FrequentlyAskedQuestions">FAQ</a>.
+            </p>
 
-    <hr width="90%">
-    <p>
-<span class="small"><a name="howtohelp">How do I submit bugs/patches/features?</a></span>
-
-    <p>
-Send patches to the <a href="">cruisecontrol-devel</a> mailing list.  Ideally patches should be a diff
-against the existing CVS version and should provide unit tests.  If you're adding new features, an informal
-use case is useful so that others can quickly understand the utility of your patch.
-    </p>
-
-    <hr width="90%">
-    <p>
-<span class="small"><a name="moreinformation">Where can I go for more information?</a></span>
-
-    <p>
-The <a href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl Wiki</a> is an ever growing knowledge-base of the CruiseControl community, with its own (longer) <a href="http://confluence.public.thoughtworks.org/display/CC/FrequentlyAskedQuestions">FAQ</a>.
-    </p>
-
-         <!-- content ends here -->
-         </td></tr></table>
-      </td>
-   </tr>
-</table>
+    </div>
+</div>
 </body>
 </html>

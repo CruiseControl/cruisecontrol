@@ -1,171 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
    <title>CruiseControl Installation Instructions</title>
-   <style type="text/css">
-      .body { background:#FFFFFF; font-family:arial,helvetica,sans-serif; color:#000000; }
-      .header { font-size:12pt; font-weight:bold; }
-      pre { font-family:courier,serif; background-color:#CCCCCC; border:1; }
-      code { font-family:courier,serif; }
-      .small { font-size:8pt; font-weight:bold; }
-      .tabledata { font-size:8pt; }
-      .hostedby { font-size:8pt; font-weight:bold; color:#FFFFFF; }
-      .tableheader { font-size:8pt; font-weight:bold; color:#FFFFFF; background-color:#000033; }
-   </style>
+   <link href="../../docs/cruisecontrol.css" type="text/css" rel="stylesheet"/>
 </head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" alt="SourceForge Logo"/></a>
+    </div>
+    <img alt="CruiseControl" src="banner.gif"/>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><a href="../../docs/index.html">home</a></li>
+            <li><a href="../../docs/download.html">download</a></li>
+            <li><h2>documentation</h2>
+                <ul>
+                    <li><a href="index.html">build loop</a>
+                        <ul>
+                            <li><p id="menuselected">install</p></li>
+                            <li><a href="plugins.html">plugins</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../../reporting/jsp/docs/index.html">results jsp</a></li>
+                    <li><a href="configxml.html">config</a></li>
+                    <li><a href="../../docs/faq.html">faq</a></li>
+                    <li><a href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+                </ul>
+            </li>
+            <li><h2>contributing</h2>
+                <ul>
+                    <li><a href="../../docs/developers.html">developers</a></li>
+                    <li><a href="../../docs/contact.html">mailing lists</a></li>
+                    <li><a href="../../docs/cvs.html">cvs repository</a></li>
+                </ul>
+            </li>
+            <li><p id="menubottom">&nbsp;</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Installation Instructions</h1>
+        
+        <h2>Installing the main build loop</h2>
 
+        <ul>
+            <li><a href="#downloadsource">1. Download src/build</a></li>
+            <li><a href="#createconfigfile">2. Create config file</a></li>
+            <li><a href="#startupcruisecontrol">3. Startup cruisecontrol</a></li>
+        </ul>
 
-<body class="body" leftmargin="0" topmargin="0">
+        <h2><a name="downloadsource">1. Download Source/Build</a></h2>
 
-<table width="100%" cellpadding="0" cellspacing="0">
-   <tr>
-      <td bgcolor="#000033"><img src="banner.gif" border="0"></td>
-      <td bgcolor="#000033" align="center"><span class="hostedby">Hosted By:</span><br><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a></td>
-   </tr>
-</table>
+        <p>Download the source from <a href="../../docs/cvs.html">CVS</a>.</p>
+        
+        <>results jsp<>If you examine the code you just downloaded, there will be a
+        build.bat (for Windows users) and a build.sh (for UNIX users) present
+        in the <code>cruisecontrol/main</code> directory.  Execute the
+        appropriate script, and CruiseControl should compile.  Look in the dist
+        directory, and you should find a cruisecontrol.jar file if the build
+        was successful.</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-   <tr>
-      <td valign="top" width="80">
-         <img src="menutop.gif" border="0"><br>
-         <a href="index.html"><img src="menubuildloop.gif" border="0"></a><br>
-         <a href="install.html"><img src="menuinstall.gif" border="0"></a><br>
-         <img src="menublank.gif" border="0"><br>
-         <a href="../../docs/index.html"><img src="menuhome.gif" border="0"></a><br>
-         <img src="menubottom.gif" border="0">
-      </td>
-      <td valign="top" align="left" width="650">
-         <table cellpadding="5" border="0" width="70%">
-		<tr>
-			<td>
-         <!-- content begins here -->
+        <h2><a name="createconfigfile">2. Create config file / Upgrade previous
+        version</a></h2>
 
+        <p>All of the cruisecontrol configuration exists in a single config
+        file.  If you're new to cruisecontrol, you'll have to create this file.
+        If you have used a previous version of cruisecontrol, you can use the
+        upgrader to convert your old setup to a config.xml file.</p>
 
-<span class="header">Installing CruiseControl</span>
-<p>
-<span class="small">Installing the main build loop.</span>
+        <p>New users should read the explanation of the
+        <a href="configxml.html">config file format</a></p>
 
-<ul>
-<li><a class="small" href="#downloadsource">1. Download src/build</a></li>
-<li><a class="small" href="#createconfigfile">2. Create config file</a></li>
-<li><a class="small" href="#startupcruisecontrol">3. Startup cruisecontrol</a></li>
-</ul>
+        <p>To run the upgrader, execute the following command:</p>
 
+<pre>
+java -jar cruisecontrol.jar -upgrade <i>buildfile propertiesfile configfile projectname</i></pre>
 
-<a name="downloadsource"/>
-<span class="small">1. Download Source/Build</span>
+        <p>Where the command line attributes are as follows:</p>
+        
+        <table class="documentation">
+            <tr>
+                <th>Flag</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>buildfile</td>
+                <td>Yes</td>
+                <td>build.xml file that contains the modificationset task.  The
+                buildfile will not be modified.</td>
+            </tr>
+            <tr>
+                <td>propertiesfile</td>
+                <td>Yes</td>
+                <td>cruisecontrol.properties file from the previous installation.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>configfile</td>
+                <td>No</td>
+                <td>New config file to be written.  Defaults to config.xml</td>
+            </tr>
+            <tr>
+                <td>projectname</td>
+                <td>Yes</td>
+                <td>Unique idenifier for this project.</td>
+            </tr>
+        </table>
 
-<p>Download the source from CVS.  If you have CVS installed, the command to download is:</p>
+        <p>A config file should be written to disk, and we can proceed to the
+        next installation step.</p>
 
-<p><code>
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
-</code></p>
+        <h2><a name="startupcruisecontrol">3. Startup CruiseControl</a></h2>
 
-<p>When prompted for the password for <i>anonymous</i>, simply press the &lt;ENTER&gt; key.  If you examine the code you
-just downloaded, there will be a build.bat (for Windows users) and a build.sh (for UNIX users) present in the
-cruisecontrol directory.  Execute the appropriate script, and CruiseControl should compile.  Look in the dist directory,
-and you should find a cruisecontrol.jar file if the build was successful.</p>
+        <p>CruiseControl can be started using two approaches:</p>
+        
+        <ul>
+            <li>
+                <b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.
+            </li>
+            <li>
+                <b>Executable jar.</b>   Type the following command:
+                <p><code>
+                java -jar dist/cruisecontrol.jar
+                </code></p>
+            </li>
+        </ul>
 
-<a name="createconfigfile"/>
-<span class="small">2. Create config file / Upgrade previous version</span>
+        <p>In either approach, the following command line arguments can be specified:</p>
+        
+        <table class="documentation">
+            <tr>
+                <th>Flag</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            <tr class="oddrow">
+                <td>-projectname&nbsp;<i>name</i></td>
+                <td>Yes</td>
+                <td>Should match the name attribute of the &lt;project&gt;
+                element in the config file</td>
+            </tr>
+            <tr>
+                <td>-lastbuild&nbsp;<i>timestamp</i></td>
+                <td>First Time</td>
+                <td>Timestamp format is YYYYMMddHHmmss</td>
+            </tr>
+            <tr class="oddrow">
+                <td>-label&nbsp;<i>label</i></td>
+                <td>First Time</td>
+                <td>Label format depends on the labelincrementer used.</td>
+            </tr>
+            <tr>
+                <td>-configfile&nbsp;<i>filename</i></td>
+                <td>No</td>
+                <td>Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
+            </tr>
+            <tr class="oddrow">
+                <td>-port&nbsp;<i>port&nbsp;number</i></td>
+                <td>No</td>
+                <td>Port number for the JMX HTML adaptor.  This will activate
+                the JMX admin functionality of CruiseControl</td>
+            </tr>
+        </table>
 
-<p>All of the cruisecontrol configuration exists in a single config file.  If you're new to cruisecontrol, you'll have
-to create this file.  If you have used a previous version of cruisecontrol, you can use the upgrader to convert your
-old setup to a config.xml file.</p>
+        <p>After the first build cycle, the values for<code>-lastbuild</code>,
+        <code>-label</code> and <code>-configfile</code> will be saved.  If
+        cruisecontrol should need to be restarted, the values for these
+        arguments need not be specified, unless you would like to override the
+        values that cruisecontrol has.  The only argument that is always
+        required is <code>-projectname</code>.</p>
 
-<p>New users should read the <a href="configxml.html">explanation</a> of the config file format</p>
-
-<p>To run the upgrader, execute the following command:</p>
-
-<p><code>
-java -jar cruisecontrol.jar -upgrade <i>buildfile propertiesfile configfile projectname</i>
-</code></p>
-
-<p>
-Where the command line attributes are as follows:
-<table cellpadding="3" cellspacing="1" border="0">
-   <tr>
-      <td class="tableheader">Flag</td>
-      <td class="tableheader">Required</td>
-      <td class="tableheader">Description</td>
-   </tr>
-   <tr>
-      <td class="tabledata">buildfile</td>
-      <td class="tabledata">Yes</td>
-      <td class="tabledata">build.xml file that contains the modificationset task.  The buildfile will not be modified.</td>
-   </tr>
-   <tr>
-      <td class="tabledata">propertiesfile</td>
-      <td class="tabledata">Yes</td>
-      <td class="tabledata">cruisecontrol.properties file from the previous installation.</td>
-   </tr>
-   <tr>
-      <td class="tabledata">configfile</td>
-      <td class="tabledata">No</td>
-      <td class="tabledata">New config file to be written.  Defaults to config.xml</td>
-   </tr>
-   <tr>
-      <td class="tabledata">projectname</td>
-      <td class="tabledata">Yes</td>
-      <td class="tabledata">Unique idenifier for this project.</td>
-   </tr>
-</table>
-</p>
-
-<p>A config file should be written to disk, and we can proceed to the next installation step.</p>
-
-<a name="startupcruisecontrol"/>
-<span class="small">3. Startup CruiseControl</span>
-
-<p>CruiseControl can be started using two approaches:</p>
-<ul>
-<li><b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.</li>
-<li><b>Executable jar.</b>   Type the following command:</li>
-<p><code>
-java -jar dist/cruisecontrol.jar
-</code></p>
-</ul>
-
-<p>In either approach, the following command line arguments can be specified:<br>
-<table cellpadding="3" cellspacing="1" border="0">
-   <tr>
-      <td class="tableheader">Flag</td>
-      <td class="tableheader">Required</td>
-      <td class="tableheader">Description</td>
-   </tr>
-   <tr>
-      <td class="tabledata">-projectname <i>name</i></td>
-      <td class="tabledata">Yes</td>
-      <td class="tabledata">Should match the name attribute of the &lt;project&gt; element in the config file</td>
-   </tr>
-   <tr>
-      <td class="tabledata">-lastbuild <i>timestamp</i></td>
-      <td class="tabledata">First Time</td>
-      <td class="tabledata">Timestamp format is YYYYMMddHHmmss</td>
-   </tr>
-   <tr>
-      <td class="tabledata">-label <i>label</i></td>
-      <td class="tabledata">First Time</td>
-      <td class="tabledata">Label format depends on the labelincrementer used.</td>
-   </tr>
-   <tr>
-      <td class="tabledata">-configfile <i>filename</i></td>
-      <td class="tabledata">No</td>
-      <td class="tabledata">Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
-   </tr>
-   <tr>
-      <td class="tabledata">-port <i>port number</i></td>
-      <td class="tabledata">No</td>
-      <td class="tabledata">Port number for the JMX HTML adaptor.  This will activate the JMX admin functionality of CruiseControl</td>
-   </tr>
-</table>
-</p>
-
-<p>After the first build cycle, the values for<code>-lastbuild</code>, <code>-label</code> and <code>-configfile</code> will be saved.  If cruisecontrol should need to be restarted, the values for these arguments need not be specified, unless you would like to override the values that cruisecontrol has.  The only argument that is always required is <code>-projectname</code>.</p>
-
-         <!-- content ends here -->
-         </td></tr></table>
-      </td>
-   </tr>
-</table>
+    </div>
+</div>
 </body>
 </html>

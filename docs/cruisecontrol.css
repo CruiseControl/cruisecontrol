@@ -1,0 +1,196 @@
+body {
+    font-family: arial,helvetica,sans-serif;
+    color: black;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    color: white;
+    background-color: black;
+    margin: 0;
+    padding: 0;
+}
+
+.hostedby {
+    float: right;
+    margin: 0;
+    padding-top: 5px;
+    padding-right: 40px;
+    font-size: x-small;
+    font-weight: bold;
+}
+
+.hostedby a img {
+    border: 0;
+}
+
+.container {
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+#menu {
+    width: 12em;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url(menubg.gif);
+    color: white;
+    background-color: black;
+    font-weight: bold;
+    font-size: smaller;
+}
+
+#menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menu ul#menulist {
+    padding: 12px 0 0 0;
+    border-bottom: 1px solid white;
+    background: top right no-repeat url(menutopright.gif);
+}
+
+#menu li {
+    border-top: 1px solid white;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+#menu li li a, #menu li li p, #menu li li h2 {
+    padding-left: 1.5em;
+}
+
+#menu li li li a, #menu li li li p, #menu li li li h2 {
+    padding-left: 2.5em;
+    font-style: italic;
+}
+*/
+
+#menu li li {
+    padding-left: 0.75em;
+}
+
+#menu li li li  {
+    padding-left: 1em;
+    font-style: italic;
+}
+
+#menu li p, #menu li h2 {
+    margin: 0;
+    padding: 5px 5px 5px 0.5em;
+    border-left: 10px solid black;
+    border-right: 11px solid white;
+    width: 100%;
+}
+
+#menu li h2 {
+    font-size: 1.1em;
+}
+
+#menu li p#menuselected {
+    border-left: 10px solid #1c64d1;
+    background-color: #2586d7;
+}
+
+#menu li a {
+    display: block;
+    padding: 5px 5px 5px 0.5em;
+    border-left: 10px solid #1958b7;
+    border-right: 11px solid white;
+    color: white;
+    text-decoration: none;
+    width: 100%;
+}
+
+html>body #menu li a, html>body #menu li p, html>body #menu li h2 {
+    width: auto;
+}
+
+#menu li a:hover {
+    border-left: 10px solid #1c64d1;
+    background-color: #2586d7;
+    color: white;
+}
+
+#menu li p#menubottom {
+    background: bottom right no-repeat url(menubottomright.gif);
+}
+
+.content {
+    margin-left: 12em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+    max-width: 40em;
+}
+
+.content h1 {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    border-bottom: 1px solid black;
+}
+
+.content h2 {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 1em;
+    border-bottom: 1px solid #cccccc;
+}
+
+.content h3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    font-style: italic;
+}
+
+
+.content pre {
+    border: 1px solid black;
+    background-color: #cccccc;
+    padding: 1em;
+    width: 100%;
+}
+
+table.documentation {
+    font-size: small;
+    border: 1px solid black;
+    margin-left: 1em;
+    background-color: #eeeeee;
+    width: 100%;
+}
+
+table.documentation tr.oddrow {
+    background-color: #dddddd;
+}
+
+table.documentation th, table.documentation td {
+    padding: 0.25em;
+}
+
+table.documentation th {
+    text-align: left;
+    font-weight: bold;
+    color: white;
+    background-color: black;
+}
+
+table.documentation td {
+    vertical-align: top;
+}
+
+table.documentation td dl {
+    margin: 0 0 0 1em;
+}
+
+table.documentation td dl dt {
+    font-weight: bold;
+}
