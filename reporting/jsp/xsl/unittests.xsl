@@ -49,7 +49,7 @@
     <xsl:variable name="totalErrorsAndFailures" select="count($testcase.error.list) + count($testcase.failure.list)"/>
 
     <xsl:template match="/">
-        <table align="center" cellpadding="2" cellspacing="0" border="1" width="98%">
+        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
 
             <!-- Unit Tests -->
             <tr>
