@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--****************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************-->
+<project
+  default="war"
+  xmlns:maven="jelly:maven"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant">
+
+  <postGoal name="test:prepare-filesystem">
+    <!--ant:mkdir dir="${maven.build.dir}/testresults" /-->
+  </postGoal>
+
+  <goal name="create_web_xml">
+
+    <echo message="user.log.dir is now ${user.log.dir}"/>
+    <echo message="user.build.status.file is now ${user.build.status.file}"/>
+    <echo message="cruise.build.artifacts.dir is now ${cruise.build.artifacts.dir}"/>
+
+    <!-- ask user to fill data if they have not been already set -->
+    <j:if test="${context.getVariable('user.log.dir') == null}">
+      <input message="WARNING! Property user.log.dir not set!  Please enter the absolute path to the CruiseControl logs directory:"
+            addproperty="user.log.dir"/>
+    </j:if>
+    <j:if test="${context.getVariable('user.build.status.file') == null}">
+      <input message="WARNING! Property user.build.status.file not set!  Please enter the absolute path to the current build status file:"
+             addproperty="user.build.status.file"/>
+    </j:if>
+    <j:if test="${context.getVariable('cruise.build.artifacts.dir') == null}">
+      <input message="WARNING! Property cruise.build.artifacts.dir not set!  Please enter the absolute path to the directory where additional build artifacts are stored:"
+             addproperty="cruise.build.artifacts.dir"/>
+    </j:if>
+
+    <!-- prepare for war using a filtered web.xml -->
+    <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
+    <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
+    <filter token="cruise.build.artifacts.dir" value="${cruise.build.artifacts.dir}"/>
+
+    <!-- note we force the copy in case the token changed -->
+    <j:set var="build.temp.dir" value="${maven.build.dir}/temp"/>
+    <mkdir dir="${build.temp.dir}"/>
+    <ant:copy filtering="true" 
+              todir="${build.temp.dir}" 
+              file="${maven.war.src}/WEB-INF/web.xml" 
+              verbose="true"
+              overwrite="true"/>
+
+    <j:set var="maven.war.webxml" value="${build.temp.dir}/web.xml"/>
+
+  </goal>
+     
+  <preGoal name="war:webapp">
+
+    <attainGoal name="create_web_xml" />
+    <!-- FIXME no more pre1.4 in 2.2 -->
+    <!-- conditionaly include some jar into the war for non jdk1.4 deployments -->
+    <echo>pre1.4: = ${pre1.4}</echo>
+    <j:if test="${context.getVariable('pre1.4') != null}">
+      <echo>Overriding libs for pre JDK1.4 setups</echo>
+      ${pom.getDependency('xalan:xalan').resolvedProperties().put('war.bundle', 'true')}
+      ${pom.getDependency('xerces:xerces').resolvedProperties().put('war.bundle', 'true')}
+    </j:if>
+
+    <!--j:forEach var="dep" items="${pom.dependencies}">
+       <echo>dep ${dep.id} ${dep.getProperty('war.bundle')}" </echo>
+    </j:forEach-->
+
+  </preGoal>
+
+
+  <postGoal name="java:compile">
+    <!-- FIXME or should it also be a preGoal of test:test ?? -->
+    <attainGoal name="checkstyle:report" />
+    <attainGoal name="maven-simian-plugin:report" /> <!-- FIXME or just analyze ?? -->
+  </postGoal>
+
+
+  <postGoal name="war:war">
+    <ant:mkdir dir="${basedir}/dist"/>
+    <ant:copy tofile="${basedir}/dist/cruisecontrol.war" file="${maven.build.dir}/${maven.war.final.name}"/>
+  </postGoal>
+
+  <preGoal name="clean:clean">
+    <ant:delete dir="${basedir}/dist" quiet="true" failonerror="false"/>
+  </preGoal>
+
+</project>

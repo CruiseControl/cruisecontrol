@@ -72,7 +72,7 @@ public class NavigationTagTest extends TestCase {
 
         logDir = new File("testresults/NavigationTagTest");
         if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdir());
+            assertTrue("Failed to create test result dir", logDir.mkdirs());
         }
         final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
         servletConfig.setInitParameter("logDir", logDir.getAbsolutePath());
