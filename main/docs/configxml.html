@@ -46,6 +46,7 @@
             <ul>
                <li><a class="small" href="#bootstrappers">Bootstrappers</a>
                   <ul>
+                     <li><a class="small" href="#clearcasebootstrapper">ClearCaseBootstrapper</a>
                      <li><a class="small" href="#currentbuildstatusbootstrapper">CurrentBuildStatusBootstrapper</a>
                      <li><a class="small" href="#cvsbootstrapper">CVSBootstrapper</a>
                      <li><a class="small" href="#p4bootstrapper">P4Bootstrapper</a>
@@ -162,6 +163,27 @@
 
          <p><a name="bootstrappers"><span class="small">Bootstrappers</span><br>
          Bootstrappers are run before a build takes place, regardless of whether a build is necessary or not, but not if the build is paused. Each bootstrapper element is independent of the others so it is quite possible to have multiple bootstrappers of the same time, say 3 CVS or VSSBootstrappers to update 3 different files.
+
+         <p><a name="clearcasebootstrapper"><span class="small">ClearCaseBootstrapper</span><br>
+         Can be used to pull a single file (usually build.xml and/or build.properties) from ClearCase prior to building.
+         </p>
+         <table cellpadding="3" cellspacing="1" border="0">
+            <tr>
+               <td class="tableheader">Attribute</td>
+               <td class="tableheader">Required</td>
+               <td class="tableheader">Description</td>
+            </tr>
+            <tr>
+               <td class="tabledata">file</td>
+               <td class="tabledata">Yes</td>
+               <td class="tabledata">The filename to write</td>
+            </tr>
+            <tr>
+               <td class="tabledata">viewPath</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">local path to the file</td>
+            </tr>
+         </table>
 
          <p><a name="currentbuildstatusbootstrapper"><span class="small">CurrentBuildStatusBootstrapper</span><br>
          The CruiseControl Build Results JSP can indicate whether or not CruiseControl is currently building a project.
