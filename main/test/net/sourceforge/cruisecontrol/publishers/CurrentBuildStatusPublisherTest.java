@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import org.jdom.Element;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
