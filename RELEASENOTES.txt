@@ -1,6 +1,6 @@
 CruiseControl Release Notes - Latest CVS
 
-Project
+CruiseControlController
 ----------------------
 * On a new project (no serialized project found) force a build. This is to aid setting up CruiseControl as you will not need to wait for a modification.
 
