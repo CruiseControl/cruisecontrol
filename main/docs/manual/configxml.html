@@ -307,6 +307,22 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">No</td>
                <td class="tabledata">Set the cvs tag.  Note this should work with names, numbers, and anything else you can put on <i>log -rTAG</i></td>
             </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td class="tabledata">propertyondelete</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a file has been deleted.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
          </table>
 
          <p><a name="filesystem"><span class="small">FileSystem</span></p>
@@ -320,6 +336,14 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">folder</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">Root folder of the directories to scan</td>
+            </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
             </tr>
          </table>
 
@@ -339,6 +363,22 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">mksroot</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">Set MKSROOT</td>
+            </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td class="tabledata">propertyondelete</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a file has been deleted.  For use in conditionally
+                  controlling the build later.
+               </td>
             </tr>
          </table>
 
@@ -417,6 +457,22 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">Yes</td>
                <td class="tabledata">StarTeam user name</td>
             </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td class="tabledata">propertyondelete</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a file has been deleted.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
          </table>
 
          <p><a name="vss"><span class="small">Visual Source Safe</span></p>
@@ -441,6 +497,22 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">Yes</td>
                <td class="tabledata">The VSS project to get history from</td>
             </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td class="tabledata">propertyondelete</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a file has been deleted.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
          </table>
 
          <p><a name="vssjournal"><span class="small">Visual Source Safe, Journal File Implementation</span></p>
@@ -464,6 +536,22 @@ The CVSBootstrapper will handle updating a single file from CVS before the build
                <td class="tabledata">ssdir</td>
                <td class="tabledata">Yes</td>
                <td class="tabledata">The VSS project to get history from</td>
+            </tr>
+            <tr>
+               <td class="tabledata">property</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td class="tabledata">propertyondelete</td>
+               <td class="tabledata">No</td>
+               <td class="tabledata">
+                  Set this property if a file has been deleted.  For use in conditionally
+                  controlling the build later.
+               </td>
             </tr>
          </table>
 
