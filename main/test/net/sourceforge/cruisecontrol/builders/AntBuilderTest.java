@@ -68,7 +68,7 @@ public class AntBuilderTest extends TestCase {
         
         properties = new Hashtable();
         properties.put("label", "200.1.23");
-        
+
         classpath = System.getProperty("java.class.path");
         
         BasicConfigurator.configure(
@@ -146,6 +146,44 @@ public class AntBuilderTest extends TestCase {
                 "-logfile",
                 "log.xml",
                 "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        assertTrue(
+            Arrays.equals(
+                resultLogger,
+                builder.getCommandLineArgs(properties, true, false, false)));
+    }
+
+    public void testGetCommandLineArgs_EmptyLogger() {
+        String[] resultInfo =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        properties.put("label", "");
+        assertTrue(
+            Arrays.equals(
+                resultInfo,
+                builder.getCommandLineArgs(properties, false, false, false)));
+
+        String[] resultLogger =
+            {
+                "java",
+                "-classpath",
+                classpath,
+                "org.apache.tools.ant.Main",
+                "-logger",
+                "org.apache.tools.ant.XmlLogger",
+                "-logfile",
+                "log.xml",
                 "-buildfile",
                 "buildfile",
                 "target" };
