@@ -61,6 +61,7 @@ import java.util.TimeZone;
  */
 public class CVSTest extends TestCase {
     private TimeZone originalTimeZone;
+    static final String[] CVS_VERSION_COMMANDLINE = new String[]{"cvs", "version"};
 
     protected void setUp() throws Exception {
         originalTimeZone = TimeZone.getDefault();
@@ -79,17 +80,54 @@ public class CVSTest extends TestCase {
         return CVS.LOGDATE.parse(dateString);
     }
 
-    static class MockCVS extends CVS {
-        private final String vers;
+    /**
+     * Mocks a CVS class by returning a specific CVS version
+     */
+    static class MockVersionCVS extends CVS {
+        private final Version vers;
 
-        public MockCVS(String cvsVersion) {
+        public MockVersionCVS(Version cvsVersion) {
             this.vers = cvsVersion;
         }
 
-        protected String getCvsServerVersion() {
+        protected Version getCvsServerVersion() {
             return vers;
         }
     }
+
+    private CVS.Version getOfficialCVSVersion(final String cvsVersion) {
+        return new CVS.Version(CVS.OFFICIAL_CVS_NAME, cvsVersion);
+    }
+
+    /**
+     * Overrides the getCommandLine() method by returnning a MockCommandLine whose
+     * process input stream will read its contents from the specific input stream.
+     */
+     static class InputBasedCommandLineMockCVS extends CVS {
+        private final InputStream inputStream;
+        private final String[] expectedCommandline;
+        private final String expectedWorkingDirectory;
+
+        public InputBasedCommandLineMockCVS(final InputStream inputStream,
+                                            final String[] expectedCommandLine,
+                                            final String expectedWorkingDirectory) {
+            this.inputStream = inputStream;
+            expectedCommandline = expectedCommandLine;
+            this.expectedWorkingDirectory = expectedWorkingDirectory;
+        }
+        // factory method for mock...
+        protected Commandline getCommandline() {
+            final MockCommandline mockCommandline = new MockCommandline();
+            mockCommandline.setExpectedCommandline(expectedCommandline);
+            mockCommandline.setExpectedWorkingDirectory(expectedWorkingDirectory);
+            // could System.in and System.out create problems here?
+            mockCommandline.setProcessErrorStream(System.in);
+            mockCommandline.setProcessInputStream(inputStream);
+            mockCommandline.setProcessOutputStream(System.out);
+            return mockCommandline;
+        }
+    };
+
 
 
     public void testValidate() throws CruiseControlException, IOException {
@@ -137,7 +175,8 @@ public class CVSTest extends TestCase {
 
     public void testParseStream() throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs = new MockCVS("1.11.16");
+        final String cvsVersion = "1.11.16";
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion(cvsVersion));
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         emailAliases.put("tim", "tim@tim.net");
@@ -208,7 +247,7 @@ public class CVSTest extends TestCase {
 
     public void testParseStreamNewFormat() throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs = new MockCVS("1.12.9");
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.12.9"));
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("jerome", "jerome@coffeebreaks.org");
         cvs.setMailAliases(emailAliases);
@@ -238,7 +277,7 @@ public class CVSTest extends TestCase {
 
     public void testParseStreamBranch() throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs = new MockCVS("1.11.16");
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         cvs.setMailAliases(emailAliases);
@@ -299,7 +338,7 @@ public class CVSTest extends TestCase {
 
     public void testGetProperties() throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs = new MockCVS("1.11.16");
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
@@ -321,7 +360,7 @@ public class CVSTest extends TestCase {
 
         //negative test
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs2 = new MockCVS("1.11.16");
+        CVS cvs2 = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs2.setMailAliases(new Hashtable());
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
@@ -335,7 +374,7 @@ public class CVSTest extends TestCase {
 
     public void testGetPropertiesNoModifications()
             throws IOException, ParseException {
-        CVS cvs = new CVS();
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
@@ -354,7 +393,7 @@ public class CVSTest extends TestCase {
     public void testGetPropertiesOnlyModifications()
             throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs = new MockCVS("1.11.16");
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
@@ -372,7 +411,7 @@ public class CVSTest extends TestCase {
 
         //negative test
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs2 = new MockCVS("1.11.16");
+        CVS cvs2 = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs2.setMailAliases(new Hashtable());
         cvs2.setPropertyOnDelete("propertyOnDelete");
         input = new BufferedInputStream(loadTestLog(logName));
@@ -388,7 +427,7 @@ public class CVSTest extends TestCase {
     public void testGetPropertiesOnlyDeletions()
             throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs = new MockCVS("1.11.16");
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs.setMailAliases(new Hashtable());
         cvs.setPropertyOnDelete("propertyOnDelete");
         String logName = "cvslog1-11del.txt";
@@ -406,7 +445,7 @@ public class CVSTest extends TestCase {
 
         //negative test
         // ensure CVS version and simulated outputs are in sync
-        CVS cvs2 = new MockCVS("1.11.16");
+        CVS cvs2 = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));
         cvs2.setMailAliases(new Hashtable());
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
@@ -598,20 +637,9 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        CVS cvs = new CVS() {
-            // factory method for mock...
-            protected Commandline getCommandline() {
-                final MockCommandline mockCommandline = new MockCommandline();
-                mockCommandline.setExpectedCommandline(new String[]{"cvs", "version"});
-                mockCommandline.setExpectedWorkingDirectory(null);
-                // could System.in and System.out create problems here?
-                mockCommandline.setProcessErrorStream(System.in);
-                mockCommandline.setProcessInputStream(input);
-                mockCommandline.setProcessOutputStream(System.out);
-                return mockCommandline;
-            }
-        };
-        assertEquals("differing client & server version", "1.11.16", cvs.getCvsServerVersion());
+        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        assertEquals("differing client & server version",
+            getOfficialCVSVersion("1.11.16"), cvs.getCvsServerVersion());
         assertEquals("differing client & server version", false, cvs.isCvsNewOutputFormat());
         input.close();
     }
@@ -621,20 +649,9 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        CVS cvs = new CVS() {
-            // factory method for mock...
-            protected Commandline getCommandline() {
-                final MockCommandline mockCommandline = new MockCommandline();
-                mockCommandline.setExpectedCommandline(new String[]{"cvs", "version"});
-                mockCommandline.setExpectedWorkingDirectory(null);
-                // could System.in and System.out create problems here?
-                mockCommandline.setProcessErrorStream(System.in);
-                mockCommandline.setProcessInputStream(input);
-                mockCommandline.setProcessOutputStream(System.out);
-                return mockCommandline;
-            }
-        };
-        assertEquals("identical client & server version 1.11.16", "1.11.16", cvs.getCvsServerVersion());
+        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        assertEquals("identical client & server version 1.11.16",
+            getOfficialCVSVersion("1.11.16"), cvs.getCvsServerVersion());
         assertEquals("old output format", false, cvs.isCvsNewOutputFormat());
         input.close();
     }
@@ -644,35 +661,38 @@ public class CVSTest extends TestCase {
         final BufferedInputStream input =
                 new BufferedInputStream(loadTestLog(logName));
 
-        CVS cvs = new CVS() {
-            // factory method for mock...
-            protected Commandline getCommandline() {
-                final MockCommandline mockCommandline = new MockCommandline();
-                mockCommandline.setExpectedCommandline(new String[]{"cvs", "version"});
-                mockCommandline.setExpectedWorkingDirectory(null);
-                // could System.in and System.out create problems here?
-                mockCommandline.setProcessErrorStream(System.in);
-                mockCommandline.setProcessInputStream(input);
-                mockCommandline.setProcessOutputStream(System.out);
-                return mockCommandline;
-            }
-        };
-        assertEquals("identical client & server version 1.12.9", "1.12.9", cvs.getCvsServerVersion());
+        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        assertEquals("identical client & server version 1.12.9",
+            getOfficialCVSVersion("1.12.9"), cvs.getCvsServerVersion());
         assertEquals("new output format", true, cvs.isCvsNewOutputFormat());
+        input.close();
+    }
+
+
+    public void testGetCvsNTServerVersionDifferingClientServerVersions() throws IOException {
+        String logName = "cvsntlog2-0xversion.txt";
+        final BufferedInputStream input =
+                new BufferedInputStream(loadTestLog(logName));
+
+        final CVS cvs = new InputBasedCommandLineMockCVS(input,CVS_VERSION_COMMANDLINE, null);
+        assertEquals("differing client & server version",
+            new CVS.Version("CVSNT", "2.0.14"), cvs.getCvsServerVersion());
+        assertEquals("differing client & server version", false, cvs.isCvsNewOutputFormat());
         input.close();
     }
 
     public void testIsCVSNewVersion() throws IOException {
 
         Object[] array = new Object[]{
-            new MockCVS("1.11.16"), Boolean.FALSE,
-            new MockCVS("1.12.8"), Boolean.FALSE,
-            new MockCVS("1.12.9"), Boolean.TRUE,
-            new MockCVS("1.12.81"), Boolean.TRUE
+            new MockVersionCVS(getOfficialCVSVersion("1.11.16")), Boolean.FALSE,
+            new MockVersionCVS(getOfficialCVSVersion("1.12.8")), Boolean.FALSE,
+            new MockVersionCVS(getOfficialCVSVersion("1.12.9")), Boolean.TRUE,
+            new MockVersionCVS(getOfficialCVSVersion("1.12.81")), Boolean.TRUE,
+            new MockVersionCVS(new CVS.Version("cvsnt", "2.0.14")), Boolean.FALSE
         };
 
         for (int i = 0; i < array.length; i += 2) {
-            MockCVS cvs = (MockCVS) array[i];
+            MockVersionCVS cvs = (MockVersionCVS) array[i];
             Boolean b = (Boolean) array[i + 1];
             assertEquals("output format " + cvs.getCvsServerVersion() + " is new?",
                     b.booleanValue(), cvs.isCvsNewOutputFormat());

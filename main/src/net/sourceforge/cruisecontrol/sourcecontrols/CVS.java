@@ -62,6 +62,13 @@ import java.util.StringTokenizer;
  * The call to CVS is assumed to work without any setup. This implies that if
  * the authentication type is pserver the call to cvs login should be done
  * prior to calling this class.
+ * <p>
+ * There are also differing CVS client/server implementations (e.g. the <i>official</i>
+ * CVS and the CVSNT fork).
+ * <p>
+ * Note that the log formats of the official CVS have changed starting from version 1.12.9.
+ * This class currently knows of 2 different outputs referred to as the 'old'
+ * and the 'new' output formats.
  *
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  * @author Robert Watkins
@@ -72,6 +79,59 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:m@loonsoft.com">McClain Looney</a>
  */
 public class CVS implements SourceControl {
+    /** name of the official cvs as returned as part of the 'cvs version' command output */
+    static final String OFFICIAL_CVS_NAME = "CVS";
+
+    /**
+     * Represents the version of a CVS client or server
+     */
+    static class Version {
+        private final String CVSName;
+        private final String CVSVersion;
+
+        public Version(String CVSName, String CVSVersion) {
+            if (CVSName == null) {
+                throw new NullPointerException("null argument name ");
+            }
+            if (CVSVersion == null) {
+                throw new NullPointerException("null argument version ");
+            }
+            this.CVSName = CVSName;
+            this.CVSVersion = CVSVersion;
+        }
+
+        public String getCVSName() {
+            return CVSName;
+        }
+
+        public String getCVSVersion() {
+            return CVSVersion;
+        }
+
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Version)) return false;
+
+            final Version version = (Version) o;
+
+            if (!CVSName.equals(version.CVSName)) return false;
+            if (!CVSVersion.equals(version.CVSVersion)) return false;
+
+            return true;
+        }
+
+        public int hashCode() {
+            int result;
+            result = CVSName.hashCode();
+            result = 29 * result + CVSVersion.hashCode();
+            return result;
+        }
+
+        public String toString() {
+            return CVSName + " " + CVSVersion;
+        }
+    }
+
 
     private Hashtable properties = new Hashtable();
     private String property;
@@ -100,7 +160,10 @@ public class CVS implements SourceControl {
      */
     private String tag;
 
-    private String cvsServerVersion;
+    /**
+     * The version of the cvs server
+     */
+    private Version cvsServerVersion;
 
     /**
      * enable logging for this class
@@ -215,7 +278,7 @@ public class CVS implements SourceControl {
         this.propertyOnDelete = propertyOnDelete;
     }
 
-    protected String getCvsServerVersion() {
+    protected Version getCvsServerVersion() {
         if (cvsServerVersion == null) {
 
             Commandline commandLine = getCommandline();
@@ -244,14 +307,31 @@ public class CVS implements SourceControl {
                     line = in.readLine();
                     if (!line.startsWith("Server:")) {
                         System.err.println("Warning expected a line starting with \"Server:\" but got " + line);
+                        // we try anyway
                     }
                 }
                 log.debug("server version line: " + line);
-                int verBegin = line.indexOf("1.1");
-                int verEnd = line.indexOf(" ", verBegin);
-                cvsServerVersion = line.substring(verBegin, verEnd);
+                int nameBegin = line.indexOf(" (");
+                int nameEnd = line.indexOf(") ", nameBegin);
+                final String name;
+                final String version;
+                if (nameBegin == -1 || nameEnd < nameBegin || nameBegin + 2 >= line.length()) {
+                    name = "";
+                }
+                else {
+                    name = line.substring(nameBegin + 2, nameEnd);
+                }
+                int verEnd = line.indexOf(" ", nameEnd + 2);
+                if (verEnd < nameEnd + 2) {
+                    version = "";
+                } else {
+                    version = line.substring(nameEnd + 2, verEnd);
+                }
+
+                cvsServerVersion = new Version(name, version);
 
                 log.debug("cvs server version: " + cvsServerVersion);
+
                 p.waitFor();
                 p.getInputStream().close();
                 p.getOutputStream().close();
@@ -266,26 +346,32 @@ public class CVS implements SourceControl {
                 } else {
                     log.debug("Process exit value = " + p.exitValue());
                 }
-                log.warn("problem getting cvs server version; using 1.11");
-                cvsServerVersion = "1.11";
+                cvsServerVersion = new Version(OFFICIAL_CVS_NAME, "1.11");
+                log.warn("problem getting cvs server version; using " + cvsServerVersion);
             }
-
         }
         return cvsServerVersion;
     }
 
     public boolean isCvsNewOutputFormat() {
-        String csv = getCvsServerVersion();
-        StringTokenizer st = new StringTokenizer(csv, ".");
-        st.nextToken();
-        int subversion = Integer.parseInt(st.nextToken());
-        if (subversion > 11) {
-            if (subversion == 12) {
-                if (Integer.parseInt(st.nextToken()) < 9) {
-                    return false;
+        Version version = getCvsServerVersion();
+        if (OFFICIAL_CVS_NAME.equals(version.getCVSName())) {
+            String csv = version.getCVSVersion();
+            StringTokenizer st = new StringTokenizer(csv, ".");
+            try {
+                st.nextToken();
+                int subversion = Integer.parseInt(st.nextToken());
+                if (subversion > 11) {
+                    if (subversion == 12) {
+                        if (Integer.parseInt(st.nextToken()) < 9) {
+                            return false;
+                        }
+                    }
+                    return true;
                 }
+            } catch (Throwable e) {
+                log.warn("problem identifying cvs server. Assuming output is of 'old' type");
             }
-            return true;
         }
         return false;
     }
@@ -534,7 +620,7 @@ public class CVS implements SourceControl {
         String branchRevisionName = parseBranchRevisionName(reader, tag);
 
         boolean newCVSVersion = isCvsNewOutputFormat();
-        while (!nextLine.startsWith(CVS_FILE_DELIM)) {
+        while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
             if (nextLine == null) {
                 //No more revisions for this file.
