@@ -74,6 +74,10 @@ Project:
 ----------------------
 * Catch Throwable during publishing, so errors don't propagate to build()
 
+PVCS:
+----------------------
+* add versionLabel attribute. Patch by Jeremy Whitlock
+
 XSLTag:
 ----------------------
 * now extends CruiseControlTagSupport instead of CruiseControlBodyTagSupport (CC-109). Patch by Mark Doliner
