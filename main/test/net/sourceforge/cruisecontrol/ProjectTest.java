@@ -104,9 +104,9 @@ public class ProjectTest extends TestCase {
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
         MockSchedule sched = new MockSchedule();
+        project.setSchedule(sched);
         project.setLabel("1.2.2");
         project.setName("myproject");
-        project.setSchedule(sched);
         File logDir = new File("test-results");
         logDir.mkdir();
         project.getLog().setLogDir("test-results");
@@ -141,7 +141,7 @@ public class ProjectTest extends TestCase {
                 + "\" /><property name=\"cctimestamp\" value=\""
                 + Project.getFormatedTime(now)
                 + "\" /><property name=\"label\" value=\"1.2.2\" /><property "
-                + "name=\"interval\" value=\"0\" /><property name=\""
+                + "name=\"interval\" value=\"300\" /><property name=\""
                 + "lastbuildsuccessful\" value=\"true\" /><property name=\"logfile\" value=\""
                 + File.separator
                 + "log"
@@ -169,6 +169,9 @@ public class ProjectTest extends TestCase {
     }
     
     public void testPublish() throws CruiseControlException {
+        MockSchedule sched = new MockSchedule();
+        project.setSchedule(sched);
+
         MockPublisher publisher = new MockPublisher();
         Publisher exceptionThrower = new MockPublisher() {
             public void publish(Element log) throws CruiseControlException {
@@ -315,7 +318,7 @@ public class ProjectTest extends TestCase {
                 waitForNextBuild();
             }
         };
-        mockProject.setSleepMillis(1000);
+        mockProject.overrideBuildInterval(1000);
         mockProject.setSchedule(new MockSchedule());
         new Thread(mockProject).start();
 

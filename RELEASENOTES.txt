@@ -7,6 +7,7 @@ build.xml (jsp)
 Project
 ----------------------
 * add descriptive toString so JMX view of CruiseControlManager shows status for each project - Patch by Matt Albrecht
+* fixed to allow changing build interval from JMX interface. Project was reloading the original value from Schedule, overwriting any change a user had made in the JMX interface.
 
 SVN
 ----------------------
