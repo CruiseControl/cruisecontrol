@@ -70,15 +70,9 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
 
         try {
             cbsb.writeFile(date, 300);
-            SimpleDateFormat formatter = new SimpleDateFormat("MMM/dd/yyyy HH:mm");
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             String expected = "<span class=\"link\">Next Build Starts At:<br>" + formatter.format(new Date(date.getTime() + (300 * 1000))) + "</span>";
             assertEquals(expected, readFileToString("_testCurrentBuildStatus.txt"));
-
-            cbsb.setDateFormat("dd/MMM/yyyy");
-            cbsb.writeFile(date, 800);
-            formatter = new SimpleDateFormat("dd/MMM/yyyy");
-            String expected2 = "<span class=\"link\">Next Build Starts At:<br>" + formatter.format(new Date(date.getTime() + (800 * 1000))) + "</span>";
-            assertEquals(expected2, readFileToString("_testCurrentBuildStatus.txt"));
         } catch (CruiseControlException cce2) {
             cce2.printStackTrace();
         }

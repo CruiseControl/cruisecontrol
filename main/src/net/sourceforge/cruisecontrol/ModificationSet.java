@@ -54,7 +54,6 @@ public class ModificationSet {
 
     protected List _modifications = new ArrayList();
     protected List _sourceControls = new ArrayList();
-    protected SimpleDateFormat _formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     protected int _quietPeriod;
     protected Date _now;
 
@@ -65,14 +64,6 @@ public class ModificationSet {
      */
     public void setQuietPeriod(int seconds) {
         _quietPeriod = seconds * 1000;
-    }
-
-    /**
-     * @param dateFormat pattern describing date and time format
-     * @see SimpleDateFormat
-     */
-    public void setDateFormat(String dateFormat) {
-        _formatter = new SimpleDateFormat(dateFormat);
     }
 
     public void addSourceControl(SourceControl sourceControl) {
@@ -121,6 +112,7 @@ public class ModificationSet {
      *
      */
     public Element getModifications(Date lastBuild) {
+        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Element modificationsElement = null;
         do {
             _now = new Date();
@@ -141,16 +133,16 @@ public class ModificationSet {
                     modificationsElement.addContent(((Element) object).detach());
                 } else {
                     Modification modification = (Modification) object;
-                    Element modificationElement = (modification).toElement(_formatter);
-                    modification.log(_formatter);
+                    Element modificationElement = (modification).toElement(formatter);
+                    modification.log(formatter);
                     modificationsElement.addContent(modificationElement);
                 }
             }
 
             if(isLastModificationInQuietPeriod(_now, _modifications)) {
                 log.info("A modification has been detected in the quiet period.  ");
-                log.debug(_formatter.format(new Date(_now.getTime() - _quietPeriod)) + " <= Quiet Period <= " + _formatter.format(_now));
-                log.debug("Last modification: " + _formatter.format(new Date(getLastModificationMillis(_modifications))));
+                log.debug(formatter.format(new Date(_now.getTime() - _quietPeriod)) + " <= Quiet Period <= " + formatter.format(_now));
+                log.debug("Last modification: " + formatter.format(new Date(getLastModificationMillis(_modifications))));
                 log.info("Sleeping for " + getQuietPeriodDifference(_now, _modifications)/1000 + " seconds before retrying.");
                 try {
                     Thread.sleep(getQuietPeriodDifference(_now, _modifications));

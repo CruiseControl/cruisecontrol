@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,14 +48,9 @@ import java.util.Date;
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
 
     private String _fileName;
-    private String _dateFormat = "MMM/dd/yyyy HH:mm";
 
     public void setFile(String fileName) {
         _fileName = fileName;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        _dateFormat = dateFormat;
     }
 
     public void bootstrap() throws CruiseControlException {
@@ -68,7 +64,7 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     }
 
     protected void writeFile(Date date) throws CruiseControlException {
-        SimpleDateFormat formatter = new SimpleDateFormat(_dateFormat);
+        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         StringBuffer sb = new StringBuffer();
         sb.append("<span class=\"link\">Current Build Started At:<br>");
         sb.append(formatter.format(date));

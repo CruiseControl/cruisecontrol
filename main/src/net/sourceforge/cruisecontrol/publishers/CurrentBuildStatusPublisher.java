@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
@@ -50,14 +51,9 @@ import java.util.Date;
 public class CurrentBuildStatusPublisher implements Publisher {
 
     private String _fileName;
-    private String _dateFormat = "MMM/dd/yyyy HH:mm";
 
     public void setFile(String fileName) {
         _fileName = fileName;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        _dateFormat = dateFormat;
     }
 
     /**
@@ -83,7 +79,7 @@ public class CurrentBuildStatusPublisher implements Publisher {
     }
 
     protected void writeFile(Date date, long interval) throws CruiseControlException {
-        SimpleDateFormat formatter = new SimpleDateFormat(_dateFormat);
+        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
         Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
         StringBuffer sb = new StringBuffer();
         sb.append("<span class=\"link\">Next Build Starts At:<br>");
