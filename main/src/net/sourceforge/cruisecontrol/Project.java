@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -549,7 +550,8 @@ public class Project implements Serializable, Runnable {
     private void setState(ProjectState newState) {
         state = newState;
         info(getStatus());
-        fireProgressEvent(new BuildProgressEvent(this, newState));
+        notifyListeners(new ProjectStateChangedEvent(name, getState()));
+        fireProgressEvent(new BuildProgressEvent(this, getState()));
     }
 
     public void setBuildQueue(BuildQueue buildQueue) {
@@ -841,17 +843,19 @@ public class Project implements Serializable, Runnable {
     }
 
     public void notifyListeners(ProjectEvent event) {
-        Iterator listenerIterator = listeners.iterator();
-        Listener listener;
-        while (listenerIterator.hasNext()) {
-            listener = (Listener) listenerIterator.next();
-            try {
-                listener.handleEvent(event);
-            } catch (CruiseControlException e) {
-                StringBuffer message = new StringBuffer("exception notifying listener ");
-                message.append(listener.getClass().getName());
-                message.append(" for project " + name);
-                LOG.error(message.toString(), e);
+        if (listeners != null) {
+            Iterator listenerIterator = listeners.iterator();
+            Listener listener;
+            while (listenerIterator.hasNext()) {
+                listener = (Listener) listenerIterator.next();
+                try {
+                    listener.handleEvent(event);
+                } catch (CruiseControlException e) {
+                    StringBuffer message = new StringBuffer("exception notifying listener ");
+                    message.append(listener.getClass().getName());
+                    message.append(" for project " + name);
+                    LOG.error(message.toString(), e);
+                }
             }
         }
     }
