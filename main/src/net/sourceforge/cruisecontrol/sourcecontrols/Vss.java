@@ -52,6 +52,7 @@ import java.util.Properties;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -215,8 +216,7 @@ public class Vss implements SourceControl {
             }
 
             LOG.info("Vss: getting modifications for " + vssPath);
-            Process p =
-                Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
+            Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
             p.waitFor();
             p.getInputStream().close();
             p.getOutputStream().close();
@@ -251,8 +251,7 @@ public class Vss implements SourceControl {
     }
 
     private void logVSSTempFile() throws IOException {
-        BufferedReader reader =
-            new BufferedReader(new FileReader(new File(VSS_TEMP_FILE)));
+        BufferedReader reader = new BufferedReader(new FileReader(new File(VSS_TEMP_FILE)));
         String currLine = reader.readLine();
         LOG.debug(" ");
         while (currLine != null) {
@@ -263,8 +262,7 @@ public class Vss implements SourceControl {
         reader.close();
     }
 
-    void parseHistoryEntries(ArrayList modifications, BufferedReader reader)
-        throws IOException {
+    void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
         String currLine = reader.readLine();
 
         while (currLine != null) {
@@ -286,39 +284,33 @@ public class Vss implements SourceControl {
         }
     }
 
-    protected String[] getCommandLine(Date lastBuild, Date now)
-        throws CruiseControlException {
+    protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
+        Commandline commandline = new Commandline();
         String execCommand = null;
         try {
-            execCommand =
-                (ssDir != null)
-                    ? new File(ssDir, "ss.exe").getCanonicalPath()
-                    : "ss.exe";
+            execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
         } catch (IOException e) {
             throw new CruiseControlException(e);
         }
+        
+        commandline.setExecutable(execCommand);
+        commandline.createArgument().setValue("history");
+        commandline.createArgument().setValue(vssPath);
+        commandline.createArgument().setValue("-R");
+        commandline.createArgument().setValue("-Vd" + formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild));
+        commandline.createArgument().setValue("-Y" + login);
+        commandline.createArgument().setValue("-I-N");
+        commandline.createArgument().setValue("-O" + VSS_TEMP_FILE);
 
-        String[] commandLine =
-            new String[] {
-                execCommand,
-                "history",
-                vssPath,
-                "-R",
-                "-Vd"
-                    + formatDateForVSS(now)
-                    + "~"
-                    + formatDateForVSS(lastBuild),
-                "-Y" + login,
-                "-I-N",
-                "-O" + VSS_TEMP_FILE };
+        String[] line = commandline.getCommandline();
 
         LOG.debug(" ");
-        for (int i = 0; i < commandLine.length; i++) {
-            LOG.debug("Vss command line arguments: " + commandLine[i]);
+        for (int i = 0; i < line.length; i++) {
+            LOG.debug("Vss command line arguments: " + line[i]);
         }
         LOG.debug(" ");
 
-        return commandLine;
+        return line;
     }
 
     /**
@@ -331,8 +323,7 @@ public class Vss implements SourceControl {
      *  @see #setDateFormat
      */
     private String formatDateForVSS(Date d) {
-        SimpleDateFormat sdf =
-            new SimpleDateFormat(dateFormat + ";" + timeFormat);
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat + ";" + timeFormat);
         String vssFormattedDate = sdf.format(d);
         if (timeFormat.endsWith("a")) {
             return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
@@ -372,8 +363,7 @@ public class Vss implements SourceControl {
             // Labeled
             if (!isLabelEntry) {
                 isLabelEntry =
-                    (entry.size() > 4)
-                        && (((String) entry.get(4)).startsWith("Labeled"));
+                    (entry.size() > 4) && (((String) entry.get(4)).startsWith("Labeled"));
             }
 
             if (isLabelEntry) {
@@ -414,8 +404,7 @@ public class Vss implements SourceControl {
                 LOG.debug("this is a checkin");
                 int commentIndex = fileIndex + 1;
                 modification.comment = parseComment(entry, commentIndex);
-                modification.fileName =
-                    folderLine.substring(7, folderLine.indexOf("  *"));
+                modification.fileName = folderLine.substring(7, folderLine.indexOf("  *"));
                 modification.folderName = fileLine.substring(12);
             } else if (fileLine.endsWith("Created")) {
                 modification.type = "create";
@@ -425,9 +414,7 @@ public class Vss implements SourceControl {
                     modification.folderName = vssPath;
                 } else {
                     modification.folderName =
-                        vssPath
-                            + "\\"
-                            + folderLine.substring(7, folderLine.indexOf("  *"));
+                        vssPath + "\\" + folderLine.substring(7, folderLine.indexOf("  *"));
                 }
                 int lastSpace = fileLine.lastIndexOf(" ");
                 if (lastSpace != -1) {
@@ -467,10 +454,7 @@ public class Vss implements SourceControl {
                     LOG.debug("this file was renamed");
                     addPropertyOnDelete();
                 } else {
-                    LOG.debug(
-                        "action for this vss entry ("
-                            + fileLine
-                            + ") is unknown");
+                    LOG.debug("action for this vss entry (" + fileLine + ") is unknown");
                 }
             }
 
@@ -529,26 +513,20 @@ public class Vss implements SourceControl {
      *@see #setDateFormat
      */
     public Date parseDate(String nameAndDateLine) {
-        String dateAndTime =
-            nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
+        String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
 
         int indexOfColon = dateAndTime.indexOf("/:");
         if (indexOfColon != -1) {
             dateAndTime =
                 dateAndTime.substring(0, indexOfColon)
-                    + dateAndTime.substring(
-                        indexOfColon,
-                        indexOfColon + 2).replace(
-                        ':',
-                        '0')
+                    + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':', '0')
                     + dateAndTime.substring(indexOfColon + 2);
         }
 
         try {
             Date lastModifiedDate = null;
             if (timeFormat.endsWith("a")) {
-                lastModifiedDate =
-                    vssDateTimeFormat.parse(dateAndTime.trim() + "m");
+                lastModifiedDate = vssDateTimeFormat.parse(dateAndTime.trim() + "m");
             } else {
                 lastModifiedDate = vssDateTimeFormat.parse(dateAndTime.trim());
             }
@@ -568,10 +546,7 @@ public class Vss implements SourceControl {
      */
     public String parseUser(String userLine) {
         final int userIndex = "User: ".length();
-        String userName =
-            userLine
-                .substring(userIndex, userLine.indexOf("Date: ") - 1)
-                .trim();
+        String userName = userLine.substring(userIndex, userLine.indexOf("Date: ") - 1).trim();
 
         return userName;
     }
@@ -582,8 +557,7 @@ public class Vss implements SourceControl {
      */
     private void constructVssDateTimeFormat() {
         vssDateTimeFormat =
-            new SimpleDateFormat(
-                "'Date: '" + dateFormat + "   'Time: '" + timeFormat);
+            new SimpleDateFormat("'Date: '" + dateFormat + "   'Time: '" + timeFormat);
     }
 
     protected SimpleDateFormat getVssDateTimeFormat() {
