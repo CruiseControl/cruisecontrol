@@ -37,14 +37,15 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.text.ParseException;
+import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 /**
  *@author  Robert Watkins
@@ -58,8 +59,7 @@ public class P4Test extends TestCase {
         try {
             p4.validate();
             fail("P4 should throw exceptions when required attributes are not set.");
-        } catch (CruiseControlException e) {
-            assertTrue(true);
+        } catch (CruiseControlException expected) {
         }
 
         p4.setUser("user");
@@ -69,10 +69,26 @@ public class P4Test extends TestCase {
 
         try {
             p4.validate();
-            assertTrue(true);
         } catch (CruiseControlException e) {
             fail("P4 should not throw exceptions when required attributes are set.");
         }
+    }
+    
+    public void testBuildChangesCommand() {
+        P4 p4 = new P4();
+        p4.setView("foo");
+
+        Date date = new Date("12/30/2004");
+        Commandline cmdLine = p4.buildChangesCommand(date, date);
+        
+        String[] args = cmdLine.getCommandline();
+        StringBuffer cmd = new StringBuffer();
+        cmd.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            cmd.append(" " + args[i]);
+        }
+      
+        assertEquals("p4 -s changes -s submitted \"foo@2004/12/30:00:00:00,@2004/12/30:00:00:00\"", cmd.toString());
     }
 
     private InputStream loadTestLog(String name) {
@@ -81,7 +97,7 @@ public class P4Test extends TestCase {
         return testStream;
     }
 
-    public void testParseChangelists() throws IOException, ParseException {
+    public void testParseChangelists() throws IOException {
         BufferedInputStream input =
                 new BufferedInputStream(loadTestLog("p4_changes.txt"));
 
@@ -102,8 +118,7 @@ public class P4Test extends TestCase {
         }
     }
 
-    public void testParseChangeDescriptions()
-        throws IOException, ParseException {
+    public void testParseChangeDescriptions() throws IOException {
         BufferedInputStream input =
                 new BufferedInputStream(loadTestLog("p4_describe.txt"));
 

@@ -75,6 +75,10 @@ reporting application:
 ----------------------
 * Moved JSP's, WEB-INF and static content to dedicated subdirectory (CC-95)
 
+P4 & P4Bootstrapper:
+----------------------
+* Quote the path/view so that you can have spaces in project name.
+
 Plugin defaults:
 ----------------------
 * You can now specify extra attributes on the <plugin> elements that will be used as defaults for plugin instances.

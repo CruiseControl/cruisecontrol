@@ -328,17 +328,16 @@ public class P4 implements SourceControl {
     public Commandline buildChangesCommand(Date lastBuildTime, Date now) {
         Commandline commandLine = buildBaseP4Command();
 
-        //        execP4Command("changes -m 1 -s submitted " + _P4View,
-
         commandLine.createArgument().setValue("changes");
         commandLine.createArgument().setValue("-s");
         commandLine.createArgument().setValue("submitted");
-        commandLine.createArgument().setValue(
-            p4View
-                + "@"
-                + P4_REVISION_DATE.format(lastBuildTime)
-                + ",@"
-                + P4_REVISION_DATE.format(now));
+        commandLine.createArgument().setValue("\""
+            + p4View
+            + "@"
+            + P4_REVISION_DATE.format(lastBuildTime)
+            + ",@"
+            + P4_REVISION_DATE.format(now)
+            + "\"");
 
         return commandLine;
     }
