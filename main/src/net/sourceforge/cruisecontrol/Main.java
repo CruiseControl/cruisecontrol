@@ -94,6 +94,7 @@ public class Main {
         LOG.info("");
         LOG.info("   -port number           where number is the port of the Controller web site");
         LOG.info("   -rmiport number        where number is the RMI port of the Controller");
+        LOG.info("   -xslpath directory     where directory is location of jmx xsl files");
         LOG.info("   -configfile file       where file is the configuration file");
         System.exit(1);
     }
