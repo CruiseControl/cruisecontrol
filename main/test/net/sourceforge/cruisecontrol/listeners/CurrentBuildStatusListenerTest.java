@@ -51,11 +51,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         listener.validate();
 
         listener.setFile("holycowbatman" + File.separator + "filename");
-        try {
-            listener.validate();
-            fail("validate should fail if parent directory doesn't exist");
-        } catch (CruiseControlException cce) {
-        }
+        listener.validate();
     }
 
     public void testWritingStatus() throws CruiseControlException, IOException {
