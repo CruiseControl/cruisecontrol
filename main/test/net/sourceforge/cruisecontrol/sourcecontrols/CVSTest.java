@@ -78,7 +78,7 @@ public class CVSTest extends TestCase {
         Modification mod1 = new Modification();
         mod1.type = "modified";
         mod1.fileName = "log4j.properties";
-        mod1.folderName = "main";
+        mod1.folderName = "";
         mod1.modifiedTime = createDate("2002/03/13 13:45:50 GMT-6:00");
         mod1.userName = "alden";
         mod1.comment = "Shortening ConversionPattern so we don't use up all of the available screen space.";
