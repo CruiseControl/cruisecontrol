@@ -17,7 +17,7 @@
 .changelists-file-oddrow { background-color:#FFFFEE }
 .changelists-file-header { background-color:#666666; font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FFFFFF; }
 
-.compile-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FFFFFF; }
+.compile-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .compile-error-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FF0000; }
 .compile-warn-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#CC9900; }
 .compile-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
