@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
@@ -49,6 +49,9 @@ public class ProjectTest extends TestCase {
 
     public void testBuild() throws Exception {
         Project project = new Project();
+        assertEquals("Default value of config file doesn't match", "config.xml",
+                project.getConfigFileName());
+
         MockSchedule sched = new MockSchedule();
         project.setLabel("1.2.2");
         project.setName("myproject");
@@ -68,36 +71,49 @@ public class ProjectTest extends TestCase {
 
         String expected = "<cruisecontrol><modifications /><info><property name=\"lastbuild\" value=\"" + project.getBuildTime() + "\" /><property name=\"label\" value=\"1.2.2\" /><property name=\"interval\" value=\"0\" /><property name=\"lastbuildsuccessful\" value=\"false\" /></info><build /><one /><two /><three /></cruisecontrol>";
         assertEquals(expected, readFileToString(project.getLogFileName()));
-        assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
+        assertEquals("Didn't increment the label", "1.2.3",
+                project.getLabel().intern());
 
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
-        assertEquals("Should be 4 build properties.",4, props.size());
-        assertTrue("filemodified not found.", props.containsKey("filemodified"));
+        assertEquals("Should be 4 build properties.", 4, props.size());
+        assertTrue("filemodified not found.", props.containsKey(
+                "filemodified"));
         assertTrue("fileremoved not found.", props.containsKey("fileremoved"));
     }
 
+    public void testBadLabel() {
+        Project project = new Project();
+
+        try {
+            project.validateLabel("build_0", new DefaultLabelIncrementer());
+            fail("Expected exception due to bad label");
+        } catch (CruiseControlException expected) {
+
+        }
+    }
+
     private String readFileToString(String filename) throws IOException {
-        BufferedReader br = null;
-        StringBuffer result = null;
-        br = new BufferedReader(new FileReader(filename));
-        result = new StringBuffer();
-        String s = br.readLine();
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        StringBuffer result = new StringBuffer();
+
+        String s = reader.readLine();
         while (s != null) {
             result.append(s.trim());
-            s = br.readLine();
+            s = reader.readLine();
         }
-        br.close();
+        reader.close();
+
         return result.toString();
     }
 
-    private void writeFile(String fileName, String contents) throws IOException {
-        FileWriter fw = null;
+    private void writeFile(String fileName, String contents)
+            throws IOException {
 
-        fw = new FileWriter(fileName);
+        FileWriter fw = new FileWriter(fileName);
         fw.write(contents);
         fw.close();
-
     }
+
 }

@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 500
@@ -33,7 +33,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ ******************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -71,15 +71,21 @@ public class Project implements Serializable {
     private Date _now;
     private boolean _wasLastBuildSuccessful;
     private String _label;
-    private String _fileName;
+    private String _configFileName = "config.xml";
     private String _name;
-    private SimpleDateFormat _formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+    private SimpleDateFormat _formatter =
+            new SimpleDateFormat("yyyyMMddHHmmss");
     private boolean _isPaused = false;
 
+    /**
+     * Enters an infinite loop that initializes the project from the config
+     * file, starts a build, sleeps, and repeats. <b>Note:</b> This means that
+     * the config file is re-parsed on every cycle.
+     */
     public void execute() {
         while (true) {
             try {
-                while(_isPaused) {
+                while (_isPaused) {
                     Thread.yield();
                 }
                 init();
@@ -94,24 +100,6 @@ public class Project implements Serializable {
         }
     }
 
-    protected String formatTime(long milliseconds) {
-        long seconds = milliseconds / 1000;
-        long hours = seconds / 3600;
-        long minutes = (seconds % 3600) / 60;
-        seconds = seconds % 60;
-
-        StringBuffer sb = new StringBuffer();
-        if (hours > 0)
-            sb.append(hours + " hours ");
-        if (minutes > 0)
-            sb.append(minutes + " minutes ");
-        if (seconds > 0)
-            sb.append(seconds + " seconds ");
-
-        return sb.toString();
-
-    }
-
     /**
      *  Run one entire build.
      */
@@ -121,12 +109,13 @@ public class Project implements Serializable {
         if (_schedule.isPaused(_now)) {
             return; //we've paused
         }
-        
+
         // bootstrap the build
         bootstrap();
-        
+
         // check for modifications
-        cruisecontrolElement.addContent(_modificationSet.getModifications(_lastBuild));
+        cruisecontrolElement.addContent(_modificationSet.getModifications(
+                _lastBuild));
         if (!_modificationSet.isModified()) {
             log.info("No modifications found, build not necessary.");
             return; //no need to build
@@ -134,20 +123,24 @@ public class Project implements Serializable {
 
         // increment label if nesseccary
         if (_labelIncrementer.isPreBuildIncrementer()) {
-            _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
+            _label = _labelIncrementer.incrementLabel(_label,
+                    cruisecontrolElement);
         }
-        
+
         // collect project information
         cruisecontrolElement.addContent(getProjectPropertiesElement());
-        
-        // BUILD
-        cruisecontrolElement.addContent(_schedule.build(_buildCounter, _lastBuild, _now, getProjectPropertiesMap()).detach());
 
-        boolean buildSuccessful = new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
+        // BUILD
+        cruisecontrolElement.addContent(_schedule.build(_buildCounter,
+                _lastBuild, _now, getProjectPropertiesMap()).detach());
+
+        boolean buildSuccessful =
+                new XMLLogHelper(cruisecontrolElement).isBuildSuccessful();
 
         // increment label if necessary
         if (!_labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-            _label = _labelIncrementer.incrementLabel(_label, cruisecontrolElement);
+            _label = _labelIncrementer.incrementLabel(_label,
+                    cruisecontrolElement);
         }
 
 
@@ -160,10 +153,11 @@ public class Project implements Serializable {
 
         Element logFileElement = new Element("property");
         logFileElement.setAttribute("name", "logfile");
-        logFileElement.setAttribute("value", _logFileName.substring(_logFileName.lastIndexOf(File.separator)));
+        logFileElement.setAttribute("value", _logFileName.substring(
+                _logFileName.lastIndexOf(File.separator)));
         cruisecontrolElement.getChild("info").addContent(logFileElement);
 
-        if(buildSuccessful) _lastBuild = _now;
+        if (buildSuccessful) _lastBuild = _now;
         _buildCounter++;
         write();
         publish(cruisecontrolElement);
@@ -171,164 +165,13 @@ public class Project implements Serializable {
     }
 
     /**
-     * Initialize the project. Uses ProjectXMLHelper to parse a project file.
-     */
-    protected void init() {
-        try {
-            ProjectXMLHelper helper = new ProjectXMLHelper(new File(_fileName), _name);
-            _sleepMillis = 1000 * helper.getBuildInterval();
-            _logDir = helper.getLogDir();
-            _bootstrappers = helper.getBootstrappers();
-            _schedule = helper.getSchedule();
-            _modificationSet = helper.getModificationSet();
-            _labelIncrementer = helper.getLabelIncrementer();
-            _auxLogs = helper.getAuxLogs();
-            _publishers = helper.getPublishers();
-        } catch (CruiseControlException e) {
-            log.fatal("Error initializing project.", e);
-        }
-    }
-
-    protected Element getProjectPropertiesElement() {
-        Element infoElement = new Element("info");
-        Element lastBuildPropertyElement = new Element("property");
-        lastBuildPropertyElement.setAttribute("name", "lastbuild");
-        if (_lastBuild == null)
-            lastBuildPropertyElement.setAttribute("value", _formatter.format(_now));
-        else
-            lastBuildPropertyElement.setAttribute("value", _formatter.format(_lastBuild));
-        infoElement.addContent(lastBuildPropertyElement);
-
-        Element labelPropertyElement = new Element("property");
-        labelPropertyElement.setAttribute("name", "label");
-        labelPropertyElement.setAttribute("value", _label);
-        infoElement.addContent(labelPropertyElement);
-
-        Element intervalElement = new Element("property");
-        intervalElement.setAttribute("name", "interval");
-        intervalElement.setAttribute("value", "" + (_sleepMillis / 1000));
-        infoElement.addContent(intervalElement);
-
-        Element lastBuildSuccessfulPropertyElement = new Element("property");
-        lastBuildSuccessfulPropertyElement.setAttribute("name", "lastbuildsuccessful");
-        lastBuildSuccessfulPropertyElement.setAttribute("value", _wasLastBuildSuccessful + "");
-        infoElement.addContent(lastBuildSuccessfulPropertyElement);
-
-        return infoElement;
-    }
-
-    protected Map getProjectPropertiesMap() {
-        Map buildProperties = new HashMap();
-        buildProperties.put("label", _label);
-        buildProperties.put("cctimestamp", _formatter.format(_now));
-        buildProperties.putAll(_modificationSet.getProperties());
-        return buildProperties;
-    }
-
-    /**
-     *  Iterate over all of the registered <code>Publisher</code>s and call their respective
-     *  <code>publish</code> methods.
-     *
-     *  @param logElement JDOM Element representing the build log.
-     */
-    protected void publish(Element logElement) throws CruiseControlException {
-        Iterator publisherIterator = _publishers.iterator();
-        while (publisherIterator.hasNext()) {
-            ((Publisher) publisherIterator.next()).publish(logElement);
-        }
-    }
-
-    /**
-     *  Iterate over all of the registered <code>Bootstrapper</code>s and call their respective
-     *  <code>bootstrap</code> methods.
-     */
-    protected void bootstrap() throws CruiseControlException {
-        Iterator bootstrapperIterator = _bootstrappers.iterator();
-        while (bootstrapperIterator.hasNext()) {
-            ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
-        }
-    }
-
-    /**
-     *  Write the entire log file to disk, merging in any additional logs
-     *
-     *  @param logElement JDOM Element representing the build log.
-     */
-    protected void writeLogFile(Element logElement) throws CruiseControlException {
-        BufferedWriter logWriter = null;
-        try {
-            XMLLogHelper helper = new XMLLogHelper(logElement);
-            if (helper.isBuildSuccessful())
-                _logFileName = new File(_logDir, "log" + _formatter.format(_now) + "L" + helper.getLabel() + ".xml").getAbsolutePath();
-            else
-                _logFileName = new File(_logDir, "log" + _formatter.format(_now) + ".xml").getAbsolutePath();
-            log.debug("Writing log file: " + _logFileName);
-            logWriter = new BufferedWriter(new FileWriter(_logFileName));
-            XMLOutputter outputter = new XMLOutputter("   ", true);
-            outputter.output(logElement, logWriter);
-            logWriter = null;
-        } catch (IOException e) {
-            throw new CruiseControlException(e);
-        } finally {
-            logWriter = null;
-        }
-    }
-
-    /**
-     *  Builds a list of <code>Element</code>s of all of the auxilliary log files.  If the file
-     *  is a directory, it will
-     *
-     *  @return <code>List</code> of <code>Element</code>s of all of the auxilliary log files.
-     */
-    protected List getAuxLogElements() {
-        Iterator auxLogIterator = _auxLogs.iterator();
-        List auxLogElements = new ArrayList();
-        while (auxLogIterator.hasNext()) {
-            String fileName = (String) auxLogIterator.next();
-            File auxLogFile = new File(fileName);
-            if (auxLogFile.isDirectory()) {
-                String[] childFileNames = auxLogFile.list(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".xml");
-                    }
-                });
-                for (int i = 0; i < childFileNames.length; i++) {
-                    auxLogElements.add(getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]).detach());
-                }
-            } else {
-                Element auxLogElement = getElementFromAuxLogFile(fileName);
-                if (auxLogElement != null) {
-                    auxLogElements.add(auxLogElement.detach());
-                }
-            }
-        }
-        return auxLogElements;
-    }
-
-    /**
-     *  Get a JDOM <code>Element</code> from an XML file.
-     *
-     *  @param fileName The file name to read.
-     *  @return JDOM <code>Element</code> representing that xml file.
-     */
-    protected Element getElementFromAuxLogFile(String fileName) {
-        try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            return builder.build(fileName).getRootElement();
-        } catch (JDOMException e) {
-            log.debug("Could not read aux log: " + fileName + ".  Skipping...");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    /**
-     *  Serialize the project so that if we restart the process, we can resume where we were.
+     * Serialize the project so that if we restart the process, we can resume
+     * where we were.
      */
     public void write() {
         try {
-            ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(_name));
+            ObjectOutputStream s = new ObjectOutputStream(
+                    new FileOutputStream(_name));
             s.writeObject(this);
             s.flush();
             s.close();
@@ -355,11 +198,11 @@ public class Project implements Serializable {
     }
 
     public void setConfigFileName(String fileName) {
-        _fileName = fileName;
+        _configFileName = fileName;
     }
 
     public String getConfigFileName() {
-        return _fileName;
+        return _configFileName;
     }
 
     public void setName(String name) {
@@ -415,4 +258,199 @@ public class Project implements Serializable {
     public void setPaused(boolean paused) {
         _isPaused = paused;
     }
+
+    protected String formatTime(long milliseconds) {
+        long seconds = milliseconds / 1000;
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        seconds = seconds % 60;
+
+        StringBuffer sb = new StringBuffer();
+        if (hours > 0)
+            sb.append(hours + " hours ");
+        if (minutes > 0)
+            sb.append(minutes + " minutes ");
+        if (seconds > 0)
+            sb.append(seconds + " seconds ");
+
+        return sb.toString();
+
+    }
+
+    /**
+     * Initialize the project. Uses ProjectXMLHelper to parse a project file.
+     */
+    protected void init() {
+        try {
+            ProjectXMLHelper helper = new ProjectXMLHelper(
+                    new File(_configFileName), _name);
+            _sleepMillis = 1000 * helper.getBuildInterval();
+            _logDir = helper.getLogDir();
+            _bootstrappers = helper.getBootstrappers();
+            _schedule = helper.getSchedule();
+            _modificationSet = helper.getModificationSet();
+
+            _labelIncrementer = helper.getLabelIncrementer();
+            validateLabel(_label, _labelIncrementer);
+
+            _auxLogs = helper.getAuxLogs();
+            _publishers = helper.getPublishers();
+        } catch (CruiseControlException e) {
+            log.fatal("Error initializing project.", e);
+        }
+    }
+
+    protected Element getProjectPropertiesElement() {
+        Element infoElement = new Element("info");
+        Element lastBuildPropertyElement = new Element("property");
+        lastBuildPropertyElement.setAttribute("name", "lastbuild");
+        if (_lastBuild == null) {
+            lastBuildPropertyElement.setAttribute("value",
+                    _formatter.format(_now));
+        } else {
+            lastBuildPropertyElement.setAttribute("value",
+                    _formatter.format(_lastBuild));
+        }
+        infoElement.addContent(lastBuildPropertyElement);
+
+        Element labelPropertyElement = new Element("property");
+        labelPropertyElement.setAttribute("name", "label");
+        labelPropertyElement.setAttribute("value", _label);
+        infoElement.addContent(labelPropertyElement);
+
+        Element intervalElement = new Element("property");
+        intervalElement.setAttribute("name", "interval");
+        intervalElement.setAttribute("value", "" + (_sleepMillis / 1000));
+        infoElement.addContent(intervalElement);
+
+        Element lastBuildSuccessfulPropertyElement = new Element("property");
+        lastBuildSuccessfulPropertyElement.setAttribute("name",
+                "lastbuildsuccessful");
+        lastBuildSuccessfulPropertyElement.setAttribute("value",
+                _wasLastBuildSuccessful + "");
+        infoElement.addContent(lastBuildSuccessfulPropertyElement);
+
+        return infoElement;
+    }
+
+    protected Map getProjectPropertiesMap() {
+        Map buildProperties = new HashMap();
+        buildProperties.put("label", _label);
+        buildProperties.put("cctimestamp", _formatter.format(_now));
+        buildProperties.putAll(_modificationSet.getProperties());
+        return buildProperties;
+    }
+
+    /**
+     *  Iterate over all of the registered <code>Publisher</code>s and call
+     * their respective <code>publish</code> methods.
+     *
+     *  @param logElement JDOM Element representing the build log.
+     */
+    protected void publish(Element logElement) throws CruiseControlException {
+        Iterator publisherIterator = _publishers.iterator();
+        while (publisherIterator.hasNext()) {
+            ((Publisher) publisherIterator.next()).publish(logElement);
+        }
+    }
+
+    /**
+     *  Iterate over all of the registered <code>Bootstrapper</code>s and call their respective
+     *  <code>bootstrap</code> methods.
+     */
+    protected void bootstrap() throws CruiseControlException {
+        Iterator bootstrapperIterator = _bootstrappers.iterator();
+        while (bootstrapperIterator.hasNext()) {
+            ((Bootstrapper) bootstrapperIterator.next()).bootstrap();
+        }
+    }
+
+    /**
+     *  Write the entire log file to disk, merging in any additional logs
+     *
+     *  @param logElement JDOM Element representing the build log.
+     */
+    protected void writeLogFile(Element logElement)
+            throws CruiseControlException {
+        BufferedWriter logWriter = null;
+        try {
+            XMLLogHelper helper = new XMLLogHelper(logElement);
+            if (helper.isBuildSuccessful())
+                _logFileName = new File(_logDir, "log" + _formatter.format(_now)
+                        + "L" + helper.getLabel() + ".xml").getAbsolutePath();
+            else
+                _logFileName = new File(_logDir, "log" + _formatter.format(_now)
+                        + ".xml").getAbsolutePath();
+            log.debug("Writing log file: " + _logFileName);
+            logWriter = new BufferedWriter(new FileWriter(_logFileName));
+            XMLOutputter outputter = new XMLOutputter("   ", true);
+            outputter.output(logElement, logWriter);
+            logWriter = null;
+        } catch (IOException e) {
+            throw new CruiseControlException(e);
+        } finally {
+            logWriter = null;
+        }
+    }
+
+    /**
+     * Builds a list of <code>Element</code>s of all of the auxilliary log
+     * files.  If the file is a directory, it will
+     *
+     * @return <code>List</code> of <code>Element</code>s of all of the
+     * auxilliary log files.
+     */
+    protected List getAuxLogElements() {
+        Iterator auxLogIterator = _auxLogs.iterator();
+        List auxLogElements = new ArrayList();
+        while (auxLogIterator.hasNext()) {
+            String fileName = (String) auxLogIterator.next();
+            File auxLogFile = new File(fileName);
+            if (auxLogFile.isDirectory()) {
+                String[] childFileNames = auxLogFile.list(new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(".xml");
+                    }
+                });
+                for (int i = 0; i < childFileNames.length; i++) {
+                    auxLogElements.add(getElementFromAuxLogFile(fileName + File.separator + childFileNames[i]).detach());
+                }
+            } else {
+                Element auxLogElement = getElementFromAuxLogFile(fileName);
+                if (auxLogElement != null) {
+                    auxLogElements.add(auxLogElement.detach());
+                }
+            }
+        }
+        return auxLogElements;
+    }
+
+    /**
+     *  Get a JDOM <code>Element</code> from an XML file.
+     *
+     *  @param fileName The file name to read.
+     *  @return JDOM <code>Element</code> representing that xml file.
+     */
+    protected Element getElementFromAuxLogFile(String fileName) {
+        try {
+            SAXBuilder builder =
+                    new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            return builder.build(fileName).getRootElement();
+        } catch (JDOMException e) {
+            log.debug("Could not read aux log: " + fileName + ".  Skipping...");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    protected void validateLabel(String label,
+                               LabelIncrementer labelIncrementer)
+            throws CruiseControlException {
+
+        if (!labelIncrementer.isValidLabel(label)) {
+            throw new CruiseControlException(label + " is not a valid label");
+        }
+    }
+
 }
