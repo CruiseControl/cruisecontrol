@@ -36,13 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import com.sun.jdmk.comm.HtmlAdaptorServer;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import org.apache.log4j.Logger;
+import mx4j.adaptor.http.HttpAdaptor;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
+import javax.management.Attribute;
+import java.io.IOException;
 
 /**
  * JMX agent for a ProjectController
@@ -53,12 +55,14 @@ public class CruiseControlControllerAgent {
 
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerAgent.class);
 
-    private HtmlAdaptorServer adaptor = new HtmlAdaptorServer();
+    private HttpAdaptor adaptor = new HttpAdaptor();
     private int port;
     private CruiseControlControllerJMXAdaptor controllerAdaptor;
+    private String path;
 
-    public CruiseControlControllerAgent(CruiseControlController controller, int port) {
+    public CruiseControlControllerAgent(CruiseControlController controller, int port, String xslPath) {
         this.port = port;
+        path = xslPath;
         this.controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
 
         MBeanServer server = MBeanServerFactory.createMBeanServer();
@@ -75,7 +79,11 @@ public class CruiseControlControllerAgent {
     }
 
     public void start() {
-        adaptor.start();
+        try {
+            adaptor.start();
+        } catch (IOException e) {
+            LOG.error("Exception starting adaptor", e);
+        }
     }
 
     public void stop() {
@@ -84,7 +92,18 @@ public class CruiseControlControllerAgent {
 
     private void registerHTMLAdaptor(MBeanServer server) throws Exception {
         adaptor.setPort(port);
-        ObjectName adaptorName = new ObjectName("Adaptor:name=html,port=" + port);
+        ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,port=" + port);
         server.registerMBean(adaptor, adaptorName);
+        ObjectName processorName = new ObjectName("Http:name=XSLTProcessor");
+        server.createMBean("mx4j.adaptor.http.XSLTProcessor", processorName, null);
+        String pathInJar = "net/sourceforge/cruisecontrol/jmx/xsl";
+        if (path != null && !path.equals("")) {
+            LOG.info("Starting HttpAdaptor with customized Stylesheets");
+            server.setAttribute(processorName, new Attribute("File", path));
+        } else {
+            LOG.info("Starting HttpAdaptor with CC-Stylesheets");
+            server.setAttribute(processorName, new Attribute("PathInJar", pathInJar));
+        }
+        server.setAttribute(adaptorName, new Attribute("ProcessorName", processorName));
     }
 }

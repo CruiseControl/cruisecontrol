@@ -50,6 +50,7 @@
     <property name="src" value="src"/>
     <property name="test" value="test"/>
     <property name="tests" value="*Test"/>
+    <property name="xsl" value="xsl"/>
 
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
@@ -291,6 +292,7 @@
     <target name="jar" depends="compile">
         <jar jarfile="${dist}\cruisecontrol.jar" manifest="manifest.mf">
             <fileset dir="${classes}"/>
+            <fileset dir="${xsl}"/>
         </jar>
     </target>
 
