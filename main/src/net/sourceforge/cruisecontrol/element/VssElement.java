@@ -215,8 +215,6 @@ public class VssElement extends SourceControlElement {
 				mod.type = "recover";
 			} else if (fileLine.endsWith("shared")) {
                 mod.type = "branch";
-            } else {
-                mod.type = "unknown";
             }
 		}
 
