@@ -294,7 +294,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     protected String createLinkLine(String logFileName) {
-        String linkLine;
+        String linkLine = "";
+        
+        if (_servletUrl == null) return linkLine;
 
         int startName = logFileName.lastIndexOf(File.separator) + 1;
         int endName = logFileName.lastIndexOf(".");

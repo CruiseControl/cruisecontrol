@@ -77,4 +77,18 @@ public class LinkEmailPublisher extends EmailPublisher {
         return message.toString();
 
     }
+
+  	/*
+	 *  Called  after the configuration is read to make sure that all the
+	 * mandatory parameters  were specified..
+	 *
+	 *  @throws  CruiseControlException if there was a configuration error.
+  	 */
+	public void validate() throws CruiseControlException {
+		 if(_servletUrl == null) {
+			 throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
+		 }
+		 super.validate();
+	}
+
 }
