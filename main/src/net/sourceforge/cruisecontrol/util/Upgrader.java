@@ -1,6 +1,8 @@
 package net.sourceforge.cruisecontrol.util;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.ModificationSet;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher;
 import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
@@ -98,7 +100,7 @@ public class Upgrader {
         Iterator taskdefIterator = buildFileElement.getChildren("taskdef").iterator();
         while (taskdefIterator.hasNext()) {
             Element taskdefElement = (Element) taskdefIterator.next();
-            if (taskdefElement.getAttributeValue("classname").equals("net.sourceforge.cruisecontrol.ModificationSet")) {
+            if (taskdefElement.getAttributeValue("classname").equals(ModificationSet.class.getName())) {
                 elementName = taskdefElement.getAttributeValue("name");
             }
         }
@@ -111,7 +113,7 @@ public class Upgrader {
                 Iterator nestedTaskdefIterator = targetElement.getChildren("taskdef").iterator();
                 while (nestedTaskdefIterator.hasNext()) {
                     Element taskdefElement = (Element) nestedTaskdefIterator.next();
-                    if (taskdefElement.getAttributeValue("classname").equals("net.sourceforge.cruisecontrol.ModificationSet")) {
+                    if (taskdefElement.getAttributeValue("classname").equals(ModificationSet.class.getName())) {
                         elementName = taskdefElement.getAttributeValue("name");
                     }
                 }
@@ -230,7 +232,7 @@ public class Upgrader {
     }
 
     public String createLabelIncrementerPlugin(Properties properties) {
-        String classname = properties.getProperty("labelIncrementerClass") != null ? properties.getProperty("labelIncrementerClass") : "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer";
+        String classname = properties.getProperty("labelIncrementerClass") != null ? properties.getProperty("labelIncrementerClass") : DefaultLabelIncrementer.class.getName();
         return "<plugin name=\"labelincrementer\" classname=\"" + classname + "\"/>";
     }
 
