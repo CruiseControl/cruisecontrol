@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+Project
+----------------------
+* Fixed a bug where value of buildForced was not being reset if modifications were found.
+
 Schedule
 ----------------------
 * Fixed a bug where checkPauseBuilders would not return a value larger than one day.
