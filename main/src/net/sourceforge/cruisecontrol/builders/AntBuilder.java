@@ -381,7 +381,11 @@ public class AntBuilder extends Builder {
         try {
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 150; i++) {
-                sb.append((char) r.read());
+                int character = r.read();
+                if (character == -1) {
+                    break;
+                }
+                sb.append((char) character);
             }
             String beginning = sb.toString();
             return beginning;
