@@ -39,8 +39,6 @@ package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
 
-import java.util.Date;
-
 /**
  * This interface defines the method required to increment
  * the label used in the MasterBuild process. This label
