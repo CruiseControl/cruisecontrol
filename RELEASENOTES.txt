@@ -5,6 +5,7 @@ AntBuilder
 * Added more infomative exception when log file doesn't contain a build tag. Patch by Dave Glowacki
 * Added check to ensure that log file exists before trying to get contents.
 * Fixed getCommandLineArgs to handle EmptyLabelIncrementer
+* Added timeout attribute. Patch by Igor Fedorenko
 
 compile.xsl
 ----------------------

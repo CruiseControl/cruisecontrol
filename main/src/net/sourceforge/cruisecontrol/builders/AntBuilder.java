@@ -57,9 +57,9 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- *  we often see builds that fail because the previous build is still holding on to some resource.
- *  we can avoid this by just building in a different process which will completely die after every
- *  build.
+ * we often see builds that fail because the previous build is still holding on to some resource.
+ * we can avoid this by just building in a different process which will completely die after every
+ * build.
  */
 public class AntBuilder extends Builder {
 
@@ -76,6 +76,7 @@ public class AntBuilder extends Builder {
     private List properties = new ArrayList();
     private boolean useDebug = false;
     private String loggerClassName = DEFAULT_LOGGER;
+    private long timeout = -1;
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -98,14 +99,13 @@ public class AntBuilder extends Builder {
         Process p = null;
         try {
             String[] commandLine =
-                getCommandLineArgs(
-                    buildProperties,
-                    useLogger,
-                    antScript != null,
-                    isWindows());
+                    getCommandLineArgs(buildProperties,
+                            useLogger,
+                            antScript != null,
+                            isWindows());
 
             File workingDir =
-                (antWorkingDir != null) ? (new File(antWorkingDir)) : null;
+                    (antWorkingDir != null) ? (new File(antWorkingDir)) : null;
 
             StringBuffer sb = new StringBuffer();
             sb.append("Executing Command: ");
@@ -120,28 +120,30 @@ public class AntBuilder extends Builder {
             LOG.debug(sb.toString());
 
 
-
             p = Runtime.getRuntime().exec(commandLine, null, workingDir);
         } catch (IOException e) {
-            throw new CruiseControlException(
-                "Encountered an IO exception while attempting to execute Ant."
+            throw new CruiseControlException("Encountered an IO exception while attempting to execute Ant."
                     + " CruiseControl cannot continue.",
-                e);
+                    e);
         }
 
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
         StreamPumper outPumper = new StreamPumper(p.getInputStream());
         new Thread(errorPumper).start();
         new Thread(outPumper).start();
+        AsyncKiller killer = new AsyncKiller(p, timeout);
+        if (timeout > 0) {
+            killer.start();
+        }
 
         try {
             p.waitFor();
+            killer.interrupt();
             p.getInputStream().close();
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (InterruptedException e) {
-            LOG.info(
-                "Was interrupted while waiting for Ant to finish."
+            LOG.info("Was interrupted while waiting for Ant to finish."
                     + " CruiseControl will continue, assuming that it completed");
         } catch (IOException ie) {
             LOG.info("Exception trying to close Process streams.", ie);
@@ -150,21 +152,36 @@ public class AntBuilder extends Builder {
         outPumper.flush();
         errorPumper.flush();
 
-        //read in log file as element, return it
-        File logFile = new File(antWorkingDir, tempFileName);
-        if (!logFile.exists()) {
-            LOG.error(
-                "Ant logfile ["
-                    + logFile.getAbsolutePath()
-                    + "] cannot be found");
-        }
+        if (killer.processKilled()) {
+            LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
+            Element timeoutLogElement = new Element("build");
+            timeoutLogElement.setAttribute("error", "build timeout");
+            // although log file is most certainly empy, let's try to preserve it
+            // somebody should really fix ant's XmlLogger
+            File logFile = new File(antWorkingDir, tempFileName);
+            if (logFile.exists()) {
+                try {
+                    timeoutLogElement.setText(getFileContent(logFile));
+                } catch (IOException likely) {
+                }
+            }
+            return timeoutLogElement;
+        } else {
+            //read in log file as element, return it
+            File logFile = new File(antWorkingDir, tempFileName);
+            if (!logFile.exists()) {
+                LOG.error("Ant logfile ["
+                        + logFile.getAbsolutePath()
+                        + "] cannot be found");
+            }
 
-        Element buildLogElement = getAntLogAsElement(logFile);
-        if (logFile.exists()) {
-            logFile.delete();
-        }
+            Element buildLogElement = getAntLogAsElement(logFile);
+            if (logFile.exists()) {
+                logFile.delete();
+            }
 
-        return buildLogElement;
+            return buildLogElement;
+        }
     }
 
     /**
@@ -172,6 +189,7 @@ public class AntBuilder extends Builder {
      * parameter gets set in the XML file via the antWorkingDir attribute.
      * The directory can be relative (to the cruisecontrol current working
      * directory) or absolute.
+     *
      * @param dir the directory to make the current working directory.
      */
     public void setAntWorkingDir(String dir) {
@@ -181,6 +199,7 @@ public class AntBuilder extends Builder {
     /**
      * Sets the Script file to be invoked (in place of calling the Ant class
      * directly).  This is a platform dependent script file.
+     *
      * @param antScript the name of the script file
      */
     public void setAntScript(String antScript) {
@@ -189,6 +208,7 @@ public class AntBuilder extends Builder {
 
     /**
      * Set the name of the temporary file used to capture output.
+     *
      * @param tempFileName
      */
     public void setTempFile(String tempFileName) {
@@ -197,6 +217,7 @@ public class AntBuilder extends Builder {
 
     /**
      * Set the Ant target(s) to invoke.
+     *
      * @param target the target(s) name.
      */
     public void setTarget(String target) {
@@ -206,6 +227,7 @@ public class AntBuilder extends Builder {
     /**
      * Sets the name of the build file that Ant will use.  The Ant default is
      * build.xml, use this to override it.
+     *
      * @param buildFile the name of the build file.
      */
     public void setBuildFile(String buildFile) {
@@ -214,6 +236,7 @@ public class AntBuilder extends Builder {
 
     /**
      * Sets whether Ant will use the custom loggers.
+     *
      * @param useLogger
      */
     public void setUseLogger(boolean useLogger) {
@@ -246,15 +269,15 @@ public class AntBuilder extends Builder {
     }
 
     /**
-     *  construct the command that we're going to execute.
-     *  @param buildProperties Map holding key/value pairs of arguments to the build process
-     *  @return String[] holding command to be executed
+     * construct the command that we're going to execute.
+     *
+     * @param buildProperties Map holding key/value pairs of arguments to the build process
+     * @return String[] holding command to be executed
      */
-    protected String[] getCommandLineArgs(
-        Map buildProperties,
-        boolean useLogger,
-        boolean useScript,
-        boolean isWindows) {
+    protected String[] getCommandLineArgs(Map buildProperties,
+                                          boolean useLogger,
+                                          boolean useScript,
+                                          boolean isWindows) {
         List arguments = new ArrayList();
 
         if (useScript) {
@@ -323,20 +346,15 @@ public class AntBuilder extends Builder {
     }
 
     /**
-     *  JDOM doesn't like the <?xml:stylesheet ?> tag.  we don't need it, so we'll skip it.
-     *  TO DO: make sure that we are only skipping this string and not something else
+     * JDOM doesn't like the <?xml:stylesheet ?> tag.  we don't need it, so we'll skip it.
+     * TO DO: make sure that we are only skipping this string and not something else
      */
     protected static Element getAntLogAsElement(File file) throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException("ant logfile " + file.getAbsolutePath() + " does not exist.");
         }
         try {
-            Reader r = new InputStreamReader(new FileInputStream(file), "UTF-8");
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < 150; i++) {
-                sb.append((char) r.read());
-            }
-            String beginning = sb.toString();
+            String beginning = getFileContent(file);
             int skip = beginning.lastIndexOf("<build");
             if (skip < 0) {
                 throw new CruiseControlException("build tag not found in " + file.getAbsolutePath());
@@ -353,9 +371,32 @@ public class AntBuilder extends Builder {
             }
             File saveFile = new File(file.getParentFile(), System.currentTimeMillis() + file.getName());
             file.renameTo(saveFile);
-            throw new CruiseControlException(
-                    "Error reading : " + file.getAbsolutePath() + ".  Saved as : " + saveFile.getAbsolutePath(), ee);
+            throw new CruiseControlException("Error reading : " + file.getAbsolutePath()
+                    + ".  Saved as : " + saveFile.getAbsolutePath(), ee);
         }
+    }
+
+    private static String getFileContent(File f) throws IOException {
+        Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8");
+        try {
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < 150; i++) {
+                sb.append((char) r.read());
+            }
+            String beginning = sb.toString();
+            return beginning;
+        } finally {
+            r.close();
+        }
+    }
+
+    /**
+     * Sets build timeout in seconds.
+     *
+     * @param timeout long build timeout
+     */
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     public void setUseDebug(boolean debug) {
@@ -400,6 +441,32 @@ public class AntBuilder extends Builder {
 
         public String getValue() {
             return value;
+        }
+    }
+
+    private static class AsyncKiller extends Thread {
+        private final Process p;
+        private final long timeout;
+        private boolean killed;
+
+        AsyncKiller(final Process p, final long timeout) {
+            this.p = p;
+            this.timeout = timeout;
+        }
+
+        public void run() {
+            try {
+                sleep(timeout * 1000L);
+                synchronized (this) {
+                    p.destroy();
+                    killed = true;
+                }
+            } catch (InterruptedException expected) {
+            }
+        }
+
+        public synchronized boolean processKilled() {
+            return killed;
         }
     }
 }

@@ -328,4 +328,9 @@
              package="cruisecontrol" dest="${localCopy}" />
     </target>
 
+    <!-- used by AntBuilderTest -->
+    <target name="timeout-test-target">
+        <sleep seconds="20"/>
+    </target>
+
 </project>
