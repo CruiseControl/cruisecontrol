@@ -58,6 +58,7 @@ Contrib
 ----------------------
 * A Windows system tray icon for monitoring a CruiseControl build process. Contributed by Ivan Moore.
 * A NTServiceWrapper for running CruiseControl as an NT service. Contributed by Nick Chalko.
+* XmlLoggerWithStatus, a replacement for Ant's XmlLogger that updates the build status file while building. Contributed by Igor Semenko.
 
 CruiseControl
 ----------------------
@@ -99,6 +100,7 @@ index.jsp
 JMX Support
 ----------------------
 * Upgraded to MX4J 2.0.1 (including support for JSR 160)
+* Added the possibility to override the build target when forcing a build through the ProjectController MBean.
 
 Listener
 ----------------------
