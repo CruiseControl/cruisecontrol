@@ -1,0 +1,80 @@
+<!DOCTYPE web-app 
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN" 
+    "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+
+<!--*****************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit                              *
+ * Copyright (C) 2001  ThoughtWorks, Inc.                                       *
+ * 651 W Washington Ave. Suite 500                                              *
+ * Chicago, IL 60661 USA                                                        *
+ *                                                                              *
+ * This program is free software; you can redistribute it and/or                *
+ * modify it under the terms of the GNU General Public License                  *
+ * as published by the Free Software Foundation; either version 2               *
+ * of the License, or (at your option) any later version.                       *
+ *                                                                              *
+ * This program is distributed in the hope that it will be useful,              *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
+ * GNU General Public License for more details.                                 *
+ *                                                                              *
+ * You should have received a copy of the GNU General Public License            *
+ * along with this program; if not, write to the Free Software                  *
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
+ *****************************************************************************-->
+ 
+<web-app>
+    <servlet>
+      <servlet-name>BuildServlet</servlet-name>
+      <servlet-class>net.sourceforge.cruisecontrol.BuildServlet</servlet-class>
+
+      <init-param>
+        <!-- Absolute path to log directory.  The servlet will look at these files 
+            to build the links on the left-side navigation frame.  This value must point to the 
+            same log directory as in your cruisecontrol.properties file -->
+        <param-name>logDir</param-name>
+        <param-value>d:/projects/CruiseControlTest/logs</param-value>
+      </init-param>
+      <init-param>
+        <!-- Absolute path to cruisecontrol.xsl stylesheet for the servlet.  
+        (PENDING) Should just check classpath instead of using this value -->
+        <param-name>xslFile</param-name>
+        <param-value>d:/jakarta-tomcat-3.2.1/webapps/buildservlet/cruisecontrol.xsl</param-value>
+      </init-param>
+      <init-param>
+        <!-- HTML title for the servlet page -->
+        <param-name>pageTitle</param-name>
+        <param-value>Test title</param-value>
+      </init-param>
+      <init-param>
+        <!-- Configurable logo for the build servlet page.  -->
+        <param-name>logo</param-name>
+        <param-value>continuousintegration.gif</param-value>
+      </init-param>
+      <init-param>
+        <!-- Cruisecontrol will write a snippet of HTML to be included in the servlet, signifying 
+        whether the build is running or when it will start again -->
+        <param-name>currentBuildStatusFile</param-name>
+        <param-value>currentbuild.txt</param-value>
+      </init-param>
+      <init-param>
+        <!-- Used for creating links on left-side navigation frame -->
+        <param-name>servletURL</param-name>
+        <param-value>/buildservlet/BuildServlet</param-value>
+      </init-param>
+      <init-param>
+        <!-- URL for image directory -->
+        <param-name>imageDir</param-name>
+        <param-value>/buildservlet/images</param-value>
+      </init-param>
+
+    </servlet>
+    
+    
+    <servlet-mapping>
+      <servlet-name>BuildServlet</servlet-name>
+      <url-pattern>/BuildServlet</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<project name="HelloWorld" basedir="." default="all">
+
+    <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet"/>
+
+    <property name="build.compiler" value="jikes"/>
+    <property name="masterbuild.logdir" value="logs"/>
+    <property name="build.dir" value="classes"/>
+    <property name="source.dir" value="src"/>
+    <property name="alltest.class" value="test.hello.HelloWorldTest"/>
+    <property name="cvs.repository" value=":pserver:tworker@10.1.2.244:/cvsroot"/>
+    <property name="cvs.workingcopy" value="d:\projects\CruiseControlTest"/>
+    <property name="cvs.package" value="CruiseControlTest/src"/>
+
+    <target name="init" description="Prepare for build">
+        <tstamp/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${masterbuild.logdir}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compile application without cleaning">
+        <javac srcdir="${source.dir}" classpath="${build.classpath}" destdir="${build.dir}" includes="**/*.java" debug="true" deprecation="true"/>
+    </target>
+
+    <target name="test" description="Run unit tests">
+        <java classname="${alltest.class}" classpath="${build.dir};${build.classpath}" fork="yes"/>
+        <!-- <junit fork="true" haltonfailure="true">
+            <test name="${alltest.class}"/>
+        </junit> -->
+    </target>
+
+    <target name="clean" description="Clean all build products">
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${build.dir}"/>
+    </target>
+
+    <target name="all" depends="init,clean,compile,test" description="Build application">
+        <echo message="Application built!"/>
+    </target>
+
+    <target name="modificationset" depends="init" description="Check modifications since last build">
+        <echo message="Checking for modifications..."/>
+        <modificationset lastbuild="${lastGoodBuildTime}" quietperiod="30"
+            dateformat="yyyy-MMM-dd HH:mm:ss">
+
+            <cvselement cvsroot="${cvs.repository}"
+                localworkingcopy="${cvs.workingcopy}"/>
+        </modificationset>
+    </target>
+
+    <target name="get" description="Checkout package from CVS">
+        <cvs cvsRoot="${cvs.repository}" package="${cvs.package}" dest=".." />
+    </target>
+
+    <target name="masterbuild" depends="modificationset,get,compile,test" description="Cruise control master build"/>
+    <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
+    
+</project>
