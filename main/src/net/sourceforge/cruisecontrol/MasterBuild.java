@@ -238,7 +238,10 @@ public class MasterBuild {
                     "successful builds");
                 }
                 
-                info.incrementLabel(props.getLabelIncrementerClassName());
+                //info.incrementLabel(props.getLabelIncrementerClassName());
+                LabelIncrementer labelIncrementer = props.createLabelIncrementer();
+                info.setLabel(labelIncrementer.incrementLabel(info.getLabel(), null));
+
             } else {
                 sendBuildEmail(_projectName + "Build Failed");
             }            
