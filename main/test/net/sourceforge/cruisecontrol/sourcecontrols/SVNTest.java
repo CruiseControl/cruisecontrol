@@ -94,6 +94,7 @@ public class SVNTest extends TestCase {
         }
 
         File tempFile = File.createTempFile("temp", "txt");
+        tempFile.deleteOnExit();
 
         svn = new SVN();
         svn.setLocalWorkingCopy(tempFile.getParent());

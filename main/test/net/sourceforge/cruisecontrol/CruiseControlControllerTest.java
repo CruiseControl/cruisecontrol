@@ -113,6 +113,7 @@ public class CruiseControlControllerTest extends TestCase {
     public void testReadProject() throws IOException {
         File tempFile = File.createTempFile("foo", ".tmp");
         String tempDir = tempFile.getParent();
+        tempFile.delete();
         Project project = test.readProject(tempDir);
         assertNotNull(project);
         assertTrue(project.getBuildForced());
