@@ -3,3 +3,5 @@ bin
 vssver.scc
 .classpath
 .project
+CruiseControl.iws
+CruiseControl.ipr
