@@ -59,6 +59,7 @@ import org.apache.tools.ant.Task;
  *  @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  *  @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  *  @author Arun Aggarwal
+ *  @author Jonny Boman
  */
 public class VssJournalElement extends SourceControlElement {
     
@@ -75,7 +76,19 @@ public class VssJournalElement extends SourceControlElement {
     
     private ArrayList _modifications = new ArrayList();
     private Set _emails = new HashSet();
+    private List moListVssJournalDateFormat = new ArrayList();
     
+    /**
+     * Add a nested element for date format interpretation from the journal file.
+     * The date and time parameters are fed as a "date time" string (a single space separates date from time)
+     * @return VssJournalDateFormat
+     */
+    public VssJournalDateFormat createVssjournaldateformat() {
+        VssJournalDateFormat oVssJournalDateFormat = new VssJournalDateFormat();
+        moListVssJournalDateFormat.add(oVssJournalDateFormat);
+        return oVssJournalDateFormat;
+    }
+
     /**
      *  Set the project to get history from
      *
@@ -296,16 +309,18 @@ public class VssJournalElement extends SourceControlElement {
      * Parse date/time from VSS file history
      *
      * The nameAndDateLine will look like
-     *  User: Etucker      Date:  6/26/01   Time: 11:53a
+     * User: Etucker      Date:  6/26/01   Time: 11:53a
      * Sometimes also this
-     *  User: Aaggarwa     Date:  6/29/:1   Time:  3:40p
+     * User: Aaggarwa     Date:  6/29/:1   Time:  3:40p
      * Note the ":" instead of a "0"
      *
-     *@param  dateLine
-     *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma"
+     * May give additional DateFormats through the vssjournaldateformat tag.
+     * E.g. <code><vssjournaldateformat format="yy-MM-dd hh:mm"/></code>
+     * @return Date
+     * @param nameAndDateLine
      */
     public Date parseDate(String nameAndDateLine) {
-        String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
+        String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: ")).trim();
         
         int indexOfColon = dateAndTime.indexOf("/:");
         if(indexOfColon != -1) {
@@ -313,9 +328,8 @@ public class VssJournalElement extends SourceControlElement {
             + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':','0')
             + dateAndTime.substring(indexOfColon + 2);
         }
-        
         try {
-            Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime.trim() + "m");
+            Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime + "m");
             
             //(PENDING) This seems out of place
             if (lastModifiedDate.getTime() < _lastModified) {
@@ -324,8 +338,26 @@ public class VssJournalElement extends SourceControlElement {
             
             return lastModifiedDate;
         } catch (ParseException pe) {
-            pe.printStackTrace();
-            return null;
+            // The standard parsing failed so we see if there are any suggestions
+            // on how to interpret the date, but first we extract date and time into one
+            // string with just one space separating the date from the time
+            dateAndTime = dateAndTime.substring(5);
+            String sDate = dateAndTime.substring(0, dateAndTime.indexOf("Time:")).trim();;
+            String sTime = dateAndTime.substring(dateAndTime.indexOf("Time:")+5).trim();;
+            dateAndTime = sDate+" "+sTime;
+            Date oDate = null;
+            for (Iterator oIterator = moListVssJournalDateFormat.iterator();oIterator.hasNext();) {
+                VssJournalDateFormat oVssJournalDateFormat = (VssJournalDateFormat)oIterator.next();
+                try {
+                    oDate = oVssJournalDateFormat.getDateFormat().parse(dateAndTime);
+                } catch (ParseException e) {
+                    // No luck with this one
+                }
+            }
+            if (oDate == null) {
+                throw new org.apache.tools.ant.BuildException("Could not parse date in VssJournal file");
+            }
+            return oDate;
         }
     }
     
@@ -394,4 +426,19 @@ public class VssJournalElement extends SourceControlElement {
         return date.before(_lastBuild);
     }
     
+    
+    public static class VssJournalDateFormat extends Task {
+        private DateFormat moDateFormat = null;
+        private String msFormat = null;
+        public void setFormat(String psFormat) {
+            moDateFormat = new SimpleDateFormat(psFormat);
+            msFormat = psFormat;
+        }
+        public String getFormat() {
+            return msFormat;
+        }
+        public final DateFormat getDateFormat() {
+            return moDateFormat;
+        }
+    }
 }
