@@ -3587,6 +3587,13 @@ endlocal</pre>
         <p>Sends an email with the build results embedded as HTML. By default
         the same information as the JSP build results page is sent.</p>
 
+        <p>Typical usage is to define xsldir and css to point to cruisecontrol locations.
+        This publisher creates HTML email by transforming information based on a set of
+        internally pre-defined xsl files. (Currently "header.xsl", "maven.xsl", "checkstyle.xsl",
+        "errors.xsl", "javadoc.xsl", "unittests.xsl", "modifications.xsl", and "distributables.xsl")
+        This list can be changed, or appended to, using xslfilelist attribute. Alternatively, you
+        can specify a single xsl file to handle the full transformation using the xslfile attribute.</p>
+
         <h3>Attributes</h3>
         <p>All of the attributes and child elements of <a href="#email"><code>&lt;email&gt;</code></a>
         apply to <code>&lt;htmlemail&gt;</code> as well. The following table
@@ -3629,8 +3636,19 @@ endlocal</pre>
             <tr class="oddrow">
                 <td>xslfile</td>
                 <td>No</td>
-                <td>If specified, both xsldir and css are ignored.  Must
+                <td>If specified, xsldir, xslfilelist, and css are ignored.  Must
                 handle the entire document.</td>
+            </tr>
+            <tr>
+                <td>xslfilelist</td>
+                <td>No</td>
+                <td>Works with xsldir and css. String, representing ordered list of xsl files
+                located in xsldir, which are used to format HTML email. List is comma
+                or space separated. If first character of list is plus sign ("+"), the listed
+                file(s) are added to existing set of xsl files used by HTMLEmailPublisher. If
+                xslfilelist is not specified, email is published using hard-coded list of
+                xsl files.
+                </td>
             </tr>
             </tbody>
         </table>
