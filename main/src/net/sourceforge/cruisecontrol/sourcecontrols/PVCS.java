@@ -201,8 +201,8 @@ public class PVCS implements SourceControl {
         return correctedExe.append(exe).toString();
     }
 
-    private void exec(String command)
-        throws IOException, InterruptedException {
+    private void exec(String command) throws IOException, InterruptedException {
+        LOG.debug("Command to execute: " + command);
         Process p = Runtime.getRuntime().exec(command);
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
         new Thread(errorPumper).start();
