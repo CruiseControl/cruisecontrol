@@ -36,11 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * An enumeration of Project states following standard typesafe enumeration
  * pattern in Java.
  */
-public final class ProjectState {
+public final class ProjectState implements Serializable {
+    private static final Map ALL_STATES = new HashMap();
 
     public static final ProjectState QUEUED =
             new ProjectState(1, "queued", "in build queue");
@@ -62,7 +68,7 @@ public final class ProjectState {
             new ProjectState(8, "stopped", "stopped");
     public static final ProjectState WAITING =
             new ProjectState(9, "waiting", "waiting for next time to build");
-
+    
     private String description;
     private String name;
     private int code;
@@ -71,6 +77,7 @@ public final class ProjectState {
         this.code = code;
         this.name = name;
         this.description = desc;
+        ALL_STATES.put(name, this);
     }
 
     public String getDescription() {
@@ -83,5 +90,17 @@ public final class ProjectState {
 
     public String getName() {
         return name;
+    }
+    
+    /**
+     * A <strong>magic</strong> method used by Java Object Serialization. This
+     * allows ProjectState to force the deserialization process to use one of
+     * the ProjectState enum instances that already exist.
+     *
+     * @return a replacement object instance
+     * @throws ObjectStreamException never actually thrown
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return ALL_STATES.get(name);
     }
 }
