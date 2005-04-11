@@ -20,6 +20,10 @@ DefaultLabelIncrementer:
 ----------------------
 * Fixed bug when using non-default label separator (CC-155). Patch by Jerome Lacoste
 
+EmailPublisher:
+----------------------
+* Now accepts <alert> elements to notify users of modifications in files matching a regexp (CC-120). Patch by Eric Spiegelberg
+
 FTPPublisher:
 ----------------------
 * Made setDeleteArtifacts take a boolean argument, instead of parsing a String as a boolean, for consistency with other plugins (CC-158).
