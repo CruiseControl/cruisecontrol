@@ -118,5 +118,8 @@ public class ModificationTest extends TestCase {
         Modification modification = new Modification();
         modification.fromElement(mod.toElement(formatter), formatter);
         mod.equals(modification);
+        
+        // Test getFullPath() of Modificaiton object.
+        assertEquals("Folder'Name/File\"Name&", modification.getFullPath());
     }
 }
