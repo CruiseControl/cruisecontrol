@@ -4101,6 +4101,36 @@ endlocal</pre>
                 </td>
             </tr>
             <tr>
+                <td><a name="alert"><code>&lt;alert&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Mail address to be emailed notification if any of the build's 
+                    modified files match the supplied regular expression.
+                    <code>&lt;alert&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="oddrow">
+                            <td>fileRegExpr</td>
+                            <td>Yes</td>
+                            <td>A regular expression indicating which modified 
+                                files you are interested in</td>
+                        </tr>
+                        <tr>
+                            <td>address</td>
+                            <td>Yes</td>
+                            <td>e-mail address</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr class="oddrow">
                 <td><a name="map"><code>&lt;map&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Maps a source control user id to an email address.
@@ -4128,7 +4158,7 @@ endlocal</pre>
                     </table>
                 </td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a name="propertiesmapper"><code>&lt;propertiesmapper&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>map source control user names to either valid email names

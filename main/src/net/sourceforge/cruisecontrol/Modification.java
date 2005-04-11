@@ -123,7 +123,7 @@ public class Modification implements Comparable {
         }
 
         public boolean equals(Object o) {
-            if (o == null || !(o instanceof ModifiedFile)) {
+            if (!(o instanceof ModifiedFile)) {
                 return false;
             }
 
@@ -238,8 +238,7 @@ public class Modification implements Comparable {
     }
 
     public String toXml(DateFormat formatter) {
-        XMLOutputter outputter = new XMLOutputter();
-        return outputter.outputString(toElement(formatter));
+        return new XMLOutputter().outputString(toElement(formatter));
     }
 
     public String toString() {
@@ -295,7 +294,7 @@ public class Modification implements Comparable {
     }
 
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof Modification)) {
+        if (!(o instanceof Modification)) {
             return false;
         }
 
@@ -368,8 +367,7 @@ public class Modification implements Comparable {
                 LOG.info("XML: " + outputter.outputString(modification));
             }
 
-            modifiedTime =
-                formatter.parse(s);
+            modifiedTime = formatter.parse(s);
         } catch (ParseException e) {
             //maybe we should do something different
             modifiedTime = new Date();
@@ -393,4 +391,27 @@ public class Modification implements Comparable {
             }
         }
     }
+    
+    /**
+     * Concatenates the folderName and fileName of the Modification into a 
+     * <code>String</code>. If the folderName is null then it is not included. 
+     * All backward slashes ("\") are converted to forward slashes 
+     * ("/").
+     *  
+     * @param mod The modification
+     * @return A <code>String</code> containing the full path 
+     *         of the modification
+     */
+    public String getFullPath() {
+        StringBuffer result = new StringBuffer();
+        String folderName = getFolderName();
+        
+        if (folderName != null) {
+            result.append(folderName).append("/");
+        }
+        
+        result.append(getFileName());
+        return result.toString().replace('\\', '/');
+    }
+    
 }
