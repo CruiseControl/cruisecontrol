@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -51,7 +51,7 @@ import net.sourceforge.cruisecontrol.Modification;
  */
 public class AlwaysBuild extends FakeUserSourceControl {
 
-    private Hashtable properties = new Hashtable();
+    private static final Hashtable EMPTY_HASHTABLE = new Hashtable();
 
     /**
      * Unsupported by AlwaysBuild.
@@ -67,7 +67,7 @@ public class AlwaysBuild extends FakeUserSourceControl {
     }
 
     public Hashtable getProperties() {
-        return properties;
+        return EMPTY_HASHTABLE;
     }
 
     public void validate() throws CruiseControlException {
@@ -82,8 +82,6 @@ public class AlwaysBuild extends FakeUserSourceControl {
      * @param now       IGNORED
      */
     public List getModifications(Date lastBuild, Date now) {
-        List modifications = new ArrayList();
-
         Modification mod = new Modification("always");
         Modification.ModifiedFile modfile = mod.createModifiedFile("force build", "force build");
         modfile.action = "change";
@@ -91,8 +89,7 @@ public class AlwaysBuild extends FakeUserSourceControl {
         mod.userName = getUserName();
         mod.modifiedTime = new Date((new Date()).getTime() - 100000);
         mod.comment = "";
-        modifications.add(mod);
-        return modifications;
+        return Collections.singletonList(mod);
     }
 
 
