@@ -47,7 +47,7 @@
             <!-- Modifications -->
             <tr>
                 <td class="modifications-sectionheader" colspan="6">
-                    &#160;Modifications since last build:&#160;
+                    &#160;Modifications since last successful build:&#160;
                     (<xsl:value-of select="count($modification.list)"/>)
                 </td>
             </tr>
