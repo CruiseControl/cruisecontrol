@@ -171,6 +171,7 @@ public class PluginXMLHelper {
         throws CruiseControlException {
         
         if (setters.containsKey(propName.toLowerCase())) {
+            propValue = projectHelper.parsePropertiesInString(propValue);
             LOG.debug("Setting " + propName.toLowerCase() + " to " + propValue);
             try {
                 Method method = (Method) setters.get(propName.toLowerCase());

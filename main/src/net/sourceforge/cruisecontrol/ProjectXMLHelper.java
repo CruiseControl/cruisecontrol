@@ -463,7 +463,7 @@ public class ProjectXMLHelper {
      * @return The parsed string
      * @throws CruiseControlException
      */
-    private String parsePropertiesInString(String string) throws CruiseControlException {
+    String parsePropertiesInString(String string) throws CruiseControlException {
 
         PatternMatcher matcher = new Perl5Matcher();
 
