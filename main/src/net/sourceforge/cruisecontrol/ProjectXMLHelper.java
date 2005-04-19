@@ -37,28 +37,60 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternCompiler;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 /**
- *  Instantiates a project from a JDOM Element
+ *  Instantiates a project from a JDOM Element. Supports the use of Ant-like patterns in
+ *  attribute values that look like this: <code>${propertyname}</code>
  */
 public class ProjectXMLHelper {
 
+    public static final String LABEL_INCREMENTER = "labelincrementer";
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
+    private static final Pattern PROPERTY_PATTERN;
+    
+    static {
+        // Create a Perl 5 pattern matcher to find embedded properties
+        PatternCompiler compiler = new Perl5Compiler();
+        try {
+            //                                    1           2         3
+            PROPERTY_PATTERN = compiler.compile("(.*)\\$\\{([^${}]+)\\}(.*)");
+        } catch (MalformedPatternException e) {
+            // shouldn't happen
+            LOG.fatal("Error compiling pattern for property matching", e);
+            throw new IllegalStateException();
+        }
+
+    }
 
     private PluginRegistry plugins;
     private Element projectElement;
     private String projectName;
     private String overrideTarget = null;
-    public static final String LABEL_INCREMENTER = "labelincrementer";
+    private Properties properties = new Properties();
 
     public ProjectXMLHelper() {
         plugins = PluginRegistry.createRegistry();
@@ -66,26 +98,44 @@ public class ProjectXMLHelper {
 
     public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
         this();
-        Iterator projectIterator =
-                Util.loadConfigFile(configFile).getChildren("project").iterator();
-        while (projectIterator.hasNext()) {
-            Element currentProjectElement = (Element) projectIterator.next();
-            if (currentProjectElement.getAttributeValue("name") != null
-                    && currentProjectElement.getAttributeValue("name").equals(projName)) {
+        
+        // Load the configuration file
+        Element rootElement = Util.loadConfigFile(configFile);
+
+        // Find this project's element within the config file
+        for (Iterator projects = rootElement.getChildren("project").iterator(); projects.hasNext(); ) {
+            Element currentProjectElement = (Element) projects.next();
+            if (projName.equals(currentProjectElement.getAttributeValue("name"))) {
                 projectElement = currentProjectElement;
+                break;
             }
         }
         if (projectElement == null) {
             throw new CruiseControlException("Project not found in config file: " + projName);
         }
-
+        
         projectName = projName;
         setDateFormat(projectElement);
+        
+        // Register the project's name as a built-in property
+        properties.setProperty("project.name", projectName);
 
-        Iterator pluginIterator = projectElement.getChildren("plugin").iterator();
-        while (pluginIterator.hasNext()) {
-            Element pluginElement = (Element) pluginIterator.next();
-            plugins.register(pluginElement);
+        // Register any global properties
+        for (Iterator globProps = rootElement.getChildren("property").iterator(); globProps.hasNext(); ) {
+            registerProperty((Element) globProps.next());
+        }
+
+        // Register any project specific properties
+        for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext(); ) {
+            registerProperty((Element) projProps.next());
+        }
+
+        // Parse the entire element tree, expanding all property macros
+        parsePropertiesInElement(rootElement);
+        
+        // Register any custom plugins
+        for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
+            plugins.register((Element) pluginIter.next());
         }
     }
 
@@ -174,8 +224,7 @@ public class ProjectXMLHelper {
         Iterator sourceControlIterator = modSetElement.getChildren().iterator();
         while (sourceControlIterator.hasNext()) {
             Element sourceControlElement = (Element) sourceControlIterator.next();
-            SourceControl sourceControl =
-                    (SourceControl) configurePlugin(sourceControlElement, false);
+            SourceControl sourceControl = (SourceControl) configurePlugin(sourceControlElement, false);
             sourceControl.validate();
             modificationSet.addSourceControl(sourceControl);
         }
@@ -249,10 +298,7 @@ public class ProjectXMLHelper {
         String pluginName = pluginElement.getName();
 
         if (plugins.isPluginRegistered(pluginName)) {
-            return pluginHelper.configure(
-                    pluginElement,
-                    plugins.getPluginClass(pluginName),
-                    skipChildElements);
+            return pluginHelper.configure(pluginElement, plugins.getPluginClass(pluginName), skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
@@ -311,9 +357,160 @@ public class ProjectXMLHelper {
     }
     
     /**
+     * Returns all properties to which this project has access
+     * 
+     * @return The properties accessible to this project
+     */
+    public Properties getProperties() {
+        return this.properties;
+    }
+    
+    /**
      * @param overrideTarget An overrideTarget to set on Builders in the Schedule.
      */
     public void setOverrideTarget(String overrideTarget) {
         this.overrideTarget = overrideTarget;
     }
+    
+    /**
+     * Registers one or more properties as defined in a property element.
+     *  
+     * @param propertyElement The element from which we will register properties
+     * @throws CruiseControlException
+     */
+    private void registerProperty(Element propertyElement) throws CruiseControlException {
+        // Determine which attributes were set in the element
+        String fileName = propertyElement.getAttributeValue("file");
+        String environment = propertyElement.getAttributeValue("environment");
+        String propName = propertyElement.getAttributeValue("name");
+        String propValue = propertyElement.getAttributeValue("value");
+        boolean toupper = "true".equalsIgnoreCase(propertyElement.getAttributeValue("toupper"));
+
+        // If the file attribute was set, try to read properties
+        // from the given filename.
+        if (fileName != null && fileName.trim().length() > 0) {
+            File file = new File(fileName);
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                // Read the file line by line, expanding macros
+                // as we go. We must do this manually to preserve the
+                // order of the properties.
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    int index = line.indexOf('=');
+                    if (index < 0) {
+                        continue;
+                    }
+                    String name = line.substring(0, index).trim();
+                    String parsedValue = parsePropertiesInString(line.substring(index + 1).trim());
+                    LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
+                    properties.put(name, parsedValue);
+                }
+                reader.close();
+            } catch (FileNotFoundException e) {
+                throw new CruiseControlException(
+                        "Could not load properties from file \"" + fileName
+                                + "\". The file does not exist", e);
+            } catch (IOException e) {
+                throw new CruiseControlException(
+                        "Could not load properties from file \"" + fileName
+                                + "\".", e);
+            }
+        } else if (environment != null) {
+            // Load the environment into the project's properties
+            Iterator variables = new OSEnvironment().getEnvironment().iterator();
+            while (variables.hasNext()) {
+                String line = (String) variables.next();
+                int index = line.indexOf('=');
+                if (index < 0) {
+                    continue;
+                }
+                // If the toupper attribute was set, upcase the variables
+                StringBuffer name = new StringBuffer(environment);
+                name.append(".");
+                if (toupper) {
+                    name.append(line.substring(0, index).toUpperCase());
+                } else {
+                    name.append(line.substring(0, index));
+                }
+                String parsedValue = parsePropertiesInString(line.substring(index + 1));
+                LOG.debug("Setting property \"" + name.toString() + "\" to \"" + parsedValue + "\".");
+                properties.put(name.toString(), parsedValue);
+            }
+        } else {
+            // Try to get a name value pair
+            if (propName == null) {
+                throw new CruiseControlException("Bad property definition - " 
+                        + new XMLOutputter().outputString(propertyElement));
+            }
+            if (propValue == null) {
+                throw new CruiseControlException(
+                        "No value provided for property \"" + propName + "\" - " 
+                        + new XMLOutputter().outputString(propertyElement)); 
+            }
+            String parsedValue = parsePropertiesInString(propValue);
+            LOG.debug("Setting property \"" + propName + "\" to \"" + parsedValue + "\".");
+            properties.put(propName, parsedValue);
+        }
+    }
+    
+    /**
+     * Parses a string by replacing all occurences of a property macro with
+     * the resolved value of the property. Nested macros are allowed - the 
+     * inner most macro will be resolved first, moving out from there.
+     *  
+     * @param string The string to be parsed
+     * @return The parsed string
+     * @throws CruiseControlException
+     */
+    private String parsePropertiesInString(String string) throws CruiseControlException {
+
+        PatternMatcher matcher = new Perl5Matcher();
+
+        // Expand all (possibly nested) properties
+        while (matcher.contains(string, PROPERTY_PATTERN)) {
+            MatchResult result = matcher.getMatch();
+            String pre = result.group(1);
+            String propertyName = result.group(2);
+            String post = result.group(3);
+            String value = properties.getProperty(propertyName);
+            if (value == null) {
+                throw new CruiseControlException("Property \"" + propertyName
+                        + "\" is not defined. Please check the order in which you have used your properties.");
+            }
+            LOG.debug("Replacing the string \"" + propertyName + "\" with \"" + value + "\".");
+            string = pre + value + post;
+        }
+
+        return string;
+    }
+    
+    /**
+     * Recurses through an Element tree, substituting resolved values
+     * for any property macros.
+     * 
+     * @param element The Element to parse
+     * 
+     * @throws CruiseControlException
+     */
+    private void parsePropertiesInElement(Element element) throws CruiseControlException {
+
+        // Recurse through the element tree - depth first
+        for (Iterator children = element.getChildren().iterator(); children.hasNext(); ) {
+            parsePropertiesInElement((Element) children.next());
+        }
+
+        // Parse the attribute value strings
+        for (Iterator attributes = element.getAttributes().iterator(); attributes.hasNext(); ) {
+            Attribute attribute = (Attribute) attributes.next();
+            attribute.setValue(parsePropertiesInString(attribute.getValue()));
+        }
+
+        // Parse the element's text
+        String text = element.getTextTrim();
+        if (text.length() > 0) {
+            element.setText(parsePropertiesInString(text));
+        }
+    }
+
 }
