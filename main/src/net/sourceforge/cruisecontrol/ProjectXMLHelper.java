@@ -495,6 +495,11 @@ public class ProjectXMLHelper {
      */
     private void parsePropertiesInElement(Element element) throws CruiseControlException {
 
+        // Do not attempt to parse properties from within other projects
+        if (element.getName().equals("project") && !element.getAttributeValue("name").equals(projectName)) {
+            return;
+        }
+        
         // Recurse through the element tree - depth first
         for (Iterator children = element.getChildren().iterator(); children.hasNext(); ) {
             parsePropertiesInElement((Element) children.next());
