@@ -40,17 +40,98 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import org.jdom.Element;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Properties;
 
 public class ProjectXMLHelperTest extends TestCase {
 
     private File configFile;
     private File tempDirectory;
+    private File propertiesFile;
 
     private static final int ONE_SECOND = 1000;
+
+    public void testGlobalProperty() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "simpleprops");
+        Properties props = helper.getProperties();
+        assertEquals(4, props.size());
+        assertEquals("works!", props.getProperty("global"));
+    }    
+
+    public void testProjectNameProperty() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
+        Properties props = helper.getProperties();
+        assertEquals(3, props.size());
+        assertEquals("project1", props.getProperty("project.name"));
+    }    
+
+    public void testProjectNameInGlobalProperty() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
+        Properties props = helper.getProperties();
+        assertEquals(3, props.size());
+        assertEquals("works!", props.getProperty("global"));
+        assertEquals("project1", props.getProperty("project.name"));
+        assertEquals("project=project1", props.getProperty("project.global"));
+    }    
+
+    public void testSimpleProperty() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "simpleprops");
+        Properties props = helper.getProperties();
+        assertEquals(4, props.size());
+        assertEquals("success!", props.getProperty("simple"));
+    }
+
+    public void testMultipleProperties() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "multiprops");
+        Properties props = helper.getProperties();
+        assertEquals(7, props.size());
+        assertEquals("one", props.getProperty("first"));
+        assertEquals("two", props.getProperty("second"));
+        assertEquals("three", props.getProperty("third"));
+        assertEquals("one.two$three", props.getProperty("multi"));
+    }
+
+    public void testNestedProperties() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "nestedprops");
+        Properties props = helper.getProperties();
+        assertEquals(9, props.size());
+        assertEquals("one", props.getProperty("first"));
+        assertEquals("two", props.getProperty("second"));
+        assertEquals("three", props.getProperty("third"));
+        assertEquals("almost", props.getProperty("one.two.three"));
+        assertEquals("threeLevelsDeep", props.getProperty("almost"));
+        assertEquals("threeLevelsDeep", props.getProperty("nested"));
+    }
+
+    public void testPropertyEclipsing() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "eclipseprop");
+        Properties props = helper.getProperties();
+        assertEquals(3, props.size());
+        assertEquals("eclipsed", props.getProperty("global"));
+    }
+    
+    public void testLoadPropertiesFromFile() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "propsfromfile");
+        Properties props = helper.getProperties();
+        assertEquals(7, props.size());
+        assertEquals("/home/cruise", props.getProperty("dir1"));
+        assertEquals("/home/cruise/logs", props.getProperty("dir2"));
+        assertEquals("temp", props.getProperty("tempdir"));
+        assertEquals("/home/cruise/logs/temp", props.getProperty("multi"));
+    }
+    
+    public void testMissingProperty() {
+        ProjectXMLHelper helper = null;
+        try {
+            helper = new ProjectXMLHelper(configFile, "missingprop");
+            fail("A missing property should cause an exception!");
+        } catch (CruiseControlException expected) {
+        }
+    }
 
     public void testDateFormat() throws Exception {
         String originalFormat = DateFormatFactory.getFormat();
@@ -84,7 +165,7 @@ public class ProjectXMLHelperTest extends TestCase {
         try {
             helper.getSchedule();
             fail("schedule should be a required element");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
 
         helper = new ProjectXMLHelper(configFile, "project2");
@@ -97,7 +178,7 @@ public class ProjectXMLHelperTest extends TestCase {
         try {
             helper.getModificationSet();
             fail("modificationset should be a required element");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
 
         helper = new ProjectXMLHelper(configFile, "project2");
@@ -111,8 +192,7 @@ public class ProjectXMLHelperTest extends TestCase {
         pluginElement.setAttribute("classname", DefaultLabelIncrementer.class.getName());
         PluginRegistry.registerToRoot(pluginElement);
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project2");
-        DefaultLabelIncrementer incrementer =
-            (DefaultLabelIncrementer) helper.getLabelIncrementer();
+        DefaultLabelIncrementer incrementer = (DefaultLabelIncrementer) helper.getLabelIncrementer();
         assertTrue(incrementer.isValidLabel("build#9"));
 
         helper = new ProjectXMLHelper(configFile, "project1");
@@ -144,51 +224,101 @@ public class ProjectXMLHelperTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        // Set up a properties file to use while testing property expansion
+        propertiesFile = File.createTempFile("temp", "properties");
+        propertiesFile.deleteOnExit();
+        StringBuffer buff = new StringBuffer();
+        buff.append("dir1=/home/cruise\n");
+        buff.append("  dir2 = ${dir1}/logs   \n");
+        buff.append("tempdir= temp\n");
+        buff.append("multi= ${dir2}/${tempdir}\n");
+        
+        Writer writer = new BufferedWriter(new FileWriter(propertiesFile));
+        writer.write(buff.toString());
+        writer.close();
+        
+        // Set up a CruiseControl config file for testing
         configFile = File.createTempFile("tempConfig", "xml");
         configFile.deleteOnExit();
         tempDirectory = configFile.getParentFile();
-        // Note: the project1 and project3 directories will be created in <testexecutiondir>/logs/
-        String config =
-            "<cruisecontrol>"
-                + "  <project name='project1' />"
-                + "  <project name='project2' >"
-                + "    <bootstrappers>"
-                + "      <vssbootstrapper vsspath='foo' localdirectory='"
-                + tempDirectory.getAbsolutePath()
-                + "' />"
-                + "    </bootstrappers>"
-                + "    <schedule interval='20' >"
-                + "      <ant multiple='1' buildfile='"
-                + tempDirectory.getAbsolutePath()
-                + "/foo/bar.xml' target='baz' />"
-                + "    </schedule>"
-                + "    <modificationset quietperiod='10' >"
-                + "      <vss vsspath='"
-                + tempDirectory.getAbsolutePath()
-                + "/foo/bar' login='login' />"
-                + "    </modificationset>"
-                + "    <log dir='"
-                + tempDirectory.getAbsolutePath()
-                + "/foo' encoding='utf-8' >"
-                + "      <merge file='blah' />"
-                + "    </log>"
-                + "    <labelincrementer separator='#' />"
-                + "    <listeners>"
-                + "      <currentbuildstatuslistener file='status.txt'/>"
-                + "    </listeners>"
-                + "  </project>"
-                + "  <project name='project3' >"
-                + "    <log/>"
-                + "  </project>"
-                + "</cruisecontrol>";
+        // Note: the project1 and project3 directories will be created 
+        // in <testexecutiondir>/logs/
+        StringBuffer config = new StringBuffer();
+        config.append("<cruisecontrol>\n");
+        config.append("  <property name='global' value='works!'/>\n");
+        config.append("  <property name='project.global' value='project=${project.name}'/>\n");
 
-        Writer writer = new FileWriter(configFile);
-        writer.write(config);
+        config.append("  <project name='project1' />\n");
+
+        config.append("  <project name='project2' >\n");
+        config.append("    <bootstrappers>\n");
+        config.append("      <vssbootstrapper vsspath='foo' localdirectory='"
+                + tempDirectory.getAbsolutePath() + "' />\n");
+        config.append("    </bootstrappers>\n");
+        config.append("    <schedule interval='20' >\n");
+        config.append("      <ant multiple='1' buildfile='"
+                + tempDirectory.getAbsolutePath()
+                + "/foo/bar.xml' target='baz' />\n");
+        config.append("    </schedule>\n");
+        config.append("    <modificationset quietperiod='10' >\n");
+        config.append("      <vss vsspath='"
+                + tempDirectory.getAbsolutePath()
+                + "/foo/bar' login='login' />\n");
+        config.append("    </modificationset>\n");
+        config.append("    <log dir='"
+                + tempDirectory.getAbsolutePath()
+                + "/foo' encoding='utf-8' >\n");
+        config.append("      <merge file='blah' />\n");
+        config.append("    </log>\n");
+        config.append("    <labelincrementer separator='#' />\n");
+        config.append("    <listeners>\n");
+        config.append("      <currentbuildstatuslistener file='status.txt'/>\n");
+        config.append("    </listeners>\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='project3' >\n");
+        config.append("    <log/>\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='propsfromfile' >\n");
+        config.append("    <property file='"
+                + propertiesFile.getAbsolutePath()
+                + "' />\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='simpleprops' >\n");
+        config.append("    <property name='simple' value='success!'/>\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='multiprops' >\n");
+        config.append("    <property name='first' value='one'/>\n");
+        config.append("    <property name='second' value='two'/>\n");
+        config.append("    <property name='third' value='three'/>\n");
+        config.append("    <property name='multi' value='${first}.${second}$${third}'/>\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='nestedprops' >\n");
+        config.append("    <property name='first' value='one'/>\n");
+        config.append("    <property name='second' value='two'/>\n");
+        config.append("    <property name='third' value='three'/>\n");
+        config.append("    <property name='one.two.three' value='almost'/>\n");
+        config.append("    <property name='almost' value='threeLevelsDeep'/>\n");
+        config.append("    <property name='nested' value='${${${first}.${second}.${third}}}'/>\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='missingprop' >\n");
+        config.append("    <log dir='${missing}'/>\n");
+        config.append("  </project>\n");
+
+        config.append("  <project name='eclipseprop' >\n");
+        config.append("    <property name='global' value='eclipsed'/>\n");
+        config.append("  </project>\n");
+        
+        config.append("</cruisecontrol>\n");
+
+        writer = new BufferedWriter(new FileWriter(configFile));
+        writer.write(config.toString());
         writer.close();
-    }
-
-    protected void tearDown() throws Exception {
-        configFile = null;
     }
 
 }
