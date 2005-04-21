@@ -4,6 +4,10 @@ AntPublisher:
 ----------------------
 * Will now pass the property "thisbuildsuccessful" to the ant script.
 
+controlpanel.jsp:
+----------------------
+* Provide direct link to project jmx page (CC-204). Submitted by Tim Shadel
+
 contrib:
 ----------------------
 * Add support for distributed building (CC-137). Submitted by Jeff Ramsdale
