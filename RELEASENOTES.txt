@@ -6,7 +6,7 @@ AntPublisher:
 
 controlpanel.jsp:
 ----------------------
-* Provide direct link to project jmx page (CC-204). Submitted by Tim Shadel
+* Provide direct link to project jmx page (CC-204). Patch by Tim Shadel
 
 contrib:
 ----------------------
@@ -40,6 +40,7 @@ HTMLEmailPublisher:
 index.jsp:
 ----------------------
 * Use rounded corners on the right of the page (CC-113). Patch by Mark Doliner
+* Add summary line with percentage of passing/failing projects (CC-203). Patch by Tim Shadel
 
 JMX:
 ----------------------

@@ -131,11 +131,13 @@
     <tbody>
  <%
                Arrays.sort(projectDirs);
+               int passed = 0;
              for (int i = 0; i < projectDirs.length; i++) {
                    String project = projectDirs[i];
                    File projectDir = new File(logDir, project);
                    statusHelper.setProjectDirectory(projectDir);
                  final String result = statusHelper.getLastBuildResult();
+                   if ("passed".equalsIgnoreCase(result)) { passed++; }
          %>        <tr><td><a href="buildresults/<%=project%>"><%=project%></a></td><%
                  %><td class="index-<%=result%>" align="center"><%=result%></td><%
                  %><td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td><%
@@ -144,7 +146,29 @@
                    </tr>
  <%
                }
-         %>    </tbody>
+         %>
+                   <tr><td style="font-weight:bold;border-top:thin solid black">Total</td>
+                   <td align="center" style="font-weight:bold;border-top:thin solid black"><%=projectDirs.length%></td>
+                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
+                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
+                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
+                   </tr>
+
+                   <tr><td class="index-passed">Passed</td>
+                   <td align="center" class="index-passed"><%=passed%></td>
+                   <td align="center" class="index-passed"><%=((double)passed)/projectDirs.length*100.0%>%</td>
+                   <td align="center" class="index-passed">&nbsp;</td>
+                   <td align="center" class="index-passed">&nbsp;</td>
+                   </tr>
+
+                   <% int failed = projectDirs.length - passed; %>
+                   <tr><td class="index-failed">Failed</td>
+                   <td align="center" class="index-failed"><%=failed%></td>
+                   <td align="center" class="index-failed"><%=((double)failed)/projectDirs.length*100.0%>%</td>
+                   <td align="center" class="index-failed">&nbsp;</td>
+                   <td align="center" class="index-failed">&nbsp;</td>
+                   </tr>
+               </tbody>
 <%
            }
        }
