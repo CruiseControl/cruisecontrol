@@ -162,6 +162,14 @@ public final class PluginRegistry {
     static void registerToRoot(Element pluginElement) throws CruiseControlException {
         ROOTREGISTRY.register(pluginElement);
     }
+    
+    /**
+     * Clears all plugin defaults in the root registry, so they can be re-registered
+     * when reloading the config file.
+     */
+    static void clearRootDefaultProperties() {
+        ROOTREGISTRY.defaultProperties.clear();
+    }
 
     /**
      * @return Returns null if no plugin has been registered with the specified
