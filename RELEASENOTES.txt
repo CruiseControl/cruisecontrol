@@ -16,6 +16,10 @@ CMSynergy:
 ----------------------
 * Added options reconfigure, ignoreWorkarea, language, and country attributes (CC-179). Patch by Robert J. Smith
 
+CVS:
+----------------------
+* Add module attribute so it can work with no local working copy (CC-149). Patch by Lars Gehrken
+
 CVSBootstrapper:
 ----------------------
 * Add overwriteChanges attribute.
