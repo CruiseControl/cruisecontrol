@@ -377,7 +377,7 @@
                 <td>Should CruiseControl keep on building even though it has
                 failed and no new modifications are detected? This feature is
                 useful if you want CruiseControl to detect situations where a
-                build fails because of outside dependecies (like temporary
+                build fails because of outside dependencies (like temporary
                 failing database connection).</td>
             </tr>
             </tbody>
@@ -712,7 +712,7 @@
       &lt;cmsynergybootstrapper&gt;</pre>
         </div>
 
-        <p>Used to reconfigure a CM Synergy project or project heirarchy</p>
+        <p>Used to reconfigure a CM Synergy project or project hierarchy</p>
 
         <h3>Attributes</h3>
 
@@ -734,7 +734,7 @@
                 <td>ccmsession</td>
                 <td>No</td>
                 <td>The ID string of the CM Synergy session to use. If not 
-                    provided, the decision will be deffered to the client.</td>
+                    provided, the decision will be deferred to the client.</td>
             </tr>
             <tr class="oddrow">
                 <td>project</td>
@@ -859,7 +859,7 @@
         can solve this problem either by pulling a single file (such as
         build.xml) or by updating the entire project. Allowing the bootstrapper
         to update the project makes for a simpler build.xml but allows a window
-        where a file can be commited after the update and before the
+        where a file can be committed after the update and before the
         modification check.</p>
 
         <h3>Attributes</h3>
@@ -931,7 +931,7 @@
         <p>Syncs a single path from Perforce before the build begins. Useful
         if you want to leave all SCM up to CruiseControl. Allowing the
         bootstrapper to update the project makes for a simpler build.xml but
-        allows a window where a file can be commited after the update and before
+        allows a window where a file can be committed after the update and before
         the modification check.</p>
 
         <h3>Attributes</h3>
@@ -1326,7 +1326,7 @@
                to avoid starting a build while someone is in mid-checkin. If a
                modification is detected to be within the quiet period then CC
                will sleep until the quiet period is finished and then recheck
-               for modificaitons. Small values recommended if you use a
+               for modifications. Small values recommended if you use a
                bootstrapper to sync files (as opposed to getting updates as part
                of the build). 0 is a valid value.</td>
             </tr>
@@ -1685,7 +1685,7 @@
                 <td>ccmsession</td>
                 <td>No</td>
                 <td>The ID string of the CM Synergy session to use. If not 
-                    provided, the decision will be deffered to the client.</td>
+                    provided, the decision will be deferred to the client.</td>
             </tr>
             <tr class="oddrow">
                 <td>project</td>
@@ -1942,7 +1942,7 @@
                 This is passed to the cvs rlog command as last parameter.
                 Refer to the <code>rlog</code> command in the
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
-                cvs log</a> reference for futher details.</td>
+                cvs log</a> reference for further details.</td>
             </tr>
             <tr>
                 <td>tag</td>
@@ -2058,7 +2058,7 @@
         </div>
 
         <p>Checks a single file on a web server supporting modification dates
-        (such as Apache). Intended to be used in a Compound mofication set as
+        (such as Apache). Intended to be used in a Compound modification set as
         a Trigger.</p>
 
         <h3>Attributes</h3>
@@ -2571,7 +2571,7 @@
                 <td>timeformat</td>
                 <td>No (default is <i>hh:mma</i>)</td>
                 <td>The time format to use for querying VSS and processing
-                reports. If your VSS is configured differnetly you may need a
+                reports. If your VSS is configured differently you may need a
                 different format such as <i>HH:mm:ss</i>.</td>
             </tr>
             <tr class="oddrow">
@@ -2689,7 +2689,7 @@
         by the time based builds.</p>
 
         <p><b>Note:</b> Only one builder is used for a given interval where
-        modifications are found. Builds using the time attribute take precidence
+        modifications are found. Builds using the time attribute take precedence
         over builds using the multiple attribute. If no matching time builds are
         found the multiple builds are evaluated <em>in the order they appear in
         the file</em>, so a multiple='1' on the first builder will hide all the
@@ -2711,7 +2711,7 @@
                 <td>No</td>
                 <td>Interval period in seconds. Default value is 300 (five
                 minutes). Maximum value is 31536000 (one year), but for the
-                bulders that ship with CruiseControl the maximum practical
+                builders that ship with CruiseControl the maximum practical
                 value is 604800 (one week). Ignored if schedule only has time
                 based builders.</td>
             </tr>
@@ -2787,7 +2787,7 @@
             </tr>
             <tr>
                 <td>cclastgoodbuildtimestamp</td>
-                <td>Timestamp that indicates when the last succesful build was
+                <td>Timestamp that indicates when the last successful build was
                 run, using the format <code>yyyyMMddHHmmss</code></td>
             </tr>
             <tr class="oddrow">
@@ -2899,7 +2899,7 @@
             <tr class="oddrow">
                 <td>day</td>
                 <td>No</td>
-                <td>Valid values are (case-insenstive) the english names for
+                <td>Valid values are (case-insensitive) the english names for
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
             </tr>
@@ -3268,7 +3268,7 @@ endlocal</pre>
             <tr class="oddrow">
                 <td>day</td>
                 <td>No</td>
-                <td>Valid values are (case-insenstive) the english names for
+                <td>Valid values are (case-insensitive) the english names for
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
             </tr>
@@ -4006,8 +4006,8 @@ endlocal</pre>
                 <td>No (defaults to false)</td>
                 <td>Controls if the users who made changes in this build get
                 email. Useful to set to "true" while configuring or debugging
-                your system. Users specificed by the failure or always nested
-                elements will still recieve email.</td>
+                your system. Users specified by the failure or always nested
+                elements will still receive email.</td>
             </tr>
             <tr class="oddrow">
                 <td>spamwhilebroken</td>
