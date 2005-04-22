@@ -1936,6 +1936,15 @@
                 checkout.</td>
             </tr>
             <tr class="oddrow">
+                <td>module</td>
+                <td>Only when cvsroot is in use </td>
+                <td>The name of the CVS module that schould be observed.
+                This is passed to the cvs rlog command as last parameter.
+                Refer to the <code>rlog</code> command in the
+                <a class="external" href="http://www.cvsnt.org/manual/log.html">
+                cvs log</a> reference for futher details.</td>
+            </tr>
+            <tr>
                 <td>tag</td>
                 <td>No (defaults to <code>HEAD</code>)</td>
                 <td>Specify the cvs tag. The value of this attribute is passed 
@@ -1945,13 +1954,13 @@
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
                 cvs log</a> reference for futher details.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td>property</td>
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>propertyondelete</td>
                 <td>No</td>
                 <td>Set this property if a file has been deleted.  For use in

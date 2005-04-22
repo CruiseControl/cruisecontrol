@@ -85,7 +85,6 @@ public class CVS implements SourceControl {
      * name of the official cvs as returned as part of the 'cvs version' command output
      */
     static final String OFFICIAL_CVS_NAME = "CVS";
-
     /**
      * Represents the version of a CVS client or server
      */
@@ -169,6 +168,11 @@ public class CVS implements SourceControl {
      * The CVS tag we are dealing with.
      */
     private String tag;
+
+    /**
+     * The CVS modul we are dealing with.
+     */
+    private String module;
 
     /**
      * The version of the cvs server
@@ -278,6 +282,16 @@ public class CVS implements SourceControl {
      */
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    /**
+     * Set the cvs module- name.  Note this should work with this is only used, in the
+     * case localworkingcopy is not set
+     *
+     * @param module the cvs module
+     */
+    public void setModule(String module) {
+        this.module = module;
     }
 
     public void setProperty(String property) {
@@ -395,9 +409,13 @@ public class CVS implements SourceControl {
             OSEnvironment env = new OSEnvironment();
             cvsroot = env.getVariable("CVSROOT");
         }
-        if (cvsroot == null && local == null) {
+        if (!(cvsroot != null && module != null) && local == null) {
             throw new CruiseControlException("at least one of 'localWorkingCopy'"
-                    + " or 'cvsroot' is a required attribute on CVS");
+                    + " or 'cvsroot' and 'module' are a required attributes on CVS");
+        }
+        if (module != null && local != null) {
+            throw new CruiseControlException("only one of 'localWorkingCopy'"
+                    + " or 'module' are a allowed attributes on CVS");
         }
 
         if (local != null && !new File(local).exists()) {
@@ -538,6 +556,10 @@ public class CVS implements SourceControl {
             commandLine.createArgument().setValue("-b");
         }
 
+        if (local == null) {
+            commandLine.createArgument().setValue(module);
+        }
+
         return commandLine;
     }
 
@@ -565,13 +587,14 @@ public class CVS implements SourceControl {
         // Read to the first RCS file name. The first entry in the log
         // information will begin with this line. A CVS_FILE_DELIMITER is NOT
         // present. If no RCS file lines are found then there is nothing to do.
+
         String line = readToNotPast(reader, CVS_RCSFILE_LINE, null);
         ArrayList mods = new ArrayList();
 
         while (line != null) {
             // Parse the single file entry, which may include several
             // modifications.
-            List returnList = parseEntry(reader);
+            List returnList = parseEntry(reader, line);
 
             //Add all the modifications to the local list.
             mods.addAll(returnList);
@@ -625,17 +648,22 @@ public class CVS implements SourceControl {
      * @return modifications found in this entry; maybe empty, never null.
      * @throws IOException
      */
-    private List parseEntry(BufferedReader reader) throws IOException {
+    private List parseEntry(BufferedReader reader, String rcsLine) throws IOException {
         ArrayList mods = new ArrayList();
 
         String nextLine = "";
 
-        // Read to the working file name line to get the filename. It is ASSUMED
-        // that a line will exist with the working file name on it.
-        String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
-        String workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
-        String branchRevisionName = parseBranchRevisionName(reader, tag);
+        // Read to the working file name line to get the filename.
+        // If working file name line isn't found we'll extract is from the RCS file line
+        String workingFileName = null;
+        if (module != null) {
+            workingFileName = rcsLine.substring(rcsLine.indexOf(module) + module.length(), rcsLine.length() - 2);
+        } else {
+            String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
+            workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
+        }
 
+        String branchRevisionName = parseBranchRevisionName(reader, tag);
         boolean newCVSVersion = isCvsNewOutputFormat();
         while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);

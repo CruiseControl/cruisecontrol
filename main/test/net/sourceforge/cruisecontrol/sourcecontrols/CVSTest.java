@@ -148,12 +148,28 @@ public class CVSTest extends TestCase {
 
         try {
             cvs.validate();
+            fail("CVS should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+        }
+
+        cvs.setModule("module");
+
+        try {
+            cvs.validate();
         } catch (CruiseControlException e) {
             fail("CVS should not throw exceptions when required fields are set.");
         }
 
+        cvs.setCvsRoot(null);
+
+        try {
+            cvs.validate();
+            fail("CVS should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+        }
+
         cvs = new CVS();
-        File tempFile = File.createTempFile("temp", "txt");
+        File tempFile = File.createTempFile("temp", ".txt");
         cvs.setLocalWorkingCopy(tempFile.getParent());
         tempFile.delete();
 
@@ -162,6 +178,16 @@ public class CVSTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("CVS should not throw exceptions when required fields are set.");
         }
+
+        cvs.setModule("module");
+
+        try {
+            cvs.validate();
+            fail("CVS should not throw exceptions when excluding fields are set.");
+        } catch (CruiseControlException e) {
+        }
+
+        cvs.setModule(null);
 
         String badDirName = "z:/foo/foo/foo/bar";
         cvs.setLocalWorkingCopy(badDirName);
@@ -189,6 +215,79 @@ public class CVSTest extends TestCase {
 
         BufferedInputStream input =
                 new BufferedInputStream(loadTestLog("cvslog1-11.txt"));
+        List modifications = cvs.parseStream(input);
+        input.close();
+        Collections.sort(modifications);
+
+        assertEquals("Should have returned 5 modifications.",
+                5,
+                modifications.size());
+
+        Modification mod1 = new Modification("cvs");
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("log4j.properties", null);
+        mod1file.action = "modified";
+        mod1.revision = "1.2";
+        mod1.modifiedTime = parseLogDateFormat("2002/03/13 13:45:50 GMT-6:00");
+        mod1.userName = "alden";
+        mod1.comment =
+                "Shortening ConversionPattern so we don't use up all of the available screen space.";
+        mod1.emailAddress = "alden@users.sourceforge.net";
+
+        Modification mod2 = new Modification("cvs");
+        Modification.ModifiedFile mod2file = mod2.createModifiedFile("build.xml", null);
+        mod2file.action = "modified";
+        mod2.revision = "1.41";
+        mod2.modifiedTime = parseLogDateFormat("2002/03/13 19:56:34 GMT-6:00");
+        mod2.userName = "alden";
+        mod2.comment = "Added target to clean up test results.";
+        mod2.emailAddress = "alden@users.sourceforge.net";
+
+        Modification mod3 = new Modification("cvs");
+        Modification.ModifiedFile mod3file = mod3.createModifiedFile("build.xml", "main");
+        mod3file.action = "modified";
+        mod3.revision = "1.42";
+        mod3.modifiedTime = parseLogDateFormat("2002/03/15 13:20:28 GMT-6:00");
+        mod3.userName = "alden";
+        mod3.comment = "enabled debug info when compiling tests.";
+        mod3.emailAddress = "alden@users.sourceforge.net";
+
+        Modification mod4 = new Modification("cvs");
+        Modification.ModifiedFile mod4file = mod4.createModifiedFile("kungfu.xml", "main");
+        mod4file.action = "deleted";
+        mod4.revision = "1.2";
+        mod4.modifiedTime = parseLogDateFormat("2002/03/13 13:45:42 GMT-6:00");
+        mod4.userName = "alden";
+        mod4.comment = "Hey, look, a deleted file.";
+        mod4.emailAddress = "alden@users.sourceforge.net";
+
+        Modification mod5 = new Modification("cvs");
+        Modification.ModifiedFile mod5file = mod5.createModifiedFile("stuff.xml", "main");
+        mod5file.action = "deleted";
+        mod5.revision = "1.4";
+        mod5.modifiedTime = parseLogDateFormat("2002/03/13 13:38:42 GMT-6:00");
+        mod5.userName = "alden";
+        mod5.comment = "Hey, look, another deleted file.";
+        mod5.emailAddress = "alden@users.sourceforge.net";
+
+        assertEquals(mod5, modifications.get(0));
+        assertEquals(mod4, modifications.get(1));
+        assertEquals(mod1, modifications.get(2));
+        assertEquals(mod2, modifications.get(3));
+        assertEquals(mod3, modifications.get(4));
+    }
+
+    public void testParseStreamRemote() throws IOException, ParseException {
+        // ensure CVS version and simulated outputs are in sync
+        final String cvsVersion = "1.11.16";
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion(cvsVersion));
+        cvs.setModule("cruisecontrol/cruisecontrol");
+        Hashtable emailAliases = new Hashtable();
+        emailAliases.put("alden", "alden@users.sourceforge.net");
+        emailAliases.put("tim", "tim@tim.net");
+        cvs.setMailAliases(emailAliases);
+
+        BufferedInputStream input =
+                new BufferedInputStream(loadTestLog("cvslog1-11-remote.txt"));
         List modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
@@ -532,6 +631,7 @@ public class CVSTest extends TestCase {
 
         CVS element = new CVS();
         element.setCvsRoot("cvsroot");
+        element.setModule("module");
         element.setLocalWorkingCopy(null);
 
         String[] expectedCommand =
@@ -543,7 +643,8 @@ public class CVSTest extends TestCase {
                     "rlog",
                     "-N",
                     "-d" + CVS.formatCVSDate(lastBuildTime) + "<" + CVS.formatCVSDate(lastBuildTime),
-                    "-b"};
+                    "-b",
+                    "module"};
 
         String[] actualCommand =
                 element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
