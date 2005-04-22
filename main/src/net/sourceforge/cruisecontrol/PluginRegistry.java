@@ -164,11 +164,13 @@ public final class PluginRegistry {
     }
     
     /**
-     * Clears all plugin defaults in the root registry, so they can be re-registered
-     * when reloading the config file.
+     * Clears all plugin registrations and defaults in the root registry, so they can be re-registered
+     * when reloading the config file. The default-properties are re-read.
      */
-    static void clearRootDefaultProperties() {
+    static void resetRootRegistry() {
         ROOTREGISTRY.defaultProperties.clear();
+        ROOTREGISTRY.plugins.clear();
+        ROOTREGISTRY.plugins.putAll(loadDefaultPluginRegistry().plugins);
     }
 
     /**
