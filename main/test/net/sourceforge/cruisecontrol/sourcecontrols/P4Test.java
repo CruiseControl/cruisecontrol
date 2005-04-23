@@ -101,7 +101,7 @@ public class P4Test extends TestCase {
             cmd.append(" " + args[i]);
         }
       
-        assertEquals("p4 -s changes -s submitted \"foo@2004/12/30:00:00:00,@2004/12/30:00:00:00\"", cmd.toString());
+        assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
     }
     
     public void testBuildChangesCommand_Unix() throws ParseException {
@@ -119,7 +119,7 @@ public class P4Test extends TestCase {
             cmd.append(" " + args[i]);
         }
     
-        assertEquals("p4 -s changes -s submitted 'foo@2004/12/30:00:00:00,@2004/12/30:00:00:00'", cmd.toString());
+        assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
     }
 
     private InputStream loadTestLog(String name) {

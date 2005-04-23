@@ -35,17 +35,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
-import net.sourceforge.cruisecontrol.Bootstrapper;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+import net.sourceforge.cruisecontrol.Bootstrapper;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
+
 /**
- *  Bootstrapper for Perforce. Accepts one view that we sync.
- *  @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a> 
- *  @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
+ * Bootstrapper for Perforce. Accepts one view that we sync.
+ *
+ * @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a>
+ * @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
  */
 public class P4Bootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(P4Bootstrapper.class);
@@ -53,7 +57,7 @@ public class P4Bootstrapper implements Bootstrapper {
     private String port;
     private String client;
     private String user;
-    
+
     public void setPort(String port) {
         this.port = port;
     }
@@ -101,7 +105,7 @@ public class P4Bootstrapper implements Bootstrapper {
         LOG.warn("The p4User attribute is deprecated, please use user attribute instead.");
         this.user = p4User;
     }
-    
+
     public void validate() throws CruiseControlException {
         if (view == null) {
             throw new CruiseControlException("Path is not set.");
@@ -111,53 +115,53 @@ public class P4Bootstrapper implements Bootstrapper {
         failIfNotNullButEmpty(client, "P4Client");
         failIfNotNullButEmpty(user, "P4User");
     }
-    
+
     private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest)
-        throws CruiseControlException {
+            throws CruiseControlException {
         if (stringToTest != null && stringToTest.equals("")) {
             throw new CruiseControlException(nameOfStringToTest + " cannot to be set empty");
         }
     }
-    
+
     public void bootstrap() throws CruiseControlException {
-        String commandline = createCommandline();
+        Commandline commandline = createCommandline();
         LOG.debug("Executing commandline [" + commandline + "]");
         executeCommandLine(commandline);
     }
-    
-    public String createCommandline() throws CruiseControlException {
+
+    public Commandline createCommandline() throws CruiseControlException {
         validate();
-        StringBuffer commandline = new StringBuffer("p4 -s ");
+        Commandline cmd = new Commandline();
+        cmd.setExecutable("p4");
+        cmd.createArgument().setValue("-s");
         if (port != null) {
-            commandline.append("-p ");
-            commandline.append(port);
-            commandline.append(' ');
+            cmd.createArgument().setValue("-p");
+            cmd.createArgument().setValue(port);
         }
         if (client != null) {
-            commandline.append("-c ");
-            commandline.append(client);
-            commandline.append(' ');
+            cmd.createArgument().setValue("-c");
+            cmd.createArgument().setValue(client);
         }
         if (user != null) {
-            commandline.append("-u ");
-            commandline.append(user);
-            commandline.append(' ');
+            cmd.createArgument().setValue("-u");
+            cmd.createArgument().setValue(user);
         }
-        commandline.append("sync ");
-        commandline.append("\"");
-        commandline.append(view);
-        commandline.append("\"");
+        cmd.createArgument().setValue("sync");
+        cmd.createArgument().setValue(view);
 
-        return commandline.toString();
+        return cmd;
     }
-    
+
     // TODO: Refactor this into a class. Then we can mock it and unit test bootstrap()
-    private void executeCommandLine(String commandline) throws CruiseControlException {
+    private void executeCommandLine(Commandline commandline) throws CruiseControlException {
         try {
-            Process p = Runtime.getRuntime().exec(commandline);
+            LOG.info(commandline.toString());
+            Process p = Runtime.getRuntime().exec(commandline.getCommandline());
+
             new Thread(new StreamPumper(p.getInputStream())).start();
             new Thread(new StreamPumper(p.getErrorStream())).start();
             p.waitFor();
+
         } catch (IOException e) {
             throw new CruiseControlException("Problem trying to execute command line process", e);
         } catch (InterruptedException e) {
