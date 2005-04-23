@@ -481,9 +481,9 @@ public class Vss implements SourceControl {
      */
     private String parseComment(List commentList, int commentIndex) {
         StringBuffer comment = new StringBuffer();
-        comment.append(((String) commentList.get(commentIndex)) + " ");
+        comment.append(commentList.get(commentIndex)).append(" ");
         for (int i = commentIndex + 1; i < commentList.size(); i++) {
-            comment.append(((String) commentList.get(i)) + " ");
+            comment.append(commentList.get(i)).append(" ");
         }
 
         return comment.toString().trim();
