@@ -43,41 +43,73 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 
 /**
- *  Bootstrapper for Perforce. Accepts one path that we sync. 
+ *  Bootstrapper for Perforce. Accepts one view that we sync.
  *  @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a> 
  *  @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
  */
 public class P4Bootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(P4Bootstrapper.class);
-    private String path;
-    private String p4Port;
-    private String p4Client;
-    private String p4User;
+    private String view;
+    private String port;
+    private String client;
+    private String user;
     
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public void setView(String view) {
+        this.view = view;
+    }
+
+    /**
+     * @deprecated Use <code>setView</code> instead
+     */
     public void setPath(String path) {
-        this.path = path;
+        LOG.warn("The path attribute is deprecated, please use view attribute instead.");
+        this.view = path;
     }
-    
+
+    /**
+     * @deprecated Use <code>setPort</code> instead
+     */
     public void setP4Port(String p4Port) {
-        this.p4Port = p4Port;
+        LOG.warn("The p4Port attribute is deprecated, please use port attribute instead.");
+        this.port = p4Port;
     }
-    
+
+    /**
+     * @deprecated Use <code>setClient</code> instead
+     */
     public void setP4Client(String p4Client) {
-        this.p4Client = p4Client;
+        LOG.warn("The p4Client attribute is deprecated, please use client attribute instead.");
+        this.client = p4Client;
     }
-    
+
+    /**
+     * @deprecated Use <code>setUser</code> instead
+     */
     public void setP4User(String p4User) {
-        this.p4User = p4User;
+        LOG.warn("The p4User attribute is deprecated, please use user attribute instead.");
+        this.user = p4User;
     }
     
     public void validate() throws CruiseControlException {
-        if (path == null) {
+        if (view == null) {
             throw new CruiseControlException("Path is not set.");
         }
-        failIfNotNullButEmpty(path, "path");
-        failIfNotNullButEmpty(p4Port, "P4Port");
-        failIfNotNullButEmpty(p4Client, "P4Client");
-        failIfNotNullButEmpty(p4User, "P4User");
+        failIfNotNullButEmpty(view, "view");
+        failIfNotNullButEmpty(port, "P4Port");
+        failIfNotNullButEmpty(client, "P4Client");
+        failIfNotNullButEmpty(user, "P4User");
     }
     
     private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest)
@@ -96,24 +128,24 @@ public class P4Bootstrapper implements Bootstrapper {
     public String createCommandline() throws CruiseControlException {
         validate();
         StringBuffer commandline = new StringBuffer("p4 -s ");
-        if (p4Port != null) {
+        if (port != null) {
             commandline.append("-p ");
-            commandline.append(p4Port);
+            commandline.append(port);
             commandline.append(' ');
         }
-        if (p4Client != null) {
+        if (client != null) {
             commandline.append("-c ");
-            commandline.append(p4Client);
+            commandline.append(client);
             commandline.append(' ');
         }
-        if (p4User != null) {
+        if (user != null) {
             commandline.append("-u ");
-            commandline.append(p4User);
+            commandline.append(user);
             commandline.append(' ');
         }
         commandline.append("sync ");
         commandline.append("\"");
-        commandline.append(path);
+        commandline.append(view);
         commandline.append("\"");
 
         return commandline.toString();
@@ -131,15 +163,5 @@ public class P4Bootstrapper implements Bootstrapper {
         } catch (InterruptedException e) {
             throw new CruiseControlException("Problem trying to execute command line process", e);
         }
-    }
-    
-    // For 'with environment' testing. Change values if you want to try yourself
-    public static void main(String[] args) throws Exception {
-        P4Bootstrapper bootstrapper = new P4Bootstrapper();
-        bootstrapper.setPath("//depot/...");
-        bootstrapper.setP4Port("localhost:1666");
-        bootstrapper.setP4User("mroberts");
-        bootstrapper.setP4Client("robertsm");
-        bootstrapper.bootstrap();
     }
 }

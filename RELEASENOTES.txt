@@ -67,6 +67,11 @@ P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.
 
+P4Bootstrapper:
+----------------------
+* Deprecated attributes path, p4Port, p4User, and p4Client in favor
+  of view, port, user, client to maintain consistency with P4 (SourceControl).
+
 JMX Support:
 ----------------------
 * Expose Project's BuildStartTime as JMX attribute (CC-92). Patch by Jerome Lacoste
