@@ -305,7 +305,7 @@ public class P4 implements SourceControl {
                 while ((line = readToNotPast(reader, "info1:", "text:")) != null
                         && line.startsWith("info1:")) {
 
-                    String fileName = line.substring(7, line.lastIndexOf(" ") - 2);
+                    String fileName = line.substring(7, line.lastIndexOf("#"));
                     Modification.ModifiedFile affectedFile = changelist.createModifiedFile(fileName, null);
                     affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
                     affectedFile.revision =
