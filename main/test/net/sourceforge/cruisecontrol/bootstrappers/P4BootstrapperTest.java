@@ -59,7 +59,7 @@ public class P4BootstrapperTest extends TestCase {
     }
 
     public void testInvalidPath() {
-        p4Bootstrapper.setPath("");
+        p4Bootstrapper.setView("");
         try {
             p4Bootstrapper.validate();
             fail("Empty path not allowed");
@@ -68,8 +68,8 @@ public class P4BootstrapperTest extends TestCase {
     }
 
     public void testInvalidPort() {
-        p4Bootstrapper.setPath("foo");
-        p4Bootstrapper.setP4Port("");
+        p4Bootstrapper.setView("foo");
+        p4Bootstrapper.setPort("");
         try {
             p4Bootstrapper.validate();
             fail("Empty port not allowed");
@@ -78,8 +78,8 @@ public class P4BootstrapperTest extends TestCase {
     }
 
     public void testInvalidClient() {
-        p4Bootstrapper.setPath("foo");
-        p4Bootstrapper.setP4Client("");
+        p4Bootstrapper.setView("foo");
+        p4Bootstrapper.setClient("");
         try {
             p4Bootstrapper.validate();
             fail("Empty client not allowed");
@@ -88,8 +88,8 @@ public class P4BootstrapperTest extends TestCase {
     }
 
     public void testInvalidUser() {
-        p4Bootstrapper.setPath("foo");
-        p4Bootstrapper.setP4User("");
+        p4Bootstrapper.setView("foo");
+        p4Bootstrapper.setUser("");
         try {
             p4Bootstrapper.validate();
             fail("Empty user not allowed");
@@ -98,25 +98,25 @@ public class P4BootstrapperTest extends TestCase {
     }
 
     public void testCreateCommandlineWithPathSet() throws CruiseControlException {
-        p4Bootstrapper.setPath("foo");
+        p4Bootstrapper.setView("foo");
         assertEquals("p4 -s sync \"foo\"", p4Bootstrapper.createCommandline());
     }
 
     public void testCreateCommandlineWithP4PortSet() throws CruiseControlException {
-        p4Bootstrapper.setPath("foo");
-        p4Bootstrapper.setP4Port("testhost:1666");
+        p4Bootstrapper.setView("foo");
+        p4Bootstrapper.setPort("testhost:1666");
         checkEnvironmentSpecification(" -p testhost:1666 ");
     }
 
     public void testCreateCommandlineWithP4ClientSet() throws CruiseControlException {
-        p4Bootstrapper.setPath("foo");
-        p4Bootstrapper.setP4Client("testclient");
+        p4Bootstrapper.setView("foo");
+        p4Bootstrapper.setClient("testclient");
         checkEnvironmentSpecification(" -c testclient ");
     }
 
     public void testCreateCommandlineWithP4UserSet() throws CruiseControlException {
-        p4Bootstrapper.setPath("foo");
-        p4Bootstrapper.setP4User("testuser");
+        p4Bootstrapper.setView("foo");
+        p4Bootstrapper.setUser("testuser");
         checkEnvironmentSpecification(" -u testuser ");
     }
 

@@ -937,6 +937,9 @@
         <p>Setting the path to a complete P4 depot ending with a typical
         triple dot (...) will synch all the files, e.g. <code>//depot/myproject/...</code></p>
 
+        <p>Note that the attributes path, p4Port, p4User, and p4Client are deprecated.
+        Please use the attributes listed below.</p>
+
         <h3>Attributes</h3>
 
         <table class="documentation">
@@ -949,22 +952,22 @@
             </thead>
             <tbody>
             <tr class="oddrow">
-                <td>path</td>
+                <td>view</td>
                 <td>Yes</td>
                 <td>Valid Perforce path (a.k.a. 'view')</td>
             </tr>
             <tr>
-                <td>p4Port</td>
+                <td>port</td>
                 <td>No</td>
                 <td>Perforce Server connection to use (host:port)</td>
             </tr>
             <tr class="oddrow">
-                <td>p4User</td>
+                <td>user</td>
                 <td>No</td>
                 <td>Perforce User name to use</td>
             </tr>
             <tr>
-                <td>p4Client</td>
+                <td>client</td>
                 <td>No</td>
                 <td>Perforce Client name to use</td>
             </tr>
@@ -2243,7 +2246,7 @@
             <tr>
                 <td>view</td>
                 <td>Yes</td>
-                <td>Valid Perforce view (i.o.w a depot path)</td>
+                <td>Valid Perforce view (i.e. a depot path)</td>
             </tr>
             </tbody>
         </table>
