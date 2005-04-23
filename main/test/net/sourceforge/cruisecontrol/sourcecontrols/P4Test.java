@@ -44,23 +44,28 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
- *@author  Robert Watkins
- *@author  Jason Yip, jcyip@thoughtworks.com
+ * @author Robert Watkins
+ * @author Jason Yip, jcyip@thoughtworks.com
  */
 public class P4Test extends TestCase {
-  
+
     public void testGetQuoteChar() {
         boolean windows = true;
         String quoteChar = P4.getQuoteChar(windows);
         assertEquals("\"", quoteChar);
-        
+
         quoteChar = P4.getQuoteChar(!windows);
         assertEquals("'", quoteChar);
     }
@@ -85,7 +90,7 @@ public class P4Test extends TestCase {
             fail("P4 should not throw exceptions when required attributes are set.");
         }
     }
-    
+
     public void testBuildChangesCommand() throws ParseException {
         P4 p4 = new P4();
         p4.setView("foo");
@@ -93,17 +98,17 @@ public class P4Test extends TestCase {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Date date = dateFormat.parse("12/30/2004");
         Commandline cmdLine = p4.buildChangesCommand(date, date, true);
-        
+
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
-        cmd.append(args[0]);
+        cmd.append(args[ 0 ]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[i]);
+            cmd.append(" " + args[ i ]);
         }
-      
+
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
     }
-    
+
     public void testBuildChangesCommand_Unix() throws ParseException {
         P4 p4 = new P4();
         p4.setView("foo");
@@ -111,14 +116,14 @@ public class P4Test extends TestCase {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Date date = dateFormat.parse("12/30/2004");
         Commandline cmdLine = p4.buildChangesCommand(date, date, false);
-      
+
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
-        cmd.append(args[0]);
+        cmd.append(args[ 0 ]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[i]);
+            cmd.append(" " + args[ i ]);
         }
-    
+
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
     }
 
@@ -136,51 +141,51 @@ public class P4Test extends TestCase {
         String[] changelists = p4.parseChangelistNumbers(input);
         input.close();
         assertNotNull("No changelists returned", changelists);
-        assertEquals(
-            "Returned wrong number of changelists",
-            4,
-            changelists.length);
-        String[] expectedChangelists = new String[] { "14", "12", "11" };
+        assertEquals("Returned wrong number of changelists",
+                4,
+                changelists.length);
+        String[] expectedChangelists = new String[]{"14", "12", "11"};
         for (int i = 0; i < expectedChangelists.length; i++) {
-            assertEquals(
-                "Returned wrong changelist number",
-                expectedChangelists[i],
-                changelists[i]);
+            assertEquals("Returned wrong changelist number",
+                    expectedChangelists[ i ],
+                    changelists[ i ]);
         }
     }
 
-    public void testParseChangeDescriptions() throws IOException {
+    public void testParseChangeDescriptions() throws IOException, MalformedPatternException {
         BufferedInputStream input =
                 new BufferedInputStream(loadTestLog("p4_describe.txt"));
 
         P4 p4 = new P4();
         List changelists = p4.parseChangeDescriptions(input);
         input.close();
-        assertEquals(
-            "Returned wrong number of changelists",
-            3,
-            changelists.size());
+        assertEquals("Returned wrong number of changelists",
+                3,
+                changelists.size());
 
-        assertEquals(
-            "Wrong description",
-            "Fixed support for db2. This is now the default database shipped"
+        assertEquals("Wrong description",
+                "Fixed support for db2. This is now the default database shipped"
                 + " with HPDoc. For now that is. Still has to be tested on"
                 + " PostgreSQL to see that it is still working there. The sea rch"
                 + " mechanism is also upgraded to now ALMOST support AND/OR"
                 + " expressions. There are thoughtsabout this, but not yet implemented (however prepared for)",
-            ((Modification) changelists.get(0))
+                ((Modification) changelists.get(0))
                 .comment);
-        assertEquals(
-            "Wrong description",
-            "ok, tests running smooth. Checking in mostly for backup. Not"
+        checkModifications((Modification) changelists.get(0),
+                "//depot/hpdoc/main", 33);
+
+        assertEquals("Wrong description",
+                "ok, tests running smooth. Checking in mostly for backup. Not"
                 + " finished yet. CIMD is comming on great and I'm starting to see a framework developing.",
-            ((Modification) changelists.get(1))
+                ((Modification) changelists.get(1))
                 .comment);
-        assertEquals(
-            "Wrong description",
-            "Testing ..\nSome ..\nLinebreaks.",
-            ((Modification) changelists.get(2))
+        checkModifications((Modification) changelists.get(1),
+                "//depot/k4j/main", 65);
+        assertEquals("Wrong description",
+                "Testing ..\nSome ..\nLinebreaks.",
+                ((Modification) changelists.get(2))
                 .comment);
+        checkModifications((Modification) changelists.get(2), "", 0);
         //        XMLOutputter outputter = new XMLOutputter();
         //        for (Iterator iterator = changelistElements.iterator(); iterator.hasNext();) {
         //            Element element = (Element) iterator.next();
@@ -189,6 +194,39 @@ public class P4Test extends TestCase {
         //            outputter.setIndent(true);
         //            System.out.println(outputter.outputString(element));
         //        }
+    }
+
+    /**
+     * Check that all modifications match expected values.
+     *
+     * @param modification The modification to be checked
+     * @param depotPrefix  The prefix all filenames are expected
+     *                     to start with.
+     * @param modCount     The expected number of files changes in
+     *                     this modification.
+     */
+    public void checkModifications(Modification modification,
+            String depotPrefix, int modCount) throws MalformedPatternException {
+        List changeList = modification.files;
+        assertEquals("Wrong number of entries", modCount, changeList.size());
+        for (Iterator i = changeList.iterator(); i.hasNext();) {
+            Modification.ModifiedFile file
+                    = (Modification.ModifiedFile) i.next();
+            assertTrue("Filename doesn't start with prefix " + depotPrefix,
+                    file.fileName.startsWith(depotPrefix));
+            assertEquals("Filename has # at bad index", -1,
+                    file.fileName.indexOf("#"));
+            Pattern pattern = new Perl5Compiler().compile("^\\d+$");
+            Perl5Matcher matcher = new Perl5Matcher();
+            assertTrue("Revision doesn't match regexp ^\\d+$: " + file.revision,
+                    matches(file.revision, "^\\d+$"));
+            assertTrue("Unknown action type: " + file.action,
+                    matches(file.action, "(edit|add)"));
+        }
+    }
+
+    public boolean matches(String str, String pattern) throws MalformedPatternException {
+        return new Perl5Matcher().matches(str, new Perl5Compiler().compile(pattern));
     }
 
     //    public void testGetModifications() throws Exception {

@@ -4,7 +4,7 @@ text:	Fixed support for db2. This is now the default database shipped with HPDoc
 text:
 text: Affected files ...
 text:
-info1: //depot/hpdoc/main/build.xml#2 edit
+info1: //depot/hpdoc/main/build.xml#255 edit
 info1: //depot/hpdoc/main/hpdoc.ipr#1 add
 info1: //depot/hpdoc/main/lib/ant.jar#2 edit
 info1: //depot/hpdoc/main/lib/db2java.zip#1 add

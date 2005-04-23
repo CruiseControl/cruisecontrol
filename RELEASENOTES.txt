@@ -67,6 +67,7 @@ P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.
 * Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
+* Fixed parsing logic when file has more than 100 revisions. Patch by David Golombek.
 
 P4Bootstrapper:
 ----------------------
