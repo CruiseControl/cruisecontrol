@@ -51,8 +51,10 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 
@@ -130,20 +132,43 @@ public class CVSTest extends TestCase {
         }
     };
 
+    static class MockOSEnvironment extends OSEnvironment {
+        private Map myVariables = new HashMap();
+        public void add(String variable, String value) {
+            myVariables.put(variable, value);
+        }
+        public String getVariable(String variable) {
+           return (String) myVariables.get(variable);
+        }
+    }
 
 
     public void testValidate() throws IOException {
-        CVS cvs = new CVS();
-
-        OSEnvironment env = new OSEnvironment();
-        if (env.getVariable("CVSROOT") == null) {
-            try {
-                cvs.validate();
-                fail("CVS should throw exceptions when required fields are not set.");
-            } catch (CruiseControlException e) {
+        final MockOSEnvironment env = new MockOSEnvironment();
+        CVS cvs = new CVS() {
+            protected OSEnvironment getOSEnvironment() {
+                return env;
             }
+        };
+
+        env.add("CVSROOT", null);
+
+        try {
+            cvs.validate();
+            fail("CVS should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
         }
 
+        env.add("CVSROOT", "something");
+
+        try {
+            cvs.validate();
+            fail("CVS should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+        }
+       
+        env.add("CVSROOT", null);
+ 
         cvs.setCvsRoot("cvsroot");
 
         try {
@@ -157,7 +182,7 @@ public class CVSTest extends TestCase {
         try {
             cvs.validate();
         } catch (CruiseControlException e) {
-            fail("CVS should not throw exceptions when required fields are set.");
+            fail("CVS should not throw exceptions when required fields are set: " + e.getMessage());
         }
 
         cvs.setCvsRoot(null);
@@ -176,7 +201,7 @@ public class CVSTest extends TestCase {
         try {
             cvs.validate();
         } catch (CruiseControlException e) {
-            fail("CVS should not throw exceptions when required fields are set.");
+             fail("CVS should not throw exceptions when required fields are set: " + e.getMessage());
         }
 
         cvs.setModule("module");

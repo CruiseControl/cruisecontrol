@@ -403,10 +403,15 @@ public class CVS implements SourceControl {
     public Hashtable getProperties() {
         return properties;
     }
+    
+    /** for mocking **/
+    protected OSEnvironment getOSEnvironment() {
+        return new OSEnvironment();
+    }
 
     public void validate() throws CruiseControlException {
         if (cvsroot == null && local == null) {
-            OSEnvironment env = new OSEnvironment();
+            OSEnvironment env = getOSEnvironment();
             cvsroot = env.getVariable("CVSROOT");
         }
         if (!(cvsroot != null && module != null) && local == null) {
