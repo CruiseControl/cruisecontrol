@@ -35,13 +35,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-/** 
- *  Should also test bootstrap() but to do that we need to mock calling the command line 
- *  @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a> 
- *  @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a> 
+/**
+ * Should also test bootstrap() but to do that we need to mock calling the command line
+ *
+ * @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a>
+ * @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
  */
 public class P4BootstrapperTest extends TestCase {
     private P4Bootstrapper p4Bootstrapper;
@@ -99,7 +101,10 @@ public class P4BootstrapperTest extends TestCase {
 
     public void testCreateCommandlineWithPathSet() throws CruiseControlException {
         p4Bootstrapper.setView("foo");
-        assertEquals("p4 -s sync \"foo\"", p4Bootstrapper.createCommandline());
+        assertEquals("p4 -s sync foo", p4Bootstrapper.createCommandline().toString());
+
+        p4Bootstrapper.setView("foo bar");
+        assertEquals("p4 -s sync \"foo bar\"", p4Bootstrapper.createCommandline().toString());
     }
 
     public void testCreateCommandlineWithP4PortSet() throws CruiseControlException {
@@ -120,12 +125,12 @@ public class P4BootstrapperTest extends TestCase {
         checkEnvironmentSpecification(" -u testuser ");
     }
 
-    /**     
-     *  Checks that a P4 environment command line option is created correctly in a P4 command line specification     
+    /**
+     * Checks that a P4 environment command line option is created correctly in a P4 command line specification
      */
     private void checkEnvironmentSpecification(String expectedSetting)
-        throws CruiseControlException {
-        String commandline = p4Bootstrapper.createCommandline();
+            throws CruiseControlException {
+        String commandline = p4Bootstrapper.createCommandline().toString();
         int specicationPosition = commandline.indexOf(expectedSetting);
         int syncPosition = commandline.indexOf(" sync ");
         assertTrue(specicationPosition != -1);

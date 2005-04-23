@@ -66,11 +66,13 @@ OnSuccessPublisher:
 P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.
+* Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
 
 P4Bootstrapper:
 ----------------------
 * Deprecated attributes path, p4Port, p4User, and p4Client in favor
   of view, port, user, client to maintain consistency with P4 (SourceControl).
+* Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
 
 JMX Support:
 ----------------------

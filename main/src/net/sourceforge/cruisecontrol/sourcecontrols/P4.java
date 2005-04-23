@@ -65,11 +65,11 @@ import java.util.StringTokenizer;
  * call to CVS is assumed to work without any setup. This implies that if the
  * authentication type is pserver the call to cvs login should be done prior to
  * calling this class.
- * <p>
+ * <p/>
  * P4Element depends on the optional P4 package delivered with Ant v1.3. But
  * since it probably doesn't make much sense using the P4Element without other
  * P4 support it shouldn't be a problem.
- * <p>
+ * <p/>
  * P4Element sets the property ${p4element.change} with the latest changelist
  * number or the changelist with the latest date. This should then be passed
  * into p4sync or other p4 commands.
@@ -87,7 +87,7 @@ public class P4 implements SourceControl {
     private String p4User;
     private String p4View;
     private static final SimpleDateFormat P4_REVISION_DATE =
-        new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+            new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
     private Hashtable properties = new Hashtable();
 
@@ -140,10 +140,10 @@ public class P4 implements SourceControl {
      * sourcecontrols to acctually do anything other than returning a chunch
      * of XML data back.
      *
-     * @param lastBuild     time of last build
-     * @param now           time this build started
-     * @return              a list of XML elements that contains data about the modifications
-     *                      that took place. If no changes, this method returns an empty list.
+     * @param lastBuild time of last build
+     * @param now       time this build started
+     * @return a list of XML elements that contains data about the modifications
+     *         that took place. If no changes, this method returns an empty list.
      */
     public List getModifications(Date lastBuild, Date now) {
         List mods = new ArrayList();
@@ -162,7 +162,7 @@ public class P4 implements SourceControl {
     }
 
     private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers)
-        throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
 
         Commandline command = buildDescribeCommand(changelistNumbers);
         LOG.info(command.toString());
@@ -182,7 +182,7 @@ public class P4 implements SourceControl {
     }
 
     private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now)
-        throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
 
         Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
         LOG.debug("Executing: " + command.toString());
@@ -230,7 +230,7 @@ public class P4 implements SourceControl {
         if (line == null) {
             throw new IOException("Error reading P4 stream: Unexpected EOF reached");
         }
-        String[] changelistNumbers = new String[0];
+        String[] changelistNumbers = new String[ 0 ];
         return (String[]) changelists.toArray(changelistNumbers);
     }
 
@@ -278,8 +278,8 @@ public class P4 implements SourceControl {
             // Use this since we don't want the final (empty) line
             String previousLine = null;
             while ((line = reader.readLine()) != null
-                && line.startsWith("text:")
-                && !line.startsWith("text: Affected files ...")) {
+                    && line.startsWith("text:")
+                    && !line.startsWith("text: Affected files ...")) {
 
                 if (previousLine != null) {
                     if (descriptionBuffer.length() > 0) {
@@ -290,8 +290,7 @@ public class P4 implements SourceControl {
                 try {
                     previousLine = line.substring(5).trim();
                 } catch (Exception e) {
-                    LOG.error(
-                        "Error parsing Perforce description, line that caused problem was: ["
+                    LOG.error("Error parsing Perforce description, line that caused problem was: ["
                             + line
                             + "]");
                 }
@@ -304,13 +303,13 @@ public class P4 implements SourceControl {
             if (line != null) {
                 reader.readLine(); // read past next 'text:'
                 while ((line = readToNotPast(reader, "info1:", "text:")) != null
-                    && line.startsWith("info1:")) {
+                        && line.startsWith("info1:")) {
 
                     String fileName = line.substring(7, line.lastIndexOf(" ") - 2);
                     Modification.ModifiedFile affectedFile = changelist.createModifiedFile(fileName, null);
                     affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
                     affectedFile.revision =
-                        line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
+                            line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
                 }
             }
             changelists.add(changelist);
@@ -334,13 +333,11 @@ public class P4 implements SourceControl {
         commandLine.createArgument().setValue("changes");
         commandLine.createArgument().setValue("-s");
         commandLine.createArgument().setValue("submitted");
-        commandLine.createArgument().setValue(quoteChar
-            + p4View
-            + "@"
-            + P4_REVISION_DATE.format(lastBuildTime)
-            + ",@"
-            + P4_REVISION_DATE.format(now)
-            + quoteChar);
+        commandLine.createArgument().setValue(p4View
+                + "@"
+                + P4_REVISION_DATE.format(lastBuildTime)
+                + ",@"
+                + P4_REVISION_DATE.format(now));
 
         return commandLine;
     }
@@ -357,7 +354,7 @@ public class P4 implements SourceControl {
         commandLine.createArgument().setValue("-s");
 
         for (int i = 0; i < changelistNumbers.length; i++) {
-            commandLine.createArgument().setValue(changelistNumbers[i]);
+            commandLine.createArgument().setValue(changelistNumbers[ i ]);
         }
 
         return commandLine;
@@ -392,15 +389,15 @@ public class P4 implements SourceControl {
      * Or did I missunderatnd something?
      */
     private String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
-        throws IOException {
+            throws IOException {
 
         String nextLine = reader.readLine();
 
         // (!A && !B) || (!A && !C) || (!B && !C)
         // !A || !B || !C
         while (!(nextLine == null
-            || nextLine.startsWith(beginsWith)
-            || nextLine.startsWith(notPast))) {
+                || nextLine.startsWith(beginsWith)
+                || nextLine.startsWith(notPast))) {
             nextLine = reader.readLine();
         }
         return nextLine;
