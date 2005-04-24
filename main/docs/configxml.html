@@ -137,6 +137,7 @@
 <a href="#scp">&lt;scp&gt;</a>
 <a href="#snapshotcm">&lt;snapshotcm&gt;</a>
 <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a>
+<a href="#socket">&lt;socket&gt;</a>
 <a href="#starteam">&lt;starteam&gt;</a>
 <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
 <a href="#surround">&lt;surround&gt;</a>
@@ -241,10 +242,11 @@
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
          <a href="#htmlemail">&lt;htmlemail/&gt;</a>
          <a href="#jabber">&lt;jabber/&gt;</a>
-         <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
+         <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
-         <a href="#x10">&lt;x10&gt;</a>
-         <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
+	 <a href="#socket">&lt;socket/&gt;</a>
+         <a href="#x10">&lt;x10i/&gt;</a>
+	 <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
       &lt;/publishers&gt;
    &lt;/project&gt;
 &lt;/cruisecontrol&gt;</pre>
@@ -1369,7 +1371,7 @@
             </tr>
             <tr>
                 <td><a href="#clearcase">&lt;clearcase&gt;</a></td>
-                <td>0 .. *</td>
+		<td>0 .. *</td>
                 <td>Checks for changes in a ClearCase repository.</td>
             </tr>
             <tr class="oddrow">
@@ -3583,13 +3585,18 @@ endlocal</pre>
                 <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies a file using SCP</td>
-            </tr>
+	</tr>
             <tr class="oddrow">
+                <td><a href="#socket"><code>&lt;socket&gt;</code></a></td>
+                <td>0 .. *</td>
+		<td>Writes "Success" or "Failure" to a socket</td>
+            </tr>
+            <tr>
                 <td><a href="#x10"><code>&lt;x10&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Controls an x10 electronic device</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td><a href="#xsltlogpublisher"><code>&lt;xsltlogpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Performs a transformation of the log file</td>
@@ -4482,6 +4489,45 @@ endlocal</pre>
         </table>
         </div>
 
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+	<h2><a name="socket">&lt;socket&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;socket&gt;</pre>
+        </div>
+
+	<p>Simply writes "Success" or "Failure" to a socket.  Note that you will need to write a socket listener that does something.  This is intended more for custom hardware (i.e., build lights) that don't have x10.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>socketServer</td>
+                <td>Yes</td>
+		<td>Hostname (i.e., first argument for constructing a Java socket)</td>
+            </tr>
+            <tr>
+                <td>port</td>
+                <td>Yes</td>
+		<td>Port number for the listening socket</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+	
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="x10">&lt;x10&gt;</a></h2>

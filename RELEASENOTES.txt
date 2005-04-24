@@ -1,5 +1,9 @@
 CruiseControl Release Notes - Latest CVS
 
+SocketPublisher:
+----------------
+* Simple publisher that writes "Success" or "Failure" to a socket.  Written by Darren Cotteril.
+
 AntPublisher:
 ----------------------
 * Will now pass the property "thisbuildsuccessful" to the ant script.
