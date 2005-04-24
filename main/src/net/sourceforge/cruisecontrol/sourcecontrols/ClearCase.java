@@ -297,7 +297,7 @@ public class ClearCase implements SourceControl {
         String comment = tokens[7].trim();
 
         // A branch event shouldn't trigger a build
-        if (operationType.equals("mkbranch")) {
+        if (operationType.equals("mkbranch") || operationType.equals("rmbranch")) {
             return null;
         }
 
