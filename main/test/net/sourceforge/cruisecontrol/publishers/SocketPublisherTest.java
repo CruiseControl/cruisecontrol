@@ -28,8 +28,6 @@ public class SocketPublisherTest extends TestCase {
     }
 
     public void testSocketPublisherSendsSuccess() throws Exception {
-
-
         SocketPublisher socketPublisher = new SocketPublisher();
         socketPublisher.setSocketServer("localhost");
         socketPublisher.setPort("1555");
