@@ -80,8 +80,7 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator
                 + "filename "
                 + "user2@host2:."
-                + File.separator
-                + "filename",
+                + File.separator,
             publisher.createCommandline("filename").toString());
         publisher.setOptions("-P 1000");
         assertEquals(
@@ -89,8 +88,7 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator
                 + "filename "
                 + "user2@host2:."
-                + File.separator
-                + "filename",
+                + File.separator,
             publisher.createCommandline("filename").toString());
         publisher.setSSH("plink");
         assertEquals(
@@ -98,8 +96,7 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator
                 + "filename "
                 + "user2@host2:."
-                + File.separator
-                + "filename",
+                + File.separator,
             publisher.createCommandline("filename").toString());
         publisher.setTargetDir(File.separator + "home" + File.separator + "httpd");
         assertEquals(
@@ -111,8 +108,7 @@ public class SCPPublisherTest extends TestCase {
                 + "home"
                 + File.separator
                 + "httpd"
-                + File.separator
-                + "filename",
+                + File.separator,
             publisher.createCommandline("filename").toString());
     }
 }
