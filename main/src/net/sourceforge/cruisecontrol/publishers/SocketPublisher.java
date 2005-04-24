@@ -36,16 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.jdom.Element;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.rmi.UnknownHostException;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
-import org.jdom.Element;
 
 /**
  * @author <a href="mailto:dcotterill@thoughtworks.com">Darren Cotterill</a>
@@ -54,25 +53,25 @@ public class SocketPublisher implements Publisher {
 
     private String socketServer;
     private int port = 0;
-    
+
     public void validate() throws CruiseControlException {
-        
-        if (getSocketServer() == null) { 
-            throw new CruiseControlException("'socketServer' " 
-                    + "not specified in <executeSocketPublisher> of configuration file");
+
+        if (getSocketServer() == null) {
+            throw new CruiseControlException("'socketServer' "
+                    + "not specified in <socketPublisher> of configuration file");
         }
 
-        if (getPort() == 0) { 
-            throw new CruiseControlException("'port' " 
-                    + "not specified in <executeSocketPublisher> of configuration file");
+        if (getPort() == 0) {
+            throw new CruiseControlException("'port' "
+                    + "not specified in <socketPublisher> of configuration file");
         }
     }
-    
-    public void publish(Element cruisecontrolLog) 
+
+    public void publish(Element cruisecontrolLog)
         throws CruiseControlException {
-        
+
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        
+
         try {
             if (helper.isBuildSuccessful()) {
                 writeToSocket("Success");
@@ -83,7 +82,7 @@ public class SocketPublisher implements Publisher {
             throw new CruiseControlException(e);
         }
     }
-    
+
     protected void writeToSocket(String result) throws IOException {
         Socket echoSocket = null;
         PrintWriter out = null;
