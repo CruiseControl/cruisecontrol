@@ -1,8 +1,8 @@
-CruiseControl Release Notes - Latest CVS
+CruiseControl Release Notes
 
-SocketPublisher:
-----------------
-* Simple publisher that writes "Success" or "Failure" to a socket.  Written by Darren Cotteril.
+Changes listed by release, then alphabetically.
+
+CruiseControl Release Notes - Latest CVS
 
 AntPublisher:
 ----------------------
@@ -63,6 +63,10 @@ JMX:
 * Add ability to require username/password for JMX interface (CC-128). Patch by Glenn Brown
 * Upgraded to MX4J 3.0.1
 
+JMX Support:
+----------------------
+* Expose Project's BuildStartTime as JMX attribute (CC-92). Patch by Jerome Lacoste
+
 Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
@@ -83,10 +87,6 @@ P4Bootstrapper:
   of view, port, user, client to maintain consistency with P4 (SourceControl).
 * Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
 
-JMX Support:
-----------------------
-* Expose Project's BuildStartTime as JMX attribute (CC-92). Patch by Jerome Lacoste
-
 SCPPublisher:
 ----------------------
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
@@ -95,6 +95,10 @@ SCPPublisher:
 SelfConfiguringPlugin:
 ----------------------
 * Add new SelfConfiguringPlugin interface. Submitted by Jeff Ramsdale
+
+SocketPublisher:
+----------------
+* Simple publisher that writes "Success" or "Failure" to a socket.  Written by Darren Cotteril.
 
 StarTeamBootstrapper:
 ----------------------
