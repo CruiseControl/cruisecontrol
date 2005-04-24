@@ -86,6 +86,7 @@ JMX Support:
 SCPPublisher:
 ----------------------
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
+* Added property to specify the source separator. Patch by Dan Penhurst.
 
 SelfConfiguringPlugin:
 ----------------------

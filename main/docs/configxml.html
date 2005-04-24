@@ -3909,21 +3909,26 @@ endlocal</pre>
             </tr>
             <tr class="oddrow">
                 <td>targetseparator</td>
-                <td>No</td>
-                <td>The file separator on the target machine.  Defaults to
-                File.separator on the source machine.</td>
+                <td>No (defaults to File.separator on the source machine)</td>
+                <td>The file separator on the target machine.</td>
             </tr>
             <tr>
+                <td>sourceseparator</td>
+                <td>No (defaults to File.separator on the source machine)</td>
+                <td>The file separator on the source machine. Useful when using an alternate shell
+                environment, e.g. Cygwin, that expects a separator that differs from the native OS.</td>
+            </tr>
+            <tr class="oddrow">
                 <td>ssh</td>
                 <td>No (defaults to 'ssh')</td>
                 <td>The ssh application.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>options</td>
                 <td>No</td>
                 <td>Additional options to pass to SCP.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td>file</td>
                 <td>No (defaults to the current logfile)</td>
                 <td>The filename to copy.</td>

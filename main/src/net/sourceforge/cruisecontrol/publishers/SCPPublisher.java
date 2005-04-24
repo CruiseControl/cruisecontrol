@@ -69,6 +69,7 @@ public class SCPPublisher implements Publisher {
     private String options;
     private String file;
     private String targetSeparator = File.separator;
+    private String sourceSeparator = File.separator;
 
     public void setSourceUser(String sourceUser) {
         this.sourceUser = sourceUser;
@@ -108,6 +109,10 @@ public class SCPPublisher implements Publisher {
 
     public void setTargetSeparator(String targetSeparator) {
         this.targetSeparator = targetSeparator;
+    }
+    
+    public void setSourceSeparator(String sourceSeparator) {
+        this.sourceSeparator = sourceSeparator;
     }
 
     /**
@@ -178,8 +183,8 @@ public class SCPPublisher implements Publisher {
 }
 
     public Commandline createCommandline(String file) {
-        String sourcefile = File.separator + file;
-        String targetfile = targetSeparator + file;
+        String sourcefile = sourceSeparator + file;
+        String targetfile = targetSeparator;
 
         Commandline command = new Commandline();
         command.setExecutable("scp");
