@@ -50,9 +50,7 @@ import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.filter.ContentFilter;
 import org.jdom.input.SAXBuilder;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 public class NantBuilder extends Builder {
 
@@ -85,10 +83,6 @@ public class NantBuilder extends Builder {
 
         if (useDebug && useQuiet) {
             throw new CruiseControlException("'useDebug' and 'useQuiet' can't be used together");
-        }
-
-        if (!useLogger && (useDebug || useQuiet)) {
-            LOG.warn("usedebug and usequiet are ignored if uselogger is not set to 'true'!");
         }
 
         if (saveLogDir != null) {
@@ -268,7 +262,7 @@ public class NantBuilder extends Builder {
         }
     }
 
-    public Property createProperty() {
+    protected Property createProperty() {
         Property property = new Property();
         properties.add(property);
         return property;
@@ -303,14 +297,14 @@ public class NantBuilder extends Builder {
         if (useLogger) {
             cmdLine.createArgument().setValue("-logger:" + getLoggerClassName());
             cmdLine.createArgument().setValue("-logfile:" + tempFileName);
-            if (useDebug) {
-                cmdLine.createArgument().setValue("-debug" + (useDebug ? '+' : '-'));
-            } else if (useQuiet) {
-                cmdLine.createArgument().setValue("-quiet" + (useQuiet ? '+' : '-'));
-            }
         } else {
             cmdLine.createArgument().setValue("-listener:" + getLoggerClassName());
             cmdLine.createArgument().setValue("-D:XmlLogger.file=" + tempFileName);
+        }
+        if (useDebug) {
+            cmdLine.createArgument().setValue("-debug+");
+        } else if (useQuiet) {
+            cmdLine.createArgument().setValue("-quiet+");
         }
         if (targetFramework != null) {
             cmdLine.createArgument().setValue("-t:" + targetFramework);
@@ -322,6 +316,10 @@ public class NantBuilder extends Builder {
             if (!"".equals(value)) {
                 cmdLine.createArgument().setValue("-D:" + property.getKey() + "=" + value);
             }
+        }
+        for (Iterator nantPropertiesIterator = properties.iterator(); nantPropertiesIterator.hasNext(); ) {
+            Property property = (Property) nantPropertiesIterator.next();
+            cmdLine.createArgument().setValue("-D:" + property.getName() + "=" + property.getValue());
         }
 
         cmdLine.createArgument().setValue("-buildfile:" + buildFile);
@@ -341,24 +339,9 @@ public class NantBuilder extends Builder {
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
 
-            // TODO: What to do here? NAnt might have different issues...
-
-            // old Ant-versions contain a bug in the XmlLogger that outputs
-            // an invalid PI containing the target "xml:stylesheet"
-            // instead of "xml-stylesheet": fix this
-            XMLFilter piFilter = new XMLFilterImpl() {
-                public void processingInstruction(String target, String data) throws SAXException {
-                    if (target.equals("xml:stylesheet")) {
-                        target = "xml-stylesheet";
-                    }
-                    super.processingInstruction(target, data);
-                }
-            };
-
             // get rid of empty <task>- and <message>-elements created by Ant's
             // XmlLogger
             XMLFilter emptyTaskFilter = new EmptyElementFilter("task");
-            emptyTaskFilter.setParent(piFilter);
             XMLFilter emptyMessageFilter = new EmptyElementFilter("message");
             emptyMessageFilter.setParent(emptyTaskFilter);
             builder.setXMLFilter(emptyMessageFilter);
