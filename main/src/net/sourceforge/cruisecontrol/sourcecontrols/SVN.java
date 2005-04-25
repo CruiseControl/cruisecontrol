@@ -183,7 +183,7 @@ public class SVN implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
         List modifications = new ArrayList();
-        Commandline command = null;
+        Commandline command;
         try {
             command = buildHistoryCommand(lastBuild, now);
         } catch (CruiseControlException e) {

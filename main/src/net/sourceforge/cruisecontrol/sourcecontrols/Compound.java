@@ -119,7 +119,7 @@ public class Compound implements SourceControl {
      * @return  a list of the modifications
      */
     public List getModifications(Date lastBuild, Date now) {        
-        List triggerMods = null;
+        List triggerMods;
         List targetMods = new ArrayList();
         
         triggerMods = triggers.getModifications(lastBuild, now);

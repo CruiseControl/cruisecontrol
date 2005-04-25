@@ -182,7 +182,7 @@ public class CMSynergyModification extends Modification {
 
         if (comment != null) {
             Element commentElement = new Element(TAGNAME_COMMENT);
-            CDATA cd = null;
+            CDATA cd;
             try {
                 cd = new CDATA(comment);
             } catch (org.jdom.IllegalDataException e) {
@@ -401,7 +401,7 @@ public class CMSynergyModification extends Modification {
             element.addContent(projectElement);
 
             Element commentElement = new Element(TAGNAME_COMMENT);
-            CDATA cd = null;
+            CDATA cd;
             try {
                 cd = new CDATA(comment);
             } catch (org.jdom.IllegalDataException e) {

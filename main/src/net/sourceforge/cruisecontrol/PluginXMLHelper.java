@@ -66,7 +66,7 @@ public class PluginXMLHelper {
                             boolean skipChildElements)
             throws CruiseControlException {
 
-        Object pluginInstance = null;
+        Object pluginInstance;
         try {
             pluginInstance = pluginClass.getConstructor(null).newInstance(null);
         } catch (Exception e) {

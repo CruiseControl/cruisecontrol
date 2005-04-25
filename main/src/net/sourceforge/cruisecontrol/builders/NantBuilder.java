@@ -99,7 +99,7 @@ public class NantBuilder extends Builder {
     public Element build(Map buildProperties) throws CruiseControlException {
 
         Process p;
-        String workingDirPath = null;
+
         try {
             File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
 

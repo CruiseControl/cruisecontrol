@@ -156,7 +156,7 @@ public class Log {
         //Figure out what the log filename will be.
         XMLLogHelper helper = new XMLLogHelper(buildLog);
 
-        String logFilename = null;
+        String logFilename;
         if (helper.isBuildSuccessful()) {
             logFilename = formatLogFileName(now, helper.getLabel());
         } else {
@@ -185,12 +185,11 @@ public class Log {
         //an OutputStream instead of a Writer.
         OutputStream logStream = null;
         try {
-            XMLOutputter outputter = null;
             Format format = Format.getPrettyFormat();
             if (logXmlEncoding != null) {
                 format.setEncoding(logXmlEncoding);
             }
-            outputter = new XMLOutputter(format);
+            XMLOutputter outputter = new XMLOutputter(format);
             logStream = new BufferedOutputStream(new FileOutputStream(lastLogFile));
             outputter.output(new Document(buildLog), logStream);
         } catch (IOException e) {

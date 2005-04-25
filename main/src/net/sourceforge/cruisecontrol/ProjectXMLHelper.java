@@ -434,7 +434,7 @@ public class ProjectXMLHelper {
                     name.append(line.substring(0, index));
                 }
                 String parsedValue = parsePropertiesInString(line.substring(index + 1));
-                LOG.debug("Setting property \"" + name.toString() + "\" to \"" + parsedValue + "\".");
+                LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
                 properties.put(name.toString(), parsedValue);
             }
         } else {

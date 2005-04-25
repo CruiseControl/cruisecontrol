@@ -217,7 +217,7 @@ public class SCPPublisher implements Publisher {
         String dir,
         String file) {
 
-        String argValue = new String();
+        String argValue = "";
 
         if (user != null && host != null) {
             argValue = user + "@" + host + ":";

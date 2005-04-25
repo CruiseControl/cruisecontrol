@@ -770,7 +770,7 @@ public class CMSynergy implements SourceControl {
     private Date getDateFromSynergy(String dateString) {
         SimpleDateFormat fromCcmDate = new SimpleDateFormat(ccmDateFormat,
                 locale);
-        Date date = null;
+        Date date;
         try {
             date = fromCcmDate.parse(dateString);
         } catch (ParseException e) {

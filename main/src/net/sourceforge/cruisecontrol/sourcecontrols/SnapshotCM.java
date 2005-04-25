@@ -283,7 +283,7 @@ public class SnapshotCM implements SourceControl {
         }
 
         // ignore next 5 lines.
-        while (!(line = st.nextToken()).equals(REVISION_HEADER)) {
+        while (!(st.nextToken()).equals(REVISION_HEADER)) {
             ; //ignore all lines until we get to the next revision.
         }
 
