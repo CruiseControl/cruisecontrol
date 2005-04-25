@@ -41,12 +41,10 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -206,7 +204,7 @@ public class PVCS implements SourceControl {
         Process p = Runtime.getRuntime().exec(command);
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
         new Thread(errorPumper).start();
-        InputStream input = p.getInputStream();
+        p.getInputStream();
         p.waitFor();
         p.getOutputStream();
         p.getInputStream();
@@ -221,7 +219,7 @@ public class PVCS implements SourceControl {
         List theList;
         File inputFile = new File(PVCS_RESULTS_FILE);
         BufferedReader brIn;
-        ModificationBuilder modificationBuilder = new ModificationBuilder(pvcsProject, pvcsSubProject);
+        ModificationBuilder modificationBuilder = new ModificationBuilder(pvcsProject);
         try {
             brIn = new BufferedReader(new FileReader(inputFile));
             String line;
@@ -271,18 +269,15 @@ public class PVCS implements SourceControl {
      */
     class ModificationBuilder {
         private String proj;
-        private String subProj;
         private Modification modification;
         private ArrayList modificationList;
-        private String lastLine;
         private boolean firstModifiedTime = true;
         private boolean firstUserName = true;
         private boolean nextLineIsComment = false;
         private boolean waitingForNextValidStart = false;
 
-        public ModificationBuilder(String proj, String subProj) {
+        public ModificationBuilder(String proj) {
             this.proj = proj;
-            this.subProj = subProj;
         }
 
         public ArrayList getList() {
@@ -303,7 +298,7 @@ public class PVCS implements SourceControl {
         public void addLine(String line) {
             if (line.startsWith("Archive:")) {
                 initializeModification();
-                String fileName = null;
+                String fileName;
 
                 fileName = line.substring((line.indexOf(proj) + proj.length()),  line.indexOf("-arc"));
                 if (fileName.startsWith("/") || fileName.startsWith("\\")) {
@@ -314,7 +309,7 @@ public class PVCS implements SourceControl {
                 }
 
 
-                Modification.ModifiedFile file = modification.createModifiedFile(fileName, null);
+                modification.createModifiedFile(fileName, null);
 
             } else if (waitingForNextValidStart) {
                 // we're in this state after we've got the last useful line
@@ -322,11 +317,11 @@ public class PVCS implements SourceControl {
                 // -- we should just skip these lines till we start a new one
                 return;
             } else if (line.startsWith("Workfile:")) {
-                Modification.ModifiedFile file = modification.createModifiedFile(line.substring(18), null);
+                modification.createModifiedFile(line.substring(18), null);
             } else if (line.startsWith("Archive created:")) {
                 try {
                     String createdDate = line.substring(18);
-                    Date createTime = null;
+                    Date createTime;
                     try {
                         createTime = outDateFormat.parse(createdDate);
                     } catch (ParseException e) {

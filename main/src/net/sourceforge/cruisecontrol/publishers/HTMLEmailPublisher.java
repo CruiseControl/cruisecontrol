@@ -251,8 +251,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         relativePathToXslFile = relativePathToXslFile.trim();
         boolean appending = relativePathToXslFile.startsWith("+");
-        String[] newXSLFileNames = null;
-
+        
         if (appending) {
             relativePathToXslFile = relativePathToXslFile.substring(1);
         }
@@ -266,7 +265,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } else {
             i = 0;
         }
-        newXSLFileNames = new String[i + numTokens];
+        String[] newXSLFileNames = new String[i + numTokens];
         System.arraycopy(xslFileNames, 0, newXSLFileNames, 0, i);
         
         while (st.hasMoreTokens()) {

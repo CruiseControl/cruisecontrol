@@ -140,7 +140,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
          strbufferCmdLine.append(strDTRangeParam);
          strbufferCmdLine.append(' ');
 
-         LOG.debug("\n" + strbufferCmdLine.toString() + "\n");
+         LOG.debug("\n" + strbufferCmdLine + "\n");
 
          try {
             Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
@@ -193,10 +193,9 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
       boolean fValid = false;
       String strToken = "><";
       int iLeft = 1;
-      int iRight = iLeft;
 
       // Repository
-      iRight = str.indexOf(strToken, iLeft);
+      int iRight = str.indexOf(strToken, iLeft);
       if (iRight > iLeft) {
          modfile.folderName = str.substring(iLeft, iRight);
          iLeft = iRight + strToken.length();
@@ -267,7 +266,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
    }
 
    protected Date buildDateTimeFromCLIOutput(String str) {
-      Date dt = null;
+      Date dt;
       try {
          dt = DTFM.parse(str);
       } catch (ParseException e) {

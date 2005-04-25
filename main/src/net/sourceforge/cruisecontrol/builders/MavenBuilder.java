@@ -79,11 +79,10 @@ public class MavenBuilder extends Builder implements StreamConsumer {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        File ckFile = null;
         if (mavenScript == null) {
             throw new CruiseControlException("'mavenscript' is a required attribute on MavenBuilder");
         }
-        ckFile = new File(mavenScript);
+        File ckFile = new File(mavenScript);
         if (!ckFile.exists()) {
             throw new CruiseControlException(
                 "Script " + ckFile.getAbsolutePath() + " does not exist");
@@ -105,12 +104,12 @@ public class MavenBuilder extends Builder implements StreamConsumer {
     public Element build(Map buildProperties) throws CruiseControlException {
 
         File projDir = (new File(projectFile)).getParentFile();
-        Process p = null;
 
         buildLogElement = new Element("build");
 
         List runs = getGoalSets();
         for (int runidx = 0; runidx < runs.size(); runidx++) {
+            Process p;
             String goalset = (String) runs.get(runidx);
             final String[] commandLineArgs =
                 getCommandLineArgs(buildProperties, isWindows(), goalset);

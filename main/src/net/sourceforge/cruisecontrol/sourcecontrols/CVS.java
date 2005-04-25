@@ -660,7 +660,7 @@ public class CVS implements SourceControl {
 
         // Read to the working file name line to get the filename.
         // If working file name line isn't found we'll extract is from the RCS file line
-        String workingFileName = null;
+        String workingFileName;
         if (module != null) {
             workingFileName = rcsLine.substring(rcsLine.indexOf(module) + module.length(), rcsLine.length() - 2);
         } else {

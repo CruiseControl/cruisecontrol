@@ -207,13 +207,12 @@ public class Modification implements Comparable {
         userElement.addContent(userName);
         Element commentElement = new Element(TAGNAME_COMMENT);
 
-        CDATA cd = null;
+        CDATA cd;
         try {
             cd = new CDATA(comment);
         } catch (org.jdom.IllegalDataException e) {
             LOG.error(e);
-            cd =
-                new CDATA("Unable to parse comment.  It contains illegal data.");
+            cd = new CDATA("Unable to parse comment.  It contains illegal data.");
         }
         commentElement.addContent(cd);
 

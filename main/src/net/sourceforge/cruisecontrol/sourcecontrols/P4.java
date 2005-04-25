@@ -273,7 +273,7 @@ public class P4 implements SourceControl {
                 }
             }
 
-            line = reader.readLine(); // get past a 'text:'
+            reader.readLine(); // get past a 'text:'
             StringBuffer descriptionBuffer = new StringBuffer();
             // Use this since we don't want the final (empty) line
             String previousLine = null;
@@ -327,7 +327,6 @@ public class P4 implements SourceControl {
      * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      */
     public Commandline buildChangesCommand(Date lastBuildTime, Date now, boolean isWindows) {
-        String quoteChar = getQuoteChar(isWindows);
         Commandline commandLine = buildBaseP4Command();
 
         commandLine.createArgument().setValue("changes");

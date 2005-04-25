@@ -279,7 +279,7 @@ public class Vss implements SourceControl {
 
     protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
         Commandline commandline = new Commandline();
-        String execCommand = null;
+        String execCommand;
         try {
             execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
         } catch (IOException e) {
@@ -514,7 +514,7 @@ public class Vss implements SourceControl {
         }
 
         try {
-            Date lastModifiedDate = null;
+            Date lastModifiedDate;
             if (timeFormat.endsWith("a")) {
                 lastModifiedDate = vssDateTimeFormat.parse(dateAndTime.trim() + "m");
             } else {
