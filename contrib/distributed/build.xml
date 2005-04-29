@@ -107,6 +107,7 @@
 			<fileset dir="../../main/lib">
 				<include name="log4j.jar" />
 				<include name="jdom.jar" />
+				<include name="jakarta-oro-2.0.3.jar" />
 			</fileset>
 			<fileset dir="../../main/dist">
 				<include name="cruisecontrol.jar" />
@@ -142,6 +143,7 @@
 				<include name="log4j.jar" />
 				<include name="jdom.jar" />
 				<include name="xerces.jar" />
+                <include name="jakarta-oro-2.0.3.jar" />
 			</fileset>
 			<fileset dir="../../main/dist">
 				<include name="cruisecontrol.jar" />
@@ -172,15 +174,18 @@
 				<fileset dir="../../main/dist">
 					<include name="cruisecontrol.jar" />
 				</fileset>
-				<fileset dir="bin" />
 			</classpath>
 			<src path="src" />
 			<src path="test" />
 		</javac>
+
+        <copy todir="bin">
+            <fileset dir="test" includes="*.properties"/>
+        </copy>
 	</target>
 
 	<target name="test" depends="compile-agent" description="Runs unit tests for distributed extensions to Cruise Control">
-		<!--
+
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" >
             <classpath >
             	<pathelement path="bin"/>
@@ -203,7 +208,7 @@
                 <fileset dir="bin" includes="**/*Test.class" />
             </batchtest>
         </junit>
--->
+
 	</target>
 
 	<target name="jar-agent" depends="compile-agent" description="Creates cc-agent.jar and cc-agent-dl.jar">

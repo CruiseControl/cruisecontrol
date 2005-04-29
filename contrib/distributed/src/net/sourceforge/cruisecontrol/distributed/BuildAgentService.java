@@ -49,6 +49,8 @@ public interface BuildAgentService extends Remote {
 
     public String getMachineName() throws RemoteException;
 
+    public void claim() throws RemoteException;
+    
     public boolean isBusy() throws RemoteException;
 
     public boolean resultsExist(String resultsType) throws RemoteException;

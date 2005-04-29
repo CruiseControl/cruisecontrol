@@ -59,9 +59,11 @@ public class ZipUtil {
 
     public static void zipFolderContents(String outFilename, String folderToZip) {
         validateParams(outFilename, folderToZip);
+        BufferedOutputStream bos = null;
         ZipOutputStream zipOut = null;
         try {
-            zipOut = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outFilename)));
+            bos = new BufferedOutputStream(new FileOutputStream(outFilename));
+            zipOut = new ZipOutputStream(bos);
             File folder = new File(folderToZip);
             String message = "Zipping files to: " + outFilename;
             LOG.info(message);
@@ -86,6 +88,23 @@ public class ZipUtil {
                     String message = "Empty zip file created: " + outFilename;
                     LOG.debug(message);
                     System.out.println(message);
+                    try {
+                        // this is required in order to close the file stream if zip is empty
+                        bos.close();
+                    } catch (IOException e) {
+                        LOG.error(e);
+                    }
+                    // @todo Should empty zips be created, or should we delete them here?
+                    //*
+                    // delete the empty zip file
+                    if (!file.delete()) {
+                        throw new RuntimeException("Error deleting empty zip file: "
+                                + file.getAbsolutePath());
+                    }
+                    String message2 = "Deleted empty zip file: " + outFilename;
+                    LOG.debug(message2);
+                    System.out.println(message2);
+                    ///*/
                 }
             } catch (IOException ioe) {
                 String message = "Error occured while closing zip file: " + outFilename;
