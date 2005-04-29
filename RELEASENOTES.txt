@@ -14,7 +14,7 @@ controlpanel.jsp:
 
 contrib:
 ----------------------
-* Add support for distributed building (CC-137). Submitted by Jeff Ramsdale
+* Add support for distributed building (CC-137). Submitted by Jeff Ramsdale, Patches by Dan Rollo
 
 CMSynergy:
 ----------------------

@@ -77,8 +77,16 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private String logsFilePath;
     private String outputFilePath;
 
+    private final String _busyLock = new String("busyLock");
+    private void setBusy(final boolean newIsBusy) {
+        synchronized (_busyLock)
+        {
+            isBusy = newIsBusy;
+        }
+    }
+
     public Element doBuild(Element nestedBuilderElement, Map projectPropertiesMap) throws RemoteException {
-        isBusy = true;
+        setBusy(true);
 
         projectProperties.putAll(projectPropertiesMap);
         String infoMessage = "Building module: " + projectProperties.getProperty("distributed.module");
@@ -164,6 +172,12 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         }
     }
 
+    public void claim() {
+        // flag this agent as busy for now. Intended to prevent mulitple builds on same agent,
+        // when multiple master threads find the same agent, before any build thread has started.
+        setBusy(true);
+    }
+
     public boolean isBusy() {
         //        if( !isBusy ) {
         //            if( System.currentTimeMillis() > lastBusyTime + 1000 ) {
@@ -174,7 +188,11 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         //            }
         //        }
         //        return isBusy;
-        return false;
+        //return false;
+        synchronized (_busyLock)
+        {
+            return isBusy;
+        }
     }
 
     public boolean resultsExist(String resultsType) throws RemoteException {
@@ -217,7 +235,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         LOG.debug("Deleting contents of " + outputDir);
         Util.deleteFile(new File(outputDir));
         Util.deleteFile(new File(outputFilePath));
-        isBusy = false;
+        setBusy(false);
     }
 
 }

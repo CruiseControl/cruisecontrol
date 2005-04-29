@@ -25,6 +25,17 @@
 								<li><code>reggie-dl.jar</code></li>
 								<li><code>start.jar</code></li>
 								<li><code>tools.jar</code></li>
+							    (including the jars below fixes jini warnings about missing jars during master startup)
+                                <li><code>fiddler.jar</code></li>
+                                <li><code>fiddler-dl.jar</code></li>
+                                <li><code>mahalo.jar</code></li>
+                                <li><code>mahalo-dl.jar</code></li>
+                                <li><code>mecury.jar</code></li>
+                                <li><code>mecury-dl.jar</code></li>
+                                <li><code>norm.jar</code></li>
+                                <li><code>norm-dl.jar</code></li>
+                                <li><code>outrigger.jar</code></li>
+                                <li><code>outrigger-dl.jar</code></li>
 							</ul>
 						</li>
 						<li>Build Cruise Control in the usual way.</li>
@@ -61,8 +72,12 @@
 						<li>Start the master by navigating to the <i>contrib/distributed/dist/master</i> directory and running <code>ant</code>. The default target should start the registrar and class server.</li>
 						<li>Start the agent by navigating to the <i>contrib/distributed/dist/agent</i> directory and running <code>ant</code>. The default target should start the build agent and register it with the registrar. Note: while there is no reason you couldn't have an agent running in your build master, additional agents will require you to copy the <i>cc-agent.zip</i> to each machine, unzipping and configuring for each of them.</li>
 						<li>Test that Jini is running and your agent(s) is/are registered using the <code>JiniLookUpUtility</code>. In <i>contrib/distributed/dist/master</i> run <code>ant test-jini</code>. After 5 seconds you should see a list of services that have been registered with Jini. Since the Jini registrar itself is a Jini service you should have <code>com.sun.jini.reggie.ConstrainableRegistrarProxy</code> listed even if have no agents running. If you do have agents running, however, you should see a <code>Proxy</code> service listed for each of them, with <code>BuildAgentService</code> listed as the type.</li>
-						<li>You can manually run a build using the <code>InteractiveBuildUtility</code>. This allows you to test your configuration without starting Cruise Control. In <i>contrib/distributed/dist/master</i> run <code>ant manual-build</code>. If the distributed tag in your configuration file does not contain any entries you'll be prompted to enter them. These are optional, however, and pressing <i>ENTER</i> at the prompt will pick up whatever agent is available. Note that you can pass in the path to your Cruise Control configuration file as an argument to the <code>InteractiveBuildUtility</code> and save a step when running it.</li>
-						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent.</li>
+						<li>You can manually run a build using the <code>InteractiveBuildUtility</code>. This allows you to test your configuration without starting Cruise Control. In <i>contrib/distributed/dist/master</i> run <code>ant manual-build</code>. If the distributed tag in your configuration file does not contain any entries you'll be prompted to enter them. These are optional, however, and pressing <i>ENTER</i> at the prompt will pick up whatever agent is available. Note that you can pass in the path to your Cruise Control configuration file as an argument to the <code>InteractiveBuildUtility</code> and save a step when running it. (Note: This ant target is not working right now, but the class should work outside of ant.)</li>
+						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent. Modified startup scripts which include additional jars are in: contrib/disttributed.
+						    <p>The cruisecontrol.bat file currently fails due to Windows command line length limitations. You may wish to remove some jars from the CRUISE_PATH to work around this. One example that works under jdk1.5 is: set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant\ant.jar;%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%DISTRIBDIR%\dist\agent\lib\cc-agent.jar;%DISTRIBDIR%\lib\jini-core.jar;%DISTRIBDIR%\lib\jini-ext.jar;%DISTRIBDIR%\lib\jsk-platform.jar;%DISTRIBDIR%\lib\jsk-resources.jar;%DISTRIBDIR%\lib\reggie.jar;%DISTRIBDIR%\lib\reggie-dl.jar;% DISTRIBDIR%\lib\start.jar;%DISTRIBDIR%\lib\tools.jar;%DISTRIBDIR%\conf;. (removed the following:%LIBDIR%\xerces.jar;%LIBDIR%\xalan.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;)
+						    <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix, register plugin in config.xml:
+						    <p><pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"/&gt;</pre>
+                        </li>
 					</ol>
 				</li>
 				<li>

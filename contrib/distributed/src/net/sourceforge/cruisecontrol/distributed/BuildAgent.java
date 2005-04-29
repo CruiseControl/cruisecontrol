@@ -95,8 +95,8 @@ public class BuildAgent implements DiscoveryListener {
         }
         while (registrarCount < 1) {
             try {
-                Thread.sleep(5000); // Delay long enough for listener to be registered
-                                    // with Discovery thread
+                Thread.sleep(15 * 1000); // Delay long enough for listener to be registered
+                                    // with Discovery thread. 5 secs not enough on 1.4.
             } catch (InterruptedException e) {
                 LOG.error(e);
                 System.err.println(e);

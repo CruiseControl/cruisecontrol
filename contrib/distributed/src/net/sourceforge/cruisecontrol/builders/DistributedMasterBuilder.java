@@ -140,64 +140,71 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     }
 
     public Element build(Map projectProperties) throws CruiseControlException {
-        BuildAgentService agent = pickAgent();
-
-        Element buildResults = null;
-
         try {
-            projectProperties.put("distributed.overrideTarget", overrideTarget);
-            projectProperties.put("distributed.module", module);
+            BuildAgentService agent = pickAgent();
 
-            buildResults = agent.doBuild(childBuilderElement, projectProperties);
-            
-            String rootDirPath = null;
+            Element buildResults = null;
+
             try {
-                rootDirPath = rootDir.getCanonicalPath();
-            } catch (IOException e1) {
-                String message = "Error getting canonical path for: " + rootDir;
-                LOG.error(message);
-                System.err.println(message);
-                throw new CruiseControlException(message, e1);
-            }
+                projectProperties.put("distributed.overrideTarget", overrideTarget);
+                projectProperties.put("distributed.module", module);
 
-            String resultsFileName = "logs.zip";
-            String resultsType = "logs";
-            if (agent.resultsExist(resultsType)) {
-                String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath, resultsFileName);
+                buildResults = agent.doBuild(childBuilderElement, projectProperties);
+
+                String rootDirPath = null;
                 try {
-                    ZipUtil.unzipFileToLocation(zipFilePath, rootDirPath + File.separator + resultsType);
-                    Util.deleteFile(new File(zipFilePath));
-                } catch (IOException e2) {
-                    // Empty zip for log results--ignore
+                    rootDirPath = rootDir.getCanonicalPath();
+                } catch (IOException e1) {
+                    String message = "Error getting canonical path for: " + rootDir;
+                    LOG.error(message);
+                    System.err.println(message);
+                    throw new CruiseControlException(message, e1);
                 }
-            } else {
-                String message = "No results returned for logs";
-                LOG.debug(message);
-                System.out.println(message);
-            }
-            resultsFileName = "output.zip";
-            resultsType = "output";
-            if (agent.resultsExist(resultsType)) {
-                String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath, resultsFileName);
-                try {
-                    ZipUtil.unzipFileToLocation(zipFilePath, rootDirPath + File.separator + resultsType);
-                    Util.deleteFile(new File(zipFilePath));
-                } catch (IOException e2) {
-                    // Empty zip for output results--ignore
+
+                String resultsFileName = "logs.zip";
+                String resultsType = "logs";
+                if (agent.resultsExist(resultsType)) {
+                    String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath, resultsFileName);
+                    try {
+                        ZipUtil.unzipFileToLocation(zipFilePath, rootDirPath + File.separator + resultsType);
+                        Util.deleteFile(new File(zipFilePath));
+                    } catch (IOException e2) {
+                        // Empty zip for log results--ignore
+                    }
+                } else {
+                    String message = "No results returned for logs";
+                    LOG.debug(message);
+                    System.out.println(message);
                 }
-            } else {
-                String message = "No results returned for output";
-                LOG.debug(message);
-                System.out.println(message);
+                resultsFileName = "output.zip";
+                resultsType = "output";
+                if (agent.resultsExist(resultsType)) {
+                    String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath, resultsFileName);
+                    try {
+                        ZipUtil.unzipFileToLocation(zipFilePath, rootDirPath + File.separator + resultsType);
+                        Util.deleteFile(new File(zipFilePath));
+                    } catch (IOException e2) {
+                        // Empty zip for output results--ignore
+                    }
+                } else {
+                    String message = "No results returned for output";
+                    LOG.debug(message);
+                    System.out.println(message);
+                }
+                agent.clearOutputFiles();
+            } catch (RemoteException e) {
+                String message = "Distributed build failed with RemoteException";
+                LOG.error(message, e);
+                System.err.println(message + " - " + e.getMessage());
+                throw new CruiseControlException(message, e);
             }
-            agent.clearOutputFiles();
-        } catch (RemoteException e) {
-            String message = "Distributed build failed";
+            return buildResults;
+        } catch(RuntimeException e) {
+            String message = "Distributed build runtime exception";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new CruiseControlException(message, e);
         }
-        return buildResults;
     }
 
     protected BuildAgentService pickAgent() throws CruiseControlException {
@@ -250,11 +257,14 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             try {
                 if (!agent.isBusy()) {
                     LOG.debug("Found matching agent on " + agent.getMachineName());
+                    // flag agent as claimed (for now same as busy) to prevent other build
+                    // thread from using same agent before this build gets started.
+                    agent.claim();
                     break;
                 } else {
                     LOG.debug("Found matching busy agent on " + agent.getMachineName());
-                    break;
-                    //                    agent = null;
+                    //break;
+                    agent = null;
                 }
             } catch (RemoteException e) {
                 String message = "Couldn't determine agent busy state";

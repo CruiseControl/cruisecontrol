@@ -85,6 +85,10 @@
 				<fileset dir="lib">
 					<include name="**/*.jar" />
 				</fileset>
+                <!-- hack to get InteractiveBuildUtility on path, maybe better solved via packaging change -->
+				<fileset dir="../agent/lib">
+					<include name="cc-agent.jar" />
+				</fileset>
 			</classpath>
 		</java>
 	</target>
@@ -97,6 +101,10 @@
 				<pathelement path="conf"/>
 				<fileset dir="lib">
 					<include name="**/*.jar" />
+				</fileset>
+                <!-- hack to get JiniLookUpUtility on path, maybe better solved via packaging change -->
+				<fileset dir="../agent/lib">
+					<include name="cc-agent.jar" />
 				</fileset>
 			</classpath>
 		</java>
