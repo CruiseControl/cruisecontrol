@@ -15,6 +15,7 @@ controlpanel.jsp:
 contrib:
 ----------------------
 * Add support for distributed building (CC-137). Submitted by Jeff Ramsdale, Patches by Dan Rollo
+* Add RpmPackager for creating CruiseControl RPM (CC-154). Submitted by Julian Simpson.
 
 CMSynergy:
 ----------------------
