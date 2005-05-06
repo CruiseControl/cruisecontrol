@@ -509,7 +509,7 @@ public class AntBuilder extends Builder {
         if (isWindows) {
             return antHome + "\\bin\\ant.bat";
         } else {
-            return antHome + "/bin/ant.sh";
+            return antHome + "/bin/ant";
         }
     }
 
