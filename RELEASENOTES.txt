@@ -88,6 +88,10 @@ P4Bootstrapper:
   of view, port, user, client to maintain consistency with P4 (SourceControl).
 * Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
 
+ProjectXMLHelper:
+----------------------
+* Added support for Ant-style properties in the config file (CC-132). Patch by Robert Smith
+
 SCPPublisher:
 ----------------------
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
