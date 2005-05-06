@@ -469,7 +469,7 @@ public class AntBuilderTest extends TestCase {
         final char sep = File.separatorChar;
         String[] resultShellScript =
             {
-                sep + "myAntHome" + sep + "bin" + sep + "ant.sh",
+                sep + "myAntHome" + sep + "bin" + sep + "ant",
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -485,7 +485,7 @@ public class AntBuilderTest extends TestCase {
 
     public void testFindAntScriptNonWindows() throws CruiseControlException {
         builder.setAntHome("/foo/bar");
-        assertEquals("/foo/bar/bin/ant.sh", builder.findAntScript(false));
+        assertEquals("/foo/bar/bin/ant", builder.findAntScript(false));
     }
 
     public void testFindAntScriptWindows() throws CruiseControlException {
