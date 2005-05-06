@@ -61,7 +61,6 @@ public class AntBuilderTest extends TestCase {
     private AntBuilder windowsBuilder;
     private Hashtable properties;
     private static final boolean USE_LOGGER = true;
-    private static final boolean USE_SCRIPT = true;
     private static final boolean IS_WINDOWS = true;
     private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
@@ -181,6 +180,43 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
+    public void testValidateAntHomeNotExist() {
+        builder = new AntBuilder();
+        builder.setAntHome("/this/directory/doesnt/exist");
+        try {
+            builder.validate();
+            fail("validate should throw exceptions when the specified anthome doesn't exist");
+        } catch (CruiseControlException e) {
+            assertTrue("wrong exception caught [" + e.getMessage() + "]",
+                    e.getMessage().indexOf("'antHome' must exist and be a directory") >= 0);
+        }
+    }
+
+    public void testValidateAntHomeExistButNoAntScript() {
+        builder = new AntBuilder();
+        builder.setAntHome("/");
+        try {
+            builder.validate();
+            fail("validate should throw exceptions when the specified anthome doesn't contain the antscript");
+        } catch (CruiseControlException e) {
+            assertTrue("wrong exception caught [" + e.getMessage() + "]",
+                    e.getMessage().indexOf("'antHome' must contain an ant execution script") >= 0);
+        }
+    }
+
+    public void testValidateAntHomeAndAntscriptSet() {
+        builder = new AntBuilder();
+        builder.setAntHome("/");
+        builder.setAntScript("foo.bat");
+        try {
+            builder.validate();
+            fail("validate should throw exceptions when anthome and antscript are both set");
+        } catch (CruiseControlException e) {
+            assertTrue("wrong exception caught [" + e.getMessage() + "]",
+                    e.getMessage().indexOf("'antHome' and 'antscript' cannot both be set") >= 0);
+        }
+    }
+
     public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
             {
@@ -199,7 +235,7 @@ public class AntBuilderTest extends TestCase {
                 "target" };
         assertEquals(
                 resultInfo,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
 
         String[] resultLogger =
             {
@@ -219,7 +255,7 @@ public class AntBuilderTest extends TestCase {
                 "target" };
         assertEquals(
                 resultLogger,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
@@ -240,7 +276,7 @@ public class AntBuilderTest extends TestCase {
         properties.put("label", "");
         assertEquals(
                 resultInfo,
-                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, IS_WINDOWS));
+                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, IS_WINDOWS));
 
         String[] resultLogger =
             {
@@ -259,7 +295,7 @@ public class AntBuilderTest extends TestCase {
                 "target" };
         assertEquals(
                 resultLogger,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
@@ -283,7 +319,7 @@ public class AntBuilderTest extends TestCase {
         unixBuilder.setUseDebug(true);
         assertEquals(
                 resultDebug,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
     }
     
     public void testGetCommandLineArgs_DebugWithListener() throws CruiseControlException {
@@ -306,7 +342,7 @@ public class AntBuilderTest extends TestCase {
         unixBuilder.setUseDebug(true);
         assertEquals(
             resultDebug,
-            unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+            unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
@@ -330,7 +366,7 @@ public class AntBuilderTest extends TestCase {
         unixBuilder.setUseQuiet(true);
         assertEquals(
                 resultQuiet,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_DebugAndQuiet() {
@@ -364,7 +400,7 @@ public class AntBuilderTest extends TestCase {
         arg.setArg("-Xmx256m");
         assertEquals(
                     resultWithMaxMemory,
-                    unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                    unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
     }
     
     public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
@@ -392,7 +428,7 @@ public class AntBuilderTest extends TestCase {
         prop.setValue("bar");
         assertEquals(
                 resultWithMaxMemoryAndProperty,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
@@ -409,7 +445,7 @@ public class AntBuilderTest extends TestCase {
         windowsBuilder.setAntScript("ant.bat");
         assertEquals(
                 resultBatchFile,
-                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, USE_SCRIPT, IS_WINDOWS));
+                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
@@ -426,9 +462,53 @@ public class AntBuilderTest extends TestCase {
         unixBuilder.setAntScript("ant.sh");
         assertEquals(
                 resultShellScript,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, USE_SCRIPT, !IS_WINDOWS));
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
     }
-    
+
+    public void testGetCommandLineArgs_AntHome() throws CruiseControlException {
+        final char sep = File.separatorChar;
+        String[] resultShellScript =
+            {
+                sep + "myAntHome" + sep + "bin" + sep + "ant.sh",
+                "-listener",
+                "org.apache.tools.ant.XmlLogger",
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        unixBuilder.setAntHome("/myAntHome");
+        assertEquals(
+                resultShellScript,
+                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
+    }
+
+    public void testFindAntScriptNonWindows() throws CruiseControlException {
+        builder.setAntHome("/foo/bar");
+        assertEquals("/foo/bar/bin/ant.sh", builder.findAntScript(false));
+    }
+
+    public void testFindAntScriptWindows() throws CruiseControlException {
+        builder.setAntHome("c:\\foo\\bar");
+        assertEquals("c:\\foo\\bar\\bin\\ant.bat", builder.findAntScript(true));
+    }
+
+    public void testFindAntScriptWindowsNoAntHome() {
+        try {
+            builder.findAntScript(false);
+            fail("expected exception");
+        } catch (CruiseControlException e) {
+            //expected...
+        }
+
+        try {
+            builder.findAntScript(true);
+            fail("expected exception");
+        } catch (CruiseControlException e) {
+            //expected...
+        }
+    }
+
     public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
         String[] args =
             {
@@ -448,7 +528,7 @@ public class AntBuilderTest extends TestCase {
         windowsBuilder.setLoggerClassName("com.canoo.Logger");
         assertEquals(
                 args,
-                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, !USE_SCRIPT, IS_WINDOWS));
+                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, IS_WINDOWS));
     }
 
     public void testGetAntLogAsElement() throws IOException, CruiseControlException {

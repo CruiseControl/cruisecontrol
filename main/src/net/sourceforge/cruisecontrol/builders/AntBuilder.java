@@ -84,7 +84,8 @@ public class AntBuilder extends Builder {
     private String loggerClassName = DEFAULT_LOGGER;
     private long timeout = -1;
     private File saveLogDir = null;
-    
+    private String antHome;
+
     public void validate() throws CruiseControlException {
         super.validate();
 
@@ -113,6 +114,26 @@ public class AntBuilder extends Builder {
                 throw new CruiseControlException("'saveLogDir' must exist and be a directory");
             }
         }
+
+        if (antScript != null && antHome != null) {
+            throw new CruiseControlException("'antHome' and 'antscript' cannot both be set");
+        }
+
+        if (antHome != null) {
+            final File antHomeFile = new File(antHome);
+            if (!antHomeFile.exists() || !antHomeFile.isDirectory()) {
+                throw new CruiseControlException("'antHome' must exist and be a directory. Expected to find "
+                        + antHomeFile.getAbsolutePath());
+            }
+
+            final File antScriptInAntHome = new File(findAntScript(Util.isWindows()));
+            if (!antScriptInAntHome.exists() || !antScriptInAntHome.isFile()) {
+                throw new CruiseControlException("'antHome' must contain an ant execution script. Expected to find "
+                        + antScriptInAntHome.getAbsolutePath());
+            }
+        }
+
+
     }
 
     /**
@@ -123,7 +144,7 @@ public class AntBuilder extends Builder {
 
         Process p;
         try {
-            String[] commandLine = getCommandLineArgs(buildProperties, useLogger, antScript != null, Util.isWindows());
+            String[] commandLine = getCommandLineArgs(buildProperties, useLogger, Util.isWindows());
 
             File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
@@ -322,12 +343,13 @@ public class AntBuilder extends Builder {
      */
     protected String[] getCommandLineArgs(Map buildProperties,
                                           boolean useLogger,
-                                          boolean useScript,
                                           boolean isWindows) throws CruiseControlException {
         Commandline cmdLine = new Commandline();
 
-        if (useScript) {
+        if (antScript != null) {
             cmdLine.setExecutable(antScript);
+        } else if (antHome != null) {
+            cmdLine.setExecutable(findAntScript(isWindows));
         } else {
             if (isWindows) {
                 cmdLine.setExecutable("java.exe");
@@ -469,6 +491,26 @@ public class AntBuilder extends Builder {
 
     public void setLoggerClassName(String string) {
         loggerClassName = string;
+    }
+
+    public void setAntHome(String string) {
+        antHome = string;
+    }
+
+    /**
+     * If the anthome attribute is set, then this method returns the correct shell script
+     * to use for a specific environment.
+     */
+    protected String findAntScript(boolean isWindows) throws CruiseControlException {
+        if (antHome == null) {
+            throw new CruiseControlException("anthome attribute not set.");
+        }
+
+        if (isWindows) {
+            return antHome + "\\bin\\ant.bat";
+        } else {
+            return antHome + "/bin/ant.sh";
+        }
     }
 
     public class JVMArg {
