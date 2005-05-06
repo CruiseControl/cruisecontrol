@@ -3145,7 +3145,7 @@
             </tr>
             <tr class="oddrow">
                 <td>antscript</td>
-                <td>No, but recommended</td>
+                <td>No, but recommended. Cannot be specified if <code>anthome</code> attribute is also specified</td>
                 <td>Absolute filename of script (shell script or bat file) used
                 to start Ant. You can use this to make CruiseControl use your own
                 Ant installation. If this is not specified, the AntBuilder uses 
@@ -3153,17 +3153,24 @@
                 for <a href="#ant-examples">examples</a>.</td>
             </tr>
             <tr>
+                <td>anthome</td>
+                <td>No. Cannot be specified if <code>antscript</code> attribute is also specified.</td>
+                <td>Directory in which Ant is installed. CruiseControl will attempt to use the standard
+                Ant execution scripts (i.e. ant.bat or ant.sh). See below
+                for <a href="#ant-examples">examples</a>.</td>
+            </tr>
+            <tr class="oddrow">
                 <td>antWorkingDir</td>
                 <td>No</td>
                 <td>Will invoke ant in the specified directory.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>timeout</td>
                 <td>No</td>
                 <td>Ant build will be halted if it continues longer than the
                 specified timeout. Value in seconds.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td>uselogger</td>
                 <td>No</td>
                 <td>'true' if CruiseControl should call Ant using -logger; 
@@ -3179,7 +3186,7 @@
                 Defaults to 'false' for historical reasons, but setting it to 
                 'true' is recommended for production situations.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>loggerclassname</td>
                 <td>No (defaults to org.apache.tools.ant.XmlLogger)</td>
                 <td>If you want to use another logger (or listener, when
@@ -3188,7 +3195,7 @@
 				needs to output compatible XML, and the class needs to be
 				available on the classpath at buildtime.</td>
             </tr>
-            <tr>
+            <tr class="oddrow">
                 <td>usedebug</td>
                 <td>No</td>
                 <td>If true will invoke ant with -debug, which can be
@@ -3199,7 +3206,7 @@
                 more output to be written to the console by Ant's
                 DefaultLogger.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>usequiet</td>
                 <td>No</td>
                 <td>If true will invoke ant with -quiet, which can be
@@ -3246,8 +3253,8 @@
         <h3><a name="ant-examples">Examples</a></h3>
 
         <ol>
-            <li>Invoke the ant.bat script distributed with ant, specifying the
-            working directory as <code>D:\workspace\MyProject</code> and the
+            <li>Invoke the ant.bat script distributed with ant using the <code>antscript</code> attribute,
+            specifying the working directory as <code>D:\workspace\MyProject</code> and the
             ant build file as <code>MyProject-nightlybuild.xml</code> using the default target.
         
             <pre>&lt;schedule&gt;
@@ -3257,6 +3264,17 @@
          uselogger="true" 
          usedebug="false"/&gt;
 &lt;schedule&gt;</pre>
+
+            <p>Or equivalently, using the <code>anthome</code> attribute
+
+            <pre>&lt;schedule&gt;
+    &lt;ant anthome="C:\Java\apache-ant-1.6.1"
+         antworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
+         usedebug="false"/&gt;
+&lt;schedule&gt;</pre>
+
             </li>
 
             <li>Invoke a custom ant script <code>/home/cc/workspace/build.sh</code>,

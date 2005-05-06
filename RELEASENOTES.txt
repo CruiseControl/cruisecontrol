@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+AntBuilder:
+----------------------
+* Added optional anthome attribute. Can be used in lieu of antscript to make config.xml more portable across environments and more intuitive (than antscript) for new CruiseControl users. Thanks to Paul Hammant for the idea.
+
 AntPublisher:
 ----------------------
 * Will now pass the property "thisbuildsuccessful" to the ant script.
