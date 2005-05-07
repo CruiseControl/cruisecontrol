@@ -101,6 +101,10 @@ SCPPublisher:
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
 * Added property to specify the source separator. Patch by Dan Penhurst.
 
+Script & ScriptRunner
+----------------------
+* Refactor common "Script" logic out of AntBuilder, NantBuilder and MavenBuilder (CC-178). Patch by Eric Pugh
+
 SelfConfiguringPlugin:
 ----------------------
 * Add new SelfConfiguringPlugin interface. Submitted by Jeff Ramsdale

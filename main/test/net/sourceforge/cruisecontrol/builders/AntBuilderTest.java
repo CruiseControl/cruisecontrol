@@ -61,6 +61,7 @@ public class AntBuilderTest extends TestCase {
     private AntBuilder windowsBuilder;
     private Hashtable properties;
     private static final boolean USE_LOGGER = true;
+    private static final boolean USE_SCRIPT = true;
     private static final boolean IS_WINDOWS = true;
     private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
@@ -187,8 +188,9 @@ public class AntBuilderTest extends TestCase {
             builder.validate();
             fail("validate should throw exceptions when the specified anthome doesn't exist");
         } catch (CruiseControlException e) {
-            assertTrue("wrong exception caught [" + e.getMessage() + "]",
-                    e.getMessage().indexOf("'antHome' must exist and be a directory") >= 0);
+            assertTrue("wrong exception caught [" + e.getMessage() + "]", e
+                    .getMessage().indexOf(
+                            "'antHome' must exist and be a directory") >= 0);
         }
     }
 
@@ -199,8 +201,10 @@ public class AntBuilderTest extends TestCase {
             builder.validate();
             fail("validate should throw exceptions when the specified anthome doesn't contain the antscript");
         } catch (CruiseControlException e) {
-            assertTrue("wrong exception caught [" + e.getMessage() + "]",
-                    e.getMessage().indexOf("'antHome' must contain an ant execution script") >= 0);
+            assertTrue(
+                    "wrong exception caught [" + e.getMessage() + "]",
+                    e.getMessage().indexOf(
+                            "'antHome' must contain an ant execution script") >= 0);
         }
     }
 
@@ -212,161 +216,11 @@ public class AntBuilderTest extends TestCase {
             builder.validate();
             fail("validate should throw exceptions when anthome and antscript are both set");
         } catch (CruiseControlException e) {
-            assertTrue("wrong exception caught [" + e.getMessage() + "]",
-                    e.getMessage().indexOf("'antHome' and 'antscript' cannot both be set") >= 0);
+            assertTrue(
+                    "wrong exception caught [" + e.getMessage() + "]",
+                    e.getMessage().indexOf(
+                            "'antHome' and 'antscript' cannot both be set") >= 0);
         }
-    }
-
-    public void testGetCommandLineArgs() throws CruiseControlException {
-        String[] resultInfo =
-            {
-                "java",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        assertEquals(
-                resultInfo,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
-
-        String[] resultLogger =
-            {
-                "java",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        assertEquals(
-                resultLogger,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
-    }
-
-    public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
-        String[] resultInfo =
-            {
-                "java.exe",
-                "-classpath",
-                windowsBuilder.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                WINDOWS_PATH,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        properties.put("label", "");
-        assertEquals(
-                resultInfo,
-                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, IS_WINDOWS));
-
-        String[] resultLogger =
-            {
-                "java",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        assertEquals(
-                resultLogger,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
-    }
-
-    public void testGetCommandLineArgs_Debug() throws CruiseControlException {
-        String[] resultDebug =
-            {
-                "java",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-debug",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        unixBuilder.setUseDebug(true);
-        assertEquals(
-                resultDebug,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
-    }
-    
-    public void testGetCommandLineArgs_DebugWithListener() throws CruiseControlException {
-        String[] resultDebug =
-        {
-            "java",
-            "-classpath",
-            unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-            "org.apache.tools.ant.launch.Launcher",
-            "-lib",
-            UNIX_PATH,
-            "-listener",
-            "org.apache.tools.ant.XmlLogger",
-            "-DXmlLogger.file=log.xml",
-            "-debug",
-            "-Dlabel=200.1.23",
-            "-buildfile",
-            "buildfile",
-            "target" };
-        unixBuilder.setUseDebug(true);
-        assertEquals(
-            resultDebug,
-            unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
-    }
-
-    public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
-        String[] resultQuiet =
-            {
-                "java",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-quiet",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        unixBuilder.setUseQuiet(true);
-        assertEquals(
-                resultQuiet,
-                unixBuilder.getCommandLineArgs(properties, USE_LOGGER, !IS_WINDOWS));
     }
 
     public void testGetCommandLineArgs_DebugAndQuiet() {
@@ -377,158 +231,6 @@ public class AntBuilderTest extends TestCase {
             fail("validate() should throw CruiseControlException when both useDebug and useQuiet are true");
         } catch (CruiseControlException expected) {
         }
-    }
-
-    public void testGetCommandLineArgs_MaxMemory() throws CruiseControlException {
-        String[] resultWithMaxMemory =
-            {
-                "java",
-                "-Xmx256m",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
-        arg.setArg("-Xmx256m");
-        assertEquals(
-                    resultWithMaxMemory,
-                    unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
-    }
-    
-    public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
-        String[] resultWithMaxMemoryAndProperty =
-            {
-                "java",
-                "-Xmx256m",
-                "-classpath",
-                unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                UNIX_PATH,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-Dfoo=bar",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
-        arg.setArg("-Xmx256m");
-        AntBuilder.Property prop = unixBuilder.createProperty();
-        prop.setName("foo");
-        prop.setValue("bar");
-        assertEquals(
-                resultWithMaxMemoryAndProperty,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
-    }
-
-    public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
-        String[] resultBatchFile =
-            {
-                "ant.bat",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        windowsBuilder.setAntScript("ant.bat");
-        assertEquals(
-                resultBatchFile,
-                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, IS_WINDOWS));
-    }
-
-    public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
-        String[] resultShellScript =
-            {
-                "ant.sh",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        unixBuilder.setAntScript("ant.sh");
-        assertEquals(
-                resultShellScript,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
-    }
-
-    public void testGetCommandLineArgs_AntHome() throws CruiseControlException {
-        final char sep = File.separatorChar;
-        String[] resultShellScript =
-            {
-                sep + "myAntHome" + sep + "bin" + sep + "ant",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        unixBuilder.setAntHome("/myAntHome");
-        assertEquals(
-                resultShellScript,
-                unixBuilder.getCommandLineArgs(properties, !USE_LOGGER, !IS_WINDOWS));
-    }
-
-    public void testFindAntScriptNonWindows() throws CruiseControlException {
-        builder.setAntHome("/foo/bar");
-        assertEquals("/foo/bar/bin/ant", builder.findAntScript(false));
-    }
-
-    public void testFindAntScriptWindows() throws CruiseControlException {
-        builder.setAntHome("c:\\foo\\bar");
-        assertEquals("c:\\foo\\bar\\bin\\ant.bat", builder.findAntScript(true));
-    }
-
-    public void testFindAntScriptWindowsNoAntHome() {
-        try {
-            builder.findAntScript(false);
-            fail("expected exception");
-        } catch (CruiseControlException e) {
-            //expected...
-        }
-
-        try {
-            builder.findAntScript(true);
-            fail("expected exception");
-        } catch (CruiseControlException e) {
-            //expected...
-        }
-    }
-
-    public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
-        String[] args =
-            {
-                "java.exe",
-                "-classpath",
-                windowsBuilder.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                WINDOWS_PATH,
-                "-listener",
-                "com.canoo.Logger",
-                "-DXmlLogger.file=log.xml",
-                "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
-                "target" };
-        windowsBuilder.setLoggerClassName("com.canoo.Logger");
-        assertEquals(
-                args,
-                windowsBuilder.getCommandLineArgs(properties, !USE_LOGGER, IS_WINDOWS));
     }
 
     public void testGetAntLogAsElement() throws IOException, CruiseControlException {
@@ -558,6 +260,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
+
         builder.setBuildFile("testbuild.xml");
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
@@ -586,6 +289,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
+
         builder.setBuildFile("testbuild.xml");
         builder.setTarget("timeout-test-target");
         builder.setTimeout(5);
@@ -607,15 +311,7 @@ public class AntBuilderTest extends TestCase {
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
     }
     
-    public void testGetAntLauncherJarLocationForWindows() throws Exception {
-        assertEquals("C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar",
-                     windowsBuilder.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS));
-    }
-
-    public void testGetAntLauncherJarLocationForUnix() throws Exception {
-        assertEquals("/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar",
-                     unixBuilder.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS));
-    }
+   
 
     public void testSaveAntLog() throws IOException {
         String originalDirName = "target";
@@ -647,20 +343,32 @@ public class AntBuilderTest extends TestCase {
         builder.setSaveLogDir(null);
         builder.saveAntLog(originalLog);
         assertFalse(savedLog.exists());
-    }
-    
-    private void assertEquals(String[] expected, String[] actual) {
-        StringBuffer expectedBuffer = new StringBuffer();
-        StringBuffer actualBuffer = new StringBuffer();
-        fillBuffer(expectedBuffer, expected);
-        fillBuffer(actualBuffer, actual);
-        assertEquals(expectedBuffer.toString(), actualBuffer.toString());
+    }    
+
+    public void testFindAntScriptNonWindows() throws CruiseControlException {
+        builder.setAntHome("/foo/bar");
+        assertEquals("/foo/bar/bin/ant", builder.findAntScript(false));
     }
 
-    private void fillBuffer(StringBuffer stringBuffer, String[] stringArray) {
-        for (int i = 0; i < stringArray.length; i++) {
-            stringBuffer.append(stringArray[i]);
-            stringBuffer.append(" ");
+    public void testFindAntScriptWindows() throws CruiseControlException {
+        builder.setAntHome("c:\\foo\\bar");
+        assertEquals("c:\\foo\\bar\\bin\\ant.bat", builder.findAntScript(true));
+    }
+
+    public void testFindAntScriptWindowsNoAntHome() {
+        try {
+            builder.findAntScript(false);
+            fail("expected exception");
+        } catch (CruiseControlException expected) {
+            //expected...
+        }
+
+        try {
+            builder.findAntScript(true);
+            fail("expected exception");
+        } catch (CruiseControlException expected) {
+            //expected...
         }
     }
+
 }

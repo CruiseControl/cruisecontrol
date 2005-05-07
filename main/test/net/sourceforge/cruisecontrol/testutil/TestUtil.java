@@ -39,8 +39,11 @@ package net.sourceforge.cruisecontrol.testutil;
 
 import org.jdom.Element;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
+
+import junit.framework.Assert;
 
 public final class TestUtil {
     
@@ -114,5 +117,23 @@ public final class TestUtil {
         }
     
         return infoElement;
+    }
+
+    /**
+     * Return true when same.
+     */
+    public static void assertArray(String msg, String[] refarr, String[] testarr) {
+        Assert.assertNotNull(refarr);
+        Assert.assertNotNull(testarr);
+
+        Assert.assertNotNull(msg + " Reference array is null and test not", refarr);
+        Assert.assertNotNull(msg + " Test array is null and reference not", testarr);
+        int shorterLength = Math.min(refarr.length, testarr.length);
+
+        for (int i = 0; i < shorterLength; i++) {
+            Assert.assertEquals(msg + " Element " + i + " mismatch.", refarr[i], testarr[i]);
+        }
+        Assert.assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
+        Assert.assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
     }
 }

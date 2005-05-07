@@ -33,16 +33,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
@@ -54,7 +50,7 @@ import org.xml.sax.XMLFilter;
 
 public class NantBuilder extends Builder {
 
-    private static final String DEFAULT_LOGGER = "NAnt.Core.XmlLogger";
+    protected static final String DEFAULT_LOGGER = "NAnt.Core.XmlLogger";
     private static final Logger LOG = Logger.getLogger(NantBuilder.class);
     private String nantWorkingDir = null;
     private String buildFile = "default.build";
@@ -66,9 +62,9 @@ public class NantBuilder extends Builder {
     private boolean useQuiet = false;
     private boolean useVerbose = false;
     private String loggerClassName = DEFAULT_LOGGER;
-    private long timeout = -1;
     private File saveLogDir = null;
     private String targetFramework = null;
+    private long timeout = ScriptRunner.NO_TIMEOUT;
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -99,58 +95,26 @@ public class NantBuilder extends Builder {
     public Element build(Map buildProperties) throws CruiseControlException {
 
         Process p;
+        File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
+        NantScript script = new NantScript();
+        script.setBuildFile(buildFile);
+        script.setBuildProperties(buildProperties);
+        script.setNantProperties(properties);
+        script.setLoggerClassName(loggerClassName);
+        script.setTarget(target);
+        script.setTargetFramework(targetFramework);
+        script.setTempFileName(tempFileName);
+        script.setUseDebug(useDebug);
+        script.setUseLogger(useLogger);
+        script.setUseQuiet(useQuiet);
+        
+        ScriptRunner scriptRunner = new ScriptRunner();
+        boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);        
 
-        try {
-            File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
-
-            String[] commandLine = getCommandLineArgs(buildProperties);
-
-            if (LOG.isDebugEnabled()) {
-                StringBuffer sb = new StringBuffer();
-                sb.append("Executing Command: '");
-                for (int i = 0; i < commandLine.length; i++) {
-                    sb.append(commandLine[i]).append(" ");
-                }
-                if (workingDir != null) {
-                    sb.append("' in directory " + workingDir);
-                }
-                LOG.debug(sb);
-            }
-
-            p = Runtime.getRuntime().exec(commandLine, null, workingDir);
-        } catch (IOException e) {
-            throw new CruiseControlException("Encountered an IO exception while attempting to execute NAnt."
-                    + " CruiseControl cannot continue.", e);
-        }
-
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-        StreamPumper outPumper = new StreamPumper(p.getInputStream());
-        new Thread(errorPumper).start();
-        new Thread(outPumper).start();
-        AsyncKiller killer = new AsyncKiller(p, timeout);
-        if (timeout > 0) {
-            killer.start();
-        }
-
-        try {
-            p.waitFor();
-            killer.interrupt();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
-        } catch (InterruptedException e) {
-            LOG.info("Was interrupted while waiting for NAnt to finish."
-                    + " CruiseControl will continue, assuming that it completed");
-        } catch (IOException ie) {
-            LOG.info("Exception trying to close Process streams.", ie);
-        }
-
-        outPumper.flush();
-        errorPumper.flush();
 
         File logFile = new File(nantWorkingDir, tempFileName);
         Element buildLogElement;
-        if (killer.processKilled()) {
+        if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
             buildLogElement.setAttribute("error", "build timeout");
@@ -262,74 +226,10 @@ public class NantBuilder extends Builder {
         }
     }
 
-    protected Property createProperty() {
+    public Property createProperty() {
         Property property = new Property();
         properties.add(property);
         return property;
-    }
-
-    protected boolean isWindows() {
-        String osName = getOsName();
-        boolean isWindows = osName.indexOf("Windows") > -1;
-        LOG.debug("os.name = " + osName);
-        LOG.debug("isWindows = " + isWindows);
-        return isWindows;
-    }
-
-    protected String getOsName() {
-        String osName = System.getProperty("os.name");
-        return osName;
-    }
-
-    /**
-     * construct the command that we're going to execute.
-     * 
-     * @param buildProperties
-     *            Map holding key/value pairs of arguments to the build process
-     * @return String[] holding command to be executed
-     * @throws CruiseControlException
-     *             on unquotable attributes
-     */
-    protected String[] getCommandLineArgs(Map buildProperties) throws CruiseControlException {
-        Commandline cmdLine = new Commandline();
-
-        cmdLine.setExecutable("NAnt.exe");
-        if (useLogger) {
-            cmdLine.createArgument().setValue("-logger:" + getLoggerClassName());
-            cmdLine.createArgument().setValue("-logfile:" + tempFileName);
-        } else {
-            cmdLine.createArgument().setValue("-listener:" + getLoggerClassName());
-            cmdLine.createArgument().setValue("-D:XmlLogger.file=" + tempFileName);
-        }
-        if (useDebug) {
-            cmdLine.createArgument().setValue("-debug+");
-        } else if (useQuiet) {
-            cmdLine.createArgument().setValue("-quiet+");
-        }
-        if (targetFramework != null) {
-            cmdLine.createArgument().setValue("-t:" + targetFramework);
-        }
-
-        for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext();) {
-            Map.Entry property = (Map.Entry) propertiesIter.next();
-            String value = (String) property.getValue();
-            if (!"".equals(value)) {
-                cmdLine.createArgument().setValue("-D:" + property.getKey() + "=" + value);
-            }
-        }
-        for (Iterator nantPropertiesIterator = properties.iterator(); nantPropertiesIterator.hasNext(); ) {
-            Property property = (Property) nantPropertiesIterator.next();
-            cmdLine.createArgument().setValue("-D:" + property.getName() + "=" + property.getValue());
-        }
-
-        cmdLine.createArgument().setValue("-buildfile:" + buildFile);
-
-        StringTokenizer targets = new StringTokenizer(target);
-        while (targets.hasMoreTokens()) {
-            cmdLine.createArgument().setValue(targets.nextToken());
-        }
-
-        return cmdLine.getCommandline();
     }
 
     protected static Element getNantLogAsElement(File file) throws CruiseControlException {
@@ -355,16 +255,6 @@ public class NantBuilder extends Builder {
             throw new CruiseControlException("Error reading : " + file.getAbsolutePath() + ".  Saved as : "
                     + saveFile.getAbsolutePath(), ee);
         }
-    }
-
-    /**
-     * Sets build timeout in seconds.
-     * 
-     * @param timeout
-     *            long build timeout
-     */
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
     }
 
     public void setUseDebug(boolean debug) {
@@ -403,54 +293,10 @@ public class NantBuilder extends Builder {
         }
         return buildLogElement;
     }
-    
-    public class Property {
-        private String name;
-
-        private String value;
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
-    private static class AsyncKiller extends Thread {
-        private final Process p;
-
-        private final long timeout;
-
-        private boolean killed;
-
-        AsyncKiller(final Process p, final long timeout) {
-            this.p = p;
-            this.timeout = timeout;
-        }
-
-        public void run() {
-            try {
-                sleep(timeout * 1000L);
-                synchronized (this) {
-                    p.destroy();
-                    killed = true;
-                }
-            } catch (InterruptedException expected) {
-            }
-        }
-
-        public synchronized boolean processKilled() {
-            return killed;
-        }
-    }
+    /**
+     * @param timeout The timeout to set.
+     */
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }    
 }
