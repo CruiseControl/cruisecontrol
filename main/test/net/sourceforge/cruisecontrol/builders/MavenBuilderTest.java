@@ -36,23 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.List;
-import java.util.Hashtable;
-
-import java.io.File;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import java.util.Arrays;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import org.jdom.Element;
 
 public class MavenBuilderTest extends TestCase {
 
@@ -97,72 +94,13 @@ public class MavenBuilderTest extends TestCase {
     }
 
     /**
-     * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
-     * @throws CruiseControlException
-     */
-    public void testGetCommandLineArgs() throws CruiseControlException {
-        MavenBuilder builder = new MavenBuilder();
-        // none should exist for this test
-        builder.setMavenScript("testmaven.sh");
-        builder.setProjectFile("testproject.xml");
-        Hashtable properties = new Hashtable();
-        properties.put("label", "200.1.23");
-
-        Logger.getRoot().setLevel(Level.INFO);
-        compareArrays(
-            "NoDebug:",
-            new String[] {
-            "testmaven.sh",
-            "-Dlabel=200.1.23",
-            "-b",
-            "-p",
-            "testproject.xml" },
-            builder.getCommandLineArgs(properties, false, null));
-
-        Logger.getRoot().setLevel(Level.DEBUG);
-        compareArrays(
-            "WithDebug:",
-            new String[] {
-                "testmaven.sh",
-                "-Dlabel=200.1.23",
-                "-X",
-                "-b",
-                "-p",
-                "testproject.xml" },
-            builder.getCommandLineArgs(properties, false, null));
-
-        Logger.getRoot().setLevel(Level.INFO);
-        compareArrays(
-            "Windows:",
-            new String[] {
-                "testmaven.sh",
-                "-Dlabel=200.1.23",
-                "-b",
-                "-p",
-                "testproject.xml" },
-            builder.getCommandLineArgs(properties, true, null));
-
-        compareArrays(
-            "WithTarget:",
-            new String[] {
-                "testmaven.sh",
-                "-Dlabel=200.1.23",
-                "-b",
-                "-p",
-                "testproject.xml",
-                "clean",
-                "jar" },
-        // notice the spaces in goalSet
-        builder.getCommandLineArgs(properties, false, " clean jar"));
-    }
-
-    /**
      * Element build(Map). Mock a success.
      */
     public void testBuild() {
-      internalTestBuild(MOCK_SUCCESS);
-      internalTestBuild(MOCK_BUILD_FAILURE);
-      internalTestBuild(MOCK_DOWNLOAD_FAILURE);
+      MavenBuilder mb = new MavenBuilder();
+      internalTestBuild(MOCK_SUCCESS, mb);
+      internalTestBuild(MOCK_BUILD_FAILURE, mb);
+      internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
     }
 
     /**
@@ -170,14 +108,14 @@ public class MavenBuilderTest extends TestCase {
      *
      * @param statusType The exit status to be tested
      */
-    private void internalTestBuild(String statusType) {
-        MavenBuilder mb = new MavenBuilder();
+    private void internalTestBuild(String statusType, MavenBuilder mb) {
+        
         String testScriptName = null;
         boolean buildSuccessful = statusType.equals(MOCK_SUCCESS);
         String statusText = getStatusText(statusType);
         try {
             // Prepare mock files.
-            if (mb.isWindows()) {
+            if (Util.isWindows()) {
                 testScriptName = "_testmaven.bat";
                 makeTestFile(
                     testScriptName,
@@ -326,25 +264,22 @@ public class MavenBuilderTest extends TestCase {
             }
         }
     }
+    public void testBuildTimeout() throws Exception {
 
-    /**
-     * Return true when same.
-     */
-    private boolean compareArrays(String msg, String[] refarr, String[] testarr) {
-        if (refarr == null && testarr == null) {
-            return true;
-        }
+        MavenBuilder builder = new MavenBuilder();      
+        builder.setTimeout(5);
+        long startTime = System.currentTimeMillis();
 
-        assertNotNull(msg + " Reference array is null and test not", refarr);
-        assertNotNull(msg + " Test array is null and reference not", testarr);
-        assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
-        assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
+        internalTestBuild(MOCK_BUILD_FAILURE, builder);
 
-        for (int i = 0; i < refarr.length; i++) {
-            assertEquals(msg + " Element " + i + " mismatch.", refarr[i], testarr[i]);
-        }
-        return true;
+        HashMap buildProperties = new HashMap();
+
+        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+       // assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+
+       
     }
+ 
 
     /**
      * Text for build status

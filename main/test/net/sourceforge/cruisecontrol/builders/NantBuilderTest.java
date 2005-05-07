@@ -150,108 +150,6 @@ public class NantBuilderTest extends TestCase {
         
     }    
 
-    public void testGetCommandLineArgs() throws CruiseControlException {
-        String[] resultInfo = { nantCmd, 
-                "-listener:NAnt.Core.XmlLogger", 
-                "-D:XmlLogger.file=log.xml",
-                "-D:label=200.1.23", 
-                "-buildfile:buildfile", 
-                "target" };
-        assertEquals(getCommandLineFromArgsArray(resultInfo), getCommandLineFromArgsArray(builder
-                .getCommandLineArgs(properties)));
-
-        String[] resultLogger = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
-                "-D:label=200.1.23",
-                "-buildfile:buildfile", 
-                "target" };
-        builder.setUseLogger(true);
-        assertEquals(getCommandLineFromArgsArray(resultLogger), getCommandLineFromArgsArray(builder
-                .getCommandLineArgs(properties)));
-    }
-
-    public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
-        String[] resultInfo = { nantCmd, 
-                "-listener:NAnt.Core.XmlLogger", 
-                "-D:XmlLogger.file=log.xml",
-                "-buildfile:buildfile", 
-                "target" };
-        properties.put("label", "");
-        assertEquals(getCommandLineFromArgsArray(resultInfo), getCommandLineFromArgsArray(builder
-                .getCommandLineArgs(properties)));
-
-        String[] resultLogger = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
-                "-buildfile:buildfile",
-                "target" };
-        builder.setUseLogger(true);
-        assertEquals(getCommandLineFromArgsArray(resultLogger), getCommandLineFromArgsArray(builder
-                .getCommandLineArgs(properties)));
-    }
-
-    public void testGetCommandLineArgs_Debug() throws CruiseControlException {
-        String[] resultDebug = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
-                "-debug+",
-                "-D:label=200.1.23", 
-                "-buildfile:buildfile", 
-                "target" };
-        builder.setUseDebug(true);
-        builder.setUseLogger(true);
-        assertEquals(getCommandLineFromArgsArray(resultDebug), getCommandLineFromArgsArray(builder
-                .getCommandLineArgs(properties)));
-    }
-
-    public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
-        String[] resultQuiet = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
-                "-quiet+",
-                "-D:label=200.1.23", 
-                "-buildfile:buildfile", 
-                "target" };
-        builder.setUseQuiet(true);
-        builder.setUseLogger(true);
-        assertEquals(getCommandLineFromArgsArray(resultQuiet), getCommandLineFromArgsArray(builder
-                .getCommandLineArgs(properties)));
-    }
-
-    public void testGetCommandLineArgs_DebugAndQuiet() throws CruiseControlException {
-        builder.setUseDebug(true);
-        builder.setUseQuiet(true);
-        try {
-            builder.validate();
-            fail("validate() should throw CruiseControlException when both useDebug and useQuiet are true");
-        } catch (CruiseControlException expected) {
-        }
-    }
-
-    public void testGetNantLogAsElement() throws IOException, CruiseControlException {
-        Element buildLogElement = new Element("build");
-        File logFile = new File("_tempNantLog.xml");
-        filesToClear.add(logFile);
-        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile));
-        bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
-                + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");
-        bw2.flush();
-        bw2.close();
-
-        assertEquals(buildLogElement.toString(), NantBuilder.getNantLogAsElement(logFile).toString());
-    }
-
-    public void testGetNantLogAsElement_NoLogFile() throws IOException {
-        File doesNotExist = new File("blah blah blah does not exist");
-        try {
-            NantBuilder.getNantLogAsElement(doesNotExist);
-            fail();
-        } catch (CruiseControlException expected) {
-            assertEquals("NAnt logfile " + doesNotExist.getAbsolutePath() + " does not exist.", expected.getMessage());
-        }
-    }
-
     public void testBuild() throws Exception {
         builder.setBuildFile("test.build");
         builder.setTempFile("notLog.xml");
@@ -267,15 +165,16 @@ public class NantBuilderTest extends TestCase {
 //        initCount = getInitCount(buildElement);
 //        assertEquals(2, initCount);
     }
-
-    public void testIsWindows() {
-        builder = new NantBuilder() {
-            protected String getOsName() {
-                return "Windows 2000";
-            }
-        };
-        assertTrue(builder.isWindows());
-    }
+    
+    public void testGetCommandLineArgs_DebugAndQuiet() throws CruiseControlException {
+        builder.setUseDebug(true);
+        builder.setUseQuiet(true);
+        try {
+            builder.validate();
+            fail("validate() should throw CruiseControlException when both useDebug and useQuiet are true");
+        } catch (CruiseControlException expected) {
+        }
+    }    
 
     public int getInitCount(Element buildElement) {
         int initFoundCount = 0;
@@ -343,12 +242,28 @@ public class NantBuilderTest extends TestCase {
         builder.saveNantLog(originalLog);
         assertFalse(savedLog.exists());
     }
+    
+    public void testGetNantLogAsElement() throws IOException, CruiseControlException {
+        Element buildLogElement = new Element("build");
+        File logFile = new File("_tempNantLog.xml");
+        filesToClear.add(logFile);
+        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile));
+        bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
+                + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");
+        bw2.flush();
+        bw2.close();
 
-    private static String getCommandLineFromArgsArray(String[] args) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < args.length; i++) {
-            sb.append(args[i]).append(" ");
-        }
-        return sb.toString();
+        assertEquals(buildLogElement.toString(), NantBuilder.getNantLogAsElement(logFile).toString());
     }
+
+    public void testGetNantLogAsElement_NoLogFile() throws IOException {
+        File doesNotExist = new File("blah blah blah does not exist");
+        try {
+            NantBuilder.getNantLogAsElement(doesNotExist);
+            fail();
+        } catch (CruiseControlException expected) {
+            assertEquals("NAnt logfile " + doesNotExist.getAbsolutePath() + " does not exist.", expected.getMessage());
+        }
+    }    
+
 }

@@ -42,16 +42,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -68,7 +64,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class AntBuilder extends Builder {
 
-    private static final String DEFAULT_LOGGER = "org.apache.tools.ant.XmlLogger";
+    protected static final String DEFAULT_LOGGER = "org.apache.tools.ant.XmlLogger";
     private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
     private String antWorkingDir = null;
@@ -76,16 +72,16 @@ public class AntBuilder extends Builder {
     private String target = "";
     private String tempFileName = "log.xml";
     private String antScript;
+    private String antHome;
     private boolean useLogger;
     private List args = new ArrayList();
     private List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
-    private long timeout = -1;
     private File saveLogDir = null;
-    private String antHome;
-
+    private long timeout = ScriptRunner.NO_TIMEOUT;
+    
     public void validate() throws CruiseControlException {
         super.validate();
 
@@ -114,7 +110,6 @@ public class AntBuilder extends Builder {
                 throw new CruiseControlException("'saveLogDir' must exist and be a directory");
             }
         }
-
         if (antScript != null && antHome != null) {
             throw new CruiseControlException("'antHome' and 'antscript' cannot both be set");
         }
@@ -122,78 +117,51 @@ public class AntBuilder extends Builder {
         if (antHome != null) {
             final File antHomeFile = new File(antHome);
             if (!antHomeFile.exists() || !antHomeFile.isDirectory()) {
-                throw new CruiseControlException("'antHome' must exist and be a directory. Expected to find "
-                        + antHomeFile.getAbsolutePath());
+                throw new CruiseControlException(
+                        "'antHome' must exist and be a directory. Expected to find "
+                                + antHomeFile.getAbsolutePath());
             }
 
             final File antScriptInAntHome = new File(findAntScript(Util.isWindows()));
             if (!antScriptInAntHome.exists() || !antScriptInAntHome.isFile()) {
-                throw new CruiseControlException("'antHome' must contain an ant execution script. Expected to find "
-                        + antScriptInAntHome.getAbsolutePath());
+                throw new CruiseControlException(
+                        "'antHome' must contain an ant execution script. Expected to find "
+                                + antScriptInAntHome.getAbsolutePath());
             }
+            antScript = antScriptInAntHome.getAbsolutePath();
         }
-
-
     }
 
     /**
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
-
-        Process p;
-        try {
-            String[] commandLine = getCommandLineArgs(buildProperties, useLogger, Util.isWindows());
-
-            File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
-
-            if (LOG.isDebugEnabled()) {
-                StringBuffer sb = new StringBuffer();
-                sb.append("Executing Command: ");
-                for (int i = 0; i < commandLine.length; i++) {
-                    sb.append(commandLine[i]).append(" ");
-                }
-                if (workingDir != null) {
-                    sb.append("in directory " + workingDir.getCanonicalPath());
-                }
-                LOG.debug(sb);
-            }
-
-            p = Runtime.getRuntime().exec(commandLine, null, workingDir);
-        } catch (IOException e) {
-            throw new CruiseControlException("Encountered an IO exception while attempting to execute Ant."
-                    + " CruiseControl cannot continue.", e);
-        }
-
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-        StreamPumper outPumper = new StreamPumper(p.getInputStream());
-        new Thread(errorPumper).start();
-        new Thread(outPumper).start();
-        AsyncKiller killer = new AsyncKiller(p, timeout);
-        if (timeout > 0) {
-            killer.start();
-        }
-
-        try {
-            p.waitFor();
-            killer.interrupt();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
-        } catch (InterruptedException e) {
-            LOG.info("Was interrupted while waiting for Ant to finish."
-                    + " CruiseControl will continue, assuming that it completed");
-        } catch (IOException ie) {
-            LOG.info("Exception trying to close Process streams.", ie);
-        }
-
-        outPumper.flush();
-        errorPumper.flush();
-
+    public Element build(Map buildProperties) throws CruiseControlException {       
+        
+        AntScript script = new AntScript();
+        script.setBuildProperties(buildProperties);
+        script.setProperties(properties);
+        script.setUseLogger(useLogger);
+        script.setUseScript(antScript != null);
+        script.setWindows(Util.isWindows());
+        script.setAntScript(antScript);
+        script.setArgs(args);
+        script.setBuildFile(buildFile);
+        script.setTarget(target);
+        script.setLoggerClassName(loggerClassName);
+        script.setTempFileName(tempFileName);
+        script.setUseDebug(useDebug);
+        script.setUseQuiet(useQuiet);
+        script.setSystemClassPath(getSystemClassPath());
+       
+        File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
+        
+        ScriptRunner scriptRunner = new ScriptRunner();
+        boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
+                    
         File logFile = new File(antWorkingDir, tempFileName);
         Element buildLogElement;
-        if (killer.processKilled()) {
+        if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
             buildLogElement.setAttribute("error", "build timeout");
@@ -277,6 +245,31 @@ public class AntBuilder extends Builder {
     public void setAntScript(String antScript) {
         this.antScript = antScript;
     }
+    
+    /**
+     * If set CC will use the platform specific script provided by Ant
+     * 
+     * @param antHome the path to ANT_HOME
+     */
+    public void setAntHome(String antHome) {
+        this.antHome = antHome;
+    }
+
+    /**
+     * If the anthome attribute is set, then this method returns the correct shell script
+     * to use for a specific environment.
+     */
+    protected String findAntScript(boolean isWindows) throws CruiseControlException {
+        if (antHome == null) {
+            throw new CruiseControlException("anthome attribute not set.");
+        }
+
+        if (isWindows) {
+            return antHome + "\\bin\\ant.bat";
+        } else {
+            return antHome + "/bin/ant";
+        }
+    }
 
     /**
      * Set the name of the temporary file used to capture output.
@@ -334,103 +327,8 @@ public class AntBuilder extends Builder {
         return property;
     }
 
-    /**
-     * construct the command that we're going to execute.
-     *
-     * @param buildProperties Map holding key/value pairs of arguments to the build process
-     * @return String[] holding command to be executed
-     * @throws CruiseControlException on unquotable attributes
-     */
-    protected String[] getCommandLineArgs(Map buildProperties,
-                                          boolean useLogger,
-                                          boolean isWindows) throws CruiseControlException {
-        Commandline cmdLine = new Commandline();
-
-        if (antScript != null) {
-            cmdLine.setExecutable(antScript);
-        } else if (antHome != null) {
-            cmdLine.setExecutable(findAntScript(isWindows));
-        } else {
-            if (isWindows) {
-                cmdLine.setExecutable("java.exe");
-            } else {
-                cmdLine.setExecutable("java");
-            }
-            for (Iterator argsIterator = args.iterator(); argsIterator.hasNext(); ) {
-                String arg = ((JVMArg) argsIterator.next()).getArg();
-                // empty args may break the command line
-                if (arg != null && arg.length() > 0) {
-                    cmdLine.createArgument().setValue(arg);
-                }
-            }
-            String systemClassPath = getSystemClassPath();
-            cmdLine.createArgument().setValue("-classpath");
-            cmdLine.createArgument().setValue(getAntLauncherJarLocation(systemClassPath, isWindows));
-            cmdLine.createArgument().setValue("org.apache.tools.ant.launch.Launcher");
-            cmdLine.createArgument().setValue("-lib");
-            cmdLine.createArgument().setValue(systemClassPath);
-        }
-
-        if (useLogger) {
-            cmdLine.createArgument().setValue("-logger");
-            cmdLine.createArgument().setValue(getLoggerClassName());
-            cmdLine.createArgument().setValue("-logfile");
-            cmdLine.createArgument().setValue(tempFileName);
-        } else {
-            cmdLine.createArgument().setValue("-listener");
-            cmdLine.createArgument().setValue(getLoggerClassName());
-            cmdLine.createArgument().setValue("-DXmlLogger.file=" + tempFileName);
-        }
-
-        // -debug and -quiet only affect loggers, not listeners: when we use the loggerClassName as
-        // a listener, they will affect the default logger that writes to the console
-        if (useDebug) {
-            cmdLine.createArgument().setValue("-debug");
-        } else if (useQuiet) {
-            cmdLine.createArgument().setValue("-quiet");
-        }
-        
-        for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
-            Map.Entry property = (Map.Entry) propertiesIter.next();
-            String value = (String) property.getValue();
-            if (!"".equals(value)) {
-                cmdLine.createArgument().setValue("-D" + property.getKey() + "=" + value);
-            }
-        }
-
-        for (Iterator antPropertiesIterator = properties.iterator(); antPropertiesIterator.hasNext(); ) {
-            Property property = (Property) antPropertiesIterator.next();
-            cmdLine.createArgument().setValue("-D" + property.getName() + "=" + property.getValue());
-        }
-
-        cmdLine.createArgument().setValue("-buildfile");
-        cmdLine.createArgument().setValue(buildFile);
-
-        StringTokenizer targets = new StringTokenizer(target);
-        while (targets.hasMoreTokens()) {
-            cmdLine.createArgument().setValue(targets.nextToken());
-        }
-
-        return cmdLine.getCommandline();
-    }
-
     protected String getSystemClassPath() {
       return System.getProperty("java.class.path");
-    }
-
-    /**
-     * @return the path to ant-launcher*.jar taken from the given path
-     */
-    String getAntLauncherJarLocation(String path, boolean isWindows) throws CruiseControlException {
-        String separator = isWindows ? ";" : ":";
-        StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
-        while (pathTokenizer.hasMoreTokens()) {
-            String pathElement = pathTokenizer.nextToken();
-            if (pathElement.indexOf("ant-launcher") != -1 && pathElement.endsWith(".jar")) {
-                return pathElement;
-            }
-        }
-        throw new CruiseControlException("Couldn't find path to ant-launcher jar in this classpath: '" + path + "'");
     }
 
     protected static Element getAntLogAsElement(File file) throws CruiseControlException {
@@ -468,15 +366,6 @@ public class AntBuilder extends Builder {
         }
     }
 
-    /**
-     * Sets build timeout in seconds.
-     *
-     * @param timeout long build timeout
-     */
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
-    }
-
     public void setUseDebug(boolean debug) {
         useDebug = debug;
     }
@@ -493,26 +382,6 @@ public class AntBuilder extends Builder {
         loggerClassName = string;
     }
 
-    public void setAntHome(String string) {
-        antHome = string;
-    }
-
-    /**
-     * If the anthome attribute is set, then this method returns the correct shell script
-     * to use for a specific environment.
-     */
-    protected String findAntScript(boolean isWindows) throws CruiseControlException {
-        if (antHome == null) {
-            throw new CruiseControlException("anthome attribute not set.");
-        }
-
-        if (isWindows) {
-            return antHome + "\\bin\\ant.bat";
-        } else {
-            return antHome + "/bin/ant";
-        }
-    }
-
     public class JVMArg {
         private String arg;
 
@@ -524,51 +393,10 @@ public class AntBuilder extends Builder {
             return arg;
         }
     }
-
-    public class Property {
-        private String name;
-        private String value;
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
-    private static class AsyncKiller extends Thread {
-        private final Process p;
-        private final long timeout;
-        private boolean killed;
-
-        AsyncKiller(final Process p, final long timeout) {
-            this.p = p;
-            this.timeout = timeout;
-        }
-
-        public void run() {
-            try {
-                sleep(timeout * 1000L);
-                synchronized (this) {
-                    p.destroy();
-                    killed = true;
-                }
-            } catch (InterruptedException expected) {
-            }
-        }
-
-        public synchronized boolean processKilled() {
-            return killed;
-        }
+    /**
+     * @param timeout The timeout to set.
+     */
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 }
