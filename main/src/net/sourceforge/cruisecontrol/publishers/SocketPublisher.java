@@ -51,8 +51,21 @@ import java.rmi.UnknownHostException;
  */
 public class SocketPublisher implements Publisher {
 
+    private final SocketFactory factory;
     private String socketServer;
     private int port = 0;
+
+    public SocketPublisher() {
+        factory = new SocketFactory() {
+            public Socket createSocket(String server, int port) throws IOException {
+                return new Socket(server, port);
+            }
+        };
+    }
+
+    public SocketPublisher(SocketFactory sf) {
+        factory = sf;
+    }
 
     public void validate() throws CruiseControlException {
 
@@ -88,11 +101,12 @@ public class SocketPublisher implements Publisher {
         PrintWriter out = null;
 
         try {
-            echoSocket = new Socket(socketServer, getPort());
+            echoSocket = factory.createSocket(socketServer, getPort());
             out = new PrintWriter(echoSocket.getOutputStream(), true);
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host:" + socketServer);
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Couldn't get I/O for the connection to:" + socketServer);
         }
 
