@@ -106,7 +106,6 @@ public class SocketPublisher implements Publisher {
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host:" + socketServer);
         } catch (IOException e) {
-            e.printStackTrace();
             System.err.println("Couldn't get I/O for the connection to:" + socketServer);
         }
 
