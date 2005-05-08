@@ -174,20 +174,21 @@ public class MavenBuilderTest extends TestCase {
                 assertNotNull(statusType, logElement);
                 goalTags = logElement.getChildren("mavengoal");
                 assertNotNull(statusType, goalTags);
-                // if we mocked a failure, the second run should never happen
-                assertEquals(statusType, !buildSuccessful ? 2 : 4, goalTags.size());
                 we = (Element) goalTags.get(0);
                 assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
                 we = (Element) goalTags.get(1);
                 assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
                 if (!buildSuccessful) {
                     assertNotNull(statusType, logElement.getAttribute("error"));
+                    // if we mocked a failure, the second run should never happen
+                    assertEquals(statusType, 2, goalTags.size());
                 } else {
+                    assertNull(statusType, logElement.getAttribute("error"));
+                    assertEquals(statusType, 4, goalTags.size());
                     we = (Element) goalTags.get(2);
                     assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
                     we = (Element) goalTags.get(3);
                     assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
-                    assertNull(logElement.getAttribute("error"));
                 }
 
             } catch (CruiseControlException e) {
