@@ -1,82 +1,73 @@
 <!-- build the release -->
 <project name="release" default="release">
 
-<target name="release" depends="build, website, zip" />
+    <property name="label" value="2.2-dev"/>
 
-<target name="init">
-    <property name="website" value="website"/>
-    <property name="docs" value="docs"/>
-    <property name="main" value="main"/>
-    <property name="jsp" value="reporting/jsp"/>
+    <target name="release" depends="clean, website, zip"/>
 
-    <delete file="cruisecontrol-${label}.zip"/>
-    <delete dir="${website}"/>
-    <mkdir dir="${website}"/>
-    <mkdir dir="${website}/main"/>
-    <mkdir dir="${website}/reporting/jsp"/>
-</target>
+    <target name="clean">
+        <delete dir="target" failonerror="false" />
+    </target>
 
-<target name="build" depends="init">
-    <ant inheritAll="false" dir="${main}" />
-    <ant inheritAll="false" dir="${jsp}">
-        <property name="user.log.dir" value="logs" />
-        <property name="user.build.status.file" value="status.txt" />
-        <property name="cruise.build.artifacts.dir" value="" />
-    </ant>
-</target>
+    <target name="build">
+        <ant inheritAll="false" dir="main"/>
+        <ant inheritAll="false" dir="reporting/jsp">
+            <property name="user.log.dir" value="logs"/>
+            <property name="user.build.status.file" value="status.txt"/>
+            <property name="cruise.build.artifacts.dir" value=""/>
+        </ant>
+    </target>
 
-<target name="website" depends="init">
-    <fixcrlf srcdir="."
-        eol="lf" 
-        eof="remove"
-        includes="**/*.sh"
-    />
+    <target name="website">
+        <fixcrlf srcdir="."
+            eol="lf"
+            eof="remove"
+            includes="**/*.sh"
+            />
 
-    <fixcrlf srcdir="."
-        eol="crlf"
-        includes="**/*.bat"
-    />
+        <fixcrlf srcdir="."
+            eol="crlf"
+            includes="**/*.bat"
+            />
 
-    <copy todir="${website}">
-        <fileset dir="${docs}"/>
-    </copy>
-    <copy todir="${website}/main">
-        <fileset dir="${main}/docs"/>
-    </copy>
-    <copy todir="${website}/reporting/jsp">
-        <fileset dir="${jsp}/docs"/>
-    </copy>
+        <mkdir dir="target/website/reporting/jsp"/>
+        <copy todir="target/website">
+            <fileset dir="docs"/>
+        </copy>
+        <copy todir="target/website/main">
+            <fileset dir="main/docs"/>
+        </copy>
+        <copy todir="target/website/reporting/jsp">
+            <fileset dir="reporting/jsp/docs"/>
+        </copy>
 
-    <replace dir="${website}" token="../main/docs/" value="main/">
-        <include name="**/*.html"/>
-    </replace>
-    <replace dir="${website}" token="../reporting/jsp/docs/" value="reporting/jsp/">
-        <include name="**/*.html"/>
-    </replace>
+        <replace dir="target/website" token="../main/docs/" value="main/">
+            <include name="**/*.html"/>
+        </replace>
+        <replace dir="target/website" token="../reporting/jsp/docs/" value="reporting/jsp/">
+            <include name="**/*.html"/>
+        </replace>
 
-    <replace dir="${website}/main" token="../../docs/" value="../">
-        <include name="**/*.html"/>
-    </replace>
+        <replace dir="target/website/main" token="../../docs/" value="../">
+            <include name="**/*.html"/>
+        </replace>
 
-    <replace dir="${website}/reporting/jsp" token="../../../docs/" value="../../">
-        <include name="**/*.html"/>
-    </replace>
-</target>
+        <replace dir="target/website/reporting/jsp" token="../../../docs/" value="../../">
+            <include name="**/*.html"/>
+        </replace>
+    </target>
 
-<target name="zip">
-    <zip zipfile="../cruisecontrol-${label}.zip">
-        <zipfileset dir="../cruisecontrol" prefix="cruisecontrol-${label}">
-            <exclude name="website/**"/>
-            <exclude name="main/lib/starteam-sdk.jar"/>
-            <exclude name="main/target/**"/>
-            <exclude name="reporting/jsp/samplelogs/_cache/**"/>
-            <exclude name="reporting/jsp/target/**"/>
-            <exclude name="reporting/jsp/testresults.xml"/>
-            <exclude name="../cruisecontrol-${label}.zip"/>
-            <exclude name="release*"/>
-        </zipfileset>
-    </zip>
-</target>
-
-
+    <target name="zip" depends="build">
+        <zip zipfile="target/cruisecontrol-${label}.zip">
+            <zipfileset dir="." prefix="cruisecontrol-${label}">
+                <exclude name="target**"/>
+                <exclude name="main/lib/starteam-sdk.jar"/>
+                <exclude name="main/target/**"/>
+                <exclude name="reporting/jsp/samplelogs/_cache/**"/>
+                <exclude name="reporting/jsp/target/**"/>
+                <exclude name="reporting/jsp/testresults.xml"/>
+                <exclude name="release*"/>
+            </zipfileset>
+        </zip>
+    </target>
 </project>
