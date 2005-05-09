@@ -30,11 +30,4 @@ It includes the following work directories:
 
 I made it that way so you could mount '/var/cruisecontrol' on another
 disk should you want to, and avoid disk I/O issues. This is because I
-just encountered that problem on a project however. If this gets
-checked into /contrib/packaging the paths should be OK. Otherwise you
-need to edit the first property in the file. 
-
-
-Pre-built RPM:
-
-I have built an RPM if anybody wants to try it out. Comments very welcome. Download from: http://juliansimpson.org/~jsimpson/cruisecontrol-head-1.i386.rpm
+just encountered that problem on a project however.
