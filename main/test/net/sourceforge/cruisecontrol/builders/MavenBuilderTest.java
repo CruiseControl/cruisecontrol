@@ -130,7 +130,7 @@ public class MavenBuilderTest extends TestCase {
                         + "\n",
                     true);
             } else {
-                testScript = File.createTempFile("MavenBuilderTest.internalTestBuild", "./_testmaven.sh");
+                testScript = File.createTempFile("MavenBuilderTest.internalTestBuild", "_testmaven.sh");
                 makeTestFile(
                     testScript,
                     "#!/bin/sh\n"
