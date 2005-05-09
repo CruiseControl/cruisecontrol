@@ -40,7 +40,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -60,9 +59,7 @@ public class MavenBuilderTest extends TestCase {
     /**
      * void validate()
      */
-    public void testValidate() {
-        final String testScriptName = "_testmaven.bat";
-        final String testProjectName = "_testproject.xml";
+    public void testValidate() throws IOException {
         MavenBuilder mb = new MavenBuilder();
         try {
             mb.validate();
@@ -71,39 +68,39 @@ public class MavenBuilderTest extends TestCase {
             assertTrue(true);
         }
 
-        try {
-            // these files must also exist for MavenBuilder to be happy.
-            makeTestFile(testScriptName, "@echo This is a fake maven.bat\n", true);
-            makeTestFile(
-                testProjectName,
-                "<project><!-- This is a fake Maven project file --></project>\n", true);
-            mb.setMultiple(1);
-            mb.setMavenScript(testScriptName);
-            mb.setProjectFile(testProjectName);
+        // these files must also exist for MavenBuilder to be happy.
+        File testScript = File.createTempFile("MavenBuilderTest.testValidate", "_testmaven.bat");
+        testScript.deleteOnExit();
+        makeTestFile(testScript, "@echo This is a fake maven.bat\n", true);
 
-            try {
-                mb.validate();
-                assertTrue(true);
-            } catch (CruiseControlException e) {
-                fail("MavenBuilder should not throw exceptions when required fields are set.");
-            }
-        } finally {
-            (new File(testScriptName)).delete();
-            (new File(testProjectName)).delete();
-        }
+        File testProject = File.createTempFile("MavenBuilderTest.testValidate", "_testproject.xml");
+        testProject.deleteOnExit();
+        makeTestFile(testProject,
+            "<project><!-- This is a fake Maven project file --></project>\n", true);
+        mb.setMultiple(1);
+        mb.setMavenScript(testScript.getAbsolutePath());
+        mb.setProjectFile(testProject.getAbsolutePath());
+
+        try {
+            mb.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("MavenBuilder should not throw exceptions when required fields are set. Exception ["
+                    + e.getMessage() + "].");
+        }        
     }
 
-    public void testBuild_Success() {
+    public void testBuild_Success() throws IOException {
       MavenBuilder mb = new MavenBuilder();
       internalTestBuild(MOCK_SUCCESS, mb);
     }
 
-    public void testBuild_BuildFailure() {
+    public void testBuild_BuildFailure() throws IOException {
         MavenBuilder mb = new MavenBuilder();
         internalTestBuild(MOCK_BUILD_FAILURE, mb);
     }
     
-    public void testBuild_DownloadFailure() {
+    public void testBuild_DownloadFailure() throws IOException {
         MavenBuilder mb = new MavenBuilder();
         internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
     }
@@ -113,17 +110,17 @@ public class MavenBuilderTest extends TestCase {
      *
      * @param statusType The exit status to be tested
      */
-    private void internalTestBuild(String statusType, MavenBuilder mb) {
+    private void internalTestBuild(String statusType, MavenBuilder mb) throws IOException {
         
-        String testScriptName = null;
+        File testScript = null;
         boolean buildSuccessful = statusType.equals(MOCK_SUCCESS);
         String statusText = getStatusText(statusType);
         try {
             // Prepare mock files.
             if (Util.isWindows()) {
-                testScriptName = "_testmaven.bat";
+                testScript = File.createTempFile("MavenBuilderTest.internalTestBuild", "_testmaven.bat");
                 makeTestFile(
-                    testScriptName,
+                    testScript,
                     "@rem This is a fake maven.bat\n"
                         + "@echo java:compile:\n"
                         + "@echo Bla-bla-compile\n"
@@ -133,9 +130,9 @@ public class MavenBuilderTest extends TestCase {
                         + "\n",
                     true);
             } else {
-                testScriptName = "./_testmaven.sh";
+                testScript = File.createTempFile("MavenBuilderTest.internalTestBuild", "./_testmaven.sh");
                 makeTestFile(
-                    testScriptName,
+                    testScript,
                     "#!/bin/sh\n"
                         + "\n"
                         + "# This is a fake maven.sh\n"
@@ -147,7 +144,7 @@ public class MavenBuilderTest extends TestCase {
                         + "\n",
                     false);
             }
-            mb.setMavenScript(testScriptName);
+            mb.setMavenScript(testScript.getAbsolutePath());
             mb.setProjectFile("don-t-care.xml");
 
             try {
@@ -201,8 +198,8 @@ public class MavenBuilderTest extends TestCase {
                 fail("MavenBuilder should not throw exceptions when build()-ing.");
             }
         } finally {
-            if (testScriptName != null) {
-                (new File(testScriptName)).delete();
+            if (testScript != null) {
+                testScript.deleteOnExit();
             }
         }
     }
@@ -246,15 +243,14 @@ public class MavenBuilderTest extends TestCase {
     /**
      * Make a test file with specified content. Assumes the file does not exist.
      */
-    private void makeTestFile(String filename, String content, boolean onWindows) {
-        File testFile = new File(filename);
+    private void makeTestFile(File testFile, String content, boolean onWindows) {
         try {
             BufferedWriter bwr = new BufferedWriter(new FileWriter(testFile));
             bwr.write(content);
             bwr.flush();
             bwr.close();
         } catch (IOException ioex) {
-            fail("Unexpected IOException while preparing " + filename + " test file");
+            fail("Unexpected IOException while preparing " + testFile.getAbsolutePath() + " test file");
         }
         if (!onWindows) {
             Commandline cmdline = new Commandline();
@@ -277,8 +273,6 @@ public class MavenBuilderTest extends TestCase {
         long startTime = System.currentTimeMillis();
 
         internalTestBuild(MOCK_BUILD_FAILURE, builder);
-
-        HashMap buildProperties = new HashMap();
 
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
        // assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
