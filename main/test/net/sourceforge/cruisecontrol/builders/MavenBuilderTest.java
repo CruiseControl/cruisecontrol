@@ -199,7 +199,9 @@ public class MavenBuilderTest extends TestCase {
             }
         } finally {
             if (testScript != null) {
-                testScript.deleteOnExit();
+                //PJ: May 08, 2005: The following statement is breaking the build on the cclive box.
+                //(new File(testScriptName)).delete();
+                return;
             }
         }
     }
