@@ -93,14 +93,19 @@ public class MavenBuilderTest extends TestCase {
         }
     }
 
-    /**
-     * Element build(Map). Mock a success.
-     */
-    public void testBuild() {
+    public void testBuild_Success() {
       MavenBuilder mb = new MavenBuilder();
       internalTestBuild(MOCK_SUCCESS, mb);
-      internalTestBuild(MOCK_BUILD_FAILURE, mb);
-      internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
+    }
+
+    public void testBuild_BuildFailure() {
+        MavenBuilder mb = new MavenBuilder();
+        internalTestBuild(MOCK_BUILD_FAILURE, mb);
+    }
+    
+    public void testBuild_DownloadFailure() {
+        MavenBuilder mb = new MavenBuilder();
+        internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
     }
 
     /**
