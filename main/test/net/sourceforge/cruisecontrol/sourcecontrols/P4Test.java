@@ -52,7 +52,6 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
@@ -216,8 +215,6 @@ public class P4Test extends TestCase {
                     file.fileName.startsWith(depotPrefix));
             assertEquals("Filename has # at bad index", -1,
                     file.fileName.indexOf("#"));
-            Pattern pattern = new Perl5Compiler().compile("^\\d+$");
-            Perl5Matcher matcher = new Perl5Matcher();
             assertTrue("Revision doesn't match regexp ^\\d+$: " + file.revision,
                     matches(file.revision, "^\\d+$"));
             assertTrue("Unknown action type: " + file.action,
