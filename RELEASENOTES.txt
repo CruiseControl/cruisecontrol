@@ -85,12 +85,14 @@ P4:
 * Use double quote only on Windows, single quote otherwise.
 * Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
 * Fixed parsing logic when file has more than 100 revisions. Patch by David Golombek.
+* Add optional Perforce password (CC-208). Patch by J D Glanville
 
 P4Bootstrapper:
 ----------------------
 * Deprecated attributes path, p4Port, p4User, and p4Client in favor
   of view, port, user, client to maintain consistency with P4 (SourceControl).
 * Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
+* Add optional Perforce password (CC-208). Patch by J D Glanville
 
 ProjectXMLHelper:
 ----------------------

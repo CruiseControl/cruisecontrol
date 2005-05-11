@@ -122,7 +122,8 @@ public class P4BootstrapperTest extends TestCase {
     public void testCreateCommandlineWithP4UserSet() throws CruiseControlException {
         p4Bootstrapper.setView("foo");
         p4Bootstrapper.setUser("testuser");
-        checkEnvironmentSpecification(" -u testuser ");
+        p4Bootstrapper.setPasswd("password");
+        checkEnvironmentSpecification(" -u testuser -P password ");
     }
 
     /**

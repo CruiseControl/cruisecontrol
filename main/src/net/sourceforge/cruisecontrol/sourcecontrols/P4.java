@@ -77,6 +77,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:niclas.olofsson@ismobile.com">Niclas Olofsson - isMobile.com</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
+ * @author J D Glanville
  */
 public class P4 implements SourceControl {
 
@@ -86,6 +87,7 @@ public class P4 implements SourceControl {
     private String p4Client;
     private String p4User;
     private String p4View;
+    private String p4Passwd;
     private static final SimpleDateFormat P4_REVISION_DATE =
             new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
@@ -105,6 +107,10 @@ public class P4 implements SourceControl {
 
     public void setView(String p4View) {
         this.p4View = p4View;
+    }
+
+    public void setPasswd(String p4Passwd) {
+        this.p4Passwd = p4Passwd;
     }
 
     public void setProperty(String property) {
@@ -131,6 +137,9 @@ public class P4 implements SourceControl {
         }
         if (p4View == null) {
             throw new CruiseControlException("'view' is a required attribute on P4");
+        }
+        if ((p4Passwd != null) && ("".equals(p4Passwd))) {
+            throw new CruiseControlException("'passwd' is required to be something meaningful or not provided");
         }
     }
 
@@ -377,6 +386,11 @@ public class P4 implements SourceControl {
         if (p4User != null) {
             commandLine.createArgument().setValue("-u");
             commandLine.createArgument().setValue(p4User);
+        }
+
+        if (p4Passwd != null) {
+            commandLine.createArgument().setValue("-P");
+            commandLine.createArgument().setValue(p4Passwd);
         }
         return commandLine;
     }

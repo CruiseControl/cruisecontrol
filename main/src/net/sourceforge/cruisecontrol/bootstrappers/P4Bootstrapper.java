@@ -50,6 +50,7 @@ import org.apache.log4j.Logger;
  *
  * @author <a href="mailto:mroberts@thoughtworks.com">Mike Roberts</a>
  * @author <a href="mailto:cstevenson@thoughtworks.com">Chris Stevenson</a>
+ * @author J D Glanville
  */
 public class P4Bootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(P4Bootstrapper.class);
@@ -57,6 +58,7 @@ public class P4Bootstrapper implements Bootstrapper {
     private String port;
     private String client;
     private String user;
+    private String passwd;
 
     public void setPort(String port) {
         this.port = port;
@@ -72,6 +74,10 @@ public class P4Bootstrapper implements Bootstrapper {
 
     public void setView(String view) {
         this.view = view;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
     }
 
     /**
@@ -114,6 +120,7 @@ public class P4Bootstrapper implements Bootstrapper {
         failIfNotNullButEmpty(port, "P4Port");
         failIfNotNullButEmpty(client, "P4Client");
         failIfNotNullButEmpty(user, "P4User");
+        failIfNotNullButEmpty(passwd, "P4Passwd");
     }
 
     private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest)
@@ -145,6 +152,10 @@ public class P4Bootstrapper implements Bootstrapper {
         if (user != null) {
             cmd.createArgument().setValue("-u");
             cmd.createArgument().setValue(user);
+        }
+        if (passwd != null) {
+            cmd.createArgument().setValue("-P");
+            cmd.createArgument().setValue(passwd);
         }
         cmd.createArgument().setValue("sync");
         cmd.createArgument().setValue(view);
