@@ -90,16 +90,16 @@ public class ScriptRunner  {
 
         Process p;
         int exitCode = -1;
-        try {           
             
-            String[] commandLine = script.getCommandLineArgs();
+        String[] commandLine = script.getCommandLineArgs();
 
+        String commandLineAsString = asString(commandLine, " ");
+
+        try {
             if (LOG.isDebugEnabled()) {
                 StringBuffer sb = new StringBuffer();
                 sb.append("Executing Command: '");
-                for (int i = 0; i < commandLine.length; i++) {
-                    sb.append(commandLine[i]).append(" ");
-                }
+                sb.append(commandLineAsString);
                 if (workingDir != null) {
                     sb.append("' in directory " + workingDir);
                 }
@@ -108,8 +108,8 @@ public class ScriptRunner  {
 
             p = Runtime.getRuntime().exec(commandLine, null, workingDir);
         } catch (IOException e) {
-            throw new CruiseControlException("Encountered an IO exception while attempting to execute NAnt."
-                    + " CruiseControl cannot continue.", e);
+            throw new CruiseControlException("Encountered an IO exception while attempting to execute '" 
+                    + commandLineAsString + "'. CruiseControl cannot continue.", e);
         }
 
         StreamPumper errorPumper = null;
@@ -150,6 +150,17 @@ public class ScriptRunner  {
         
         return !killer.processKilled();
 
+    }
+
+    private String asString(Object[] array, String delim) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+                sb.append(delim);
+            }
+            sb.append(array[i]);
+        }
+        return sb.toString();
     }
 }
 
