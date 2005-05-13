@@ -1,0 +1,31 @@
+<cruisecontrol>
+   <project name="commons-math">
+      
+      <listeners>
+         <currentbuildstatuslistener file="logs/commons-math/currentbuild.txt" />
+      </listeners>
+      
+      <bootstrappers>
+          <cvsbootstrapper localWorkingCopy="projects/jakarta-commons/math" />
+      </bootstrappers>
+      
+      <modificationset quietperiod="30" >
+         <cvs localWorkingCopy="projects/jakarta-commons/math"/>
+      </modificationset>
+      
+      <schedule interval="300" >
+         <ant anthome="apache-ant-1.6.3" 
+             buildfile="projects/jakarta-commons/math/build.xml"
+             target="clean jar"/>
+      </schedule>
+      
+      <log>
+      	<merge dir="projects/jakarta-commons/math/target/test-reports"/>
+      </log>
+      
+      <publishers>
+      	<artifactspublisher dest="artifacts" file="projects/jakarta-commons/math/target/commons-math-1.1-dev.jar"/>
+      </publishers>
+      
+   </project>
+</cruisecontrol>
