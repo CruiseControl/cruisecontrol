@@ -3,7 +3,7 @@
 
     <property name="label" value="2.2-dev"/>
 
-    <target name="release" depends="clean, website, zip"/>
+    <target name="release" depends="clean, website, zip, bin-zip"/>
 
     <target name="clean">
         <delete dir="target" failonerror="false" />
@@ -67,7 +67,25 @@
                 <exclude name="reporting/jsp/target/**"/>
                 <exclude name="reporting/jsp/testresults.xml"/>
                 <exclude name="release*"/>
+                <exclude name="**/binaryrelease/**"/>
             </zipfileset>
         </zip>
+    </target>
+
+    <target name="bin-zip" depends="build" >
+        <defaultexcludes remove="**/CVS"/>
+        <defaultexcludes remove="**/CVS/**"/>
+        <defaultexcludes remove="**/.cvsignore"/>
+
+        <zip destfile="target/cruisecontrol-bin-${label}.zip">
+            <zipfileset dir="binaryrelease" prefix="cruisecontrol-bin-${label}" excludes="*.zip" />
+            <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="cruisecontrol-bin-${label}/projects"/>
+            <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="cruisecontrol-bin-${label}"/>
+            <zipfileset dir="main/lib" includes="*.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+            <zipfileset file="main/lib/ant/ant.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+            <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+            <zipfileset file="main/dist/cruisecontrol.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+        </zip>
+
     </target>
 </project>
