@@ -20,6 +20,7 @@
         <ul id="menulist">
             <li><a href="../../docs/index.html">home</a></li>
             <li><a href="../../docs/download.html">download</a></li>
+            <li><a href="../../docs/license.html">license</a></li>
             <li><h2>documentation</h2></li>
             <li><a class="expandedmenu" href="index.html">build loop</a>
                 <ul>
@@ -49,18 +50,18 @@
         been designed as a small core with a very high-level implementation of
         continuous integration, with most of the implementation details
         delegated to plugins.  This makes it easy to create new functionality,
-        modify existing functionality, or remove unwanted functionality. 
+        modify existing functionality, or remove unwanted functionality.
         Plugins also create a shallower learning curve when digging in the
         codebase, as you can be assured that all of the cvs functionality, for
         example, exists in one place.  Encapsulating all of the functionality
         into plugins also makes testing easier.</p>
-        
+
         <p>There are currently six different types of plugins that
         CruiseControl supports. Each has a slightly different role, but all are
         designed similarly. While they all implement different interfaces and
         have slightly different method names, we will refer to them collectively
         as plugins when discussing their similarities. The plugin types are:</p>
-        
+
         <ul>
             <li><code>Bootstrapper</code>: run before the build</li>
             <li><code>SourceControl</code>: poll a code repository and determine
@@ -73,7 +74,7 @@
             email for example</li>
             <li><code>Listener</code>: handles project events</li>
         </ul>
-        
+
         <h2>Plugin Initialization</h2>
         <p>
         The <code>PluginXMLHelper</code> will use introspection to call setter
@@ -84,7 +85,7 @@
         config file.  The parser is case insensitive, so the case need not match
         from your attributes to your method names, so the standard
         capitalization rules should apply.</p>
-        
+
         <p>It is possible for you to declare nested elements within your
         plugin's declaration in the config file.  In this case, CruiseControl
         will expect your plugin class to implement a create method for each
@@ -98,16 +99,16 @@
         element in the same way as the parent element.  In theory, there is no
         limit to the depth of your nesting, as long as the appropriate create
         methods have been written.</p>
-        
+
         <p>Immediately after the parser has configured your plugin, we will
-        validate the plugin using it's own <code>validate()</code> method.  
+        validate the plugin using it's own <code>validate()</code> method.
         This will enable us to fail quickly if your plugin has been incorrectly
         configured, saving you the time of waiting for your plugin to execute to
         determine whether your CruiseControl installation has been
         successful.</p>
 
         <h2>Plugin Execution</h2>
-        
+
         <p>After we have configured and validated all of the plugins, we will
         begin executing them according to their type. Each plugin has an
         "action" method that is the one method that CruiseControl will call when
@@ -119,14 +120,14 @@
         similar for each of the other types of plugins.</p>
 
         <h2>Plugin Registration</h2>
-        
+
         <p>The registration of plugins is a simple and straightforward task.
-        Directly under the &lt;cruisecontrol&gt; element, or 
+        Directly under the &lt;cruisecontrol&gt; element, or
         within a <code>&lt;project&gt;</code> element, simply add a
         <code>&lt;plugin&nbsp;name=""&nbsp;classname=""/&gt;</code> element,
         where the name corresponds to the name you wish to use within the config
         file, and the classname corresponds to the actual plugin Java class.</p>
-        
+
         <p>Plugins specified directly under the root element will be available
         to all your projects, plugins under a project element will be only
         available within that project. This is useful to override a plugin
@@ -137,15 +138,15 @@
         Should you wish to use one of the registered plugin names with your own
         custom plugin class, you can just explicitly register the plugin name
         and that will override the default registration.</p>
-        
+
         <p>On registering plugins, you can also define default values for some
         of the properties of the plugins. You can do this by simply using the
-        same attributes as you would when using the plugin itself. Every 
+        same attributes as you would when using the plugin itself. Every
         default can be overridden when you actually use the plugin within a
-        project. 
-        If you want to define default values for default plugins, you may 
+        project.
+        If you want to define default values for default plugins, you may
         leave out the classname attribute of the plugin element. <br />
-        An example: to define some default values for the htmlemail publisher, 
+        An example: to define some default values for the htmlemail publisher,
         you can specify something like this in your config file:
 <pre>
   &lt;plugin name="htmlemail"
@@ -155,7 +156,7 @@
           xsldir="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\xsl"
           css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\css\cruisecontrol.css"/&gt;
 </pre></p>
-        
+
         <p>The following tables outlines the default plugin registry:</p>
 
         <h3>Bootstrappers</h3>
@@ -174,7 +175,7 @@
             <tr>
                 <td><a href="configxml.html#clearcasebootstrapper">clearcasebootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper</td>
-            </tr>			
+            </tr>
             <tr class="oddrow">
                 <td><a href="configxml.html#cmsynergybootstrapper">cmsynergybootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.CMSynergyBootstrapper</td>
@@ -293,7 +294,7 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Builders</h3>
         <table class="documentation">
             <thead>
@@ -393,7 +394,7 @@
             </tr>
             </tbody>
         </table>
-    
+
         <h3>Listeners</h3>
         <table class="documentation">
             <thead>
