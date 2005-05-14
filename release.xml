@@ -30,6 +30,7 @@
             includes="**/*.bat"
             />
 
+        <delete dir="target/website" failonerror="no" />
         <mkdir dir="target/website/reporting/jsp"/>
         <copy todir="target/website">
             <fileset dir="docs"/>
@@ -41,6 +42,9 @@
             <fileset dir="reporting/jsp/docs"/>
         </copy>
 
+        <replace dir="target/website" token="%%VERSION%%" value="${label}">
+            <include name="**/*.html"/>
+        </replace>
         <replace dir="target/website" token="../main/docs/" value="main/">
             <include name="**/*.html"/>
         </replace>
@@ -58,8 +62,9 @@
     </target>
 
     <target name="zip" depends="build">
-        <zip zipfile="target/cruisecontrol-${label}.zip">
-            <zipfileset dir="." prefix="cruisecontrol-${label}">
+        <mkdir dir="target/zip"/>
+        <copy todir="target/zip" overwrite="true" >
+            <fileset dir=".">
                 <exclude name="target**"/>
                 <exclude name="main/lib/starteam-sdk.jar"/>
                 <exclude name="main/target/**"/>
@@ -68,7 +73,14 @@
                 <exclude name="reporting/jsp/testresults.xml"/>
                 <exclude name="release*"/>
                 <exclude name="**/binaryrelease/**"/>
-            </zipfileset>
+            </fileset>
+        </copy>
+        <replace dir="target/zip" token="%%VERSION%%" value="${label}">
+            <include name="**/*.html"/>
+        </replace>
+
+        <zip zipfile="target/cruisecontrol-${label}.zip">
+            <zipfileset dir="target/zip" prefix="cruisecontrol-${label}"/>                
         </zip>
     </target>
 
