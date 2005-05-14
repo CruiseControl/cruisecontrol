@@ -20,6 +20,7 @@
         <ul id="menulist">
             <li><a href="../../docs/index.html">home</a></li>
             <li><a href="../../docs/download.html">download</a></li>
+            <li><a href="../../docs/license.html">license</a></li>
             <li><h2>documentation</h2></li>
             <li><a class="expandedmenu" href="index.html">build loop</a>
                 <ul>
@@ -66,10 +67,10 @@
 
         <p>All of the cruisecontrol configuration exists in a single config
         file.  If you're new to cruisecontrol, you'll have to create this file;
-        please read the explanation of the 
+        please read the explanation of the
         <a href="configxml.html">config file format</a></p>
 
-        <p>Several basic examples are provided with the distribution in the 
+        <p>Several basic examples are provided with the distribution in the
         docs/helloWorld directory</p>
 
         <h2><a name="startupcruisecontrol">3. Startup CruiseControl</a></h2>
@@ -89,12 +90,12 @@
                 </code><br>
                 If you use this, make sure CruiseControl can find the classes it needs.
                 If you don't know which classes this are, you should just use the script.
-                As of CruiseControl version 2.2.1, the MANIFEST.MF file is updated to 
-                contain a Class-Path entry with all the jars needed, so using 
+                As of CruiseControl version 2.2.1, the MANIFEST.MF file is updated to
+                contain a Class-Path entry with all the jars needed, so using
                 java&nbsp;-jar should just work.<br/>
                 If you're using Java 1.5/5.0, you should also provide a system property
                 to enable CruiseControl to use its own MX4J as JMX Server instead of the
-                JMX server that comes with the JVM: have a look at the startup scripts 
+                JMX server that comes with the JVM: have a look at the startup scripts
                 for more details.</p>
             </li>
         </ul>
@@ -111,9 +112,9 @@
               <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
                 <td>No</td>
                 <td>Port number for the JMX HTML adaptor.  This will activate
-                  the JMX admin functionality of CruiseControl. 
-                  If no number is specified, this will default to 8000, 
-                  which means you can access the site at 
+                  the JMX admin functionality of CruiseControl.
+                  If no number is specified, this will default to 8000,
+                  which means you can access the site at
                   <a href="http://localhost:8000">http://localhost:8000</a>.
                   This is also the default that the reporting application
                   expects for the ControlPanel JSP tab.</td>
@@ -122,12 +123,12 @@
               <td>-rmiport&nbsp;<i>[port&nbsp;number]</i></td>
                 <td>No</td>
                 <td>Port number for the JMX RMI adaptor and Connector Server.
-                  This will activate the JMX admin functionality of CruiseControl. 
-                  If no number is specified, this will default to 1099, 
+                  This will activate the JMX admin functionality of CruiseControl.
+                  If no number is specified, this will default to 1099,
                   which is the default RMI port. If no RMI registry is
                   running on the specified port, a registry will be started
                   for you. You can read about the Connector Server and remoting
-                  via JSR 160 
+                  via JSR 160
                   <a href="http://mx4j.sourceforge.net/docs/ch03.html">here</a></td>
             </tr>
             <tr class="oddrow">
@@ -166,7 +167,7 @@
         <p>If you specify the -port and/or the -rmiport parameter, a JMX Server will be started
         which can be used to control CruiseControl (force project builds, monitor the state
         of projects, change the logging level used internally, etc.).</p>
-        
+
         <p>Note that all parameters all optional; if you want to start CruiseControl using the
         config.xml file in the current working directory and do not want to use JXM to
         control CruiseControl, you don't need to specify any parameters.
@@ -177,7 +178,7 @@
         <p>More information on getting CruiseControl up and running can be found on the
         <a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a>.</p>
 
-        <p>If you need more help, subscribe to the 
+        <p>If you need more help, subscribe to the
         <a href="../../docs/contact.html">user mailing list</a> and ask your question there.</p>
     </div>
 </div>

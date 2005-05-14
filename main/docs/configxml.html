@@ -54,6 +54,7 @@
         <ul id="menulist">
             <li><a href="../../docs/index.html">home</a></li>
             <li><a href="../../docs/download.html">download</a></li>
+            <li><a href="../../docs/license.html">license</a></li>
             <li><h2>documentation</h2></li>
             <li><a class="expandmenu" href="index.html">build loop</a></li>
             <li><a class="expandmenu" href="../../reporting/jsp/docs/index.html">results jsp</a></li>
@@ -284,7 +285,7 @@
                 <tr class="oddrow">
                     <td>&lt;system&gt;</td>
                     <td>0 .. 1</td>
-                    <td>Currently just a placeholder for the &lt;configuration&gt; element, 
+                    <td>Currently just a placeholder for the &lt;configuration&gt; element,
 						which in its turn is just a placeholder for the <a href="#threads">&lt;threads&gt;</a> element.<br />
 						We expect that in the future, more system-level features can be configured under this element.
 					</td>
@@ -316,7 +317,7 @@
         </div>
 
 		<p>The <code>&lt;threads&gt;</code> element can be used to configure the number of threads that CruiseControl can use
-		simultaneously to build projects. This is done through the <code>count</code> attribute. 
+		simultaneously to build projects. This is done through the <code>count</code> attribute.
 		If this element (or one of its parent elements) is not specified, this defaults to 1.
 		This means that only one project will be built at a time. Raise this number if your server has enough resources to
 		build multiple projects simultaneously (especially useful on multi-processor systems). If more projects than the maximum
@@ -350,33 +351,33 @@
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   &lt;property&gt;</pre>
         </div>
-		
+
 		<p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
-        within the CruiseControl configuration file. Properties may be set at the global level 
+        within the CruiseControl configuration file. Properties may be set at the global level
         and/or within the scope of a project. There are three ways to set properties within CruiseControl:</p>
 
         <ol>
             <li>By supplying both the name and value attributes.</li>
-            <li>By setting the file attribute with the filename of the property file to load. 
-                This property file must follow the format defined by the class java.util.Properties, 
+            <li>By setting the file attribute with the filename of the property file to load.
+                This property file must follow the format defined by the class java.util.Properties,
                 with the same rules about how non-ISO8859-1 characters must be escaped.</li>
-            <li>By setting the environment attribute with a prefix to use. Properties will be defined 
-                for every environment variable by prefixing the supplied name and a period to the name 
+            <li>By setting the environment attribute with a prefix to use. Properties will be defined
+                for every environment variable by prefixing the supplied name and a period to the name
                 of the variable.</li>
         </ol>
 
-        <p>Properties in CruiseControl are <i>not entirely</i> immutable: whoever sets a property <i>last</i> 
+        <p>Properties in CruiseControl are <i>not entirely</i> immutable: whoever sets a property <i>last</i>
         will freeze it's value <i>within the scope in which the property was set</i>. In other words,
         you may define a property at the global level, then eclipse this value within the scope of a single
         project by redefining the property within that project. You may not, however, set a property more
         than once within the same scope. If you do so, only the last assignment will be used.</p>
 
-        <p>Just as in Ant, the value part of a property being set may contain references to other properties. 
-        These references are resolved at the time these properties are set. This also holds for properties 
+        <p>Just as in Ant, the value part of a property being set may contain references to other properties.
+        These references are resolved at the time these properties are set. This also holds for properties
         loaded from a property file, or from the environment.</p>
 
-        <p>Also note that the property ${project.name} is set for you automatically and will always resolve 
-        to the name of the project currently being serviced - even outside the scope of the project 
+        <p>Also note that the property ${project.name} is set for you automatically and will always resolve
+        to the name of the project currently being serviced - even outside the scope of the project
         definition.</p>
 
 		<h3>Attributes</h3>
@@ -420,7 +421,7 @@
             </tr>
             </tbody>
         </table>
-		
+
         <h3>Examples</h3>
 
         <ol>
@@ -431,7 +432,7 @@
     &lt;property name="logdir"    value="${cruisedir}/logs"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>	
+            </pre>
             </li>
 
             <li>Set a collection of global properties from the properties file "config.properties":
@@ -440,10 +441,10 @@
     &lt;property file="config.properties"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>	
+            </pre>
             </li>
 
-            <li>Load the system's environment into a collection of global properties. 
+            <li>Load the system's environment into a collection of global properties.
                 Upcase all environment variable names:
             <pre>
 &lt;cruisecontrol&gt;
@@ -451,16 +452,16 @@
     &lt;property name="logdir"     value="${env.CCDIR}/logs"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>	
+            </pre>
             </li>
-            
+
             <li>Define a global property called "buildmanager". Override it's value
                 only within the scope of the project called "project2".
             <pre>
 &lt;cruisecontrol&gt;
 
     &lt;property name="buildmanager" value="buildmgr@here.com"/&gt;
-    
+
     &lt;project name="project1"&gt;
         &lt;!-- ${buildmanager} resolves to "buildmgr@here.com" --&gt;
     &lt;/project&gt;
@@ -469,12 +470,12 @@
         &lt;property name="buildmanager" value="someoneelse@here.com"/&gt;
         &lt;!-- ${buildmanager} resolves to "someoneelse@here.com" --&gt;
     &lt;/projec&gt;
-    
+
 &lt;cruisecontrol&gt;
-            </pre>	
+            </pre>
             </li>
 
-            <li>As demonstrated here, properties and 
+            <li>As demonstrated here, properties and
                 <a href="plugins.html#registration">plugin pre-configuration</a>
                 can be an extremely powerful combination.
            <pre>
@@ -482,32 +483,32 @@
 
     &lt;!-- Load environment variables -->
     &lt;property environment="env" toupper="true"/&gt;
-    
+
     &lt;!-- Commonly used directories --&gt;
     &lt;property name="reportdir"  value="${env.CCDIR}/report"/&gt;
     &lt;property name="projectdir" value="${env.CCDIR}/checkout/${project.name}"/&gt;
     &lt;property name="testdir" value="${projectdir}/build/junit-reports"/&gt;
     &lt;property name="logdir" value="${env.CCDIR}/logs/${project.name}"/&gt;
-    
+
     &lt;!-- Defaults for email --&gt;
     &lt;property name="buildmaster.email"  value="buildmaster@example.com"/&gt;
     &lt;property name="buildmaster.name"  value="Buildmaster"/&gt;
-    
+
     &lt;!-- Preconfigure our plugins --&gt;
     &lt;plugin name="log"
             dir="${logdir}"/&gt;
-            
+
     &lt;plugin name="currentbuildstatuslistener"
             file="${logdir}/buildstatus.html"/>
-            
+
     &lt;plugin name="cvs"
-            localworkingcopy="${projectdir}"/&gt;   
-                     
+            localworkingcopy="${projectdir}"/&gt;
+
     &lt;plugin name="ant"
             antscript="${env.ANT_HOME}/bin/ant"
             antWorkingDir="${projectdir}"
             target="cruise"/&gt;
-            
+
     &lt;plugin name="htmlemail"
             buildresultsurl="http://servername/cruisecontrol/buildresults/${project.name}"
             mailhost="smtp.example.com"
@@ -560,11 +561,11 @@
     &lt;/project&gt;
 
 &lt;/cruisecontrol&gt;
-            </pre>			
-            </li>	
+            </pre>
+            </li>
         </ol>
-		</div>		
-		
+		</div>
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="project">&lt;project&gt;</a></h2>
@@ -579,7 +580,7 @@
         will handle checking for modifications, building, and publishing the
         results of your project.</p>
 
-        <p><i>Note</i>: one config.xml file can contain several 
+        <p><i>Note</i>: one config.xml file can contain several
         <code>&lt;project&gt;</code> elements; these projects will all run in
         a shared build queue (see the <a href="#threads">&lt;threads&gt;</a> element
 		if you want to build multiple projects at the same time).</p>
@@ -840,7 +841,7 @@
             </tbody>
         </table>
         </div>
-		
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="antbootstrapper">&lt;antbootstrapper&gt;</a></h2>
@@ -856,13 +857,13 @@
         <p>Executes an Ant script which implements a custom bootstrapper.</p>
 
         <h3>Attributes</h3>
-		
+
         The antbootstrapper uses the same <a href="#ant-attributes">attributes</a>
         as the <a href="#ant">&lt;ant&gt;</a> builder.
 
         <h3>Child Elements</h3>
 
-        The antbootstrapper supports the same set of 
+        The antbootstrapper supports the same set of
         <a href="#ant-elements">child elements</a> as the
         <a href="#ant">&lt;ant&gt;</a> builder.
 
@@ -871,23 +872,23 @@
         <ol>
             <li>Invoke the ant.bat script distributed with ant, specifying the
             working directory as <code>D:\workspace\MyProject</code> and the
-            ant build file as <code>MyProject-nightlybuild.xml</code> and the 
+            ant build file as <code>MyProject-nightlybuild.xml</code> and the
             ant target as <code>bootstrap</code>.
             <pre>&lt;bootstrappers&gt;
     &lt;antbootstrapper antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
          antworkingdir="D:\workspace\MyProject"
-         buildfile="MyProject-nightlybuild.xml" 
-         uselogger="true" 
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
          usedebug="false"
          target="bootstrap"/&gt;
 &lt;bootstrappers&gt;</pre>
             </li>
         </ol>
-		
-		For <a href="#ant-examples">additional examples</a>, please
-        see the <a href="#ant">&lt;ant&gt;</a> builder. 
 
-        </div>	
+		For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder.
+
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -962,7 +963,7 @@
             <tr>
                 <td>ccmsession</td>
                 <td>No</td>
-                <td>The ID string of the CM Synergy session to use. If not 
+                <td>The ID string of the CM Synergy session to use. If not
                     provided, the decision will be deferred to the client.</td>
             </tr>
             <tr class="oddrow">
@@ -974,7 +975,7 @@
                 <td>recurse</td>
                 <td>No (Defaults to true).</td>
                 <td>If set to true, all subprojects will also be reconfigured.</td>
-            </tr>            
+            </tr>
             </tbody>
         </table>
         </div>
@@ -1238,7 +1239,7 @@
             <tr class="oddrow">
                 <td>file</td>
                 <td>Yes</td>
-                <td>Name of the file or directory to fetch from the SnapshotCM 
+                <td>Name of the file or directory to fetch from the SnapshotCM
                     repository.  Updates from SnapshotCM repository will be
                     recursive and forced (over-writing any local changes).</td>
             </tr>
@@ -1737,13 +1738,13 @@
 
         <p>Used to trigger a build when another CruiseControl project has a
         successful build. When triggered, this will report a modification
-        with action "add", the successfully built project's logfile, the 
+        with action "add", the successfully built project's logfile, the
         name of the successfully built project's log directory (the final
         component of attribute logdir), and the username set to "cc-" +
         name of the successfully built project. You may need make an
         alias for this username if you are using an <a href="#email">&lt;email&gt;</a>
         publisher.
-        
+
         </p>
 
         <h3>Attributes</h3>
@@ -1765,13 +1766,13 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Properties Passed to the Builders</h3>
-        
+
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
         properties passed to builders</a>, &lt;buildstatus&gt; sets the
         following properties:</p>
-        
+
         <table class="documentation">
             <thead>
             <tr>
@@ -1802,8 +1803,8 @@
             </tr>
             </tbody>
         </table>
-         
-        
+
+
         </div>
 
         <div class="elementdocumentation">
@@ -1861,13 +1862,13 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Properties Passed to the Builders</h3>
-        
+
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
         properties passed to builders</a>, &lt;clearcase&gt; sets the
         following properties:</p>
-        
+
         <table class="documentation">
             <thead>
             <tr>
@@ -1902,7 +1903,7 @@
       &lt;clearcase&gt;</pre>
         </div>
 
-        <p>Triggers a build if tasks have been added to any folder within a 
+        <p>Triggers a build if tasks have been added to any folder within a
            CM Synergy project's reconfigure properties since the last build.</p>
 
         <h3>Attributes</h3>
@@ -1924,33 +1925,33 @@
             <tr>
                 <td>ccmsession</td>
                 <td>No</td>
-                <td>The ID string of the CM Synergy session to use. If not 
+                <td>The ID string of the CM Synergy session to use. If not
                     provided, the decision will be deferred to the client.</td>
             </tr>
             <tr class="oddrow">
                 <td>project</td>
                 <td>Yes</td>
-                <td>The project spec (two part name) of the project you wish 
+                <td>The project spec (two part name) of the project you wish
                     to use as a template for discovering new tasks.</td>
-            </tr>			
+            </tr>
             <tr>
                <td>updatefolders</td>
                <td>No. (Defaults to true)</td>
-               <td>If set to true, the project's reconfigure properties will 
+               <td>If set to true, the project's reconfigure properties will
                    be refreshed before searching for new tasks.</td>
             </tr>
             <tr class="oddrow">
                <td>ccmdateformat</td>
                <td>No. (Defaults to "EEE MMM dd HH:mm:ss yyyy")</td>
-               <td>The date format (as returned by a query) used by 
+               <td>The date format (as returned by a query) used by
                    your installation of CM Synergy.</td>
             </tr>
             <tr>
                <td>changesynergyurl</td>
                <td>No</td>
-               <td>If provided, an active link will be created from 
-                   the build results web page to any change requests 
-                   associated with any new tasks. The format should be 
+               <td>If provided, an active link will be created from
+                   the build results web page to any change requests
+                   associated with any new tasks. The format should be
                    "http://server:port". If you wish to use this option,
                    you must also set the ccmdb attribute.</td>
             </tr>
@@ -1963,13 +1964,13 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Properties Passed to the Builders</h3>
-        
+
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
         properties passed to builders</a>, &lt;cmsynergy&gt; sets the
         following properties:</p>
-        
+
         <table class="documentation">
             <thead>
             <tr>
@@ -2115,23 +2116,23 @@
         <p>Triggers a build if there is a change within a CVS repository.</p>
 
         <p>Changes are detected by running a command similar to the following:</p>
-        
+
         <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;</pre>
-        
+
         <p>The following changes are made to generate the actual command:</p>
-        
+
         <ul>
-            <li><code><i>lastbuildtime</i></code> is replaced with the date of 
+            <li><code><i>lastbuildtime</i></code> is replaced with the date of
             the last build, using the date format
             <code>yyyy-MM-dd&nbsp;HH:mm:ss&nbsp;'GMT'</code>.</li>
-            
+
             <li><code><i>checktime</i></code> is replaced with the date at which
             the check takes place.</li>
-        
-            <li>The <code>-d</code> option is only used when the cvsroot 
+
+            <li>The <code>-d</code> option is only used when the cvsroot
             attribute is specified; <code><i>CVSROOT</i></code> is replaced by
             the value of that attribute.</li>
-        
+
             <li>The <code>-r</code> option is only used when the tag attribute
             is specified; <code><i>TAG</i></code> is replaced by the value of
             that attribute. Otherwise, the <code>-b</code> option is used.</li>
@@ -2139,11 +2140,11 @@
             <li>The <code>-N</code> option is only used when the tag attribute
             is not specified or if it is set to <code>HEAD</code>.</li>
         </ul>
-        
+
         <p>Refer to the <a class="external"
-        href="http://www.cvsnt.org/manual/log.html">cvs log</a> reference for 
+        href="http://www.cvsnt.org/manual/log.html">cvs log</a> reference for
         further details of the <code>cvs&nbsp;log</code> command.</p>
-        
+
         <p>A notable feature of the CVS element is that it will look for the
         file CVSROOT/users and, if the files exists, use the information in
         that file to map cvs usernames to email addresses. More details are on
@@ -2187,9 +2188,9 @@
             <tr>
                 <td>tag</td>
                 <td>No (defaults to <code>HEAD</code>)</td>
-                <td>Specify the cvs tag. The value of this attribute is passed 
-                directly to <code>cvs&nbsp;log</code> using the <code>-r</code> 
-                option. Numeric revision numbers, branch tags, or ranges of 
+                <td>Specify the cvs tag. The value of this attribute is passed
+                directly to <code>cvs&nbsp;log</code> using the <code>-r</code>
+                option. Numeric revision numbers, branch tags, or ranges of
                 revisions are valid. Refer to the <code>-r</code> option in the
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
                 cvs log</a> reference for futher details.</td>
@@ -2272,11 +2273,11 @@
       &lt;forceonly&gt;</pre>
         </div>
 
-		<p>Never returns any changes. Use this to define a project that 
+		<p>Never returns any changes. Use this to define a project that
         only builds when forced to, like for release builds.
-		If you also want the modifications between two forced builds to 
+		If you also want the modifications between two forced builds to
         be reported, you'll have to use another solution (for instance,
-        define a <a href="#compound">&lt;compound&gt;</a> with a 
+        define a <a href="#compound">&lt;compound&gt;</a> with a
         <a href="#filesystem">&lt;filesystem&gt;</a> in the &lt;triggers&gt;
         and touch the specified file to force a build).</p>
 
@@ -2579,7 +2580,7 @@
             <tr class="oddrow">
                 <td>sourcepaths</td>
                 <td>Yes</td>
-                <td>A semi-colon-separated list of source paths to check 
+                <td>A semi-colon-separated list of source paths to check
                     for modifications.  All paths will be checked recursively.</td>
             </tr>
             <tr>
@@ -2939,7 +2940,7 @@
         found the multiple builds are evaluated <em>in the order they appear in
         the file</em>, so a multiple='1' on the first builder will hide all the
         subsequent builders.</p>
-        
+
         <h3>Attributes</h3>
 
         <table class="documentation">
@@ -2998,15 +2999,15 @@
         </table>
 
         <h3><a name="buildproperties">Properties Passed to Builders</a></h3>
-                
+
         <p>When CruiseControl runs your build script (Ant or Maven), it passes
         some information in the form of system properties to the script. These
         can be accessed in your script like any other property, using the syntax
         ${propertyname}.</p>
-        
+
         <p>Here's a list of all the properties that are available to your
         script:</p>
-        
+
         <table class="documentation">
             <thead>
             <tr>
@@ -3087,7 +3088,7 @@
         comprehensive (and time intensive) system tests every 10 builds.  We
         can also schedule an official build to run every night at midnight,
         if we so desire.</p>
-          
+
         <p>When a build runs, Ant is invoked in a separate Java process. There
         are two alternative ways in which ant may be invoked:</p>
         <ol>
@@ -3100,10 +3101,10 @@
             for the virtual machine can be specified using the nested <code>
             &lt;jvmarg&gt;</code> element.</li>
         </ol>
-        
+
         <p>The standard CruiseControl <a href="#buildproperties">properties
         passed to builders</a> are available from within the ant build.</p>
-        
+
         <p>See below for <a href="#ant-examples">examples</a> of the
         <code>&lt;ant&gt;</code> element.</p>
 
@@ -3158,7 +3159,7 @@
                 <td>No, but recommended. Cannot be specified if <code>anthome</code> attribute is also specified</td>
                 <td>Absolute filename of script (shell script or bat file) used
                 to start Ant. You can use this to make CruiseControl use your own
-                Ant installation. If this is not specified, the AntBuilder uses 
+                Ant installation. If this is not specified, the AntBuilder uses
                 the Ant distribution that ships with CruiseControl. See below
                 for <a href="#ant-examples">examples</a>.</td>
             </tr>
@@ -3183,17 +3184,17 @@
             <tr class="oddrow">
                 <td>uselogger</td>
                 <td>No</td>
-                <td>'true' if CruiseControl should call Ant using -logger; 
-                'false' to call Ant using '-listener', thus using the 
+                <td>'true' if CruiseControl should call Ant using -logger;
+                'false' to call Ant using '-listener', thus using the
                 loggerclass as a Listener. uselogger="true" will make Ant
-                log its messages using the class specified by loggerclassname 
-                as an Ant Logger,  which can make for smaller log files since 
-                it doesn't log DEBUG messages (see useDebug and useQuiet 
-                attributes below, and the 
-                <a href="http://ant.apache.org/manual/listeners.html">Ant manual</a>). 
+                log its messages using the class specified by loggerclassname
+                as an Ant Logger,  which can make for smaller log files since
+                it doesn't log DEBUG messages (see useDebug and useQuiet
+                attributes below, and the
+                <a href="http://ant.apache.org/manual/listeners.html">Ant manual</a>).
                 Set to false to have Ant echo ant messages to console using its
-                DefaultLogger, which is useful when debugging your ant build. 
-                Defaults to 'false' for historical reasons, but setting it to 
+                DefaultLogger, which is useful when debugging your ant build.
+                Defaults to 'false' for historical reasons, but setting it to
                 'true' is recommended for production situations.</td>
             </tr>
             <tr>
@@ -3211,7 +3212,7 @@
                 <td>If true will invoke ant with -debug, which can be
                 useful for debugging your ant build. Defaults to 'false',
                 cannot be set to 'true' if usequiet is also set to 'true'.
-                When used in combination with uselogger="true", this will 
+                When used in combination with uselogger="true", this will
                 result in bigger XML log files; otherwise, it will cause
                 more output to be written to the console by Ant's
                 DefaultLogger.</td>
@@ -3223,7 +3224,7 @@
                 useful for creating smaller log files since messages with
                 a priority of INFO will not be logged. Defaults to 'false',
                 cannot be set to 'true' if usedebug is also set to 'true'.
-                Smaller logfiles are only achieved when used in combination 
+                Smaller logfiles are only achieved when used in combination
                 with uselogger="true", otherwise there will just be less
                 output echoed to the console by Ant's DefaultLogger.</td>
             </tr>
@@ -3259,19 +3260,19 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3><a name="ant-examples">Examples</a></h3>
 
         <ol>
             <li>Invoke the ant.bat script distributed with ant using the <code>antscript</code> attribute,
             specifying the working directory as <code>D:\workspace\MyProject</code> and the
             ant build file as <code>MyProject-nightlybuild.xml</code> using the default target.
-        
+
             <pre>&lt;schedule&gt;
     &lt;ant antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
          antworkingdir="D:\workspace\MyProject"
-         buildfile="MyProject-nightlybuild.xml" 
-         uselogger="true" 
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
          usedebug="false"/&gt;
 &lt;schedule&gt;</pre>
 
@@ -3290,18 +3291,18 @@
             <li>Invoke a custom ant script <code>/home/cc/workspace/build.sh</code>,
             specifying the working directory as <code>/home/cc/workspace</code>
             and the ant target as <code>smoketest</code>.
-            
+
             <pre>&lt;schedule&gt;
     &lt;ant antscript="/home/cc/workspace/build.sh"
          antworkingdir="/home/cc/workspace"
-         target="smoketest" 
+         target="smoketest"
          uselogger="true"/&gt;
 &lt;schedule&gt;</pre>
 
             <p>The custom build script can be any shell script, batch file or
             program that understands how to invoke ant. Here is an example that
             would be appropriate under unix:</p>
-            
+
             <pre>#!/bin/sh
 PROJECT_HOME=`dirname "$0"`
 ANT_HOME=${PROJECT_HOME}/tools/ant
@@ -3311,9 +3312,9 @@ exec "$ANT_CMD" "$@"</pre>
 
             <p>Note the double quotes around $@: this ensures that all arguments
             will be quoted, which is necessary for arguments containing spaces.</p>
-            
+
             <p>An example of a Windows batch file to invoke ant:</p>
-            
+
             <pre>@echo off
 setlocal
 set PROJECT_HOME=%~dp0
@@ -3360,7 +3361,7 @@ endlocal</pre>
             allowed . Subset separator is '|'.
             </li>
         </ul>
-        
+
         <p>The standard CruiseControl <a href="#buildproperties">properties
         passed to builders</a> are available from within the maven build.</p>
 
@@ -3482,15 +3483,15 @@ endlocal</pre>
         comprehensive (and time intensive) system tests every 10 builds.  We
         can also schedule an official build to run every night at midnight,
         if we so desire.</p>
-          
+
         <p>When a build runs, NAnt is invoked in a separate Java process. NAnt
 			and the .NET Framework or Mono need to be installed for this builder
 			to function. See NAnt's documentation for details on configuration
 			and compatibility with .NET implementations. </p>
-        
+
         <p>The standard CruiseControl <a href="#buildproperties">properties
         passed to builders</a> are available from within the NAnt build.</p>
-        
+
         <p>See below for <a href="#nant-examples">examples</a> of the
         <code>&lt;nant&gt;</code> element.</p>
 
@@ -3560,15 +3561,15 @@ endlocal</pre>
             <tr>
                 <td>uselogger</td>
                 <td>No</td>
-                <td>'true' if CruiseControl should call NAnt using -logger; 
-                'false' to call NAnt without '-logger', thus using the 
+                <td>'true' if CruiseControl should call NAnt using -logger;
+                'false' to call NAnt without '-logger', thus using the
                 loggerclass as a Listener. uselogger="true" will make NAnt
-                log its messages using the class specified by loggerclassname 
-                as a NAnt Logger,  which can make for smaller log files since 
-                it doesn't log DEBUG messages (see useDebug and useQuiet 
-                attributes below, and the 
+                log its messages using the class specified by loggerclassname
+                as a NAnt Logger,  which can make for smaller log files since
+                it doesn't log DEBUG messages (see useDebug and useQuiet
+                attributes below, and the
                 <a href="http://nant.sourceforge.net/release/0.85-rc1/help/fundamentals/listeners.html">
-					NAnt documentation</a>). 
+					NAnt documentation</a>).
                 Listener will echo NAnt messages to console which is
                 useful when debugging your NAnt build. Defaults to 'false'
                 for historical reasons, but setting it to 'true' is recommended
@@ -3623,30 +3624,30 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
-        
+
         <h3><a name="nant-examples">Examples</a></h3>
 
         <ol>
             <li>Invoke NAnt, specifying the
             working directory as <code>D:\workspace\MyProject</code> and the
             NAnt build file as <code>MyProject-nightly.build</code> using the default target.
-        
+
             <pre>&lt;schedule&gt;
     &lt;nant nantworkingdir="D:\workspace\MyProject"
-         buildfile="MyProject-nightly.build" 
-         uselogger="true" 
+         buildfile="MyProject-nightly.build"
+         uselogger="true"
          usedebug="false"/&gt;
 &lt;schedule&gt;</pre>
             </li>
 
             <li>Invoke NAnt, specifying the working directory as <code>/home/cc/workspace</code>,
-            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>, 
+            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>,
 			and the targetframework as .NET version 1.1.
-            
+
             <pre>&lt;schedule&gt;
     &lt;nant targetframework="net-1.1"
          nantworkingdir="/home/cc/workspace"
-         target="smoketest" 
+         target="smoketest"
          uselogger="true"/&gt;
 &lt;schedule&gt;</pre>
 
@@ -3875,24 +3876,24 @@ endlocal</pre>
         <p>Executes an Ant script which implements a custom publisher.</p>
 
         <h3>Attributes</h3>
-		
+
         The antpublisher uses the same <a href="#ant-attributes">attributes</a>
         as the <a href="#ant">&lt;ant&gt;</a> builder.
 
         <h3>Child Elements</h3>
 
-        The antpublisher supports the same set of 
+        The antpublisher supports the same set of
         <a href="#ant-elements">child elements</a> as the
         <a href="#ant">&lt;ant&gt;</a> builder.
-		
+
         <h3>Properties Passed to the Publisher</h3>
-        
+
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
         properties</a>, &lt;antpublisher&gt; passes the following properties to Ant,
         which can be accessed in your script like any other property, using the
         syntax ${propertyname}.
 		</p>
-        
+
         <table class="documentation">
             <thead>
             <tr>
@@ -3930,28 +3931,28 @@ endlocal</pre>
                 <td>The name of the log file from the last build.</td>
             </tr>
             </tbody>
-        </table>		
+        </table>
 
         <h3>Examples</h3>
 
         <ol>
             <li>Invoke the ant.bat script distributed with ant, specifying the
             working directory as <code>D:\workspace\MyProject</code> and the
-            ant build file as <code>MyProject-nightlybuild.xml</code> and the 
+            ant build file as <code>MyProject-nightlybuild.xml</code> and the
             ant target as <code>publish</code>. Pass in the property "custom"
             with a value of "true".
             <pre>&lt;publishers&gt;
     &lt;antpublisher antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
          antworkingdir="D:\workspace\MyProject"
-         buildfile="MyProject-nightlybuild.xml" 
-         uselogger="true" 
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
          usedebug="false"
          target="publish"&gt;
         &lt;property name="custom" value="true"/&gt;
     &lt;/antpublisher&gt;
 &lt;/publishers&gt;</pre>
-           
-            <p>You could then do something like the following in 
+
+            <p>You could then do something like the following in
             <code>MyProject-nightlybuild.xml</code>:</p>
 			<pre>&lt;project name="MyProject-nightlybuild" default="publish"&gt;
     &lt;target name="publish"&gt;
@@ -3963,11 +3964,11 @@ endlocal</pre>
 &lt;/project&gt;</pre>
             </li>
         </ol>
-		
-		For <a href="#ant-examples">additional examples</a>, please
-        see the <a href="#ant">&lt;ant&gt;</a> builder. 
 
-        </div>	
+		For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder.
+
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -4385,7 +4386,7 @@ endlocal</pre>
             <tr>
                 <td><a name="alert"><code>&lt;alert&gt;</code></a></td>
                 <td>0 .. *</td>
-                <td>Mail address to be emailed notification if any of the build's 
+                <td>Mail address to be emailed notification if any of the build's
                     modified files match the supplied regular expression.
                     <code>&lt;alert&gt;</code> has the following attributes:
                     <table class="documentation">
@@ -4400,7 +4401,7 @@ endlocal</pre>
                         <tr class="oddrow">
                             <td>fileRegExpr</td>
                             <td>Yes</td>
-                            <td>A regular expression indicating which modified 
+                            <td>A regular expression indicating which modified
                                 files you are interested in</td>
                         </tr>
                         <tr>
@@ -4570,7 +4571,7 @@ endlocal</pre>
     <a href="#publishers">&lt;publishers&gt;</a>
       &lt;jabber&gt;</pre>
         </div>
-        
+
         <p>Sends an instant message with a link to the build results via a Jabber server
         using XMPP.</p>
 
@@ -4631,7 +4632,7 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="sametimeannouncement">&lt;sametimeannouncement&gt;</a></h2>
@@ -4787,7 +4788,7 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
-	
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="x10">&lt;x10&gt;</a></h2>
@@ -4804,7 +4805,7 @@ endlocal</pre>
         device via an X10 computer interface, model CM11A or CM17A. This allows
         you to control an electronic device when the build breaks. For example,
         use a flashing red light to indicate a broken build.</p>
-        
+
         <h3>Quick Start</h3>
         <ol>
             <li>Buy the home automation kit found at <a
@@ -4822,7 +4823,7 @@ endlocal</pre>
             <li>Add the x10 publisher to CruiseControl's config.xml, for example
             <pre><code>&lt;x10 houseCode="A" deviceCode="3" port="COM1"/&gt;</code></pre></li>
          </ol>
-         
+
          <p>For more information about the CM11A controller, see <a
          href="http://www.smarthome.com/1140.html">http://www.smarthome.com/1140.html</a>
          or <a
@@ -4831,36 +4832,36 @@ endlocal</pre>
          and allows the computer to send (and receive) X10 signals on the power
          line. For more information on X10 in general, see <a
          href="http://www.x10.com/support/basicx10.htm">http://www.x10.com/support/basicx10.htm</a>.</p>
-         
+
          <p>This module uses a pure Java implementation of the CM11A and CM17A
          communication protocol as implemented by Jesse Peterson,
          <a href="http://www.jpeterson.com/">http://www.jpeterson.com/</a>. To read
          more about his library, see <a
          href="http://www.jpeterson.com/rnd/x101.0.1/Readme.html">http://www.jpeterson.com/rnd/x101.0.1/Readme.html</a>.</p>
-         
+
          <p>The jpeterson library requires that the Java Communications API be
          installed. For more information on the COMM API, see <a
          href="http://java.sun.com/products/javacomm/index.jsp">http://java.sun.com/products/javacomm/index.jsp</a>.
          For convenience, the Java COMM API is included with the CruiseControl
          distribution. On windows, copy the win32com.dll from CruiseControl's
          lib directory to your <code>JAVA_HOME/bin</code> directory.</p>
-         
+
          <p>NOTE: If you receive the following error:</p>
-         
+
          <p><code>Error loading win32com: java.lang.UnsatisfiedLinkError: no
          win32com in java.library.path</code></p>
-         
+
          <p>it probably means that the Windows DLL named win32com.dll needs to
          be copied from CruiseControl's lib directory into your JDK (or JRE) bin
          directory (that is, the same directory that java.exe is found).</p>
-         
+
          <p>The standard behavior for this publisher is to send the device the
          "on" signal when the build breaks and then the "off" signal when the
          build is successful. If you want the opposite, i.e. on when successful
          and off when broken, set the onWhenBroken attribute to false.</p>
-         
+
          <h3>Examples</h3>
-         
+
          <pre>&lt;!--Turn on X10 device(s) A3 using a CM11A computer interface on COM2
     whenever the build breaks.--&gt;
 &lt;x10 houseCode="A" deviceCode="3"/&gt;</pre>
