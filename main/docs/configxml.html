@@ -39,6 +39,7 @@
         }
     </style>
     <link href="../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
+    <script type="text/javascript" src="../../docs/tables.js"></script>
 </head>
 <body>
 <div class="header">
@@ -166,6 +167,7 @@
 &nbsp;
 &nbsp;
 &nbsp;
+&nbsp;
 &nbsp;</pre>
         </div>
 
@@ -248,9 +250,9 @@
          <a href="#jabber">&lt;jabber/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
-	 <a href="#socket">&lt;socket/&gt;</a>
-         <a href="#x10">&lt;x10i/&gt;</a>
-	 <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
+         <a href="#socket">&lt;socket/&gt;</a>
+         <a href="#x10">&lt;x10/&gt;</a>
+         <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
       &lt;/publishers&gt;
    &lt;/project&gt;
 &lt;/cruisecontrol&gt;</pre>
@@ -282,20 +284,20 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="oddrow">
+                <tr>
                     <td>&lt;system&gt;</td>
                     <td>0 .. 1</td>
-                    <td>Currently just a placeholder for the &lt;configuration&gt; element,
-						which in its turn is just a placeholder for the <a href="#threads">&lt;threads&gt;</a> element.<br />
-						We expect that in the future, more system-level features can be configured under this element.
-					</td>
+                    <td>Currently just a placeholder for the &lt;configuration&gt; element, 
+                        which in its turn is just a placeholder for the <a href="#threads">&lt;threads&gt;</a> element.<br />
+                        We expect that in the future, more system-level features can be configured under this element.
+                    </td>
                 </tr>
                 <tr>
                     <td><a href="#project">&lt;project&gt;</a></td>
                     <td>1 .. *</td>
                     <td>Defines a basic unit of work.</td>
                 </tr>
-                <tr class="oddrow">
+                <tr>
                     <td><a href="#plugin">&lt;plugin&gt;</a></td>
                     <td>0 .. *</td>
                     <td>Registers a classname with an alias.</td>
@@ -316,14 +318,14 @@
       &lt;threads&gt;</pre>
         </div>
 
-		<p>The <code>&lt;threads&gt;</code> element can be used to configure the number of threads that CruiseControl can use
-		simultaneously to build projects. This is done through the <code>count</code> attribute.
-		If this element (or one of its parent elements) is not specified, this defaults to 1.
-		This means that only one project will be built at a time. Raise this number if your server has enough resources to
-		build multiple projects simultaneously (especially useful on multi-processor systems). If more projects than the maximum
-		number of threads are scheduled to run at a given moment, the extra projects will be queued.</p>
+        <p>The <code>&lt;threads&gt;</code> element can be used to configure the number of threads that CruiseControl can use
+        simultaneously to build projects. This is done through the <code>count</code> attribute. 
+        If this element (or one of its parent elements) is not specified, this defaults to 1.
+        This means that only one project will be built at a time. Raise this number if your server has enough resources to
+        build multiple projects simultaneously (especially useful on multi-processor systems). If more projects than the maximum
+        number of threads are scheduled to run at a given moment, the extra projects will be queued.</p>
 
-		<h3>Attributes</h3>
+        <h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -334,7 +336,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>count</td>
                 <td>Yes</td>
                 <td>Maximum number of threads to be in use simultaneously to build projects</td>
@@ -351,9 +353,9 @@
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   &lt;property&gt;</pre>
         </div>
-
-		<p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
-        within the CruiseControl configuration file. Properties may be set at the global level
+        
+        <p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
+        within the CruiseControl configuration file. Properties may be set at the global level 
         and/or within the scope of a project. There are three ways to set properties within CruiseControl:</p>
 
         <ol>
@@ -380,7 +382,7 @@
         to the name of the project currently being serviced - even outside the scope of the project
         definition.</p>
 
-		<h3>Attributes</h3>
+        <h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -391,7 +393,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>name</td>
                 <td rowspan="3">Exactly one of name, environment, or file.</td>
                 <td>The name of the property to set.</td>
@@ -399,11 +401,11 @@
             <tr>
                 <td>environment</td>
                 <td>The prefix to use when retrieving environment variables.
-					Thus if you specify environment="myenv" you will be able
-					to access OS-specific environment variables via property
-					names such as "myenv.PATH" or "myenv.MAVEN_HOME".</td>
+                    Thus if you specify environment="myenv" you will be able
+                    to access OS-specific environment variables via property
+                    names such as "myenv.PATH" or "myenv.MAVEN_HOME".</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>The filename of the property file to load.</td>
             </tr>
@@ -411,17 +413,17 @@
                 <td>value</td>
                 <td>Yes, if name was set.</td>
                 <td>The value of the property. This may contain any previously
-					defined properties.</td>
+                    defined properties.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>toupper</td>
                 <td>No</td>
                 <td>Used in conjunction with environment. If set to true, all
-					environment variable names will be converted to upper case.</td>
+                    environment variable names will be converted to upper case.</td>
             </tr>
             </tbody>
         </table>
-
+        
         <h3>Examples</h3>
 
         <ol>
@@ -432,7 +434,7 @@
     &lt;property name="logdir"    value="${cruisedir}/logs"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>
+            </pre>  
             </li>
 
             <li>Set a collection of global properties from the properties file "config.properties":
@@ -441,7 +443,7 @@
     &lt;property file="config.properties"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>
+            </pre>  
             </li>
 
             <li>Load the system's environment into a collection of global properties.
@@ -452,7 +454,7 @@
     &lt;property name="logdir"     value="${env.CCDIR}/logs"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>
+            </pre>  
             </li>
 
             <li>Define a global property called "buildmanager". Override it's value
@@ -472,7 +474,7 @@
     &lt;/projec&gt;
 
 &lt;cruisecontrol&gt;
-            </pre>
+            </pre>  
             </li>
 
             <li>As demonstrated here, properties and
@@ -561,11 +563,11 @@
     &lt;/project&gt;
 
 &lt;/cruisecontrol&gt;
-            </pre>
-            </li>
+            </pre>          
+            </li>   
         </ol>
-		</div>
-
+        </div>      
+        
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="project">&lt;project&gt;</a></h2>
@@ -583,7 +585,7 @@
         <p><i>Note</i>: one config.xml file can contain several
         <code>&lt;project&gt;</code> elements; these projects will all run in
         a shared build queue (see the <a href="#threads">&lt;threads&gt;</a> element
-		if you want to build multiple projects at the same time).</p>
+        if you want to build multiple projects at the same time).</p>
 
         <h3>Attributes</h3>
 
@@ -596,7 +598,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>name</td>
                 <td>Yes</td>
                 <td>Unique identifier for this project</td>
@@ -629,7 +631,7 @@
                 <td>0 .. 1</td>
                 <td>Container element for Listener plugin instances.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#bootstrappers">&lt;bootstrappers&gt;</a></td>
                 <td>0 .. 1</td>
                 <td>Container element for Bootstrapper plugin instances.</td>
@@ -639,7 +641,7 @@
                 <td>1</td>
                 <td>Container element for SourceControl plugin instances.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#schedule">&lt;schedule&gt;</a></td>
                 <td>1</td>
                 <td>Specifies the SourceControl poll interval, and is a parent
@@ -650,7 +652,7 @@
                 <td>0 .. 1</td>
                 <td>Specifies where project log files are stored.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#publishers">&lt;publishers&gt;</a></td>
                 <td>0 .. 1</td>
                 <td>Container element for Publisher plugin instances.</td>
@@ -660,7 +662,7 @@
                 <td>0 .. 1</td>
                 <td>Overrides the default date format for presentation.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#plugin">&lt;plugin&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Registers a classname with an alias.</td>
@@ -697,7 +699,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
@@ -738,7 +740,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write, including path</td>
@@ -778,7 +780,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#antbootstrapper">&lt;antbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Executes an Ant script which implements a custom bootstrapper</td>
@@ -788,7 +790,7 @@
                 <td>0 .. *</td>
                 <td>Bootstraps resources from ClearCase</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CM Synergy</td>
@@ -798,7 +800,7 @@
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Transfers a build status snippet via FTP</td>
@@ -808,7 +810,7 @@
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CVS</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Perforce</td>
@@ -818,7 +820,7 @@
                 <td>0 .. *</td>
                 <td>Bootstraps resources from SnapshotCM</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Star Team</td>
@@ -828,7 +830,7 @@
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Surround SCM</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
@@ -841,7 +843,7 @@
             </tbody>
         </table>
         </div>
-
+        
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="antbootstrapper">&lt;antbootstrapper&gt;</a></h2>
@@ -857,7 +859,7 @@
         <p>Executes an Ant script which implements a custom bootstrapper.</p>
 
         <h3>Attributes</h3>
-
+        
         The antbootstrapper uses the same <a href="#ant-attributes">attributes</a>
         as the <a href="#ant">&lt;ant&gt;</a> builder.
 
@@ -884,11 +886,11 @@
 &lt;bootstrappers&gt;</pre>
             </li>
         </ol>
+        
+        For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder. 
 
-		For <a href="#ant-examples">additional examples</a>, please
-        see the <a href="#ant">&lt;ant&gt;</a> builder.
-
-        </div>
+        </div>  
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -916,7 +918,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write</td>
@@ -955,7 +957,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>ccmexe</td>
                 <td>No</td>
                 <td>The name of the CM Synergy command line client.</td>
@@ -966,7 +968,7 @@
                 <td>The ID string of the CM Synergy session to use. If not
                     provided, the decision will be deferred to the client.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>project</td>
                 <td>Yes</td>
                 <td>The project spec (two part name) of the project you wish to reconfigure.</td>
@@ -1016,7 +1018,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write, including path</td>
@@ -1056,7 +1058,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write.</td>
@@ -1106,7 +1108,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>localWorkingCopy</td>
                 <td>No</td>
                 <td>Path (absolute or relative to Build Loop execution
@@ -1122,7 +1124,7 @@
                 is in the cvs project or if the localWorkingCopy attribute is
                 set.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>No</td>
                 <td>The file to update from CVS, relative to localworkingcopy.
@@ -1181,7 +1183,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>view</td>
                 <td>Yes</td>
                 <td>Valid Perforce path (a.k.a. 'view')</td>
@@ -1191,7 +1193,7 @@
                 <td>No</td>
                 <td>Perforce Server connection to use (host:port)</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>user</td>
                 <td>No</td>
                 <td>Perforce User name to use</td>
@@ -1201,7 +1203,7 @@
                 <td>No</td>
                 <td>Perforce password to use</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>client</td>
                 <td>No</td>
                 <td>Perforce Client name to use</td>
@@ -1236,7 +1238,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>Yes</td>
                 <td>Name of the file or directory to fetch from the SnapshotCM
@@ -1273,7 +1275,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>files</td>
                 <td>Yes</td>
                 <td>Space separated list of files to retrieve</td>
@@ -1283,7 +1285,7 @@
                 <td>Yes</td>
                 <td>The repository folder</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>localfolder</td>
                 <td>No</td>
                 <td>Path to the folder on the local file system</td>
@@ -1293,7 +1295,7 @@
                 <td>Yes</td>
                 <td>&nbsp;</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>port</td>
                 <td>Yes</td>
                 <td>Port StarTeam server is using</td>
@@ -1303,7 +1305,7 @@
                 <td>Yes</td>
                 <td>StarTeam project</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>server</td>
                 <td>Yes</td>
                 <td>Hostname for StarTeam server</td>
@@ -1313,7 +1315,7 @@
                 <td>Yes</td>
                 <td>&nbsp;</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>view</td>
                 <td>Yes</td>
                 <td>StarTeam view</td>
@@ -1348,7 +1350,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                  <td>branch</td>
                  <td>No</td>
                  <td>Surround SCM branch name. The default is pulled from the local working directory.</td>
@@ -1358,7 +1360,7 @@
                  <td>No</td>
                  <td>Surround SCM repository path. The default is pulled from the local working directory.</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                  <td>label</td>
                  <td>No</td>
                  <td>Enter a label to search for when getting files.</td>
@@ -1369,7 +1371,7 @@
                  <td>Include removed files when getting files by label or timestamp. Default is true.
                      Ignored if a label is not specified. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                  <td>overwrite</td>
                  <td>No</td>
                  <td>Enter how to handle a local writable file.
@@ -1380,7 +1382,7 @@
                  <td>No</td>
                  <td>Recursively get files and sub-repositories. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                  <td>forcefetch</td>
                  <td>No</td>
                  <td>Force file retrieval from server regardless of the local copy status.
@@ -1392,7 +1394,7 @@
                  <td>Make local file editable or writable. Default is read-only.
                      Options are <strong>1</strong> or <strong>0</strong> (default).</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                  <td>serverconnect</td>
                  <td>No</td>
                  <td>Enter the address and port number of the Surround SCM server host computer.
@@ -1435,7 +1437,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>localWorkingCopy</td>
                 <td rowspan="2">One of these</td>
                 <td>the relative or absolute path to the local working copy of
@@ -1446,7 +1448,7 @@
                 <td>file</td>
                 <td>file to update from the Subversion repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>username</td>
                 <td>No</td>
                 <td>used for authentication.</td>
@@ -1486,7 +1488,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>vsspath</td>
                 <td>Yes</td>
                 <td>Fully qualified VSS path to the target file.  If the leading
@@ -1500,7 +1502,7 @@
                 <td>Fully qualified path for the destination directory.<br/>
                 <b>Example:</b> c:\directory\subdirectory\</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>login</td>
                 <td>No</td>
                 <td>VSS login information in the form <i>username,password</i></td>
@@ -1512,7 +1514,7 @@
                 is assumed to be in the path.<br/>
                 Note: should not contain whitespace.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>serverpath</td>
                 <td>No</td>
                 <td>Path to the directory containing srcsafe.ini.</td>
@@ -1551,7 +1553,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>requiremodification</td>
                <td>No (defaults to true)</td>
                <td>Is a modification required for the build to continue?
@@ -1571,7 +1573,7 @@
                bootstrapper to sync files (as opposed to getting updates as part
                of the build). 0 is a valid value.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>ignoreFiles</td>
                 <td>No</td>
                 <td>Specify a comma separated list of glob-patterns identify files to be ignored in modificationsets.
@@ -1597,17 +1599,17 @@
                 <td>0 .. *</td>
                 <td>Always returns a single modification so the build will be run.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#buildstatus">&lt;buildstatus&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for a successful build in another project.</td>
             </tr>
             <tr>
                 <td><a href="#clearcase">&lt;clearcase&gt;</a></td>
-		<td>0 .. *</td>
+        <td>0 .. *</td>
                 <td>Checks for changes in a ClearCase repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#cmsynergy">&lt;cmsynergy&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a CM Synergy repository.</td>
@@ -1619,7 +1621,7 @@
                 and if modification are detected, returns changes from a list
                 of target source controls.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#cvs">&lt;cvs&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a CVS repository.</td>
@@ -1629,7 +1631,7 @@
                 <td>0 .. *</td>
                 <td>Checks for changes in a file system.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#forceonly">&lt;forceonly&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
@@ -1639,7 +1641,7 @@
                 <td>0 .. *</td>
                 <td>Checks for changes in a remote file via http.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#mks">&lt;mks&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a MKS repository.</td>
@@ -1649,7 +1651,7 @@
                 <td>0 .. *</td>
                 <td>Checks for changes in a Perforce repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#pvcs">&lt;pvcs&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a PVCS repository.</td>
@@ -1659,7 +1661,7 @@
                 <td>0 .. *</td>
                 <td>Checks for changes in a SnapshotCM repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#starteam">&lt;starteam&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Star Team repository.</td>
@@ -1669,7 +1671,7 @@
                  <td>0 .. *</td>
                  <td>Checks for changes in a Surround SCM repository.</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
@@ -1679,7 +1681,7 @@
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe repository.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#vssjournal">&lt;vssjournal&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Visual SourceSafe, Journal File
@@ -1714,7 +1716,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>username</td>
                <td>No (defaults to "User")</td>
                <td>The username to use for the single reported (fake) Modification.</td>
@@ -1758,7 +1760,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>logdir</td>
                <td>Yes</td>
                <td>Path to CruiseControl log directory for the project to
@@ -1781,7 +1783,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>most.recent.logdir</td>
                 <td>The location being checked for new log files</td>
             </tr>
@@ -1790,7 +1792,7 @@
                 <td>The name of the newest logfile included in the
                 modification set</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>most.recent.logtime</td>
                 <td>The timestamp of the newest build included in the
                 modification set, using the format
@@ -1832,7 +1834,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>branch</td>
                <td>Yes</td>
                <td>The ClearCase branch</td>
@@ -1842,7 +1844,7 @@
                <td>No (defaults to true)</td>
                <td>Whether to check sub-folders in the viewpath.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>viewpath</td>
                <td>Yes</td>
                <td>Local working copy to use when making queries</td>
@@ -1853,7 +1855,7 @@
                <td>Will set this property if a modification has occurred.  For
                use in conditionally controlling the build later.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>propertyondelete</td>
                <td>No</td>
                <td>Will set this property if a file has been deleted.  For use
@@ -1877,7 +1879,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>clearcaselastbuild</td>
                 <td>Timestamp representing the last built time, using the
                 format <code>dd-MMMM-yyyy.HH:mm:ss</code></td>
@@ -1900,7 +1902,7 @@
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#modificationset">&lt;modificationset&gt;</a>
-      &lt;clearcase&gt;</pre>
+      &lt;cmcynergy&gt;</pre>
         </div>
 
         <p>Triggers a build if tasks have been added to any folder within a
@@ -1917,7 +1919,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>ccmexe</td>
                <td>No</td>
                <td>The name of the CM Synergy command line client.</td>
@@ -1928,19 +1930,19 @@
                 <td>The ID string of the CM Synergy session to use. If not
                     provided, the decision will be deferred to the client.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>project</td>
                 <td>Yes</td>
                 <td>The project spec (two part name) of the project you wish
                     to use as a template for discovering new tasks.</td>
-            </tr>
+            </tr>           
             <tr>
                <td>updatefolders</td>
                <td>No. (Defaults to true)</td>
                <td>If set to true, the project's reconfigure properties will
                    be refreshed before searching for new tasks.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>ccmdateformat</td>
                <td>No. (Defaults to "EEE MMM dd HH:mm:ss yyyy")</td>
                <td>The date format (as returned by a query) used by
@@ -1955,7 +1957,7 @@
                    "http://server:port". If you wish to use this option,
                    you must also set the ccmdb attribute.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>ccmdb</td>
                <td>No</td>
                <td>Used in conjunction with changesynergyurl. This
@@ -1979,7 +1981,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>cc.ccm.session</td>
                 <td>The CM Synergy session ID (as provided in the ccmsession attribute).</td>
             </tr>
@@ -1987,7 +1989,7 @@
                 <td>cc.ccm.dateformat</td>
                 <td>The date format string used by this plugin.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>cc.ccm.project</td>
                 <td>The project name (as provided in the project attribute).</td>
             </tr>
@@ -2033,7 +2035,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>includeTriggerChanges</td>
                 <td>No (defaults to false)</td>
                 <td>Add the trigger modifications to the list of returned
@@ -2058,7 +2060,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><code>&lt;triggers&gt;</code></td>
                 <td>1</td>
                 <td>A container for one or more source control elements that
@@ -2163,7 +2165,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>cvsroot</td>
                 <td rowspan="2">One of cvsroot or localworkingcopy</td>
                 <td>Specifies the location of the CVS repository<br/>
@@ -2176,7 +2178,7 @@
                 Directory must exist and should have files from a previous
                 checkout.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>module</td>
                 <td>Only when cvsroot is in use </td>
                 <td>The name of the CVS module that schould be observed.
@@ -2195,7 +2197,7 @@
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
                 cvs log</a> reference for futher details.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>property</td>
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
@@ -2240,7 +2242,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>folder</td>
                 <td>Yes</td>
                 <td>Root folder of the directories to scan, or path to file to
@@ -2252,7 +2254,7 @@
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>username</td>
                <td>No (defaults to "User")</td>
                <td>The username to use for the reported Modifications.</td>
@@ -2273,9 +2275,9 @@
       &lt;forceonly&gt;</pre>
         </div>
 
-		<p>Never returns any changes. Use this to define a project that
+        <p>Never returns any changes. Use this to define a project that 
         only builds when forced to, like for release builds.
-		If you also want the modifications between two forced builds to
+        If you also want the modifications between two forced builds to 
         be reported, you'll have to use another solution (for instance,
         define a <a href="#compound">&lt;compound&gt;</a> with a
         <a href="#filesystem">&lt;filesystem&gt;</a> in the &lt;triggers&gt;
@@ -2283,7 +2285,7 @@
 
         <h3>Attributes</h3>
 
-		This tag has no attributes.
+        This tag has no attributes.
         </div>
 
         <div class="elementdocumentation">
@@ -2313,7 +2315,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>url</td>
                 <td>Yes</td>
                 <td>The HTTP URL of a file to check the modification date of</td>
@@ -2352,7 +2354,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>projectFile</td>
                <td>Yes</td>
                <td>Maven POM file.</td>
@@ -2362,7 +2364,7 @@
                <td>Yes</td>
                <td>The username to use when reporting modifications.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>localRepository</td>
                <td>No</td>
                <td>Local Maven JAR repository. Defaults to <code>{user.home}/.maven/repository</code>.</td>
@@ -2375,7 +2377,7 @@
                   controlling the build later.
                </td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>propertyondelete</td>
                 <td>Ignored</td>
                 <td>Set this property if a file has been deleted.  For use in
@@ -2411,7 +2413,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>localworkingcopy</td>
                 <td>ignored</td>
                 <td>Path to the local working copy. This attribute is currently
@@ -2422,7 +2424,7 @@
                 <td>Yes</td>
                 <td>Set MKSROOT</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>property</td>
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
@@ -2463,7 +2465,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>port</td>
                 <td>Yes</td>
                 <td>Perforce Server connection to use (host:port)</td>
@@ -2473,7 +2475,7 @@
                 <td>Yes</td>
                 <td>Perforce Client name to use</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>user</td>
                 <td>Yes</td>
                 <td>Perforce User name to use</td>
@@ -2483,7 +2485,7 @@
                 <td>No</td>
                 <td>Perforce password to use</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>view</td>
                 <td>Yes</td>
                 <td>Valid Perforce view (i.e. a depot path)</td>
@@ -2517,7 +2519,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>loginid</td>
                 <td>no</td>
                 <td></td>
@@ -2527,7 +2529,7 @@
                 <td>Yes</td>
                 <td></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>pvcssubproject</td>
                 <td>Yes</td>
                 <td></td>
@@ -2537,7 +2539,7 @@
                 <td>No</td>
                 <td>Path to directory with pcli.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>outdateformat</td>
                 <td>No (defaults to "MMM dd yyyy HH:mm:ss")</td>
                 <td>The format to use to parse the LastModified entry as
@@ -2577,7 +2579,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>sourcepaths</td>
                 <td>Yes</td>
                 <td>A semi-colon-separated list of source paths to check
@@ -2589,7 +2591,7 @@
                 <td>Property to be set if a modification has occurred. For use
                 in conditionally controlling the build later.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>propertyondelete</td>
                 <td>No</td>
                 <td>Property to be set if a file has been deleted. For use in
@@ -2627,7 +2629,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>folder</td>
                 <td>Yes</td>
                 <td>The repository folder</td>
@@ -2637,7 +2639,7 @@
                 <td>Yes</td>
                 <td>Password for the StarTeam user</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>starteamurl</td>
                 <td>Yes</td>
                 <td></td>
@@ -2647,7 +2649,7 @@
                 <td>Yes</td>
                 <td>StarTeam user name</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>preloadFileInformation</td>
                 <td>No (defaults to false)</td>
                 <td>When set to true can make the modification check much
@@ -2659,7 +2661,7 @@
                 <td>Property to be set if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>propertyondelete</td>
                 <td>No</td>
                 <td>Property to be set if a file has been deleted.  For use in
@@ -2692,7 +2694,7 @@
             </tr>
             </thead>
             <tbody>
-             <tr class="oddrow">
+             <tr>
                  <td>branch</td>
                  <td>No</td>
                  <td>Surround SCM branch name. The default is pulled from the local working directory.</td>
@@ -2702,7 +2704,7 @@
                  <td>No</td>
                  <td>Surround SCM repository path. The default is pulled from the local working directory.</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                  <td>file</td>
                  <td>No</td>
                  <td>Enter a file or repository name or a searchable pattern. Can be / or empty, which means the repository specified by the repository option or the default repository.</td>
@@ -2712,7 +2714,7 @@
                  <td>No</td>
                  <td>If set to <strong>1</strong>, the <strong>file</strong> parameter will be interpreted as a regular expression. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                  <td>recursive</td>
                  <td>No</td>
                  <td>Recursively check files and sub-repositories. Options are <strong>1</strong> or <strong>0</strong> (default).</td>
@@ -2722,7 +2724,7 @@
                  <td>No</td>
                  <td>Enter the address and port number of the Surround SCM server host computer. Format is server:port. If not entered, the last saved connection parameters are used.</td>
              </tr>
-             <tr class="oddrow">
+             <tr>
                 <td>serverlogin</td>
                  <td>No</td>
                  <td>Enter the username and password used to login to the Surround SCM server. Format is username:password. If not entered, the last saved login parameters are used.</td>
@@ -2756,7 +2758,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>LocalWorkingCopy</td>
                 <td rowspan="2">One of these</td>
                 <td>Relative or absolute path to the local working copy of the
@@ -2767,7 +2769,7 @@
                 <td>The url to the Subversion repository on which to find the
                 log history.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>username</td>
                 <td>No</td>
                 <td>used for authentication.</td>
@@ -2806,7 +2808,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>dateformat</td>
                 <td>No (defaults to default is <i>MM/dd/yy</i>)</td>
                 <td>The date format to use for querying VSS and processing
@@ -2820,7 +2822,7 @@
                 reports. If your VSS is configured differently you may need a
                 different format such as <i>HH:mm:ss</i>.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>vsspath</td>
                 <td>Yes</td>
                 <td>The VSS project to get history from.<br/>
@@ -2832,7 +2834,7 @@
                 <td>The VSS login to use, in the form
                 <i><code>username,password</code></i></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>ssdir</td>
                 <td>No</td>
                 <td>Path to the directory containing ss.exe.  By default,
@@ -2844,7 +2846,7 @@
                 <td>No</td>
                 <td>Path to the directory containing srcsafe.ini.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>property</td>
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
@@ -2886,9 +2888,9 @@
                 <th>Required</th>
                 <th>Description</th>
             </tr>
-		</thead>
+        </thead>
         <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>journalfile</td>
                 <td>Yes</td>
                 <td>Full path to journal file.  Example: <i>c:/vssdata/journal/journal.txt</i></td>
@@ -2898,7 +2900,7 @@
                 <td>Yes</td>
                 <td>The VSS project to get history from</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>property</td>
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
@@ -2952,7 +2954,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>interval</td>
                 <td>No</td>
                 <td>Interval period in seconds. Default value is 300 (five
@@ -2975,7 +2977,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#ant">&lt;ant&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Builds the project using Ant.</td>
@@ -2985,7 +2987,7 @@
                 <td>0 .. *</td>
                 <td>Builds the project using Maven.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#pause">&lt;pause&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Pauses the build.</td>
@@ -3016,7 +3018,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>label</td>
                 <td>The build label determined by the labelincrementer</td>
             </tr>
@@ -3026,7 +3028,7 @@
                 format <code>yyyy-MM-dd&nbsp;HH:mm:ss&nbsp;'GMT'</code> so it
                 can be used as a CVS argument</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>cctimestamp</td>
                 <td>Timestamp that indicates when the build started, using the
                 format <code>yyyyMMddHHmmss</code></td>
@@ -3036,7 +3038,7 @@
                 <td>Timestamp that indicates when the last successful build was
                 run, using the format <code>yyyyMMddHHmmss</code></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>cclastbuildtimestamp</td>
                 <td>Timestamp that indicates when the last build was run, using
                 the format <code>yyyyMMddHHmmss</code></td>
@@ -3119,7 +3121,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>buildfile</td>
                 <td>No (defaults to build.xml)</td>
                 <td>Path to Ant build file.</td>
@@ -3130,7 +3132,7 @@
                 <td>Ant target(s) to run. Default is "", or the default target
                 for the build file.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>multiple</td>
                 <td>No</td>
                 <td>Build index used to run different builders.  For example,
@@ -3142,7 +3144,7 @@
                 <td>No</td>
                 <td>Time in the form HHmm. Can't be set if multiple is set.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>day</td>
                 <td>No</td>
                 <td>Valid values are (case-insensitive) the english names for
@@ -3154,7 +3156,7 @@
                 <td>No</td>
                 <td>Name of temp file.  Defaults to log.xml</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>antscript</td>
                 <td>No, but recommended. Cannot be specified if <code>anthome</code> attribute is also specified</td>
                 <td>Absolute filename of script (shell script or bat file) used
@@ -3170,7 +3172,7 @@
                 Ant execution scripts (i.e. ant.bat or ant). See below
                 for <a href="#ant-examples">examples</a>.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>antWorkingDir</td>
                 <td>No</td>
                 <td>Will invoke ant in the specified directory.</td>
@@ -3181,7 +3183,7 @@
                 <td>Ant build will be halted if it continues longer than the
                 specified timeout. Value in seconds.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>uselogger</td>
                 <td>No</td>
                 <td>'true' if CruiseControl should call Ant using -logger;
@@ -3202,11 +3204,11 @@
                 <td>No (defaults to org.apache.tools.ant.XmlLogger)</td>
                 <td>If you want to use another logger (or listener, when
                 uselogger="false") than Ant's XmlLogger,
-				you can specify the classname of the logger here. The logger
-				needs to output compatible XML, and the class needs to be
-				available on the classpath at buildtime.</td>
+                you can specify the classname of the logger here. The logger
+                needs to output compatible XML, and the class needs to be
+                available on the classpath at buildtime.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>usedebug</td>
                 <td>No</td>
                 <td>If true will invoke ant with -debug, which can be
@@ -3242,7 +3244,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>&lt;jvmarg&gt;</td>
                 <td>0 .. *</td>
                 <td>Pass specified argument to the jvm used to invoke ant.
@@ -3276,7 +3278,7 @@
          usedebug="false"/&gt;
 &lt;schedule&gt;</pre>
 
-            <p>Or equivalently, using the <code>anthome</code> attribute
+            Or equivalently, using the <code>anthome</code> attribute
 
             <pre>&lt;schedule&gt;
     &lt;ant anthome="C:\Java\apache-ant-1.6.1"
@@ -3376,7 +3378,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>mavenscript</td>
                <td>Yes</td>
                <td>Absolute filename of maven startup script (maven.bat or
@@ -3387,7 +3389,7 @@ endlocal</pre>
                <td>Yes</td>
                <td>Path to Maven's "project.xml" file</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>goal</td>
                <td>Yes</td>
                <td>Maven goal, "set of goals" or "set of set of goals" to run.
@@ -3400,7 +3402,7 @@ endlocal</pre>
                if this is set to 3, the builder will be run every 3 builds.
                Default value is 1. Can't be set if time is set.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>time</td>
                <td>No</td>
                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
@@ -3445,7 +3447,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>day</td>
                <td>No</td>
                <td>Day when the pause should take place (sunday, monday, etc).
@@ -3457,7 +3459,7 @@ endlocal</pre>
                <td>Yes</td>
                <td>Start of the pause in HHmm format</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>endtime</td>
                <td>Yes</td>
                <td>End of the pause in HHmm format</td>
@@ -3485,10 +3487,10 @@ endlocal</pre>
         if we so desire.</p>
 
         <p>When a build runs, NAnt is invoked in a separate Java process. NAnt
-			and the .NET Framework or Mono need to be installed for this builder
-			to function. See NAnt's documentation for details on configuration
-			and compatibility with .NET implementations. </p>
-
+            and the .NET Framework or Mono need to be installed for this builder
+            to function. See NAnt's documentation for details on configuration
+            and compatibility with .NET implementations. </p>
+        
         <p>The standard CruiseControl <a href="#buildproperties">properties
         passed to builders</a> are available from within the NAnt build.</p>
 
@@ -3506,7 +3508,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>buildfile</td>
                 <td>No (defaults to default.build)</td>
                 <td>Path to NAnt build file.</td>
@@ -3517,7 +3519,7 @@ endlocal</pre>
                 <td>NAnt target(s) to run. Default is "", or the default target
                 for the build file.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>multiple</td>
                 <td>No</td>
                 <td>Build index used to run different builders.  For example,
@@ -3529,7 +3531,7 @@ endlocal</pre>
                 <td>No</td>
                 <td>Time in the form HHmm. Can't be set if multiple is set.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>day</td>
                 <td>No</td>
                 <td>Valid values are (case-insensitive) the english names for
@@ -3541,18 +3543,18 @@ endlocal</pre>
                 <td>No</td>
                 <td>Name of temp file.  Defaults to log.xml</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>targetFramework</td>
                 <td>No, but recommended</td>
                 <td>Specifies the framework to target. Typical values are
-					"net-1.1" and "mono-1.0".</td>
+                    "net-1.1" and "mono-1.0".</td>
             </tr>
             <tr>
                 <td>nantWorkingDir</td>
                 <td>No</td>
                 <td>Will invoke NAnt in the specified directory.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>timeout</td>
                 <td>No</td>
                 <td>NAnt build will be halted if it continues longer than the
@@ -3569,19 +3571,19 @@ endlocal</pre>
                 it doesn't log DEBUG messages (see useDebug and useQuiet
                 attributes below, and the
                 <a href="http://nant.sourceforge.net/release/0.85-rc1/help/fundamentals/listeners.html">
-					NAnt documentation</a>).
+                    NAnt documentation</a>). 
                 Listener will echo NAnt messages to console which is
                 useful when debugging your NAnt build. Defaults to 'false'
                 for historical reasons, but setting it to 'true' is recommended
                 for production situations.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>loggerclassname</td>
                 <td>No (defaults to NAnt.Core.XMLLogger)</td>
                 <td>If you want to use another logger than NAnt's XmlLogger,
-				you can specify the classname of the logger here. The logger
-				needs to output compatible XML, and the class needs to be
-				available on the classpath at buildtime.</td>
+                you can specify the classname of the logger here. The logger
+                needs to output compatible XML, and the class needs to be
+                available on the classpath at buildtime.</td>
             </tr>
             <tr>
                 <td>usedebug</td>
@@ -3591,7 +3593,7 @@ endlocal</pre>
                 cannot be set to 'true' if usequiet is also set to 'true'.
                 Is only effective when used in combination with uselogger="true"!</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>usequiet</td>
                 <td>No</td>
                 <td>If true will invoke NAnt with -quiet, which can be
@@ -3614,7 +3616,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>&lt;property&gt;</td>
                 <td>0 .. *</td>
                 <td>Used to define properties for the NAnt build. The element
@@ -3641,9 +3643,9 @@ endlocal</pre>
             </li>
 
             <li>Invoke NAnt, specifying the working directory as <code>/home/cc/workspace</code>,
-            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>,
-			and the targetframework as .NET version 1.1.
-
+            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>, 
+            and the targetframework as .NET version 1.1.
+            
             <pre>&lt;schedule&gt;
     &lt;nant targetframework="net-1.1"
          nantworkingdir="/home/cc/workspace"
@@ -3681,7 +3683,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>dir</td>
                 <td>No</td>
                 <td>The cruisecontrol log directory. Default is "logs/[projectname]".</td>
@@ -3705,7 +3707,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#merge"><code>&lt;merge&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Merges log file together.</td>
@@ -3743,7 +3745,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                <td>file</td>
                <td rowspan="2">One of file or dir.</td>
                <td>path to file to merge into build log</td>
@@ -3752,7 +3754,7 @@ endlocal</pre>
                <td>dir</td>
                <td>all files matching the specified pattern will be merged into the build log.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                <td>removeproperties</td>
                <td>No (defaults to true)</td>
                <td>when merging a JUnit xml file should the properties section be removed.</td>
@@ -3760,7 +3762,7 @@ endlocal</pre>
              <tr>
                <td>pattern</td>
                <td>No</td>
-	           <td>Specifies the pattern which matches the filenames to merge. This pattern should be a valid Jakarta-ORO Glob pattern. Defaults to "*.xml".</td>
+               <td>Specifies the pattern which matches the filenames to merge. This pattern should be a valid Jakarta-ORO Glob pattern. Defaults to "*.xml".</td>
             </tr>
            </tbody>
         </table>
@@ -3791,7 +3793,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#antpublisher"><code>&lt;antpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Executes an Ant script which implements a custom publisher.</td>
@@ -3801,7 +3803,7 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Copies build products to a directory</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Writes the time of the next build to a file</td>
@@ -3811,7 +3813,7 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Sends an email with a URL to the build results JSP</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#execute"><code>&lt;execute&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Execute a command as part of the publishing phase</td>
@@ -3821,7 +3823,7 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Copies the log file and build artifacts to an FTP server</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#htmlemail"><code>&lt;htmlemail&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends an email with the build results embedded as HTML</td>
@@ -3832,7 +3834,7 @@ endlocal</pre>
                 <td>Sends an instant message with a link to the build results
                 via a Jabber server using XMPP</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#sametimeannouncement"><code>&lt;sametimeannouncement&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends Sametime announcements with the result of the build</td>
@@ -3841,18 +3843,18 @@ endlocal</pre>
                 <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies a file using SCP</td>
-	</tr>
-            <tr class="oddrow">
+    </tr>
+            <tr>
                 <td><a href="#socket"><code>&lt;socket&gt;</code></a></td>
                 <td>0 .. *</td>
-		<td>Writes "Success" or "Failure" to a socket</td>
+        <td>Writes "Success" or "Failure" to a socket</td>
             </tr>
             <tr>
                 <td><a href="#x10"><code>&lt;x10&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Controls an x10 electronic device</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="#xsltlogpublisher"><code>&lt;xsltlogpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Performs a transformation of the log file</td>
@@ -3876,7 +3878,7 @@ endlocal</pre>
         <p>Executes an Ant script which implements a custom publisher.</p>
 
         <h3>Attributes</h3>
-
+        
         The antpublisher uses the same <a href="#ant-attributes">attributes</a>
         as the <a href="#ant">&lt;ant&gt;</a> builder.
 
@@ -3885,15 +3887,15 @@ endlocal</pre>
         The antpublisher supports the same set of
         <a href="#ant-elements">child elements</a> as the
         <a href="#ant">&lt;ant&gt;</a> builder.
-
+        
         <h3>Properties Passed to the Publisher</h3>
 
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
         properties</a>, &lt;antpublisher&gt; passes the following properties to Ant,
         which can be accessed in your script like any other property, using the
         syntax ${propertyname}.
-		</p>
-
+        </p>
+        
         <table class="documentation">
             <thead>
             <tr>
@@ -3902,7 +3904,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>projectname</td>
                 <td>The name of the CruiseControl project.</td>
             </tr>
@@ -3910,7 +3912,7 @@ endlocal</pre>
                 <td>lastbuild</td>
                 <td>The timestamp of the last attempted build.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>lastsuccessfulbuild</td>
                 <td>The timestamp of the last successful build.</td>
             </tr>
@@ -3918,7 +3920,7 @@ endlocal</pre>
                 <td>builddate</td>
                 <td>The date of the last build.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>interval</td>
                 <td>The time interval between builds.</td>
             </tr>
@@ -3926,12 +3928,12 @@ endlocal</pre>
                 <td>logdir</td>
                 <td>The directory containing the log file from the last build.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>logfile</td>
                 <td>The name of the log file from the last build.</td>
             </tr>
             </tbody>
-        </table>
+        </table>        
 
         <h3>Examples</h3>
 
@@ -3954,7 +3956,7 @@ endlocal</pre>
 
             <p>You could then do something like the following in
             <code>MyProject-nightlybuild.xml</code>:</p>
-			<pre>&lt;project name="MyProject-nightlybuild" default="publish"&gt;
+            <pre>&lt;project name="MyProject-nightlybuild" default="publish"&gt;
     &lt;target name="publish"&gt;
         &lt;echo&gt;custom is set to ${custom}&lt;/echo&gt;
         &lt;concat&gt;
@@ -3964,11 +3966,11 @@ endlocal</pre>
 &lt;/project&gt;</pre>
             </li>
         </ol>
+        
+        For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder. 
 
-		For <a href="#ant-examples">additional examples</a>, please
-        see the <a href="#ant">&lt;ant&gt;</a> builder.
-
-        </div>
+        </div>  
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -3996,7 +3998,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td rowspan="2">one of file or dir</td>
                 <td>will copy specified file</td>
@@ -4005,7 +4007,7 @@ endlocal</pre>
                 <td>dir</td>
                 <td>will copy all files from this directory</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>dest</td>
                 <td>Yes</td>
                 <td>parent directory of actual destination directory; actual destination directory name will be the build timestamp.</td>
@@ -4015,7 +4017,7 @@ endlocal</pre>
                 <td>No</td>
                 <td>subdirectory under the unique (timestamp) directory to contain artifacts</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>publishOnFailure</td>
                 <td>No (defaults to true)</td>
                 <td>set to false to stop the publisher from running when the build fails</td>
@@ -4060,7 +4062,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write</td>
@@ -4099,7 +4101,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>command</td>
                 <td>Yes</td>
                 <td>The command to execute</td>
@@ -4133,7 +4135,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>sourceuser</td>
                 <td>Yes if sourcehost is specified</td>
                 <td>Log in to the sourcemachine as this user.</td>
@@ -4143,7 +4145,7 @@ endlocal</pre>
                 <td>Yes if sourceuser is specified</td>
                 <td>SCP from this machine.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>sourcedir</td>
                 <td>No (defaults to '.')</td>
                 <td>The directory to copy from.</td>
@@ -4153,7 +4155,7 @@ endlocal</pre>
                 <td>Yes if targethost is specified</td>
                 <td>Log in to the target machine as this user.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>targethost</td>
                 <td>Yes if targetuser is specified</td>
                 <td>SCP to this machine.</td>
@@ -4163,7 +4165,7 @@ endlocal</pre>
                 <td>No (defaults to '.')</td>
                 <td>The directory to copy to.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>targetseparator</td>
                 <td>No (defaults to File.separator on the source machine)</td>
                 <td>The file separator on the target machine.</td>
@@ -4174,7 +4176,7 @@ endlocal</pre>
                 <td>The file separator on the source machine. Useful when using an alternate shell
                 environment, e.g. Cygwin, that expects a separator that differs from the native OS.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>ssh</td>
                 <td>No (defaults to 'ssh')</td>
                 <td>The ssh application.</td>
@@ -4184,7 +4186,7 @@ endlocal</pre>
                 <td>No</td>
                 <td>Additional options to pass to SCP.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>file</td>
                 <td>No (defaults to the current logfile)</td>
                 <td>The filename to copy.</td>
@@ -4218,7 +4220,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>buildresultsurl</td>
                 <td>Yes</td>
                 <td>URL to the build results JSP</td>
@@ -4230,7 +4232,7 @@ endlocal</pre>
                 valid e-mail addresses.  This defaults to an empty string if
                 not specified.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>failasimportant</td>
                 <td>No</td>
                 <td>Flag emails about failed builds as important? Default is 'true'.</td>
@@ -4240,7 +4242,7 @@ endlocal</pre>
                 <td>Yes</td>
                 <td>Mail server address</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>username</td>
                 <td>if password is specified</td>
                 <td>Username for smtp server</td>
@@ -4250,7 +4252,7 @@ endlocal</pre>
                 <td>if username is specified</td>
                 <td>Password for smtp server</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>reportsuccess</td>
                 <td>No (defaults to <i>always</i></td>
                 <td>Valid values:
@@ -4270,7 +4272,7 @@ endlocal</pre>
                 <td>Yes</td>
                 <td>E-mail address that will appear in the sent email's From field</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>returnname</td>
                 <td>No</td>
                 <td>A name to match to the return address</td>
@@ -4283,7 +4285,7 @@ endlocal</pre>
                 your system. Users specified by the failure or always nested
                 elements will still receive email.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>spamwhilebroken</td>
                 <td>No (defaults to true)</td>
                 <td>Whether or not e-mail reports on failed builds will continue
@@ -4309,7 +4311,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a name="always"><code>&lt;always&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Mail address to be emailed notification after all builds.
@@ -4323,7 +4325,7 @@ endlocal</pre>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="oddrow">
+                        <tr>
                             <td>address</td>
                             <td>Yes</td>
                             <td>e-mail address</td>
@@ -4346,7 +4348,7 @@ endlocal</pre>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="oddrow">
+                        <tr>
                             <td>address</td>
                             <td>Yes</td>
                             <td>e-mail address</td>
@@ -4360,7 +4362,7 @@ endlocal</pre>
                     </table>
                 </td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a name="success"><code>&lt;success&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Mail address to be emailed notification after successful builds.
@@ -4374,7 +4376,7 @@ endlocal</pre>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="oddrow">
+                        <tr>
                             <td>address</td>
                             <td>Yes</td>
                             <td>e-mail address</td>
@@ -4398,7 +4400,7 @@ endlocal</pre>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="oddrow">
+                        <tr>
                             <td>fileRegExpr</td>
                             <td>Yes</td>
                             <td>A regular expression indicating which modified
@@ -4413,7 +4415,7 @@ endlocal</pre>
                     </table>
                 </td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a name="map"><code>&lt;map&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Maps a source control user id to an email address.
@@ -4427,7 +4429,7 @@ endlocal</pre>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="oddrow">
+                        <tr>
                             <td>alias</td>
                             <td>Yes</td>
                             <td>alias (username) as it appears on modifications</td>
@@ -4508,7 +4510,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>buildresultsurl</td>
                 <td>No</td>
                 <td>Email will include link to the build results JSP if this
@@ -4523,7 +4525,7 @@ endlocal</pre>
                 will try to determine the correct value itself when it's not
                 specified and xslfile isn't used.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>logdir</td>
                 <td>No (Yes for versions &lt; 2.2)</td>
                 <td>Path to the log directory as set in the log element of
@@ -4539,7 +4541,7 @@ endlocal</pre>
                 will try to determine the correct value itself when it's not
                 specified and xslfile isn't used.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>xslfile</td>
                 <td>No</td>
                 <td>If specified, xsldir, xslfilelist, and css are ignored.  Must
@@ -4586,7 +4588,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>host</td>
                 <td>Yes</td>
                 <td>The host of the Jabber server.</td>
@@ -4597,7 +4599,7 @@ endlocal</pre>
                 <td>Port of the Jabber server. Defaults to 5222. Note: SSL typically
                     runs on port 5223.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>username</td>
                 <td>Yes</td>
                 <td>Username of the account used to send the instant message. For individuals,
@@ -4608,7 +4610,7 @@ endlocal</pre>
                 <td>Yes</td>
                 <td>Password of the sender account</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>recipient</td>
                 <td>Yes</td>
                 <td>Username of the recipient of the instant message. Recipient username
@@ -4619,7 +4621,7 @@ endlocal</pre>
                 <td>No</td>
                 <td>Whether the recipient is a group/chat (true) versus an individual (false). Defaults to false.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>ssl</td>
                 <td>No</td>
                 <td>Whether the XMPP connection on host:port is using SSL.</td>
@@ -4660,7 +4662,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>buildresultsurl</td>
                 <td>No</td>
                 <td>URL to include with the build results.</td>
@@ -4670,7 +4672,7 @@ endlocal</pre>
                 <td>Yes</td>
                 <td>Synonym for mailHost.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>username</td>
                 <td>Yes</td>
                 <td>User name to login to the Sametime community.</td>
@@ -4682,7 +4684,7 @@ endlocal</pre>
                 specified, an anonymous login (using username) will be
                 attempted.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>community</td>
                 <td>No</td>
                 <td>Sametime community to login to.  Default is null &mdash;
@@ -4693,7 +4695,7 @@ endlocal</pre>
                 <td>No (defaults to true)</td>
                 <td>Whether addresses should be resolved as users.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>resolvegroups</td>
                 <td>No (defaults to true)</td>
                 <td>Whether addresses should be resolved as groups.</td>
@@ -4704,7 +4706,7 @@ endlocal</pre>
                 <td>Whether to send announcements to the content (members) of a
                 group instead of the group directly.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>handleresolveconflicts</td>
                 <td>No (defaults to recipient)</td>
                 <td>How to handle address resolution conflicts. Valid values:
@@ -4733,7 +4735,7 @@ endlocal</pre>
                     <dd>ignore the failure</dd>
                 </dl></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>handlequerygroupcontentfails</td>
                 <td>No (defaults to error)</td>
                 <td>How to handle group content query failures.  Valid values:
@@ -4752,7 +4754,7 @@ endlocal</pre>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
-	<h2><a name="socket">&lt;socket&gt;</a></h2>
+    <h2><a name="socket">&lt;socket&gt;</a></h2>
 
         <div class="hierarchy">
             <pre>
@@ -4762,7 +4764,7 @@ endlocal</pre>
       &lt;socket&gt;</pre>
         </div>
 
-	<p>Simply writes "Success" or "Failure" to a socket.  Note that you will need to write a socket listener that does something.</p>
+    <p>Simply writes "Success" or "Failure" to a socket.  Note that you will need to write a socket listener that does something.</p>
 
         <h3>Attributes</h3>
 
@@ -4775,20 +4777,20 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>socketServer</td>
                 <td>Yes</td>
-		<td>Hostname (i.e., first argument for constructing a Java socket)</td>
+        <td>Hostname (i.e., first argument for constructing a Java socket)</td>
             </tr>
             <tr>
                 <td>port</td>
                 <td>Yes</td>
-		<td>Port number for the listening socket</td>
+        <td>Port number for the listening socket</td>
             </tr>
             </tbody>
         </table>
         </div>
-
+    
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="x10">&lt;x10&gt;</a></h2>
@@ -4899,7 +4901,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>houseCode</td>
                 <td>Yes</td>
                 <td>The house code for the device to control, A through P case insensitive</td>
@@ -4909,7 +4911,7 @@ endlocal</pre>
                 <td>Yes</td>
                 <td>The device code for the device to control, 1 -> 16</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>port</td>
                 <td>No (defaults to COM2)</td>
                 <td>Serial port to which the computer interface controller is connected, e.g. COM1</td>
@@ -4919,7 +4921,7 @@ endlocal</pre>
                 <td>No (defaults to true)</td>
                 <td>Set to false if the device should turn on when the build is successful and off when failed</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>interfaceModel</td>
                 <td>No (defaults to CM11A)</td>
                 <td>Model number for the computer interface controller being used, either CM11A or CM17A (case insensitive).</td>
@@ -4956,7 +4958,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>directory</td>
                 <td>Yes</td>
                 <td>Directory for output file</td>
@@ -4966,7 +4968,7 @@ endlocal</pre>
                 <td>No</td>
                 <td>Name for the output file. Default uses the build label, 'label.log'</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>publishonfail</td>
                 <td>No (defaults to true)</td>
                 <td>Generate file if the build failed?</td>
@@ -5006,7 +5008,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>format</td>
                 <td>Yes</td>
                 <td>A DateFormat String that specifies the date format for
@@ -5044,7 +5046,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>name</td>
                 <td>Yes</td>
                 <td>The alias used to refer to the plugin elsewhere in the
@@ -5087,7 +5089,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>defaultLabel</td>
                 <td>No (default to "build.1")</td>
                 <td>set label to use if there is no saved label.</td>
@@ -5099,7 +5101,7 @@ endlocal</pre>
                 prior to the build attempt and thus each build attempt will have
                 a unique build number.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>separator</td>
                 <td>No (defaults to period <code>'.'</code>)</td>
                 <td>specifies the separator to use between label and build
@@ -5217,7 +5219,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>destDir</td>
                 <td>Yes</td>
                 <td>The remote directory (relative to <code>targetDir</code>)
@@ -5232,7 +5234,7 @@ endlocal</pre>
                 <a href="#artifactspublisher"><code>&lt;artifactspublisher&gt;</code></a>
                 directory.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>deleteArtifacts</td>
                 <td>No (defaults to false)</td>
                 <td>If <code>true</code>, then all files successfully sent to
@@ -5260,7 +5262,7 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td>targetHost</td>
                 <td>Yes</td>
                 <td>Host name of the FTP server.</td>
@@ -5270,7 +5272,7 @@ endlocal</pre>
                 <td>No (defaults to <code>anonymous</code>)</td>
                 <td>The user used for logging into the FTP site.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>targetPasswd</td>
                 <td>No (default to <code>eat@joes.com</code>)</td>
                 <td>The password used during FTP log in for the
@@ -5281,7 +5283,7 @@ endlocal</pre>
                 <td>No (defaults to 21)</td>
                 <td>Port number of the FTP server.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>targetDir</td>
                 <td>No (defaults to <code>'.'</code>)</td>
                 <td>Base directory in the FTP server to put the files.</td>
