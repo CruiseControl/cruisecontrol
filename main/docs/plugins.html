@@ -6,6 +6,7 @@
        @import "../../docs/cruisecontrol.css";
    </style>
    <link href="../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
+   <script type="text/javascript" src="../../docs/tables.js"></script>
 </head>
 <body>
 <div class="header">
@@ -147,7 +148,7 @@
         If you want to define default values for default plugins, you may
         leave out the classname attribute of the plugin element. <br />
         An example: to define some default values for the htmlemail publisher,
-        you can specify something like this in your config file:
+        you can specify something like this in your config file:</p>
 <pre>
   &lt;plugin name="htmlemail"
           mailhost="smtp.example.com"
@@ -155,7 +156,7 @@
           subjectprefix="[CC]"
           xsldir="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\xsl"
           css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\css\cruisecontrol.css"/&gt;
-</pre></p>
+</pre>
 
         <p>The following tables outlines the default plugin registry:</p>
 
@@ -168,15 +169,15 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#antbootstrapper">antbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#clearcasebootstrapper">clearcasebootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper</td>
-            </tr>
-            <tr class="oddrow">
+            </tr>           
+            <tr>
                 <td><a href="configxml.html#cmsynergybootstrapper">cmsynergybootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.CMSynergyBootstrapper</td>
             </tr>
@@ -184,7 +185,7 @@
                 <td><a href="configxml.html#currentbuildstatusbootstrapper">currentbuildstatusbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#cvsbootstrapper">cvsbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</td>
             </tr>
@@ -192,7 +193,7 @@
                 <td><a href="configxml.html#p4bootstrapper">p4bootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#snapshotcmbootstrapper">snapshotcmbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCMBootstrapper</td>
             </tr>
@@ -200,7 +201,7 @@
                 <td><a href="configxml.html#surroundbootstrapper">surroundbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.SSCMBootstrapper</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#svnbootstrapper">svnbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper</td>
             </tr>
@@ -208,7 +209,7 @@
                 <td><a href="configxml.html#vssbootstrapper">vssbootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#starteambootstrapper">starteambootstrapper</a></td>
                 <td>net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper</td>
             </tr>
@@ -224,7 +225,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#publishers">alwaysbuild</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild</td>
             </tr>
@@ -232,7 +233,7 @@
                 <td><a href="configxml.html#publishers">buildstatus</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#clearcase">clearcase</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</td>
             </tr>
@@ -240,7 +241,7 @@
                 <td><a href="configxml.html#cmsynergy">cmsynergy</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#compound">compound</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.Compound</td>
             </tr>
@@ -248,7 +249,7 @@
                 <td><a href="configxml.html#cvs">cvs</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.CVS</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#filesystem">filesystem</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</td>
             </tr>
@@ -256,7 +257,7 @@
                 <td><a href="configxml.html#httpfile">httpfile</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.HttpFile</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#mks">mks</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.MKS</td>
             </tr>
@@ -264,7 +265,7 @@
                 <td><a href="configxml.html#p4">p4</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.P4</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#pvcs">pvcs</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.PVCS</td>
             </tr>
@@ -272,7 +273,7 @@
                 <td><a href="configxml.html#snapshotcm">snapshotcm</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCM</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#starteam">starteam</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</td>
             </tr>
@@ -280,7 +281,7 @@
                 <td><a href="configxml.html#surround">surround</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.SSCM</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#svn">svn</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.SVN</td>
             </tr>
@@ -288,7 +289,7 @@
                 <td><a href="configxml.html#vss">vss</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.Vss</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#vssjournal">vssjournal</a></td>
                 <td>net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td>
             </tr>
@@ -304,7 +305,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#ant">ant</a></td>
                 <td>net.sourceforge.cruisecontrol.builders.AntBuilder</td>
             </tr>
@@ -312,7 +313,7 @@
                 <td><a href="configxml.html#maven">maven</a></td>
                 <td>net.sourceforge.cruisecontrol.builders.MavenBuilder</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#nant">nant</a></td>
                 <td>net.sourceforge.cruisecontrol.builders.NantBuilder</td>
             </tr>
@@ -332,7 +333,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#labelincrementer">labelincrementer</a></td>
                 <td>net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</td>
             </tr>
@@ -352,7 +353,7 @@
                 <td><a href="configxml.html#antpublisher">antpublisher</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.AntPublisher</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#artifactspublisher">artifactspublisher</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher</td>
             </tr>
@@ -360,7 +361,7 @@
                 <td><a href="configxml.html#currentbuildstatuspublisher">currentbuildstatuspublisher</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#email">email</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</td>
             </tr>
@@ -368,7 +369,7 @@
                 <td><a href="configxml.html#execute">execute</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.ExecutePublisher</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#ftppublisher">ftppublisher</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.FTPPublisher</td>
             </tr>
@@ -376,7 +377,7 @@
                 <td><a href="configxml.html#htmlemail">htmlemail</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#jabber">jabber</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.LinkJabberPublisher</td>
             </tr>
@@ -384,7 +385,7 @@
                 <td><a href="configxml.html#scp">scp</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.SCPPublisher</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#x10">x10</a></td>
                 <td>net.sourceforge.cruisecontrol.publishers.X10Publisher</td>
             </tr>
@@ -404,7 +405,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="oddrow">
+            <tr>
                 <td><a href="configxml.html#currentbuildstatuslistener">currentbuildstatuslistener</a></td>
                 <td>net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener</td>
             </tr>

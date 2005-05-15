@@ -6,6 +6,7 @@
         @import "cruisecontrol.css";
    </style>
    <link href="print.css" type="text/css" rel="stylesheet" media="print"/>
+   <script type="text/javascript" src="tables.js"></script>
 </head>
 <body>
 <div class="header">
@@ -87,13 +88,12 @@ Thanks
         may consider the desires of the group as whole when casting their vote.</p>
 
         <p>A vote takes one of three forms:</p>
-        <p>
         <table class="documentation">
-            <tr>
+            <thead><tr>
                 <th>Vote</th>
                 <th>Meaning</th>
-            </tr>
-            <tr class="oddrow">
+            </tr></thead>
+            <tbody><tr>
                 <td>+1</td>
                 <td>A positive vote. This means the you wish for the request to
                 be implemented and are willing to aid in its implementation.</td>
@@ -104,12 +104,12 @@ Thanks
                 indicates to the group that you explicitly waive your right to
                 vote.</td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>-1</td>
                 <td>Negative vote. This means the you do not want the request
                 to be implemented. Explanation of why the feature should not
                 be implemented must be included in the email.</td>
-            </tr>
+            </tr></tbody>
         </table>
 
         <p>Initial voting continues for 24 hours from the time of the vote

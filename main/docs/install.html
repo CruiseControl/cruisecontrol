@@ -6,6 +6,7 @@
        @import "../../docs/cruisecontrol.css";
    </style>
    <link href="../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
+   <script type="text/javascript" src="../../docs/tables.js"></script>
 </head>
 <body>
 <div class="header">
@@ -53,9 +54,9 @@
 
         <h2><a name="downloadsource">1. Download Source/Build</a></h2>
 
-        <p><a href="../../docs/download.html">Download</a> the source</a>.</p>
+        <p><a href="../../docs/download.html">Download</a> the source.</p>
 
-        If you examine the code you just downloaded, there will be a
+        <p>If you examine the code you just downloaded, there will be a
         build.bat (for Windows users) and a build.sh (for UNIX users) present
         in the <code>cruisecontrol/main</code> directory.  Execute the
         appropriate script, and CruiseControl should compile.  Look in the dist
@@ -79,7 +80,7 @@
 
         <ul>
             <li>
-            <b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.<br>
+            <b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.<br/>
                This is the preferred approach, since the scripts will take care
                of providing you with the correct classpath and such.
             </li>
@@ -87,7 +88,7 @@
                 <b>Executable jar.</b>   Type the following command:
                 <p><code>
                   java -jar dist/cruisecontrol.jar
-                </code><br>
+                </code><br/>
                 If you use this, make sure CruiseControl can find the classes it needs.
                 If you don't know which classes this are, you should just use the script.
                 As of CruiseControl version 2.2.1, the MANIFEST.MF file is updated to
@@ -103,12 +104,12 @@
         <p>In either approach, the following command line arguments can be specified:</p>
 
         <table class="documentation">
-            <tr>
+            <thead><tr>
                 <th>Flag</th>
                 <th>Required</th>
                 <th>Description</th>
-            </tr>
-            <tr class="oddrow">
+            </tr></thead>
+            <tbody><tr>
               <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
                 <td>No</td>
                 <td>Port number for the JMX HTML adaptor.  This will activate
@@ -131,7 +132,7 @@
                   via JSR 160
                   <a href="http://mx4j.sourceforge.net/docs/ch03.html">here</a></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>-configfile&nbsp;<i>filename</i></td>
                 <td>No</td>
                 <td>Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
@@ -150,18 +151,18 @@
                 <td>No</td>
                 <td>Sets a user for the JMX HTTP Adapter. This will require users to login with this user (and password see below) to use the JMX Web interface.<i>The -password flag must also be set</i></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>-password <i>password</i></td>
                 <td>No</td>
                 <td>Sets a password for the JMX HTTP Adapter. This will require users to login to use the JMX Web interface.<i>The -user flag must also be set</i></td>
             </tr>
-            <tr class="oddrow">
+            <tr>
                 <td>-debug</td>
                 <td>No</td>
                 <td>Changes the logging level of the internal log4j Logger to DEBUG.
                   Please note that this will NOT cause your ant scripts to run as if
                   using 'ant -debug', you need to specify that in your config.xml file</td>
-            </tr>
+            </tr></tbody>
         </table>
 
         <p>If you specify the -port and/or the -rmiport parameter, a JMX Server will be started
