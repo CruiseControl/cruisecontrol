@@ -45,6 +45,7 @@
         <replace dir="target/website" token="%%VERSION%%" value="${label}">
             <include name="**/*.html"/>
         </replace>
+
         <replace dir="target/website" token="../main/docs/" value="main/">
             <include name="**/*.html"/>
         </replace>
@@ -65,12 +66,9 @@
         <mkdir dir="target/zip"/>
         <copy todir="target/zip" overwrite="true" >
             <fileset dir=".">
-                <exclude name="target**"/>
-                <exclude name="main/lib/starteam-sdk.jar"/>
-                <exclude name="main/target/**"/>
+                <include name="**/*.html"/>
+                <exclude name="**/target/**"/>
                 <exclude name="reporting/jsp/samplelogs/_cache/**"/>
-                <exclude name="reporting/jsp/target/**"/>
-                <exclude name="reporting/jsp/testresults.xml"/>
                 <exclude name="release*"/>
                 <exclude name="**/binaryrelease/**"/>
             </fileset>
@@ -80,7 +78,15 @@
         </replace>
 
         <zip zipfile="target/cruisecontrol-${label}.zip">
-            <zipfileset dir="target/zip" prefix="cruisecontrol-${label}"/>                
+            <zipfileset dir="target/zip" prefix="cruisecontrol-${label}"/>
+            <zipfileset dir="." prefix="cruisecontrol-${label}">
+                <exclude name="**/*.html"/>
+                <exclude name="**/target/**"/>
+                <exclude name="reporting/jsp/samplelogs/_cache/**"/>
+                <exclude name="reporting/jsp/testresults.xml"/>
+                <exclude name="release*"/>
+                <exclude name="**/binaryrelease/**"/>
+            </zipfileset>
         </zip>
     </target>
 
