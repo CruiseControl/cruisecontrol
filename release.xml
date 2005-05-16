@@ -14,7 +14,7 @@
         <ant inheritAll="false" dir="reporting/jsp">
             <property name="user.log.dir" value="logs"/>
             <property name="user.build.status.file" value="status.txt"/>
-            <property name="cruise.build.artifacts.dir" value=""/>
+            <property name="cruise.build.artifacts.dir" value="artifacts"/>
         </ant>
     </target>
 
@@ -99,10 +99,11 @@
             <zipfileset dir="binaryrelease" prefix="cruisecontrol-bin-${label}" excludes="*.zip" />
             <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="cruisecontrol-bin-${label}/projects"/>
             <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="cruisecontrol-bin-${label}"/>
-            <zipfileset dir="main/lib" includes="*.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+            <zipfileset dir="main/lib" includes="*.jar" excludes="xerces.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset file="main/lib/ant/ant.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset file="main/dist/cruisecontrol.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+            <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="cruisecontrol-bin-${label}/webapps/cruisecontrol"/>
         </zip>
 
     </target>

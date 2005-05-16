@@ -2,7 +2,7 @@
    <project name="commons-math">
       
       <listeners>
-         <currentbuildstatuslistener file="logs/commons-math/currentbuild.txt" />
+         <currentbuildstatuslistener file="logs/commons-math/status.txt" />
       </listeners>
       
       <bootstrappers>
