@@ -2119,7 +2119,7 @@
 
         <p>Changes are detected by running a command similar to the following:</p>
 
-        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;</pre>
+        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;<i>module</i></pre>
 
         <p>The following changes are made to generate the actual command:</p>
 
@@ -2141,6 +2141,10 @@
 
             <li>The <code>-N</code> option is only used when the tag attribute
             is not specified or if it is set to <code>HEAD</code>.</li>
+
+            <li><code>module</code> is replaced with the specified module
+            name.  If a local working copy is used then the module name is
+            left off.</li>
         </ul>
 
         <p>Refer to the <a class="external"
@@ -2166,26 +2170,28 @@
             </thead>
             <tbody>
             <tr>
-                <td>cvsroot</td>
-                <td rowspan="2">One of cvsroot or localworkingcopy</td>
-                <td>Specifies the location of the CVS repository<br/>
-                <i><code>cvs&nbsp;-d&nbsp;CVSROOT&nbsp;-q&nbsp;log&nbsp;-N&nbsp;-d&nbsp;"&gt;lastbuildtime"</code></i>
-                </td>
-            </tr>
-            <tr>
                 <td>localworkingcopy</td>
+                <td rowspan="2">One of localworkingcopy or module.</td>
                 <td>Relative or absolute path to the local working copy.
                 Directory must exist and should have files from a previous
                 checkout.</td>
             </tr>
             <tr>
                 <td>module</td>
-                <td>Only when cvsroot is in use </td>
-                <td>The name of the CVS module that schould be observed.
-                This is passed to the cvs rlog command as last parameter.
+                <td>The name of the CVS module that should be used.
+                This is passed as the last parameter to the cvs rlog command.
                 Refer to the <code>rlog</code> command in the
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
                 cvs log</a> reference for further details.</td>
+            </tr>
+            <tr>
+                <td>cvsroot</td>
+                <td>No</td>
+                <td>Specifies the location of the CVS repository.  If
+                this is not specified, then the CVSROOT environment variable
+                is used.  This should be of the form<br/>
+                <i><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code></i>
+                </td>
             </tr>
             <tr>
                 <td>tag</td>
