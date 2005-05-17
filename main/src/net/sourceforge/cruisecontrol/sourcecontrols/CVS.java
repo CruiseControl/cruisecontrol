@@ -154,7 +154,8 @@ public class CVS implements SourceControl {
     private Hashtable mailAliases;
 
     /**
-     * The caller must provide the CVSROOT to use when calling CVS.
+     * The caller can provide the CVSROOT to use when calling CVS, or
+     * the CVSROOT environment variable will be used.
      */
     private String cvsroot;
 
@@ -170,7 +171,7 @@ public class CVS implements SourceControl {
     private String tag;
 
     /**
-     * The CVS modul we are dealing with.
+     * The CVS module we are dealing with.
      */
     private String module;
 
@@ -285,8 +286,8 @@ public class CVS implements SourceControl {
     }
 
     /**
-     * Set the cvs module- name.  Note this should work with this is only used, in the
-     * case localworkingcopy is not set
+     * Set the cvs module name.  Note that this is only used when
+     * localworkingcopy is not set.
      *
      * @param module the cvs module
      */
@@ -415,12 +416,12 @@ public class CVS implements SourceControl {
             cvsroot = env.getVariable("CVSROOT");
         }
         if (!(cvsroot != null && module != null) && local == null) {
-            throw new CruiseControlException("at least one of 'localWorkingCopy'"
-                    + " or 'cvsroot' and 'module' are a required attributes on CVS");
+            throw new CruiseControlException("one of 'localWorkingCopy'"
+                    + " or 'cvsroot' and 'module' are required attributes on CVS");
         }
         if (module != null && local != null) {
             throw new CruiseControlException("only one of 'localWorkingCopy'"
-                    + " or 'module' are a allowed attributes on CVS");
+                    + " or 'module' are allowed attributes on CVS");
         }
 
         if (local != null && !new File(local).exists()) {
