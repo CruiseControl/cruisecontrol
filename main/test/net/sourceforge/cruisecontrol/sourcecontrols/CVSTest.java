@@ -44,6 +44,7 @@ import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -793,7 +794,6 @@ public class CVSTest extends TestCase {
         input.close();
     }
 
-
     public void testGetCvsNTServerVersionDifferingClientServerVersions() throws IOException {
         String logName = "cvsntlog2-0xversion.txt";
         final BufferedInputStream input =
@@ -823,4 +823,37 @@ public class CVSTest extends TestCase {
                     b.booleanValue(), cvs.isCvsNewOutputFormat());
         }
     }
+
+     /**
+      * on 1.10 version, "version" argument doesn't exist
+      * hence the output is empty.
+      */
+     public void testGetCvsServerVersion1_10version() throws IOException {
+
+         String logContent = "";
+         final InputStream input = new ByteArrayInputStream(logContent.getBytes());
+
+         final CVS cvs = new InputBasedCommandLineMockCVS(input, CVS_VERSION_COMMANDLINE, null);
+         assertEquals("assuming default cvs version upon empty output",
+                 CVS.DEFAULT_CVS_SERVER_VERSION, cvs.getCvsServerVersion());
+         assertEquals("assuming old format upon empty output", false, cvs.isCvsNewOutputFormat());
+         input.close();
+     }
+
+    /**
+     * What if the output is broken? This can happen for various reasons.
+     * It is simulated here by truncating the output.
+     */
+    public void testGetCvsServerVersion_brokenOutput() throws IOException {
+
+        String logContent = "Server: Concurrent Versions System (CVS) ";
+        final InputStream input = new ByteArrayInputStream(logContent.getBytes());
+
+        final CVS cvs = new InputBasedCommandLineMockCVS(input, CVS_VERSION_COMMANDLINE, null);
+        assertEquals("assuming default cvs version upon broken output",
+                CVS.DEFAULT_CVS_SERVER_VERSION, cvs.getCvsServerVersion());
+        assertEquals("assuming old format upon broken output", false, cvs.isCvsNewOutputFormat());
+        input.close();
+    }
+
 }
