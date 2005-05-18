@@ -33,6 +33,7 @@ CVS:
 ----------------------
 * Add module attribute so it can work with no local working copy (CC-149). Patch by Lars Gehrken
 * Updated documentation and class comments to correctly reflect the required attributes after the module change (CC-207). Patch by Mark Doliner
+* No longer using environment variable CVS_ROOT. Validation now requires one to either set localworkingcopy or cvsroot and module (CC-207). Patch by Mark Doliner
 
 CVSBootstrapper:
 ----------------------
