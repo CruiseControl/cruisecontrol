@@ -85,6 +85,8 @@ public class CVS implements SourceControl {
      * name of the official cvs as returned as part of the 'cvs version' command output
      */
     static final String OFFICIAL_CVS_NAME = "CVS";
+    static final Version DEFAULT_CVS_SERVER_VERSION = new Version(OFFICIAL_CVS_NAME, "1.11");
+    
     /**
      * Represents the version of a CVS client or server
      */
@@ -327,32 +329,7 @@ public class CVS implements SourceControl {
                 InputStream is = p.getInputStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
-                String line = in.readLine();
-                if (line.startsWith("Client:")) {
-                    line = in.readLine();
-                    if (!line.startsWith("Server:")) {
-                        System.err.println("Warning expected a line starting with \"Server:\" but got " + line);
-                        // we try anyway
-                    }
-                }
-                log.debug("server version line: " + line);
-                int nameBegin = line.indexOf(" (");
-                int nameEnd = line.indexOf(") ", nameBegin);
-                final String name;
-                final String version;
-                if (nameBegin == -1 || nameEnd < nameBegin || nameBegin + 2 >= line.length()) {
-                    name = "";
-                } else {
-                    name = line.substring(nameBegin + 2, nameEnd);
-                }
-                int verEnd = line.indexOf(" ", nameEnd + 2);
-                if (verEnd < nameEnd + 2) {
-                    version = "";
-                } else {
-                    version = line.substring(nameEnd + 2, verEnd);
-                }
-
-                cvsServerVersion = new Version(name, version);
+                cvsServerVersion = extractCVSServerVersionFromCVSVersionCommandOutput(in);
 
                 log.debug("cvs server version: " + cvsServerVersion);
 
@@ -360,21 +337,72 @@ public class CVS implements SourceControl {
                 p.getInputStream().close();
                 p.getOutputStream().close();
                 p.getErrorStream().close();
-            } catch (Exception e) {
+            } catch (IOException e) {
+                log.error("Failed reading cvs server version", e);
+            } catch (CruiseControlException e) {
+                log.error("Failed reading cvs server version", e);
+            } catch (InterruptedException e) {
                 log.error("Failed reading cvs server version", e);
             }
 
-            if (p == null || p.exitValue() != 0) {
+            if (p == null || p.exitValue() != 0 || cvsServerVersion == null) {
                 if (p == null) {
                     log.debug("Process p was null in CVS.getCvsServerVersion()");
                 } else {
                     log.debug("Process exit value = " + p.exitValue());
                 }
-                cvsServerVersion = new Version(OFFICIAL_CVS_NAME, "1.11");
+                cvsServerVersion = DEFAULT_CVS_SERVER_VERSION;
                 log.warn("problem getting cvs server version; using " + cvsServerVersion);
             }
         }
         return cvsServerVersion;
+    }
+
+    /**
+     * This method retrieves the cvs server version from the specified output.
+     * The line it parses will have the following format:
+     * <pre>
+     * Server: Concurrent Versions System (CVS) 1.11.16 (client/server)
+     * </pre>
+     *
+     *
+     * @param in
+     * @return the version of null if the version couldn't be extracted
+     * @throws IOException
+     */
+    private Version extractCVSServerVersionFromCVSVersionCommandOutput(BufferedReader in) throws IOException {
+        String line = in.readLine();
+        if (line == null) {
+            return null;
+        }
+        if (line.startsWith("Client:")) {
+            line = in.readLine();
+            if (line == null) {
+                return null;
+            }
+            if (!line.startsWith("Server:")) {
+                System.err.println("Warning expected a line starting with \"Server:\" but got " + line);
+                // we try anyway
+            }
+        }
+        log.debug("server version line: " + line);
+        int nameBegin = line.indexOf(" (");
+        int nameEnd = line.indexOf(") ", nameBegin);
+        final String name;
+        final String version;
+        if (nameBegin == -1 || nameEnd < nameBegin || nameBegin + 2 >= line.length()) {
+            log.warn("cvs server version name couldn't be parsed from " + line);
+            return null;
+        }
+        name = line.substring(nameBegin + 2, nameEnd);
+        int verEnd = line.indexOf(" ", nameEnd + 2);
+        if (verEnd < nameEnd + 2) {
+            log.warn("cvs server version number couldn't be parsed from " + line);
+            return null;
+        }
+        version = line.substring(nameEnd + 2, verEnd);
+
+        return new Version(name, version);
     }
 
     public boolean isCvsNewOutputFormat() {
