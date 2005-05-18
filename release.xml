@@ -6,7 +6,7 @@
     <target name="release" depends="clean, website, zip, bin-zip"/>
 
     <target name="clean">
-        <delete dir="target" failonerror="false" />
+        <delete dir="target" failonerror="false"/>
     </target>
 
     <target name="build">
@@ -30,7 +30,7 @@
             includes="**/*.bat"
             />
 
-        <delete dir="target/website" failonerror="no" />
+        <delete dir="target/website" failonerror="no"/>
         <mkdir dir="target/website/reporting/jsp"/>
         <copy todir="target/website">
             <fileset dir="docs"/>
@@ -64,7 +64,7 @@
 
     <target name="zip" depends="build">
         <mkdir dir="target/zip"/>
-        <copy todir="target/zip" overwrite="true" >
+        <copy todir="target/zip" overwrite="true">
             <fileset dir=".">
                 <include name="**/*.html"/>
                 <exclude name="**/target/**"/>
@@ -90,13 +90,18 @@
         </zip>
     </target>
 
-    <target name="bin-zip" depends="build" >
+    <target name="bin-zip" depends="build">
         <defaultexcludes remove="**/CVS"/>
         <defaultexcludes remove="**/CVS/**"/>
         <defaultexcludes remove="**/.cvsignore"/>
 
         <zip destfile="target/cruisecontrol-bin-${label}.zip">
-            <zipfileset dir="binaryrelease" prefix="cruisecontrol-bin-${label}" excludes="*.zip" />
+            <zipfileset dir="binaryrelease" prefix="cruisecontrol-bin-${label}">
+                <exclude name="*.zip"/>
+                <exclude name="**/CVS"/>
+                <exclude name="**/CVS/**"/>
+                <exclude name="**/.cvsignore"/>
+            </zipfileset>
             <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="cruisecontrol-bin-${label}/projects"/>
             <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="cruisecontrol-bin-${label}"/>
             <zipfileset dir="main/lib" includes="*.jar" excludes="xerces.jar" prefix="cruisecontrol-bin-${label}/lib"/>
