@@ -92,6 +92,13 @@
     </servlet>
 
     <servlet>
+      <servlet-name>rss</servlet-name>
+      <display-name>Build Result RSS Feed</display-name>
+      <description>Presents build results in the RSS XML format.</description>
+      <jsp-file>/rss.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
         <servlet-name>index</servlet-name>
         <display-name>Index/Summary page</display-name>
         <description>Presents a summary of all projects, allowing easy navigation to each.</description>
@@ -137,6 +144,11 @@
       <servlet-name>buildresults</servlet-name>
       <!-- Strictly speaking, this should be /buildresults for single-project mode. But it works anyway. -->
       <url-pattern>/buildresults/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>rss</servlet-name>
+      <url-pattern>/rss/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

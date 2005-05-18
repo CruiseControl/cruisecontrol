@@ -56,9 +56,9 @@
     <%
     } 
  %>
-            <tr><td>&nbsp;</td></tr>
             <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
             <tr><td>&nbsp;</td></tr>
+
             <cruisecontrol:link id="baseUrl" />
             <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
             <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
@@ -73,4 +73,7 @@
                 </select>
               </form>
             </td></tr>
+            <tr><td>&nbsp;</td></tr>
+
+            <tr><td><a href="rss/<%= request.getPathInfo().substring(1) %>"><img border="0" src="images/rss.png"/></a></td></tr>
         </table>

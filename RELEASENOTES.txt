@@ -125,6 +125,10 @@ StarTeamBootstrapper:
 ----------------------
 * Prevent StarTeam from needing user interaction (CC-189). Patch by Lee Marlow
 
+RSS:
+----------------------
+* Added an RSS feed to the reporting app (CC-117). Patch by Mark Doliner.
+
 testdetails.xsl:
 ----------------------
 * Escape '<' and '>' in popup window (CC-22). Patch by Jerome Lacoste

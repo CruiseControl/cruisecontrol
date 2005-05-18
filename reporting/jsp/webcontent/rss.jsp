@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="net.sourceforge.cruisecontrol.BuildInfo" %>
 <%--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * This file copyright (c) 2004, Mark Doliner.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,51 +36,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
-<%@page contentType="text/html"%>
-<%@page errorPage="/error.jsp"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<html>
-<head>
-  <title>CruiseControl Build Results</title>
-  <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
-  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <link type="application/rss+xml" rel="alternate" href="rss/<%= request.getPathInfo().substring(1) %>" title="RSS"/>
-</head>
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
-  <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
-    <tr>
-      <td valign="top">
-        <%@ include file="navigation.jsp" %>
-      </td>
-      <td valign="top">
-        &nbsp;<br>
-        <cruisecontrol:tabsheet>
-          <tr>
-            <td bgcolor="white" >
-              <cruisecontrol:tab name="buildResults" label="Build Results" >
-                <%@ include file="buildresults.jsp" %>
-              </cruisecontrol:tab>
+<%@ page contentType="text/xml" %>
 
-              <cruisecontrol:tab name="testResults" label="Test Results" >
-                <%@ include file="testdetails.jsp" %>
-              </cruisecontrol:tab>
+<%
+    String project = request.getPathInfo().substring(1);
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+%>
 
-              <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
-                <%@ include file="xmllog.jsp" %>
-              </cruisecontrol:tab>
+<rss version="2.0">
+<channel>
+<title>CruiseControl Results - <%= project %></title>
+<link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %>/buildresults/<%= project %></link>
+<description>Summary of the 10 most recent builds for this project.</description>
+<language>en-us</language>
 
-              <cruisecontrol:tab name="metrics" label="Metrics" >
-                <%@ include file="metrics.jsp" %>
-              </cruisecontrol:tab>
+<cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10">
 
-              <cruisecontrol:tab name="controlPanel" label="Control Panel" >
-                <%@ include file="controlpanel.jsp" %>
-              </cruisecontrol:tab>
-            </td>
-          </tr>
-        </cruisecontrol:tabsheet>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
+<%
+    BuildInfo buildInfo = new BuildInfo(logfile);
+    String label = buildInfo.getLabel();
+    Date date = buildInfo.getBuildDate();
+%>
+
+<item>
+<% if (buildInfo.isSuccessful()) { %>
+	<title><%= date %>, passed</title>
+	<description>Build passed</description>
+<% } else { %>
+	<title><%= date %>, FAILED!</title>
+	<description>Build FAILED!</description>
+<% } %>
+<pubDate><%= simpleDateFormat.format(date) %></pubDate>
+<link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %>/buildresults/<%= project %>?log=<%= logfile %></link>
+</item>
+</cruisecontrol:nav>
+
+</channel>
+</rss>
