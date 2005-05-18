@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+AlwaysBuilder:
+----------------------
+* Fixed builder to not cause an infinite loop when using a quietperiod of greater than 100 seconds. Patch by Lars Gehrken.
+
 AntBuilder:
 ----------------------
 * Added optional anthome attribute. Can be used in lieu of antscript to make config.xml more portable across environments and more intuitive (than antscript) for new CruiseControl users. Thanks to Paul Hammant for the idea.
