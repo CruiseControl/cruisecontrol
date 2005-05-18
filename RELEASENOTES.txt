@@ -16,6 +16,10 @@ AntPublisher:
 ----------------------
 * Will now pass the property "thisbuildsuccessful" to the ant script.
 
+BuildInfo:
+----------------------
+* Added better exception message to make debugging easier (CC-49). Patch by Jerome Lacoste.
+
 controlpanel.jsp:
 ----------------------
 * Provide direct link to project jmx page (CC-204). Patch by Tim Shadel
