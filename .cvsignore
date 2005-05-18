@@ -3,9 +3,9 @@ bin
 vssver.scc
 .classpath
 .project
-CruiseControl.iws
-CruiseControl.ipr
-CruiseControl.iml
+*.iws
+*.ipr
+*.iml
 test-results
 _auxLogs
 logs
@@ -13,4 +13,4 @@ myproject.ser
 cruisecontrol.zip
 intellij-out
 target
-
+cruisecontrol.log
