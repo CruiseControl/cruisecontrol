@@ -87,7 +87,8 @@ public class AlwaysBuild extends FakeUserSourceControl {
         modfile.action = "change";
 
         mod.userName = getUserName();
-        mod.modifiedTime = new Date((new Date()).getTime() - 100000);
+        //Oldest modification possible, sort of, 1 second past the last build.
+        mod.modifiedTime = new Date(lastBuild.getTime() + 100);
         mod.comment = "";
         return Collections.singletonList(mod);
     }
