@@ -411,19 +411,22 @@ public class CVS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (cvsroot == null && local == null) {
-            OSEnvironment env = getOSEnvironment();
-            cvsroot = env.getVariable("CVSROOT");
+        if (local == null && (cvsroot == null || module == null)) {
+            throw new CruiseControlException("must specify either 'localWorkingCopy'"
+                 + " or 'cvsroot' and 'module' on CVS");
         }
-        if (!(cvsroot != null && module != null) && local == null) {
-            throw new CruiseControlException("one of 'localWorkingCopy'"
-                    + " or 'cvsroot' and 'module' are required attributes on CVS");
-        }
-        if (module != null && local != null) {
+        if (local != null && cvsroot != null) {
             throw new CruiseControlException("only one of 'localWorkingCopy'"
-                    + " or 'module' are allowed attributes on CVS");
+                 + " or 'cvsroot' and 'module' are allowed attributes on CVS");
         }
-
+        if (cvsroot != null && module == null) {
+            throw new CruiseControlException("if cvsroot is specified then module must"
+                 + " also be specified on CVS");
+        }
+        if (cvsroot == null && module != null) {
+            throw new CruiseControlException("if module is specified then cvsroot must"
+                 + " also be specified on CVS");
+        }
         if (local != null && !new File(local).exists()) {
             throw new CruiseControlException("Local working copy \"" + local + "\" does not exist!");
         }
