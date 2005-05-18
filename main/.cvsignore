@@ -7,3 +7,4 @@ cc_coverage*
 clover-results
 .classpath
 .project
+*.iml
