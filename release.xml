@@ -109,6 +109,7 @@
             <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset file="main/dist/cruisecontrol.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="cruisecontrol-bin-${label}/webapps/cruisecontrol"/>
+            <zipfileset dir="target/website" prefix="cruisecontrol-bin-${label}/docs"/>
         </zip>
 
     </target>
