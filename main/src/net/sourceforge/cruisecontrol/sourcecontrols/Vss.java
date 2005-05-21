@@ -57,9 +57,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- *  This class handles all VSS-related aspects of determining the modifications
- *  since the last good build.
- *
+ * This class handles all VSS-related aspects of determining the modifications since the last good build.
+ * 
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author Eli Tucker
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -69,16 +68,13 @@ public class Vss implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(Vss.class);
 
-    private static final String VSS_TEMP_FILE = "vsstempfile.txt";
     private SimpleDateFormat vssDateTimeFormat;
-
     private String ssDir;
     private String vssPath;
     private String serverPath;
     private String login;
     private String dateFormat;
     private String timeFormat;
-
     private Hashtable properties = new Hashtable();
     private String property;
     private String propertyOnDelete;
@@ -90,56 +86,55 @@ public class Vss implements SourceControl {
     }
 
     /**
-     *  Set the project to get history from
-     *
-     *@param  vsspath
+     * Set the project to get history from
+     * 
+     * @param vsspath
      */
     public void setVsspath(String vsspath) {
         this.vssPath = "$" + vsspath;
     }
 
     /**
-     *  Set the path to the ss executable
-     *
-     *@param  ssdir
+     * Set the path to the ss executable
+     * 
+     * @param ssdir
      */
     public void setSsDir(String ssdir) {
         this.ssDir = ssdir;
     }
 
     /**
-     *  Set the path to the directory containing the srcsafe.ini file.
-     *
-     *  @param dirWithSrcsafeIni
+     * Set the path to the directory containing the srcsafe.ini file.
+     * 
+     * @param dirWithSrcsafeIni
      */
     public void setServerPath(String dirWithSrcsafeIni) {
         serverPath = dirWithSrcsafeIni;
     }
 
     /**
-     *  Login for vss
-     *
-     *@param  usernameCommaPassword
+     * Login for vss
+     * 
+     * @param usernameCommaPassword
      */
     public void setLogin(String usernameCommaPassword) {
         login = usernameCommaPassword;
     }
 
     /**
-     *  Choose a property to be set if the project has modifications if we have a
-     *  change that only requires repackaging, i.e. jsp, we don't need to recompile
-     *  everything, just rejar.
-     *
-     *@param  propertyName
+     * Choose a property to be set if the project has modifications if we have a change that only requires repackaging,
+     * i.e. jsp, we don't need to recompile everything, just rejar.
+     * 
+     * @param propertyName
      */
     public void setProperty(String propertyName) {
         property = propertyName;
     }
 
     /**
-     *  Choose a property to be set if the project has deletions
-     *
-     *  @param  propertyName
+     * Choose a property to be set if the project has deletions
+     * 
+     * @param propertyName
      */
     public void setPropertyOnDelete(String propertyName) {
         propertyOnDelete = propertyName;
@@ -147,11 +142,10 @@ public class Vss implements SourceControl {
 
     /**
      * Sets the date format to use for querying VSS and processing reports.
-     *
-     * The default date format is <code>MM/dd/yy</code> .  If your computer
-     * is set to a different region, you may wish to use a format such
-     * as <code>dd/MM/yy</code> .
-     *
+     * 
+     * The default date format is <code>MM/dd/yy</code> . If your computer is set to a different region, you may wish
+     * to use a format such as <code>dd/MM/yy</code> .
+     * 
      * @see java.text.SimpleDateFormat
      */
     public void setDateFormat(String format) {
@@ -161,11 +155,10 @@ public class Vss implements SourceControl {
 
     /**
      * Sets the time format to use for querying VSS and processing reports.
-     *
-     * The default time format is <code>hh:mma</code> .  If your computer
-     * is set to a different region, you may wish to use a format such
-     * as <code>HH:mm</code> .
-     *
+     * 
+     * The default time format is <code>hh:mma</code> . If your computer is set to a different region, you may wish to
+     * use a format such as <code>HH:mm</code> .
+     * 
      * @see java.text.SimpleDateFormat
      */
     public void setTimeFormat(String format) {
@@ -187,14 +180,12 @@ public class Vss implements SourceControl {
     }
 
     /**
-     * Calls
-     * "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]"
-     * Results written to a file since VSS will start wrapping lines if read
-     * directly from the stream.
-     *
-     *@param  lastBuild
-     *@param  now
-     *@return List of modifications
+     * Calls "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]" Results written to a file since
+     * VSS will start wrapping lines if read directly from the stream.
+     * 
+     * @param lastBuild
+     * @param now
+     * @return List of modifications
      */
     public List getModifications(Date lastBuild, Date now) {
         ArrayList modifications = new ArrayList();
@@ -234,7 +225,7 @@ public class Vss implements SourceControl {
             logVSSTempFile();
         }
 
-        File tempFile = new File(VSS_TEMP_FILE);
+        File tempFile = getTempFile();
         BufferedReader reader = new BufferedReader(new FileReader(tempFile));
 
         parseHistoryEntries(modifications, reader);
@@ -244,15 +235,23 @@ public class Vss implements SourceControl {
     }
 
     private void logVSSTempFile() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(new File(VSS_TEMP_FILE)));
+        BufferedReader reader = new BufferedReader(new FileReader(getTempFile()));
         String currLine = reader.readLine();
         LOG.debug(" ");
         while (currLine != null) {
-            LOG.debug(VSS_TEMP_FILE + ": " + currLine);
+            LOG.debug(getTempFile().getName() + ": " + currLine);
             currLine = reader.readLine();
         }
         LOG.debug(" ");
         reader.close();
+    }
+
+    private File getTempFile() {
+        return new File(createFileNameFromVssPath());
+    }
+
+    private String createFileNameFromVssPath() {
+        return vssPath.replace('/', '_') + ".tmp";
     }
 
     void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
@@ -285,7 +284,7 @@ public class Vss implements SourceControl {
         } catch (IOException e) {
             throw new CruiseControlException(e);
         }
-        
+
         commandline.setExecutable(execCommand);
         commandline.createArgument().setValue("history");
         commandline.createArgument().setValue(vssPath);
@@ -293,7 +292,7 @@ public class Vss implements SourceControl {
         commandline.createArgument().setValue("-Vd" + formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild));
         commandline.createArgument().setValue("-Y" + login);
         commandline.createArgument().setValue("-I-N");
-        commandline.createArgument().setValue("-O" + VSS_TEMP_FILE);
+        commandline.createArgument().setValue("-O" + getTempFile().getName());
 
         String[] line = commandline.getCommandline();
 
@@ -307,31 +306,30 @@ public class Vss implements SourceControl {
     }
 
     /**
-     *  Format a date for vss in the format specified by the dateFormat.
-     *  By default, this is in the form <code>12/21/2000;8:14A</code> (vss doesn't
-     *  like the m in am or pm).  This format can be changed with <code>setDateFormat()</code>
-     *
-     *  @param d Date to format.
-     *  @return String of date in format that VSS requires.
-     *  @see #setDateFormat
+     * Format a date for vss in the format specified by the dateFormat. By default, this is in the form
+     * <code>12/21/2000;8:14A</code> (vss doesn't like the m in am or pm). This format can be changed with
+     * <code>setDateFormat()</code>
+     * 
+     * @param d
+     *            Date to format.
+     * @return String of date in format that VSS requires.
+     * @see #setDateFormat
      */
     private String formatDateForVSS(Date d) {
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat + ";" + timeFormat, Locale.US);
         String vssFormattedDate = sdf.format(d);
         if (timeFormat.endsWith("a")) {
             return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
-        } else {
-            return vssFormattedDate;
         }
+        return vssFormattedDate;
     }
 
     // ***** the rest of this is just parsing the vss output *****
 
-    //(PENDING) Extract class VSSEntryParser
     /**
-     *  Parse individual VSS history entry
-     *
-     *@param  entry
+     * Parse individual VSS history entry
+     * 
+     * @param entry
      */
     protected Modification handleEntry(List entry) {
         LOG.debug("VSS history entry BEGIN");
@@ -351,12 +349,13 @@ public class Vss implements SourceControl {
 
             // but need to adjust for cases where Label: line exists
             //
-            // *****  DateChooser.java  *****
+            // ***** DateChooser.java *****
             // Version 8
             // Label: "Completely new version!"
-            // User: Arass        Date: 10/21/02   Time: 12:48p
+            // User: Arass Date: 10/21/02 Time: 12:48p
             // Checked in $/code/development/src/org/ets/cbtidg/common/gui
-            // Comment: This is where I add a completely new, but alot nicer version of the date chooser.
+            // Comment: This is where I add a completely new, but alot nicer
+            // version of the date chooser.
             // Label comment:
 
             int nameAndDateIndex = 2;
@@ -399,8 +398,7 @@ public class Vss implements SourceControl {
                 if (nameAndDateIndex == 1) {
                     folderName = vssPath;
                 } else {
-                    folderName =
-                        vssPath + "\\" + folderLine.substring(7, folderLine.indexOf("  *"));
+                    folderName = vssPath + "\\" + folderLine.substring(7, folderLine.indexOf("  *"));
                 }
                 int lastSpace = fileLine.lastIndexOf(" ");
                 if (lastSpace != -1) {
@@ -441,8 +439,8 @@ public class Vss implements SourceControl {
                     LOG.debug("this file was renamed");
                     addPropertyOnDelete();
                 } else if (fileLine.startsWith("Labeled")) {
-                   LOG.debug("this is a label; ignoring this entry");
-                   return null;
+                    LOG.debug("this is a label; ignoring this entry");
+                    return null;
                 } else {
                     LOG.debug("action for this vss entry (" + fileLine + ") is unknown");
                 }
@@ -474,10 +472,10 @@ public class Vss implements SourceControl {
     }
 
     /**
-     *  Parse comment from VSS history (could be multi-line)
-     *
-     *@param  commentList
-     *@return
+     * Parse comment from VSS history (could be multi-line)
+     * 
+     * @param commentList
+     * @return
      */
     private String parseComment(List commentList, int commentIndex) {
         StringBuffer comment = new StringBuffer();
@@ -491,24 +489,23 @@ public class Vss implements SourceControl {
 
     /**
      * Parse date/time from VSS file history
-     *
+     * 
      * The nameAndDateLine will look like <br>
      * <code>User: Etucker      Date:  6/26/01   Time: 11:53a</code><br>
      * Sometimes also this<br>
      * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
      * Note the ":" instead of a "0"
-     *
-     *@param  nameAndDateLine
-     *@return Date in form "'Date: 'MM/dd/yy   'Time:  'hh:mma", or a different form based on dateFormat
-     *@see #setDateFormat
+     * 
+     * @param nameAndDateLine
+     * @return Date in form "'Date: 'MM/dd/yy 'Time: 'hh:mma", or a different form based on dateFormat
+     * @see #setDateFormat
      */
     public Date parseDate(String nameAndDateLine) {
         String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
 
         int indexOfColon = dateAndTime.indexOf("/:");
         if (indexOfColon != -1) {
-            dateAndTime =
-                dateAndTime.substring(0, indexOfColon)
+            dateAndTime = dateAndTime.substring(0, indexOfColon)
                     + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':', '0')
                     + dateAndTime.substring(indexOfColon + 2);
         }
@@ -529,10 +526,10 @@ public class Vss implements SourceControl {
     }
 
     /**
-     *  Parse username from VSS file history
-     *
-     *@param  userLine
-     *@return the user name who made the modification
+     * Parse username from VSS file history
+     * 
+     * @param userLine
+     * @return the user name who made the modification
      */
     public String parseUser(String userLine) {
         final int userIndex = "User: ".length();
@@ -543,11 +540,11 @@ public class Vss implements SourceControl {
 
     /**
      * Constructs the vssDateTimeFormat based on the dateFormat for this element.
+     * 
      * @see #setDateFormat
      */
     private void constructVssDateTimeFormat() {
-        vssDateTimeFormat =
-            new SimpleDateFormat("'Date: '" + dateFormat + "   'Time: '" + timeFormat, Locale.US);
+        vssDateTimeFormat = new SimpleDateFormat("'Date: '" + dateFormat + "   'Time: '" + timeFormat, Locale.US);
     }
 
     protected SimpleDateFormat getVssDateTimeFormat() {

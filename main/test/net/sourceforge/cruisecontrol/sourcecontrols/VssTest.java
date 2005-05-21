@@ -371,7 +371,7 @@ public class VssTest extends TestCase {
                 "-Vd08/04/02;01:15P~08/03/02;09:30A",
                 "-Ylogin,password",
                 "-I-N",
-                "-Ovsstempfile.txt" };
+                "-O$vsspath.tmp" };
         String[] actualCommand = vss.getCommandLine(lastBuild, now);
         for (int i = 0; i < expectedCommand.length; i++) {
             assertEquals(expectedCommand[i], actualCommand[i]);
@@ -387,7 +387,7 @@ public class VssTest extends TestCase {
                 "-Vd04/08/02;01:15P~03/08/02;09:30A",
                 "-Ylogin,password",
                 "-I-N",
-                "-Ovsstempfile.txt" };
+                "-O$vsspath.tmp" };
         String[] actualCommandWithDate = vss.getCommandLine(lastBuild, now);
         for (int i = 0; i < expectedCommandWithDate.length; i++) {
             assertEquals(expectedCommandWithDate[i], actualCommandWithDate[i]);
@@ -405,7 +405,7 @@ public class VssTest extends TestCase {
                 "-Vd04/08/02;01:15P~03/08/02;09:30A",
                 "-Ylogin,password",
                 "-I-N",
-                "-Ovsstempfile.txt" };
+                "-O$vsspath.tmp" };
         String[] actualCommandWithSsdir = vss.getCommandLine(lastBuild, now);
         for (int i = 0; i < expectedCommandWithSsdir.length; i++) {
             assertEquals(expectedCommandWithSsdir[i], actualCommandWithSsdir[i]);
@@ -421,7 +421,7 @@ public class VssTest extends TestCase {
                 "-Vd04/08/02;13:15~03/08/02;09:30",
                 "-Ylogin,password",
                 "-I-N",
-                "-Ovsstempfile.txt" };
+                "-O$vsspath.tmp" };
         String[] actualCommandWithTimeFormat = vss.getCommandLine(lastBuild, now);
 
         for (int i = 0; i < expectedCommandWithTimeFormat.length; i++) {
