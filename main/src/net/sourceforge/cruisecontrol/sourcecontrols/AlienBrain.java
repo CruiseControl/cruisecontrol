@@ -68,6 +68,17 @@ import java.io.IOException;
 public class AlienBrain implements SourceControl {
     
     private static final Logger LOG = Logger.getLogger(AlienBrain.class);
+    /*
+     * The difference between January 1, 1601 0:00:00 UTC and January 1,
+     * 1970 0:00:00 UTC in milliseconds.
+     * ((369 years * 365 days) + 89 leap days) * 24h * 60m * 60s * 1000ms
+     */ 
+    private static final long FILETIME_EPOCH_DIFF = 11644473600000L;
+    /* 100-ns intervals per ms */
+    private static final long HUNDRED_NANO_PER_MILLI_RATIO = 10000L;
+    private static final String AB_NO_SESSION = "Invalid session please logon!";
+    private static final String AB_NO_MODIFICATIONS = "No files or folders found!";
+    private static final String AB_MODIFICATION_SUMMARY_PREFIX = "Total of ";
     
     private Hashtable properties = new Hashtable();
     private String server;
@@ -77,9 +88,6 @@ public class AlienBrain implements SourceControl {
     private String path;
     private String branch;
 
-    private static final String AB_NO_SESSION = "Invalid session please logon!";
-    private static final String AB_NO_MODIFICATIONS = "No files or folders found!";
-    private static final String AB_MODIFICATION_SUMMARY_PREFIX = "Total of ";
 
     /**
      * Sets the hostname of the server hosting the AlienBrain repository.
@@ -141,8 +149,7 @@ public class AlienBrain implements SourceControl {
      * Currently unsupported by the AlienBrain plugin.
      */
     public void setProperty(String property) {
-        throw new UnsupportedOperationException("Set property " 
-            + "not supported by AlienBrain");
+        throwUnsupportedException("Set property");
     }
     
     /**
@@ -150,10 +157,13 @@ public class AlienBrain implements SourceControl {
      * Currently unsupported by the AlienBrain plugin.
      */
     public void setPropertyOnDelete(String property) {
-        throw new UnsupportedOperationException("Set property on delete " 
-            + "not supported by AlienBrain");
+        throwUnsupportedException("Set property on delete");
     }
    
+    private void throwUnsupportedException(String operation) {
+        throw new UnsupportedOperationException(operation + " not supported by AlienBrain");
+    }
+
     /**
      * Any properties that have been set in this sourcecontrol. 
      * Currently, this would be none.
@@ -162,31 +172,28 @@ public class AlienBrain implements SourceControl {
         return properties;
     }
    
-    /**
-     */ 
     public void validate() throws CruiseControlException {
         if (server == null) {
-            throw new CruiseControlException("'server' is a required "
-                + "attribute on AlienBrain");
+            throwMissingAttributeException("'server'");
         }
         if (database == null) {
-            throw new CruiseControlException("'database' is a required "
-                + "attribute on AlienBrain");
+            throwMissingAttributeException("'database'");
         }
         if (user == null) {
-            throw new CruiseControlException("'user' is a required "
-                + "attribute on AlienBrain");
+            throwMissingAttributeException("'user'");
         }
         if (password == null) {
-            throw new CruiseControlException("'password' is a required "
-                + "attribute on AlienBrain");
+            throwMissingAttributeException("'password'");
         }
         if (path == null) {
-            throw new CruiseControlException("'path' is a required "
-                + "attribute on AlienBrain");
+            throwMissingAttributeException("'path'");
         }
     }
    
+    private void throwMissingAttributeException(String attribute) throws CruiseControlException {
+        throw new CruiseControlException(attribute + " is a required attribute on AlienBrain");
+    }
+
     /**
      *  Get a List of Modifications detailing all the changes between now and
      *  the last build
@@ -207,13 +214,6 @@ public class AlienBrain implements SourceControl {
         
         return mods;
     }
-   
-    /*
-     * The difference between January 1, 1601 0:00:00 UTC and January 1,
-     * 1970 0:00:00 UTC in milliseconds.
-     * ((369 years * 365 days) + 89 leap days) * 24h * 60m * 60s * 1000ms.j
-     */ 
-    private static final long FILETIME_EPOCH_DIFF = 11644473600000L;
     
     /**
      * Convert a Java Date into an AlienBrain SCIT timestamp.
@@ -224,7 +224,7 @@ public class AlienBrain implements SourceControl {
     public static long dateToFiletime(Date date) {
         long milliSecsSinceUnixEpoch = date.getTime();
         long milliSecsSinceFiletimeEpoch = milliSecsSinceUnixEpoch + FILETIME_EPOCH_DIFF;
-        return milliSecsSinceFiletimeEpoch * 10000L/*100-ns intervals per ms*/;
+        return milliSecsSinceFiletimeEpoch * HUNDRED_NANO_PER_MILLI_RATIO;
     }
     
     /**
@@ -234,7 +234,7 @@ public class AlienBrain implements SourceControl {
      * 100-nanosecond intervals since January 1, 1601 (UTC).
      */
     public static Date filetimeToDate(long filetime) {
-        long milliSecsSinceFiletimeEpoch = filetime / 10000L/*100-ns intervals per ms*/;
+        long milliSecsSinceFiletimeEpoch = filetime / HUNDRED_NANO_PER_MILLI_RATIO;
         long milliSecsSinceUnixEpoch = milliSecsSinceFiletimeEpoch - FILETIME_EPOCH_DIFF;
         return new Date(milliSecsSinceUnixEpoch);
     }
@@ -252,11 +252,9 @@ public class AlienBrain implements SourceControl {
         cmdLine.createArgument().setValue("find");
         cmdLine.createArgument().setValue(path);
         cmdLine.createArgument().setValue("-regex");
-        cmdLine.createArgument().setValue(
-            "\"SCIT > " + dateToFiletime(lastBuild) + "\"");
+        cmdLine.createArgument().setValue("\"SCIT > " + dateToFiletime(lastBuild) + "\"");
         cmdLine.createArgument().setValue("-format");
-        cmdLine.createArgument().setValue("\"#SCIT#|#DbPath#|#Changed By#|"
-            + "#CheckInComment#\"");
+        cmdLine.createArgument().setValue("\"#SCIT#|#DbPath#|#Changed By#|#CheckInComment#\"");
         
         return cmdLine;
     }
@@ -300,7 +298,7 @@ public class AlienBrain implements SourceControl {
      * command-line client into a list of Modifications.
      */ 
     protected List parseModifications(InputStream is) throws IOException {
-        ArrayList mods = new ArrayList();
+        List mods = new ArrayList();
         
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         
@@ -378,14 +376,11 @@ public class AlienBrain implements SourceControl {
      * 'ab isconnected'
      * @return boolean True if there is a connection.
      */ 
-    protected static boolean isConnected() 
-        throws IOException, InterruptedException {
-        
-        boolean isBridgeRunning = isBridgeRunning();
-        if (!isBridgeRunning) {
+    protected static boolean isConnected() throws IOException, InterruptedException {
+        if (!isBridgeRunning()) {
             return false;
         }
-            
+
         Commandline cmdLine = new Commandline();
         cmdLine.setExecutable("ab");
         cmdLine.createArgument().setValue("isconnected");
