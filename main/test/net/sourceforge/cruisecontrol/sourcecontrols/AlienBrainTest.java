@@ -36,16 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
-
-import java.util.Date;
-import java.util.List;
-import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.IOException;
 
 /**
  * The unit test for an AlienBrain source control interface for
@@ -55,6 +57,19 @@ import java.io.IOException;
  */
 public class AlienBrainTest extends TestCase {
    
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("M/d/yyyy z");
+    private static final Date NT_TIME_ZERO;
+    private static final Date JAVA_TIME_ZERO;
+    
+    static {
+        try {
+            NT_TIME_ZERO = DATE_FORMAT.parse("1/1/1601 UTC");
+            JAVA_TIME_ZERO = DATE_FORMAT.parse("1/1/1970 UTC");
+        } catch (ParseException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     /**
      * Just want to see if the AlienBrain class can even be found.
      */ 
@@ -89,39 +104,29 @@ public class AlienBrainTest extends TestCase {
         
     }
     
-    /**
-     */
-    public void testDateToFiletime() {
-        assertEquals(0L, AlienBrain.dateToFiletime(new Date("1/1/1601 UTC")));
-        assertEquals(116444736000000000L, AlienBrain.dateToFiletime(
-                                                new Date("1/1/1970 UTC")));
-        assertEquals(127610208000000000L, AlienBrain.dateToFiletime(
-                                                new Date("5/20/2005 UTC")));
+    public void testDateToFiletime() throws ParseException {
+        assertEquals(0L, AlienBrain.dateToFiletime(NT_TIME_ZERO));
+        assertEquals(116444736000000000L, AlienBrain.dateToFiletime(JAVA_TIME_ZERO));
+        assertEquals(127610208000000000L, AlienBrain.dateToFiletime(DATE_FORMAT.parse("5/20/2005 UTC")));
     }
     
-    /**
-     */
-    public void testFiletimeToDate() {
-        assertEquals(new Date("1/1/1601 UTC"), AlienBrain.filetimeToDate(0L));
-        assertEquals(new Date("1/1/1970 UTC"), 
-            AlienBrain.filetimeToDate(116444736000000000L));
-        assertEquals(new Date("5/20/2005 UTC"),
-            AlienBrain.filetimeToDate(127610208000000000L));
+    public void testFiletimeToDate() throws ParseException {
+        assertEquals(NT_TIME_ZERO, AlienBrain.filetimeToDate(0L));
+        assertEquals(JAVA_TIME_ZERO, AlienBrain.filetimeToDate(116444736000000000L));
+        assertEquals(DATE_FORMAT.parse("5/20/2005 UTC"), AlienBrain.filetimeToDate(127610208000000000L));
         
         Date now = new Date();
         assertEquals(now,
             AlienBrain.filetimeToDate(AlienBrain.dateToFiletime(now)));
     }
     
-    /**
-     */
-    public void testBuildGetModificationsCommand() {
+    public void testBuildGetModificationsCommand() throws ParseException {
         AlienBrain ab = new AlienBrain();
         
         ab.setUser("FooUser");
         ab.setPath("FooProject");
 
-        Date date = new Date("5/20/2005 EDT");
+        Date date = DATE_FORMAT.parse("5/20/2005 EDT");
         Commandline cmdLine = ab.buildGetModificationsCommand(date, date);
         
         String[] args = cmdLine.getCommandline();
@@ -137,14 +142,12 @@ public class AlienBrainTest extends TestCase {
             , cmd.toString());
     }
     
-    /**
-     */
-    public void testParseModificationDescription() {
+    public void testParseModificationDescription() throws ParseException {
         Modification m = AlienBrain.parseModificationDescription(
             "127610352000000000|/a/path/to/a/file.cpp|sjacobs|"
             + "A change that probably breaks everything.");
         
-        assertEquals(new Date("5/20/2005 EDT"), m.modifiedTime);
+        assertEquals(DATE_FORMAT.parse("5/20/2005 EDT"), m.modifiedTime);
         assertEquals("sjacobs", m.userName);
         assertEquals("A change that probably breaks everything.", m.comment);
         //The CC AlienBrain SourceControl class does not yet support changesets.
@@ -165,11 +168,8 @@ public class AlienBrainTest extends TestCase {
         return testStream;
     }
     
-    /**
-     */
-    public void testParseModifications() throws IOException {
-        BufferedInputStream is = 
-            new BufferedInputStream(loadTestLog("alienbrain_modifications.txt"));
+    public void testParseModifications() throws IOException, ParseException {
+        BufferedInputStream is = new BufferedInputStream(loadTestLog("alienbrain_modifications.txt"));
         
         AlienBrain ab = new AlienBrain();
         
@@ -181,8 +181,9 @@ public class AlienBrainTest extends TestCase {
             7,
             modifications.size());
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("M/d/yyyy HH:mm:ss z");
         assertEquals("Wrong modification time",
-            new Date("4/19/2005 16:51:55 EDT"),
+            dateFormat.parse("4/19/2005 16:51:55 EDT"),
             ((Modification) modifications.get(0)).modifiedTime);
 
         assertEquals("Wrong path",
@@ -198,7 +199,7 @@ public class AlienBrainTest extends TestCase {
             ((Modification) modifications.get(0)).comment);
             
         assertEquals("Wrong modification time",
-            new Date("5/7/2005 7:44:45 EDT"),
+            dateFormat.parse("5/7/2005 7:44:45 EDT"),
             ((Modification) modifications.get(6)).modifiedTime);
 
         assertEquals("Wrong path",
