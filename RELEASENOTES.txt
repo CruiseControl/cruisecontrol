@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+AlienBrain:
+----------------------
+* Add support for AlienBrain SCM. Submitted by Scott Jacobs
+
 AlwaysBuilder:
 ----------------------
 * Fixed builder to not cause an infinite loop when using a quietperiod of greater than 100 seconds. Patch by Lars Gehrken.
