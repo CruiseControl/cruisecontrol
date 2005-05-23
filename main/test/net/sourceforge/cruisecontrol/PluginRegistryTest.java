@@ -135,6 +135,7 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass(
                 "vssbootstrapper",
                 "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
+        verifyPluginClass("alienbrain", "net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain");
         verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
         verifyPluginClass("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
         verifyPluginClass("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");

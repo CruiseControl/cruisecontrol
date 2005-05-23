@@ -1,0 +1,8 @@
+127584175150000000|/FooProject/Code/Vehicles/Src/Position.cpp|User 1|Passenger Animatoin
+127605676877692500|/FooProject/Code/Vehicles/Src/Turret.cpp|User 3|adding spread
+127546880412031250|/FooProject/Code/Vehicles/Src/TireFlat.h|User 2|final merge
+127560781675156250|/FooProject/Code/Vehicles/Src/Factory.cpp|User 2|fixed animation
+127604227524411250|/FooProject/Code/Vehicles/Src/R60.cpp|User 3|adding DestroyedClass default
+127605251892536250|/FooProject/Code/Vehicles/Src/Vehicle.cpp|User 2|fixes for access warnings
+127599398850000000|/FooProject/Code/Vehicles/Src/Materialnfo.cpp|User 1|Import from 2004
+Total of 0 folders, and 8 files.
