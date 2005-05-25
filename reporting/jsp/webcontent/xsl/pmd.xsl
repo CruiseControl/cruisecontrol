@@ -2,7 +2,7 @@
 <!--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 500
+ * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
  *
@@ -36,38 +36,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:output method="html"/>
 
-  <xsl:import href="maven.xsl"/>
-  <xsl:import href="nant.xsl"/>
-  <xsl:import href="checkstyle.xsl"/>
-  <xsl:import href="pmd.xsl"/>
-  <xsl:import href="macker.xsl"/>
-  <xsl:import href="errors.xsl"/>
-  <xsl:import href="compile.xsl"/>
-  <xsl:import href="javadoc.xsl"/>
-  <xsl:import href="unittests.xsl"/>
-  <xsl:import href="modifications.xsl"/>
-  <xsl:import href="distributables.xsl"/>
+    <xsl:template match="/" mode="pmd">
+        <xsl:apply-templates select="cruisecontrol/pmd" mode="pmd"/>
+    </xsl:template>
 
-  <xsl:output method="html"/>
+    <xsl:template match="pmd[file/violation]" mode="pmd">
+        <xsl:variable name="total.error.count" select="count(file/violation[@priority &lt; 3])" />
+        <xsl:variable name="total.warning.count" select="count(file/violation)" />
+        <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
+          <colgroup>
+              <col width="45%"></col>
+              <col width="5%"></col>
+              <col width="50%"></col>
+          </colgroup>
+          <tr>
+            <td class="checkstyle-sectionheader" colspan="3">
+                PMD errors/warnings (<xsl:value-of select="$total.error.count"/>
+                / <xsl:value-of select="$total.warning.count"/>)
+            </td>
+          </tr>
+         <xsl:choose>
+          <xsl:when test="$total.error.count = 0">
+             <tr>
+              <td class="checkstyle-data" colspan="3"><xsl:value-of select="$total.warning.count"/> warnings</td>
+             </tr>
+           </xsl:when>
+           <xsl:otherwise>
+            <xsl:for-each select="file/violation[@priority &lt; 3]" >
+              <tr>
+                <xsl:if test="position() mod 2 = 1">
+                  <xsl:attribute name="class">checkstyle-oddrow</xsl:attribute>
+                </xsl:if>
+                <td class="checkstyle-data"><xsl:value-of select="../@name" /></td>
+                <td class="checkstyle-data" align="right"><xsl:value-of select="@line" /></td>
+                <td class="checkstyle-data"><xsl:value-of select="." /></td>
+              </tr>
+            </xsl:for-each>
+           </xsl:otherwise>
+          </xsl:choose>
+  	</table>
+    </xsl:template>
 
-  <xsl:variable name="cruisecontrol.list" select="."/>
-
-  <xsl:template match="/">
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="maven"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="nant"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="checkstyle"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="pmd"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="macker"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="errors"/></p>
-    <!--
-      for traditional cc display of only compile errors and warnings
-      comment out mode="errors" and uncomment mode="compile"
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="compile"/></p>
-    -->
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="javadoc"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="unittests"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="modifications"/></p>
-    <p><xsl:apply-templates select="$cruisecontrol.list" mode="distributables"/></p>
-  </xsl:template>
+    <xsl:template match="/">
+        <xsl:apply-templates select="." mode="pmd"/>
+    </xsl:template>
 </xsl:stylesheet>
