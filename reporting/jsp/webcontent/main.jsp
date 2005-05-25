@@ -74,6 +74,14 @@
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
                 <%@ include file="controlpanel.jsp" %>
               </cruisecontrol:tab>
+<%--
+              <cruisecontrol:tab name="checkstyle" label="CheckStyle">
+                <%@ include file="checkstyle.jsp" %>
+              </cruisecontrol:tab>
+              <cruisecontrol:tab name="pmd" label="PMD">
+                <%@ include file="pmd.jsp" %>
+              </cruisecontrol:tab>
+--%>
             </td>
           </tr>
         </cruisecontrol:tabsheet>

@@ -48,6 +48,9 @@ table.header th.big { font-size:12pt; }
 
 .checkstyle-oddrow { background-color:#CCCCCC }
 .checkstyle-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
+.checkstyle-warning { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
+.checkstyle-error { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FF0000; }
+.checkstyle-fileheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; font-weight:bold; color:#FFFFFF; }
 .checkstyle-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
 
 .macker-oddrow { background-color:#CCCCCC }
