@@ -36,33 +36,59 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.Publisher;
 
 /**
- * @author Jeffrey Fredrick
+ * An abstract base class for any publisher which wishes to conditionally
+ * execute a set of contained <coe>Publisher</code>s.
  */
-public class OnSuccessPublisherTest extends ConditionalPublisherTestBase {
-    
-    ConditionalPublisher createPublisher() {
-        return new OnSuccessPublisher();
+public abstract class ConditionalPublisher implements Publisher {
+
+    private List publishers = new ArrayList();
+
+    public void publish(Element log) throws CruiseControlException {
+        if (shouldPublish(log)) {
+            for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
+                Publisher publisher = (Publisher) iterator.next();
+                publisher.publish(log);
+            }
+        }
     }
 
-    public void testPublish() throws CruiseControlException {
-        OnSuccessPublisher publisher = (OnSuccessPublisher) createPublisher();
-        MyMockPublisher mock = new MyMockPublisher();
-        publisher.add(mock);
-        
-        Element successfulBuild = TestUtil.createElement(true, false);
-        publisher.publish(successfulBuild);
-        assertTrue(mock.wasPublished());
-        
-        mock.setPublished(false);
-        Element failedBuild = TestUtil.createElement(false, true);
-        publisher.publish(failedBuild);
-        assertFalse(mock.wasPublished());
+    public void validate() throws CruiseControlException {
+        if (publishers.size() == 0) {
+            throw new CruiseControlException("conditional publishers should have at least one nested publisher");
+        }
+        for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
+            Publisher publisher = (Publisher) iterator.next();
+            publisher.validate();
+        }
     }
-    
+
+    /**
+     * Adds a nested publisher
+     * 
+     * @param publisher The publisher to add
+     */
+    public void add(Publisher publisher) {
+        publishers.add(publisher);
+    }
+
+    /**
+     * Determines if the nested publishers should be executed. This method must
+     * be implemented by all derrived classes.
+     * 
+     * @param log
+     *            The build log
+     * @return <code>true</code> if the nested publishers should be executed,
+     *         <code>false</code> otherwise
+     */
+    public abstract boolean shouldPublish(Element log);
 }

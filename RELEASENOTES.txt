@@ -99,9 +99,10 @@ MKS:
 ----------------------
 * Overhaul of MKS source control. Submitted by Dominik Hirt
 
-OnSuccessPublisher:
+OnFailurePublisher & OnSuccessPublisher:
 ----------------------
 * Add new publisher that simply wraps other publishers and invokes them only if the build was successful.
+* OnFailure version added (& common ConditionalPublisher extracted) by Robert Smith
 
 P4:
 ----------------------

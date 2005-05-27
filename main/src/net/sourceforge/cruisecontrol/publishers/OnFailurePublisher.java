@@ -38,31 +38,22 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import org.jdom.Element;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 /**
- * @author Jeffrey Fredrick
+ * Executes any nested publishers if and only if the build failed
  */
-public class OnSuccessPublisherTest extends ConditionalPublisherTestBase {
-    
-    ConditionalPublisher createPublisher() {
-        return new OnSuccessPublisher();
+public class OnFailurePublisher extends ConditionalPublisher {
+
+    /* (non-Javadoc)
+     * @see net.sourceforge.cruisecontrol.Publisher.ConditionalPublisher#shouldPublish(Element)
+     */
+    public boolean shouldPublish(Element log) {
+        XMLLogHelper helper = new XMLLogHelper(log);
+        if (helper.isBuildSuccessful()) {
+            return false;
+        }
+        return true;
     }
 
-    public void testPublish() throws CruiseControlException {
-        OnSuccessPublisher publisher = (OnSuccessPublisher) createPublisher();
-        MyMockPublisher mock = new MyMockPublisher();
-        publisher.add(mock);
-        
-        Element successfulBuild = TestUtil.createElement(true, false);
-        publisher.publish(successfulBuild);
-        assertTrue(mock.wasPublished());
-        
-        mock.setPublished(false);
-        Element failedBuild = TestUtil.createElement(false, true);
-        publisher.publish(failedBuild);
-        assertFalse(mock.wasPublished());
-    }
-    
 }
