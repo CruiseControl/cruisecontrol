@@ -217,7 +217,7 @@ public class MavenSnapshotDependency implements SourceControl {
         while (itr.hasNext()) {
             Element dependency = (Element) itr.next();
             String versionText = dependency.getChildText("version");
-            if (versionText.endsWith("SNAPSHOT")) {
+            if (versionText != null && versionText.endsWith("SNAPSHOT")) {
                 String groupId = dependency.getChildText("groupId");
                 String artifactId = dependency.getChildText("artifactId");
                 String id = dependency.getChildText("id");

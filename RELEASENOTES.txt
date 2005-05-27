@@ -91,6 +91,10 @@ Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
 
+MavenSnapshotDependency:
+----------------------
+* fix NPE when dependency lacks version tag. Patch by Josh W. Arnold
+
 OnSuccessPublisher:
 ----------------------
 * Add new publisher that simply wraps other publishers and invokes them only if the build was successful.
