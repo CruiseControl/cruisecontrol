@@ -36,125 +36,82 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+
 import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-
 /**
- * This class implements the SourceControlElement methods
- * for a MKS repository. The call to MKS is assumed to work without
- * any setup. This implies that if the authentication type is pserver
- * the call to MKS login should be done prior to calling this class. This class is
- * is developed from the CVSElement code base from ThoughtWorks Inc.
- *
+ * This class implements the SourceControlElement methods for a MKS repository.
+ * The call to MKS is assumed to work with any setup: 
+ * The call to MKS login should be done prior to calling this class. 
+ *  * 
+ * attributes: 
+ * localWorkingDir - local directory for the sandbox  
+ * project - the name and path to the MKS project
+ * doNothing - if this attribute is set to true, no mks command is executed. This is for
+ * testing purposes, if a potentially slow mks server connection should avoid
+ * 
  * @author Suresh K Bathala Skila, Inc.
+ * @author Dominik Hirt, Wincor-Nixdorf International GmbH, Leipzig
  */
 public class MKS implements SourceControl {
-
     private static final Logger LOG = Logger.getLogger(MKS.class);
 
     private Hashtable properties = new Hashtable();
+
     private String property;
+
     private String propertyOnDelete;
 
-    /**
-     * This is the date format required by commands passed
-     * to MKS.
-     */
-    private static final SimpleDateFormat MKSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    /**
-     * This is the date format returned in the log information
-     * from MKS.
-     */
-    private static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private String project;
+
+    private File localWorkingDir;
 
     /**
-     * This line delimits seperate files in the MKS
-     * log information.
+     * if this attribute is set to true, no mks command is executed. This is for
+     * testing purposes, if a potentially slow mks server connection should
+     * avoid
      */
-    private static final String MKS_FILE_DELIM =
-        "===============================================================================";
-        
-    /**
-     * This is the keyword that precedes the name of the
-     * RCS filename in the MKS log information.
-     */
-    private static final String MKS_RCSFILE_LINE = "Archive file: ";
-    /**
-     * This is the keyword that precedes the name of the
-     * working filename in the MKS log information.
-     */
-    private static final String MKS_WORKINGFILE_LINE = "Working file: ";
-    /**
-     * This line delimits the different revisions of a file
-     * in the MKS log information.
-     */
-    private static final String MKS_REVISION_DELIM = "----------------------------";
-    /**
-     * This is the keyword that precedes the timestamp of a
-     * file revision in the MKS log information.
-     */
-    private static final String MKS_REVISION_DATE = "date: ";
-    /**
-     * This is the keyword that precedes the author of a
-     * file revision in the MKS log information.
-     */
-    private static final String MKS_REVISION_AUTHOR = "author: ";
-    /**
-     * This is the keyword that precedes the state keywords of a
-     * file revision in the MKS log information.
-     */
-    private static final String MKS_REVISION_STATE = "state: ";
-    /**
-     * This is a state keyword which indicates that a revision
-     * to a file consists of the deletion of that file.
-     */
-    private static final String MKS_REVISION_DELETED = "Delete";
+    private boolean doNothing;
 
     /**
-     * System dependent new line seperator.
+     * This is the workaround for the missing feature of MKS to return differences 
+     * for a given time period. If a modification is detected during the quietperiod, 
+     * CruiseControl calls <code>getModifications</code> of this sourcecontrol object 
+     * again, with the new values for <code>Date now</code>. In that case, and if all
+     * modification are already found in the first cycle, the list of modifications 
+     * becomes empty. Therefor, we have to return the summarized list of modifications: 
+     * the values from the last run,  and -maybe- results return by MKS for this run.
      */
-    private static final String NEW_LINE = System.getProperty("line.separator");
-
-    private String mksroot;
-    private File localWorkingCopy;
-
-    /**
-     * Sets the MKSROOT for all calls to MKS.
-     *
-     * @param mksroot MKSROOT to use.
-     */
-    public void setMksroot(String mksroot) {
-        this.mksroot = mksroot;
+    private List listOfModifications = new ArrayList();
+    
+    public void setProject(String project) {
+        this.project = project;
     }
 
     /**
-     * Sets the local working copy to use when making calls
-     * to MKS.
-     *
-     * @param local  String indicating the relative or absolute path
-     *               to the local working copy of the module of which
-     *               to find the log history.
+     * Sets the local working copy to use when making calls to MKS.
+     * 
+     * @param local
+     *            String indicating the relative or absolute path to the local
+     *            working copy of the module of which to find the log history.
      */
-    public void setLocalWorkingCopy(String local) {
-        localWorkingCopy = new File(local);
+    public void setLocalWorkingDir(String local) {
+        localWorkingDir = new File(local);
     }
 
     public void setProperty(String property) {
@@ -169,256 +126,175 @@ public class MKS implements SourceControl {
         return properties;
     }
 
+    public void setDoNothing(String doNothing) {
+        this.doNothing = new Boolean(doNothing).booleanValue();
+    }
+
     public void validate() throws CruiseControlException {
-        if (mksroot == null) {
-            throw new CruiseControlException("'mksroot' is a required attribute on MKS");
+        if (localWorkingDir == null) {
+            throw new CruiseControlException(
+                    "'localWorkingDir' is a required attribute on MKS");
+        }
+        
+        if (project == null) {
+            throw new CruiseControlException(
+                    "'project' is a required attribute on MKS");
         }
     }
 
     /**
-     * Returns an ArrayList of Modifications detailing all
-     * the changes between now and the last build.
-     *
-     * @param lastBuild Last build time.
-     * @param now       Time now, or time to check.
+     * Returns an ArrayList of Modifications. 
+     * MKS ignores dates for such a range so therefor ALL 
+     * modifications since the last resynch step are returned.
+     * 
+     * @param lastBuild
+     *            Last build time.
+     * @param now
+     *            Time now, or time to check.
      * @return maybe empty, never null.
      */
     public List getModifications(Date lastBuild, Date now) {
-        List mods = null;
+        
+        int numberOfFilesForDot = 0;
+        boolean printCR = false;
+        
+        if (doNothing) {
+            if (property != null) {
+                properties.put(property, "true");
+            }
+            return listOfModifications;
+        }
+        String cmd = null;
 
-        //TODO: update to use CommandLine
-        //TODO: use localWorkingCopy? (currently ignored)
+        cmd = new String("si resync -f -R " + localWorkingDir.getAbsolutePath()
+                + File.separator + project);
 
-        String dateRange =
-            "\"" + MKSDATE.format(lastBuild) + "<" + MKSDATE.format(now) + "\"";
-        String commandArray = "rlog -q -d" + dateRange + " -P" + mksroot;
-        LOG.debug("Executing: " + commandArray);
+        /* Sample output:
+         * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
+         * as dominik.hirt ... Resynchronizing files...
+         * c:\temp\test\Admin\ComponentBuild\antfile.xml
+         * c:\temp\test\Admin\PCEAdminCommand\projectbuild.properties: checked
+         * out revision 1.1
+         */
 
         try {
-            Process p = Runtime.getRuntime().exec(commandArray);
+            LOG.debug(cmd);
+            Process proc = Runtime.getRuntime()
+                    .exec(cmd, null, localWorkingDir);
+            logStream(proc.getInputStream(), System.out);
+            InputStream in = proc.getErrorStream();
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(in));
+            String line = reader.readLine();
 
-            //Logging the error stream.
-            StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(),
-                                 new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
+            while (line != null) {
+                int idxCheckedOutRevision = line
+                        .indexOf(": checked out revision");
 
-            //The input stream has the log information that we want to parse.
-            InputStream input = p.getInputStream();
-            mods = parseStream(input);
-
-            //Using another stream pumper here will get rid of any leftover data in the stream.
-            StreamPumper outPumper = new StreamPumper(input,
-                                                      (PrintWriter) null);
-            new Thread(outPumper).start();
-
-            p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
-        } catch (Exception ioe) {
-            ioe.printStackTrace();
-        }
-
-        if (mods == null) {
-            mods = new ArrayList();
-        }
-        /*********************************************/
-       Iterator itr = mods.iterator();
-
-        while (itr.hasNext()) {
-            Modification mod = (Modification) itr.next();
-            Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
-
-            System.out.println(
-                " File Modified :"
-                    + modfile.fileName
-                    + "Time Modified :"
-                    + mod.modifiedTime.toString());
-        }
-
-
-        /*********************************************/
-
-        return mods;
-    }
-
-
-    /**
-     * Parses the input stream, which should be from the
-     * MKS log command. This method will format the data
-     * found in the input stream into a List of Modification
-     * instances.
-     *
-     * @param input  InputStream to get log data from.
-     * @return List of Modification elements, maybe empty never null.
-     */
-    private List parseStream(InputStream input) throws IOException {
-        ArrayList mods = new ArrayList();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-
-        //Read to the first RCS file name. The first entry in the log information will begin
-        //  with this line. A MKS_FILE_DELIMITER is NOT present. If no RCS file lines
-        // are found then there is nothing to do.
-       // String line = readToNotPast(reader,MKS_RCSFILE_LINE, null);
-        String line = readToNotPast(reader, MKS_RCSFILE_LINE, null);
-
-        while (line != null) {
-
-            //Parse the single file entry, which may include several modifications.
-            List returnList = parseEntry(reader, line);
-            //Add all the modifications to the local list.
-            mods.addAll(returnList);
-            //Read to the next RCS file line. The MKS_FILE_DELIMITER may have been
-            //  consumed by the parseEntry method, so we cannot read to it.
-            line = readToNotPast(reader, MKS_RCSFILE_LINE, null);
-
-
-        }
-
-        return mods;
-    }
-
-    /**
-     * Parses a single file entry from the reader. This entry
-     * may contain zero or more revisions. This method may
-     * consume the next MKS_FILE_DELIMITER line from the
-     * reader, but no further.
-     *
-     * @param reader Reader to parse data from.
-     * @return modifications found in this entry; maybe empty, never null.
-     * @exception IOException
-     */
-    private List parseEntry(BufferedReader reader, String archFileLine) throws IOException {
-        ArrayList mods = new ArrayList();
-
-        String nextLine = "";
-
-        //Read to the working file name line to get the filename. It is ASSUMED
-        //  that a line will exist with the working file name on it.
-        //String workingFileLine = readToNotPast(reader, MKS_WORKINGFILE_LINE, null);
-        String workingFileLine =  archFileLine;
-
-        String workingFilename =
-            workingFileLine.substring(
-                workingFileLine.indexOf(MKS_WORKINGFILE_LINE)
-                    + MKS_WORKINGFILE_LINE.length());
-       // System.err.println("WorkingFilename :" + workingFilename);
-
-        while (nextLine != null && !nextLine.startsWith(MKS_FILE_DELIM)) {
-
-            //Read to the revision date. It is ASSUMED that each revision section will
-            //  include this date information line.
-            nextLine = readToNotPast(reader, MKS_REVISION_DATE, MKS_FILE_DELIM);
-            if (nextLine == null) {
-                //No more revisions for this file.
-                break;
-            }
-
-            StringTokenizer tokens = new StringTokenizer(nextLine, " \t\n\r\f;");
-            //First token is the keyword for date, then the next two should be the date and time stamps.
-            tokens.nextToken();
-            String dateStamp = tokens.nextToken();
-            String timeStamp = tokens.nextToken();
-
-            //The next token should be the author keyword, then the author name.
-            tokens.nextToken();
-            String authorName = tokens.nextToken();
-
-            //The next token should be the state keyword, then the state name.
-            tokens.nextToken();
-            String stateKeyword = tokens.nextToken();
-
-            //All the text from now to the next revision delimiter or working file delimiter
-            //  constitutes the messsage.
-            String message = "";
-            nextLine = reader.readLine();
-            boolean multiLine = false;
-            while (nextLine != null
-                   && !nextLine.startsWith(MKS_FILE_DELIM)
-                   && !nextLine.startsWith(MKS_REVISION_DELIM)) {
-
-                if (multiLine) {
-                    message += NEW_LINE;
-                } else {
-                    multiLine = true;
+                if (idxCheckedOutRevision == -1) {
+                    numberOfFilesForDot++;
+                    if (numberOfFilesForDot == 20) {
+                        System.out.print("."); // don't use LOG, avoid linefeed
+                        numberOfFilesForDot = 0;
+                        printCR = true;
+                    }
+                    line = reader.readLine();
+                    continue;
                 }
-                message += nextLine;
-
-                //Go to the next line.
-                nextLine = reader.readLine();
-            }
-
-            Modification nextModification = new Modification("mks");
-            nextModification.createModifiedFile(workingFilename, null);
-
-            try {
-
-               // nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
-                nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
-            } catch (ParseException pe) {
-                LOG.error("Error parsing date stamp.", pe);
-            }
-
-            nextModification.userName = authorName;
-
-            nextModification.comment = (message != null ? message : "");
-
-            if (stateKeyword.equalsIgnoreCase(MKS_REVISION_DELETED)) {
-                nextModification.type = "deleted";
-                if (propertyOnDelete != null) {
-                    properties.put(propertyOnDelete, "true");
+                if (printCR) {
+                    System.out.println(""); // avoid LOG prefix 'MKS - ' 
+                    printCR = false;
                 }
-                if (property != null) {
-                    properties.put(property, "true");
-                }
-            } else {
-                nextModification.type = "modified";
+                LOG.info(line);
+
+                int idxSeparator = line.lastIndexOf(File.separator);
+                String folderName = line.substring(0, idxSeparator);
+                String fileName = line.substring(idxSeparator + 1,
+                        idxCheckedOutRevision);
+                Modification modification = new Modification();
+                Modification.ModifiedFile modFile = modification
+                        .createModifiedFile(fileName, folderName);
+                modification.modifiedTime = new Date(new File(folderName,
+                        fileName).lastModified());
+                modFile.revision = line.substring(idxCheckedOutRevision + 23);
+                modification.revision = modFile.revision;
+                setUserNameAndComment(modification, folderName, fileName);
+
+                listOfModifications.add(modification);
+
+                line = reader.readLine();
+
                 if (property != null) {
                     properties.put(property, "true");
                 }
             }
+            proc.waitFor();
+            proc.getInputStream().close();
+            proc.getOutputStream().close();
+            proc.getErrorStream().close();
 
-            mods.add(nextModification);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        return mods;
+        System.out.println(); // finishing dotted line, avoid LOG prefix 'MKS - '
+        LOG.info("resync finished");
+        
+        return listOfModifications;
     }
 
     /**
-     * This method will consume lines from the reader up
-     * to the line that begins with the String specified
-     * but not past a line that begins with the notPast
-     * String. If the line that begins with the beginsWith
-     * String is found then it will be returned. Otherwise
-     * null is returned.
-     *
-     * @param reader     Reader to read lines from.
-     * @param beginsWith String to match to the beginning of a line.
-     * @param notPast    String which indicates that lines should stop being
-     *                   consumed, even if the begins with match has not been
-     *                   found. Pass null to this method to ignore this string.
-     * @return String that begin as indicated, or null if none matched
-     *         to the end of the reader or the notPast line was found.
-     * @exception IOException
+     * Sample output:
+     * dominik.hirt;add forceDeploy peter.neumcke;path to properties file fixed,
+     * copy generated properties Member added to project
+     * d:/MKS/PCE_Usedom/Products/Info/Info.pj
+     * 
+     * @param filename
+     * @return
      */
-    private String readToNotPast(BufferedReader reader, String beginsWith,
-                                 String notPast) throws IOException {
-        boolean checkingNotPast = notPast != null;
+    private void setUserNameAndComment(Modification modification,
+            String folderName, String fileName) {
+        String cmd = "si rlog --format={author};{description} --noHeaderFormat --noTrailerFormat -r "
+                + modification.revision
+                + " "
+                + folderName
+                + File.separator
+                + fileName;
 
+        try {
+            LOG.debug(cmd);
+            Process proc = Runtime.getRuntime()
+                    .exec(cmd, null, localWorkingDir);
+            logStream(proc.getErrorStream(), System.err);
+            InputStream in = proc.getInputStream();
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(in));
+            String line = reader.readLine();
+            LOG.debug(line);
 
-        String nextLine = "";
-        while (nextLine != null
-            && (!nextLine.startsWith(beginsWith))
-            && !(nextLine.indexOf(beginsWith) != -1)) {
-
-            if (checkingNotPast && nextLine.startsWith(notPast)) {
-                return null;
+            int idx = line.indexOf(";");
+            while (idx == -1) {
+                line = reader.readLine(); // unknown output, read again
+                LOG.debug(line);
+                idx = line.indexOf(";");
             }
-            nextLine = reader.readLine();
 
+            modification.userName = line.substring(0, idx);
+            modification.comment = line.substring(idx + 1);
+            
+            proc.waitFor();
+            proc.getInputStream().close();
+            proc.getOutputStream().close();
+            proc.getErrorStream().close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            modification.userName = "";
+            modification.comment = "";
         }
-        return nextLine;
+    }
+
+    private static void logStream(InputStream inStream, OutputStream outStream) {
+        StreamPumper errorPumper = new StreamPumper(inStream, new PrintWriter(
+                outStream, true));
+        new Thread(errorPumper).start();
     }
 }
