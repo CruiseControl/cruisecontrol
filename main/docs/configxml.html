@@ -2241,10 +2241,18 @@
             <tbody>
             <tr>
                 <td>localworkingcopy</td>
-                <td rowspan="2">One of localworkingcopy or module.</td>
+                <td rowspan="3">Either localworkingcopy or both cvsroot
+                and module.</td>
                 <td>Relative or absolute path to the local working copy.
                 Directory must exist and should have files from a previous
                 checkout.</td>
+            </tr>
+            <tr>
+                <td>cvsroot</td>
+                <td>Specifies the location of the CVS repository.  This should
+                be of the form<br/>
+                <i><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code><i>
+                </td>
             </tr>
             <tr>
                 <td>module</td>
@@ -2253,15 +2261,6 @@
                 Refer to the <code>rlog</code> command in the
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
                 cvs log</a> reference for further details.</td>
-            </tr>
-            <tr>
-                <td>cvsroot</td>
-                <td>No</td>
-                <td>Specifies the location of the CVS repository.  If
-                this is not specified, then the CVSROOT environment variable
-                is used.  This should be of the form<br/>
-                <i><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code></i>
-                </td>
             </tr>
             <tr>
                 <td>tag</td>
