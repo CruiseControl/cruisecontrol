@@ -56,7 +56,16 @@ public class MKSTest extends TestCase {
             assertTrue(true);
         }
 
-        mks.setMksroot("mksroot");
+        mks.setLocalWorkingDir("empty");
+        
+        try {
+            mks.validate();
+            fail("MKS should throw exceptions when required attributes are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+        
+        mks.setProject("empty");
 
         try {
             mks.validate();

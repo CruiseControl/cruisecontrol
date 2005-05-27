@@ -2476,7 +2476,11 @@
       &lt;mks&gt;</pre>
         </div>
 
-        <p>Triggers a build if there is a change within an MKS repository.</p>
+        <p>Triggers a build if there is a change within an MKS repository. Has the following prerequisites:</p>
+        <ol>
+          <li>The sandbox must always exists. The MKS sourcecontrol are unable to create the sandbox for you. In principle, this is not a real problem as long as the underlying MKS command si are able to handle such a task, but in this initial version I don't create a sandbox during runtime. If you not always create your sandbox, see si createsandbox for more information.</li>
+          <li>You have already logged in into the MKS Server. This should be done in your bootstrap section by the ANT task siconnect. The underlying java class is situated in the mksant.jar which is available through the MKS Customer Community. Since this (and the corresponding sidisconnect) anttasks are only small wrapper for the command line call of si, this could be done in later versions by the MKS sourcecontroller itself. You should call the sidisconnect task after your build, e.g. during your publishing phase.</li>
+        </ol>
 
         <h3>Attributes</h3>
 
@@ -2490,27 +2494,27 @@
             </thead>
             <tbody>
             <tr>
-                <td>localworkingcopy</td>
-                <td>ignored</td>
-                <td>Path to the local working copy. This attribute is currently
-                ignored.</td>
+                <td>doNothing</td>
+                <td>No</td>
+                <td>If this attribute is set to true, no mks command is executed.
+                This is for testing purposes, if a potentially slow MKS server
+                connection should avoid</td>
             </tr>
             <tr>
-                <td>mksroot</td>
+                <td>localworkingcopy</td>
                 <td>Yes</td>
-                <td>Set MKSROOT</td>
+                <td>Local directory for the sandbox.</td>
+            </tr>
+            <tr>
+                <td>project</td>
+                <td>Yes</td>
+                <td>The name and path to the MKS project.</td>
             </tr>
             <tr>
                 <td>property</td>
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
-            </tr>
-            <tr>
-                <td>propertyondelete</td>
-                <td>No</td>
-                <td>Set this property if a file has been deleted.  For use in
-                conditionally controlling the build later.</td>
             </tr>
             </tbody>
         </table>
