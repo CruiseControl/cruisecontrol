@@ -36,33 +36,54 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Publisher;
+
 import org.jdom.Element;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import junit.framework.TestCase;
 
-/**
- * @author Jeffrey Fredrick
- */
-public class OnSuccessPublisherTest extends ConditionalPublisherTestBase {
+public abstract class ConditionalPublisherTestBase extends TestCase {
     
-    ConditionalPublisher createPublisher() {
-        return new OnSuccessPublisher();
-    }
+    abstract ConditionalPublisher createPublisher();
+    
+    public void testValidate() throws CruiseControlException {
+        ConditionalPublisher publisher = createPublisher();
+        try {
+            publisher.validate();
+            fail("conditional publishers should not validate if they have no nested publishers");
+        } catch (CruiseControlException expected) {            
+        }
 
-    public void testPublish() throws CruiseControlException {
-        OnSuccessPublisher publisher = (OnSuccessPublisher) createPublisher();
         MyMockPublisher mock = new MyMockPublisher();
         publisher.add(mock);
-        
-        Element successfulBuild = TestUtil.createElement(true, false);
-        publisher.publish(successfulBuild);
-        assertTrue(mock.wasPublished());
-        
-        mock.setPublished(false);
-        Element failedBuild = TestUtil.createElement(false, true);
-        publisher.publish(failedBuild);
-        assertFalse(mock.wasPublished());
+        publisher.validate();
+        assertTrue(mock.wasValidated());
     }
     
+    class MyMockPublisher implements Publisher {
+        private boolean validated = false;
+        private boolean published = false;
+        
+        boolean wasValidated() {
+            return validated;
+        }
+        
+        void setPublished(boolean published) {
+            this.published = published;
+        }
+        
+        boolean wasPublished() {
+            return published;
+        }
+        
+        public void validate() throws CruiseControlException {
+            validated = true;
+        }
+        
+        public void publish(Element cruisecontrolLog) throws CruiseControlException {
+            published = true;
+        }
+    }
+
 }

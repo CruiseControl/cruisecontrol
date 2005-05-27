@@ -41,28 +41,24 @@ import org.jdom.Element;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-/**
- * @author Jeffrey Fredrick
- */
-public class OnSuccessPublisherTest extends ConditionalPublisherTestBase {
+public class OnFailurePublisherTest extends ConditionalPublisherTestBase  {
     
     ConditionalPublisher createPublisher() {
-        return new OnSuccessPublisher();
+        return new OnFailurePublisher();
     }
 
     public void testPublish() throws CruiseControlException {
-        OnSuccessPublisher publisher = (OnSuccessPublisher) createPublisher();
+        OnFailurePublisher publisher = (OnFailurePublisher) createPublisher();
         MyMockPublisher mock = new MyMockPublisher();
         publisher.add(mock);
         
         Element successfulBuild = TestUtil.createElement(true, false);
         publisher.publish(successfulBuild);
-        assertTrue(mock.wasPublished());
+        assertFalse(mock.wasPublished());
         
         mock.setPublished(false);
         Element failedBuild = TestUtil.createElement(false, true);
         publisher.publish(failedBuild);
-        assertFalse(mock.wasPublished());
-    }
-    
+        assertTrue(mock.wasPublished());
+    }    
 }
