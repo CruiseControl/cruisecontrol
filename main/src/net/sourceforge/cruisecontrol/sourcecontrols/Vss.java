@@ -251,7 +251,8 @@ public class Vss implements SourceControl {
     }
 
     private String createFileNameFromVssPath() {
-        return vssPath.replace('/', '_') + ".tmp";
+        // don't include the leading $
+        return vssPath.substring(1).replace('/', '_') + ".tmp";
     }
 
     void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
