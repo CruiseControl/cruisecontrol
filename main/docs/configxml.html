@@ -127,6 +127,8 @@
 <a href="#mks">&lt;mks&gt;</a>
 <a href="#modificationset">&lt;modificationset&gt;</a>
 <a href="#nant">&lt;nant&gt;</a>
+<a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a>
+<a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a>
 <a href="#p4">&lt;p4&gt;</a>
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
@@ -250,6 +252,8 @@
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
          <a href="#htmlemail">&lt;htmlemail/&gt;</a>
          <a href="#jabber">&lt;jabber/&gt;</a>
+         <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a>
+         <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
@@ -3914,6 +3918,18 @@ endlocal</pre>
                 via a Jabber server using XMPP</td>
             </tr>
             <tr>
+                <td><a href="#onfailurepublisher"><code>&lt;onfailurepublisher&gt;</code></a></td>
+                <td>0 .. 1</td>
+                <td>Executes all publishers specified as child elements if and only
+                    if the current build failed.</td>
+            </tr>
+            <tr>
+                <td><a href="#onsuccesspublisher"><code>&lt;onsuccesspublisher&gt;</code></a></td>
+                <td>0 .. 1</td>
+                <td>Executes all publishers specified as child elements if and only
+                    if the current build was successful.</td>
+            </tr>
+            <tr>
                 <td><a href="#sametimeannouncement"><code>&lt;sametimeannouncement&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends Sametime announcements with the result of the build</td>
@@ -3983,6 +3999,14 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
+            <tr>
+                <td>thisbuildsuccessful</td>
+                <td><b>Deprecated. Use <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a> and
+                    <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a> instead.</b><br/>
+                    Set to true if the current build was successful, false
+                    otherwise.
+                </td>
+            </tr>
             <tr>
                 <td>projectname</td>
                 <td>The name of the CruiseControl project.</td>
@@ -4099,7 +4123,9 @@ endlocal</pre>
             <tr>
                 <td>publishOnFailure</td>
                 <td>No (defaults to true)</td>
-                <td>set to false to stop the publisher from running when the build fails</td>
+                <td><b>Deprecated. Use <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a> and
+                    <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a> instead.</b><br/>
+                    set this attribute to false to stop the publisher from running when the build fails.</td>
             </tr>
             </tbody>
         </table>
@@ -4716,6 +4742,148 @@ endlocal</pre>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="onfailurepublisher">&lt;onfailurepublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;onfailurepublisher&gt;</pre>
+        </div>
+
+        <p>Provides the means to execute another publisher
+           (or set of publishers) if and only if the current build has failed.
+           This is accomplished by simply adding any desired publishers as child 
+           elements.</p>
+           
+        <p>All child elements must meet the following criteria:</p>
+        
+        <p>
+            <ol>
+                <li>
+                    They must be registered as publishers. If you are adding a publisher
+                    which ships with CruiseControl, this will be done for you automatically.
+                    If you are adding a custom publisher, you must remember to register it with
+                    CruiseControl using a
+                    <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
+                </li>
+                <li>
+                    They must validate successfully regardless of whether or not
+                    the build was successful.
+                </li>
+            </ol>
+        </p>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Any defined publisher</td>
+                <td>1 .. *</td>
+                <td>You may use any defined publisher as a child element.<br/>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Examples</h3>
+
+        <ol>
+            <li>After a failed build, use the x10 publisher to light up a lamp,
+                and call an Ant script to do some cleanup.
+            <pre>
+&lt;onfailurepublisher&gt;
+    &lt;x10 houseCode="A" deviceCode="3"/&gt;
+    &lt;antpublisher antscript="/opt/apache-ant-1.6.1/bin/ant"
+                  target="cleanupafterfailure"&gt;
+    &lt;/antpublisher&gt;
+&lt;/onfailurepublisher&gt;
+            </pre>
+            </li>
+        </ol>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="onsuccesspublisher">&lt;onsuccesspublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;onsuccesspublisher&gt;</pre>
+        </div>
+
+        <p>Provides the means to execute another publisher
+           (or set of publishers) if and only if the current build was scuccessful.
+           This is accomplished by simply adding any desired publishers as child 
+           elements.</p>
+           
+        <p>All child elements must meet the following criteria:</p>
+        
+        <p>
+            <ol>
+                <li>
+                    They must be registered as publishers. If you are adding a publisher
+                    which ships with CruiseControl, this will be done for you automatically.
+                    If you are adding a custom publisher, you must remember to register it with
+                    CruiseControl using a
+                    <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
+                </li>
+                <li>
+                    They must validate successfully regardless of whether or not
+                    the build was successful.
+                </li>
+            </ol>
+        </p>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Any defined publisher</td>
+                <td>1 .. *</td>
+                <td>You may use any defined publisher as a child element.<br/>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Examples</h3>
+
+        <ol>
+            <li>After a successful build, use the x10 publisher to light up a lamp,
+                and run the artifacts publisher to save the build artifacts.
+            <pre>
+&lt;onfailurepublisher&gt;
+    &lt;x10 houseCode="A" deviceCode="7"/&gt;
+    &lt;artifactspublisher dir="checkout/project1/dist"
+                        dest="artifacts/project1"&gt;
+    &lt;/artifactspublisher&gt;
+&lt;/onfailurepublisher&gt;
+            </pre>
+            </li>
+        </ol>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="sametimeannouncement">&lt;sametimeannouncement&gt;</a></h2>
 
         <div class="hierarchy">
@@ -5050,7 +5218,9 @@ endlocal</pre>
             <tr>
                 <td>publishonfail</td>
                 <td>No (defaults to true)</td>
-                <td>Generate file if the build failed?</td>
+                <td><b>Deprecated. Use <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a> and
+                    <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a> instead.</b><br/>
+                    Generate file if the build failed?</td>
             </tr>
             <tr>
                 <td>xsltfile</td>
