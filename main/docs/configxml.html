@@ -127,8 +127,8 @@
 <a href="#mks">&lt;mks&gt;</a>
 <a href="#modificationset">&lt;modificationset&gt;</a>
 <a href="#nant">&lt;nant&gt;</a>
-<a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a>
-<a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a>
+<a href="#onfailure">&lt;onfailure&gt;</a>
+<a href="#onsuccess">&lt;onsuccess&gt;</a>
 <a href="#p4">&lt;p4&gt;</a>
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
@@ -252,8 +252,8 @@
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
          <a href="#htmlemail">&lt;htmlemail/&gt;</a>
          <a href="#jabber">&lt;jabber/&gt;</a>
-         <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a>
-         <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a>
+         <a href="#onfailure">&lt;onfailure&gt;</a>
+         <a href="#onsuccess">&lt;onsuccess&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
@@ -3918,13 +3918,13 @@ endlocal</pre>
                 via a Jabber server using XMPP</td>
             </tr>
             <tr>
-                <td><a href="#onfailurepublisher"><code>&lt;onfailurepublisher&gt;</code></a></td>
+                <td><a href="#onfailure"><code>&lt;onfailure&gt;</code></a></td>
                 <td>0 .. 1</td>
                 <td>Executes all publishers specified as child elements if and only
                     if the current build failed.</td>
             </tr>
             <tr>
-                <td><a href="#onsuccesspublisher"><code>&lt;onsuccesspublisher&gt;</code></a></td>
+                <td><a href="#onsuccess"><code>&lt;onsuccess&gt;</code></a></td>
                 <td>0 .. 1</td>
                 <td>Executes all publishers specified as child elements if and only
                     if the current build was successful.</td>
@@ -4001,8 +4001,8 @@ endlocal</pre>
             <tbody>
             <tr>
                 <td>thisbuildsuccessful</td>
-                <td><b>Deprecated. Use <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a> and
-                    <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a> instead.</b><br/>
+                <td><b>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
+                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</b><br/>
                     Set to true if the current build was successful, false
                     otherwise.
                 </td>
@@ -4123,8 +4123,8 @@ endlocal</pre>
             <tr>
                 <td>publishOnFailure</td>
                 <td>No (defaults to true)</td>
-                <td><b>Deprecated. Use <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a> and
-                    <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a> instead.</b><br/>
+                <td><b>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
+                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</b><br/>
                     set this attribute to false to stop the publisher from running when the build fails.</td>
             </tr>
             </tbody>
@@ -4742,14 +4742,14 @@ endlocal</pre>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
-        <h2><a name="onfailurepublisher">&lt;onfailurepublisher&gt;</a></h2>
+        <h2><a name="onfailure">&lt;onfailure&gt;</a></h2>
 
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#publishers">&lt;publishers&gt;</a>
-      &lt;onfailurepublisher&gt;</pre>
+      &lt;onfailure&gt;</pre>
         </div>
 
         <p>Provides the means to execute another publisher
@@ -4800,12 +4800,12 @@ endlocal</pre>
             <li>After a failed build, use the x10 publisher to light up a lamp,
                 and call an Ant script to do some cleanup.
             <pre>
-&lt;onfailurepublisher&gt;
+&lt;onfailure&gt;
     &lt;x10 houseCode="A" deviceCode="3"/&gt;
     &lt;antpublisher antscript="/opt/apache-ant-1.6.1/bin/ant"
                   target="cleanupafterfailure"&gt;
     &lt;/antpublisher&gt;
-&lt;/onfailurepublisher&gt;
+&lt;/onfailure&gt;
             </pre>
             </li>
         </ol>
@@ -4813,14 +4813,14 @@ endlocal</pre>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
-        <h2><a name="onsuccesspublisher">&lt;onsuccesspublisher&gt;</a></h2>
+        <h2><a name="onsuccess">&lt;onsuccess&gt;</a></h2>
 
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#publishers">&lt;publishers&gt;</a>
-      &lt;onsuccesspublisher&gt;</pre>
+      &lt;onsuccess&gt;</pre>
         </div>
 
         <p>Provides the means to execute another publisher
@@ -4871,12 +4871,12 @@ endlocal</pre>
             <li>After a successful build, use the x10 publisher to light up a lamp,
                 and run the artifacts publisher to save the build artifacts.
             <pre>
-&lt;onfailurepublisher&gt;
+&lt;onsuccess&gt;
     &lt;x10 houseCode="A" deviceCode="7"/&gt;
     &lt;artifactspublisher dir="checkout/project1/dist"
                         dest="artifacts/project1"&gt;
     &lt;/artifactspublisher&gt;
-&lt;/onfailurepublisher&gt;
+&lt;/onsuccess&gt;
             </pre>
             </li>
         </ol>
@@ -5218,8 +5218,8 @@ endlocal</pre>
             <tr>
                 <td>publishonfail</td>
                 <td>No (defaults to true)</td>
-                <td><b>Deprecated. Use <a href="#onsuccesspublisher">&lt;onsuccesspublisher&gt;</a> and
-                    <a href="#onfailurepublisher">&lt;onfailurepublisher&gt;</a> instead.</b><br/>
+                <td><b>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
+                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</b><br/>
                     Generate file if the build failed?</td>
             </tr>
             <tr>
