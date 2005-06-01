@@ -89,6 +89,7 @@
 
         <pre style="font-size: smaller;">
 <a href="#alienbrain">&lt;alienbrain&gt;</a>
+<a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper&gt;</a>
 <a href="#alwaysbuild">&lt;alwaysbuild&gt;</a>
 <a href="#ant">&lt;ant&gt;</a>
 <a href="#antbootstrapper">&lt;antbootstrapper&gt;</a>
@@ -195,6 +196,7 @@
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
       <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+         <a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper/&gt;</a>
          <a href="#antbootstrapper">&lt;antbootstrapper/&gt;</a>
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
          <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
@@ -787,6 +789,11 @@
             </thead>
             <tbody>
             <tr>
+                <td><a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from AlienBrain</td>
+            </tr>
+            <tr>
                 <td><a href="#antbootstrapper">&lt;antbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Executes an Ant script which implements a custom bootstrapper</td>
@@ -849,6 +856,96 @@
             </tbody>
         </table>
         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="alienbrainbootstrapper">&lt;alienbrainbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;alienbrainbootstrapper&gt;</pre>
+        </div>
+
+        <p>Syncs a single path from AlienBrain before the build begins. Useful
+        if you want to leave all SCM up to CruiseControl. Allowing the
+        bootstrapper to update the project makes for a simpler build.xml but
+        allows a window where a file can be committed after the update and before
+        the modification check.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+
+               <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+               <td>server</td>
+               <td>No</td>
+
+               <td>The name of the machine hosting the AlienBrain repository. If specified, it will override the value in the NXN_AB_SERVER environment variable.</td>
+            </tr>
+            <tr>
+               <td>database</td>
+               <td>No</td>
+               <td>The name of the project in the AlienBrain repository. If specified, it will override the value in the NXN_AB_DATABASE environment variable.</td>
+            </tr>
+
+            <tr>
+               <td>user</td>
+               <td>No</td>
+               <td>The AlienBrain user account name to use when querying for modifications. If specified, it will override the value in the NXN_AB_USERNAME environment variable.</td>
+            </tr>
+            <tr>
+               <td>password</td>
+
+               <td>No</td>
+               <td>The password of the AlienBrain user account to use when querying for modifications. If specified, it will override the value in the NXN_AB_PASSWORD environment variable.</td>
+            </tr>
+            <tr>
+               <td>path</td>
+               <td>Yes</td>
+               <td>The path to the item that will be retrieved from AlienBrain.  Typically a path like 'alienbrain://Project/SubProject/build.xml'  If the path is a file, that file will be retrieved.  If the path is a directory, the directory will be retrieved recursively.</td>
+
+            </tr>
+            <tr>
+               <td>branch</td>
+               <td>No</td>
+               <td>The branch of the project from which to retrieve the path.</td>
+            </tr>
+            <tr>
+               <td>forcefileupdate</td>
+               <td>No (defaults to false)</td>
+               <td>If set to true, the local file is always updated with the file on the server. This is not the same as overwritewritable="replace".  It means that the file will be retrieved even if it has not been modified in the repository.</td>
+            </tr>
+            <tr>
+               <td>overwritewritable</td>
+               <td>No (defaults to 'skip')</td>
+               <td>Must be either 'skip' or 'replace'.  'ask' is not an option as no one is around to answer the question.
+                <dl>
+                    <dt>skip:</dt>
+                    <dd>do not touch the file</dd>
+                    <dt>replace:</dt>
+                    <dd>replace the file with the version on the server</dd>
+                </dl>
+               </td>
+            </tr>
+            <tr>
+               <td>localpath</td>
+               <td>No</td>
+               <td>If localpath is specified the item is copied to the specified local path.</td>
+            </tr>
+            </tbody>
+
+        </table>
         
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -1732,32 +1829,40 @@
             <tbody>
             <tr>
                <td>server</td>
-               <td>Yes</td>
-               <td>The name of the machine hosting the AlienBrain repository.</td>
+               <td>No</td>
+
+               <td>The name of the machine hosting the AlienBrain repository. If specified, it will override the value in the NXN_AB_SERVER environment variable.</td>
             </tr>
             <tr>
                <td>database</td>
-               <td>Yes</td>
-               <td>The name of the project in the AlienBrain repository.</td>
+               <td>No</td>
+               <td>The name of the project in the AlienBrain repository. If specified, it will override the value in the NXN_AB_DATABASE environment variable.</td>
+
             </tr>
+
             <tr>
                <td>user</td>
-               <td>Yes</td>
-               <td>The AlienBrain user account name to use when querying for modifications.</td>
+               <td>No</td>
+               <td>The AlienBrain user account name to use when querying for modifications. If specified, it will override the value in the NXN_AB_USERNAME environment variable.</td>
             </tr>
             <tr>
+
                <td>password</td>
-               <td>Yes (but may be blank)</td>
-               <td>The password of the AlienBrain user account to use when querying for modifications.</td>
+
+               <td>No</td>
+               <td>The password of the AlienBrain user account to use when querying for modifications. If specified, it will override the value in the NXN_AB_PASSWORD environment variable.</td>
             </tr>
             <tr>
                <td>path</td>
+
                <td>Yes</td>
-               <td>The path to the project being checked for modifications.  Typically a path like 'alienbrain://Project/SubProject'</td>
+               <td>The path to the item that will be queried for modificiations Typically a path like 'alienbrain://Project/SubProject'</td>
+
             </tr>
             <tr>
                <td>branch</td>
                <td>No</td>
+
                <td>The branch of the project to check for modifications.</td>
             </tr>
             </tbody>
