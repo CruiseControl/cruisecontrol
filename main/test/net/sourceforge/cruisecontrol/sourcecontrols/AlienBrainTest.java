@@ -126,7 +126,7 @@ public class AlienBrainTest extends TestCase {
         ab.setUser("FooUser");
         ab.setPath("FooProject");
 
-        Date date = DATE_FORMAT.parse("5/20/2005 EDT");
+        Date date = DATE_FORMAT.parse("5/20/2005 -0400");
         Commandline cmdLine = ab.buildGetModificationsCommand(date, date);
         
         String[] args = cmdLine.getCommandline();
@@ -147,7 +147,7 @@ public class AlienBrainTest extends TestCase {
             "127610352000000000|/a/path/to/a/file.cpp|sjacobs|"
             + "A change that probably breaks everything.");
         
-        assertEquals(DATE_FORMAT.parse("5/20/2005 EDT"), m.modifiedTime);
+        assertEquals(DATE_FORMAT.parse("5/20/2005 -0400"), m.modifiedTime);
         assertEquals("sjacobs", m.userName);
         assertEquals("A change that probably breaks everything.", m.comment);
         //The CC AlienBrain SourceControl class does not yet support changesets.
@@ -183,7 +183,7 @@ public class AlienBrainTest extends TestCase {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("M/d/yyyy HH:mm:ss z");
         assertEquals("Wrong modification time",
-            dateFormat.parse("4/19/2005 16:51:55 EDT"),
+            dateFormat.parse("4/19/2005 16:51:55 -0400"),
             ((Modification) modifications.get(0)).modifiedTime);
 
         assertEquals("Wrong path",
@@ -199,7 +199,7 @@ public class AlienBrainTest extends TestCase {
             ((Modification) modifications.get(0)).comment);
             
         assertEquals("Wrong modification time",
-            dateFormat.parse("5/7/2005 7:44:45 EDT"),
+            dateFormat.parse("5/7/2005 7:44:45 -0400"),
             ((Modification) modifications.get(6)).modifiedTime);
 
         assertEquals("Wrong path",
