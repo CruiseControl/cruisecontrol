@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 
 public class MainTest extends TestCase {
-    public void testParsePassword() throws CruiseControlException {
+    public void testParsePassword() {
         String[] correctArgs = new String[] { "-password", "password" };
         String[] missingValue = new String[] { "-password" };
         String[] missingParam = new String[] { "" };
@@ -47,7 +47,7 @@ public class MainTest extends TestCase {
         assertEquals(null, Main.parseUser(missingValue));
         assertEquals(null, Main.parseUser(missingParam));
     }
-    public void testParseUser() throws CruiseControlException {
+    public void testParseUser() {
         String[] correctArgs = new String[] { "-user", "user" };
         String[] missingValue = new String[] { "-user" };
         String[] missingParam = new String[] { "" };
@@ -109,7 +109,7 @@ public class MainTest extends TestCase {
         }
     }
 
-    public void testParseXslPath() throws CruiseControlException {
+    public void testParseXslPath() {
         String[] correctArgs = new String[] {"-xslpath", "tmp"};
         String[] missingParam = new String[] {""};
         String[] missingValue = new String[] {"-xslpath"};
