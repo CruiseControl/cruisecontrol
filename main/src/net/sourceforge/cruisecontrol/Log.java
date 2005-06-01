@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.Content;
 import org.jdom.Document;
@@ -212,7 +213,7 @@ public class Log {
     public static String formatLogFileName(Date date, String label) {
         StringBuffer logFileName = new StringBuffer();
         logFileName.append("log");
-        logFileName.append(Project.getFormatedTime(date));
+        logFileName.append(DateUtil.getFormattedTime(date));
         if (label != null) {
             logFileName.append("L");
             logFileName.append(label);

@@ -46,10 +46,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Log;
 
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.input.SAXBuilder;
 import org.jdom.Document;
@@ -184,7 +184,7 @@ public class BuildStatus implements SourceControl {
             // available to Ant tasks
             if (mostRecent != null) {
                 properties.put(MOST_RECENT_LOGFILE_KEY, ((Modification.ModifiedFile) mostRecent.files.get(0)).fileName);
-                properties.put(MOST_RECENT_LOGTIME_KEY, Project.getFormatedTime(mostRecent.modifiedTime));
+                properties.put(MOST_RECENT_LOGTIME_KEY, DateUtil.getFormattedTime(mostRecent.modifiedTime));
                 properties.put(MOST_RECENT_LOGLABEL_KEY, mostRecent.revision);
             }
 

@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import org.jdom.Element;
 
 import java.util.Calendar;
@@ -96,7 +96,7 @@ public class PauseBuilder extends Builder {
         Calendar now = Calendar.getInstance();
         now.setTime(date);
         int currentDay = now.get(Calendar.DAY_OF_WEEK);
-        int currentTime = Util.getTimeFromDate(date);
+        int currentTime = DateUtil.getTimeFromDate(date);
 
         int builderDay = getDay();
         boolean isValidDay = ((builderDay < 0) || (builderDay == currentDay));

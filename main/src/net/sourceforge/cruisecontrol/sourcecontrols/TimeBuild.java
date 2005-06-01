@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
  * Provide a "time" using hhmm format that specifies when a build should be
@@ -113,9 +113,9 @@ public class TimeBuild extends FakeUserSourceControl {
         LOG.debug("LastBuild:" + lastBuild + ", now:" + now);
         List modifications = new ArrayList();
 
-        int nowTime = Util.getTimeFromDate(now);
+        int nowTime = DateUtil.getTimeFromDate(now);
         if (nowTime > time) { // possible opportunity to run
-            int lastBuildTime = Util.getTimeFromDate(lastBuild);
+            int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);
             if (lastBuildTime < time) {
                 Modification mod = new Modification("always");
                 Modification.ModifiedFile modfile = mod.createModifiedFile(

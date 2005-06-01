@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -179,7 +179,7 @@ public class Schedule {
             boolean isTimeBuilder = buildTime >= 0;
             if (isTimeBuilder) {
                 boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
-                boolean isAfterBuildTime = buildTime <= Util.getTimeFromDate(now);
+                boolean isAfterBuildTime = buildTime <= DateUtil.getTimeFromDate(now);
                 boolean isValidDay = builder.isValidDay(now);
                 if (didntBuildToday && isAfterBuildTime && isValidDay) {
                     return builder;
@@ -197,11 +197,11 @@ public class Schedule {
     }
 
     boolean builderDidntBuildToday(Date lastBuild, Date now, int buildTime) {
-        int time = Util.getTimeFromDate(now);
-        long timeMillis = Util.convertToMillis(time);
+        int time = DateUtil.getTimeFromDate(now);
+        long timeMillis = DateUtil.convertToMillis(time);
         long startOfToday = now.getTime() - timeMillis;
         boolean lastBuildYesterday = lastBuild.getTime() < startOfToday;
-        boolean lastBuildTimeBeforeBuildTime = Util.getTimeFromDate(lastBuild) < buildTime;
+        boolean lastBuildTimeBeforeBuildTime = DateUtil.getTimeFromDate(lastBuild) < buildTime;
         boolean didntBuildToday = lastBuildYesterday || lastBuildTimeBeforeBuildTime;
         return didntBuildToday;
     }
@@ -247,7 +247,7 @@ public class Schedule {
         if (hasOnlyTimeBuilders()) {
             timeToNextBuild = Long.MAX_VALUE;
         }
-        int nowTime = Util.getTimeFromDate(now);
+        int nowTime = DateUtil.getTimeFromDate(now);
         Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
@@ -260,7 +260,7 @@ public class Schedule {
                     Date day = new Date(now.getTime() + daysInTheFuture);
                     boolean dayIsValid = builder.isValidDay(day);
                     if (dayIsValid) {
-                        long timeDifference = Util.milliTimeDiffernce(nowTime, thisBuildTime);
+                        long timeDifference = DateUtil.milliTimeDiffernce(nowTime, thisBuildTime);
                         long daysInBetween = daysInTheFuture;
                         boolean timePassedToday = timeDifference + daysInBetween < 0;
                         if (!timePassedToday) {
@@ -304,9 +304,9 @@ public class Schedule {
         }
 
         int endPause = pause.getEndTime();
-        int currentTime = Util.getTimeFromDate(now);
+        int currentTime = DateUtil.getTimeFromDate(now);
 
-        long timeToEndOfPause = Util.milliTimeDiffernce(currentTime, endPause);
+        long timeToEndOfPause = DateUtil.milliTimeDiffernce(currentTime, endPause);
 
         while (timeToEndOfPause < proposedTime) {
             timeToEndOfPause += ONE_DAY;
