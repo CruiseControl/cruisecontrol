@@ -49,28 +49,28 @@ import java.io.IOException;
 public class CruiseControlControllerTest extends TestCase {
 
     private File configFile = new File("_tempConfigFile");
-    private CruiseControlController test;
+    private CruiseControlController ccController;
 
     protected void setUp() throws Exception {
-        test = new CruiseControlController();
+        ccController = new CruiseControlController();
     }
 
     public void tearDown() {
         if (configFile.exists()) {
             configFile.delete();
         }
-        test = null;
+        ccController = null;
     }
 
     public void testSetNoFile() {
         try {
-            test.setConfigFile(null);
+            ccController.setConfigFile(null);
             fail("Allowed to not set a config file");
         } catch (CruiseControlException expected) {
             assertEquals("No config file", expected.getMessage());
         }
         try {
-            test.setConfigFile(configFile);
+            ccController.setConfigFile(configFile);
             fail("Allowed to not set a config file");
         } catch (CruiseControlException expected) {
             assertEquals("Config file not found: " + configFile, expected.getMessage());
@@ -84,13 +84,13 @@ public class CruiseControlControllerTest extends TestCase {
         configOut.write("</cruisecontrol>\n");
         configOut.close();
 
-        test.setConfigFile(configFile);
-        assertEquals(configFile, test.getConfigFile());
-        assertTrue(test.getProjects().isEmpty());
+        ccController.setConfigFile(configFile);
+        assertEquals(configFile, ccController.getConfigFile());
+        assertTrue(ccController.getProjects().isEmpty());
     }
 
     public void testLoadSomeProjects() throws IOException, CruiseControlException {
-        test = new CruiseControlController() {
+        ccController = new CruiseControlController() {
             protected Project configureProject(String projectName) {
                 final Project project = new Project();
                 project.setName(projectName);
@@ -105,16 +105,16 @@ public class CruiseControlControllerTest extends TestCase {
         configOut.write("</cruisecontrol>\n");
         configOut.close();
 
-        test.setConfigFile(configFile);
-        assertEquals(configFile, test.getConfigFile());
-        assertEquals(2, test.getProjects().size());
+        ccController.setConfigFile(configFile);
+        assertEquals(configFile, ccController.getConfigFile());
+        assertEquals(2, ccController.getProjects().size());
     }
 
     public void testReadProject() throws IOException {
         File tempFile = File.createTempFile("foo", ".tmp");
         String tempDir = tempFile.getParent();
         tempFile.delete();
-        Project project = test.readProject(tempDir);
+        Project project = ccController.readProject(tempDir);
         assertNotNull(project);
         assertTrue(project.getBuildForced());
     }
@@ -129,7 +129,7 @@ public class CruiseControlControllerTest extends TestCase {
         configOut.write("</cruisecontrol>\n");
         configOut.close();
 
-        test.setConfigFile(configFile);
+        ccController.setConfigFile(configFile);
         PluginRegistry newRegistry = PluginRegistry.createRegistry();
         assertTrue(newRegistry.isPluginRegistered("testname"));
         assertFalse(newRegistry.isPluginRegistered("unknown_plugin"));
