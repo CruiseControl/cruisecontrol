@@ -43,6 +43,7 @@ import net.sourceforge.cruisecontrol.util.PruneElementFilter;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.apache.log4j.Logger;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.MalformedCachePatternException;
 
@@ -60,8 +61,7 @@ import java.util.Arrays;
  */
 public class MergeLogger implements BuildLogger {
 
-    private static final org.apache.log4j.Logger LOG4J =
-            org.apache.log4j.Logger.getLogger(MergeLogger.class);
+    private static final Logger LOG = Logger.getLogger(MergeLogger.class);
 
     private String file;
     private String dir;
@@ -168,9 +168,9 @@ public class MergeLogger implements BuildLogger {
             }
             return builder.build(xmlFile).getRootElement();
         } catch (JDOMException e) {
-            LOG4J.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
+            LOG.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
         } catch (IOException e) {
-            LOG4J.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
+            LOG.warn("Could not read log: " + xmlFile + ".  Skipping...", e);
         }
 
         return null;
