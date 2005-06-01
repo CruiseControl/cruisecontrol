@@ -43,8 +43,8 @@ import java.util.Date;
 import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.Log;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
  * Unit tests for BuildStatus.java.
@@ -145,7 +145,7 @@ public class BuildStatusTest extends TestCase {
                          buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
             assertEquals("Property was not set correctly", yesterdayLog2.getName(),
                          buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
-            assertEquals("Property was not set correctly", Project.getFormatedTime(yesterday),
+            assertEquals("Property was not set correctly", DateUtil.getFormattedTime(yesterday),
                          buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
             assertEquals("Property was not set correctly", "good.1",
                          buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
@@ -166,7 +166,7 @@ public class BuildStatusTest extends TestCase {
                              buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
                 assertEquals("Property was not set correctly", todayLog.getName(),
                              buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
-                assertEquals("Property was not set correctly", Project.getFormatedTime(today),
+                assertEquals("Property was not set correctly", DateUtil.getFormattedTime(today),
                              buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
                 assertEquals("Property was not set correctly", "good.2",
                              buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));

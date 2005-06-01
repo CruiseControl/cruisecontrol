@@ -40,8 +40,7 @@ import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
-import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -52,7 +51,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,10 +94,8 @@ public class Project implements Serializable, Runnable {
     private transient List progressListeners;
     private transient List resultListeners;
 
-    private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
-
     private int buildCounter = 0;
-    private Date lastBuild = Util.getMidnight();
+    private Date lastBuild = DateUtil.getMidnight();
     private Date lastSuccessfulBuild = lastBuild;
     private boolean wasLastBuildSuccessful = true;
     private String label;
@@ -273,7 +269,7 @@ public class Project implements Serializable, Runnable {
         synchronized (pausedMutex) {
             while (isPaused) {
                 setState(ProjectState.PAUSED);
-                pausedMutex.wait(10 * Util.ONE_MINUTE);
+                pausedMutex.wait(10 * DateUtil.ONE_MINUTE);
             }
         }
     }
@@ -281,7 +277,7 @@ public class Project implements Serializable, Runnable {
     void waitForNextBuild() throws InterruptedException {
         long waitTime = getTimeToNextBuild(new Date());
         if (needToWaitForNextBuild(waitTime)) {
-            info("next build in " + Util.formatTime(waitTime));
+            info("next build in " + DateUtil.formatTime(waitTime));
             synchronized (waitMutex) {
                 setState(ProjectState.WAITING);
                 waitMutex.wait(waitTime);
@@ -387,7 +383,7 @@ public class Project implements Serializable, Runnable {
 
         long lastBuildLong = lastBuild.getTime();
         long timeDifference = lastBuildLong - lastSuccessfulBuild.getTime();
-        boolean moreThanASecond = timeDifference > Util.ONE_SECOND;
+        boolean moreThanASecond = timeDifference > DateUtil.ONE_SECOND;
 
         boolean checkNewMods = !buildAfterFailed && moreThanASecond;
 
@@ -465,7 +461,7 @@ public class Project implements Serializable, Runnable {
      *                                input string
      */
     public void setLastBuild(String newLastBuild) throws CruiseControlException {
-        lastBuild = parseFormatedTime(newLastBuild, "lastBuild");
+        lastBuild = DateUtil.parseFormattedTime(newLastBuild, "lastBuild");
     }
 
     /**
@@ -476,14 +472,14 @@ public class Project implements Serializable, Runnable {
      */
     public void setLastSuccessfulBuild(String newLastSuccessfulBuild)
             throws CruiseControlException {
-        lastSuccessfulBuild = parseFormatedTime(newLastSuccessfulBuild, "lastSuccessfulBuild");
+        lastSuccessfulBuild = DateUtil.parseFormattedTime(newLastSuccessfulBuild, "lastSuccessfulBuild");
     }
 
     public String getLastBuild() {
         if (lastBuild == null) {
             return null;
         }
-        return getFormatedTime(lastBuild);
+        return DateUtil.getFormattedTime(lastBuild);
     }
 
     public boolean getBuildForced() {
@@ -501,7 +497,7 @@ public class Project implements Serializable, Runnable {
         if (lastSuccessfulBuild == null) {
             return null;
         }
-        return getFormatedTime(lastSuccessfulBuild);
+        return DateUtil.getFormattedTime(lastSuccessfulBuild);
     }
 
     public String getLogDir() {
@@ -568,7 +564,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public String getBuildStartTime() {
-        return getFormatedTime(buildStartTime);
+        return DateUtil.getFormattedTime(buildStartTime);
     }
 
     public Log getLog() {
@@ -606,7 +602,7 @@ public class Project implements Serializable, Runnable {
         setBuildAfterFailed(helper.getBuildAfterFailed());
 
         if (lastBuild == null) {
-            lastBuild = Util.getMidnight();
+            lastBuild = DateUtil.getMidnight();
         }
 
         if (lastSuccessfulBuild == null) {
@@ -620,8 +616,8 @@ public class Project implements Serializable, Runnable {
             debug("buildCounter           = [" + buildCounter + "]");
             debug("isPaused               = [" + isPaused + "]");
             debug("label                  = [" + label + "]");
-            debug("lastBuild              = [" + getFormatedTime(lastBuild) + "]");
-            debug("lastSuccessfulBuild    = [" + getFormatedTime(lastSuccessfulBuild) + "]");
+            debug("lastBuild              = [" + DateUtil.getFormattedTime(lastBuild) + "]");
+            debug("lastSuccessfulBuild    = [" + DateUtil.getFormattedTime(lastSuccessfulBuild) + "]");
             debug("logDir                 = [" + log.getLogDir() + "]");
             debug("logXmlEncoding         = [" + log.getLogXmlEncoding() + "]");
             debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
@@ -635,13 +631,14 @@ public class Project implements Serializable, Runnable {
     protected Element getProjectPropertiesElement(Date now) {
         Element infoElement = new Element("info");
         addProperty(infoElement, "projectname", name);
-        String lastBuildString = getFormatedTime(lastBuild == null ? now : lastBuild); 
+        String lastBuildString = DateUtil.getFormattedTime(lastBuild == null ? now : lastBuild); 
         addProperty(infoElement, "lastbuild", lastBuildString);
-        String lastSuccessfulBuildString = getFormatedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
+        String lastSuccessfulBuildString = 
+                DateUtil.getFormattedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
         addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
         addProperty(infoElement, "builddate", new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
         if (now != null) {
-            addProperty(infoElement, "cctimestamp", getFormatedTime(now));
+            addProperty(infoElement, "cctimestamp", DateUtil.getFormattedTime(now));
         }
         addProperty(infoElement, "label", label);
         addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));
@@ -660,8 +657,8 @@ public class Project implements Serializable, Runnable {
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
         buildProperties.put("label", label);
-        buildProperties.put("cvstimestamp", CVS.formatCVSDate(now));
-        buildProperties.put("cctimestamp", getFormatedTime(now));
+        buildProperties.put("cvstimestamp", DateUtil.formatCVSDate(now));
+        buildProperties.put("cctimestamp", DateUtil.getFormattedTime(now));
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
         buildProperties.put("lastbuildsuccessful", String.valueOf(isLastBuildSuccessful()));
@@ -725,30 +722,6 @@ public class Project implements Serializable, Runnable {
 
     void setWasLastBuildSuccessful(boolean buildSuccessful) {
         wasLastBuildSuccessful = buildSuccessful;
-    }
-
-    public static String getFormatedTime(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return FORMATTER.format(date);
-    }
-
-    public Date parseFormatedTime(String timeString, String description)
-            throws CruiseControlException {
-
-        Date date;
-        if (timeString == null) {
-            throw new IllegalArgumentException("Null date string for " + description);
-        }
-        try {
-            date = FORMATTER.parse(timeString);
-        } catch (ParseException e) {
-            LOG.error("Error parsing timestamp for [" + description + "]", e);
-            throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
-        }
-
-        return date;
     }
 
     /**

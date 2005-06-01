@@ -44,6 +44,7 @@ import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -163,7 +164,7 @@ public class ProjectTest extends TestCase {
                 + "<info>"
                 + "<property name=\"projectname\" value=\"myproject\" />"
                 + "<property name=\"lastbuild\" value=\""
-                + Project.getFormatedTime(now)
+                + DateUtil.getFormattedTime(now)
                 + "\" />"
                 + "<property name=\"lastsuccessfulbuild\" value=\""
                 + project.getLastSuccessfulBuild()
@@ -172,7 +173,7 @@ public class ProjectTest extends TestCase {
                 + new SimpleDateFormat(DateFormatFactory.getFormat()).format(now)
                 + "\" />"
                 + "<property name=\"cctimestamp\" value=\""
-                + Project.getFormatedTime(now)
+                + DateUtil.getFormattedTime(now)
                 + "\" />"
                 + "<property name=\"label\" value=\"1.2.2\" />"
                 + "<property name=\"interval\" value=\"300\" />"
@@ -182,7 +183,7 @@ public class ProjectTest extends TestCase {
                 + "\" />"
                 + "<property name=\"logfile\" value=\""
                 + "log"
-                + Project.getFormatedTime(now)
+                + DateUtil.getFormattedTime(now)
                 + "L1.2.2.xml\" />"
                 + "</info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, Util.readFileToString(project.getLog().getLastLogFile()));
@@ -264,7 +265,7 @@ public class ProjectTest extends TestCase {
     }
 
     public void testGetFormattedTime() {
-        assertNull(Project.getFormatedTime(null));
+        assertNull(DateUtil.getFormattedTime(null));
     }
 
     public void testGetModifications() throws CruiseControlException {
@@ -466,7 +467,7 @@ public class ProjectTest extends TestCase {
         Map map = project.getProjectPropertiesMap(now);
 
         assertEquals(label, map.get("label"));
-        assertEquals(Project.getFormatedTime(now), map.get("cctimestamp"));
+        assertEquals(DateUtil.getFormattedTime(now), map.get("cctimestamp"));
         assertEquals(lastGoodBuild, map.get("cclastgoodbuildtimestamp"));
         assertEquals(lastBuild, map.get("cclastbuildtimestamp"));
         assertEquals("true", map.get("lastbuildsuccessful"));
