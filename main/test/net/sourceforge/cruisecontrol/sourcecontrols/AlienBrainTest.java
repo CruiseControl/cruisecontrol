@@ -36,18 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 
 /**
  * The unit test for an AlienBrain source control interface for
@@ -89,17 +91,13 @@ public class AlienBrainTest extends TestCase {
         } catch (CruiseControlException expected) {
         }
         
-        ab.setServer("ABServer");
-        ab.setDatabase("Project1");
-        ab.setUser("User");
-        ab.setPassword("Password");
         ab.setPath("Module1");
         
         try {
             ab.validate();
         } catch (CruiseControlException expected) {
             fail("AlienBrain should not throw exceptions when required "
-                + "attributes are set.");
+                + "attributes are set.\n" + expected);
         }
         
     }
@@ -127,19 +125,12 @@ public class AlienBrainTest extends TestCase {
         ab.setPath("FooProject");
 
         Date date = DATE_FORMAT.parse("5/20/2005 -0400");
-        Commandline cmdLine = ab.buildGetModificationsCommand(date, date);
+        ManagedCommandline cmdLine = ab.buildGetModificationsCommand(date, date);
         
-        String[] args = cmdLine.getCommandline();
-        StringBuffer cmd = new StringBuffer();
-        cmd.append(args[0]);
-        for (int ii = 1; ii < args.length; ++ii) {
-            cmd.append(" " + args[ii]);
-        }
-        
-        assertEquals("ab find FooProject -regex \"SCIT > "
+        assertEquals("ab -u FooUser find FooProject -regex \"SCIT > "
             + "127610352000000000\" "
             + "-format \"#SCIT#|#DbPath#|#Changed By#|#CheckInComment#\""
-            , cmd.toString());
+            , cmdLine.toString());
     }
     
     public void testParseModificationDescription() throws ParseException {
@@ -159,22 +150,29 @@ public class AlienBrainTest extends TestCase {
     }
     
     /**
-     * Method taken from P4Test.java
+     * Returns a file as a List of Strings, one String per line.
      */
-    private InputStream loadTestLog(String name) {
+    private List loadTestLog(String name) throws IOException {
         InputStream testStream = getClass().getResourceAsStream(name);
         assertNotNull("failed to load resource " + name + " in class " 
             + getClass().getName(), testStream);
-        return testStream;
+
+        List lines = new ArrayList();
+        String line;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testStream));
+        while ((line = reader.readLine()) != null) {
+            lines.add(line);
+        }
+
+        return lines;
     }
     
     public void testParseModifications() throws IOException, ParseException {
-        BufferedInputStream is = new BufferedInputStream(loadTestLog("alienbrain_modifications.txt"));
+        List results = loadTestLog("alienbrain_modifications.txt");
         
         AlienBrain ab = new AlienBrain();
         
-        List modifications = ab.parseModifications(is);
-        is.close();
+        List modifications = ab.parseModifications(results);
         
         assertEquals(
             "Returned wrong number of modifications.",
@@ -218,13 +216,11 @@ public class AlienBrainTest extends TestCase {
     /**
      */    
     public void testParseNoModifications() throws IOException {
-        BufferedInputStream is = 
-            new BufferedInputStream(loadTestLog("alienbrain_nomodifications.txt"));
+        List results = loadTestLog("alienbrain_nomodifications.txt");
         
         AlienBrain ab = new AlienBrain();
         
-        List modifications = ab.parseModifications(is);
-        is.close();
+        List modifications = ab.parseModifications(results);
         assertEquals(0, modifications.size());
     }
     
@@ -232,86 +228,25 @@ public class AlienBrainTest extends TestCase {
     //may need to access a server.  Therefore they can only be run if you 
     //have a licensed command-line client and access to a server.
 /*
-    private boolean disconnect() 
-        throws IOException, InterruptedException {
-        Commandline cmdLine = new Commandline();
-        cmdLine.setExecutable("ab");
-        cmdLine.createArgument().setValue("shutdown");
-        cmdLine.createArgument().setValue("-force");
-        Process p = Runtime.getRuntime().exec(cmdLine.getCommandline());
-        p.waitFor();
-        //It seems that the ab command will return before the bridge 
-        //process (abJXDKBridge.exe) has truly shut down.
-        Thread.currentThread().sleep(2000);
-        return p.exitValue() == 0;
-    }
-    
-    public void testIsBridgeRunning() throws IOException, InterruptedException {
-        disconnect();
+    //In order for some of the following tests to pass, these members must
+    //be assigned values valid for your AlienBrain server.
+    private static final String TESTING_PATH = "alienbrain://Projects/Code/Engine/Inc";
+    private static final String TESTING_BRANCH = "Root Branch/SubBranch";
+    // Set any of the following to null if you do not want to 
+    // override any NXN_AB_* environment variables you may be using.
+    private static final String TESTING_USERNAME = null; //"sjacobs";
+    private static final String TESTING_PASSWORD = null; //"pass123";
+    private static final String TESTING_SERVER = null; //"abserver";
+    private static final String TESTING_DATABASE = null; //"StudioVault";
 
-        boolean isBridgeRunning = AlienBrain.isBridgeRunning();
-        assertFalse("Bridge should not be running ", isBridgeRunning);
-    }
-    
-    public void testIsConnected() throws IOException, InterruptedException {
-        disconnect();
-        
-        boolean isConnected = AlienBrain.isConnected();
-        assertFalse("Should not be connected ", isConnected);
-    }
-    
-    public void testConnect() throws IOException, InterruptedException {
-        disconnect();
-        
-        AlienBrain ab = new AlienBrain();
-        ab.setServer("abhost");
-        ab.setDatabase("StudioVault");
-        ab.setUser("abuser");
-        ab.setPassword("abpass");
-        ab.connect();
-        
-        boolean isConnected = ab.isConnected();
-        assertTrue(isConnected);
-    }
-    
-    private String getActiveBranch() 
-        throws IOException, InterruptedException {
-        Commandline cmdLine = new Commandline();
-        cmdLine.setExecutable("ab");
-        cmdLine.createArgument().setValue("getactivebranch");
-        Process p = Runtime.getRuntime().exec(cmdLine.getCommandline());
-        java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
-        
-        p.waitFor();
-        return reader.readLine();        
-    }
-    
-    public void testSetActiveBranch() throws IOException, InterruptedException {
-        AlienBrain ab = new AlienBrain();
-
-        ab.setServer("abhost");
-        ab.setDatabase("StudioVault");
-        ab.setUser("abuser");
-        ab.setPassword("abpass");
-        ab.setPath("alienbrain://Project/Code/Vehicles/Classes");
-        
-        ab.connect();
-        
-        String branch = "Root Branch/Underdog";
-        ab.setActiveBranch(branch);
-        assertEquals("setActiveBranch failed!", 
-            "The current active branch is: \"" + branch + "\"", 
-            getActiveBranch());
-    }
-    
     public void testGetModifications() throws Exception {
         AlienBrain ab = new AlienBrain();
 
-        ab.setServer("abhost");
-        ab.setDatabase("StudioVault");
-        ab.setUser("abuser");
-        ab.setPassword("abpass");
-        ab.setPath("alienbrain://Project/Code/Vehicles/Classes");
+        ab.setServer(TESTING_SERVER);
+        ab.setDatabase(TESTING_DATABASE);
+        ab.setUser(TESTING_USERNAME);
+        ab.setPassword(TESTING_PASSWORD);
+        ab.setPath(TESTING_PATH);
         
         List modifications = ab.getModifications(new Date(0), new Date());
         assertTrue("I would have expected the AlienBrain database "
@@ -327,5 +262,5 @@ public class AlienBrainTest extends TestCase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AlienBrainTest.class);
     }
-*/  // End of tests the require an actual AlienBrain installation.
+*/  // End of tests that require an actual AlienBrain installation.
 }
