@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.jmx;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Project;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import javax.management.InvalidAttributeValueException;
 import javax.management.JMException;
@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class CruiseControlControllerJMXAdaptor implements CruiseControlControllerJMXAdaptorMBean,
         CruiseControlController.Listener {
-    private static final Category LOG = Category.getInstance(CruiseControlControllerJMXAdaptor.class);
+    private static final Logger LOG = Logger.getLogger(CruiseControlControllerJMXAdaptor.class);
     private final CruiseControlController controller;
     private MBeanServer server;
 
