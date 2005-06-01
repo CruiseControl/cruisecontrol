@@ -336,12 +336,12 @@ public class ModificationSetTest extends TestCase {
 
         // Turn off logging
         BasicConfigurator.configure();
-        LOG.getLoggerRepository().setThreshold(Level.OFF);
+        Logger.getLogger(this.getClass()).setLevel(Level.OFF);
     }
 
     protected void tearDown() throws Exception {
         modSet = null;
-        LOG.getLoggerRepository().setThreshold(Level.ALL);
+        Logger.getLogger(this.getClass()).setLevel(Level.ALL);
     }
 
 }
