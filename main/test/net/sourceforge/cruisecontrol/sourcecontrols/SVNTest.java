@@ -265,6 +265,15 @@ public class SVNTest extends TestCase {
         assertEquals(modification, modifications[4]);
     }
 
+    public void testConvertDateIllegalArgument() {
+        try {
+            Date d = SVN.SVNLogXMLParser.convertDate("2003-04-30T10:01:42.349105");
+            fail("expected ParseException for date without Z but got " + d);
+        } catch (ParseException e) {
+            assertTrue(true);
+        }
+    }
+
     public void testParseEmptyModifications() throws JDOMException, ParseException, IOException {
         String svnLog =
             "<?xml version=\"1.0\" encoding = \"ISO-8859-1\"?>\n " + "<log>\n" + "</log>";
