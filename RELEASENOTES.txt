@@ -105,6 +105,10 @@ OnFailurePublisher & OnSuccessPublisher:
 * Add new publisher that simply wraps other publishers and invokes them only if the build was successful.
 * OnFailure version added (& common ConditionalPublisher extracted) by Robert Smith
 
+OSEnvironment
+----------------------
+* Fix problem on systems where "env" doesn't return list of '=' separated name/value pairs (CC-166). Patch by Jerome Lacoste
+
 P4:
 ----------------------
 * Use double quote only on Windows, single quote otherwise.

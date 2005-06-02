@@ -160,10 +160,21 @@ public class OSEnvironment {
 
             // Parse the output
             String line;
+            String key = null;
             while ((line = stdoutStream.readLine()) != null) {
                 int idx = line.indexOf('=');
-                String key = line.substring(0, idx);
-                String value = line.substring(idx + 1);
+                String value;
+                if (idx == -1) {
+                     if (key == null) {
+                         continue;
+                     }
+                     // potential multi-line property. Let's rebuild it
+                     value = variables.getProperty(key);
+                     value += "\n" + line;
+                } else {
+                  key = line.substring(0, idx);
+                  value = line.substring(idx + 1);
+                }
                 variables.setProperty(key, value);
             }
             
