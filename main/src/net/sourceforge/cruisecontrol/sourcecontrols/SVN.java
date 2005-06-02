@@ -357,8 +357,19 @@ public class SVN implements SourceControl {
             return (Modification[]) modifications.toArray(new Modification[modifications.size()]);
         }
 
+        /**
+         * Converts the specified SVN date string into a Date.
+         * @param date with format "yyyy-MM-dd'T'HH:mm:ss.SSS" + "...Z"
+         * @return
+         * @throws ParseException if specified date doesn't match the expected format 
+         */
         static Date convertDate(String date) throws ParseException {
-            String withoutMicroSeconds = date.substring(0, date.indexOf('Z') - 3);
+            final int zIndex = date.indexOf('Z');
+            if (zIndex - 3 < 0) {
+                throw new ParseException(date
+                        + " doesn't match the expected subversion date format", date.length());
+            }
+            String withoutMicroSeconds = date.substring(0, zIndex - 3);
             return SVN_DATE_FORMAT_OUT.parse(withoutMicroSeconds);
         }
 
