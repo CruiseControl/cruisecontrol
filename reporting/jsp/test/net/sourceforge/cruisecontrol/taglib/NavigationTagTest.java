@@ -141,6 +141,15 @@ public class NavigationTagTest extends TestCase {
         assertEquals(Tag.SKIP_BODY, tag.doAfterBody());
     }
 
+    public void testGetLinksWithRangeSizeOne() throws Exception {
+        tag.setStartingBuildNumber(1);
+        tag.setFinalBuildNumber(1);
+        assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
+        tag.doInitBody();
+        assertEquals("02/24/2002 12:00:00", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
+        assertEquals(BodyTag.SKIP_BODY, tag.doAfterBody());
+    }
+
     public void testGetLinksWithLargeStartRange() throws Exception {
         tag.setStartingBuildNumber(10);
         assertEquals(Tag.SKIP_BODY, tag.doStartTag());

@@ -100,6 +100,10 @@ MKS:
 ----------------------
 * Overhaul of MKS source control. Submitted by Dominik Hirt
 
+navigation.jsp:
+----------------------
+* Hide navigation drop down when it is empty CC-96. Based on patch by Jerome Lacoste
+
 OnFailurePublisher & OnSuccessPublisher:
 ----------------------
 * Add new publisher that simply wraps other publishers and invokes them only if the build was successful.
