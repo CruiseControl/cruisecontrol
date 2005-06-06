@@ -168,6 +168,10 @@ VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)
 
+XSLTag:
+----------------------
+* Strange characters in testdetails page (CC-167)
+
 
 CruiseControl Release Notes - 2.2.1
 
