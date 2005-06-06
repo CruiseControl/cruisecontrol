@@ -70,10 +70,10 @@ public class XSLTagTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        log1.delete();
-        log2.delete();
-        log3.delete();
-        logDir.delete();
+//        log1.delete();
+//        log2.delete();
+//        log3.delete();
+//        logDir.delete();
     }
 
     public void testTransform() throws Exception {
@@ -93,7 +93,7 @@ public class XSLTagTest extends TestCase {
         InputStream style = new FileInputStream(log1);
         OutputStream out = new ByteArrayOutputStream();
 
-        XSLTag tag = new XSLTag();
+        XSLTag tag = createXSLTag();
         tag.transform(log3, style, out);
         assertEquals("test=3.1", out.toString());
     }
@@ -121,12 +121,7 @@ public class XSLTagTest extends TestCase {
         InputStream style = new FileInputStream(log2);
         OutputStream out = new ByteArrayOutputStream();
 
-        XSLTag tag = new XSLTag();
-        final MockPageContext pageContext = new MockPageContext();
-        final MockServletContext servletContext = (MockServletContext) pageContext.getServletContext();
-        servletContext.setBaseResourceDir(logDir);
-        tag.setPageContext(pageContext);
-        tag.setXslRootContext("/");
+        XSLTag tag = createXSLTag();
         tag.transform(log3, style, out);
         assertEquals("test=3.1", out.toString());
     }
@@ -135,13 +130,13 @@ public class XSLTagTest extends TestCase {
         writeFile(log1, "");
         writeFile(log3, "");
 
-        XSLTag tag = new XSLTag();
+        XSLTag tag = createXSLTag();
         assertEquals(tag.getXMLFile("", logDir).getName(), "log3.xml");
         assertEquals(tag.getXMLFile("log1", logDir).getName(), "log1.xml");
     }
 
     public void testGetCachedCopyFileName() {
-        XSLTag tag = new XSLTag();
+        XSLTag tag = createXSLTag();
         tag.setXslFile("xsl/cruisecontrol.xsl");
         final String expectedValue = "log20020221120000-cruisecontrol.html";
         assertEquals(expectedValue, tag.getCachedCopyFileName(new File("log20020221120000.xml")));
@@ -164,10 +159,20 @@ public void testIsCachedCopyCurrent() {
     public void testServeCachedCopy() throws Exception {
         writeFile(log3, "<test></test>");
         StringWriter out = new StringWriter();
-        XSLTag tag = new XSLTag();
+        XSLTag tag = createXSLTag();
 
         tag.serveCachedCopy(log3, out);
         assertEquals("<test></test>", out.toString());
+    }
+
+    private XSLTag createXSLTag() {
+        XSLTag tag = new XSLTag();
+        final MockPageContext pageContext = new MockPageContext();
+        final MockServletContext servletContext = (MockServletContext) pageContext.getServletContext();
+        servletContext.setBaseResourceDir(logDir);
+        tag.setPageContext(pageContext);
+        tag.setXslRootContext("/");
+        return tag;
     }
 
     private void writeFile(File file, String body) throws Exception {
