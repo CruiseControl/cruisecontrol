@@ -40,9 +40,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
@@ -151,7 +151,8 @@ public class XSLTag extends CruiseControlTagSupport {
     protected void serveCachedCopy(File cacheFile, Writer out) throws JspTagException {
         BufferedReader in = null;
         try {
-            in = new BufferedReader(new FileReader(cacheFile));
+            InputStream input = new FileInputStream(cacheFile);
+            in = new BufferedReader(new InputStreamReader(input, "UTF-8"));
             char[] cbuf = new char[8192];
             while (true) {
                 int charsRead = in.read(cbuf);
