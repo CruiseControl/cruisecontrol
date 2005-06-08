@@ -70,10 +70,10 @@ public class XSLTagTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-//        log1.delete();
-//        log2.delete();
-//        log3.delete();
-//        logDir.delete();
+        log1.delete();
+        log2.delete();
+        log3.delete();
+        logDir.delete();
     }
 
     public void testTransform() throws Exception {
