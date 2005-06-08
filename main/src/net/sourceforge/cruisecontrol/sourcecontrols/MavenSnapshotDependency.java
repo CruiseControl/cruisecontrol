@@ -212,7 +212,13 @@ public class MavenSnapshotDependency implements SourceControl {
                 + "]", e);
             return filenames;
         }
-        List dependencies = mavenElement.getChild("dependencies").getChildren();
+        Element depsRoot = mavenElement.getChild("dependencies");
+
+        // No dependencies listed at all
+        if (depsRoot == null) {
+            return filenames;
+        }
+        List dependencies = depsRoot.getChildren();
         Iterator itr = dependencies.iterator();
         while (itr.hasNext()) {
             Element dependency = (Element) itr.next();
