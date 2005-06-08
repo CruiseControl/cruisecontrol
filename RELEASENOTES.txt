@@ -95,6 +95,7 @@ Macker:
 MavenSnapshotDependency:
 ----------------------
 * fix NPE when dependency lacks version tag. Patch by Josh W. Arnold
+* MavenSnapshotDependency NPE when no deps listed (CC-248). Patch by Tim Shadel
 
 MKS:
 ----------------------
