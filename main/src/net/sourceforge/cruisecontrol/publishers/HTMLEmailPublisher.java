@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.BufferedReader;
+import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -437,21 +438,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
         throws IOException, TransformerException {
 
         Transformer transformer = tFactory.newTransformer(new StreamSource(xsl));
-        File outFile = File.createTempFile("mail", ".html");
+        CharArrayWriter writer = new CharArrayWriter();
         try {
-            transformer.transform(new StreamSource(inFile), new StreamResult(outFile));
+            transformer.transform(new StreamSource(inFile), new StreamResult(writer));
         } catch (Exception e) {
             LOG.error("error transforming with xslFile " + xsl.getName(), e);
             return;
         }
-        BufferedReader reader = new BufferedReader(new FileReader(outFile));
-        String line = reader.readLine();
-        while (line != null) {
-            messageBuffer.append(line);
-            line = reader.readLine();
-        }
-        reader.close();
-        outFile.delete();
+        messageBuffer.append(writer.toCharArray());
     }
 
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
