@@ -73,6 +73,7 @@ FTPPublisher:
 HTMLEmailPublisher:
 ----------------------
 * Now tries to determine the locations for xslDir and css automatically when they're not specified
+* HTMLEmailPublisher fails to transform xml (CC-112)
 
 index.jsp:
 ----------------------
