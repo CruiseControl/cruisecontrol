@@ -136,8 +136,8 @@
                 <path refid="project.runtime.classpath" />
             </classpath>
             <formatter type="brief" usefile="false"/>
-            <formatter type="xml" />
-            <test name="${testcase}" todir="${junit.results}"/>
+            <formatter type="xml"/>
+            <test name="${testcase}" todir="${test.results}"/>
         </junit>
     </target>
 
