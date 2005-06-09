@@ -37,13 +37,14 @@
 package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-
+import java.io.Writer;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
@@ -125,6 +126,26 @@ public class XSLTagTest extends TestCase {
         tag.transform(log3, style, out);
         assertEquals("test=3.1", out.toString());
     }
+    
+    public void testTransformUTF8() throws Exception {
+         final String styleSheetText =
+                 "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
+                         + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
+                     + "<xsl:output method=\"text\"/>"
+                     + "<xsl:template match=\"/\">"
+                         + "<xsl:value-of disable-output-escaping=\"yes\" select=\"'&#198;&#216;&#197;'\"/>"
+                     + "</xsl:template>"
+                 + "</xsl:stylesheet>";
+         writeFile(log1, styleSheetText);
+         writeFile(log2, "<test sub=\"1\">3</test>");
+
+         XSLTag tag = createXSLTag();
+         tag.setXslFile(log1.getName());
+         tag.updateCacheFile(log2, log3);
+         Writer writer = new CharArrayWriter();
+         tag.serveCachedCopy(log3, writer);
+         assertEquals("\u00c6\u00d8\u00c5", writer.toString());
+     }
 
     public void testGetXmlFile() throws Exception {
         writeFile(log1, "");

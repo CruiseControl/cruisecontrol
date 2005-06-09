@@ -254,7 +254,7 @@ public class XSLTag extends CruiseControlTagSupport {
         serveCachedCopy(cacheFile, out);
     }
 
-    private void updateCacheFile(File xmlFile, File cacheFile) throws JspTagException {
+    protected void updateCacheFile(File xmlFile, File cacheFile) throws JspTagException {
         OutputStream out = null;
         InputStream style = null;
         try {
