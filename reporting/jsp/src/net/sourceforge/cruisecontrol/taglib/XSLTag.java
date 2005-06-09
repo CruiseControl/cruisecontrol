@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
@@ -52,7 +53,6 @@ import java.util.zip.GZIPInputStream;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
-import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -82,13 +82,17 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param out stream to output the results of the transformation
      */
     protected void transform(File xmlFile, InputStream style, OutputStream out) throws JspTagException {
+        InputStream in = null;
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
+                private final ServletContext servletContext = getPageContext().getServletContext();
                 public javax.xml.transform.Source resolve(String href, String base) {
-                    final ServletContext servletContext = getPageContext().getServletContext();
                     InputStream styleStream = servletContext.getResourceAsStream(xslRootContext + href);
                     if (styleStream != null) {
+
+                        // XXX Possible stream leak: there is no explicit
+                        //     styleStream.close()
                         info("Using nested stylesheet for " + href);
                         return new StreamSource(styleStream);
                     } else {
@@ -99,21 +103,28 @@ public class XSLTag extends CruiseControlTagSupport {
             };
             tFactory.setURIResolver(resolver);
             Transformer transformer = tFactory.newTransformer(new StreamSource(style));
-            Source in = null;
             if (xmlFile.getName().endsWith(".gz")) {
                 try {
-                    in = new StreamSource(new GZIPInputStream(new FileInputStream(xmlFile)));
+                    in = new GZIPInputStream(new FileInputStream(xmlFile));
                 } catch (IOException ioe) {
                     err(ioe);
                 }
             } else {
-                in = new StreamSource(xmlFile);
+                try {
+                    in = new FileInputStream(xmlFile);
+                } catch (IOException ioex) {
+                    err(ioex);
+                    throw new CCTagException("Assertion error: "
+                            + ioex.getMessage(), ioex);
+                }
             }
-            transformer.transform(in, new StreamResult(out));
+            transformer.transform(new StreamSource(in), new StreamResult(out));
         } catch (TransformerException e) {
             err(e);
             throw new CCTagException("Error transforming '" + xmlFile.getName()
                     + "': " + e.getMessage(), e);
+        } finally {
+            closeQuietly(in);
         }
     }
 
@@ -161,11 +172,12 @@ public class XSLTag extends CruiseControlTagSupport {
                 }
                 out.write(cbuf, 0, charsRead);
             }
-            in.close();
         } catch (IOException e) {
             err(e);
             throw new CCTagException("Error reading cache transformation '"
                     + cacheFile.getName() + "': " + e.getMessage(), e);
+        } finally {
+            closeQuietly(in);
         }
     }
 
@@ -243,16 +255,19 @@ public class XSLTag extends CruiseControlTagSupport {
     }
 
     private void updateCacheFile(File xmlFile, File cacheFile) throws JspTagException {
+        OutputStream out = null;
+        InputStream style = null;
         try {
-            final InputStream styleSheetStream = getPageContext().getServletContext().getResourceAsStream(xslFileName);
-            final FileOutputStream out = new FileOutputStream(cacheFile);
-            transform(xmlFile, styleSheetStream, out);
-            out.close();
-            styleSheetStream.close();
+            style = getPageContext().getServletContext().getResourceAsStream(xslFileName);
+            out = new FileOutputStream(cacheFile);
+            transform(xmlFile, style, out);
         } catch (IOException e) {
             err(e);
             throw new CCTagException("Error saving a cached transformation '"
                     + cacheFile.getName() + "': " + e.getMessage(), e);
+        } finally {
+            closeQuietly(out);
+            closeQuietly(style);
         }
     }
 
@@ -278,5 +293,33 @@ public class XSLTag extends CruiseControlTagSupport {
     public int doEndTag() throws JspException {
         writeContent(getPageContext().getOut());
         return EVAL_PAGE;
+    }
+
+    private void closeQuietly(InputStream in) {
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException ioex) {
+                info("Ignored " + ioex.getMessage() + " while closing stream");
+            }
+        }
+    }
+    private void closeQuietly(Reader in) {
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException ioex) {
+                info("Ignored " + ioex.getMessage() + " while closing reader");
+            }
+        }
+    }
+    private void closeQuietly(OutputStream out) {
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException ioex) {
+                info("Ignored " + ioex.getMessage() + " while closing stream");
+            }
+        }
     }
 }
