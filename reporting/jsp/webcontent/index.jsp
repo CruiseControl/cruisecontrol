@@ -36,6 +36,7 @@
  ********************************************************************************--%>
 <%@page errorPage="/error.jsp"%>
 <%@page import="java.io.File,
+                 java.text.NumberFormat,
                  java.util.Arrays,
                  java.util.Calendar"%>
 <jsp:useBean id="statusHelper" scope="page" class="net.sourceforge.cruisecontrol.StatusHelper" />
@@ -156,7 +157,7 @@
 
                    <tr><td class="index-passed">Passed</td>
                    <td align="center" class="index-passed"><%=passed%></td>
-                   <td align="center" class="index-passed"><%=((double)passed)/projectDirs.length*100.0%>%</td>
+                   <td align="center" class="index-passed"><%= NumberFormat.getPercentInstance().format((double) passed / projectDirs.length) %>%</td>
                    <td align="center" class="index-passed">&nbsp;</td>
                    <td align="center" class="index-passed">&nbsp;</td>
                    </tr>
@@ -164,7 +165,7 @@
                    <% int failed = projectDirs.length - passed; %>
                    <tr><td class="index-failed">Failed</td>
                    <td align="center" class="index-failed"><%=failed%></td>
-                   <td align="center" class="index-failed"><%=((double)failed)/projectDirs.length*100.0%>%</td>
+                   <td align="center" class="index-failed"><%= NumberFormat.getPercentInstance().format((double) failed / projectDirs.length) %></td>
                    <td align="center" class="index-failed">&nbsp;</td>
                    <td align="center" class="index-failed">&nbsp;</td>
                    </tr>
