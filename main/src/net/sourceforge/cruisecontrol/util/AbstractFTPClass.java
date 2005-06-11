@@ -137,7 +137,7 @@ public abstract class AbstractFTPClass {
                 setPassive(ftp);
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            LOG.error(ioe);
             throw new CruiseControlException(ioe.getMessage());
         }
         return ftp;
@@ -166,7 +166,7 @@ public abstract class AbstractFTPClass {
                     + ftp.getReplyString());
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
             throw new CruiseControlException(ex.getMessage());
         }
     }
@@ -202,7 +202,7 @@ public abstract class AbstractFTPClass {
                 LOG.info("directory created OK");
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
             throw new CruiseControlException(ex.getMessage());
         }
     }
@@ -250,7 +250,7 @@ public abstract class AbstractFTPClass {
                     + ftp.getReplyString());
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
             throw new CruiseControlException(ex.getMessage());
         }
     }
@@ -324,7 +324,7 @@ public abstract class AbstractFTPClass {
             }
             ftp.changeWorkingDirectory(cwd);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
             throw new CruiseControlException(ex.getMessage());
         }
     }

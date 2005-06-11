@@ -163,7 +163,6 @@ public class P4 implements SourceControl {
             }
             mods = describeAllChangelistsAndBuildOutput(changelistNumbers);
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.error("Log command failed to execute succesfully", e);
         }
 

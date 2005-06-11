@@ -234,11 +234,11 @@ public class MKS implements SourceControl {
             proc.getErrorStream().close();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.warn(ex.getMessage(), ex);
         }
         System.out.println(); // finishing dotted line, avoid LOG prefix 'MKS - '
         LOG.info("resync finished");
-        
+
         return listOfModifications;
     }
 
@@ -286,7 +286,7 @@ public class MKS implements SourceControl {
             proc.getOutputStream().close();
             proc.getErrorStream().close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.warn(e.getMessage(), e);
             modification.userName = "";
             modification.comment = "";
         }

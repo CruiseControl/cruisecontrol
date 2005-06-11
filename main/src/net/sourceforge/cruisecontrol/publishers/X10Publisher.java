@@ -207,7 +207,7 @@ public class X10Publisher implements Publisher {
             try {
                 gateway.deallocate();
             } catch (GatewayException e) {
-                e.printStackTrace();
+                LOG.warn("Error deallocation gateway: " + e.getMessage(), e);
             }
             LOG.debug("Done");
         }

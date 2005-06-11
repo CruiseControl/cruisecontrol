@@ -195,7 +195,7 @@ public class BuildStatus implements SourceControl {
     }
 
     private String getProjectFromLog(File f) {
-        System.out.println("Getting project from file: " + f.getName());
+        LOG.info("Getting project from file: " + f.getName());
         try {
             Document doc = readDocFromFile(f);
             LOG.info("Loaded xml document for BuildStatus");

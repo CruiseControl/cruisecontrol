@@ -37,6 +37,7 @@
 
 import org.mortbay.http.SocketListener;
 import org.mortbay.jetty.Server;
+import org.apache.log4j.Logger;
 import java.io.IOException;
 
 /**
@@ -45,6 +46,7 @@ import java.io.IOException;
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public class CruiseControlWithJetty {
+    private static final Logger LOG = Logger.getLogger(CruiseControlWithJetty.class);
 
     public static void main(final String[] args) throws Exception {
         //A Thread for Jetty...
@@ -57,14 +59,16 @@ public class CruiseControlWithJetty {
                 try {
                     server.addWebApplication("cruisecontrol", "./webapps/cruisecontrol");
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("Exception adding cruisecontrol webapp");
+                    String msg = "Exception adding cruisecontrol webapp: " + e.getMessage();
+                    LOG.error(msg, e);
+                    throw new RuntimeException(msg);
                 }
                 try {
                     server.start();
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("Exception occured in server execution");
+                    String msg = "Exception occured in server execution: " + e.getMessage();
+                    LOG.error(msg, e);
+                    throw new RuntimeException();
                 }
             }
         }).start();

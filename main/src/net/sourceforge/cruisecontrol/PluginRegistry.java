@@ -210,11 +210,11 @@ public final class PluginRegistry {
         try {
             return Class.forName(pluginClassname);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new CruiseControlException(
-                    "Attemping to load plugin named [" + pluginName
+            String msg = "Attemping to load plugin named [" + pluginName
                     + "], but couldn't load corresponding class ["
-                    + pluginClassname + "].");
+                    + pluginClassname + "].";
+            LOG.error(msg, e);
+            throw new CruiseControlException(msg);
         }
     }
 
