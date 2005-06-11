@@ -333,8 +333,7 @@ public class PVCS implements SourceControl {
                         modification.type = "modified";
                     }
                 } catch (ParseException e) {
-                    e.printStackTrace();
-                    LOG.error("Error parsing create date : ", e);
+                    LOG.error("Error parsing create date: " + e.getMessage(), e);
                 }
             } else if (line.startsWith("Last modified:")) {
                 // if this is the newest revision...

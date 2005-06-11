@@ -521,7 +521,7 @@ public class Vss implements SourceControl {
 
             return lastModifiedDate;
         } catch (ParseException pe) {
-            pe.printStackTrace();
+            LOG.warn(pe);
             return null;
         }
     }

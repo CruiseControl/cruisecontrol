@@ -155,10 +155,8 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
             process.getOutputStream().close();
             process.getErrorStream().close();
          } catch (IOException e) {
-            e.printStackTrace();
             LOG.error("Problem trying to execute command line process", e);
          } catch (InterruptedException e) {
-            e.printStackTrace();
             LOG.error("Problem trying to execute command line process", e);
          }
       }
@@ -271,7 +269,6 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
          dt = DTFM.parse(str);
       } catch (ParseException e) {
          dt = null;
-         e.printStackTrace();
          LOG.error("Unable to parse DateTime from Surround", e);
       }
       return dt;

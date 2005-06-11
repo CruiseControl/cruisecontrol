@@ -401,7 +401,8 @@ public class Project implements Serializable, Runnable {
             s.close();
             debug("Serializing project to [" + name + ".ser]");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.warn("Error serializing project to [" + name + ".ser]: "
+                    + e.getMessage(), e);
         }
     }
 

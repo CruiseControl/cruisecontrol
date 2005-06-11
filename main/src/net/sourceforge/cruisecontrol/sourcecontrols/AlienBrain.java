@@ -129,7 +129,6 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
             validate();
             mods = getModificationsFromAlienBrain(lastBuild, now);
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.error("Log command failed to execute succesfully", e);
         }
         

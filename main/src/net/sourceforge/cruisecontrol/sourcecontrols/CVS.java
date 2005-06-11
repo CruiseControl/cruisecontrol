@@ -381,7 +381,7 @@ public class CVS implements SourceControl {
                 return null;
             }
             if (!line.startsWith("Server:")) {
-                System.err.println("Warning expected a line starting with \"Server:\" but got " + line);
+                log.warn("Warning expected a line starting with \"Server:\" but got " + line);
                 // we try anyway
             }
         }

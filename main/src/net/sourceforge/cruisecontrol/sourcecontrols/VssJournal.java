@@ -196,7 +196,7 @@ public class VssJournal implements SourceControl {
             br.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.warn(e);
         }
 
         if (property != null && modifications.size() > 0) {
@@ -380,7 +380,7 @@ public class VssJournal implements SourceControl {
 
             return userName;
         } catch (StringIndexOutOfBoundsException e) {
-            System.err.println("Unparsable string was: " + userLine);
+            LOG.error("Unparsable string was: " + userLine);
             throw e;
         }
 
