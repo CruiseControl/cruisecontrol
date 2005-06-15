@@ -61,7 +61,7 @@
 
             <cruisecontrol:link id="baseUrl" />
             <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
-            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10" >
+            <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="9" >
               <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
             </cruisecontrol:nav>
             <cruisecontrol:nav startingBuildNumber="10" finalBuildNumber="10">
