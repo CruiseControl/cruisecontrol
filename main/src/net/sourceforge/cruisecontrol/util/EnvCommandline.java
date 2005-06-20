@@ -141,6 +141,19 @@ public class EnvCommandline extends Commandline {
         env.add(var, value);
     }
         
+     /**
+      * Gets the value of an environment variable. The variable
+      * name is case sensitive. 
+      * 
+      * @param variable The variable for which you wish the value
+      *
+      * @return The value of the variable, or <code>null</code>
+      *         if not found
+      */
+     public String getVariable(String var) {
+         return env.getVariable(var);
+     }
+
     /**
      * Executes the command.
      */
