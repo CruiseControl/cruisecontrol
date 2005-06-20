@@ -100,7 +100,10 @@
 <a href="#clearcase">&lt;clearcase&gt;</a>
 <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
 <a href="#cmsynergy">&lt;cmsynergy&gt;</a>
+<a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher&gt;</a>
 <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
+<a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
+<a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher&gt;</a>
 <a href="#compound">&lt;compound&gt;</a>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
 <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
@@ -193,6 +196,7 @@
       <a href="#dateformat">&lt;dateformat/&gt;</a>
       <a href="#labelincrementer">&lt;labelincrementer/&gt;</a>
       <a href="#listeners">&lt;listeners&gt;</a>
+         <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor/&gt;</a>
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
       <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
@@ -247,6 +251,8 @@
       <a href="#publishers">&lt;publishers&gt;</a>
          <a href="#antpublisher">&lt;antpublisher/&gt;</a>
          <a href="#artifactspublisher">&lt;artifactspublisher/&gt;</a>
+         <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher/&gt;</a>
+         <a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher/&gt;</a>
          <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
          <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
          <a href="#email">&lt;email/&gt;</a>
@@ -254,8 +260,8 @@
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
          <a href="#htmlemail">&lt;htmlemail/&gt;</a>
          <a href="#jabber">&lt;jabber/&gt;</a>
-         <a href="#onfailure">&lt;onfailure&gt;</a>
-         <a href="#onsuccess">&lt;onsuccess&gt;</a>
+         <a href="#onfailure">&lt;onfailure/&gt;</a>
+         <a href="#onsuccess">&lt;onsuccess/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
@@ -712,8 +718,188 @@
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
             </tr>
+            <tr>
+                <td><a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Monitors and starts CM Synergy sessions as needed</td>
+            </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#listeners">&lt;listeners&gt;</a>
+      &lt;cmsynergysessionmonitor&gt;</pre>
+        </div>
+
+        <p>The &lt;cmsynergysessionmonitor&gt; listener will monitor and start CM Synergy
+            sessions as needed. It is triggered with each build loop (before the bootstrappers
+            are run) and can monitor any number of CM Synergy sessions. The &lt;cmsynergysessionmonitor&gt;
+            also provides a mapping between a simple "nick-name" for a session (which is referred to
+            as the "sessionname") and the full CM Synergy session ID. This map is persisted in a simple
+            properties file (referred to as the "session file").</p>
+            
+        <p>Each time the &lt;cmsynergysessionmonitor&gt; runs, it will load the persisted information from
+            the session file and attempt to verify that each monitored session is, in fact, still running.
+            It does this according to the following rules:</p>
+            
+        <ol>
+            <li>If the session file does not exist, it will be created.</li>
+            <li>If an entry for the session name does not exist in the session file, a new CM Synergy
+                session will be started and an entry recorded in the file.</li>
+            <li>If an entry for the session name does exist in the file, it will check that the CM Synergy
+                session ID associated with the session name is still runing. If it is, no further action is
+                taken. If it is not, a new CM Synergy session is started, and the new ID recorded in the 
+                file.</li>
+        </ol>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>ccmexe</td>
+                <td>No</td>
+                <td>The name of the CM Synergy command line client. If not provided, the
+                    plugin will search the system path for an executable called "ccm"
+                    (or "ccm.exe" for Windows).</td>
+            </tr>
+            <tr>
+                <td>sessionfile</td>
+                <td>No</td>
+                <td>The session file used to persist the CM Synergy session information.
+                    If not provided, it defaults to a file called ".ccmsessionmap" located
+                    in your home directory.</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>&lt;session&gt;</td>
+                <td>1 .. *</td>
+                <td><p>Defines a CM Synergy session you wish to monitor. The session 
+                    information may be provided in one of two ways.</p>
+                    <ol>
+                        <li>You may provide each individual attribute directly in the config file.</li>
+                        <li>You may specify the name attribute as well as an "attributefile" 
+                            which contains the remainder of the required attributes. This allows 
+                            you to place sensitive information - such as the password - into an
+                            external file with the appropriate permissions. The file referenced here
+                            should use the standard properties file format of "attribute=value" pairs.</li>
+                    </ol>
+                    <table class="documentation">
+                    <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>name</td>
+                        <td>Yes</td>
+                        <td>The name of the CM Synergy session. This value will be used in the
+                            "sessionname" attributes of the other CM Synergy plugins.</td>
+                    </tr>
+                    <tr>
+                        <td>attributefile</td>
+                        <td>No</td>
+                        <td>The properties file which will be read to set the remainder of the
+                            session's attributes.</td>
+                    </tr>
+                    <tr>
+                        <td>database</td>
+                        <td>Yes</td>
+                        <td>The CM Synergy database with which this session will communicate
+                            (e.g. /ccmdb/mydb).</td>
+                    </tr>
+                    <tr>
+                        <td>user</td>
+                        <td>Yes</td>
+                        <td>The CM Synergy user account under which the session will run.</td>
+                    </tr>
+                    <tr>
+                        <td>password</td>
+                        <td>Yes</td>
+                        <td>The password for the specified user.</td>
+                    </tr>
+                    <tr>
+                        <td>role</td>
+                        <td>Yes</td>
+                        <td>The role under which the CM Synergy session will run
+                            (e.g. build_mgr).</td>
+                    </tr>
+                    <tr>
+                        <td>host</td>
+                        <td>No</td>
+                        <td>If you wish the CM Synergy session to run on a host other than the
+                            current machine, you may set the host name here.</td>
+                    </tr>
+                    </tbody>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3>Examples</h3>
+        <ol>
+            <li>Monitor two sessions. The first will be associated with the database
+                /ccmdb/product1, the second will use the database /ccmdb/product2.
+                We will specify all attributes in the config file for the first
+                session, and use an attribute file called "session2.properties" for
+                the second. We will accept the default session file location of
+                ".ccmsessionmap" in our home directory. Both sessions will run on
+                the local host machine.
+            <pre>
+&lt;listeners&gt;
+    &lt;cmsynergysessionmonitor&gt;
+        &lt;session name="session1"
+                 database="/ccmdb/product1"
+                 user="buildmgr"
+                 role="build_mgr"
+                 password="P@ssW0rd!"/&gt;
+        &lt;session name="session2"
+                 attributefile="session2.properties"/&gt;
+    &lt;cmsynergysessionmonitor/&gt;
+&lt;listeners/&gt;
+            </pre>
+            Session 2 would then use a properties file as follows:
+            <pre>
+#CM Synergy session properties for "session2"
+database=/ccmdb/product2
+user=buildmgr
+role=build_mgr
+password=P@ssW0rd!
+            </pre>
+            </li>
+        </ol>
         </div>
 
         <div class="elementdocumentation">
@@ -1063,13 +1249,25 @@
             <tr>
                 <td>ccmexe</td>
                 <td>No</td>
-                <td>The name of the CM Synergy command line client.</td>
+                <td>The name of the CM Synergy command line client. If not provided, the
+                    plugin will search the system path for an executable called "ccm"
+                    (or "ccm.exe" for Windows).</td>
             </tr>
             <tr>
-                <td>ccmsession</td>
+                <td>sessionfile</td>
                 <td>No</td>
-                <td>The ID string of the CM Synergy session to use. If not
-                    provided, the decision will be deferred to the client.</td>
+                <td>The session file used by the 
+                    <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
+                    to persist your CM Synergy session information. If this attribute is
+                    not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
+            </tr>
+            <tr>
+                <td>sessionname</td>
+                <td>No</td>
+                <td>The session name of the CM Synergy session you wish to use. This name
+                    must appear in the session file. If not set, the plugin will attempt
+                    to use the default (current) session as returned by the "ccm status"
+                    command.</td>
             </tr>
             <tr>
                 <td>project</td>
@@ -1078,11 +1276,27 @@
             </tr>
             <tr>
                 <td>recurse</td>
-                <td>No (Defaults to true).</td>
-                <td>If set to true, all subprojects will also be reconfigured.</td>
-            </tr>
+                <td>No</td>
+                <td>If set to true, all subprojects will also be reconfigured. Defaults to
+                    <i>true</i></td>
+            </tr>            
             </tbody>
         </table>
+        
+        <h3>Examples</h3>
+        <ol>
+            <li>Reconfigure the "j2ee~1.0_int" project (but <i>not</i> it's subprojects) using
+                the CM Synergy session named "j2ee_session".
+            <pre>
+&lt;bootstrappers&gt;
+    &lt;cmsynergybootstrapper project="j2ee~1.0_int"
+                           sessionname="j2ee_session"
+                           recurse="false"/&gt;
+&lt;bootstrappers&gt;</pre>
+            </li>
+        </ol>
+        
+        
         </div>
 
         <div class="elementdocumentation">
@@ -1839,14 +2053,12 @@
                <td>The name of the project in the AlienBrain repository. If specified, it will override the value in the NXN_AB_DATABASE environment variable.</td>
 
             </tr>
-
             <tr>
                <td>user</td>
                <td>No</td>
                <td>The AlienBrain user account name to use when querying for modifications. If specified, it will override the value in the NXN_AB_USERNAME environment variable.</td>
             </tr>
             <tr>
-
                <td>password</td>
 
                <td>No</td>
@@ -1854,7 +2066,6 @@
             </tr>
             <tr>
                <td>path</td>
-
                <td>Yes</td>
                <td>The path to the item that will be queried for modificiations Typically a path like 'alienbrain://Project/SubProject'</td>
 
@@ -1862,7 +2073,6 @@
             <tr>
                <td>branch</td>
                <td>No</td>
-
                <td>The branch of the project to check for modifications.</td>
             </tr>
             </tbody>
@@ -2081,7 +2291,7 @@
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#modificationset">&lt;modificationset&gt;</a>
-      &lt;cmcynergy&gt;</pre>
+      &lt;cmsynergy&gt;</pre>
         </div>
 
         <p>Triggers a build if tasks have been added to any folder within a
@@ -2099,33 +2309,86 @@
             </thead>
             <tbody>
             <tr>
-               <td>ccmexe</td>
-               <td>No</td>
-               <td>The name of the CM Synergy command line client.</td>
+                <td>ccmexe</td>
+                <td>No</td>
+                <td>The name of the CM Synergy command line client. If not provided, the
+                    plugin will search the system path for an executable called "ccm"
+                    (or "ccm.exe" for Windows).</td>
             </tr>
             <tr>
-                <td>ccmsession</td>
+                <td>sessionfile</td>
                 <td>No</td>
-                <td>The ID string of the CM Synergy session to use. If not
-                    provided, the decision will be deferred to the client.</td>
+                <td>The session file used by the 
+                    <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
+                    to persist your CM Synergy session information. If this attribute is
+                    not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
+            </tr>
+            <tr>
+                <td>sessionname</td>
+                <td>No</td>
+                <td>The session name of the CM Synergy session you wish to use. This name
+                    must appear in the session file. If not set, the plugin will attempt
+                    to use the default (current) session as returned by the "ccm status"
+                    command.</td>
             </tr>
             <tr>
                 <td>project</td>
                 <td>Yes</td>
-                <td>The project spec (two part name) of the project you wish
-                    to use as a template for discovering new tasks.</td>
-            </tr>           
+                <td>The project spec (two part name) of the CM Synergy project in which 
+                    you wish to search for changes.</td>
+            </tr>
             <tr>
-               <td>updatefolders</td>
-               <td>No. (Defaults to true)</td>
-               <td>If set to true, the project's reconfigure properties will
-                   be refreshed before searching for new tasks.</td>
+                <td>instance</td>
+                <td>No</td>
+                <td>Used to set the project's instance value. As CM Synergy only allows a 
+                    single instance of a project object in any given database, this attribute
+                    defaults to "1", and should not need to be changed by most users. <b>You 
+                    might, however, need to set this value when using the DCM (Distributed 
+                    Change Management) feature of the tool - which appends the DB name to 
+                    the instance value.</b></td>
             </tr>
             <tr>
                <td>ccmdateformat</td>
-               <td>No. (Defaults to "EEE MMM dd HH:mm:ss yyyy")</td>
-               <td>The date format (as returned by a query) used by
-                   your installation of CM Synergy.</td>
+               <td>No</td>
+               <td>The default (output) date format used by CM Synergy is 
+                   "EEE MMM dd HH:mm:ss yyyy" If you have customized this for your installation,
+                   you must provide the correct format here. The format should follow the 
+                   standard defined in Java's SimpleDateFormat class.</td>
+            </tr>
+            <tr>
+               <td>updatefolders</td>
+               <td>No</td>
+               <td>By default, the plugin will always refresh the reconfigure properties of
+                   the given project before searching for changes. This allows any query 
+                   based folders to update themselves with new tasks. If you wish to dissable
+                   this feature (not reccomended), you may set this attribute to false.
+                   <b>This feature will only work with CM Synergy version 6.3 and above. If 
+                    you are using an older version, you <i>must</i> set this option to false. In this 
+                    case, you'll want to use the
+                    <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
+                    as a workaround. Please see example 2 below as well as the Wiki site for
+                    more information.</b></td>
+            </tr>
+            <tr>
+               <td>reconfigure</td>
+               <td>No</td>
+               <td>Dissabled by default. If you set this option to true, the project (and 
+                   optionally any subprojects) will be automatically reconfigured when changes
+                   are detected. This eliminates the need to handle this from within your build
+                   scripts.</td>
+            </tr>
+            <tr>
+               <td>recurse</td>
+               <td>No</td>
+               <td>Used in conjuction with the reconfigure option. If set to true (which is
+                   the default) all subprojects will also be reconfigured.</td>
+            <tr>
+               <td>ignoreworkarea</td>
+               <td>No</td>
+               <td>By default, the plugin will query CM Synergy to determine the work area 
+                   location of the project. This location is then passed to the builders in 
+                   the property "cc.ccm.workarea". If you wish to dissable this feature 
+                   (not recommended), you can set this attribute to <i>true</i>.</td>
             </tr>
             <tr>
                <td>changesynergyurl</td>
@@ -2142,6 +2405,26 @@
                <td>Used in conjunction with changesynergyurl. This
                    should be set to the location of the database on
                    the CM Synergy server. (e.g. "/ccmdb/mydb")</td>
+            </tr>
+            <tr>
+               <td>language</td>
+               <td>No</td>
+               <td>If you have a non U.S. English installation of CM Synergy, you may
+                   specify the ISO language code here. (e.g. fr, de, etc.)</td>
+            </tr>
+            <tr>
+               <td>country</td>
+               <td>No</td>
+               <td>If you have a non U.S. English installation of CM Synergy, you may
+                   specify the ISO country code here. (e.g. FR, DE, etc.)</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Added for compliance with the CruiseControl API. A property of
+                   this name will be provided to the builders if any CM Synergy
+                   object has changed since the last build. The default is
+                   cc.ccm.haschanged, and probably shouldn't be altered.</td>
             </tr>
             </tbody>
         </table>
@@ -2162,18 +2445,62 @@
             <tbody>
             <tr>
                 <td>cc.ccm.session</td>
-                <td>The CM Synergy session ID (as provided in the ccmsession attribute).</td>
+                <td>The CM Synergy session ID used to check for modifications.</td>
             </tr>
             <tr>
                 <td>cc.ccm.dateformat</td>
-                <td>The date format string used by this plugin.</td>
+                <td>The date format used to convert CM Synergy dates into Java dates.</td>
             </tr>
             <tr>
                 <td>cc.ccm.project</td>
-                <td>The project name (as provided in the project attribute).</td>
+                <td>The two part name of the project (as provided in the project attribute).</td>
+            </tr>
+            <tr>
+                <td>cc.ccm.workarea</td>
+                <td>The file system location of the CM Synergy work area for the project
+                    (unless the ignoreworkarea attribute was set).</td>
+            </tr>
+            <tr>
+                <td>cc.ccm.haschanged (or the value specified by the property attribute)</td>
+                <td>Set to true if any CM Synergy objects have changed since the last build.</td>
             </tr>
             </tbody>
         </table>
+        
+        <h3>Examples</h3>
+        <ol>
+            <li>Use the session named "j2ee_session" to check for changes within the
+                "j2ee~1.0_int" project. If any changes are detected, reconfigure the
+                project and all of it's subprojects.
+            <pre>
+&lt;modificationset&gt;                
+    &lt;cmsynergy project="j2ee~1.0_int"
+               sessionname="j2ee_session"
+               reconfigure="true"/&gt;
+&lt;modificationset/&gt;                
+            </pre>
+            </li>
+            <li>For users of CM Synergy older than version 6.3 only. Use the
+                <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
+                to reconfigure only the top level "j2ee~1.0_int" project. This will
+                update the folders within that project's reconfigure properties.
+                We can then check for changes just as we did in the first example.
+                Notice that we <i>must</i> set the "updatefolder" attribute to false.
+            <pre>
+&lt;bootstrappers&gt;
+    &lt;cmsynergybootstrapper project="j2ee~1.0_int"
+                           sessionname="j2ee_session"
+                           recurse="false"/&gt;
+&lt;bootstrappers&gt;
+&lt;modificationset&gt;                
+    &lt;cmsynergy project="j2ee~1.0_int"
+               updatefolders="false"
+               sessionname="j2ee_session"
+               reconfigure="true"/&gt;
+&lt;modificationset/&gt;                
+            </pre>
+            </li>
+        </ol>        
         </div>
 
         <div class="elementdocumentation">
@@ -3475,9 +3802,7 @@
          uselogger="true"
          usedebug="false"/&gt;
 &lt;schedule&gt;</pre>
-
             </li>
-
             <li>Invoke a custom ant script <code>/home/cc/workspace/build.sh</code>,
             specifying the working directory as <code>/home/cc/workspace</code>
             and the ant target as <code>smoketest</code>.
@@ -3514,8 +3839,8 @@ endlocal</pre>
 
             <p>The %* as a param to ant.bat is important &mdash; it means that all
             the arguments to build.bat are passed along to ant.bat. If this is
-            skipped then CruiseControl wouldn't work properly.</p></li>
-
+            skipped then CruiseControl wouldn't work properly.</p>
+        </li>
         </ol>
         </div>
 
@@ -3992,6 +4317,16 @@ endlocal</pre>
                 <td>Copies build products to a directory</td>
             </tr>
             <tr>
+                <td><a href="#cmsynergybaselinepublisher"><code>&lt;cmsynergybaselinepublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Creates an intermediate baseline in a CM Synergy database.</td>
+            </tr>
+            <tr>
+                <td><a href="#cmsynergytaskpublisher"><code>&lt;cmsynergytaskpublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Copies all new CM Synergy tasks into a shared folder.</td>
+            </tr>
+            <tr>
                 <td><a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Writes the time of the next build to a file</td>
@@ -4234,6 +4569,201 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;cmsynergybaselinepublisher&gt;</pre>
+        </div>
+
+        <p>Creates an intermediate baseline which encompases the specified project and
+           all of it's subprojects. This publisher will only run if the build was
+           successful and the modification set contains at least one new CM Synergy
+           task. <b>This publisher will <i>only</i> work with CM Synergy version 6.3
+           or later.</b></p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>ccmexe</td>
+                <td>No</td>
+                <td>The name of the CM Synergy command line client. If not provided, the
+                    plugin will search the system path for an executable called "ccm"
+                    (or "ccm.exe" for Windows).</td>
+            </tr>
+            <tr>
+                <td>sessionfile</td>
+                <td>No</td>
+                <td>The session file used by the 
+                    <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
+                    to persist your CM Synergy session information. If this attribute is
+                    not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
+            </tr>
+            <tr>
+                <td>sessionname</td>
+                <td>No</td>
+                <td>The session name of the CM Synergy session you wish to use. This name
+                    must appear in the session file. If not set, the plugin will attempt
+                    to use the default (current) session as returned by the "ccm status"
+                    command.</td>
+            </tr>
+            <tr>
+                <td>project</td>
+                <td>Yes</td>
+                <td>The project spec (two part name) of the project you wish to form the top
+                    level project of the baseline. Note that all subprojects will also be
+                    included.</td>
+            </tr>
+            <tr>
+                <td>purpose</td>
+                <td>No</td>
+                <td>The purpose of the baseline. If not specified, this will default to
+                    "Integration Testing".</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>No</td>
+                <td>An optional description of the baseline.</td>
+            </tr>
+            <tr>
+                <td>baselinename</td>
+                <td>No</td>
+                <td>An optional name for the baseline. If not provided, CM Synergy will assign
+                    a default name based upon the current date. You may incorporate the value
+                    of any property set by CruiseControl (in the "info" section of the log)
+                    by using the macro "@{property}".</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3>Examples</h3>
+
+        <ol>
+            <li>Create a baseline with the name "BUILD_" followed by the CC timestamp for the
+                purpose of "Integration Testing" using the session called "j2ee_session"
+                incorporating the "j2ee~1.0_int" project and all subprojects.
+            <pre>
+&lt;publishers&gt;
+    &lt;cmsynergybaselinepublisher sessionname  = "j2ee_session"
+                                project      = "j2ee~1.0_int"
+                                baselinename = "BUILD_@{cctimestamp}"/&gt;
+&lt;/publishers&gt;
+            </pre>
+            </li>
+        </ol>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cmsynergytaskpublisher">&lt;cmsynergytaskpublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;cmsynergytaskpublisher&gt;</pre>
+        </div>
+
+        <p>The &lt;cmsynergytaskpublisher&gt; is used to copy tasks into a shared
+            folder. The folder may be specified by number,
+            or by providing the 2 part name of the project as well as a substring
+            of the folder's name. This publisher will only run if the build was
+            successful and the modification set contains at least one new 
+            CM Synergy task.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>ccmexe</td>
+                <td>No</td>
+                <td>The name of the CM Synergy command line client. If not provided, the
+                    plugin will search the system path for an executable called "ccm"
+                    (or "ccm.exe" for Windows).</td>
+            </tr>
+            <tr>
+                <td>sessionfile</td>
+                <td>No</td>
+                <td>The session file used by the 
+                    <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
+                    to persist your CM Synergy session information. If this attribute is
+                    not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
+            </tr>
+            <tr>
+                <td>sessionname</td>
+                <td>No</td>
+                <td>The session name of the CM Synergy session you wish to use. This name
+                    must appear in the session file. If not set, the plugin will attempt
+                    to use the default (current) session as returned by the "ccm status"
+                    command.</td>
+            </tr>
+            <tr>
+                <td>foldernumber</td>
+                <td rowspan="3">Either foldernumber <i>or</i> foldername and project</td>
+                <td>The number of the target folder.</td>
+            </tr>
+            <tr>
+                <td>foldername</td>
+                <td>A <i>substring</i> of the name of the target folder (i.e. "Integration
+                    tested tasks"). If this attribute is set, you <i>must</i> also set the
+                    project attribute.</td>
+            </tr>
+            <tr>
+                <td>project</td>
+                <td>The two part name of the project which contains the named folder.</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3>Examples</h3>
+
+        <ol>
+            <li>Publish all new tasks into folder number 203 using the CM Synergy session
+                named "j2ee_session".
+            <pre>
+&lt;publishers&gt;
+    &lt;cmsynergytaskpublisher sessionname  = "j2ee_session"
+                            foldernumber = "203"/&gt;
+&lt;/publishers&gt;
+            </pre>
+            </li>
+            <li>Publish all new tasks into the folder called "Integration tested tasks 
+                for release j2ee/1.0" found in the project "j2ee~1.0_int" using the CM 
+                Synergy session named "j2ee_session".
+            <pre>
+&lt;publishers&gt;
+    &lt;cmsynergytaskpublisher sessionname  = "j2ee_session"
+                            project      = "j2ee~1.0_int"
+                            foldername   = "Integration tested tasks"/&gt;
+&lt;/publishers&gt;
+            </pre>
+            </li>
+        </ol>
         </div>
 
         <div class="elementdocumentation">
@@ -4844,6 +5374,7 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
+
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>

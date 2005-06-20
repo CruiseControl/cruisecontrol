@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
+import java.io.File;
+
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
@@ -50,7 +52,7 @@ import org.apache.log4j.Logger;
  * If you do not wish to reconfigure subprojects, please set the
  * recurse attribute to false.
  * 
- * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
+ * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class CMSynergyBootstrapper implements Bootstrapper {
 
@@ -58,26 +60,33 @@ public class CMSynergyBootstrapper implements Bootstrapper {
      * The CM Synergy executable used for executing commands. If not set,
      * we will use the default value "ccm".
      */
-    private String ccmExe = "ccm";
+    private String ccmExe;
     
     /**
      * The CM Synergy project spec (2 part name) of the project we will
      * use as a template to determine if any new tasks have been completed.
      */
-    private String projectSpec = null;
+    private String projectSpec;
     
     /**
      * If set to true, all subprojects will also be reconfigured.
      */
     private boolean recurse = true;
+
+    /**
+     * The file which contains the mapping between CM Synergy session names
+     * and IDs.
+     */
+    private File sessionFile;
     
     /**
-     * The ID of the CM Synergy ccmSession we will use to execute commands. If this
-     * value is not set, we will defer the decision to the ccm client.
+     * The given name of the CM Synergy session to use.
      */
-    private String ccmSession = null;
-
-    /** enable logging for this class */
+    private String sessionName;
+    
+    /** 
+     * The logger for this class 
+     */
     private static final Logger LOG = Logger.getLogger(CMSynergyBootstrapper.class);
 
     /**
@@ -104,45 +113,59 @@ public class CMSynergyBootstrapper implements Bootstrapper {
      * Sets the value of the recurse attribute. If set to true, all subprojects
      * will be reconfigured.
      * 
-     * @param updateFolders
+     * @param recurse
      */
     public void setRecurse(boolean recurse) {
         this.recurse = recurse;
     }
     
     /**
-     * Sets the CM Synergy ccmSession ID to use while executing ccm commands. If
-     * this value is not set, we will defer the decision to the client.
+     * Sets the file which contains the mapping between CM Synergy session names
+     * and IDs. This file should be in the standard properties file format. Each
+     * line should map one name to a CM Synergy session ID (as returned by the
+     * "ccm status" command).
+     * <p>
+     * example:
+     * <br><br>
+     * session1=localhost:65024:192.168.1.17
      * 
-     * @param ccmSession
-     *            The ccmSession ID
+     * @param sessionFile
+     *            The session file
      */
-    public void setCcmSession(String session) {
-        this.ccmSession = session;
+    public void setSessionFile(String sessionFile) {
+        this.sessionFile = new File(sessionFile);
+    }
+    
+    /**
+     * Sets the name of the CM Synergy session to use with this plugin. This
+     * name should appear in the specified session file.
+     * 
+     * @param sessionName
+     *            The session name
+     * 
+     * @see #setSessionFile(String)
+     */
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
     }
  
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Bootstrapper#bootstrap()
      */
     public void bootstrap() {
-
+        
         LOG.info("Reconfiguring project \"" + projectSpec + "\".");
 
         // Create a managed command line
-        ManagedCommandline cmd = new ManagedCommandline(ccmExe);
+        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+                ccmExe, sessionName, sessionFile);
         cmd.createArgument().setValue("reconfigure");
         cmd.createArgument().setValue("-project");
         cmd.createArgument().setValue(projectSpec);
         if (recurse) {
             cmd.createArgument().setValue("-recurse");
         }
-        
-        // If we were given a ccmSession ID, use it
-        if (ccmSession != null) {
-            cmd.setVariable(CMSynergy.CCM_SESSION_VAR, ccmSession);
-        }
-                
-        // execute
+
         try {
             cmd.execute();
             cmd.assertExitCode(0);
@@ -151,13 +174,13 @@ public class CMSynergyBootstrapper implements Bootstrapper {
                 "Could not reconfigure the project \"" + projectSpec + "\"." ,
                 e);
         }
-        LOG.debug(cmd.getStdoutAsString());
     }
 
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Bootstrapper#validate()
      */
     public void validate() throws CruiseControlException {
+        // We must know which project to reconfigure
         if (projectSpec == null) {
             throw new CruiseControlException("'project' is required for CMSynergyBootstrapper.");
         }

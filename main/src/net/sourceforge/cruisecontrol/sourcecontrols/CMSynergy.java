@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,10 +47,12 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 
@@ -59,15 +62,37 @@ import org.apache.log4j.Logger;
  * the tasks from all folders in that project, and checking the 
  * completion time of those tasks against the last build.
  * 
- * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
+ * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class CMSynergy implements SourceControl {
+    
+    /**
+     * A delimiter used for data values returned from a CM Synergy query
+     */
+    public static final String CCM_ATTR_DELIMITER = "@#@#@#@";
+
+    /**
+     * A delimiter used to mark the end of a multi-lined result from a query
+     */
+    public static final String CCM_END_OBJECT = "<<<#@#@#>>>";
+    
+    /**
+     * The default CM Synergy command line client executable
+     */
+    public static final String CCM_EXE = "ccm";
     
     /**
      * The environment variable used by CM Synergy to determine
      * which backend ccmSession to use when issuing commands.
      */
     public static final String CCM_SESSION_VAR = "CCM_ADDR";
+        
+    /**
+     * The default CM Synergy session map file
+     */
+    public static final String CCM_SESSION_FILE = System
+            .getProperty("user.home")
+            + File.separator + ".ccmsessionmap";
 
     /**
      * An instance of the logging class
@@ -90,7 +115,7 @@ public class CMSynergy implements SourceControl {
      * The name of the property which will be set and passed to the
      * builder if any objects have been deleted since the last build.
      */
-    private String propertyOnDelete = null;
+    private String propertyOnDelete;
     
     /**
      * The version number delimeter used by the database with which
@@ -101,24 +126,30 @@ public class CMSynergy implements SourceControl {
     /**
      * The URL for your installation of Change Synergy
      */
-    private String changeSynergyURL = null;
+    private String changeSynergyURL;
     
     /**
      * The CCM database with which we wish to connect
      */
-    private String ccmDb = null;
+    private String ccmDb;
     
     /**
      * The CM Synergy executable used for executing commands. If not set,
      * we will use the default value "ccm".
      */
-    private String ccmExe = "ccm";
+    private String ccmExe;
     
     /**
      * The CM Synergy project spec (2 part name) of the project we will
      * use as a template to determine if any new tasks have been completed.
      */
-    private String projectSpec = null;
+    private String projectSpec;
+    
+    /**
+     * The instance number of the project. This is almost always "1", but might
+     * need to be overridden if you are using DCM?
+     */
+    private String projectInstance = "1";
     
     /**
      * If set to true, the contents of the folders contained within the
@@ -128,25 +159,20 @@ public class CMSynergy implements SourceControl {
     private boolean updateFolders = true;
     
     /**
-     * The ID of the CM Synergy ccmSession we will use to execute commands. If this
-     * value is not set, we will defer the decision to the ccm client.
+     * The file which contains the mapping between CM Synergy session names
+     * and IDs.
      */
-    private String ccmSession = null;
+    private File sessionFile;
+    
+    /**
+     * The name of the CM Synergy session to use.
+     */
+    private String sessionName;
     
     /**
      * The date format as returned by your installation of CM Synergy.
      */
     private String ccmDateFormat = "EEE MMM dd HH:mm:ss yyyy"; // Fri Dec  3 17:51:56 2004
-    
-    /**
-     * A delimiter used for data values returned from a CM Synergy query
-     */
-    private static final String CCM_ATTR_DELIMITER = "@#@#@#@";
-
-    /**
-     * A delimiter used to mark the end of a multi-lined result from a query
-     */
-    private static final String CCM_END_OBJECT = "<<<#@#@#>>>";
     
     /**
      * If set to true, the project will be reconfigured when changes are
@@ -169,12 +195,17 @@ public class CMSynergy implements SourceControl {
     /**
      * The locale used for parsing dates.
      */
-    private Locale locale = null;
+    private Locale locale;
     
     /**
      * The language used to set the locale for parsing CM Synergy dates. 
      */
     private String language = "en";
+    
+    /**
+     * A reusable commandline for issuing CM Synergy commands
+     */
+    private ManagedCommandline cmd;
     
     /**
      * The country used to set the locale for parsing CM Synergy dates.
@@ -184,12 +215,12 @@ public class CMSynergy implements SourceControl {
     /**
      * The number of modified tasks found
      */
-    private int numTasks = 0;
+    private int numTasks;
     
     /**
      * The number of modified objects found
      */
-    private int numObjects = 0;
+    private int numObjects;
     
     /**
      * Sets the name of the CM Synergy executable to use when issuing
@@ -211,6 +242,18 @@ public class CMSynergy implements SourceControl {
      */
     public void setProject(String projectSpec) {
         this.projectSpec = projectSpec;
+    }
+    
+    /**
+     * Sets the project's instance value. This value will be used in any query
+     * which involves the project. Defaults to "1". This default should work for
+     * most people. You might, however, need to override this value when using
+     * DCM?
+     * 
+     * @param projectInstance The instance number of the project.
+     */
+    public void setInstance(String projectInstance) {
+        this.projectInstance = projectInstance;
     }
     
     /**
@@ -253,17 +296,35 @@ public class CMSynergy implements SourceControl {
     }
     
     /**
-     * Sets the CM Synergy session ID to use while executing ccm commands. If
-     * this value is not set, we will defer the decision to the client. The
-     * value set here can be accessed from within the build as the property
-     * "cc.ccm.session".
+     * Sets the file which contains the mapping between CM Synergy session names
+     * and IDs. This file should be in the standard properties file format. Each
+     * line should map one name to a CM Synergy session ID (as returned by the
+     * "ccm status" command).
+     * <p>
+     * example:
+     * <br><br>
+     * session1=localhost:65024:192.168.1.17
      * 
-     * @param ccmSession
-     *            The ccmSession ID
+     * @param sessionFile
+     *            The session file
      */
-    public void setCcmSession(String session) {
-        this.ccmSession = session;
+    public void setSessionFile(String sessionFile) {
+        this.sessionFile = new File(sessionFile);
     }
+    
+    /**
+     * Sets the name of the CM Synergy session to use with this plugin. This
+     * name should appear in the specified session file.
+     * 
+     * @param sessionName
+     *            The session name
+     * 
+     * @see #setSessionFile(String)
+     */
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
+ 
     
     /**
      * Sets the date format used by your installation of CM Synergy. The format
@@ -359,30 +420,9 @@ public class CMSynergy implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */
     public void validate() throws CruiseControlException {
+        // We must know which project to examine
         if (projectSpec == null) {
             throw new CruiseControlException("The 'project' attribute is required for CMSynergy.");
-        }
-        
-        // Create a Locale appropriate for this installation
-        locale = new Locale(language, country);
-        if (!locale.equals(Locale.US)) {
-            LOG.info("Locale has been set to " + locale.toString());
-        }
-        
-        // Attempt to get the database delimiter
-        ManagedCommandline getDelimiter = createCcmCommand();
-        getDelimiter.createArgument().setValue("delimiter");
-        try {
-            getDelimiter.execute();
-            getDelimiter.assertExitCode(0);
-            this.ccmDelimiter = getDelimiter.getStdoutAsString().trim();
-        } catch (Exception e) {
-            StringBuffer buff = new StringBuffer(
-                    "Could not connect to provided CM Synergy session");
-            if (ccmSession != null) {
-                buff.append(" \"" + ccmSession + "\".");
-            }
-            throw new CruiseControlException(buff.toString(), e);
         }
     }
     
@@ -390,6 +430,28 @@ public class CMSynergy implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#getModifications(java.util.Date, java.util.Date)
      */
     public List getModifications(Date lastBuild, Date now) {
+                
+        // Create a Locale appropriate for this installation
+        locale = new Locale(language, country);
+        if (!locale.equals(Locale.US)) {
+            LOG.info("Locale has been set to " + locale.toString());
+        }
+
+        // Attempt to get the database delimiter
+        cmd = createCcmCommand(ccmExe, sessionName,
+                sessionFile);
+        cmd.createArgument().setValue("delimiter");
+        try {
+            cmd.execute();
+            cmd.assertExitCode(0);
+            this.ccmDelimiter = cmd.getStdoutAsString().trim();
+        } catch (Exception e) {
+            StringBuffer buff = new StringBuffer(
+                    "Could not connect to provided CM Synergy session");
+            LOG.error(buff.toString(), e);
+            return null;
+        }
+        
         LOG.info("Checking for modifications between " + lastBuild.toString()
                 + " and " + now.toString());
                 
@@ -412,11 +474,12 @@ public class CMSynergy implements SourceControl {
             reconfigureProject();
         }
 
-        // Pass to the build any relevent properties 
+        // Pass to the build any relevent properties
         properties.put("cc.ccm.project", projectSpec);
         properties.put("cc.ccm.dateformat", ccmDateFormat);
-        if (ccmSession != null) {
-            properties.put("cc.ccm.session", ccmSession);
+        String sessionID = cmd.getVariable(CCM_SESSION_VAR);
+        if (sessionID != null) {
+            properties.put("cc.ccm.session", sessionID);
         }
         if (numObjects > 0) {
             properties.put(property, "true");
@@ -433,13 +496,14 @@ public class CMSynergy implements SourceControl {
      * properties.
      */
     private void refreshReconfigureProperties() {
-        ManagedCommandline updateFoldersCommand = createCcmCommand();
-        updateFoldersCommand.createArgument().setValue("reconfigure_properties");
-        updateFoldersCommand.createArgument().setValue("-refresh");
-        updateFoldersCommand.createArgument().setValue(projectSpec);
+        // Construct the CM Synergy command
+        cmd.clearArgs();
+        cmd.createArgument().setValue("reconfigure_properties");
+        cmd.createArgument().setValue("-refresh");
+        cmd.createArgument().setValue(projectSpec);
         try {
-            updateFoldersCommand.execute();
-            updateFoldersCommand.assertExitCode(0);
+            cmd.execute();
+            cmd.assertExitCode(0);
         } catch (Exception e) {
             LOG.warn("Could not refresh reconfigure properties for project \""
                     + projectSpec + "\".", e);
@@ -463,7 +527,7 @@ public class CMSynergy implements SourceControl {
                 "yyyy/MM/dd HH:mm:ss", locale); 
 
         // Construct the CM Synergy command
-        ManagedCommandline cmd = createCcmCommand();
+        cmd.clearArgs();
         cmd.createArgument().setValue("query");
         cmd.createArgument().setValue("-u");
         
@@ -480,7 +544,9 @@ public class CMSynergy implements SourceControl {
         cmd.createArgument().setValue(
                 "is_task_in_folder_of(is_folder_in_rp_of('" 
                 + projectSpec 
-                + ":project:1')) and completion_date>time('"
+                + ":project:"
+                + projectInstance
+                + "')) and completion_date>time('"
                 + toCcmDate.format(lastBuild)
                 + "')");
         
@@ -566,8 +632,8 @@ public class CMSynergy implements SourceControl {
      * associated with the task.
      */
     private void getModifiedObjects(CMSynergyModification mod) {    
-        
-        ManagedCommandline cmd = createCcmCommand();
+        // Construct the CM Synergy command
+        cmd.clearArgs();
         cmd.createArgument().setValue("query");
         cmd.createArgument().setValue("-u");
             
@@ -622,7 +688,8 @@ public class CMSynergy implements SourceControl {
      * @param mod The modification object
      */
     private void getAssociatedCRs(CMSynergyModification mod) {
-        ManagedCommandline cmd = createCcmCommand();
+        // Construct the CM Synergy command
+        cmd.clearArgs();
         cmd.createArgument().setValue("query");
         cmd.createArgument().setValue("-u");
         
@@ -674,15 +741,16 @@ public class CMSynergy implements SourceControl {
         String defaultWorkarea = ".";
         
         // Get the literal workarea from Synergy
-        ManagedCommandline getWorkareaCommand = createCcmCommand();
-        getWorkareaCommand.createArgument().setValue("attribute");
-        getWorkareaCommand.createArgument().setValue("-show");
-        getWorkareaCommand.createArgument().setValue("wa_path");
-        getWorkareaCommand.createArgument().setValue("-project");
-        getWorkareaCommand.createArgument().setValue(projectSpec);
+        cmd.clearArgs();
+        cmd.createArgument().setValue("attribute");
+        cmd.createArgument().setValue("-show");
+        cmd.createArgument().setValue("wa_path");
+        cmd.createArgument().setValue("-project");
+        cmd.createArgument().setValue(projectSpec);
+        
         try {
-            getWorkareaCommand.execute();
-            getWorkareaCommand.assertExitCode(0);
+            cmd.execute();
+            cmd.assertExitCode(0);
         } catch (Exception e) {
             LOG.warn("Could not determine the workarea location for project \""
                     + projectSpec + "\".", e);
@@ -691,7 +759,7 @@ public class CMSynergy implements SourceControl {
         
         // The command will return the literal work area, but what we are 
         // really interested in is the top level directory within that work area.
-        File workareaPath = new File(getWorkareaCommand.getStdoutAsString()
+        File workareaPath = new File(cmd.getStdoutAsString()
                 .trim());
         if (!workareaPath.isDirectory()) {
             LOG.warn("The workarea reported by Synergy does not exist or is not accessible by this session - \""
@@ -715,16 +783,18 @@ public class CMSynergy implements SourceControl {
     private void reconfigureProject() {
         LOG.info("Reconfiguring project " + projectSpec + ".");
         
-        ManagedCommandline reconfigureCommand = createCcmCommand();
-        reconfigureCommand.createArgument().setValue("reconfigure");
+        // Construct the CM Synergy command
+        cmd.clearArgs();
+        cmd.createArgument().setValue("reconfigure");
         if (recurse) {
-            reconfigureCommand.createArgument().setValue("-recurse");
+            cmd.createArgument().setValue("-recurse");
         }
-        reconfigureCommand.createArgument().setValue("-project");
-        reconfigureCommand.createArgument().setValue(projectSpec);
+        cmd.createArgument().setValue("-project");
+        cmd.createArgument().setValue(projectSpec);
+        
         try {
-            reconfigureCommand.execute();
-            reconfigureCommand.assertExitCode(0);
+            cmd.execute();
+            cmd.assertExitCode(0);
         } catch (Exception e) {
             LOG.warn("Could not reconfigure project \""
                     + projectSpec + "\".", e);
@@ -739,8 +809,7 @@ public class CMSynergy implements SourceControl {
      * @return The formated <code>List</code>
      */
     private List format(List in) {
-        // Concatenate output lines until we hit the end of
-        // object delimiter.
+        // Concatenate output lines until we hit the end of object delimiter.
         List out = new ArrayList();
         Iterator it = in.iterator();
         StringBuffer buff = new StringBuffer();
@@ -783,20 +852,85 @@ public class CMSynergy implements SourceControl {
     }
     
     /**
-     * Creates a <code>ManagedCommandline</code> configured to run
-     * CM Synergy commands.
+     * Given a CM Synergy session name, looks up the corresponding session ID.
      * 
-     * @return A ManagedCommandline configured for CM Synergy
+     * @param sessionName
+     *            The CM Synergy session name
+     * @param sessionFile
+     *            The session map file
+     * @return The session ID.
+     * 
+     * @throws CruiseControlException
      */
-    private ManagedCommandline createCcmCommand() {
-        // Create a managed command line
-        ManagedCommandline cmd = new ManagedCommandline(ccmExe);
-        
-        // If we were given a ccmSession ID, use it
-        if (ccmSession != null) {
-            cmd.setVariable(CCM_SESSION_VAR, ccmSession);
+    public static String getSessionID(String sessionName, File sessionFile)
+            throws CruiseControlException {
+
+        // If no session file was provided, try to use the default
+        if (sessionFile == null) {
+            sessionFile = new File(CCM_SESSION_FILE);
         }
         
-        return cmd;
+        // Load the persisted session information from file
+        Properties sessionProperties = null;
+        try {
+            sessionProperties = Util.loadPropertiesFromFile(sessionFile);
+        } catch (IOException e) {
+            throw new CruiseControlException (e);
+        }
+
+        // Look up and return the full session ID
+        return sessionProperties.getProperty(sessionName);
     }
+    
+    /**
+     * Creates a <code>ManagedCommandline</code> configured to run CM Synergy
+     * commands.
+     * 
+     * @param ccmExe
+     *            Full path of the CM Synergy command line client (or
+     *            <code>null</code> to use the default).
+     * @param sessionName
+     *            The name of the session as stored in the map file (or
+     *            <code>null</code> to use the default session).
+     * @param sessionFile
+     *            The CM Synergy session map file (or <code>null</code> to use
+     *            the default).
+     * @return A configured <code>ManagedCommandline</code>
+     */
+    public static ManagedCommandline createCcmCommand(String ccmExe,
+            String sessionName, File sessionFile) {
+        
+        // If no executable name was provided, use the default
+        if (ccmExe == null) {
+            ccmExe = CCM_EXE;
+        }
+        
+        // Attempt to get the appropriate CM Synergy session
+        String sessionID = null;
+        if (sessionName != null) {
+            try {
+                sessionID = getSessionID(sessionName, sessionFile);
+                if (sessionID == null) {
+                    LOG.error("Could not find a session ID for CM Synergy session named \""
+                            + sessionName
+                            + "\". Attempting to use the default (current) session.");
+                }
+            } catch (CruiseControlException e) {
+                LOG.error("Failed to look up CM Synergy session named \""
+                        + sessionName
+                        + "\". Attempting to use the default (current) session.",
+                        e);
+            }
+        }
+
+        // Create a managed command line
+        ManagedCommandline command = new ManagedCommandline(ccmExe);
+
+        // If we were able to find a CM Synergy session ID, use it
+        if (sessionID != null) {
+            command.setVariable(CCM_SESSION_VAR, sessionID);
+        }
+
+        return command;
+    }          
 }

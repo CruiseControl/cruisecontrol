@@ -37,6 +37,11 @@ contrib:
 CMSynergy:
 ----------------------
 * Added options reconfigure, ignoreWorkarea, language, and country attributes (CC-179). Patch by Robert J. Smith
+* Major overhaul of CMSynergy support (CC-217). Patch by Robert J. Smith
+    - added CMSynergySessionMonitor listener
+    - added CMSynergyBaselinePublisher
+    - added CMSynergyTaskPublisher
+    - added instance attribute to CMSynergy source control
 
 cruisecontrol.sh:
 ----------------------

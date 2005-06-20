@@ -36,10 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -107,4 +113,70 @@ public final class Util {
         return osName;
     }
 
+    /**
+     * Loads a set of properties from the specified properties file. The file
+     * must exist and be in the proper format. If not, a
+     * <code>CruiseControlException</code> is thrown.
+     * 
+     * @param file
+     *            The <code>File</code> from which to load the properties
+     * @return A <code>Properties</code> object which contains all properties
+     *         defined in the file.
+     * @throws CruiseControlException,
+     *             IOException
+     */
+    public static Properties loadPropertiesFromFile(File file)
+            throws CruiseControlException, IOException {
+        Properties properties = new Properties();
+
+        // Load the properties from file
+        BufferedInputStream bis = null;
+        try {
+            bis = new BufferedInputStream(new FileInputStream(file));
+            properties.load(bis);
+        } catch (FileNotFoundException e) {
+            throw new CruiseControlException(
+                    "Could not load properties from file "
+                            + file.getAbsolutePath() + ". It does not exist.",
+                    e);
+        } finally {
+            bis.close();
+        }
+
+        return properties;
+    }
+    
+    /**
+     * Stores the contents of a <code>Properties</code> object to the specifed
+     * file. If the file does not exist, it will be created (if possible).
+     * 
+     * @param properties
+     *            The <code>Properties</code> object which will be stored to
+     *            file
+     * @param header
+     *            A string which will be written to the first line of the
+     *            properties file as a comment. Can be <code>null</code>.
+     * @param file
+     *            The properties file to which the properties will be written.
+     * 
+     * @throws CruiseControlException,
+     *             IOException
+     */
+    public static void storePropertiesToFile(Properties properties,
+            String header, File file) throws CruiseControlException,
+            IOException {
+        BufferedOutputStream bos = null;
+
+        try {
+            bos = new BufferedOutputStream(new FileOutputStream(file));
+            properties.store(bos, header);
+        } catch (FileNotFoundException e) {
+            throw new CruiseControlException(
+                    "Could not store properties to file "
+                            + file.getAbsolutePath() + ". It does not exist.",
+                    e);
+        } finally {
+            bos.close();
+        }
+    }
 }
