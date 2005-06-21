@@ -188,20 +188,26 @@
       <version>unknown</version>
       <url>http://FIXME/ </url>
     </dependency>
+    <dependency>
+      <groupId>jetty</groupId>
+      <artifactId>org.mortbay.jetty</artifactId>
+      <version>5.1.3</version>
+      <url>http://FIXME/ </url>
+    </dependency>
 
     <!-- temporary solution -->
     <!-- FIXME: better is to download the mocks only in the release process -->
     <dependency>
       <groupId>mock-apis</groupId>
       <artifactId>sametime-sdk-mock-interface</artifactId>
-      <version>0.1</version>    <!-- version number of mock -->
-      <url>http://coffeebreaks.dyndns.org/maven/mock-apis/distributions/</url> <!-- URL of real same time jar file ... -->
+      <version>0.2-dev</version>    <!-- version number of mock -->
+      <url>http://coffeebreaks.dyndns.org/maven/mock-apis/distributions/</url>
     </dependency>
     <dependency>
       <groupId>mock-apis</groupId>
       <artifactId>starteam-sdk-mock-interface</artifactId>
       <version>0.1</version>    <!-- version number of mock -->
-      <url>http://coffeebreaks.dyndns.org/maven/mock-apis/distributions/</url> <!-- URL of real same time jar file ... -->
+      <url>http://coffeebreaks.dyndns.org/maven/mock-apis/distributions/</url>
     </dependency>
   </dependencies>
 
