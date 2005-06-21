@@ -81,13 +81,13 @@ public class ThreadQueueTest extends TestCase {
             System.out.println("ThreadQueue.numWaitingTasks()->" + ThreadQueue.numWaitingTasks());
             System.out.println("ThreadQueue.numCompletedTasks()->" + ThreadQueue.numCompletedTasks());
 
-            assertEquals(ThreadQueue.numTotalTasks(), TASK_COUNT);
+            assertEquals("total tasks should be constant", ThreadQueue.numTotalTasks(), TASK_COUNT);
             int stillWaiting = TASK_COUNT - i - 2;
             if (stillWaiting < 0) {
                 stillWaiting = 0;
             }
-            assertEquals(ThreadQueue.numWaitingTasks(), stillWaiting);
-            assertEquals(ThreadQueue.numCompletedTasks(), i + 1);
+            assertEquals("waiting tasks should drop", ThreadQueue.numWaitingTasks(), stillWaiting);
+            assertEquals("completed tasks should increase", ThreadQueue.numCompletedTasks(), i + 1);
         }
         assertEquals(ThreadQueue.numTotalTasks(), TASK_COUNT);
         ThreadQueue.terminate();
