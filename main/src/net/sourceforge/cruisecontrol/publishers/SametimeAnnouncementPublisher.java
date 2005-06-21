@@ -275,8 +275,11 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
 
     // not really sending mail, but LinkEmailPublisher has a lot of useful logic
     // to reuse - skipUsers, spamWhileBroken etc...
-    protected void sendMail(String toList, String subject, String message, boolean important) 
+    protected boolean sendMail(String toList, String subject, String message, boolean important) 
         throws CruiseControlException {
+ 
+        boolean announcementSent = false;
+
         LOG.info("Sending sametime notifications.");
 
         // turn the comma separated toList into a list of users/groups to be resolved
@@ -346,6 +349,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
             String announcementMessage = message == null ? subject : subject + "\r\n" + message;
             this.announcementService.sendAnnouncement((STObject[]) this.recipientUserSet.toArray(
                                       new STObject[this.recipientUserSet.size()]), false, announcementMessage);
+            announcementSent = true;
         } finally {
             try {
                 this.communityService.logout();
@@ -356,6 +360,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
                     this.session.unloadSession();
                 }
             }
+            return announcementSent;
         }
     }
 
