@@ -1,0 +1,12 @@
+<buildresults project="testbuild">
+    <message level="Info">
+        Buildfile: file:///C:/projects/CruiseControl/CruiseControl-NAnt-foreign/main/test/test.build
+    </message>
+    <message level="Info">Target framework: Microsoft .NET Framework 1.1</message>
+    <message level="Info">Target(s) specified: init</message>
+        <target name="init">
+        <task name="echo">
+            <message level="Info">called test.build init target</message>
+        </task>
+    </target>
+</buildresults>
