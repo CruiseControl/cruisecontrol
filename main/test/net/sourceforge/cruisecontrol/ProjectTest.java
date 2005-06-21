@@ -329,14 +329,15 @@ public class ProjectTest extends TestCase {
         int firstLoopCount = mockProject.getLoopCount();
         Thread.sleep(100);
         int secondLoopCount = mockProject.getLoopCount();
-        assertTrue("loop counts are different when not paused", firstLoopCount != secondLoopCount);
+        assertTrue("loop counts should have been different when not paused",
+                   firstLoopCount != secondLoopCount);
 
         mockProject.setPaused(true);
         Thread.sleep(100);
         firstLoopCount = mockProject.getLoopCount();
         Thread.sleep(100);
         secondLoopCount = mockProject.getLoopCount();
-        assertTrue("loop counts are the same when paused", firstLoopCount == secondLoopCount);
+        assertEquals("loop counts should be same when paused", firstLoopCount, secondLoopCount);
 
         mockProject.setPaused(false);
         Thread.sleep(100);
