@@ -45,8 +45,10 @@ import java.io.IOException;
  *
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
-public class CruiseControlWithJetty {
+public final class CruiseControlWithJetty {
     private static final Logger LOG = Logger.getLogger(CruiseControlWithJetty.class);
+
+    private CruiseControlWithJetty() { }
 
     public static void main(final String[] args) throws Exception {
         //A Thread for Jetty...
