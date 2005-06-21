@@ -48,7 +48,7 @@
     <property name="temp.dir" value="${target}/tmp"/>
     <property name="docs" value="docs"/>
     <property name="test" value="test"/>
-    <property name="test.results" value="${target}/testresults"/>
+    <property name="test.results" value="${target}/test-results"/>
     <property name="tests" value="*Test"/>
 	<property name="webcontent" value="webcontent"/>
 
