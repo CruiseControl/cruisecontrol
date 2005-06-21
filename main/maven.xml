@@ -36,7 +36,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************-->
 <project
-  default="jar"
   xmlns:maven="jelly:maven"
   xmlns:j="jelly:core"
   xmlns:ant="jelly:ant">
@@ -80,13 +79,12 @@
     <attainGoal name="maven-simian-plugin:report" /> <!-- FIXME or just analyze ?? -->
   </postGoal>
 
-  <postGoal name="jar:jar">
+  <goal name="cc:clean" prereqs="clean:clean">
+    <ant:delete dir="${basedir}/dist" quiet="true" failonerror="false"/>
+  </goal>
+
+  <goal name="cc:dist" prereqs="jar:jar">
     <ant:mkdir dir="${basedir}/dist"/>
     <ant:copy tofile="${basedir}/dist/cruisecontrol.jar" file="${maven.build.dir}/${maven.final.name}.jar"/>
-  </postGoal>
-
-  <preGoal name="clean:clean">
-    <ant:delete dir="${basedir}/dist" quiet="true" failonerror="false"/>
-  </preGoal>
-
+  </goal>
 </project>
