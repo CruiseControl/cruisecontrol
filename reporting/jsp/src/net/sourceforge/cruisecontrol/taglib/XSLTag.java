@@ -119,6 +119,12 @@ public class XSLTag extends CruiseControlTagSupport {
                 }
             }
             transformer.transform(new StreamSource(in), new StreamResult(out));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            err(e);
+            throw new CCTagException("Error transforming '" + xmlFile.getName()
+                    + "'. You might be experiencing XML parser issues."
+                    + " Are your xalan & xerces jar files mismatched? Check your JVM version. "
+                    + e.getMessage(), e);
         } catch (TransformerException e) {
             err(e);
             throw new CCTagException("Error transforming '" + xmlFile.getName()
