@@ -103,7 +103,6 @@ public class MavenBuilder extends Builder {
 
         List runs = getGoalSets();
         for (int runidx = 0; runidx < runs.size(); runidx++) {
-            Process p;
             String goalset = (String) runs.get(runidx);
             MavenScript script = new MavenScript();
             script.setGoalset(goalset);

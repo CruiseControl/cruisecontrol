@@ -75,7 +75,7 @@ public class NantScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultInfo",
                 resultInfo,
-                script.getCommandLineArgs());          
+            script.buildCommandline().getCommandline());
 
         String[] resultLogger = { nantCmd, 
                 "-logger:NAnt.Core.XmlLogger", 
@@ -87,7 +87,7 @@ public class NantScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultLogger",
                 resultLogger,
-                script.getCommandLineArgs());           
+            script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
@@ -100,7 +100,7 @@ public class NantScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultInfo",
                 resultInfo,
-                script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
 
         String[] resultLogger = { nantCmd, 
                 "-logger:NAnt.Core.XmlLogger", 
@@ -111,7 +111,7 @@ public class NantScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultLogger",
                 resultLogger,
-                script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
@@ -127,7 +127,7 @@ public class NantScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultDebug",
                 resultDebug,
-                script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
@@ -135,7 +135,7 @@ public class NantScriptTest extends TestCase {
                 "-logger:NAnt.Core.XmlLogger", 
                 "-logfile:log.xml", 
                 "-quiet+",
-                "-D:label=200.1.23", 
+                "-D:label=200.1.23",
                 "-buildfile:buildfile", 
                 "target" };
         script.setUseQuiet(true);
@@ -143,7 +143,7 @@ public class NantScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultQuiet",
                 resultQuiet,
-                script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
     }
 
 }

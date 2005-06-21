@@ -476,17 +476,32 @@ public class Commandline implements Cloneable {
     public void setWorkingDirectory(String path) throws CruiseControlException {
         if (path != null) {
             File dir = new File(path);
-            if (!dir.exists()) {
-                throw new CruiseControlException(
-                    "Working directory \"" + path + "\" does not exist!");
-            } else if (!dir.isDirectory()) {
-                throw new CruiseControlException(
-                    "Path \"" + path + "\" does not specify a directory.");
-            } else {
-                workingDir = dir;
-            }
+            checkWorkingDir(dir);
+            workingDir = dir;
         } else {
             workingDir = null;
+        }
+    }
+   
+    /** 
+     * Sets exeuction directory
+     */ 
+    public void setWorkingDir(File workingDir) throws CruiseControlException {
+        checkWorkingDir(workingDir);
+        this.workingDir = workingDir;
+    }
+
+    // throws an exception if the specified working directory is non null 
+    // and not a valid working directory
+    private void checkWorkingDir(File dir) throws CruiseControlException {
+        if (dir != null) {
+            if (!dir.exists()) {
+                throw new CruiseControlException(
+                    "Working directory \"" + dir.getAbsolutePath() + "\" does not exist!");
+            } else if (!dir.isDirectory()) {
+                throw new CruiseControlException(
+                    "Path \"" + dir.getAbsolutePath() + "\" does not specify a directory.");
+            }
         }
     }
 

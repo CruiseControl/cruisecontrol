@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
@@ -79,44 +80,34 @@ public class ScriptRunner  {
             return killed;
         }
     }
+
     /**
      * build and return the results via xml. debug status can be determined from
      * log4j category once we get all the logging in place.
-     * 
+     *
      * @param workingDir  The directory to run the script from.
      * @param script  The details on the script to be run.
      */
     public boolean runScript(File workingDir, Script script, long timeout) throws CruiseControlException {
+        Commandline commandline = script.buildCommandline();
 
+        commandline.setWorkingDir(workingDir);
+        
         Process p;
         int exitCode = -1;
-            
-        String[] commandLine = script.getCommandLineArgs();
-
-        String commandLineAsString = asString(commandLine, " ");
 
         try {
-            if (LOG.isDebugEnabled()) {
-                StringBuffer sb = new StringBuffer();
-                sb.append("Executing Command: '");
-                sb.append(commandLineAsString);
-                if (workingDir != null) {
-                    sb.append("' in directory " + workingDir);
-                }
-                LOG.debug(sb);
-            }
-
-            p = Runtime.getRuntime().exec(commandLine, null, workingDir);
+            p = commandline.execute();
         } catch (IOException e) {
             throw new CruiseControlException("Encountered an IO exception while attempting to execute '" 
-                    + commandLineAsString + "'. CruiseControl cannot continue.", e);
+                    + script.toString() + "'. CruiseControl cannot continue.", e);
         }
 
-        StreamPumper errorPumper = null;
-        StreamPumper outPumper = null;
+        StreamPumper errorPumper;
+        StreamPumper outPumper;
         if (script instanceof StreamConsumer) {
             errorPumper = new StreamPumper(p.getErrorStream(), (StreamConsumer) script);
-            outPumper = new StreamPumper(p.getInputStream(), (StreamConsumer) script);            
+            outPumper = new StreamPumper(p.getInputStream(), (StreamConsumer) script);
         } else {
             errorPumper = new StreamPumper(p.getErrorStream());
             outPumper = new StreamPumper(p.getInputStream());
@@ -150,17 +141,6 @@ public class ScriptRunner  {
         
         return !killer.processKilled();
 
-    }
-
-    private String asString(Object[] array, String delim) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < array.length; i++) {
-            if (i > 0) {
-                sb.append(delim);
-            }
-            sb.append(array[i]);
-        }
-        return sb.toString();
     }
 }
 

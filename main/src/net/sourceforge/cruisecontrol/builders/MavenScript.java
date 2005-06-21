@@ -68,17 +68,13 @@ public class MavenScript implements Script, StreamConsumer {
     /** Global log to produce, passed in from MavenBuilder */
     private Element buildLogElement;
     private Element currentElement = null;
-    
+
     /**
      *  construct the command that we're going to execute.
-     *  @param buildProperties Map holding key/value pairs of arguments to the build process
-     *  @param goalset A set of goals to run (list, separated by emptyspace)
-     *  @return String[] holding command to be executed
+     *  @return Commandline holding command to be executed
      * @throws CruiseControlException
      */
-    public String[] getCommandLineArgs() 
-        throws CruiseControlException {
-
+    public Commandline buildCommandline() throws CruiseControlException {
         Commandline cmdLine = new Commandline();
 
         if (mavenScript != null) {
@@ -124,8 +120,7 @@ public class MavenScript implements Script, StreamConsumer {
             }
             LOG.debug(sb.toString());
         }
-
-        return cmdLine.getCommandline();
+        return cmdLine;
     }
 
     /**

@@ -38,6 +38,7 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 
 /**
@@ -49,12 +50,11 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 public interface Script {
     
     /**
-     * This method will return the command line arguments for a specific
-     * build tool
-     * @return Array of command line arguments for a scripted build.
+     * This method will return the command line for a specific build tool
+     * @return commandline for a scripted build.
      */
-    public String[] getCommandLineArgs() throws CruiseControlException;
-    
+    public Commandline buildCommandline() throws CruiseControlException;
+
     /**
      * exitCode is what is returned from running the script
      * @param result

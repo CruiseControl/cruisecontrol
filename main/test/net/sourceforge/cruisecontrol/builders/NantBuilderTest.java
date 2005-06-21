@@ -27,19 +27,25 @@
  ******************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.net.URL;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.MockCommandline;
+import net.sourceforge.cruisecontrol.util.MockProcess;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
@@ -47,6 +53,7 @@ import org.apache.log4j.PatternLayout;
 import org.jdom.Attribute;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
+import org.jdom.CDATA;
 
 public class NantBuilderTest extends TestCase {
     
@@ -57,6 +64,45 @@ public class NantBuilderTest extends TestCase {
     private String nantCmd = "NAnt.exe";
     private File rootTempDir = null;
     private String rootTempDirPath = null;
+
+    static class InputBasedMockCommandLineBuilder {
+        Commandline buildCommandline(final InputStream inputStream) {
+            final MockCommandline mockCommandline = getMockCommandline();
+            mockCommandline.setAssertCorrectCommandline(false);
+            // could System.in and System.out create problems here?
+            mockCommandline.setProcessErrorStream(System.in);
+            mockCommandline.setProcessInputStream(inputStream);
+            mockCommandline.setProcessOutputStream(System.out);
+            return mockCommandline;
+        }
+
+        MockCommandline getMockCommandline() {
+            return new MockCommandline();
+        }
+    }
+
+    // process that times out...
+    static class TimeoutProcess extends MockProcess {
+        private long timeoutMillis;
+        TimeoutProcess(long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+        }
+        public synchronized void destroy() {
+            notifyAll();
+        }
+        public int waitFor() throws InterruptedException {
+            System.out.println("waiting for time out");
+            synchronized (this) {
+                try {
+                    this.wait(timeoutMillis);
+                } catch (InterruptedException e) {
+                }
+            }
+            System.out.println("finished waiting for time out");
+            return super.waitFor();
+        }
+    };
+
 
     protected void setUp() throws Exception {
         builder = new NantBuilder();
@@ -134,28 +180,77 @@ public class NantBuilderTest extends TestCase {
         buildLogElement.setAttribute(errorAttribute);
         buildLogElement = builder.translateNantErrorElements(buildLogElement);
         assertEquals("build", buildLogElement.getName());
-        assertTrue(buildLogElement.getAttribute("error").getBooleanValue());       
-        
+        assertTrue(buildLogElement.getAttribute("error").getBooleanValue());
+
     }
-    
-    public void testTranslateNantErrorElementsWithFailureElements() 
+
+    public void testTranslateNantErrorElementsWithFailureElements()
         throws CruiseControlException, DataConversionException {
         Element buildLogElement = new Element("buildresults");
         Element failureElement = new Element("failure");
         buildLogElement.addContent(failureElement);
         
+        try {
+            buildLogElement = builder.translateNantErrorElements(buildLogElement);
+            fail("Expected a CruiseControlException for invalid nant log output format");
+        } catch (CruiseControlException e) { /** expected **/ }
+
+        Element buildErrorElement = new Element("builderror");
+        failureElement.addContent(buildErrorElement);
+
+        try {
+            buildLogElement = builder.translateNantErrorElements(buildLogElement);
+            fail("Expected a CruiseControlException for invalid nant log output format");
+        } catch (CruiseControlException e) { /** expected **/ }
+
+        Element messageElement = new Element("message");
+        buildErrorElement.addContent(messageElement);
+
+        try {
+            buildLogElement = builder.translateNantErrorElements(buildLogElement);
+            fail("Expected a CruiseControlException for invalid nant log output format");
+        } catch (CruiseControlException e) { /** expected **/ }
+
+        messageElement.setContent(new CDATA("test failure"));
+
         buildLogElement = builder.translateNantErrorElements(buildLogElement);
         assertEquals("build", buildLogElement.getName());
-        assertTrue(buildLogElement.getAttribute("error").getBooleanValue());       
-        
-    }    
+        Attribute errorAttribute = buildLogElement.getAttribute("error");
+        assertTrue(errorAttribute != null);
+        assertEquals(Attribute.UNDECLARED_TYPE, errorAttribute.getAttributeType());
+        assertEquals("test failure", errorAttribute.getValue());
+    }
 
     public void testBuild() throws Exception {
-        builder.setBuildFile("test.build");
-        builder.setTempFile("notLog.xml");
-        builder.setTarget("init");
+
+        final String logName = "nantbuilder-build1.txt";
+        final InputStream emptyInputStream = new ByteArrayInputStream("".getBytes());
+
+        final NantBuilder mybuilder = new NantBuilder() {
+            protected NantScript getNantScript() {
+                return new NantScript() {
+                    public Commandline getCommandLine() {
+                        return new InputBasedMockCommandLineBuilder().buildCommandline(emptyInputStream);
+                    }
+                };
+            }
+            protected Element getNantLogAsElement(File file) throws CruiseControlException {
+                assertEquals("notLog.xml", file.getPath());
+                final URL resource = getClass().getResource(logName);
+                assertNotNull("missing test case resource: " + logName, resource);
+                String path = resource.getPath();
+                File simulatedFile = new File(path);
+                return super.getNantLogAsElement(simulatedFile);
+            }
+        };
+        mybuilder.setTarget("target");
+        mybuilder.setBuildFile("buildfile");
+
+        mybuilder.setBuildFile("test.build");
+        mybuilder.setTempFile("notLog.xml");
+        mybuilder.setTarget("init");
         HashMap buildProperties = new HashMap();
-        Element buildElement = builder.build(buildProperties);
+        Element buildElement = mybuilder.build(buildProperties);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
 
@@ -190,24 +285,51 @@ public class NantBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
-        builder.setBuildFile("test.build");
-        builder.setTarget("timeout-test-target");
-        builder.setTimeout(5);
-        builder.setUseDebug(true);
-        builder.setUseLogger(true);
+
+        final MockProcess timeoutProcess = new TimeoutProcess(20000);
+        final MockCommandline timeoutCommandline = new MockCommandline() {
+            public MockProcess getMockProcess()  {
+                return timeoutProcess;
+            }
+        };
+        final InputStream emptyInputStream = new ByteArrayInputStream("".getBytes());
+        timeoutCommandline.setAssertCorrectCommandline(false);
+        timeoutCommandline.setProcessErrorStream(emptyInputStream);
+        timeoutCommandline.setProcessInputStream(emptyInputStream);
+        timeoutCommandline.setProcessOutputStream(System.out);
+
+        final NantBuilder mybuilder = new NantBuilder() {
+            protected NantScript getNantScript() {
+                return new NantScript() {
+                    public Commandline getCommandLine() {
+                        return timeoutCommandline;
+                    }
+                };
+            }
+            protected Element getNantLogAsElement(File file) throws CruiseControlException {
+                fail("We should time out... we have nothing to read anyway");
+                return super.getNantLogAsElement(file); // please compiler
+            }
+        };
+
+        mybuilder.setBuildFile("test.build");
+        mybuilder.setTarget("timeout-test-target");
+        mybuilder.setTimeout(5);
+        mybuilder.setUseDebug(true);
+        mybuilder.setUseLogger(true);
 
         HashMap buildProperties = new HashMap();
         long startTime = System.currentTimeMillis();
-        Element buildElement = builder.build(buildProperties);
+        Element buildElement = mybuilder.build(buildProperties);
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
 
         // test we don't fail when there is no NAnt log file
-        builder.setTimeout(1);
-        builder.setUseDebug(false);
-        builder.setUseLogger(false);
-        builder.setTempFile("shouldNot.xml");
-        buildElement = builder.build(buildProperties);
+        mybuilder.setTimeout(1);
+        mybuilder.setUseDebug(false);
+        mybuilder.setUseLogger(false);
+        mybuilder.setTempFile("shouldNot.xml");
+        buildElement = mybuilder.build(buildProperties);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
     }
 
@@ -253,13 +375,13 @@ public class NantBuilderTest extends TestCase {
         bw2.flush();
         bw2.close();
 
-        assertEquals(buildLogElement.toString(), NantBuilder.getNantLogAsElement(logFile).toString());
+        assertEquals(buildLogElement.toString(), builder.getNantLogAsElement(logFile).toString());
     }
 
     public void testGetNantLogAsElement_NoLogFile() throws IOException {
         File doesNotExist = new File("blah blah blah does not exist");
         try {
-            NantBuilder.getNantLogAsElement(doesNotExist);
+            builder.getNantLogAsElement(doesNotExist);
             fail();
         } catch (CruiseControlException expected) {
             assertEquals("NAnt logfile " + doesNotExist.getAbsolutePath() + " does not exist.", expected.getMessage());
