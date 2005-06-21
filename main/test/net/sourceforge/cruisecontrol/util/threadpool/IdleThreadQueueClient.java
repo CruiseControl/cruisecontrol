@@ -83,11 +83,12 @@ public class IdleThreadQueueClient implements WorkerThread {
 
         if (args.length > 0) {
             name = args[0];
-        }
-        if (args.length > 1) {
-            timeToSleep = new Integer((new String(args[1]))).intValue();
-        } else {
-            timeToSleep = 1000;
+
+            if (args.length > 1) {
+                timeToSleep = new Integer(args[1]).intValue();
+            } else {
+                timeToSleep = 1000;
+            }
         }
 
 
