@@ -244,7 +244,7 @@
             <batchtest todir="${junit.results}" >
                 <fileset dir="${test.classes}"
                          includes="**/${tests}.class"
-                         excludes="**/NantBuilder*Test.class" />
+                         />
             </batchtest>
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
@@ -300,20 +300,6 @@
 
     </target>
 
-    <target name="test-nant" depends="init, compile-test" if="nant-present">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}" >
-            <classpath >
-                <path refid="project.runtime.classpath" />
-            </classpath>
-            <formatter type="brief" usefile="false"/>
-            <formatter type="xml" />
-            <batchtest todir="${junit.results}" >
-                <fileset dir="${test.classes}" includes="**/NantBuilder*Test.class" />
-            </batchtest>
-        </junit>
-
-    </target>
-
     <target name="jar" depends="compile">
         <jar jarfile="${dist}/cruisecontrol.jar" manifest="${basedir}/manifest.mf">
             <fileset dir="${classes}"/>
@@ -334,7 +320,7 @@
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar"/>
     
-    <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,test-nant,jar" description="Performs a build, runs tests, and builds jar" />
+    <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar" description="Performs a build, runs tests, and builds jar" />
 
     <target name="cvs-update" depends="init" if="localCopy">
         <cvs command="update -d -P" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol"

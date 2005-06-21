@@ -42,11 +42,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.builders.AntBuilder.JVMArg;
 import net.sourceforge.cruisecontrol.util.Commandline;
-
-import org.apache.log4j.Logger;
-
 
 /**
  * Ant script class.
@@ -56,9 +52,7 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class AntScript implements Script {
-    private static final Logger LOG = Logger.getLogger(AntScript.class);
-    
-    private Map buildProperties;   
+    private Map buildProperties;
 
     private boolean isWindows;
     private String antScript;
@@ -74,16 +68,15 @@ public class AntScript implements Script {
     private String target = "";
     private String systemClassPath;
     private int exitCode;
-   
-    
+
+
     /**
      * construct the command that we're going to execute.
      *
-     * @param buildProperties Map holding key/value pairs of arguments to the build process
-     * @return String[] holding command to be executed
+     * @return Commandline holding command to be executed
      * @throws CruiseControlException on unquotable attributes
      */
-    public String[] getCommandLineArgs() throws CruiseControlException {
+    public Commandline buildCommandline() throws CruiseControlException {
         Commandline cmdLine = new Commandline();
 
         if (useScript) {
@@ -95,13 +88,13 @@ public class AntScript implements Script {
                 cmdLine.setExecutable("java");
             }
             for (Iterator argsIterator = args.iterator(); argsIterator.hasNext(); ) {
-                String arg = ((JVMArg) argsIterator.next()).getArg();
+                String arg = ((AntBuilder.JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
                     cmdLine.createArgument().setValue(arg);
                 }
             }
-            
+
             cmdLine.createArgument().setValue("-classpath");
             cmdLine.createArgument().setValue(getAntLauncherJarLocation(systemClassPath, isWindows));
             cmdLine.createArgument().setValue("org.apache.tools.ant.launch.Launcher");
@@ -127,7 +120,7 @@ public class AntScript implements Script {
         } else if (useQuiet) {
             cmdLine.createArgument().setValue("-quiet");
         }
-        
+
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
             Map.Entry property = (Map.Entry) propertiesIter.next();
             String value = (String) property.getValue();
@@ -148,11 +141,10 @@ public class AntScript implements Script {
         while (targets.hasMoreTokens()) {
             cmdLine.createArgument().setValue(targets.nextToken());
         }
-
-        return cmdLine.getCommandline();
+        return cmdLine;
     }
 
-    
+
     /**
      * @return the path to ant-launcher*.jar taken from the given path
      */

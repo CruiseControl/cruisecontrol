@@ -109,6 +109,7 @@ public class MockCommandline extends Commandline {
     private InputStream processErrorStream = null;
     private InputStream processInputStream = null;
     private OutputStream processOutputStream = null;
+    private boolean assertCorrectCommandline = true;
 
     public MockCommandline() {
     }
@@ -148,6 +149,14 @@ public class MockCommandline extends Commandline {
         this.processOutputStream = processOutputStream;
     }
 
+    /**
+     * Do not perform assertions.
+     * @param assertCorrectCommandline
+     */
+    public void setAssertCorrectCommandline(boolean assertCorrectCommandline) {
+        this.assertCorrectCommandline = assertCorrectCommandline;
+    }
+
     public void ensureCommandline() {
         if (!Arrays.equals(expectedCommandline, getCommandline())) { 
             Assert.fail("Command line error expected: "
@@ -178,15 +187,21 @@ public class MockCommandline extends Commandline {
      */
     public Process execute() {
 
-        ensureCommandline();
-        ensureWorkingDirectory();
+        if (assertCorrectCommandline) {
+            ensureCommandline();
+            ensureWorkingDirectory();
+        }
 
-        MockProcess process = new MockProcess();
+        MockProcess process = getMockProcess();
         process.setErrorStream(processErrorStream);
         process.setInputStream(processInputStream);
         process.setOutputStream(processOutputStream);
 
         return process;
+    }
+
+    protected MockProcess getMockProcess() {
+        return new MockProcess();
     }
 
 }

@@ -41,11 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-
-import org.apache.log4j.Logger;
-
 
 /**
  * NAnt script class.
@@ -54,8 +50,6 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class NantScript implements Script {
-    private static final Logger LOG = Logger.getLogger(NantScript.class);
-    
     private Map buildProperties;
     private List nantProperties;
 
@@ -64,20 +58,19 @@ public class NantScript implements Script {
     private boolean useLogger;
     private boolean useQuiet;
     private boolean useDebug;
+    private boolean useVerbose;
     private String buildFile = "default.build";
     private String target = "";
     private String targetFramework;
     private int exitCode;
-    
+
     /**
      * construct the command that we're going to execute.
      *
-     * @param buildProperties Map holding key/value pairs of arguments to the build process
-     * @return String[] holding command to be executed
-     * @throws CruiseControlException on unquotable attributes
+     * @return Commandline holding command to be executed
      */
-    public String[] getCommandLineArgs() throws CruiseControlException {
-        Commandline cmdLine = new Commandline();
+    public Commandline buildCommandline() {
+        Commandline cmdLine = getCommandLine();
 
         cmdLine.setExecutable("NAnt.exe");
         if (useLogger) {
@@ -87,6 +80,11 @@ public class NantScript implements Script {
             cmdLine.createArgument().setValue("-listener:" + getLoggerClassName());
             cmdLine.createArgument().setValue("-D:XmlLogger.file=" + tempFileName);
         }
+        /*
+        if (useVerbose) {
+            cmdLine.createArgument().setValue("-verbose");
+        }
+        */
         if (useDebug) {
             cmdLine.createArgument().setValue("-debug+");
         } else if (useQuiet) {
@@ -107,19 +105,21 @@ public class NantScript implements Script {
             Property property = (Property) nantPropertiesIterator.next();
             cmdLine.createArgument().setValue("-D:" + property.getName() + "=" + property.getValue());
         }
-        
+
         cmdLine.createArgument().setValue("-buildfile:" + buildFile);
 
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
             cmdLine.createArgument().setValue(targets.nextToken());
         }
-
-        return cmdLine.getCommandline();
+        return cmdLine;
     }
 
-    
-    
+    // factory method for mock...
+    protected Commandline getCommandLine() {
+        return new Commandline();
+    }
+
     /**
      * @param buildProperties The buildProperties to set.
      */
@@ -161,6 +161,14 @@ public class NantScript implements Script {
     public void setUseDebug(boolean useDebug) {
         this.useDebug = useDebug;
     }
+    /**
+     * @param useVerbose The useDebug to set.
+     */
+    /*
+    public void setUseVerbose(boolean useVerbose) {
+        this.useVerbose = useVerbose;
+    }
+    */
     /**
      * @param useLogger The useLogger to set.
      */

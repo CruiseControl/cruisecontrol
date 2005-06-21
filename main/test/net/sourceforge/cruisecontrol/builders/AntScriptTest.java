@@ -168,7 +168,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "Logger set to INFO",
                 resultInfo,
-                script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
        
     
         String[] resultLogger =
@@ -194,7 +194,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "Using result Logger",
                 resultLogger,
-                script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
      
         
     }
@@ -224,7 +224,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultInfo",
                 resultInfo,
-                script.getCommandLineArgs());        
+            script.buildCommandline().getCommandline());
         
     
         String[] resultLogger =
@@ -249,7 +249,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultLogger",
                 resultLogger,
-                script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
         
     }
 
@@ -282,7 +282,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultDebug",
                 resultDebug,
-                script.getCommandLineArgs());          
+            script.buildCommandline().getCommandline());
        
     }
 
@@ -310,10 +310,10 @@ public class AntScriptTest extends TestCase {
              script.setUseScript(!USE_SCRIPT);
              script.setSystemClassPath(UNIX_PATH);
              script.setUseDebug(true);
-             TestUtil.assertArray(
+        TestUtil.assertArray(
                      "debug with listener",
                      resultDebug,
-                     script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
          }
     
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
@@ -344,7 +344,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultQuiet",
                 resultQuiet,
-                script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
        
     }
 
@@ -379,7 +379,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultWithMaxMemory",
                 resultWithMaxMemory,
-                script.getCommandLineArgs());          
+            script.buildCommandline().getCommandline());
         
     }
 
@@ -422,7 +422,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultWithMaxMemoryAndProperty",
                 resultWithMaxMemoryAndProperty,
-                script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
@@ -445,7 +445,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultBatchFile",
                 resultBatchFile,
-                script.getCommandLineArgs());             
+            script.buildCommandline().getCommandline());
       
     }
 
@@ -469,7 +469,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
                 "resultShellScript",
                 resultShellScript,
-                script.getCommandLineArgs());         
+            script.buildCommandline().getCommandline());
       
     }
 
@@ -495,12 +495,12 @@ public class AntScriptTest extends TestCase {
         script.setWindows(IS_WINDOWS);
         script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
-        
+
 
         TestUtil.assertArray(
                 "args",
                 args,
-                script.getCommandLineArgs());   
+            script.buildCommandline().getCommandline());
        
     }
 

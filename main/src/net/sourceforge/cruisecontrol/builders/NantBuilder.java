@@ -94,9 +94,8 @@ public class NantBuilder extends Builder {
      */
     public Element build(Map buildProperties) throws CruiseControlException {
 
-        Process p;
         File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
-        NantScript script = new NantScript();
+        NantScript script = getNantScript();
         script.setBuildFile(buildFile);
         script.setBuildProperties(buildProperties);
         script.setNantProperties(properties);
@@ -105,11 +104,12 @@ public class NantBuilder extends Builder {
         script.setTargetFramework(targetFramework);
         script.setTempFileName(tempFileName);
         script.setUseDebug(useDebug);
+        // script.setUseDebug(useVerbose);
         script.setUseLogger(useLogger);
         script.setUseQuiet(useQuiet);
         
         ScriptRunner scriptRunner = new ScriptRunner();
-        boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);        
+        boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
 
 
         File logFile = new File(nantWorkingDir, tempFileName);
@@ -125,6 +125,11 @@ public class NantBuilder extends Builder {
             logFile.delete();
         }
         return translateNantErrorElements(buildLogElement);
+    }
+
+    // factory method for mock...
+    protected NantScript getNantScript() {
+        return new NantScript();
     }
 
     /**
@@ -232,7 +237,7 @@ public class NantBuilder extends Builder {
         return property;
     }
 
-    protected static Element getNantLogAsElement(File file) throws CruiseControlException {
+    protected Element getNantLogAsElement(File file) throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException("NAnt logfile " + file.getAbsolutePath() + " does not exist.");
         }
@@ -286,8 +291,17 @@ public class NantBuilder extends Builder {
         Element failure = buildLogElement.getChild("failure"); 
         if (failure != null) {
             Element buildError = failure.getChild("builderror");
+            if (buildError == null) {
+                 throw new CruiseControlException("Expected a builderror element under build/failure");
+             }
             Element message = buildError.getChild("message");
+            if (message == null) {
+                throw new CruiseControlException("Expected a message element under build/failure/builderror");
+            }
             List matches = message.getContent(new ContentFilter(ContentFilter.CDATA));
+            if (matches.size() == 0) {
+                throw new CruiseControlException("Expected CDATA content in build/failure/builderror/message/element");
+            }
             String errorMessage = ((CDATA) matches.get(0)).getText();
             buildLogElement.setAttribute(new Attribute("error", errorMessage));
         }

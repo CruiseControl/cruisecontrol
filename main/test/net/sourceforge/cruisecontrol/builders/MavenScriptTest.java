@@ -62,6 +62,7 @@ public class MavenScriptTest extends TestCase {
         script.setBuildProperties(properties);
 
         Logger.getRoot().setLevel(Level.INFO);
+
         TestUtil.assertArray(
             "NoDebug:",
             new String[] {
@@ -70,9 +71,10 @@ public class MavenScriptTest extends TestCase {
             "-b",
             "-p",
             "testproject.xml" },
-            script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
 
         Logger.getRoot().setLevel(Level.DEBUG);
+
         TestUtil.assertArray(
             "WithDebug:",
             new String[] {
@@ -82,9 +84,10 @@ public class MavenScriptTest extends TestCase {
                 "-b",
                 "-p",
                 "testproject.xml" },
-                script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
 
         Logger.getRoot().setLevel(Level.INFO);
+
         TestUtil.assertArray(
             "Windows:",
             new String[] {
@@ -93,9 +96,10 @@ public class MavenScriptTest extends TestCase {
                 "-b",
                 "-p",
                 "testproject.xml" },
-                script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
 
         script.setGoalset(" clean jar");
+
         TestUtil.assertArray(
             "WithTarget:",
             new String[] {
@@ -107,7 +111,7 @@ public class MavenScriptTest extends TestCase {
                 "clean",
                 "jar" },
         // notice the spaces in goalSet
-        script.getCommandLineArgs());
+            script.buildCommandline().getCommandline());
     }
 
 
