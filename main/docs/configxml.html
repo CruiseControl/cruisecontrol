@@ -301,7 +301,7 @@
                 <tr>
                     <td>&lt;system&gt;</td>
                     <td>0 .. 1</td>
-                    <td>Currently just a placeholder for the &lt;configuration&gt; element, 
+                    <td>Currently just a placeholder for the &lt;configuration&gt; element,
                         which in its turn is just a placeholder for the <a href="#threads">&lt;threads&gt;</a> element.<br />
                         We expect that in the future, more system-level features can be configured under this element.
                     </td>
@@ -333,7 +333,7 @@
         </div>
 
         <p>The <code>&lt;threads&gt;</code> element can be used to configure the number of threads that CruiseControl can use
-        simultaneously to build projects. This is done through the <code>count</code> attribute. 
+        simultaneously to build projects. This is done through the <code>count</code> attribute.
         If this element (or one of its parent elements) is not specified, this defaults to 1.
         This means that only one project will be built at a time. Raise this number if your server has enough resources to
         build multiple projects simultaneously (especially useful on multi-processor systems). If more projects than the maximum
@@ -367,9 +367,9 @@
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   &lt;property&gt;</pre>
         </div>
-        
+
         <p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
-        within the CruiseControl configuration file. Properties may be set at the global level 
+        within the CruiseControl configuration file. Properties may be set at the global level
         and/or within the scope of a project. There are three ways to set properties within CruiseControl:</p>
 
         <ol>
@@ -437,7 +437,7 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
 
         <ol>
@@ -448,7 +448,7 @@
     &lt;property name="logdir"    value="${cruisedir}/logs"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>  
+            </pre>
             </li>
 
             <li>Set a collection of global properties from the properties file "config.properties":
@@ -457,7 +457,7 @@
     &lt;property file="config.properties"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>  
+            </pre>
             </li>
 
             <li>Load the system's environment into a collection of global properties.
@@ -468,7 +468,7 @@
     &lt;property name="logdir"     value="${env.CCDIR}/logs"/&gt;
     ...
 &lt;cruisecontrol&gt;
-            </pre>  
+            </pre>
             </li>
 
             <li>Define a global property called "buildmanager". Override it's value
@@ -485,10 +485,10 @@
     &lt;project name="project2"&gt;
         &lt;property name="buildmanager" value="someoneelse@here.com"/&gt;
         &lt;!-- ${buildmanager} resolves to "someoneelse@here.com" --&gt;
-    &lt;/projec&gt;
+    &lt;/project&gt;
 
 &lt;cruisecontrol&gt;
-            </pre>  
+            </pre>
             </li>
 
             <li>As demonstrated here, properties and
@@ -577,11 +577,11 @@
     &lt;/project&gt;
 
 &lt;/cruisecontrol&gt;
-            </pre>          
-            </li>   
+            </pre>
+            </li>
         </ol>
-        </div>      
-        
+        </div>
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="project">&lt;project&gt;</a></h2>
@@ -745,18 +745,18 @@
             also provides a mapping between a simple "nick-name" for a session (which is referred to
             as the "sessionname") and the full CM Synergy session ID. This map is persisted in a simple
             properties file (referred to as the "session file").</p>
-            
+
         <p>Each time the &lt;cmsynergysessionmonitor&gt; runs, it will load the persisted information from
             the session file and attempt to verify that each monitored session is, in fact, still running.
             It does this according to the following rules:</p>
-            
+
         <ol>
             <li>If the session file does not exist, it will be created.</li>
             <li>If an entry for the session name does not exist in the session file, a new CM Synergy
                 session will be started and an entry recorded in the file.</li>
             <li>If an entry for the session name does exist in the file, it will check that the CM Synergy
-                session ID associated with the session name is still runing. If it is, no further action is
-                taken. If it is not, a new CM Synergy session is started, and the new ID recorded in the 
+                session ID associated with the session name is still running. If it is, no further action is
+                taken. If it is not, a new CM Synergy session is started, and the new ID recorded in the
                 file.</li>
         </ol>
 
@@ -787,7 +787,7 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Child Elements</h3>
 
         <table class="documentation">
@@ -802,12 +802,12 @@
             <tr>
                 <td>&lt;session&gt;</td>
                 <td>1 .. *</td>
-                <td><p>Defines a CM Synergy session you wish to monitor. The session 
+                <td><p>Defines a CM Synergy session you wish to monitor. The session
                     information may be provided in one of two ways.</p>
                     <ol>
                         <li>You may provide each individual attribute directly in the config file.</li>
-                        <li>You may specify the name attribute as well as an "attributefile" 
-                            which contains the remainder of the required attributes. This allows 
+                        <li>You may specify the name attribute as well as an "attributefile"
+                            which contains the remainder of the required attributes. This allows
                             you to place sensitive information - such as the password - into an
                             external file with the appropriate permissions. The file referenced here
                             should use the standard properties file format of "attribute=value" pairs.</li>
@@ -867,7 +867,7 @@
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
         <ol>
             <li>Monitor two sessions. The first will be associated with the database
@@ -1132,7 +1132,7 @@ password=P@ssW0rd!
             </tbody>
 
         </table>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="antbootstrapper">&lt;antbootstrapper&gt;</a></h2>
@@ -1148,7 +1148,7 @@ password=P@ssW0rd!
         <p>Executes an Ant script which implements a custom bootstrapper.</p>
 
         <h3>Attributes</h3>
-        
+
         The antbootstrapper uses the same <a href="#ant-attributes">attributes</a>
         as the <a href="#ant">&lt;ant&gt;</a> builder.
 
@@ -1175,11 +1175,11 @@ password=P@ssW0rd!
 &lt;bootstrappers&gt;</pre>
             </li>
         </ol>
-        
-        For <a href="#ant-examples">additional examples</a>, please
-        see the <a href="#ant">&lt;ant&gt;</a> builder. 
 
-        </div>  
+        For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder.
+
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -1256,7 +1256,7 @@ password=P@ssW0rd!
             <tr>
                 <td>sessionfile</td>
                 <td>No</td>
-                <td>The session file used by the 
+                <td>The session file used by the
                     <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
                     to persist your CM Synergy session information. If this attribute is
                     not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
@@ -1279,10 +1279,10 @@ password=P@ssW0rd!
                 <td>No</td>
                 <td>If set to true, all subprojects will also be reconfigured. Defaults to
                     <i>true</i></td>
-            </tr>            
+            </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
         <ol>
             <li>Reconfigure the "j2ee~1.0_int" project (but <i>not</i> it's subprojects) using
@@ -1295,8 +1295,8 @@ password=P@ssW0rd!
 &lt;bootstrappers&gt;</pre>
             </li>
         </ol>
-        
-        
+
+
         </div>
 
         <div class="elementdocumentation">
@@ -2067,7 +2067,7 @@ password=P@ssW0rd!
             <tr>
                <td>path</td>
                <td>Yes</td>
-               <td>The path to the item that will be queried for modificiations Typically a path like 'alienbrain://Project/SubProject'</td>
+               <td>The path to the item that will be queried for modifications Typically a path like 'alienbrain://Project/SubProject'</td>
 
             </tr>
             <tr>
@@ -2318,7 +2318,7 @@ password=P@ssW0rd!
             <tr>
                 <td>sessionfile</td>
                 <td>No</td>
-                <td>The session file used by the 
+                <td>The session file used by the
                     <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
                     to persist your CM Synergy session information. If this attribute is
                     not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
@@ -2334,36 +2334,36 @@ password=P@ssW0rd!
             <tr>
                 <td>project</td>
                 <td>Yes</td>
-                <td>The project spec (two part name) of the CM Synergy project in which 
+                <td>The project spec (two part name) of the CM Synergy project in which
                     you wish to search for changes.</td>
             </tr>
             <tr>
                 <td>instance</td>
                 <td>No</td>
-                <td>Used to set the project's instance value. As CM Synergy only allows a 
+                <td>Used to set the project's instance value. As CM Synergy only allows a
                     single instance of a project object in any given database, this attribute
-                    defaults to "1", and should not need to be changed by most users. <b>You 
-                    might, however, need to set this value when using the DCM (Distributed 
-                    Change Management) feature of the tool - which appends the DB name to 
+                    defaults to "1", and should not need to be changed by most users. <b>You
+                    might, however, need to set this value when using the DCM (Distributed
+                    Change Management) feature of the tool - which appends the DB name to
                     the instance value.</b></td>
             </tr>
             <tr>
                <td>ccmdateformat</td>
                <td>No</td>
-               <td>The default (output) date format used by CM Synergy is 
+               <td>The default (output) date format used by CM Synergy is
                    "EEE MMM dd HH:mm:ss yyyy" If you have customized this for your installation,
-                   you must provide the correct format here. The format should follow the 
+                   you must provide the correct format here. The format should follow the
                    standard defined in Java's SimpleDateFormat class.</td>
             </tr>
             <tr>
                <td>updatefolders</td>
                <td>No</td>
                <td>By default, the plugin will always refresh the reconfigure properties of
-                   the given project before searching for changes. This allows any query 
-                   based folders to update themselves with new tasks. If you wish to dissable
-                   this feature (not reccomended), you may set this attribute to false.
-                   <b>This feature will only work with CM Synergy version 6.3 and above. If 
-                    you are using an older version, you <i>must</i> set this option to false. In this 
+                   the given project before searching for changes. This allows any query
+                   based folders to update themselves with new tasks. If you wish to disable
+                   this feature (not recommended), you may set this attribute to false.
+                   <b>This feature will only work with CM Synergy version 6.3 and above. If
+                    you are using an older version, you <i>must</i> set this option to false. In this
                     case, you'll want to use the
                     <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
                     as a workaround. Please see example 2 below as well as the Wiki site for
@@ -2372,7 +2372,7 @@ password=P@ssW0rd!
             <tr>
                <td>reconfigure</td>
                <td>No</td>
-               <td>Dissabled by default. If you set this option to true, the project (and 
+               <td>Disabled by default. If you set this option to true, the project (and
                    optionally any subprojects) will be automatically reconfigured when changes
                    are detected. This eliminates the need to handle this from within your build
                    scripts.</td>
@@ -2380,14 +2380,14 @@ password=P@ssW0rd!
             <tr>
                <td>recurse</td>
                <td>No</td>
-               <td>Used in conjuction with the reconfigure option. If set to true (which is
+               <td>Used in conjunction with the reconfigure option. If set to true (which is
                    the default) all subprojects will also be reconfigured.</td>
             <tr>
                <td>ignoreworkarea</td>
                <td>No</td>
-               <td>By default, the plugin will query CM Synergy to determine the work area 
-                   location of the project. This location is then passed to the builders in 
-                   the property "cc.ccm.workarea". If you wish to dissable this feature 
+               <td>By default, the plugin will query CM Synergy to determine the work area
+                   location of the project. This location is then passed to the builders in
+                   the property "cc.ccm.workarea". If you wish to disable this feature
                    (not recommended), you can set this attribute to <i>true</i>.</td>
             </tr>
             <tr>
@@ -2466,18 +2466,18 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
         <ol>
             <li>Use the session named "j2ee_session" to check for changes within the
                 "j2ee~1.0_int" project. If any changes are detected, reconfigure the
                 project and all of it's subprojects.
             <pre>
-&lt;modificationset&gt;                
+&lt;modificationset&gt;
     &lt;cmsynergy project="j2ee~1.0_int"
                sessionname="j2ee_session"
                reconfigure="true"/&gt;
-&lt;modificationset/&gt;                
+&lt;modificationset/&gt;
             </pre>
             </li>
             <li>For users of CM Synergy older than version 6.3 only. Use the
@@ -2492,15 +2492,15 @@ password=P@ssW0rd!
                            sessionname="j2ee_session"
                            recurse="false"/&gt;
 &lt;bootstrappers&gt;
-&lt;modificationset&gt;                
+&lt;modificationset&gt;
     &lt;cmsynergy project="j2ee~1.0_int"
                updatefolders="false"
                sessionname="j2ee_session"
                reconfigure="true"/&gt;
-&lt;modificationset/&gt;                
+&lt;modificationset/&gt;
             </pre>
             </li>
-        </ol>        
+        </ol>
         </div>
 
         <div class="elementdocumentation">
@@ -2524,7 +2524,7 @@ password=P@ssW0rd!
         <p>Arbitrary nesting of source controls under <code>&lt;triggers&gt;</code>
         and <code>&lt;targets&gt;</code> is possible.</p>
 
-        <p>The <code>&lt;compound&gt;</code> element allows optimised access to
+        <p>The <code>&lt;compound&gt;</code> element allows optimized access to
         source repositories, avoiding a full scan of the repository every
         scheduled interval. A typical usage scenario is to configure the source
         repository to update a single file after a commit, meaning that only a
@@ -2546,7 +2546,7 @@ password=P@ssW0rd!
                 <td>No (defaults to false)</td>
                 <td>Add the trigger modifications to the list of returned
                 modifications? By default, the list of returned modifications
-                only includes the the source controls from the
+                only includes the source controls from the
                 <code>&lt;targets&gt;</code> element. By setting this attribute
                 to true, the list of modifications will include both
                 <code>&lt;triggers&gt;</code> and <code>&lt;targets&gt;</code>
@@ -2706,7 +2706,7 @@ password=P@ssW0rd!
                 option. Numeric revision numbers, branch tags, or ranges of
                 revisions are valid. Refer to the <code>-r</code> option in the
                 <a class="external" href="http://www.cvsnt.org/manual/log.html">
-                cvs log</a> reference for futher details.</td>
+                cvs log</a> reference for further details.</td>
             </tr>
             <tr>
                 <td>property</td>
@@ -2786,9 +2786,9 @@ password=P@ssW0rd!
       &lt;forceonly&gt;</pre>
         </div>
 
-        <p>Never returns any changes. Use this to define a project that 
+        <p>Never returns any changes. Use this to define a project that
         only builds when forced to, like for release builds.
-        If you also want the modifications between two forced builds to 
+        If you also want the modifications between two forced builds to
         be reported, you'll have to use another solution (for instance,
         define a <a href="#compound">&lt;compound&gt;</a> with a
         <a href="#filesystem">&lt;filesystem&gt;</a> in the &lt;triggers&gt;
@@ -4003,7 +4003,7 @@ endlocal</pre>
             and the .NET Framework or Mono need to be installed for this builder
             to function. See NAnt's documentation for details on configuration
             and compatibility with .NET implementations. </p>
-        
+
         <p>The standard CruiseControl <a href="#buildproperties">properties
         passed to builders</a> are available from within the NAnt build.</p>
 
@@ -4084,7 +4084,7 @@ endlocal</pre>
                 it doesn't log DEBUG messages (see useDebug and useQuiet
                 attributes below, and the
                 <a href="http://nant.sourceforge.net/release/0.85-rc1/help/fundamentals/listeners.html">
-                    NAnt documentation</a>). 
+                    NAnt documentation</a>).
                 Listener will echo NAnt messages to console which is
                 useful when debugging your NAnt build. Defaults to 'false'
                 for historical reasons, but setting it to 'true' is recommended
@@ -4156,9 +4156,9 @@ endlocal</pre>
             </li>
 
             <li>Invoke NAnt, specifying the working directory as <code>/home/cc/workspace</code>,
-            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>, 
+            the build file as <code>default.build</code>, the nant target as <code>smoketest</code>,
             and the targetframework as .NET version 1.1.
-            
+
             <pre>&lt;schedule&gt;
     &lt;nant targetframework="net-1.1"
          nantworkingdir="/home/cc/workspace"
@@ -4413,7 +4413,7 @@ endlocal</pre>
         <p>Executes an Ant script which implements a custom publisher.</p>
 
         <h3>Attributes</h3>
-        
+
         The antpublisher uses the same <a href="#ant-attributes">attributes</a>
         as the <a href="#ant">&lt;ant&gt;</a> builder.
 
@@ -4422,7 +4422,7 @@ endlocal</pre>
         The antpublisher supports the same set of
         <a href="#ant-elements">child elements</a> as the
         <a href="#ant">&lt;ant&gt;</a> builder.
-        
+
         <h3>Properties Passed to the Publisher</h3>
 
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
@@ -4430,7 +4430,7 @@ endlocal</pre>
         which can be accessed in your script like any other property, using the
         syntax ${propertyname}.
         </p>
-        
+
         <table class="documentation">
             <thead>
             <tr>
@@ -4476,7 +4476,7 @@ endlocal</pre>
                 <td>The name of the log file from the last build.</td>
             </tr>
             </tbody>
-        </table>        
+        </table>
 
         <h3>Examples</h3>
 
@@ -4509,11 +4509,11 @@ endlocal</pre>
 &lt;/project&gt;</pre>
             </li>
         </ol>
-        
-        For <a href="#ant-examples">additional examples</a>, please
-        see the <a href="#ant">&lt;ant&gt;</a> builder. 
 
-        </div>  
+        For <a href="#ant-examples">additional examples</a>, please
+        see the <a href="#ant">&lt;ant&gt;</a> builder.
+
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -4583,7 +4583,7 @@ endlocal</pre>
       &lt;cmsynergybaselinepublisher&gt;</pre>
         </div>
 
-        <p>Creates an intermediate baseline which encompases the specified project and
+        <p>Creates an intermediate baseline which encompass the specified project and
            all of it's subprojects. This publisher will only run if the build was
            successful and the modification set contains at least one new CM Synergy
            task. <b>This publisher will <i>only</i> work with CM Synergy version 6.3
@@ -4610,7 +4610,7 @@ endlocal</pre>
             <tr>
                 <td>sessionfile</td>
                 <td>No</td>
-                <td>The session file used by the 
+                <td>The session file used by the
                     <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
                     to persist your CM Synergy session information. If this attribute is
                     not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
@@ -4651,7 +4651,7 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
 
         <ol>
@@ -4685,7 +4685,7 @@ endlocal</pre>
             folder. The folder may be specified by number,
             or by providing the 2 part name of the project as well as a substring
             of the folder's name. This publisher will only run if the build was
-            successful and the modification set contains at least one new 
+            successful and the modification set contains at least one new
             CM Synergy task.</p>
 
         <h3>Attributes</h3>
@@ -4709,7 +4709,7 @@ endlocal</pre>
             <tr>
                 <td>sessionfile</td>
                 <td>No</td>
-                <td>The session file used by the 
+                <td>The session file used by the
                     <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
                     to persist your CM Synergy session information. If this attribute is
                     not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
@@ -4739,7 +4739,7 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
 
         <ol>
@@ -4752,8 +4752,8 @@ endlocal</pre>
 &lt;/publishers&gt;
             </pre>
             </li>
-            <li>Publish all new tasks into the folder called "Integration tested tasks 
-                for release j2ee/1.0" found in the project "j2ee~1.0_int" using the CM 
+            <li>Publish all new tasks into the folder called "Integration tested tasks
+                for release j2ee/1.0" found in the project "j2ee~1.0_int" using the CM
                 Synergy session named "j2ee_session".
             <pre>
 &lt;publishers&gt;
@@ -5390,11 +5390,11 @@ endlocal</pre>
 
         <p>Provides the means to execute another publisher
            (or set of publishers) if and only if the current build has failed.
-           This is accomplished by simply adding any desired publishers as child 
+           This is accomplished by simply adding any desired publishers as child
            elements.</p>
-           
+
         <p>All child elements must meet the following criteria:</p>
-        
+
         <p>
             <ol>
                 <li>
@@ -5460,12 +5460,12 @@ endlocal</pre>
         </div>
 
         <p>Provides the means to execute another publisher
-           (or set of publishers) if and only if the current build was scuccessful.
-           This is accomplished by simply adding any desired publishers as child 
+           (or set of publishers) if and only if the current build was successful.
+           This is accomplished by simply adding any desired publishers as child
            elements.</p>
-           
+
         <p>All child elements must meet the following criteria:</p>
-        
+
         <p>
             <ol>
                 <li>
@@ -5673,7 +5673,7 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
-    
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="x10">&lt;x10&gt;</a></h2>
