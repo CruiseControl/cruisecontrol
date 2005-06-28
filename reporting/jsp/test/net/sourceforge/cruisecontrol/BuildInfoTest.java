@@ -87,6 +87,14 @@ public class BuildInfoTest extends TestCase {
         assertEquals("Build.2", buildInfo.getLabel());
     }
 
+    public void testCreationGoodBuildWithEmptyLabel() throws ParseException {
+        Date buildDate = new GregorianCalendar(2002, Calendar.FEBRUARY, 23, 12, 0, 0).getTime();
+        BuildInfo buildInfo = new BuildInfo("log20020223120000L.xml");
+        assertEquals(buildDate, buildInfo.getBuildDate());
+        assertTrue(buildInfo.isSuccessful());
+        assertEquals("", buildInfo.getLabel());
+    }
+
     public void testLoadBuildInfo() throws ParseException {
         // use the BuildInfoHelper to load up the list of BuildInfo objects
         // verify the build date for each.

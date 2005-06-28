@@ -78,7 +78,7 @@ public class BuildInfo implements Comparable, Serializable {
     private String deriveLabel(String infoText) {
         boolean logfileCompressed = infoText.endsWith(LOG_COMPRESSED_SUFFIX);
         boolean buildSuccessful = (infoText.length() > (LOG_PREFIX
-                + LOG_DATE_PATTERN + LABEL_SEPARATOR + LOG_SUFFIX).length()
+                + LOG_DATE_PATTERN + LOG_SUFFIX).length()
                 + (logfileCompressed ? LOG_COMPRESSED_SUFFIX.length() : 0));
         String theLabel;
         if (buildSuccessful) {
