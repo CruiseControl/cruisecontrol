@@ -24,6 +24,7 @@ AntPublisher:
 BuildInfo:
 ----------------------
 * Added better exception message to make debugging easier (CC-49). Patch by Jerome Lacoste.
+* Handle files created when using EmptyLabelIncrementor (log20050624104539L.xml)
 
 controlpanel.jsp:
 ----------------------
