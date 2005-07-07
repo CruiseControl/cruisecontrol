@@ -191,7 +191,7 @@ public class CruiseControlController {
             if (!serializedProjectFile.exists()
                     || !serializedProjectFile.canRead()
                     || serializedProjectFile.isDirectory()) {
-                LOG.warn("No previously serialized project found: " + serializedProjectFile.getAbsolutePath());
+                LOG.warn("No previously serialized project found [" + serializedProjectFile.getAbsolutePath() + "], forcing a build.");
                 Project newProject = new Project();
                 newProject.setBuildForced(true);
                 return newProject;
