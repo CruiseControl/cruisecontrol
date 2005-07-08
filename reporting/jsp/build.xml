@@ -59,6 +59,9 @@
         <pathelement location="${lib}/servlet.jar"/>
         <pathelement location="${lib}/xalan.jar"/>
         <pathelement location="${lib}/junit.jar"/>
+        <pathelement location="${lib}/cewolf.jar"/>
+        <pathelement location="${lib}/jfreechart-0.9.8.jar"/>
+        <pathelement location="${lib}/jcommon-0.8.0.jar"/>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
     </path>
@@ -101,12 +104,7 @@
 
     <target name="compile" depends="init,check-duplication,checkstyle">
         <javac srcdir="${src}" destdir="${classes}" debug="true">
-            <classpath>
-                <pathelement location="${lib}/servlet.jar"/>
-                <pathelement location="${lib}/xalan.jar"/>
-                <pathelement location="${lib}/cewolf.jar"/>
-                <pathelement location="${lib}/jfreechart-0.9.8.jar"/>
-            </classpath>
+            <classpath refid="project.runtime.classpath" />
         </javac>
     </target>
 
@@ -119,9 +117,7 @@
 
     <target name="test" depends="compile-test" description="Executes the unit tests">
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
-            <classpath >
-                <path refid="project.runtime.classpath" />
-            </classpath>
+            <classpath refid="project.runtime.classpath" />
             <formatter type="brief" usefile="false" />
             <formatter type="xml"/>
             <batchtest todir="${test.results}" >
@@ -132,9 +128,7 @@
 
     <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
         <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
-            <classpath >
-                <path refid="project.runtime.classpath" />
-            </classpath>
+            <classpath refid="project.runtime.classpath" />
             <formatter type="brief" usefile="false"/>
             <formatter type="xml"/>
             <test name="${testcase}" todir="${test.results}"/>
