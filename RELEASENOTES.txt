@@ -172,6 +172,10 @@ TimeBuild:
 ----------------------
 * Add new source control that will trigger a build at a specified time. Submitted by Eric Pugh
 
+TimeChartData:
+----------------------
+* Don't fail when two when there are two logs within the same minute.
+
 VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)

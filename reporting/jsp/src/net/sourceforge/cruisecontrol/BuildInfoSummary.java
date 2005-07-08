@@ -43,11 +43,13 @@ import java.util.List;
 
 
 public final class BuildInfoSummary implements Serializable {
+    private static final long serialVersionUID = 994064080136410358L;
+
     private final List buildInfoList;
     private final int numBrokenBuilds;
     private final int numSuccessfulBuilds;
 
-    BuildInfoSummary(List buildInfoList) {
+    public BuildInfoSummary(List buildInfoList) {
         this.buildInfoList = Collections.unmodifiableList(buildInfoList);
         int brokenBuildsCounter = 0;
         int successfulBuildsCounter = 0;

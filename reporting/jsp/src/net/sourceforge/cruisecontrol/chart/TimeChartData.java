@@ -62,6 +62,8 @@ import de.laures.cewolf.DatasetProduceException;
 
 public class TimeChartData extends AbstractCruiseControlChartData implements ChartPostProcessor {
     
+    private static final long serialVersionUID = -5159867264828131088L;
+
     public Object produceDataset(Map params) throws DatasetProduceException {
         BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo"); 
         TimeSeries brokenSeries = new TimeSeries("Broken Builds", Minute.class);
@@ -73,7 +75,11 @@ public class TimeChartData extends AbstractCruiseControlChartData implements Cha
             Minute timePeriod = new Minute(buildTime);
             TimeSeries seriesToAddTo = buildInfo.isSuccessful() ? goodSeries 
                                                                 : brokenSeries;
-            seriesToAddTo.add(timePeriod, timeValue);
+            if (seriesToAddTo.getDataPair(timePeriod) == null) {
+                seriesToAddTo.add(timePeriod, timeValue);
+            } else {
+                System.err.println("multiple logs in the same minute; ignoring: " + buildInfo.getFileName());
+            }
         }
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(brokenSeries);
