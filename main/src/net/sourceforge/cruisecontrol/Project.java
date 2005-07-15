@@ -137,8 +137,15 @@ public class Project implements Serializable, Runnable {
      * <b>Note:</b> This means that the config file is re-parsed on every cycle.
      */
     public void execute() {
+        if (stopped) {
+            LOG.warn("not building project " + name + " because project has been stopped.");
+            buildFinished();
+            return;            
+        }
+        
         synchronized (pausedMutex) {
             if (isPaused) {
+                LOG.info("not building project " + name + " because project has been paused.");
                 buildFinished();
                 return;
             }
@@ -158,6 +165,11 @@ public class Project implements Serializable, Runnable {
      * Unless paused, runs any bootstrappers and then the entire build.
      */
     protected void build() throws CruiseControlException {
+        if (stopped) {
+            LOG.warn("not building project " + name + " because project has been stopped.");
+            return;
+        }
+        
         try {
             setBuildStartTime(new Date());
             if (schedule.isPaused(buildStartTime)) {
@@ -248,10 +260,12 @@ public class Project implements Serializable, Runnable {
                 try {
                     waitIfPaused();
                     waitForNextBuild();
-                    setState(ProjectState.QUEUED);
-                    synchronized (scheduleMutex) {
-                        queue.requestBuild(this);
-                        waitForBuildToFinish();
+                    if (!stopped) {
+                        setState(ProjectState.QUEUED);
+                        synchronized (scheduleMutex) {
+                            queue.requestBuild(this);
+                            waitForBuildToFinish();
+                        }
                     }
                 } catch (InterruptedException e) {
                     String message = "Project " + name + ".run() interrupted";
@@ -276,7 +290,7 @@ public class Project implements Serializable, Runnable {
 
     void waitForNextBuild() throws InterruptedException {
         long waitTime = getTimeToNextBuild(new Date());
-        if (needToWaitForNextBuild(waitTime)) {
+        if (needToWaitForNextBuild(waitTime) && !buildForced) {
             info("next build in " + DateUtil.formatTime(waitTime));
             synchronized (waitMutex) {
                 setState(ProjectState.WAITING);
@@ -738,11 +752,13 @@ public class Project implements Serializable, Runnable {
     }
 
     public void start() {
-        stopped = false;
-        projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
-        projectSchedulingThread.start();
-        LOG.info("Project " + name + " starting");
-        setState(ProjectState.IDLE);
+        if (stopped) {
+            stopped = false;
+            projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
+            projectSchedulingThread.start();
+            LOG.info("Project " + name + " starting");
+            setState(ProjectState.IDLE);
+        }
     }
 
     public void stop() {
@@ -808,5 +824,22 @@ public class Project implements Serializable, Runnable {
                 LOG.error(message.toString(), e);
             }
         }
+    }
+
+    public boolean equals(Object arg0) {
+        if (arg0 == null) {
+            return false;
+        }
+
+        if (arg0.getClass().getName().equals(getClass().getName())) {
+            Project thatProject = (Project) arg0;
+            return thatProject.name.equals(name);
+        }
+
+        return false;
+    }
+
+    public int hashCode() {
+        return name.hashCode();
     }
 }

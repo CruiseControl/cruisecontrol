@@ -1,0 +1,37 @@
+
+from build.xml of fast-md5-2.6.zip, available from 
+http://www.twmacinta.com/myjava/fast_md5.php
+
+<!-- 
+
+Copyright (c) 2003, 2005 by Dannes Wessels and Timothy W Macinta, All Rights Reserved.
+
+This file can be used to compile the Fast MD5 distribution.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with this library; if not, write to the Free
+Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+See http://www.twmacinta.com/myjava/fast_md5.php for more information
+on this package.
+
+The original Ant build file was kindly contributed by Dannes Wessels.
+I (Tim Macinta) haven't done much testing of it, but I thought it
+would be good to provide here as a convenience to others that might
+have use for it.  Please feel free to send back any enhancements you
+might make to it or any feedback you may have.  I have made some minor
+changes, but it is very close to the original as of this writing.
+
+Note that there is a also Makefile for Linux in the "src/" directory.
+
+-->

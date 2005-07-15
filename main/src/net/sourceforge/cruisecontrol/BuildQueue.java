@@ -36,10 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
-import org.apache.log4j.Logger;
-
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
+
+import org.apache.log4j.Logger;
 
 /**
  * Provides an independent thread of execution that knows how to
@@ -57,6 +62,8 @@ public class BuildQueue implements Runnable {
     private boolean waiting = false;
     private Thread buildQueueThread;
 
+    private List listeners = new ArrayList();
+
     /**
      * @param project
      */
@@ -65,6 +72,7 @@ public class BuildQueue implements Runnable {
             queue.add(project);
             queue.notify();
         }
+        notifyListeners();
     }
 
     void serviceQueue() {
@@ -142,5 +150,20 @@ public class BuildQueue implements Runnable {
 
     public boolean isWaiting() {
         return waiting;
+    }
+    
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+
+    private void notifyListeners() {
+        Iterator toNotify = listeners.iterator();
+        while (toNotify.hasNext()) {
+            ((Listener) toNotify.next()).projectQueued();
+        }
+    }
+
+    public static interface Listener extends EventListener {
+        void projectQueued();
     }
 }

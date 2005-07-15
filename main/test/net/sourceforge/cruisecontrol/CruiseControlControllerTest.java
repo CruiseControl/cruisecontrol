@@ -36,11 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.TestCase;
 
 /**
  *
@@ -48,10 +50,12 @@ import java.io.IOException;
  */
 public class CruiseControlControllerTest extends TestCase {
 
-    private File configFile = new File("_tempConfigFile");
+    private File dir = new File("target");
+    private File configFile = new File(dir, "_tempConfigFile");
     private CruiseControlController ccController;
 
-    protected void setUp() throws Exception {
+    protected void setUp() {
+        dir.mkdirs();
         ccController = new CruiseControlController();
     }
 
@@ -71,9 +75,9 @@ public class CruiseControlControllerTest extends TestCase {
         }
         try {
             ccController.setConfigFile(configFile);
-            fail("Allowed to not set a config file");
+            fail("Config file must exist");
         } catch (CruiseControlException expected) {
-            assertEquals("Config file not found: " + configFile, expected.getMessage());
+            assertEquals("Config file not found: " + configFile.getAbsolutePath(), expected.getMessage());
         }
     }
 
@@ -94,6 +98,7 @@ public class CruiseControlControllerTest extends TestCase {
             protected Project configureProject(String projectName) {
                 final Project project = new Project();
                 project.setName(projectName);
+                project.setConfigFile(configFile); 
                 return project;
             }
         };
@@ -110,6 +115,114 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(2, ccController.getProjects().size());
     }
 
+    public void testLoadSomeProjectsWithDuplicates() throws IOException, CruiseControlException {
+        ccController = new CruiseControlController() {
+            protected Project configureProject(String projectName) {
+                final Project project = new Project();
+                project.setName(projectName);
+                project.setConfigFile(configFile); 
+                return project;
+           }
+        };
+        FileWriter configOut = new FileWriter(configFile);
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+        writeProjectDetails(configOut, "testProject1");
+        writeProjectDetails(configOut, "testProject1");
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+
+        try {
+            ccController.setConfigFile(configFile);
+            fail("duplicate project names should fail");
+        } catch (CruiseControlException expected) {
+            assertEquals("Duplicate entries in config file for project name testProject1", expected.getMessage());
+        }
+    }
+
+    public void testConfigReloading() throws IOException, CruiseControlException {
+        MyListener listener = new MyListener();
+
+        ccController = new CruiseControlController() {
+            protected Project configureProject(String projectName) {
+                final Project project = new Project();
+                project.setName(projectName);
+                project.setConfigFile(configFile); 
+                return project;
+            }
+        };
+        ccController.addListener(listener);
+        FileWriter configOut = new FileWriter(configFile);
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+        writeProjectDetails(configOut, "testProject1");
+        writeProjectDetails(configOut, "testProject2");
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+        ccController.setConfigFile(configFile);
+
+        assertEquals(configFile, ccController.getConfigFile());
+        assertEquals(2, ccController.getProjects().size());
+        assertEquals(2, listener.added.size());
+        assertEquals(0, listener.removed.size());
+
+        listener.clear();
+
+        // no change - no reload
+        ccController.parseConfigFileIfNecessary();
+        // nothing happened
+        assertEquals(0, listener.added.size());
+        assertEquals(0, listener.removed.size());
+
+
+        // add a project:
+
+        listener.clear();
+
+        sleep(1200);
+        configOut = new FileWriter(configFile);
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+        writeProjectDetails(configOut, "testProject1");
+        writeProjectDetails(configOut, "testProject2");
+        writeProjectDetails(configOut, "testProject3");
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+
+        ccController.parseConfigFileIfNecessary();
+
+        assertEquals(3, ccController.getProjects().size());
+        assertEquals(1, listener.added.size());
+        assertEquals(0, listener.removed.size());
+
+        // remove 2 projects
+
+        listener.clear();
+
+        sleep(1200);
+        configOut = new FileWriter(configFile);
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+        writeProjectDetails(configOut, "testProject3");
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+
+        ccController.reloadConfigFile();
+
+        assertEquals(1, ccController.getProjects().size());
+        assertEquals(0, listener.added.size());
+        assertEquals(2, listener.removed.size());
+
+    }
+
+    private void sleep(long l) {
+        try {
+            Thread.sleep(l);
+        } catch (InterruptedException dontCare) {
+            System.out.println("dontCare happened");
+        }
+    }
+
     public void testReadProject() throws IOException {
         File tempFile = File.createTempFile("foo", ".tmp");
         String tempDir = tempFile.getParent();
@@ -119,7 +232,7 @@ public class CruiseControlControllerTest extends TestCase {
         assertTrue(project.getBuildForced());
     }
 
-    public void testRegisterPlugins() throws Exception {
+    public void testRegisterPlugins() throws IOException, CruiseControlException {
         FileWriter configOut = new FileWriter(configFile);
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
@@ -137,6 +250,24 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {
-        configOut.write("<project name=\"" + projectName + "\" />\n");
+        configOut.write("<project name=\"" + projectName + "\">\n");
+        configOut.write("<modificationset><alwaysbuild/></modificationset>\n");
+        configOut.write("<schedule><ant/></schedule>\n");
+        configOut.write("</project>\n");
+    }
+
+    class MyListener implements CruiseControlController.Listener {
+        private List added = new ArrayList();
+        private List removed = new ArrayList();
+        public void clear() { 
+            added.clear();
+            removed.clear();
+        }
+        public void projectAdded(Project project) {
+            added.add(project);
+        }
+        public void projectRemoved(Project project) {
+            removed.add(project);
+        }
     }
 }

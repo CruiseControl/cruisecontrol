@@ -53,6 +53,7 @@ public interface CruiseControlMBean {
     void pause();
     void resume();
     void halt();
+    void reloadConfigFile();
     String getBuildQueueStatus();
 
 }

@@ -38,75 +38,30 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 
-/**
- * @author Peter Mei <pmei@users.sourceforge.net>
- * @author jfredrick
- */
 public class BuildQueueTest extends TestCase {
 
     private BuildQueue queue;
 
     protected void setUp() throws Exception {
-        boolean startQueue = false;
         queue = new BuildQueue();
     }
 
-    public void testPlaceHolder() {
-        assertTrue(true);
+    public void testListener() {
+        TestListener listener = new TestListener();
+        queue.addListener(listener);
+        queue.requestBuild(new Project());
+        assertTrue(listener.wasCalled());
     }
 
-    /*
-    public void testServiceQueue() {
-        MockProject[] queuedProjects = new MockProject[3];
-        for (int i = 0; i < queuedProjects.length; i++) {
-            queuedProjects[i] = new MockProject();
-            queuedProjects[i].setName("Build " + i);
-            queue.requestBuild(queuedProjects[i]);
-        }
-
-        queue.serviceQueue();
-
-        for (int i = 0; i < queuedProjects.length - 1; i++) {
-            MockProject thisBuild = queuedProjects[i];
-            MockProject nextBuild = queuedProjects[i + 1];
-            Date thisBuildDate = thisBuild.getLastBuildDate();
-            Date nextBuildDate = nextBuild.getLastBuildDate();
-
-            assertEquals(1, thisBuild.getBuildCount());
-            assertTrue(
-                thisBuild.getName()
-                    + " should be before "
-                    + nextBuild.getName(),
-                thisBuildDate.before(nextBuildDate));
-        }
-    }
-
-    public void testStartAndStop() throws InterruptedException {
-        queue.start();
-        MockProject project = new MockProject();
-        project.setName("BuildQueueTest.testStartAndStop()");
-        queue.requestBuild(project);        
-        for (int sleepCount = 0; project.getBuildCount() == 0; sleepCount++) {
-            if (sleepCount > 5) {
-                break;
-            }
-            Thread.sleep(500);
-        }
-        assertEquals(1, project.getBuildCount());
-
-        queue.stop();
-        Thread.sleep(1000);
-        assertTrue(!queue.isWaiting());
-        assertTrue(!queue.isAlive());
+    class TestListener implements BuildQueue.Listener {
+        private boolean called = false;
         
-        queue.requestBuild(project);
-        for (int sleepCount = 0; project.getBuildCount() == 1; sleepCount++) {
-            if (sleepCount > 2) {
-                break;
-            }
-            Thread.sleep(500);
+        boolean wasCalled() {
+            return called;
         }
-        assertEquals(1, project.getBuildCount());
+        
+        public void projectQueued() {
+            called = true;
+        }
     }
-  */
 }
