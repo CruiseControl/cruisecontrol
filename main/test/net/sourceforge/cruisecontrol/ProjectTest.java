@@ -154,7 +154,9 @@ public class ProjectTest extends TestCase {
             }
         });
 
+        project.start();
         project.build();
+        project.stop();
         filesToClear.add(project.getLog().getLastLogFile());
 
         assertTrue(project.isLastBuildSuccessful());
@@ -203,7 +205,7 @@ public class ProjectTest extends TestCase {
         assertEquals("Should be exactly one build result event", 1, resultEvents.size());
         BuildResultEvent resultEvent = (BuildResultEvent) resultEvents.get(0);
         assertTrue("Should be successful build result event", resultEvent.isBuildSuccessful());
-        assertEquals("Should be exactly 6 build progress events", 6, progressEvents.size());
+        assertEquals(9, progressEvents.size());
     }
 
     public void testBadLabel() {

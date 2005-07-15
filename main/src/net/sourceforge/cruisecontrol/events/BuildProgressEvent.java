@@ -71,4 +71,8 @@ public class BuildProgressEvent extends EventObject {
         return state;
     }
 
+    public String toString() {
+        return getProject().getName() + ": " + state.getName();
+    }
+
 }

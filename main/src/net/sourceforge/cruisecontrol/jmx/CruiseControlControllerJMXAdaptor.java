@@ -41,9 +41,12 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Project;
 import org.apache.log4j.Logger;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.JMException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
 import java.util.Iterator;
@@ -87,6 +90,10 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
     public void pause() {
         controller.pause();
     }
+    
+    public void reloadConfigFile() {
+        controller.reloadConfigFile();
+    }
 
     public String getBuildQueueStatus() {
         return controller.getBuildQueueStatus();
@@ -120,6 +127,17 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
             projectController.register(server);
         } catch (JMException e) {
             LOG.error("Could not register project " + project.getName(), e);
+        }
+    }
+
+    public void projectRemoved(Project project) {
+        try {
+            ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
+            server.unregisterMBean(projectName);
+        } catch (InstanceNotFoundException noProblem) {
+        } catch (MBeanRegistrationException noProblem) {
+        } catch (MalformedObjectNameException e) {
+            LOG.error("Could not unregister project " + project.getName(), e);
         }
     }
 }

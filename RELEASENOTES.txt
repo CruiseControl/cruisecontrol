@@ -48,6 +48,10 @@ cruisecontrol.sh:
 ----------------------
 * Execute java from JAVA_HOME. Patch by Martin Jaeger.
 
+CruiseControlController
+----------------------
+* Reloads the config file if it has changed (CC-74). Contributions by Jerome Lacoste, Tangi Vass, and Jeffrey Fredrick
+
 CVS:
 ----------------------
 * Add module attribute so it can work with no local working copy (CC-149). Patch by Lars Gehrken
