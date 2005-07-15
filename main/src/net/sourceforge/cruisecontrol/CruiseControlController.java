@@ -114,6 +114,7 @@ public class CruiseControlController {
             }
             hash = MD5.asHex(in.hash());
         } catch (IOException e) {
+            LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
         } finally {
             if (in != null) {
                 try {
