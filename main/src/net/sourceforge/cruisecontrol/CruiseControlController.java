@@ -126,6 +126,7 @@ public class CruiseControlController {
     }
 
     private void addPluginsToRootRegistry(Element configRoot) {
+        PluginRegistry.resetRootRegistry();
         for (Iterator pluginIter = configRoot.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
             Element pluginElement = (Element) pluginIter.next();
             String pluginName = pluginElement.getAttributeValue("name");
