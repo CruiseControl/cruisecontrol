@@ -205,7 +205,7 @@ public class ProjectTest extends TestCase {
         assertEquals("Should be exactly one build result event", 1, resultEvents.size());
         BuildResultEvent resultEvent = (BuildResultEvent) resultEvents.get(0);
         assertTrue("Should be successful build result event", resultEvent.isBuildSuccessful());
-        assertEquals(9, progressEvents.size());
+        assertTrue("Should have at least one of each project state except queued", progressEvents.size() >= 8);
     }
 
     public void testBadLabel() {
