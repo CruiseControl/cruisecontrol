@@ -219,20 +219,15 @@ public class XSLTLogPublisher implements Publisher {
       } catch (Exception ioe) {
          throw new CruiseControlException("An unexpected exception occurred, unable to publish the log file.", ioe);
       } finally {
-         //clean up
-         if (xslFileStream != null) {
-            try {
-               xslFileStream.close();
-            } catch (IOException e) {
-               //Do nothing
-            }
+         try {
+            xslFileStream.close();
+         } catch (IOException e) {
+            //Do nothing
          }
-         if (out != null) {
-            try {
-               out.close();
-            } catch (IOException e) {
-               //Do Nothing
-            }
+         try {
+            out.close();
+         } catch (IOException e) {
+            //Do Nothing
          }
       }
    }
