@@ -39,9 +39,11 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.net.URL;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
 public class HttpFileTest extends TestCase {
 
@@ -78,15 +80,25 @@ public class HttpFileTest extends TestCase {
                 "'url' is not a valid connection string : no protocol: Invalid URL",
                 e.getMessage());
         }
-
     }
 
-    //I'm not sure if something that hits a live web server is good for unit tests
-    public void disabled_testGetModifications() throws Exception {
-        HttpFile httpFile = new HttpFile();
-        httpFile.setURL("http://cruisecontrol.sourceforge.net/");
+    public void testGetModifications() throws Exception {
+        final long timestamp = 100;
+        HttpFile httpFile = new HttpFile() {
+            protected long getURLLastModified(URL url) {
+                return timestamp;
+            }
+        };
+        httpFile.setURL("http://dummy.domain.net/my/path?que=ry");
         List modifications = httpFile.getModifications(new Date(1), new Date());
         assertEquals(1, modifications.size());
+        Modification modif = (Modification) modifications.get(0);
+        assertEquals("my/path?que=ry", modif.getFileName());
+        assertEquals("dummy.domain.net", modif.getFolderName());
+        assertEquals("dummy.domain.net/my/path?que=ry", modif.getFullPath());
+        assertEquals("", modif.comment);
+        assertEquals(timestamp, modif.modifiedTime.getTime());
+        assertEquals("User", modif.userName);
     }
 
     public void testGetModificationsInvalidURL() throws Exception {

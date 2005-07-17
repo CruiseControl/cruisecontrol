@@ -103,9 +103,7 @@ public class HttpFile extends FakeUserSourceControl {
             return new ArrayList();
         }
         try {
-            final URLConnection con = url.openConnection();
-            lastModified = con.getLastModified();
-            con.getInputStream().close();
+            lastModified = getURLLastModified(url);
         } catch (IOException e) {
             log.error("Could not connect to 'url'", e);
             return new ArrayList();
@@ -113,7 +111,7 @@ public class HttpFile extends FakeUserSourceControl {
         List modifiedList = new ArrayList();
         if (lastModified > lastBuild.getTime()) {
             Modification mod = new Modification("http");
-            mod.createModifiedFile(url.getFile(), url.getPath());
+            mod.createModifiedFile(url.getFile().substring(1), url.getHost());
 
             mod.userName = getUserName();
             mod.modifiedTime = new Date(lastModified);
@@ -121,5 +119,12 @@ public class HttpFile extends FakeUserSourceControl {
             modifiedList.add(mod);
         }
         return modifiedList;
+    }
+
+    protected long getURLLastModified(final URL url) throws IOException {
+        final URLConnection con = url.openConnection();
+        long lastModified = con.getLastModified();
+        con.getInputStream().close();
+        return lastModified;
     }
 }
