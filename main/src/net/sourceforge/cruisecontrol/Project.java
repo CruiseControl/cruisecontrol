@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -651,7 +650,7 @@ public class Project implements Serializable, Runnable {
         String lastSuccessfulBuildString = 
                 DateUtil.getFormattedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
         addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
-        addProperty(infoElement, "builddate", new SimpleDateFormat(DateFormatFactory.getFormat()).format(now));
+        addProperty(infoElement, "builddate", DateFormatFactory.getDateFormat().format(now));
         if (now != null) {
             addProperty(infoElement, "cctimestamp", DateUtil.getFormattedTime(now));
         }

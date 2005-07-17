@@ -42,7 +42,7 @@ import net.sourceforge.cruisecontrol.DateFormatFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 
 /**
@@ -55,7 +55,7 @@ public final class CurrentBuildFileWriter {
     }
 
     public static void writefile(String info, Date date, String fileName) throws CruiseControlException {
-        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+        DateFormat formatter = DateFormatFactory.getDateFormat();
         StringBuffer sb = new StringBuffer();
         sb.append(info);
         sb.append(formatter.format(date));

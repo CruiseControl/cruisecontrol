@@ -43,7 +43,7 @@ import org.apache.oro.text.MalformedCachePatternException;
 import org.jdom.Element;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -66,7 +66,7 @@ public class ModificationSet {
     private List sourceControls = new ArrayList();
     private int quietPeriod = 60 * ONE_SECOND;
     private Date timeOfCheck;
-    private final SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+    private final DateFormat formatter = DateFormatFactory.getDateFormat();
 
     /**
      * File-Patterns (as org.apache.oro.io.GlobFilenameFilter) to be ignored
