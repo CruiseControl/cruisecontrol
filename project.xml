@@ -51,11 +51,16 @@
   <logo>/images/logo.png</logo>
 
   <description>
-    <![CDATA[ FIXME. ]]>
+    <![CDATA[
+     <p> CruiseControl is a framework for a continuous build process. It includes,
+     but is not limited to, plugins for email notification, Ant, and various source
+     control tools. A web interface is provided to view the details of the current
+     and previous builds. </p>
+      ]]>
   </description>
   <shortDescription>A framework for a continuous build process</shortDescription>
   <url>http://cruisecontrol.sourceforge.net/</url>
-  <issueTrackingUrl>http://jira.public.thoughtworks.org/secure/BrowseProject.jspa?id=10020</issueTrackingUrl>
+  <issueTrackingUrl>http://jira.public.thoughtworks.org/browse/CC</issueTrackingUrl>
 <!--
   <siteAddress/>
   <siteDirectory/>

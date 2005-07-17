@@ -74,7 +74,6 @@
       <fileset dir="${pom.build.sourceDirectory}" excludes="**/*.java"/>
     </ant:copy>
 
-    <!-- FIXME or should it also be a preGoal of test:test ?? -->
     <attainGoal name="checkstyle:report" />
     <attainGoal name="maven-simian-plugin:report" /> <!-- FIXME or just analyze ?? -->
   </postGoal>
