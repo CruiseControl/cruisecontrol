@@ -102,7 +102,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         if (logDir != null) {
             verifyDirectory("HTMLEmailPublisher.logDir", logDir);
         } else {
-            LOG.info("Using default logDir \"logs/<projectname>\"");
+            LOG.debug("Using default logDir \"logs/<projectname>\"");
         }
 
         if (xslFile == null) {
