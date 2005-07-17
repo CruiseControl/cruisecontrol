@@ -85,6 +85,7 @@
     <!--sourceDirectory>src/java</sourceDirectory-->
     <!--unitTestSourceDirectory>src/test</unitTestSourceDirectory-->
     <!--aspectSourceDirectory></aspectSourceDirectory-->
+    <defaultGoal>cc:dist</defaultGoal>
 
     <!--unitTest>
       <includes>
