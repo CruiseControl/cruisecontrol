@@ -56,7 +56,6 @@ import javax.mail.internet.InternetAddress;
 
 import org.jdom.input.SAXBuilder;
 import org.jdom.Element;
-import org.apache.log4j.PropertyConfigurator;
 
 public class EmailPublisherTest extends TestCase {
 
@@ -96,10 +95,8 @@ public class EmailPublisherTest extends TestCase {
         xml.append("<map alias=\"user3\" address=\"user3@host2.com\"/>");
         xml.append("</email>");
 
-        Element emailPublisherElement = null;
-
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
+        Element emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
 
         PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper());
         emailPublisher =
@@ -216,7 +213,6 @@ public class EmailPublisherTest extends TestCase {
     }
 
     public void testCreateUserList() throws Exception {
-        PropertyConfigurator.configure("log4j.properties");
         assertEquals(
                 "always1@host.com,always2@host.com,ropletteruser1@host.com,"
                 + "success1@host.com,success2@host.com,"
