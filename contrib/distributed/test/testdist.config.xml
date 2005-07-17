@@ -1,0 +1,40 @@
+<cruisecontrol>
+    <!-- Load environment variables -->
+    <property environment="env" toupper="true"/>
+
+    <!-- Preconfigure our Ant plugin so unit tests using it can find java if not on path -->
+    <plugin name="ant"
+        anthome="${env.ANT_HOME}"
+        buildfile="test/testdist.build.xml"
+        uselogger="true"
+        />
+
+    <plugin name="distributed"
+        classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"
+        entries="build.type=test"
+    />
+
+    <project name="testproject">
+        <schedule>
+            <distributed module="testmodule-fail">
+                <ant target="testtargetFail"/>
+            </distributed>
+
+            <distributed module="testmodule-success">
+                <ant target="testtargetSuccess"/>
+            </distributed>
+        </schedule>
+    </project>
+
+    <!-- used in tests of PreConfigured plugin settings -->
+    <project name="testproject2">
+        <schedule>
+            <distributed module="testmodule-attribs"
+                agentlogdir="agent/log"
+                masterlogdir="master/log"
+                >
+                <ant target="testtargetSuccess"/>
+            </distributed>
+        </schedule>
+    </project>
+</cruisecontrol>

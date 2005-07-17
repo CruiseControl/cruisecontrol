@@ -37,96 +37,20 @@
 
 package net.sourceforge.cruisecontrol.distributed.util;
 
-import java.net.UnknownServiceException;
-import java.rmi.RemoteException;
+import java.rmi.RMISecurityManager;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import net.jini.core.entry.Entry;
-import net.jini.core.lookup.ServiceItem;
-import net.jini.core.lookup.ServiceMatches;
-import net.jini.core.lookup.ServiceRegistrar;
-import net.jini.core.lookup.ServiceTemplate;
 import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
 
-public class ReggieUtil {
+public final class ReggieUtil {
+
+    private ReggieUtil() { }
 
     private static final Logger LOG = Logger.getLogger(ReggieUtil.class);
-
-    /**
-     * 
-     * @param entriesList
-     * @param klass
-     * @return list of services
-     */
-    public static List findServicesForEntriesList(ServiceRegistrar registrar, List entriesList, Class klass) {
-        if (entriesList == null) {
-            entriesList = new ArrayList();
-        }
-        Entry[] entries = (Entry[]) entriesList.toArray(new PropertyEntry[entriesList.size()]);
-        return findServicesForEntriesArray(registrar, entries, klass);
-    }
-
-    /**
-     * 
-     * @param registrar
-     * @param entriesList
-     * @param klass
-     * @param timeout
-     * @return
-     * @throws UnknownServiceException
-     */
-    public static List findServicesForEntriesList(ServiceRegistrar registrar, List entriesList, Class klass,
-            long timeout) throws UnknownServiceException {
-        List services = new ArrayList();
-        long endTime = System.currentTimeMillis() + timeout;
-        long sleepTime = Math.min(30000, Math.max(1000, timeout / 5));
-        do {
-            services = findServicesForEntriesList(registrar, entriesList, klass);
-            if (services != null) {
-                break;
-            }
-            try {
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-            }
-        } while (System.currentTimeMillis() < endTime);
-        if (services == null) {
-            String message = "No matching services found before timeout";
-            LOG.debug(message);
-            System.err.println(message);
-            throw new UnknownServiceException(message);
-        }
-        return services;
-    }
-
-    /**
-     * 
-     * @param entries
-     * @param klass
-     * @return list of services
-     */
-    public static List findServicesForEntriesArray(ServiceRegistrar registrar, Entry[] entries, Class klass) {
-        try {
-            ServiceTemplate template = new ServiceTemplate(null, new Class[] { klass }, entries);
-            ServiceMatches matches = registrar.lookup(template, Integer.MAX_VALUE);
-            ServiceItem[] items = matches.items;
-            List list = new ArrayList();
-            for (int i = 0; i < items.length; i++) {
-                Object proxy = items[i].service;
-                list.add(proxy);
-            }
-            return list;
-        } catch (RemoteException e) {
-            String message = "Search failed due to an unexpected error";
-            LOG.error(message + " - " + e.getMessage(), e);
-            System.err.println(message + " - " + e.getMessage());
-            throw new RuntimeException(message, e);
-        }
-    }
 
     /**
      * converts an entries search string ento a list of entries. An example
@@ -135,7 +59,7 @@ public class ReggieUtil {
      * @param searchString
      * @return entriesList
      */
-    public static List convertStringEntriesToList(String searchString) {
+    public static Entry[] convertStringEntries(String searchString) {
         searchString.replace(',', ';');
         StringTokenizer tokenizer = new StringTokenizer(searchString.trim(), ";");
         ArrayList entriesList = new ArrayList();
@@ -146,7 +70,30 @@ public class ReggieUtil {
             entry.value = token.substring(token.indexOf("=") + 1).trim();
             entriesList.add(entry);
         }
-        return entriesList;
+
+        LOG.debug("Entry List: " + entriesList);
+        
+        final Entry[] arrEntries;
+        if (entriesList.size() == 0) {
+            arrEntries = null;
+        } else {
+            arrEntries = (Entry[]) entriesList.toArray(new Entry[entriesList.size()]);
+        }
+        return arrEntries;
     }
 
+    /**
+     * Install the RMISecurityManager if not already installed.
+     */
+    public static void setupRMISecurityManager() {
+        final SecurityManager origSecurityManager = System.getSecurityManager();
+        if (origSecurityManager == null) {
+            System.setSecurityManager(new RMISecurityManager());
+        } else if (!(origSecurityManager instanceof RMISecurityManager)) {
+            final String msg = "Unexpected Security Manager. origSecurityManager: "
+                    + origSecurityManager;
+            LOG.error(msg);
+            throw new IllegalStateException(msg);
+        }
+    }
 }

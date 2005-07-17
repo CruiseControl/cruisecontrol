@@ -53,9 +53,11 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.log4j.Logger;
 
-public class ZipUtil {
+public final class ZipUtil {
 
     private static final Logger LOG = Logger.getLogger(ZipUtil.class);
+
+    private ZipUtil() { }
 
     public static void zipFolderContents(String outFilename, String folderToZip) {
         validateParams(outFilename, folderToZip);
@@ -65,7 +67,7 @@ public class ZipUtil {
             bos = new BufferedOutputStream(new FileOutputStream(outFilename));
             zipOut = new ZipOutputStream(bos);
             File folder = new File(folderToZip);
-            String message = "Zipping files to: " + outFilename;
+            String message = "Zipping files from: " + folderToZip + " to: " + outFilename;
             LOG.info(message);
             System.out.println(message);
             zipFiles(folder, folder, zipOut);
@@ -192,19 +194,19 @@ public class ZipUtil {
             if (zipFile.size() == 0) {
                 isEmptyFile = true;
             } else {
-	            String infoMessage = "Unzipping file: " + zipFilePath;
-	            LOG.info(infoMessage);
-	            System.out.println(infoMessage);
-	
-	            enumr = zipFile.entries();
-	            while (enumr.hasMoreElements()) {
-	                ZipEntry target = (ZipEntry) enumr.nextElement();
-	                String message = "Exploding: " + target.getName();
-	                LOG.debug(message);
-	                System.out.println(message);
-	                saveItem(zipFile, toDirName, target);
-	            }
-	            zipFile.close();
+                String infoMessage = "Unzipping file: " + zipFilePath;
+                LOG.info(infoMessage);
+                System.out.println(infoMessage);
+
+                enumr = zipFile.entries();
+                while (enumr.hasMoreElements()) {
+                    ZipEntry target = (ZipEntry) enumr.nextElement();
+                    String message = "Exploding: " + target.getName();
+                    LOG.debug(message);
+                    System.out.println(message);
+                    saveItem(zipFile, toDirName, target);
+                }
+                zipFile.close();
             }
         } catch (FileNotFoundException fnfe) {
             String message = "Could not find zip file" + zipFilePath;
@@ -222,9 +224,9 @@ public class ZipUtil {
             System.err.println(message + " - " + ioe.getMessage());
             throw new RuntimeException(message, ioe);
         }
-        
+
         if (isEmptyFile) {
-            String message="Zip file has no entries: " + zipFilePath;
+            String message = "Zip file has no entries: " + zipFilePath;
             LOG.warn(message);
             System.err.println(message);
             throw new IOException(message);
@@ -268,8 +270,12 @@ public class ZipUtil {
             System.err.println(message + " - " + ioe.getMessage());
             throw new RuntimeException(message, ioe);
         } finally {
-            bufferedOutStream.close();
-            inStream.close();
+            if (bufferedOutStream != null) {
+                bufferedOutStream.close();
+            }
+            if (inStream != null) {
+                inStream.close();
+            }
         }
     }
 }

@@ -41,101 +41,123 @@ import java.io.IOException;
 import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.ExportException;
 import java.util.Iterator;
 import java.util.Properties;
 
 import net.jini.core.entry.Entry;
-import net.jini.core.lease.Lease;
-import net.jini.core.lookup.ServiceItem;
+import net.jini.core.lookup.ServiceID;
 import net.jini.core.lookup.ServiceRegistrar;
-import net.jini.core.lookup.ServiceRegistration;
 import net.jini.discovery.DiscoveryEvent;
 import net.jini.discovery.DiscoveryListener;
-import net.jini.discovery.LookupDiscovery;
+import net.jini.lookup.ServiceIDListener;
+import net.jini.lookup.JoinManager;
 import net.jini.export.Exporter;
 import net.jini.jeri.BasicILFactory;
 import net.jini.jeri.BasicJeriExporter;
 import net.jini.jeri.tcp.TcpServerEndpoint;
-import net.jini.lease.LeaseRenewalManager;
 import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
 
 import org.apache.log4j.Logger;
 
-public class BuildAgent implements DiscoveryListener {
+public class BuildAgent implements DiscoveryListener,
+            ServiceIDListener {
 
     private static final Logger LOG = Logger.getLogger(BuildAgent.class);
 
-    private static final String JAVA_SECURITY_POLICY = "java.security.policy";
-    private static final String JINI_POLICY_FILE = "jini.policy.file";
-    private static final String AGENT_PROPERTIES_FILE = "agent.properties";
+    public static final String JAVA_SECURITY_POLICY = "java.security.policy";
+    public static final String JINI_POLICY_FILE = "jini.policy.file";
 
-    private LeaseRenewalManager leaseRenewalManager = new LeaseRenewalManager();
-    private LookupDiscovery discover;
+    private final JoinManager joinManager;
+    private ServiceID serviceID;
+    private final Remote proxy;
 
     private Properties entryProperties;
     private Properties configProperties;
     
     private int registrarCount = 0;
-
-    public BuildAgent() {
-        new BuildAgent(AGENT_PROPERTIES_FILE);
+    private synchronized void incrementRegCount() {
+        registrarCount++;
+    }
+    private synchronized void decrementRegCount() {
+        registrarCount--;
+    }
+    private synchronized int getRegCount() {
+        return registrarCount;
     }
 
-    public BuildAgent(String propsFile) {
-        loadProperties(propsFile);
+    public BuildAgent() {
+        this(BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,
+                BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE);
+    }
+
+    public BuildAgent(final String propsFile, final String userDefinedPropertiesFilename) {
+        loadProperties(propsFile, userDefinedPropertiesFilename);
+
+        final BuildAgentServiceImpl serviceImpl = new BuildAgentServiceImpl();
+        serviceImpl.setAgentPropertiesFilename(propsFile);
+        setService(serviceImpl);
+
+        final Entry[] entries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
+        Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+                new BasicILFactory(), false, true);
+
         try {
-            discover = new LookupDiscovery(LookupDiscovery.ALL_GROUPS);
-            discover.addDiscoveryListener(this);
+            proxy = exporter.export(getService());
+            joinManager = new JoinManager(getProxy(), entries, this, null, null);
         } catch (IOException e) {
             String message = "Error starting discovery";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
-        while (registrarCount < 1) {
-            try {
-                Thread.sleep(15 * 1000); // Delay long enough for listener to be registered
-                                    // with Discovery thread. 5 secs not enough on 1.4.
-            } catch (InterruptedException e) {
-                LOG.error(e);
-                System.err.println(e);
-            }
-        }
+
+        getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
     }
 
     /**
      * @param propsFile
      */
-    private void loadProperties(String propsFile) {
+    private void loadProperties(final String propsFile, final String userDefinedPropertiesFilename) {
         configProperties = (Properties) PropertiesHelper.loadRequiredProperties(propsFile);
-        entryProperties = new SearchablePropertyEntries().getProperties();
+        entryProperties = new SearchablePropertyEntries(userDefinedPropertiesFilename).getProperties();
         URL policyFile = ClassLoader.getSystemClassLoader().getResource(configProperties.getProperty(JINI_POLICY_FILE));
         System.setProperty(JAVA_SECURITY_POLICY, policyFile.toExternalForm());
-        System.setSecurityManager(new java.rmi.RMISecurityManager());
+        ReggieUtil.setupRMISecurityManager();
     }
 
-    private void registerAgent(ServiceRegistrar registrar) {
-        try {
-            logRegistration(registrar);
-            BuildAgentService service = new BuildAgentServiceImpl();
-            Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0), new BasicILFactory(), false,
-                    true);
-            Remote proxy = exporter.export(service);
-            Entry[] entries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
-            ServiceItem serviceItem = new ServiceItem(null, proxy, entries);
-            ServiceRegistration register = registrar.register(serviceItem, Lease.FOREVER);
-            leaseRenewalManager.renewFor(register.getLease(), Lease.FOREVER, null);
-        } catch (ExportException e) {
-            String message = "Failed to export BuildAgentService";
-            LOG.warn(message, e);
-            System.err.println(message + " - " + e.getMessage());
-        } catch (RemoteException e1) {
-            String message = "Failed to register BuildAgentService with registrar";
-            LOG.warn(message, e1);
-            System.err.println(message + " - " + e1.getMessage());
-        }
+    private JoinManager getJoinManager() {
+        return joinManager;
     }
+
+    public void terminate() {
+        getJoinManager().terminate();
+    }
+
+
+    private Remote getProxy() {
+        return proxy;
+    }
+
+
+    private BuildAgentService service;
+    private synchronized void setService(BuildAgentService service) {
+        this.service = service;
+    }
+    public synchronized BuildAgentService getService() {
+        return service;
+    }
+
+
+    public synchronized void serviceIDNotify(ServiceID serviceID) {
+        // @todo technically, should serviceID be stored permanently and reused?....
+        this.serviceID = serviceID;
+        LOG.info("ServiceID assigned: " + this.serviceID);
+    }
+    private synchronized ServiceID getServiceID() {
+        return serviceID;
+    }
+
 
     private void logRegistration(ServiceRegistrar registrar) {
         String host = null;
@@ -165,24 +187,32 @@ public class BuildAgent implements DiscoveryListener {
         }
     }
 
+    private boolean isNotFirstDiscovery;
+
     public void discovered(DiscoveryEvent evt) {
-        registrarCount++;
         ServiceRegistrar[] registrarsArray = evt.getRegistrars();
-        ServiceRegistrar registrar = null;
+        ServiceRegistrar registrar;
         for (int n = 0; n < registrarsArray.length; n++) {
+            incrementRegCount();
             registrar = registrarsArray[n];
-            registerAgent(registrar);
+            logRegistration(registrar);
             String message = "Registered with registrar: " + registrar.getServiceID();
             System.out.println(message);
             LOG.debug(message);
         }
+        if (!isNotFirstDiscovery) {
+            final String message = "BuildAgentService open for business...";
+            System.out.println(message);
+            LOG.info(message);
+            isNotFirstDiscovery = true;
+        }
     }
 
     public void discarded(DiscoveryEvent evt) {
-        registrarCount--;
         ServiceRegistrar[] registrarsArray = evt.getRegistrars();
-        ServiceRegistrar registrar = null;
+        ServiceRegistrar registrar;
         for (int n = 0; n < registrarsArray.length; n++) {
+            decrementRegCount();
             registrar = registrarsArray[n];
             String message = "Discarded registrar: " + registrar.getServiceID();
             System.out.println(message);
@@ -190,19 +220,36 @@ public class BuildAgent implements DiscoveryListener {
         }
     }
 
+
+    private static final Object KEEP_ALIVE = new Object();
+    public static void terminateMain() {
+        KEEP_ALIVE.notifyAll();
+    }
+
     public static void main(String[] args) {
         String message = "Starting agent...";
         System.out.println(message);
         LOG.info(message);
-        BuildAgent agent;
+        final BuildAgent buildAgent;
         if (args.length > 0) {
-            agent = new BuildAgent(args[0]);
+            if (args.length > 1) {
+                buildAgent = new BuildAgent(args[0], args[1]);
+            } else {
+                buildAgent = new BuildAgent(args[0], BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE);
+            }
         } else {
-            agent = new BuildAgent();
+            buildAgent = new BuildAgent();
         }
-        message = "BuildAgentService open for business...";
-        System.out.println(message);
-        LOG.info(message);
+
+        // stay around forever
+        synchronized (KEEP_ALIVE) {
+           try {
+               KEEP_ALIVE.wait();
+           } catch (InterruptedException e) {
+               LOG.error("Keep Alive wait interrupted", e);
+           }
+        }
+        buildAgent.terminate();
     }
 
 }

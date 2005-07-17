@@ -66,7 +66,9 @@ public class ZipUtilTest extends TestCase {
 
     public void setUp() {
         try {
-            rootTempDir = new File(new File(File.createTempFile("temp", "txt").getParent()), "testRoot");
+            final File dummyTempFile = File.createTempFile("temp", "txt");
+            dummyTempFile.delete();
+            rootTempDir = new File(new File(dummyTempFile.getParent()), "testRoot");
             rootTempDirPath = rootTempDir.getCanonicalPath();
             rootTempDir.mkdir();
             filledDir = new File(rootTempDirPath, filledDirName);
@@ -83,7 +85,6 @@ public class ZipUtilTest extends TestCase {
 
         String tempFile = TEMP_FILE;
         Writer writer = null;
-        String filledDirPath = null;
         try {
             filledDirPath = rootTempDirPath + File.separator + filledDirName;
             writer = new FileWriter(new File(filledDirPath, tempFile));
@@ -131,7 +132,6 @@ public class ZipUtilTest extends TestCase {
         ZipUtil.zipFolderContents(emptyZipFilePath, emptyDirPath);
         File emptyZipFile = new File(emptyZipFilePath);
 
-        //assertTrue(emptyZipFile.exists());  // @todo Should empty zips be created?
         assertFalse(emptyZipFile.exists());  // @todo Should empty zips be created?
     }
 

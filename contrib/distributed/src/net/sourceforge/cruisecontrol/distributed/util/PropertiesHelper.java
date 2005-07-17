@@ -44,9 +44,18 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-public class PropertiesHelper {
+public final class PropertiesHelper {
 
     private static final Logger LOG = Logger.getLogger(PropertiesHelper.class);
+
+    public static final String DISTRIBUTED_MODULE = "distributed.module";
+    public static final String DISTRIBUTED_AGENT_LOGDIR = "distributed.agentlogdir";
+    public static final String DISTRIBUTED_AGENT_OUTPUTDIR = "distributed.agentoutputdir";
+
+    public static final String RESULT_TYPE_LOGS = "logs";
+    public static final String RESULT_TYPE_OUTPUT = "output";
+
+    private PropertiesHelper() { }
 
     public static Map loadOptionalProperties(String filename) {
         Properties optionalProperties = new Properties();

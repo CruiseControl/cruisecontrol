@@ -42,23 +42,25 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 public class PropertiesHelperTest extends TestCase {
+    private static final String TEST_PROPERTIES_FILENAME = "testdist.properties";
+    private static final String TEST_PROP_NAME = "testProperty";
 
     public void testLoadOptionalProperties() {
-        Map propertiesMap = PropertiesHelper.loadOptionalProperties("test.properties");
+        Map propertiesMap = PropertiesHelper.loadOptionalProperties(TEST_PROPERTIES_FILENAME);
         assertNotNull(propertiesMap);
-        String value = (String) propertiesMap.get("testProperty");
+        String value = (String) propertiesMap.get(TEST_PROP_NAME);
         assertEquals("true", value);
 
         propertiesMap = PropertiesHelper.loadOptionalProperties("bogus.properties");
         assertNotNull(propertiesMap);
-        value = (String) propertiesMap.get("testProperty");
+        value = (String) propertiesMap.get(TEST_PROP_NAME);
         assertNull(value);
     }
 
     public void testLoadRequiredProperties() {
-        Map propertiesMap = PropertiesHelper.loadRequiredProperties("test.properties");
+        Map propertiesMap = PropertiesHelper.loadRequiredProperties(TEST_PROPERTIES_FILENAME);
         assertNotNull(propertiesMap);
-        String value = (String) propertiesMap.get("testProperty");
+        String value = (String) propertiesMap.get(TEST_PROP_NAME);
         assertEquals("true", value);
 
         try {

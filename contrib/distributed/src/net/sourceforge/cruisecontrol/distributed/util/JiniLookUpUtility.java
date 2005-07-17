@@ -38,8 +38,6 @@
 package net.sourceforge.cruisecontrol.distributed.util;
 
 import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.util.List;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.lookup.ServiceMatches;
@@ -54,13 +52,13 @@ import org.apache.log4j.Logger;
  * 
  * Run the main() method to see the local Jini services.
  */
-public class JiniLookUpUtility {
+public final class JiniLookUpUtility {
 
     private static final Logger LOG = Logger.getLogger(JiniLookUpUtility.class);
 
-    MulticastDiscovery discovery = new MulticastDiscovery();
+    private MulticastDiscovery discovery = new MulticastDiscovery(null);
 
-    public JiniLookUpUtility() {
+    private JiniLookUpUtility() {
         String waitMessage = "Waiting 5 seconds for registrars to report in...";
         System.out.println(waitMessage);
         LOG.info(waitMessage);
@@ -69,9 +67,9 @@ public class JiniLookUpUtility {
                 Thread.sleep(5000);
             } catch (InterruptedException e1) {
             }
-            List registrars = discovery.getRegistrars();
-            for (Iterator iter = registrars.iterator(); iter.hasNext();) {
-                ServiceRegistrar registrar = (ServiceRegistrar) iter.next();
+            ServiceRegistrar[] registrars = discovery.getRegistrars();
+            for (int x = 0; x < registrars.length; x++) {
+                ServiceRegistrar registrar = registrars[x];
                 String registrarInfo = "Registrar: " + registrar.getServiceID();
                 System.out.println();
                 System.out.println(registrarInfo);
@@ -94,6 +92,6 @@ public class JiniLookUpUtility {
     }
 
     public static void main(String[] args) {
-        JiniLookUpUtility tester = new JiniLookUpUtility();
+        new JiniLookUpUtility();
     }
 }
