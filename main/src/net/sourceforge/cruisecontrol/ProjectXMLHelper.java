@@ -149,11 +149,7 @@ public class ProjectXMLHelper {
 
     public boolean getBuildAfterFailed() {
         String buildAfterFailedAttr = projectElement.getAttributeValue("buildafterfailed");
-        if (!"false".equalsIgnoreCase(buildAfterFailedAttr)) {
-            // default if not specified and all other cases
-            buildAfterFailedAttr = "true";
-        }
-        boolean buildafterfailed = Boolean.valueOf(buildAfterFailedAttr).booleanValue();
+        boolean buildafterfailed = !"false".equalsIgnoreCase(buildAfterFailedAttr);
         LOG.debug("Setting BuildAfterFailed to " + buildafterfailed);
         return buildafterfailed;
     }
@@ -258,9 +254,8 @@ public class ProjectXMLHelper {
      */
     protected String getRequiredAttribute(Element element, String attributeName)
             throws CruiseControlException {
-        if (element.getAttributeValue(attributeName) != null) {
-            return element.getAttributeValue(attributeName);
-        } else {
+        final String requiredAttribute = element.getAttributeValue(attributeName);
+        if (requiredAttribute == null) {
             throw new CruiseControlException(
                     "Project "
                     + projectName
@@ -269,6 +264,7 @@ public class ProjectXMLHelper {
                     + " is required on "
                     + element.getName());
         }
+        return requiredAttribute;
     }
 
     private Element getRequiredElement(final Element parentElement, final String childName)
