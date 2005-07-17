@@ -446,10 +446,6 @@ public class CVS implements SourceControl {
             "if 'localWorkingCopy' is specified then cvsroot and module are not allowed on CVS");
         ValidationHelper.assertFalse(local != null && !new File(local).exists(),
             "Local working copy \"" + local + "\" does not exist!");
-        ValidationHelper.assertFalse(cvsroot != null && module == null,
-            "if cvsroot is specified then module must also be specified on CVS");
-        ValidationHelper.assertFalse(cvsroot == null && module != null,
-            "if module is specified then cvsroot must also be specified on CVS");
     }
 
     /**
