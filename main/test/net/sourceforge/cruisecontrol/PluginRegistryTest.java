@@ -190,6 +190,7 @@ public class PluginRegistryTest extends TestCase {
         assertEquals(expectedName, className);
 
         Class pluginClass = Class.forName(className);
-        pluginClass.getConstructor(null).newInstance(null);
+        // casts to suppress varargs warnings under sdk >= 1.5
+        pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
     }
 }
