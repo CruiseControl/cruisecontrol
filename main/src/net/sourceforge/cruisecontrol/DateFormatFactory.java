@@ -36,6 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 public final class DateFormatFactory {
 
     private static String format = "MM/dd/yyyy HH:mm:ss";
@@ -43,13 +46,24 @@ public final class DateFormatFactory {
     private DateFormatFactory() {
     }
 
-    // TODO: return new SimpleDateFormat(dateFormatString)
+    /**
+     * Note use {@link #getDateFormat()} when possible.
+     * @return
+     */
     public static String getFormat() {
         return format;
+    }
+
+    /**
+     * @return a DateFormat initialized given the {@link #getFormat()} return value.
+     * @see SimpleDateFormat the concrete DateFormat class used
+     */
+    public static DateFormat getDateFormat() {
+        return new SimpleDateFormat(format);
     }
 
     public static void setFormat(String aFormat) {
         format = aFormat;
     }
-    
+
 }

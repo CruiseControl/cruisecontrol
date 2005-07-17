@@ -48,6 +48,7 @@ import org.jdom.output.XMLOutputter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -55,8 +56,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ModificationSetTest extends TestCase {
-
-    private static final Logger LOG = Logger.getLogger(ModificationSetTest.class);
 
     private ModificationSet modSet;
 
@@ -138,7 +137,7 @@ public class ModificationSetTest extends TestCase {
 
         Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
 
-        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+        DateFormat formatter = DateFormatFactory.getDateFormat();
         Element modificationsElement = new Element("modifications");
         Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date()).iterator();
         while (mock1ModificationsIterator.hasNext()) {
@@ -163,7 +162,7 @@ public class ModificationSetTest extends TestCase {
      * Uses inline sourcecontrol implementation instead of mock.
      */
     public void testGetMixedModifications() throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+        DateFormat formatter = DateFormatFactory.getDateFormat();
 
         Modification mod1 = new Modification();
         mod1.userName = "user3";
@@ -287,7 +286,7 @@ public class ModificationSetTest extends TestCase {
 
     public void testFilterIgnoredFiles() throws CruiseControlException, ParseException {
 
-        final SimpleDateFormat formatter = new SimpleDateFormat(DateFormatFactory.getFormat());
+        final DateFormat formatter = DateFormatFactory.getDateFormat();
         final List modifications = new ArrayList();
 
         final Modification mod1 = new Modification();
