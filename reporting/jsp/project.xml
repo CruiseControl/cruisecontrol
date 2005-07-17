@@ -52,11 +52,11 @@
   <!--logo></logo-->
 
   <description>
-    <![CDATA[ FIXME. ]]>
+    <![CDATA[   ]]>
   </description>
-  <shortDescription>FIXME</shortDescription>
+  <shortDescription>The web application that displays the results of the build loop.</shortDescription>
   <url>http://cruisecontrol.sourceforge.net/</url>
-  <issueTrackingUrl>http://jira.public.thoughtworks.org/secure/BrowseProject.jspa?id=10020</issueTrackingUrl>
+  <issueTrackingUrl>http://jira.public.thoughtworks.org/browse/CC</issueTrackingUrl>
   <!--siteAddress>cruisecontrol.sf.net</siteAddress-->
   <siteDirectory/>
   <distributionSite/>
@@ -84,7 +84,7 @@
   <dependencies>
     <dependency>
       <id>servletapi</id>
-      <version>2.2</version> <!-- FIXME check -->
+      <version>2.2</version>
       <url>http://java.sun.com/products/servlet/</url>
     </dependency>
     <dependency>
@@ -99,7 +99,7 @@
       <groupId>jfreechart</groupId>
       <artifactId>jfreechart</artifactId>
       <version>0.9.8</version>
-      <url>http://FIXME.org/</url>
+      <url>http://www.jfree.org/jfreechart/</url>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -107,14 +107,14 @@
     <dependency>
       <id>xalan</id>
       <version>unknown</version>
-      <url>http://FIXME/ </url>
+      <url>http://xml.apache.org/xalan-j/</url>
     </dependency>
 
     <dependency>
       <groupId>jcommon</groupId>
       <artifactId>jcommon</artifactId>
       <version>0.8.0</version>
-      <url>http://FIXME.org/</url>
+      <url>http://www.jfree.org/jcommon/</url>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -164,7 +164,7 @@
       <groupId>xerces</groupId>
       <artifactId>xerces</artifactId>
       <version>unknown</version>
-      <url>http://FIXME/ </url>
+      <url>http://xml.apache.org/xerces-j/</url>
     </dependency>
 
   </dependencies>
