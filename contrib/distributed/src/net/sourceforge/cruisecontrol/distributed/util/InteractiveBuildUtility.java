@@ -42,19 +42,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.UnknownServiceException;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.core.lookup.ServiceItem;
+import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
-import net.sourceforge.cruisecontrol.util.FileUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -66,11 +65,8 @@ public class InteractiveBuildUtility {
 
     private static final Logger LOG = Logger.getLogger(InteractiveBuildUtility.class);
 
-    static Console console = new Console(System.in);
+    private static Console console = new Console(System.in);
     private String searchEntries;
-    private MulticastDiscovery discovery = new MulticastDiscovery();
-    private List agents;
-    private BuildAgentService agent;
     private Element distributedBuilderElement;
 
     public InteractiveBuildUtility() {
@@ -89,10 +85,10 @@ public class InteractiveBuildUtility {
         }
         Element project = getProjectFromConfig(configFile);
         distributedBuilderElement = getBuilderFromProject(project);
-        agents = findAgents(distributedBuilderElement.getAttribute("entries"));
-        agent = selectAgent();
+        ServiceItem[] serviceItems = findAgents(distributedBuilderElement.getAttribute("entries"));
+        final BuildAgentService agent = selectAgent(serviceItems);
         doBuild();
-        retrieveResults(distributedBuilderElement.getAttribute("module").getValue());
+        retrieveResults(agent);
     }
 
     private Element getProjectFromConfig(File configFile) {
@@ -100,43 +96,44 @@ public class InteractiveBuildUtility {
         Element project = null;
         try {
             rootElement = Util.loadConfigFile(configFile);
-	    } catch (CruiseControlException e) {
-	        System.err.println(e.getMessage());
-	        LOG.error(e.getMessage(), e);
-	        System.exit(1);
-	    }
-	    List projects = rootElement.getChildren("project");
-	    if (projects.size() == 0) {
-	        String message = "No projects found in configuration file at " + configFile.getAbsolutePath() + " - quitting...";
-	        System.err.println(message);
-	        LOG.error(message);
-	        System.out.println();
-	        System.exit(1);
-	    } else if (projects.size() == 1) {
-	        project = (Element) projects.get(0);
-	        String message = "Found one project--using '" + project.getAttributeValue("name") + "'";
-	        System.out.println(message);
-	        LOG.info(message);
-	        System.out.println();
-	    } else {
-	        System.out.println("Found multiple projects in configuration file:");
-	        Iterator iter = projects.iterator();
-		    for (int i=0; iter.hasNext(); i++) {
-	            Element tempProject = (Element) iter.next();
+        } catch (CruiseControlException e) {
+            System.err.println(e.getMessage());
+            LOG.error(e.getMessage(), e);
+            System.exit(1);
+        }
+        List projects = rootElement.getChildren("project");
+        if (projects.size() == 0) {
+            String message = "No projects found in configuration file at " + configFile.getAbsolutePath()
+                    + " - quitting...";
+            System.err.println(message);
+            LOG.error(message);
+            System.out.println();
+            System.exit(1);
+        } else if (projects.size() == 1) {
+            project = (Element) projects.get(0);
+            String message = "Found one project--using '" + project.getAttributeValue("name") + "'";
+            System.out.println(message);
+            LOG.info(message);
+            System.out.println();
+        } else {
+            System.out.println("Found multiple projects in configuration file:");
+            Iterator iter = projects.iterator();
+            for (int i = 0; iter.hasNext(); i++) {
+                Element tempProject = (Element) iter.next();
                 System.out.println(i + 1 + ") " + tempProject.getAttributeValue("name"));
                 LOG.debug("Found project: " + tempProject.getAttributeValue("name"));
-		    }
-		    System.out.print("Select project number: ");
-	        int projectNumber = Integer.parseInt(console.readLine());
-	        if ((projectNumber > projects.size()) || (projectNumber < 1)) {
-	            String message = "Not a valid project number - quitting...";
-	            System.err.println(message);
-	            LOG.error(message);
-	            System.exit(1);
-	        }
-	        project = (Element) projects.get(projectNumber - 1);
-	        System.out.println();
-	    }
+            }
+            System.out.print("Select project number: ");
+            int projectNumber = Integer.parseInt(console.readLine());
+            if ((projectNumber > projects.size()) || (projectNumber < 1)) {
+                String message = "Not a valid project number - quitting...";
+                System.err.println(message);
+                LOG.error(message);
+                System.exit(1);
+            }
+            project = (Element) projects.get(projectNumber - 1);
+            System.out.println();
+        }
         return project;
     }
     
@@ -170,29 +167,20 @@ public class InteractiveBuildUtility {
         return builder;
     }
 
-    private List findAgents(Attribute configEntries) {
+    private ServiceItem[] findAgents(Attribute configEntries) {
         if (configEntries == null) {
-	        System.out.println("Enter search entries as comma-separated name/value pairs "
-	                + "(e.g. \"os.name=WinNT, fixpack=4.1\")");
-	        System.out.print("Search entries: ");
-	        searchEntries = console.readLine();
+            System.out.println("Enter search entries as comma-separated name/value pairs "
+                    + "(e.g. \"os.name=WinNT, fixpack=4.1\")");
+            System.out.print("Search entries: ");
+            searchEntries = console.readLine();
         } else {
             searchEntries = configEntries.getValue();
         }
-        LOG.debug("Searching for agents matching entries: " + searchEntries);
-        ServiceRegistrar registrar = null;
-        try {
-            registrar = (ServiceRegistrar) discovery.getRegistrar(5000);
-            LOG.debug("Found registrar: " + registrar.getServiceID());
-        } catch (UnknownServiceException e) {
-            String message = "No registrar found after 5 seconds - quitting";
-            LOG.error(message, e);
-            System.err.println(message + " - " + e.getMessage());
-            System.exit(1);
-        }
-        List entriesList = ReggieUtil.convertStringEntriesToList(searchEntries);
-        List agents = ReggieUtil.findServicesForEntriesList(registrar, entriesList, BuildAgentService.class);
-        if (agents.size() == 0) {
+        LOG.debug("Searching for serviceItems matching entries: " + searchEntries);
+        Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
+        final MulticastDiscovery discovery = new MulticastDiscovery(entries);
+        ServiceItem[] serviceItems = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
+        if (serviceItems.length == 0) {
             String message = "No matches for your search - quitting...";
             System.err.println(message);
             System.out.println();
@@ -200,17 +188,19 @@ public class InteractiveBuildUtility {
             System.exit(1);
         }
         System.out.println();
-        return agents;
+        return serviceItems;
     }
 
-    private BuildAgentService selectAgent() {
-        if (agents.size() < 1) {
-            String message = "No matching agents found - quitting...";
+    private BuildAgentService selectAgent(final ServiceItem[] serviceItems) {
+        BuildAgentService agent = null;
+
+        if (serviceItems.length < 1) {
+            String message = "No matching serviceItems found - quitting...";
             LOG.error(message);
             System.err.println(message);
             System.exit(1);
-        } else if (agents.size() == 1){
-            agent = (BuildAgentService) agents.get(0);
+        } else if (serviceItems.length == 1) {
+            agent = (BuildAgentService) serviceItems[0].service;
             String agentName = null;
             try {
                 agentName = agent.getMachineName();
@@ -225,11 +215,11 @@ public class InteractiveBuildUtility {
             LOG.debug(infoMessage);
             System.out.println();
         } else {
-            System.out.println("Found agents:");
+            System.out.println("Found serviceItems:");
             String machineName = null;
-            for (int i = 0; i < agents.size(); i++) {
+            for (int i = 0; i < serviceItems.length; i++) {
                 try {
-                    machineName = ((BuildAgentService) agents.get(i)).getMachineName();
+                    machineName = ((BuildAgentService) serviceItems[i].service).getMachineName();
                     System.out.println(i + 1 + ") " + machineName);
                     LOG.debug("Found agent: " + machineName);
                 } catch (RemoteException e1) {
@@ -239,22 +229,23 @@ public class InteractiveBuildUtility {
                     System.exit(1);
                 }
             }
-	        System.out.print("Select agent # or 0 to list status of all agents: ");
-	        int agentNum = Integer.parseInt(console.readLine());
-	        if ((agentNum > agents.size()) || (agentNum < 0)) {
-	            String message = "Not a valid agent number - quitting...";
-	            System.err.println(message);
-	            LOG.error(message);
-	            System.exit(1);
-	        }
-	        if (agentNum == 0) {
-	            displayAgentStatuses();
-	            System.out.println("Done...");
-	            System.exit(0);
-	        } else {
-		        BuildAgentService agent = (BuildAgentService) agents.get(agentNum - 1);
-		        System.out.println();
-	        }
+            System.out.print("Select agent # or 0 to list status of all serviceItems: ");
+            int agentNum = Integer.parseInt(console.readLine());
+            if ((agentNum > serviceItems.length) || (agentNum < 0)) {
+                agent = null;
+                String message = "Not a valid agent number - quitting...";
+                System.err.println(message);
+                LOG.error(message);
+                System.exit(1);
+            }
+            if (agentNum == 0) {
+                displayAgentStatuses();
+                System.out.println("Done...");
+                System.exit(0);
+            } else {
+                agent = (BuildAgentService) serviceItems[agentNum - 1].service;
+                System.out.println();
+            }
         }
         return agent;
     }
@@ -289,26 +280,13 @@ public class InteractiveBuildUtility {
         System.out.println();
     }
     
-    private void retrieveResults(String moduleName) {
-        String resultsFileName = "logs.zip";
-        String resultsType = "logs";
+    private void retrieveResults(final BuildAgentService agent) {
+        String resultsType = PropertiesHelper.RESULT_TYPE_LOGS;
         try {
-            if (agent.resultsExist(resultsType)) {
-                String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), ".", resultsFileName);
-            } else {
-                String message = "No results returned for logs";
-                LOG.debug(message);
-                System.out.println(message);
-            }
-            resultsFileName = "output.zip";
-            resultsType = "output";
-            if (agent.resultsExist(resultsType)) {
-                String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), ".", resultsFileName);
-            } else {
-                String message = "No results returned for output";
-                LOG.debug(message);
-                System.out.println(message);
-            }
+            DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS,
+                    ".", "resultsInteractive");
+            DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_OUTPUT,
+                    ".", "resultsInteractive");
             agent.clearOutputFiles();
         } catch (RemoteException e) {
             String message = "Problem occurred getting or unzipping results";
@@ -319,9 +297,9 @@ public class InteractiveBuildUtility {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            InteractiveBuildUtility interactiveBuildUtility = new InteractiveBuildUtility();
+            new InteractiveBuildUtility();
         } else {
-            InteractiveBuildUtility interactiveController = new InteractiveBuildUtility(args[0]);
+            new InteractiveBuildUtility(args[0]);
         }
     }
 

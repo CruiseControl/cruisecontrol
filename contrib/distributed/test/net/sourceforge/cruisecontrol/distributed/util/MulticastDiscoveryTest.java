@@ -38,16 +38,33 @@
 package net.sourceforge.cruisecontrol.distributed.util;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 
 public class MulticastDiscoveryTest extends TestCase {
 
-    public void testMulticastDiscovery() {
-        // TODO: There are certainly tests that could be written here, but without automating startup and shutdown of Jini
-        //       these shouldn't be run with the rest of the the Cruise Control tests. Should we look into this automation
-        //       for purposes of testing?
-        
-//        MulticastDiscovery discovery = new MulticastDiscovery(LookupDiscovery.NO_GROUPS);
-//        assertEquals(0, discovery.getRegistrars().size());
+    private Process jiniProcess;
+
+    protected void setUp() throws Exception {
+        jiniProcess = DistributedMasterBuilderTest.startJini();
+    }
+
+    protected void tearDown() throws Exception {
+        DistributedMasterBuilderTest.killJini(jiniProcess);
+    }
+
+
+    public void testMulticastDiscovery()  throws Exception {
+        // TODO: There are certainly tests that could be written here, but without automating startup and shutdown of
+        // Jini these shouldn't be run with the rest of the the Cruise Control tests. Should we look into this
+        // automation for purposes of testing?
+        // NOTE: I've added nasty, but working Jini startup/shutdown methods to DistributedMasterBuilderTest
+
+        MulticastDiscovery discovery = new MulticastDiscovery(null);
+        try {
+            assertNull(discovery.findMatchingService());
+        } finally {
+            discovery.terminate();
+        }
     }
 
 }

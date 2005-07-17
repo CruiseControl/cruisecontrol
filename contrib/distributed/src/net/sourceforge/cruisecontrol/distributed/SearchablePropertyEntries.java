@@ -54,7 +54,6 @@ public class SearchablePropertyEntries {
 
     private static final Logger LOG = Logger.getLogger(SearchablePropertyEntries.class);
 
-    private static final String USER_DEFINED_PROPERTIES_FILE = "user-defined.properties";
     private static final String OS_NAME = "os.name";
     private static final String JAVA_VM_VERSION = "java.vm.version";
     private static final String HOSTNAME = "hostname";
@@ -65,7 +64,7 @@ public class SearchablePropertyEntries {
         return entryProperties;
     }
 
-    public SearchablePropertyEntries() {
+    public SearchablePropertyEntries(final String userDefinedPropertiesFilename) {
         try {
             String osName = System.getProperty(OS_NAME);
             entryProperties.put(OS_NAME, osName);
@@ -79,7 +78,7 @@ public class SearchablePropertyEntries {
             entryProperties.put(HOSTNAME, hostname);
             LOG.debug("Set search entry " + HOSTNAME + " to: " + hostname);
 
-            Map tempProperties = PropertiesHelper.loadOptionalProperties(USER_DEFINED_PROPERTIES_FILE);
+            Map tempProperties = PropertiesHelper.loadOptionalProperties(userDefinedPropertiesFilename);
             for (Iterator iter = tempProperties.keySet().iterator(); iter.hasNext();) {
                 String key = (String) iter.next();
                 String value = (String) tempProperties.get(key);

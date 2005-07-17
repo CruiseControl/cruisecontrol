@@ -63,73 +63,93 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentServiceImpl.class);
 
-    private static final String AGENT_PROPERTIES_FILE = "agent.properties";
     private static final String CRUISE_BUILD_DIR = "cruise.build.dir";
-    private static final String DISTRIBUTED_MODULE = "distributed.module";
+
+    static final String DEFAULT_AGENT_PROPERTIES_FILE = "agent.properties";
+    private String agentPropertiesFilename = DEFAULT_AGENT_PROPERTIES_FILE;
+
+    static final String DEFAULT_USER_DEFINED_PROPERTIES_FILE = "user-defined.properties";
 
     private boolean isBusy = false;
     private Properties configProperties;
     private Properties projectProperties = new Properties();
-    private String logDir="";
+    private String logDir = "";
     private String outputDir;
-    private long lastBusyTime = 0;
     private String buildRootDir;
     private String logsFilePath;
     private String outputFilePath;
 
-    private final String _busyLock = new String("busyLock");
+    private synchronized String getModule() {
+        return projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_MODULE);
+    }
+
+    void setAgentPropertiesFilename(final String filename) {
+        agentPropertiesFilename = filename;
+    }
+    private String getAgentPropertiesFilename() {
+        return agentPropertiesFilename;
+    }
+
+    private final String busyLock = new String("busyLock");
     private void setBusy(final boolean newIsBusy) {
-        synchronized (_busyLock)
-        {
+        synchronized (busyLock) {
             isBusy = newIsBusy;
         }
+        LOG.info("agent busy status changed to: " + newIsBusy);
     }
 
     public Element doBuild(Element nestedBuilderElement, Map projectPropertiesMap) throws RemoteException {
-        setBusy(true);
-
-        projectProperties.putAll(projectPropertiesMap);
-        String infoMessage = "Building module: " + projectProperties.getProperty("distributed.module");
-        System.out.println();
-        System.out.println(infoMessage);
-        LOG.info(infoMessage);
-
-        Element buildResults = null;
-        Builder nestedBuilder = null;
+        setBusy(true); // we could remove this, since claim() is called during lookup...
         try {
-            nestedBuilder = createBuilder(nestedBuilderElement);
-        } catch (CruiseControlException e) {
-            String message = "Failed to configure nested Builder on agent";
-            LOG.error(message, e);
-            System.err.println(message + " - " + e.getMessage());
-            throw new RemoteException(message, e);
-        }
+            projectProperties.putAll(projectPropertiesMap);
+            String infoMessage = "Building module: " + getModule()
+                    + "\n\tAgentLogDir: " + projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
+                    + "\n\tAgentOutputDir: " + projectProperties.getProperty(
+                            PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
 
-        try {
-            buildResults = nestedBuilder.build(projectPropertiesMap);
-        } catch (CruiseControlException e) {
-            String message = "Failed to complete build on agent";
-            LOG.error(message, e);
-            System.err.println(message + " - " + e.getMessage());
-            throw new RemoteException(message, e);
+            System.out.println();
+            System.out.println(infoMessage);
+            LOG.info(infoMessage);
+
+            final Element buildResults;
+            final Builder nestedBuilder;
+            try {
+                nestedBuilder = createBuilder(nestedBuilderElement);
+            } catch (CruiseControlException e) {
+                String message = "Failed to configure nested Builder on agent";
+                LOG.error(message, e);
+                System.err.println(message + " - " + e.getMessage());
+                throw new RemoteException(message, e);
+            }
+
+            try {
+                buildResults = nestedBuilder.build(projectPropertiesMap);
+            } catch (CruiseControlException e) {
+                String message = "Failed to complete build on agent";
+                LOG.error(message, e);
+                System.err.println(message + " - " + e.getMessage());
+                throw new RemoteException(message, e);
+            }
+            prepareLogsAndArtifacts();
+            return buildResults;
+        } catch (RemoteException e) {
+            LOG.error("doBuild threw exception, setting busy to false.");
+            setBusy(false);
+            throw e; // rethrow original exception
         }
-        prepareLogsAndArtifacts();
-        return buildResults;
     }
 
     private Builder createBuilder(Element builderElement) throws CruiseControlException {
-        Element buildResults = null;
 
-        configProperties = (Properties) PropertiesHelper.loadRequiredProperties(AGENT_PROPERTIES_FILE);
+        configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
+                getAgentPropertiesFilename());
 
         ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
         PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
 
-        Builder builder = null;
-
         PluginRegistry plugins = PluginRegistry.createRegistry();
         Class pluginClass = plugins.getPluginClass(builderElement.getName());
-        builder = (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
+        final Builder builder = (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
         // TODO: Should overrideTarget be changed to public for Builders so that
         // we can do this?
         //            nestedBuilder.overrideTarget(projectProperties.get("distributed.overrideTarget");
@@ -149,16 +169,31 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message);
         }
-        String module = projectProperties.getProperty(DISTRIBUTED_MODULE);
-        logDir = buildRootDir + File.separator + "logs" + File.separator + module;
-        new File(logDir).mkdirs();
-        outputDir = buildRootDir + File.separator + "output" + File.separator + module;
-        new File(outputDir).mkdirs();
 
-        logsFilePath = buildRootDir + File.separator + "logs.zip";
+        logDir = getAgentResultDir(PropertiesHelper.RESULT_TYPE_LOGS,
+                PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR);
+
+        outputDir = getAgentResultDir(PropertiesHelper.RESULT_TYPE_OUTPUT,
+                PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
+
+
+        logsFilePath = buildRootDir + File.separator + PropertiesHelper.RESULT_TYPE_LOGS + ".zip";
         ZipUtil.zipFolderContents(logsFilePath, logDir);
-        outputFilePath = buildRootDir + File.separator + "output.zip";
+        outputFilePath = buildRootDir + File.separator + PropertiesHelper.RESULT_TYPE_OUTPUT + ".zip";
         ZipUtil.zipFolderContents(outputFilePath, outputDir);
+    }
+
+    private String getAgentResultDir(final String resultType, final String resultProperty) {
+        String resultDir;
+        resultDir = projectProperties.getProperty(resultProperty);
+        LOG.debug("Result: " + resultType + "Prop value: " + resultDir);
+
+        if (resultDir == null || "".equals(resultDir)) {
+            // use canonical behavior if attribute is not set
+            resultDir = buildRootDir + File.separator + resultType + File.separator + getModule();
+        }
+        new File(resultDir).mkdirs();
+        return resultDir;
     }
 
     public String getMachineName() throws RemoteException {
@@ -175,48 +210,37 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     public void claim() {
         // flag this agent as busy for now. Intended to prevent mulitple builds on same agent,
         // when multiple master threads find the same agent, before any build thread has started.
-        setBusy(true);
+        synchronized (busyLock) {
+            if (isBusy()) {
+                throw new IllegalStateException("Cannot claim agent that is busy building module: "
+                        + getModule());
+            }
+            setBusy(true);
+        }
     }
 
     public boolean isBusy() {
-        //        if( !isBusy ) {
-        //            if( System.currentTimeMillis() > lastBusyTime + 1000 ) {
-        //	            lastBusyTime = System.currentTimeMillis();
-        //	            return true;
-        //	        } else {
-        //                return false;
-        //            }
-        //        }
-        //        return isBusy;
-        //return false;
-        synchronized (_busyLock)
-        {
+        synchronized (busyLock) {
+            LOG.debug("Is busy called. value: " + isBusy);
             return isBusy;
         }
     }
 
     public boolean resultsExist(String resultsType) throws RemoteException {
-        if (resultsType.equals("logs")) {
+        if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
             return !(new File(logDir).list().length == 0);
-        } else if (resultsType.equals("output")) {
+        } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
             return !(new File(outputDir).list().length == 0);
-        } else
+        } else {
             return false;
+        }
     }
 
     public byte[] retrieveResultsAsZip(String resultsType) throws RemoteException {
-        String zipFilePath = null;
-        if (resultsType.equals("logs")) {
-            zipFilePath = buildRootDir + File.separator + "logs.zip";
-        } else if (resultsType.equals("output")) {
-            zipFilePath = buildRootDir + File.separator + "output.zip";
-        } else {
-            String message = "Unknown results type '" + resultsType + "'";
-            LOG.debug(message);
-            System.err.println(message);
-            throw new RemoteException(message);
-        }
-        byte[] response = null;
+
+        final String zipFilePath = buildRootDir + File.separator + resultsType + ".zip";
+
+        final byte[] response;
         try {
             response = FileUtil.getFileAsBytes(new File(zipFilePath));
         } catch (IOException e) {
@@ -229,13 +253,29 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     public void clearOutputFiles() {
-        LOG.debug("Deleting contents of " + logDir);
-        Util.deleteFile(new File(logDir));
-        Util.deleteFile(new File(logsFilePath));
-        LOG.debug("Deleting contents of " + outputDir);
-        Util.deleteFile(new File(outputDir));
-        Util.deleteFile(new File(outputFilePath));
-        setBusy(false);
+        try {
+            LOG.debug("Deleting contents of " + logDir);
+            Util.deleteFile(new File(logDir));
+            if (logsFilePath != null) {
+                LOG.debug("Deleting log zip " + logsFilePath);
+                Util.deleteFile(new File(logsFilePath));
+            } else {
+                LOG.error("Skipping delete of log zip, file path is null.");
+            }
+
+            LOG.debug("Deleting contents of " + outputDir);
+            Util.deleteFile(new File(outputDir));
+            if (outputFilePath != null) {
+                LOG.debug("Deleting output zip " + outputFilePath);
+                Util.deleteFile(new File(outputFilePath));
+            } else {
+                LOG.error("Skipping delete of output zip, file path is null.");
+            }
+            setBusy(false);
+        } catch (RuntimeException e) {
+            LOG.error("Error cleaning agent build files.", e);
+            throw e;
+        }
     }
 
 }

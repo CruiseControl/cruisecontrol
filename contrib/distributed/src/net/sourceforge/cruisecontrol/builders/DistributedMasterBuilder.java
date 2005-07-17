@@ -39,17 +39,20 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.UnknownServiceException;
 import java.rmi.RemoteException;
-import java.util.Iterator;
+import java.util.Properties;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.HashMap;
 
-import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.core.lookup.ServiceItem;
+import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.Builder;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
@@ -68,18 +71,27 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
     private static final String CRUISE_PROPERTIES = "cruise.properties";
     private static final String CRUISE_RUN_DIR = "cruise.run.dir";
-    // TODO: Change to property timeout?
-    private static final long DEFAULT_TIMEOUT = 30000;
+
+    // TODO: Change to property?
+    private static final long DEFAULT_CACHE_MISS_WAIT = 30000;
+    private boolean isFailFast;
 
     // TODO: Can we get the module from the projectProperties instead of setting
     // it via an attribute?
-    //		 Could be set in ModificationSet...
-    private String entries = "";
-    private String module = "";
+    //  Could be set in ModificationSet...
+    private String entries;
+    private String module;
+
+    private String agentLogDir;
+    private String agentOutputDir;
+
+    private String masterLogDir;
+    private String masterOutputDir;
+
     private Element thisElement;
-    private Element childBuilderElement = null;
+    private Element childBuilderElement;
     private String overrideTarget = "";
-    private MulticastDiscovery discovery = new MulticastDiscovery();
+    private MulticastDiscovery discovery;
     private Properties cruiseProperties;
     private File rootDir;
 
@@ -87,10 +99,36 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         overrideTarget = target;
     }
 
+    Element getChildBuilderElement() {
+        return childBuilderElement;
+    }
+
+    /** If true, available agent lookup will not block until an agent is found,
+     * but will return null immediately. */
+    public synchronized void setFailFast(boolean isFailFast) {
+        this.isFailFast = isFailFast;
+    }
+    private synchronized  boolean isFailFast() {
+        return isFailFast;
+    }
+
+    /** Intended only for use by unit tests. **/
+    void setDiscovery(MulticastDiscovery multicastDiscovery) {
+        discovery = multicastDiscovery;
+    }
+    MulticastDiscovery getDiscovery() {
+        if (discovery == null) {
+            final Entry[] arrEntries = ReggieUtil.convertStringEntries(entries);
+            discovery = new MulticastDiscovery(arrEntries);
+        }
+
+        return discovery;
+    }
+
     /**
      * 
      * @param element
-     * @throws CruiseControlException
+     * @throws net.sourceforge.cruisecontrol.CruiseControlException
      */
     public void configure(Element element) throws CruiseControlException {
         this.thisElement = element;
@@ -101,11 +139,30 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             throw new CruiseControlException(message);
         }
         childBuilderElement = (Element) children.get(0);
+        // Add default/preconfigured props to builder element
+        addMissingPluginDefaults(childBuilderElement);
+
+        // Add default/preconfigured props to distributed element
+        addMissingPluginDefaults(element);
 
         Attribute tempAttribute = thisElement.getAttribute("entries");
         entries = tempAttribute != null ? tempAttribute.getValue() : "";
+
         tempAttribute = thisElement.getAttribute("module");
         module = tempAttribute != null ? tempAttribute.getValue() : null;
+
+        // optional attributes
+        tempAttribute = thisElement.getAttribute("agentlogdir");
+        setAgentLogDir(tempAttribute != null ? tempAttribute.getValue() : "");
+
+        tempAttribute = thisElement.getAttribute("agentoutputdir");
+        setAgentOutputDir(tempAttribute != null ? tempAttribute.getValue() : "");
+
+        tempAttribute = thisElement.getAttribute("masterlogdir");
+        setMasterLogDir(tempAttribute != null ? tempAttribute.getValue() : "");
+
+        tempAttribute = thisElement.getAttribute("masteroutputdir");
+        setMasterOutputDir(tempAttribute != null ? tempAttribute.getValue() : "");
 
         try {
             cruiseProperties = (Properties) PropertiesHelper.loadRequiredProperties(CRUISE_PROPERTIES);
@@ -115,8 +172,10 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             throw new CruiseControlException(e.getMessage(), e);
         }
         rootDir = new File(cruiseProperties.getProperty(CRUISE_RUN_DIR));
+        LOG.debug("CRUISE_RUN_DIR: " + rootDir);
         if (!rootDir.exists()) {
-            String message = "Could not get property " + CRUISE_RUN_DIR + " from " + CRUISE_PROPERTIES;
+            String message = "Could not get property " + CRUISE_RUN_DIR + " from " + CRUISE_PROPERTIES
+                    + ", or run dir does not exist: " + rootDir;
             LOG.error(message);
             System.err.println(message);
             throw new CruiseControlException(message);
@@ -125,9 +184,88 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         validate();
     }
 
+    /** Package visisble since also used by unit tests to apply plugin default values. */
+    static void addMissingPluginDefaults(final Element elementToAlter) {
+        LOG.debug("Adding missing defaults for plugin: " + elementToAlter.getName());
+        final Map pluginDefaults = getPluginDefaults(elementToAlter);
+        applyPluginDefaults(pluginDefaults, elementToAlter);
+    }
+
+    private static void applyPluginDefaults(final Map pluginDefaults, final Element elementToAlter) {
+        final String pluginName = elementToAlter.getName();
+        // to preserve precedence, only add default attribute if it is not also defined in the tag directly
+        Set defaultAttribMapKeys = pluginDefaults.keySet();
+        for (Iterator itrKeys = defaultAttribMapKeys.iterator(); itrKeys.hasNext();) {
+            final String attribName = (String) itrKeys.next();
+            final String attribValueExisting = elementToAlter.getAttributeValue(attribName);
+            if (attribValueExisting == null) { // skip existing attribs
+                final String attribValue = (String) pluginDefaults.get(attribName);
+                elementToAlter.setAttribute(attribName, attribValue);
+                LOG.debug("Added plugin " + pluginName + " default attribute: " + attribName + "=" + attribValue);
+            } else {
+                LOG.debug("Skipping plugin " + pluginName + " overidden attribute: " + attribName
+                        + "=" + attribValueExisting);
+            }
+        }
+    }
+
+    private static Map getPluginDefaults(final Element elementToAlter) {
+
+        final PluginRegistry pluginsRegistry = PluginRegistry.createRegistry();
+        final Map pluginDefaults = pluginsRegistry.getDefaultProperties(elementToAlter.getName());
+
+        if (pluginDefaults.size() == 0) { // maybe we're in a unit test
+            // @todo Remove this kludge when we figure out how to make PluginRegistry work in unit test
+            LOG.warn("Unit Test kludge for plugin default values. "
+                    + "Should happen only if no default plugin settings exist OR during unit tests.");
+            final Element elemCC = getElementCruiseControl(elementToAlter);
+            // bail out if we can't find CruiseControl element, since there may actually
+            // be no defaults for this element
+            if (elemCC == null) {
+                return pluginDefaults;
+            }
+
+            final List plugins = elemCC.getChildren("plugin");
+            final Map pluginDefaultsHack = new HashMap();
+            for (int i = 0; i < plugins.size(); i++) {
+                final Element plugin = (Element) plugins.get(i);
+                if (elementToAlter.getName().equals(plugin.getAttributeValue("name"))) {
+                    // iterate attribs
+                    final List attribs = plugin.getAttributes();
+                    for (int j = 0; j < attribs.size(); j++) {
+                        final Attribute attribute = (Attribute) attribs.get(j);
+                        final String attribName = attribute.getName();
+                        // skip certain attribs
+                        if (!"name".equals(attribName)) { // ignore "name" attrib of default plugin declaration
+                            pluginDefaultsHack.put(attribName, attribute.getValue());
+                        }
+                    }
+                }
+            }
+            // put kludge results into returned map
+            pluginDefaults.putAll(pluginDefaultsHack);
+        }
+
+        return pluginDefaults;
+    }
+
+    private static Element getElementCruiseControl(Element element) {
+        LOG.debug("Searching for CC root element, starting at: " + element.toString());
+        while (!"cruisecontrol".equals(element.getName().toLowerCase())) {
+            element = element.getParentElement();
+            LOG.debug("Searching for CC root element, moved up to: "
+                    + (element != null ? element.toString() : "Augh! parent element is null"));
+            if (element == null) {
+                LOG.warn("Searching for CC root element, not found.");
+                break;
+            }
+        }
+        return element;
+    }
+
     public void validate() throws CruiseControlException {
         super.validate();
-        if (childBuilderElement == null) {
+        if (getChildBuilderElement() == null) {
             String message = "A nested Builder is required for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
@@ -141,65 +279,70 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
     public Element build(Map projectProperties) throws CruiseControlException {
         try {
-            BuildAgentService agent = pickAgent();
+            final BuildAgentService agent = pickAgent();
+            // agent is now marked as claimed
 
-            Element buildResults = null;
-
+            final Element buildResults;
             try {
                 projectProperties.put("distributed.overrideTarget", overrideTarget);
-                projectProperties.put("distributed.module", module);
+                projectProperties.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
+                projectProperties.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, getAgentLogDir());
+                projectProperties.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, getAgentOutputDir());
 
-                buildResults = agent.doBuild(childBuilderElement, projectProperties);
+                LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of module: " + module);
+                buildResults = agent.doBuild(getChildBuilderElement(), projectProperties);
 
-                String rootDirPath = null;
+                final String rootDirPath;
                 try {
+                    // watch out on Windoze, problems if root dir is c: instead of c:/
+                    LOG.debug("rootDir: " + rootDir + "; rootDir.cp: " + rootDir.getCanonicalPath());
                     rootDirPath = rootDir.getCanonicalPath();
-                } catch (IOException e1) {
+                } catch (IOException e) {
                     String message = "Error getting canonical path for: " + rootDir;
                     LOG.error(message);
                     System.err.println(message);
-                    throw new CruiseControlException(message, e1);
+                    throw new CruiseControlException(message, e);
                 }
 
-                String resultsFileName = "logs.zip";
-                String resultsType = "logs";
-                if (agent.resultsExist(resultsType)) {
-                    String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath, resultsFileName);
-                    try {
-                        ZipUtil.unzipFileToLocation(zipFilePath, rootDirPath + File.separator + resultsType);
-                        Util.deleteFile(new File(zipFilePath));
-                    } catch (IOException e2) {
-                        // Empty zip for log results--ignore
-                    }
+
+                String masterDir;
+                if (getMasterLogDir() == null || "".equals(getMasterLogDir())) {
+                    masterDir = rootDirPath + File.separator + PropertiesHelper.RESULT_TYPE_LOGS;
                 } else {
-                    String message = "No results returned for logs";
-                    LOG.debug(message);
-                    System.out.println(message);
+                    masterDir = getMasterLogDir();
                 }
-                resultsFileName = "output.zip";
-                resultsType = "output";
-                if (agent.resultsExist(resultsType)) {
-                    String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath, resultsFileName);
-                    try {
-                        ZipUtil.unzipFileToLocation(zipFilePath, rootDirPath + File.separator + resultsType);
-                        Util.deleteFile(new File(zipFilePath));
-                    } catch (IOException e2) {
-                        // Empty zip for output results--ignore
-                    }
+                getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS, rootDirPath, masterDir);
+
+
+                if (getMasterOutputDir() == null || "".equals(getMasterOutputDir())) {
+                    masterDir = rootDirPath + File.separator + PropertiesHelper.RESULT_TYPE_OUTPUT;
                 } else {
-                    String message = "No results returned for output";
-                    LOG.debug(message);
-                    System.out.println(message);
+                    masterDir = getMasterOutputDir();
                 }
+                getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_OUTPUT, rootDirPath, masterDir);
+
                 agent.clearOutputFiles();
             } catch (RemoteException e) {
-                String message = "Distributed build failed with RemoteException";
+                String agentMachine = "unknown";
+                try {
+                    agentMachine = agent.getMachineName();
+                } catch (RemoteException e1) {
+                    ; // ignored
+                }
+                String message = "RemoteException from agent on: " + agentMachine
+                        + " while building module: " + module;
                 LOG.error(message, e);
                 System.err.println(message + " - " + e.getMessage());
+                try {
+                    agent.clearOutputFiles();
+                } catch (RemoteException re) {
+                    LOG.error("Exception after prior exception while clearing agent output files (to set busy false).",
+                            re);
+                }
                 throw new CruiseControlException(message, e);
             }
             return buildResults;
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             String message = "Distributed build runtime exception";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
@@ -207,73 +350,91 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         }
     }
 
-    protected BuildAgentService pickAgent() throws CruiseControlException {
-        List entriesList = ReggieUtil.convertStringEntriesToList(entries);
-        ServiceRegistrar registrar;
-        BuildAgentService agent = null;
-        do {
-            try {
-                registrar = discovery.getRegistrar(DEFAULT_TIMEOUT);
-            } catch (UnknownServiceException e) {
-                String message = "Could not find a registrar before timeout";
-                LOG.error(message, e);
-                System.err.println(message + " - " + e.getMessage());
-                throw new CruiseControlException(message, e);
-            }
-            List agents = null;
-            try {
-                agents = ReggieUtil.findServicesForEntriesList(registrar, entriesList, BuildAgentService.class,
-                        DEFAULT_TIMEOUT);
-            } catch (UnknownServiceException e1) {
-                String message = "Could not find a BuildAgent matching entries before timeout";
-                LOG.debug(message, e1);
-                System.err.println(message);
-                throw new CruiseControlException(message, e1);
-            }
-            agent = findAvailableAgent(agents);
-            if (agent != null) {
-                break;
-            }
-            try {
-                // TODO: Change to property timeout?
-                Thread.sleep(5000);
-            } catch (InterruptedException e2) {
-            }
-        } while (true);
+    public static void getResultsFiles(final BuildAgentService agent, final String resultsType,
+                                       final String rootDirPath, final String masterDir)
+            throws RemoteException {
 
-        return agent;
+        if (agent.resultsExist(resultsType)) {
+            String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath,
+                    resultsType + ".zip");
+            try {
+                LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDir);
+                ZipUtil.unzipFileToLocation(zipFilePath, masterDir);
+                Util.deleteFile(new File(zipFilePath));
+            } catch (IOException e) {
+                // Empty zip for log results--ignore
+                LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
+            }
+        } else {
+            String message = "No results returned for " + resultsType;
+            LOG.info(message);
+        }
     }
 
-    /**
-     * @param agents
-     * @return
-     * @throws CruiseControlException
-     */
-    protected BuildAgentService findAvailableAgent(List agents) throws CruiseControlException {
+    protected BuildAgentService pickAgent() throws CruiseControlException {
         BuildAgentService agent = null;
-        boolean foundBusyAgent;
-        for (Iterator iter = agents.iterator(); iter.hasNext();) {
-            agent = (BuildAgentService) iter.next();
+
+        while (agent == null) {
+            final ServiceItem serviceItem;
             try {
-                if (!agent.isBusy()) {
-                    LOG.debug("Found matching agent on " + agent.getMachineName());
-                    // flag agent as claimed (for now same as busy) to prevent other build
-                    // thread from using same agent before this build gets started.
-                    agent.claim();
-                    break;
-                } else {
-                    LOG.debug("Found matching busy agent on " + agent.getMachineName());
-                    //break;
-                    agent = null;
-                }
+                serviceItem = getDiscovery().findMatchingService();
             } catch (RemoteException e) {
-                String message = "Couldn't determine agent busy state";
-                LOG.error(message, e);
-                System.err.println(message + " - " + e.getMessage());
-                throw new CruiseControlException(message, e);
+                throw new CruiseControlException("Error finding matching agent.", e);
+            }
+            if (serviceItem != null) {
+                agent = (BuildAgentService) serviceItem.service;
+                try {
+                    LOG.info("Found available agent on: " + agent.getMachineName());
+                } catch (RemoteException e) {
+                    throw new CruiseControlException("Error calling agent method.", e);
+                }
+            } else if (isFailFast()) {
+                break;
+            } else {
+                // wait a bit and try again
+                LOG.info("Couldn't find available agent. Waiting "
+                        + (DEFAULT_CACHE_MISS_WAIT / 1000) + " seconds before retry.");
+                try {
+                    Thread.sleep(DEFAULT_CACHE_MISS_WAIT);
+                } catch (InterruptedException e) {
+                    LOG.error("Lookup Cache Miss Wait was interrupted");
+                    break;
+                }
             }
         }
+
         return agent;
     }
 
+    public String getAgentLogDir() {
+        return agentLogDir;
+    }
+
+    public void setAgentLogDir(String agentLogDir) {
+        this.agentLogDir = agentLogDir;
+    }
+
+    public String getAgentOutputDir() {
+        return agentOutputDir;
+    }
+
+    public void setAgentOutputDir(String agentOutputDir) {
+        this.agentOutputDir = agentOutputDir;
+    }
+
+    public String getMasterLogDir() {
+        return masterLogDir;
+    }
+
+    public void setMasterLogDir(String masterLogDir) {
+        this.masterLogDir = masterLogDir;
+    }
+
+    public String getMasterOutputDir() {
+        return masterOutputDir;
+    }
+
+    public void setMasterOutputDir(String masterOutputDir) {
+        this.masterOutputDir = masterOutputDir;
+    }
 }

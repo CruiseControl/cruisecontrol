@@ -38,103 +38,201 @@
 package net.sourceforge.cruisecontrol.distributed.util;
 
 import java.io.IOException;
-import java.net.UnknownServiceException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
+import net.jini.core.lookup.ServiceTemplate;
+import net.jini.core.lookup.ServiceItem;
 import net.jini.core.lookup.ServiceRegistrar;
-import net.jini.discovery.DiscoveryEvent;
-import net.jini.discovery.DiscoveryListener;
+import net.jini.core.discovery.LookupLocator;
+import net.jini.core.entry.Entry;
+import net.jini.lease.LeaseRenewalManager;
 import net.jini.discovery.LookupDiscovery;
+import net.jini.discovery.LookupDiscoveryManager;
+import net.jini.lookup.ServiceDiscoveryManager;
+import net.jini.lookup.LookupCache;
+import net.jini.lookup.ServiceDiscoveryEvent;
+import net.jini.lookup.ServiceDiscoveryListener;
+import net.jini.lookup.ServiceItemFilter;
+import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 
 import org.apache.log4j.Logger;
 
-public class MulticastDiscovery implements DiscoveryListener {
+public class MulticastDiscovery {
 
     private static final Logger LOG = Logger.getLogger(MulticastDiscovery.class);
 
-    private List registrars = new ArrayList();
+    private final ServiceTemplate serviceTemplate;
+    private final ServiceDiscoveryManager clientMgr;
+    private final LookupCache lookupCache;
 
-    public MulticastDiscovery() {
-        this(LookupDiscovery.ALL_GROUPS);
+    public MulticastDiscovery(final Entry[] entries) {
+        this(LookupDiscovery.ALL_GROUPS, null, BuildAgentService.class, entries);
     }
 
-    public MulticastDiscovery(String[] lookupGroups) {
+    public MulticastDiscovery(final String[] lookupGroups, final LookupLocator[] unicastLocaters,
+                              final Class klass, final Entry[] entries) {
         LOG.debug("Starting multicast discovery for groups: " + lookupGroups);
-        System.setSecurityManager(new java.rmi.RMISecurityManager());
+        ReggieUtil.setupRMISecurityManager();
+
         try {
-            LookupDiscovery discover = new LookupDiscovery(lookupGroups);
-            discover.addDiscoveryListener(this);
+
+            LookupDiscoveryManager  discoverMgr = new LookupDiscoveryManager(
+                lookupGroups, unicastLocaters, null);
+
+            clientMgr = new ServiceDiscoveryManager(discoverMgr, new LeaseRenewalManager());
         } catch (IOException e) {
             String message = "Error starting discovery";
             LOG.debug(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
+
+        // create cache of desired _service providers
+        Class[] classes = new Class[] {klass};
+        serviceTemplate = new ServiceTemplate(null, classes, entries);
+        try {
+            lookupCache = getClientManager().createLookupCache(
+                    getServiceTemplate(), null, new ServiceDiscListener(this));
+        } catch (RemoteException e) {
+            String message = "Error creating _service cache";
+            LOG.debug(message, e);
+            System.err.println(message + " - " + e.getMessage());
+            throw new RuntimeException(message, e);
+        }
+
+// elsewhere, do lookup for service if we don't use a cache
+//
+//        ServiceItem item = null;
+//        // Try to find the _service, blocking till timeout if necessary
+//        item = _clientMgr.lookup(template,
+//            null, /* no filter */
+//            WAITFOR /* timeout */);
+
     }
 
-    public void discovered(DiscoveryEvent evt) {
+    /** Only for use by JiniLookUpUtility and InteractiveBuilder.  **/
+    public ServiceRegistrar[] getRegistrars() {
+        //@todo remove ?
+        return getClientManager().getDiscoveryManager().getRegistrars();
+    }
 
-        ServiceRegistrar[] registrarsArray = evt.getRegistrars();
-        ServiceRegistrar registrar = null;
-        for (int n = 0; n < registrarsArray.length; n++) {
-            registrar = registrarsArray[n];
-            registrars.add(registrar);
-            LOG.debug("Discovered registrar: " + registrar.getServiceID());
+
+    private ServiceTemplate getServiceTemplate() {
+        return serviceTemplate;
+    }
+
+    private ServiceDiscoveryManager getClientManager() {
+        return clientMgr;
+    }
+
+    /** Intended only for use by util classes. */
+    LookupCache getLookupCache() {
+        return lookupCache;
+    }
+
+    public ServiceItem findMatchingService() throws RemoteException {
+        return findMatchingService(true);
+    }
+    public ServiceItem findMatchingService(final boolean doClaim) throws RemoteException {
+        final ServiceItem result = getLookupCache().lookup(FLTR_AVAILABLE);
+        if (doClaim && result != null) {
+            ((BuildAgentService) result.service).claim();
+        }
+        return result;
+    }
+
+    static final BuildAgentFilter FLTR_AVAILABLE = new BuildAgentFilter(true);
+    static final BuildAgentFilter FLTR_ANY = new BuildAgentFilter(false);
+
+    static final class BuildAgentFilter implements ServiceItemFilter {
+        private final boolean findOnlyNonBusy;
+
+        private BuildAgentFilter(final boolean onlyNonBusy) {
+            findOnlyNonBusy = onlyNonBusy;
+        }
+
+        public boolean check(ServiceItem item) {
+
+            LOG.debug("Service Filter: item.service: " + item.service);
+            if (!(item.service instanceof BuildAgentService)) {
+                return false;
+            } else if (!findOnlyNonBusy) {
+                return true; // we don't care if agent is busy or not
+            }
+
+            BuildAgentService agent = (BuildAgentService) item.service;
             try {
-                LOG.debug(registrar.getGroups());
+                return (!agent.isBusy());
             } catch (RemoteException e) {
-                LOG.warn("Exception getting groups from discovered ServiceRegistrar");
+                final String msg = "Error checking agent busy status.";
+                LOG.error(msg, e);
+                throw new RuntimeException(msg, e);
             }
         }
     }
 
-    public void discarded(DiscoveryEvent evt) {
-        ServiceRegistrar[] registrarsArray = evt.getRegistrars();
-        ServiceRegistrar registrar = null;
-        for (int n = 0; n < registrarsArray.length; n++) {
-            registrar = registrarsArray[n];
-            registrars.remove(registrar);
-            LOG.debug("Discarded registrar: " + registrar.getServiceID());
-            try {
-                LOG.debug(registrar.getGroups());
-            } catch (RemoteException e) {
-                LOG.warn("Exception getting groups from discarded ServiceRegistrar");
-            }
+    public void terminate() {
+        if (getClientManager() != null) {
+            getClientManager().terminate();
         }
     }
 
-    /**
-     * @return
-     */
-    public List getRegistrars() {
-        return registrars;
+
+
+    private boolean isDiscovered;
+    private synchronized void setDiscovered(final boolean discovered) {
+        isDiscovered = discovered;
+    }
+    public synchronized boolean isDiscovered() {
+        return isDiscovered;
     }
 
-    /**
-     * @param timeout
-     * @return
-     */
-    public ServiceRegistrar getRegistrar(long timeout) throws UnknownServiceException {
-        long endTime = System.currentTimeMillis() + timeout;
-        long sleepTime = Math.min(30000, Math.max(1000, timeout / 5));
-        do {
-            if (registrars.size() > 0) {
-                break;
-            }
-            try {
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-            }
-        } while (System.currentTimeMillis() < endTime);
-        if (registrars == null) {
-            String message = "No registrar found before timeout";
-            LOG.debug(message);
-            System.err.println(message);
-            throw new UnknownServiceException(message);
+    public final class ServiceDiscListener implements ServiceDiscoveryListener {
+        private final MulticastDiscovery discovery;
+
+        private ServiceDiscListener(final MulticastDiscovery discovery) {
+            this.discovery = discovery;
         }
-        return (ServiceRegistrar) registrars.get(0);
+
+        private String buildDiscoveryMsg(ServiceDiscoveryEvent event, final String actionName) {
+            String msg = "\nService " + actionName + ": ";
+
+            final ServiceItem postItem = event.getPostEventServiceItem();
+            if (postItem != null) {
+                final Entry[] entries = postItem.attributeSets;
+                msg += "PostEvent: " + postItem.service.getClass().toString() + "; ID:" + postItem.serviceID
+                        + "\n\tEntries:\n\t"
+                        + Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
+                        + "\n";
+            } else {
+                final ServiceItem preItem = event.getPreEventServiceItem();
+                if (preItem != null) {
+                    final Entry[] entries = preItem.attributeSets;
+                    msg += "PreEvent: " + preItem.service.getClass().toString() + "; ID:" + preItem.serviceID
+                            + "\n\tEntries:\n\t"
+                            + Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
+                            + "\n";
+                } else {
+                    msg += "NOT SURE WHAT THIS EVENT IS!!!";
+                }
+            }
+            return msg;
+        }
+
+        public void serviceAdded(ServiceDiscoveryEvent event) {
+            discovery.setDiscovered(true);
+            LOG.info(buildDiscoveryMsg(event, "Added"));
+        }
+
+        public void serviceRemoved(ServiceDiscoveryEvent event) {
+            discovery.setDiscovered(false);
+            LOG.info(buildDiscoveryMsg(event, "Removed"));
+        }
+
+        public void serviceChanged(ServiceDiscoveryEvent event) {
+            LOG.info(buildDiscoveryMsg(event, "Changed"));
+        }
     }
 
 }
