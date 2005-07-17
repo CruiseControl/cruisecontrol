@@ -120,10 +120,13 @@ public class MergeLogger implements BuildLogger {
        }
     }
 
+    /**
+     * Note: the plugin must be {@link #validate() validated} before calling this method. 
+     * @param buildLog
+     * @throws CruiseControlException
+     */
     public void log(Element buildLog) throws CruiseControlException {
         String nextLogFilename = ((file != null) ? file : dir);
-
-        compilePattern();
         mergeFile(new File(nextLogFilename), buildLog);
     }
 

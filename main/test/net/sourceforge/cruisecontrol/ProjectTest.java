@@ -123,10 +123,12 @@ public class ProjectTest extends TestCase {
         project.setLogXmlEncoding("ISO-8859-1");
         MergeLogger logger = new MergeLogger();
         logger.setFile(TEST_DIR + File.separator + "_auxLog1.xml");
+        logger.validate();
         project.getLog().addLogger(logger);
 
         logger = new MergeLogger();
         logger.setDir(TEST_DIR + File.separator + "_auxLogs");
+        logger.validate();
         project.getLog().addLogger(logger);
 
         project.setLabelIncrementer(new DefaultLabelIncrementer());
