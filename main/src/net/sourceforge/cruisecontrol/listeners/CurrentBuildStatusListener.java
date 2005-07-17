@@ -10,10 +10,14 @@ import org.apache.log4j.Logger;
 import java.util.Date;
 
 /**
- * .
- * User: jfredrick
- * Date: Sep 6, 2004
- * Time: 10:54:33 PM
+ * Writes an HTML snippet in a file (typically in a location where the reporting module can read it), indicating
+ * the current build status.
+ *
+ * Obsoletes both {@link net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper}
+ * and {@link net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher}
+ *
+ * @see {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * @author jfredrick
  */
 public class CurrentBuildStatusListener implements Listener {
     private static final Logger LOG = Logger.getLogger(CurrentBuildStatusListener.class);
