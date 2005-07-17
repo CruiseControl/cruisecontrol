@@ -175,6 +175,7 @@ testdetails.xsl:
 TimeBuild:
 ----------------------
 * Add new source control that will trigger a build at a specified time. Submitted by Eric Pugh
+* Add docs and add to default-plugins.properties. Patch by Jerome Lacoste
 
 TimeChartData:
 ----------------------
