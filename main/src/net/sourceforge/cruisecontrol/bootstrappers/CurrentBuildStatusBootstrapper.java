@@ -39,11 +39,25 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+import org.apache.log4j.Logger;
 
 import java.util.Date;
 
+/**
+ * Writes an HTML snippet in a file (supposedly in a location where the reporting module can read it), indicating
+ * when the current build started.
+ *
+ * @see {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * @deprecated Was obsoleted by {@link net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener}
+ */
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
-    private String fileName;
+    private static final Logger LOG = Logger.getLogger(CurrentBuildStatusBootstrapper.class);
+
+    private String localWorkingCopy;    private String fileName;
+
+    public CurrentBuildStatusBootstrapper() {
+        LOG.warn("CurrentBuildStatusBootstrapper was obsoleted by CurrentBuildStatusListener");
+    }
 
     public void setFile(String fileName) {
         this.fileName = fileName;
