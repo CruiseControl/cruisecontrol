@@ -443,9 +443,9 @@ public class CVS implements SourceControl {
             throw new CruiseControlException("must specify either 'localWorkingCopy'"
                  + " or 'cvsroot' and 'module' on CVS");
         }
-        if (local != null && cvsroot != null) {
-            throw new CruiseControlException("only one of 'localWorkingCopy'"
-                 + " or 'cvsroot' and 'module' are allowed attributes on CVS");
+        if (local != null && (cvsroot != null || module != null)) {
+            throw new CruiseControlException("if 'localWorkingCopy' is specified then"
+                 + " cvsroot and module are not allowed on CVS");
         }
         if (cvsroot != null && module == null) {
             throw new CruiseControlException("if cvsroot is specified then module must"
