@@ -68,7 +68,7 @@ public class PluginXMLHelper {
 
         Object pluginInstance;
         try {
-            pluginInstance = pluginClass.getConstructor(null).newInstance(null);
+            pluginInstance = pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
         } catch (Exception e) {
             LOG.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: "
@@ -117,7 +117,7 @@ public class PluginXMLHelper {
                 if (creators.containsKey(childElement.getName().toLowerCase())) {
                     try {
                         Method method = (Method) creators.get(childElement.getName().toLowerCase());
-                        Object childObject = method.invoke(object, null);
+                        Object childObject = method.invoke(object, (Object[]) null);
                         configureObject(childElement, childObject, false);
                     } catch (Exception e) {
                         throw new CruiseControlException(e.getMessage());
