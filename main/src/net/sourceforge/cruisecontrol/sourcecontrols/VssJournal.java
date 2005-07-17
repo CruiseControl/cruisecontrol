@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -151,12 +153,8 @@ public class VssJournal implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (journalFile == null) {
-            throw new CruiseControlException("'journalfile' is a required attribute on VssJournal");
-        }
-        if (ssDir == null) {
-            throw new CruiseControlException("'ssdir' is a required attribute on VssJournal");
-        }
+        ValidationHelper.assertIsSet(journalFile, "journalfile", this.getClass());
+        ValidationHelper.assertIsSet(ssDir, "ssdir", this.getClass());
     }
 
     /**

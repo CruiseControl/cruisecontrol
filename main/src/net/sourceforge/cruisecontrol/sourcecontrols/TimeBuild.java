@@ -41,12 +41,13 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  * Provide a "time" using hhmm format that specifies when a build should be
@@ -94,10 +95,8 @@ public class TimeBuild extends FakeUserSourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (time == Builder.NOT_SET) {
-            throw new CruiseControlException(
-                    "the 'time' attribute is manditory");
-        }
+        ValidationHelper.assertFalse(time == Builder.NOT_SET,
+            "the 'time' attribute is manditory");
     }
 
     /**

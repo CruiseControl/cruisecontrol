@@ -64,9 +64,7 @@ public class MavenSnapshotDependencyTest extends TestCase {
             dep.validate();
             fail("MavenSnapshotDependency should throw exceptions when required attributes are not set.");
         } catch (CruiseControlException e) {
-            assertEquals(
-                "'projectFile' is a required attribute for MavenSnapshotDependency",
-                e.getMessage());
+            assertEquals("'projectFile' is required for MavenSnapshotDependency", e.getMessage());
         }
     }
 

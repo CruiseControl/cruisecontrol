@@ -53,6 +53,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -420,10 +421,7 @@ public class CMSynergy implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */
     public void validate() throws CruiseControlException {
-        // We must know which project to examine
-        if (projectSpec == null) {
-            throw new CruiseControlException("The 'project' attribute is required for CMSynergy.");
-        }
+        ValidationHelper.assertIsSet(projectSpec, "project", this.getClass());
     }
     
     /* (non-Javadoc)

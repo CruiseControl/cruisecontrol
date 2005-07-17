@@ -40,6 +40,8 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -171,12 +173,8 @@ public class Vss implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (vssPath == null) {
-            throw new CruiseControlException("'vsspath' is a required attribute on Vss");
-        }
-        if (login == null) {
-            throw new CruiseControlException("'login' is a required attribute on Vss");
-        }
+        ValidationHelper.assertIsSet(vssPath, "vsspath", this.getClass());
+        ValidationHelper.assertIsSet(login, "login", this.getClass());
     }
 
     /**

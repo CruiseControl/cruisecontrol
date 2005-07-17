@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Copy;
@@ -138,17 +139,13 @@ public class ArtifactsPublisher implements Publisher {
     }
 
     public void validate() throws CruiseControlException {
-        if (destDir == null) {
-            throw new CruiseControlException("'dest' not specified in configuration file.");
-        }
+        ValidationHelper.assertIsSet(destDir, "dest", this.getClass());
 
-        if (targetDirectory == null && targetFile == null) {
-            throw new CruiseControlException("'dir' or 'file' must be specified in configuration file.");
-        }
+        ValidationHelper.assertFalse(targetDirectory == null && targetFile == null,
+            "'dir' or 'file' must be specified in configuration file.");
 
-        if (targetDirectory != null && targetFile != null) {
-            throw new CruiseControlException("only one of 'dir' or 'file' may be specified.");
-        }
+        ValidationHelper.assertFalse(targetDirectory != null && targetFile != null,
+            "only one of 'dir' or 'file' may be specified.");
     }
 
     public void setSubdirectory(String subdir) {

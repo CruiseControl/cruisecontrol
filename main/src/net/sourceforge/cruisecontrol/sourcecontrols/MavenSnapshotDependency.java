@@ -47,6 +47,7 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -107,39 +108,18 @@ public class MavenSnapshotDependency implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (projectFile == null) {
-            throw new CruiseControlException(
-                "'projectFile' is a required attribute for MavenSnapshotDependency");
-        }
-        if (!projectFile.exists()) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Project file '");
-            sb.append(projectFile.getAbsolutePath());
-            sb.append("' does not exist.");
-            throw new CruiseControlException(sb.toString());
-        }
-        if (projectFile.isDirectory()) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("The directory '");
-            sb.append(projectFile.getAbsolutePath());
-            sb.append("' cannot be used as the projectFile for MavenSnapshotDependency.");
-            throw new CruiseControlException(sb.toString());
-        }
-        if (!localRepository.exists()) {
-            StringBuffer sb = new StringBuffer();
+        ValidationHelper.assertIsSet(projectFile, "projectFile", this.getClass());
+        ValidationHelper.assertTrue(projectFile.exists(),
+            "Project file '" + projectFile.getAbsolutePath() + "' does not exist.");
+        ValidationHelper.assertFalse(projectFile.isDirectory(),
+            "The directory '" + projectFile.getAbsolutePath()
+            + "' cannot be used as the projectFile for MavenSnapshotDependency.");
 
-            sb.append("Local Maven repository '");
-            sb.append(localRepository.getAbsolutePath());
-            sb.append("' does not exist.");
-            throw new CruiseControlException(sb.toString());
-        }
-        if (!localRepository.isDirectory()) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Local Maven repository '");
-            sb.append(localRepository.getAbsolutePath());
-            sb.append("' must be a directory.");
-            throw new CruiseControlException(sb.toString());
-        }
+        ValidationHelper.assertTrue(localRepository.exists(),
+            "Local Maven repository '" + localRepository.getAbsolutePath() + "' does not exist.");
+        ValidationHelper.assertTrue(localRepository.isDirectory(),
+            "Local Maven repository '" + localRepository.getAbsolutePath()
+            + "' must be a directory.");
     }
 
     /**

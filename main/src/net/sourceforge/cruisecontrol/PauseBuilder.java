@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.jdom.Element;
 
 import java.util.Calendar;
@@ -56,17 +58,14 @@ public class PauseBuilder extends Builder {
     private int endTime = -1;
 
     public void validate() throws CruiseControlException {
-        if (startTime < 0) {
-            throw new CruiseControlException("'starttime' is a required attribute on PauseBuilder");
-        }
-        if (endTime < 0) {
-            throw new CruiseControlException("'endtime' is a required attribute on PauseBuilder");
-        }
-        if (getDay() == INVALID_NAME_OF_DAY) {
-            throw new CruiseControlException(
-                "setDay attribute on PauseBuilder requires english name for "
-                    + " day of week (case insensitive)");
-        }
+        ValidationHelper.assertFalse(startTime < 0,
+            "'starttime' is a required attribute on PauseBuilder");
+
+        ValidationHelper.assertFalse(endTime < 0,
+            "'endtime' is a required attribute on PauseBuilder");
+
+        ValidationHelper.assertFalse(getDay() == INVALID_NAME_OF_DAY,
+            "setDay attribute on PauseBuilder requires english name for day of week (case insensitive)");
     }
 
     public void setStartTime(int time) {

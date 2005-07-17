@@ -51,6 +51,7 @@ import org.jdom.Element;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * Creates an intermediate baseline encompasing the given project and all
@@ -189,9 +190,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      * @see net.sourceforge.cruisecontrol.Publisher#validate()
      */
     public void validate() throws CruiseControlException {
-        if (getProject() == null) {
-            throw new CruiseControlException("Missing required attribute - 'project'.");
-        }
+        ValidationHelper.assertIsSet(getProject(), "project", this.getClass());
     }
     
     /**

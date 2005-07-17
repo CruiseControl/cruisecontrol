@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.Element;
 
@@ -71,15 +72,9 @@ public class SocketPublisher implements Publisher {
 
     public void validate() throws CruiseControlException {
 
-        if (getSocketServer() == null) {
-            throw new CruiseControlException("'socketServer' "
-                    + "not specified in <socketPublisher> of configuration file");
-        }
-
-        if (getPort() == 0) {
-            throw new CruiseControlException("'port' "
-                    + "not specified in <socketPublisher> of configuration file");
-        }
+        ValidationHelper.assertIsSet(getSocketServer(), "socketServer", this.getClass());
+        ValidationHelper.assertFalse(getPort() == 0,
+            "'port' not specified for SocketPublisher");
     }
 
     public void publish(Element cruisecontrolLog)

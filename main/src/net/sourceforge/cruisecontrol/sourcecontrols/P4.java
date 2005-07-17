@@ -36,16 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.Util;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +49,17 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The
@@ -126,21 +127,11 @@ public class P4 implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (p4Port == null) {
-            throw new CruiseControlException("'port' is a required attribute on P4");
-        }
-        if (p4Client == null) {
-            throw new CruiseControlException("'client' is a required attribute on P4");
-        }
-        if (p4User == null) {
-            throw new CruiseControlException("'user' is a required attribute on P4");
-        }
-        if (p4View == null) {
-            throw new CruiseControlException("'view' is a required attribute on P4");
-        }
-        if ((p4Passwd != null) && ("".equals(p4Passwd))) {
-            throw new CruiseControlException("'passwd' is required to be something meaningful or not provided");
-        }
+        ValidationHelper.assertIsSet(p4Port, "port", this.getClass());
+        ValidationHelper.assertIsSet(p4Client, "client", this.getClass());
+        ValidationHelper.assertIsSet(p4User, "user", this.getClass());
+        ValidationHelper.assertIsSet(p4View, "view", this.getClass());
+        ValidationHelper.assertNotEmpty(p4Passwd, "passwd", this.getClass());
     }
 
     /**

@@ -40,6 +40,8 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -115,25 +117,18 @@ public class CVSBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (filename == null && cvsroot == null && localWorkingCopy == null) {
-            throw new CruiseControlException(
-                "at least one of 'file', 'cvsroot' or 'localworkingcopy' "
-                    + "is required as an attribute for CVSBootstrapper");
-        }
+        ValidationHelper.assertTrue(filename != null || cvsroot != null || localWorkingCopy != null,
+            "at least one of 'file', 'cvsroot' or 'localworkingcopy' is required as an attribute for CVSBootstrapper");
 
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
-            if (!workingDir.exists()) {
-                throw new CruiseControlException(
-                    "'localWorkingCopy' must be an existing directory.  Was <"
-                        + localWorkingCopy
-                        + ">");
-            } else if (!workingDir.isDirectory()) {
-                throw new CruiseControlException(
-                    "'localWorkingCopy' must be an existing directory, not a file.  Was <"
-                        + localWorkingCopy
-                        + ">");
-            }
+
+            ValidationHelper.assertTrue(workingDir.exists(),
+                        "'localWorkingCopy' must be an existing directory. Was <"
+                        + localWorkingCopy + ">");
+            ValidationHelper.assertTrue(workingDir.isDirectory(),
+                        "'localWorkingCopy' must be an existing directory, not a file. Was <"
+                        + localWorkingCopy + ">");
         }
     }
 

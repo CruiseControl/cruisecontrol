@@ -55,6 +55,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
@@ -182,36 +183,21 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     private void verifyDirectory(String dirName, String dir) throws CruiseControlException {
-        if (dir == null) {
-            throw new CruiseControlException(dirName + " not specified in configuration file");
-        }
+        ValidationHelper.assertFalse(dir == null, dirName + " not specified in configuration file");
         File dirFile = new File(dir);
-        if (!dirFile.exists()) {
-            throw new CruiseControlException(
-                dirName + " does not exist : " + dirFile.getAbsolutePath());
-        }
-        if (!dirFile.isDirectory()) {
-            throw new CruiseControlException(
-                dirName + " is not a directory : " + dirFile.getAbsolutePath());
-        }
+        ValidationHelper.assertTrue(dirFile.exists(), dirFile + " does not exist: " + dirFile.getAbsolutePath());
+        ValidationHelper.assertTrue(dirFile.isDirectory(),
+                dirFile + " is not a directory: " + dirFile.getAbsolutePath());
     }
 
     private void verifyFile(String fileName, String file) throws CruiseControlException {
-        if (file == null) {
-            throw new CruiseControlException(fileName + " not specified in configuration file");
-        }
+        ValidationHelper.assertFalse(file == null, fileName + " not specified in configuration file");
         verifyFile(fileName, new File(file));
     }
 
     private void verifyFile(String fileName, File file) throws CruiseControlException {
-        if (!file.exists()) {
-            throw new CruiseControlException(
-                fileName + " does not exist: " + file.getAbsolutePath());
-        }
-        if (!file.isFile()) {
-            throw new CruiseControlException(
-                fileName + " is not a file: " + file.getAbsolutePath());
-        }
+        ValidationHelper.assertTrue(file.exists(), fileName + " does not exist: " + file.getAbsolutePath());
+        ValidationHelper.assertTrue(file.isFile(), fileName + " is not a file: " + file.getAbsolutePath());
     }
 
     /**
@@ -366,7 +352,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             inFile = new File(logDir, logHelper.getLogFileName());
             message = transform(inFile);
         } catch (Exception ex) {
-            LOG.error("error transforming " + inFile.getAbsolutePath(), ex);
+            LOG.error("error transforming " + (inFile == null ? null : inFile.getAbsolutePath()), ex);
             try {
                 String logFileName = logHelper.getLogFileName();
                 message = createLinkLine(logFileName);

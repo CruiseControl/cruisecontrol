@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -181,8 +182,6 @@ public class CMSynergyBootstrapper implements Bootstrapper {
      */
     public void validate() throws CruiseControlException {
         // We must know which project to reconfigure
-        if (projectSpec == null) {
-            throw new CruiseControlException("'project' is required for CMSynergyBootstrapper.");
-        }
+        ValidationHelper.assertIsSet(projectSpec, "project", this.getClass());
     }
 }

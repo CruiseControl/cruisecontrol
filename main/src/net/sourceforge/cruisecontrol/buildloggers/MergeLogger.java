@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.buildloggers;
 import net.sourceforge.cruisecontrol.BuildLogger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.PruneElementFilter;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -90,18 +91,13 @@ public class MergeLogger implements BuildLogger {
     }
 
     public void validate() throws CruiseControlException {
-        if (file == null && dir == null) {
-            throw new CruiseControlException(
-                    "one of file or dir are required attributes");
-        } else if (file != null && dir != null) {
-            throw new CruiseControlException(
-                    "only one of file or dir may be specified");
-        }
-   
-        if (dir != null && pattern == null) {
-            throw new CruiseControlException(
-                "no file pattern was specified");
-        }
+        ValidationHelper.assertFalse(file == null && dir == null,
+            "one of file or dir are required attributes");
+        ValidationHelper.assertFalse(file != null && dir != null,
+            "only one of file or dir may be specified");
+
+        ValidationHelper.assertFalse(dir != null && pattern == null,
+            "no file pattern was specified");
         compilePattern();
     }
 
@@ -111,13 +107,13 @@ public class MergeLogger implements BuildLogger {
      * @throws CruiseControlException if an invalid pattern is specified.
      */
     private void compilePattern() throws CruiseControlException {
-       try {
-           if (fileNameFilter == null && pattern != null) {
+        if (fileNameFilter == null && pattern != null) {
+            try {
                fileNameFilter = new GlobFilenameFilter(pattern);
-           }
-       } catch (MalformedCachePatternException e) {
-           throw new CruiseControlException("Invalid filename pattern", e);
-       }
+            } catch (MalformedCachePatternException e) {
+                ValidationHelper.fail("Invalid filename pattern " + pattern, e);
+            }
+        }
     }
 
     /**

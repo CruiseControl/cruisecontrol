@@ -44,6 +44,7 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * Scans a directory tree on a local drive rather than in a repository.
@@ -81,12 +82,9 @@ public class FileSystem extends FakeUserSourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (folder == null) {
-            throw new CruiseControlException("'folder' is a required attribute for FileSystem");
-        }
-        if (!folder.exists()) {
-            throw new CruiseControlException("folder " + folder.getAbsolutePath() + " must exist for FileSystem");
-        }
+        ValidationHelper.assertIsSet(folder, "folder", this.getClass());
+        ValidationHelper.assertTrue(folder.exists(),
+            "folder " + folder.getAbsolutePath() + " must exist for FileSystem");
     }
 
     /**

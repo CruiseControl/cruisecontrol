@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -338,14 +340,11 @@ public class Schedule {
     }
 
     public void validate() throws CruiseControlException {
-        if (builders.size() == 0) {
-            throw new CruiseControlException("schedule element requires at least one nested builder element");
-        }
+        ValidationHelper.assertTrue(builders.size() > 0,
+            "schedule element requires at least one nested builder element");
 
-        if (interval > ONE_YEAR) {
-            throw new CruiseControlException(
-                "maximum interval value is " + MAX_INTERVAL_SECONDS + " (one year)");
-        }
+        ValidationHelper.assertFalse(interval > ONE_YEAR,
+            "maximum interval value is " + MAX_INTERVAL_SECONDS + " (one year)");
         
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");

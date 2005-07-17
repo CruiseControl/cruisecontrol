@@ -5,6 +5,8 @@ import net.sourceforge.cruisecontrol.Listener;
 import net.sourceforge.cruisecontrol.ProjectEvent;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.util.Date;
@@ -37,9 +39,7 @@ public class CurrentBuildStatusListener implements Listener {
     }
 
     public void validate() throws CruiseControlException {
-        if (fileName == null) {
-            throw new CruiseControlException("'filename' is required for CurrentBuildStatusBootstrapper");
-        }
+        ValidationHelper.assertIsSet(fileName, "filename", this.getClass());
         CurrentBuildFileWriter.validate(fileName);
     }
 

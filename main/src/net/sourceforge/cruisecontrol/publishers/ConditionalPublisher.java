@@ -44,6 +44,7 @@ import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * An abstract base class for any publisher which wishes to conditionally
@@ -63,9 +64,9 @@ public abstract class ConditionalPublisher implements Publisher {
     }
 
     public void validate() throws CruiseControlException {
-        if (publishers.size() == 0) {
-            throw new CruiseControlException("conditional publishers should have at least one nested publisher");
-        }
+        ValidationHelper.assertTrue(publishers.size() > 0,
+            "conditional publishers should have at least one nested publisher");
+
         for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
             Publisher publisher = (Publisher) iterator.next();
             publisher.validate();

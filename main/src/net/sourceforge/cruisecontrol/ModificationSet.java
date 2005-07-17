@@ -37,6 +37,8 @@
 
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.MalformedCachePatternException;
@@ -291,10 +293,8 @@ public class ModificationSet {
     }
 
     public void validate() throws CruiseControlException {
-        if (sourceControls.isEmpty()) {
-            throw new CruiseControlException(
-                    "modificationset element requires at least one nested source control element");
-        }
+        ValidationHelper.assertFalse(sourceControls.isEmpty(),
+            "modificationset element requires at least one nested source control element");
     }
 
     int getQuietPeriod() {

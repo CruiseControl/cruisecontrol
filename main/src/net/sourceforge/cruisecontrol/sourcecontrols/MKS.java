@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -131,15 +132,8 @@ public class MKS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (localWorkingDir == null) {
-            throw new CruiseControlException(
-                    "'localWorkingDir' is a required attribute on MKS");
-        }
-        
-        if (project == null) {
-            throw new CruiseControlException(
-                    "'project' is a required attribute on MKS");
-        }
+        ValidationHelper.assertIsSet(localWorkingDir, "localWorkingDir", this.getClass());
+        ValidationHelper.assertIsSet(project, "project", this.getClass());
     }
 
     /**

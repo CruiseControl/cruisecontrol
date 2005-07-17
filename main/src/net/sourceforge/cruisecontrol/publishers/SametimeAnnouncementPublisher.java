@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
@@ -230,42 +231,38 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     }
 
     public void validate() throws CruiseControlException {
-        if (this.getHost() == null) {
-            throw new CruiseControlException("'host' not specified in configuration file.");
+        ValidationHelper.assertIsSet(getHost(), "host", this.getClass());
+        ValidationHelper.assertIsSet(getUsername(), "username", this.getClass());
+
+        ensureInEqualsIgnoreCase(this.getHandleResolveFails(), "handleResolveFails",
+            new String[] {RESOLVE_FAIL_ERROR, RESOLVE_FAIL_WARN, RESOLVE_FAIL_WARN});
+
+        ensureInEqualsIgnoreCase(this.getHandleResolveConflicts(), "handleResolveConflicts",
+            new String[] {RESOLVE_CONFLICTS_ERROR, RESOLVE_CONFLICTS_IGNORE,
+                          RESOLVE_CONFLICTS_RECIPIENT, RESOLVE_CONFLICTS_WARN});
+
+        ensureInEqualsIgnoreCase(this.getHandleQueryGroupContentFails(), "handleQueryGroupContentFails",
+            new String[] {QUERY_GROUP_CONTENT_FAIL_ERROR, QUERY_GROUP_CONTENT_FAIL_IGNORE,
+                          QUERY_GROUP_CONTENT_FAIL_WARN});
+    }
+
+    private static void ensureInEqualsIgnoreCase(String attribute, String attributeName,
+                                                 String[] strings) throws CruiseControlException {
+        for (int i = 0; i < strings.length; i++) {
+            String string = strings[i];
+            if (attribute.equalsIgnoreCase(string)) {
+                return;
+            }
         }
-        if (this.getUsername() == null) {
-            throw new CruiseControlException("'username' not specified in configuration file.");
+        StringBuffer buf = new StringBuffer("'");
+        buf.append(attributeName).append("' attribute invalid. - valid values are ");
+        for (int i = 0; i < strings.length; i++) {
+            if (i > 0) {
+                buf.append(" | ");
+            }
+            buf.append(strings[i]);
         }
-        
-        if (!this.getHandleResolveFails().equalsIgnoreCase(RESOLVE_FAIL_ERROR)
-            && !this.getHandleResolveFails().equalsIgnoreCase(RESOLVE_FAIL_WARN)
-            && !this.getHandleResolveFails().equalsIgnoreCase(RESOLVE_FAIL_IGNORE)) {
-            throw new CruiseControlException("'handleResolveFails' attribute invalid."
-                      + " - valid values are "
-                      + RESOLVE_FAIL_ERROR + " | "
-                      + RESOLVE_FAIL_WARN + " | "
-                      + RESOLVE_FAIL_IGNORE);
-        }
-        if (!this.getHandleResolveConflicts().equalsIgnoreCase(RESOLVE_CONFLICTS_ERROR)
-            && !this.getHandleResolveConflicts().equalsIgnoreCase(RESOLVE_CONFLICTS_WARN)
-            && !this.getHandleResolveConflicts().equalsIgnoreCase(RESOLVE_CONFLICTS_IGNORE)
-            && !this.getHandleResolveConflicts().equalsIgnoreCase(RESOLVE_CONFLICTS_RECIPIENT)) {
-            throw new CruiseControlException("'handleResolveConflicts' attribute invalid"
-                      + " - valid values are "
-                      + RESOLVE_CONFLICTS_ERROR + " | "
-                      + RESOLVE_CONFLICTS_WARN + " | "
-                      + RESOLVE_CONFLICTS_IGNORE + " | "
-                      + RESOLVE_CONFLICTS_RECIPIENT);
-        }
-        if (!this.getHandleQueryGroupContentFails().equalsIgnoreCase(QUERY_GROUP_CONTENT_FAIL_ERROR)
-            && !this.getHandleQueryGroupContentFails().equalsIgnoreCase(QUERY_GROUP_CONTENT_FAIL_WARN)
-            && !this.getHandleQueryGroupContentFails().equalsIgnoreCase(QUERY_GROUP_CONTENT_FAIL_IGNORE)) {
-            throw new CruiseControlException("'handleQueryGroupContentFails' attribute invalid" 
-                      + " - valid values are "
-                      + QUERY_GROUP_CONTENT_FAIL_ERROR + " | "
-                      + QUERY_GROUP_CONTENT_FAIL_WARN + " | "
-                      + QUERY_GROUP_CONTENT_FAIL_IGNORE);        
-        }
+        XMLHelper.fail(buf.toString());
     }
 
     // use the build results URL as the message content

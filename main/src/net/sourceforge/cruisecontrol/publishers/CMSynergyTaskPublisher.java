@@ -42,6 +42,7 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -132,14 +133,11 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
      * @see net.sourceforge.cruisecontrol.Publisher#validate()
      */
     public void validate() throws CruiseControlException {
-        if (folderNumber == null && folderName == null) {
-            throw new CruiseControlException(
-                    "Must specify either 'folderName' or 'folderNumber'");
-        }
-        if (folderName != null && getProject() == null) {
-            throw new CruiseControlException(
-                    "'project' attribute must be set when using the 'folderName' attribute.");
-        }
+        ValidationHelper.assertFalse(folderNumber == null && folderName == null,
+            "Must specify either 'folderName' or 'folderNumber'");
+
+        ValidationHelper.assertFalse(folderName != null && getProject() == null,
+            "'project' attribute must be set when using the 'folderName' attribute.");
     }
     
     /**

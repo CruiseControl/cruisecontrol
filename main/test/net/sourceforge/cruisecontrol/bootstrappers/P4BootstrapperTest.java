@@ -52,15 +52,15 @@ public class P4BootstrapperTest extends TestCase {
         p4Bootstrapper = new P4Bootstrapper();
     }
 
-    public void testPathNotSet() {
+    public void testViewNotSet() {
         try {
             p4Bootstrapper.validate();
-            fail("Should be Exception if path is not set.");
+            fail("Should be Exception if view is not set.");
         } catch (CruiseControlException expected) {
         }
     }
 
-    public void testInvalidPath() {
+    public void testInvalidView() {
         p4Bootstrapper.setView("");
         try {
             p4Bootstrapper.validate();
@@ -99,7 +99,7 @@ public class P4BootstrapperTest extends TestCase {
         }
     }
 
-    public void testCreateCommandlineWithPathSet() throws CruiseControlException {
+    public void testCreateCommandlineWithViewSet() throws CruiseControlException {
         p4Bootstrapper.setView("foo");
         assertEquals("p4 -s sync foo", p4Bootstrapper.createCommandline().toString());
 

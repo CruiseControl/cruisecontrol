@@ -56,6 +56,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -439,25 +440,16 @@ public class CVS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (local == null && (cvsroot == null || module == null)) {
-            throw new CruiseControlException("must specify either 'localWorkingCopy'"
-                 + " or 'cvsroot' and 'module' on CVS");
-        }
-        if (local != null && (cvsroot != null || module != null)) {
-            throw new CruiseControlException("if 'localWorkingCopy' is specified then"
-                 + " cvsroot and module are not allowed on CVS");
-        }
-        if (cvsroot != null && module == null) {
-            throw new CruiseControlException("if cvsroot is specified then module must"
-                 + " also be specified on CVS");
-        }
-        if (cvsroot == null && module != null) {
-            throw new CruiseControlException("if module is specified then cvsroot must"
-                 + " also be specified on CVS");
-        }
-        if (local != null && !new File(local).exists()) {
-            throw new CruiseControlException("Local working copy \"" + local + "\" does not exist!");
-        }
+        ValidationHelper.assertFalse(local == null && (cvsroot == null || module == null),
+            "must specify either 'localWorkingCopy' or 'cvsroot' and 'module' on CVS");
+        ValidationHelper.assertFalse(local != null && (cvsroot != null || module != null),
+            "if 'localWorkingCopy' is specified then cvsroot and module are not allowed on CVS");
+        ValidationHelper.assertFalse(local != null && !new File(local).exists(),
+            "Local working copy \"" + local + "\" does not exist!");
+        ValidationHelper.assertFalse(cvsroot != null && module == null,
+            "if cvsroot is specified then module must also be specified on CVS");
+        ValidationHelper.assertFalse(cvsroot == null && module != null,
+            "if module is specified then cvsroot must also be specified on CVS");
     }
 
     /**

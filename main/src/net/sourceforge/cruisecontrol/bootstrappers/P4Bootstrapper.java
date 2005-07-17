@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -113,21 +114,12 @@ public class P4Bootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (view == null) {
-            throw new CruiseControlException("Path is not set.");
-        }
-        failIfNotNullButEmpty(view, "view");
-        failIfNotNullButEmpty(port, "P4Port");
-        failIfNotNullButEmpty(client, "P4Client");
-        failIfNotNullButEmpty(user, "P4User");
-        failIfNotNullButEmpty(passwd, "P4Passwd");
-    }
-
-    private void failIfNotNullButEmpty(String stringToTest, String nameOfStringToTest)
-            throws CruiseControlException {
-        if (stringToTest != null && stringToTest.equals("")) {
-            throw new CruiseControlException(nameOfStringToTest + " cannot to be set empty");
-        }
+        ValidationHelper.assertIsSet(view, "view", this.getClass());
+        ValidationHelper.assertNotEmpty(view, "view", this.getClass());
+        ValidationHelper.assertNotEmpty(port, "P4Port", this.getClass());
+        ValidationHelper.assertNotEmpty(client, "P4Client", this.getClass());
+        ValidationHelper.assertNotEmpty(user, "P4User", this.getClass());
+        ValidationHelper.assertNotEmpty(passwd, "P4Passwd", this.getClass());
     }
 
     public void bootstrap() throws CruiseControlException {

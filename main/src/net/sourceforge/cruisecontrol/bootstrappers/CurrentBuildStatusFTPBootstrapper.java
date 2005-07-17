@@ -44,6 +44,7 @@ import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import org.apache.commons.net.ftp.FTPClient;
@@ -86,8 +87,8 @@ public class CurrentBuildStatusFTPBootstrapper extends AbstractFTPClass
     public void setControlsPropertiesName(String name) {
         this.controlsPropsName = name;
     }
-    
-    
+
+    // FIXME unused
     public void setProjectName(String name) {
         this.projectName = name;
     }
@@ -190,15 +191,8 @@ public class CurrentBuildStatusFTPBootstrapper extends AbstractFTPClass
 
 
     public void validate() throws CruiseControlException {
-        if (fileName == null) {
-            throw new CruiseControlException(
-                "'filename' is required for CurrentBuildStatusFTPBootstrapper");
-        }
-        if (destdir == null) {
-            throw new CruiseControlException(
-                "'destdir' is required for CurrentBuildStatusFTPBootstrapper");
-        }
-        
+        ValidationHelper.assertIsSet(fileName, "file", this.getClass());
+        ValidationHelper.assertIsSet(destdir, "destdir", this.getClass());
         super.validate();
     }
 

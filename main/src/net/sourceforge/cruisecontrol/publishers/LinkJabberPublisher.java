@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import java.io.File;
@@ -69,10 +70,7 @@ public class LinkJabberPublisher extends JabberPublisher {
 
         super.validate();
 
-        if (null == buildResultsURL) {
-            throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
-        }
-
+        ValidationHelper.assertIsSet(buildResultsURL, "buildresulturl", this.getClass());
     }
 
     /**

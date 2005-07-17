@@ -50,6 +50,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
@@ -115,14 +116,8 @@ public class XSLTLogPublisher implements Publisher {
     *  @throws CruiseControlException if there was a configuration error.
     */
    public void validate() throws CruiseControlException {
-      //xsltFile attribute is required
-      if (xsltFile == null) {
-         throw new CruiseControlException("'xsltFile' not specified in configuration file.");
-      }
-      //directory attribute is required
-      if (directory == null) {
-         throw new CruiseControlException("'directory' not specified in configuration file.");
-      }
+       ValidationHelper.assertIsSet(xsltFile, "xsltFile", this.getClass());
+       ValidationHelper.assertIsSet(directory, "directory", this.getClass());
    }
 
    /**
