@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -106,13 +107,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     }
    
     public void validate() throws CruiseControlException {
-        if (getPath() == null) {
-            throwMissingAttributeException("'path'");
-        }
-    }
-   
-    private void throwMissingAttributeException(String attribute) throws CruiseControlException {
-        throw new CruiseControlException(attribute + " is a required attribute on AlienBrain");
+        ValidationHelper.assertIsSet(getPath(), "path", this.getClass());
     }
 
     /**

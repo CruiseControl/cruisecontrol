@@ -42,6 +42,7 @@ import java.util.Vector;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -62,40 +63,34 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
     private String destdir;
     private String srcdir;
     private boolean deleteArtifacts = false;
-    
-    
+
+
     /**
      * The remote directory to put the artifacts into.
      */
     public void setDestDir(String dir) {
         this.destdir = dir;
     }
-    
-    
+
+
     public void setSrcDir(String dir) {
         this.srcdir = dir;
     }
-    
-    
+
+
     public void setDeleteArtifacts(boolean shouldDelete) {
         deleteArtifacts = shouldDelete;
     }
-    
-    
+
+
     public void validate() throws CruiseControlException {
-        if (destdir == null) {
-            throw new CruiseControlException(
-                "'destdir' is required for FTPPublisher");
-        }
-        if (srcdir == null) {
-            throw new CruiseControlException(
-                "'srcdir' is required for FTPPublisher");
-        }
+        ValidationHelper.assertIsSet(destdir, "destdir", this.getClass());
+        ValidationHelper.assertIsSet(srcdir, "srcdir", this.getClass());
         super.validate();
     }
-    
-    
-    
+
+
+
     public void publish(Element cruisecontrolLog)
         throws CruiseControlException {
 
@@ -142,7 +137,7 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
         }
     }
     
-    
+
     private void ftpDir(File basedir, FTPClient ftp, String destdir,
             Vector knownDirs)
             throws CruiseControlException {

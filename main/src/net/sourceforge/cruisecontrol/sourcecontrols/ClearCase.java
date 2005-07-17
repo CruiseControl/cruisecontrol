@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -140,12 +142,8 @@ public class ClearCase implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (branch == null) {
-            throw new CruiseControlException("'branch' is a required attribute for ClearCase.");
-        }
-        if (viewPath == null) {
-            throw new CruiseControlException("'viewpath' is a required attribute for ClearCase.");
-        }
+        ValidationHelper.assertIsSet(branch, "branch", this.getClass());
+        ValidationHelper.assertIsSet(viewPath, "viewpath", this.getClass());
     }
 
     /**

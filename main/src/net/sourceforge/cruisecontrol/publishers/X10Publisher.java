@@ -48,6 +48,7 @@ import com.jpeterson.x10.module.CM11A;
 import com.jpeterson.x10.module.CM17A;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -225,30 +226,23 @@ public class X10Publisher implements Publisher {
     }
 
     public void validate() throws CruiseControlException {
-        if (houseCode == null || deviceCode == null) {
-            throw new CruiseControlException("Both houseCode and deviceCode are required fields.");
-        }
+        ValidationHelper.assertFalse(houseCode == null || deviceCode == null,
+                "Both houseCode and deviceCode are required fields.");
 
-        if (!isLegalHouseCode(houseCode)) {
-            throw new CruiseControlException("The house code must be a"
-                    + " single alphabetic "
+        ValidationHelper.assertTrue(isLegalHouseCode(houseCode),
+            "The house code must be a single alphabetic "
                     + "letter between A and P, inclusive. You specified ["
                     + houseCode
                     + "].");
-        }
 
-        if (!isLegalDeviceCode(deviceCode)) {
-            throw new CruiseControlException("The device code must"
-                    + " be an integer between"
+        ValidationHelper.assertTrue(isLegalDeviceCode(deviceCode),
+            "The device code must be an integer between"
                     + " 1 and 16, inclusive. You specified ["
                     + deviceCode + "]");
-        }
 
-        if (!isLegalInterfaceModel(interfaceModel)) {
-            throw new CruiseControlException("The interface model must"
-                    + " is not a legal value. You specified ["
+        ValidationHelper.assertTrue(isLegalInterfaceModel(interfaceModel),
+            "The interface model must is not a legal value. You specified ["
                     + deviceCode + "]");
-        }
     }
 
     private static boolean isLegalInterfaceModel(String model) {

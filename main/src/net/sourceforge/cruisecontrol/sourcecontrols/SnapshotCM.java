@@ -54,6 +54,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -132,10 +133,9 @@ public class SnapshotCM implements SourceControl {
      *  From SourceControl interface.
      */
     public void validate() throws CruiseControlException {
-        if (this.sourcePaths.isEmpty()) {
-            throw new CruiseControlException("'sourcePaths' or 'sourcePath' attribute, "
-                    + "or nested sourcepath element(s), is a required attribute for SnapshotCM.");
-        }
+        ValidationHelper.assertFalse(this.sourcePaths.isEmpty(),
+            "'sourcePaths' or 'sourcePath' attribute, or nested sourcepath element(s)"
+            + " is a required attribute for SnapshotCM.");
     }
 
     /**

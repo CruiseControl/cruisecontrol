@@ -46,6 +46,7 @@ import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.jdom.Element;
@@ -74,14 +75,8 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (fileName == null) {
-            throw new CruiseControlException(
-                "'filename' is required for CurrentBuildStatusFTPPublisher");
-        }
-        if (destdir == null) {
-            throw new CruiseControlException(
-                "'destdir' is required for CurrentBuildStatusFTPPublisher");
-        }
+        ValidationHelper.assertIsSet(fileName, "filename", this.getClass());
+        ValidationHelper.assertIsSet(destdir, "destdir", this.getClass());
         super.validate();
     }
     

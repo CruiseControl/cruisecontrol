@@ -39,6 +39,7 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
@@ -69,22 +70,13 @@ public class NantBuilder extends Builder {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        if (buildFile == null) {
-            throw new CruiseControlException("'buildfile' is a required attribute on NantBuilder");
-        }
+        ValidationHelper.assertIsSet(buildFile, "buildFile", this.getClass());
+        ValidationHelper.assertIsSet(target, "target", this.getClass());
 
-        if (target == null) {
-            throw new CruiseControlException("'target' is a required attribute on NantBuilder");
-        }
-
-        if (useDebug && useQuiet) {
-            throw new CruiseControlException("'useDebug' and 'useQuiet' can't be used together");
-        }
+        ValidationHelper.assertFalse(useDebug && useQuiet, "'useDebug' and 'useQuiet' can't be used together");
 
         if (saveLogDir != null) {
-            if (!saveLogDir.isDirectory()) {
-                throw new CruiseControlException("'saveLogDir' must exist and be a directory");
-            }
+            ValidationHelper.assertTrue(saveLogDir.isDirectory(), "'saveLogDir' must exist and be a directory");
         }
     }
 

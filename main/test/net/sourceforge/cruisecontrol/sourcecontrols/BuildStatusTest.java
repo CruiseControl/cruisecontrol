@@ -71,7 +71,7 @@ public class BuildStatusTest extends TestCase {
             buildStatus.validate();
             fail("Should have thrown exception indicating log directory is mandatory");
         } catch (CruiseControlException e) {
-            assertEquals("Wrong exception", "The 'logdir' attribute is mandatory", e.getMessage());
+            assertEquals("Wrong exception", "'logdir' is required for BuildStatus", e.getMessage());
         }
 
         // Verify log directory must exist

@@ -39,8 +39,8 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import com.starbase.starteam.commandline.StarTeamCmd;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import org.apache.log4j.Logger;
 
 /**
  * Since we rely on our build.xml to handle updating our source code, there has
@@ -65,8 +65,6 @@ import org.apache.log4j.Logger;
  *                              localfolder=""/&gt;
  */
 public class StarTeamBootstrapper implements Bootstrapper {
-
-    private static Logger log = Logger.getLogger(StarTeamBootstrapper.class);
 
     private String username;
     private String password;
@@ -126,21 +124,16 @@ public class StarTeamBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (filenames == null
+        ValidationHelper.assertFalse(filenames == null
             || username == null
             || password == null
             || servername == null
             || serverport == null
             || projectname == null
             || viewname == null
-            || foldername == null) {
-            throw new CruiseControlException(
-                "'username', 'password',"
-                    + " 'server', 'port', 'project', 'view',"
-                    + " 'folder' and 'files' are all required for StarTeamBootstrapper");
-        } else {
-            return;
-        }
+            || foldername == null,
+            "'username', 'password','server', 'port', 'project', 'view', 'folder' and 'files'"
+              + " are all required for StarTeamBootstrapper");
     }
 
     private Commandline buildCheckoutCommand() {

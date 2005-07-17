@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.publishers;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.Commandline.Argument;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
@@ -122,65 +123,52 @@ public class SCPPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (sourceUser == null) {
-            if (sourceHost != null) {
-                throw new CruiseControlException("'sourceuser' not specified in configuration file");
-            }
-        }
+        ValidationHelper.assertFalse(sourceUser == null && sourceHost != null,
+            "'sourceuser' not specified in configuration file");
 
-        if (sourceHost == null) {
-            if (sourceUser != null) {
-                throw new CruiseControlException("'sourcehost' not specified in configuration file");
-            }
-        }
+        ValidationHelper.assertFalse(sourceHost == null && sourceUser != null,
+            "'sourcehost' not specified in configuration file");
 
-        if (targetUser == null) {
-            if (targetHost != null) {
-                throw new CruiseControlException("'targetuser' not specified in configuration file");
-            }
-        }
+        ValidationHelper.assertFalse(targetUser == null && targetHost != null,
+            "'targetuser' not specified in configuration file");
 
-        if (targetHost == null) {
-            if (targetUser != null) {
-                throw new CruiseControlException("'targethost' not specified in configuration file");
-            }
-        }
+        ValidationHelper.assertFalse(targetHost == null && targetUser != null,
+            "'targethost' not specified in configuration file");
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
+        if (file == null) {
+            XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+            file = helper.getLogFileName();
+            LOG.debug(file);
+        }
 
-    if (file == null) {
-        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        file = helper.getLogFileName();
-        LOG.debug(file);
-    }
-
-    Commandline command = createCommandline(file);
-    LOG.info("executing command: " + command);
-    try {
-        Process p = Runtime.getRuntime().exec(command.getCommandline());
-        LOG.debug("Runtime after.");
-        p.waitFor();
-        LOG.debug("waitfor() ended with exit code " + p.exitValue());
-
+        Commandline command = createCommandline(file);
+        LOG.info("executing command: " + command);
         try {
-            BufferedReader commandErrorResult = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String outputLine;
-            while ((outputLine = commandErrorResult.readLine()) != null) {
-                LOG.warn("Runtime.exec error returned: " + outputLine);
+            Process p = Runtime.getRuntime().exec(command.getCommandline());
+            LOG.debug("Runtime after.");
+            p.waitFor();
+            LOG.debug("waitfor() ended with exit code " + p.exitValue());
+
+            try {
+                BufferedReader commandErrorResult = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                String outputLine;
+                while ((outputLine = commandErrorResult.readLine()) != null) {
+                    LOG.warn("Runtime.exec error returned: " + outputLine);
+                }
+
+            } catch (IOException e) {
+                LOG.warn("Runtime.exec: reading errorStream failed");
+                throw new CruiseControlException(e);
             }
 
-        } catch (IOException e) {
-            LOG.warn("Runtime.exec: reading errorStream failed");
+        } catch (Exception e) {
+            LOG.warn("Runtime.exec exception.");
             throw new CruiseControlException(e);
         }
 
-    } catch (Exception e) {
-        LOG.warn("Runtime.exec exception.");
-        throw new CruiseControlException(e);
     }
-
-}
 
     public Commandline createCommandline(String file) {
         String sourcefile = sourceSeparator + file;

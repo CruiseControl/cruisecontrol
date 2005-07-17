@@ -41,6 +41,8 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -160,18 +162,14 @@ public class SVN implements SourceControl {
      *                                 null
      */
     public void validate() throws CruiseControlException {
-        if (repositoryLocation == null && localWorkingCopy == null) {
-            throw new CruiseControlException(
-                "At least 'repositoryLocation'or 'localWorkingCopy' "
-                    + "is a required attribute on the Subversion task ");
-        }
+        ValidationHelper.assertTrue(repositoryLocation != null || localWorkingCopy != null,
+                "At least 'repositoryLocation'or 'localWorkingCopy' is a required attribute on the Subversion task ");
 
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
-            if (!workingDir.exists() || !workingDir.isDirectory()) {
-                throw new CruiseControlException(
-                    "'localWorkingCopy' must be an existing " + "directory.");
-            }
+            ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
+                    "'localWorkingCopy' must be an existing directory. Was "
+                    + workingDir.getAbsolutePath());
         }
     }
 

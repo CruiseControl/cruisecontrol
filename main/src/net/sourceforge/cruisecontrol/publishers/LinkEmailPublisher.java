@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 
@@ -95,9 +96,7 @@ public class LinkEmailPublisher extends EmailPublisher {
     *  @throws  CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (getBuildResultsURL() == null) {
-            throw new CruiseControlException("'buildresultsurl' not specified in configuration file.");
-        }
+        ValidationHelper.assertIsSet(getBuildResultsURL(), "buildresulturl", this.getClass());
         super.validate();
     }
 

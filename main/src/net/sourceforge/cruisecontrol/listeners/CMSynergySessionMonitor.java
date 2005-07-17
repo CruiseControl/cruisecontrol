@@ -52,6 +52,7 @@ import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * Monitors a set of one or more CM Synergy sessions, launching new sessions as
@@ -262,26 +263,11 @@ public class CMSynergySessionMonitor implements Listener {
          * @throws CruiseControlException
          */
         public void validate() throws CruiseControlException {
-            if (name == null) {
-                throw new CruiseControlException(
-                        "'name' is a required attribute of the <session> child element.");
-            }
-            if (db == null) {
-                throw new CruiseControlException(
-                        "'database' is a required attribute of the <session> child element.");
-            }
-            if (role == null) {
-                throw new CruiseControlException(
-                        "'role' is a required attribute of the <session> child element.");
-            }
-            if (user == null) {
-                throw new CruiseControlException(
-                        "'user' is a required attribute of the <session> child element.");
-            }
-            if (password == null) {
-                throw new CruiseControlException(
-                        "'password' is a required attribute of the <session> child element.");
-            }
+            ValidationHelper.assertIsSet(name, "name", "the <session> child element");
+            ValidationHelper.assertIsSet(db, "db", "the <session> child element");
+            ValidationHelper.assertIsSet(role, "role", "the <session> child element");
+            ValidationHelper.assertIsSet(user, "user", "the <session> child element");
+            ValidationHelper.assertIsSet(password, "password", "the <session> child element");
         }
     }
 
@@ -450,11 +436,9 @@ public class CMSynergySessionMonitor implements Listener {
      */
     public void validate() throws CruiseControlException {
         // We must have at least one session to monitor
-        if (sessions.size() < 1) {
-            throw new CruiseControlException(
-                    "You must provide at least one nested <session> element.");
-        }
-        
+        ValidationHelper.assertTrue(sessions.size() > 0,
+            "You must provide at least one nested <session> element.");
+
         // Validate the details of each provided session
         for (Iterator it = sessions.iterator(); it.hasNext(); ) {
             CMSynergySession session = (CMSynergySession) it.next();

@@ -40,6 +40,8 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.VSSHelper;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -87,26 +89,16 @@ public class VssBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (vssPath == null || localDirectory == null) {
-            throw new CruiseControlException("VssBootstrapper has required attributes vssPath and localDirectory");
-        }
+        ValidationHelper.assertTrue(vssPath != null && localDirectory != null,
+                "VssBootstrapper has required attributes vssPath and localDirectory");
+
         File localDirForFile = new File(localDirectory);
-        boolean dirExists = localDirForFile.exists();
-        if (!dirExists) {
-            LOG.debug("local directory [" + localDirectory + "] does not exist");
-            throw new CruiseControlException(
-                "file path attribute value "
-                    + localDirectory
-                    + " must specify an existing directory.");
-        }
-        boolean isDir = localDirForFile.isDirectory();
-        if (!isDir) {
-            LOG.debug("local directory [" + localDirectory + "] is not a directory");
-            throw new CruiseControlException(
-                "file path attribute value "
-                    + localDirectory
-                    + " must specify an existing directory, not a file.");
-        }
+        ValidationHelper.assertTrue(localDirForFile.exists(),
+            "file path attribute value " + localDirectory + " must specify an existing directory.");
+
+        ValidationHelper.assertTrue(localDirForFile.isDirectory(),
+            "file path attribute value " + localDirectory + " must specify an existing directory, not a file.");
+
         setLocalDirectory(localDirForFile.getAbsolutePath());
     }
 

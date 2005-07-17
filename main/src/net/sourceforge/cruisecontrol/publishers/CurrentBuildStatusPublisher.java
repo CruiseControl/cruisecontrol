@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.publishers;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -66,9 +67,7 @@ public class CurrentBuildStatusPublisher implements Publisher {
     }
 
     public void validate() throws CruiseControlException {
-        if (fileName == null) {
-            throw new CruiseControlException("'filename' is required for CurrentBuildStatusPublisher");
-        }
+        ValidationHelper.assertIsSet(fileName, "filename", this.getClass());
         CurrentBuildFileWriter.validate(fileName);
     }
 

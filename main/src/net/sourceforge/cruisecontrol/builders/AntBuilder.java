@@ -49,6 +49,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -85,49 +86,37 @@ public class AntBuilder extends Builder {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        if (buildFile == null) {
-            throw new CruiseControlException("'buildfile' is a required attribute on AntBuilder");
-        }
+        ValidationHelper.assertIsSet(buildFile, "buildfile", this.getClass());
+        ValidationHelper.assertIsSet(target, "target", this.getClass());
+        ValidationHelper.assertFalse(useDebug && useQuiet,
+            "'useDebug' and 'useQuiet' can't be used together");
 
-        if (target == null) {
-            throw new CruiseControlException("'target' is a required attribute on AntBuilder");
-        }
-        
-        if (useDebug && useQuiet) {
-            throw new CruiseControlException("'useDebug' and 'useQuiet' can't be used together");
-        }
-        
         if (!useLogger && (useDebug || useQuiet)) {
             LOG.warn("usedebug and usequiet are ignored if uselogger is not set to 'true'!");
         }
-        
+
         if (antScript != null && !args.isEmpty()) {
             LOG.warn("jvmargs will be ignored if you specify your own antscript!");
         }
-        
+
         if (saveLogDir != null) {
-            if (!saveLogDir.isDirectory()) {
-                throw new CruiseControlException("'saveLogDir' must exist and be a directory");
-            }
+            ValidationHelper.assertTrue(saveLogDir.isDirectory(), "'saveLogDir' must exist and be a directory");
         }
-        if (antScript != null && antHome != null) {
-            throw new CruiseControlException("'antHome' and 'antscript' cannot both be set");
-        }
+
+        ValidationHelper.assertFalse(antScript != null && antHome != null,
+            "'antHome' and 'antscript' cannot both be set");
 
         if (antHome != null) {
             final File antHomeFile = new File(antHome);
-            if (!antHomeFile.exists() || !antHomeFile.isDirectory()) {
-                throw new CruiseControlException(
-                        "'antHome' must exist and be a directory. Expected to find "
-                                + antHomeFile.getAbsolutePath());
-            }
+            ValidationHelper.assertTrue(antHomeFile.exists() && antHomeFile.isDirectory(),
+                "'antHome' must exist and be a directory. Expected to find "
+                + antHomeFile.getAbsolutePath());
 
             final File antScriptInAntHome = new File(findAntScript(Util.isWindows()));
-            if (!antScriptInAntHome.exists() || !antScriptInAntHome.isFile()) {
-                throw new CruiseControlException(
-                        "'antHome' must contain an ant execution script. Expected to find "
-                                + antScriptInAntHome.getAbsolutePath());
-            }
+            ValidationHelper.assertTrue(antScriptInAntHome.exists() && antScriptInAntHome.isFile(),
+                "'antHome' must contain an ant execution script. Expected to find "
+                + antScriptInAntHome.getAbsolutePath());
+
             antScript = antScriptInAntHome.getAbsolutePath();
         }
     }

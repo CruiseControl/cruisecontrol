@@ -36,11 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -52,6 +47,14 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  *  This class implements the SourceControlElement methods for a PVCS
@@ -150,12 +153,8 @@ public class PVCS implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (pvcsProject == null) {
-            throw new CruiseControlException("'pvcsproject' is a required attribute on PVCS");
-        }
-        if (pvcsSubProject == null) {
-            throw new CruiseControlException("'pvcssubproject' is a required attribute on PVCS");
-        }
+        ValidationHelper.assertIsSet(pvcsProject, "pvcsproject", this.getClass());
+        ValidationHelper.assertIsSet(pvcsSubProject, "pvcssubproject", this.getClass());
     }
 
     /**

@@ -64,6 +64,7 @@ import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapperHelper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
@@ -120,23 +121,18 @@ public abstract class EmailPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (getMailHost() == null) {
-            throw new CruiseControlException("'mailhost' not specified in configuration file.");
-        }
-        if (getReturnAddress() == null) {
-            throw new CruiseControlException("'returnaddress' not specified in configuration file.");
-        }
-        if (getUsername() != null && getPassword() == null) {
-            throw new CruiseControlException("'password' is required if 'username' is set for email.");
-        }
-        if (getPassword() != null && getUsername() == null) {
-            throw new CruiseControlException("'username' is required if 'password' is set for email.");
-        }
+        ValidationHelper.assertIsSet(getMailHost(), "mailhost", this.getClass());
+        ValidationHelper.assertIsSet(getReturnAddress(), "returnaddress", this.getClass());
+        ValidationHelper.assertFalse(getUsername() != null && getPassword() == null,
+            "'password' is required if 'username' is set for email.");
+        ValidationHelper.assertFalse(getPassword() != null && getUsername() == null,
+            "'username' is required if 'password' is set for email.");
+
         for (int i = 0; i < alertAddresses.length; i++) {
             try {
                 alertAddresses[i].fileFilter = new GlobFilenameFilter(alertAddresses[i].fileRegExpr);
             } catch (MalformedCachePatternException mcpe) {
-                throw new CruiseControlException("invalid regexp '" + alertAddresses[i].fileRegExpr + "'");
+                ValidationHelper.fail("invalid regexp '" + alertAddresses[i].fileRegExpr + "'", mcpe);
             }
         }
     }

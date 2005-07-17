@@ -51,6 +51,7 @@ import com.starbase.util.OLEDate;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.XMLHelper;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -129,18 +130,10 @@ public class StarTeam implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (folder == null) {
-            throw new CruiseControlException("'folder' is a required attribute on StarTeam.");
-        }
-        if (url == null) {
-            throw new CruiseControlException("'url' is a required attribute on StarTeam.");
-        }
-        if (userName == null) {
-            throw new CruiseControlException("'username' is a required attribute on StarTeam.");
-        }
-        if (password == null) {
-            throw new CruiseControlException("'password' is a required attribute on StarTeam.");
-        }
+        XMLHelper.assertNotNull(folder, "folder", this);
+        XMLHelper.assertNotNull(url, "url", this);
+        XMLHelper.assertNotNull(userName, "username", this);
+        XMLHelper.assertNotNull(password, "password", this);
     }
 
     /**

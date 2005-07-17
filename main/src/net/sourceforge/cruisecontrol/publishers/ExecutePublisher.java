@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.publishers;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
@@ -66,9 +68,7 @@ public class ExecutePublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (commandString == null) {
-            throw new CruiseControlException("'command' not specified in configuration file");
-        }
+        ValidationHelper.assertIsSet(commandString, "command", this.getClass());
     }
 
     public void publish(Element cruisecontrolLog)

@@ -40,6 +40,8 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.io.PrintWriter;
@@ -97,9 +99,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (filename == null) {
-            throw new CruiseControlException("'file' is required for ClearCaseBootstrapper");
-        }
+        ValidationHelper.assertIsSet(filename, "file", this.getClass());
     }
 
     protected Commandline buildUpdateCommand() {

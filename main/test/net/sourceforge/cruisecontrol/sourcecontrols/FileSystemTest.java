@@ -63,7 +63,7 @@ public class FileSystemTest extends TestCase {
             fs.validate();
             fail("FileSystem should throw exceptions when required attributes are not set.");
         } catch (CruiseControlException e) {
-            assertEquals("'folder' is a required attribute for FileSystem", e.getMessage());
+            assertEquals("'folder' is required for FileSystem", e.getMessage());
         }
 
         File tempFile = File.createTempFile("CruiseControl", "TEST");

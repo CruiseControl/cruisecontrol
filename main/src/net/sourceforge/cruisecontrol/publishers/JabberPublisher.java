@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
@@ -143,34 +144,21 @@ public abstract class JabberPublisher implements Publisher {
      */
     public void validate() throws CruiseControlException {
 
-        if (null == host) {
-            throw new CruiseControlException("'host' not specified in configuration file");
-        }
+        ValidationHelper.assertIsSet(host, "host", this.getClass());
+        ValidationHelper.assertIsSet(username, "username", this.getClass());
+        ValidationHelper.assertFalse(isEmail(username),
+            "'username' is not in correct format. "
+            + "'username' should not be of the form user@domain.com");
 
-        if (null == username) {
-            throw new CruiseControlException("'username' not specified in configuration file");
-        } else {
-            int domainIncluded = username.indexOf("@");
-            if (-1 != domainIncluded) {
-                throw new CruiseControlException("'username' is not in correct format. "
-                        + "'username' should not be of the form: user@domain.com");
-            }
-        }
+        ValidationHelper.assertIsSet(password, "password", this.getClass());
+        ValidationHelper.assertIsSet(recipient, "recipient", this.getClass());
+        ValidationHelper.assertTrue(isEmail(recipient),
+            "'recipient' is not in correct format. "
+            + "'recipient' should be of the form user@domain.com");
+    }
 
-        if (null == password) {
-            throw new CruiseControlException("'password' not specified in configuration file");
-        }
-
-        if (null == recipient) {
-            throw new CruiseControlException("'recipient' not specified in configuration file");
-        } else {
-            int domainIncluded = recipient.indexOf("@");
-            if (-1 == domainIncluded) {
-                throw new CruiseControlException("'recipient' is not in correct format. 'recipient' "
-                        + "should be of the form: user@domain.com");
-            }
-        }
-
+    private boolean isEmail(final String username) {
+        return username.indexOf("@") != -1;
     }
 
     /**

@@ -185,6 +185,10 @@ TimeChartData:
 ----------------------
 * Don't fail when two when there are two logs within the same minute.
 
+ValidationHelper:
+----------------------
+* Create helper class for plugins to use during validation. Submitted by Jerome Lacoste
+
 VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)

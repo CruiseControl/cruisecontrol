@@ -50,6 +50,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Log;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.input.SAXBuilder;
 import org.jdom.Document;
@@ -119,18 +120,13 @@ public class BuildStatus implements SourceControl {
      * Make sure any attributes provided by the user are correctly specified.
      */
     public void validate() throws CruiseControlException {
-        if (logDir == null) {
-            throw new CruiseControlException("The 'logdir' attribute is mandatory");
-        }
+        ValidationHelper.assertIsSet(logDir, "logdir", this.getClass());
 
         File logDirectory = new File(logDir);
-        if (!logDirectory.exists()) {
-            throw new CruiseControlException("Log directory does not exist: "
-                     + logDirectory.getAbsolutePath());
-        } else if (!logDirectory.isDirectory()) {
-            throw new CruiseControlException("Log directory is not a directory: "
-                     + logDirectory.getAbsolutePath());
-        }
+        ValidationHelper.assertTrue(logDirectory.exists(),
+            "Log directory does not exist: " + logDirectory.getAbsolutePath());
+        ValidationHelper.assertTrue(logDirectory.isDirectory(),
+            "Log directory is not a directory: " + logDirectory.getAbsolutePath());
     }
 
     /**

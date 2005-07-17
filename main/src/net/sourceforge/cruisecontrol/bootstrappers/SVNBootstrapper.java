@@ -40,6 +40,8 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -103,19 +105,14 @@ public class SVNBootstrapper implements Bootstrapper {
      *                                 null
      */
     public void validate() throws CruiseControlException {
-        if (fileName == null && localWorkingCopy == null) {
-            throw new CruiseControlException(
-                "At least 'filename' or 'localWorkingCopy' is a "
+        ValidationHelper.assertTrue(fileName != null || localWorkingCopy != null,
+            "At least 'filename' or 'localWorkingCopy' is a "
                     + "required attribute on the Subversion bootstrapper task");
-        }
 
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
-            if (!workingDir.exists() || !workingDir.isDirectory()) {
-                throw new CruiseControlException(
-                    "'localWorkingCopy' must be an existing " + "directory.");
-
-            }
+            ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
+                "'localWorkingCopy' must be an existing " + "directory.");
         }
     }
 

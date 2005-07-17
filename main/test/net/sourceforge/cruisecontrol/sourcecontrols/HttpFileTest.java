@@ -54,7 +54,7 @@ public class HttpFileTest extends TestCase {
             httpFile.validate();
             fail("HttpFile should throw when url not set.");
         } catch (CruiseControlException e) {
-            assertEquals("'url' is a required attribute for HttpFile", e.getMessage());
+            assertEquals("'url' is required for HttpFile", e.getMessage());
         }
 
         try {

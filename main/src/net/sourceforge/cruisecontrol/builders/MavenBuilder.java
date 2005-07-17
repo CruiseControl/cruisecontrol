@@ -44,6 +44,7 @@ import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -73,22 +74,16 @@ public class MavenBuilder extends Builder {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        if (mavenScript == null) {
-            throw new CruiseControlException("'mavenscript' is a required attribute on MavenBuilder");
-        }
+        ValidationHelper.assertIsSet(mavenScript, "mavenScript", this.getClass());
+
         File ckFile = new File(mavenScript);
-        if (!ckFile.exists()) {
-            throw new CruiseControlException(
-                "Script " + ckFile.getAbsolutePath() + " does not exist");
-        }
-        if (projectFile == null) {
-            throw new CruiseControlException("'projectfile' is a required attribute on MavenBuilder");
-        }
+        ValidationHelper.assertTrue(ckFile.exists(),
+            "Script " + ckFile.getAbsolutePath() + " does not exist");
+
+        ValidationHelper.assertIsSet(projectFile, "projectFile", this.getClass());
         ckFile = new File(projectFile);
-        if (!ckFile.exists()) {
-            throw new CruiseControlException(
-                "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
-        }
+        ValidationHelper.assertTrue(ckFile.exists(),
+            "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
     }
 
     /**

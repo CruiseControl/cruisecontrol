@@ -47,6 +47,7 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -76,13 +77,11 @@ public class HttpFile extends FakeUserSourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        if (urlString == null) {
-            throw new CruiseControlException("'url' is a required attribute for HttpFile");
-        }
+        ValidationHelper.assertIsSet(urlString, "url", this.getClass());
         try {
             new URL(this.urlString);
         } catch (MalformedURLException e) {
-            throw new CruiseControlException("'url' is not a valid connection string", e);
+            ValidationHelper.fail("'url' is not a valid connection string", e);
         }
     }
 

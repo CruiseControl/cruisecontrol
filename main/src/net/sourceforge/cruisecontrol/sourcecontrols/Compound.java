@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * This class implements a Compound source control with one triggers 
@@ -149,18 +150,10 @@ public class Compound implements SourceControl {
      * @throws  a CruiseControlException if the validation fails
      */
     public void validate() throws CruiseControlException {
-        // confirm we have a triggers block
-        if (triggers == null) {
-            throw new CruiseControlException(
+        ValidationHelper.assertTrue(triggers != null,
             "Error: there must be exactly one \"triggers\" block in a compound block.");
-        }
-        
-        // confirm we have a targets block
-        if (targets == null) {
-            throw new CruiseControlException(
+        ValidationHelper.assertTrue(targets != null,
             "Error: there must be exactly one \"targets\" block in a compound block.");
-        }
-        
     }
     
     /**

@@ -37,6 +37,8 @@
 
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.jdom.Element;
 
 import java.util.Calendar;
@@ -62,11 +64,8 @@ public abstract class Builder implements Comparable {
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
 
-        boolean bothSet = timeSet && multipleSet;
-
-        if (bothSet) {
-            throw new CruiseControlException("Only one of 'time' or 'multiple' are allowed on builders.");
-        }
+        ValidationHelper.assertFalse(timeSet && multipleSet,
+            "Only one of 'time' or 'multiple' are allowed on builders.");
     }
 
     public void setDay(String dayString) {
