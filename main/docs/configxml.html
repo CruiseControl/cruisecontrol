@@ -392,9 +392,13 @@
         These references are resolved at the time these properties are set. This also holds for properties
         loaded from a property file, or from the environment.</p>
 
-        <p>Also note that the property ${project.name} is set for you automatically and will always resolve
+        <p>Also note that the property <code>${project.name}</code> is set for you automatically and will always resolve
         to the name of the project currently being serviced - even outside the scope of the project
         definition.</p>
+
+        <p>Finally, note that properties bring their best when combined with
+        <a href="plugins.html#preconfiguration">plugin preconfigurations</a>.
+        </p>
 
         <h3>Attributes</h3>
 
@@ -492,7 +496,7 @@
             </li>
 
             <li>As demonstrated here, properties and
-                <a href="plugins.html#registration">plugin pre-configuration</a>
+                <a href="plugins.html#preconfiguration">plugin pre-configuration</a>
                 can be an extremely powerful combination.
            <pre>
 &lt;cruisecontrol&gt;

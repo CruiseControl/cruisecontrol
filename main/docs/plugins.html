@@ -138,7 +138,9 @@
         plugins that ship with CruiseControl will be automatically registered.
         Should you wish to use one of the registered plugin names with your own
         custom plugin class, you can just explicitly register the plugin name
-        and that will override the default registration.</p>
+        and that will override the <a href="#defaultregistry">default registration</a>.</p>
+
+        <h3><a name="preconfiguration"/>Plugin Preconfiguration</h3>
 
         <p>On registering plugins, you can also define default values for some
         of the properties of the plugins. You can do this by simply using the
@@ -157,6 +159,11 @@
           xsldir="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\xsl"
           css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\css\cruisecontrol.css"/&gt;
 </pre>
+
+        <p>Combined with <a href="configxml.html#property">ant style
+        properties</a> this will greatly reduce the size of your config files.</p>
+
+        <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
 
         <p>The following tables outlines the default plugin registry:</p>
 
