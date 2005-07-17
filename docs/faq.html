@@ -48,12 +48,13 @@
         which will generally be more up to date than this page. Please consult this page first before you
         ask a question on the mailing list. You are also encouraged to update it with new information.
 
-        <h2>CruiseControl 2.2 FAQ</h2>
+        <h2>CruiseControl 2.2.2 FAQ</h2>
         <ul>
-            <li><a href="#whyupgrade">Why should I upgrade to CruiseControl 2.2?</a></li>
+            <li><a href="#whyupgrade">Why should I upgrade to CruiseControl 2.2.2?</a></li>
             <li><a href="#nojunit">Why don't my jUnit results show up on the web page?</a></li>
             <li><a href="#toomuchrepository">What does "Too much repository activity" mean?</a></li>
-            <li><a href="#nocontentjsp">Why does my jsp page show the build and dates, but the right half of the page is blank no matter what I click on?</a></li>
+            <li><a href="#nocontentjsp">Why does my jsp page show the build and dates, but the right
+                half of the page is blank no matter what I click on?</a></li>
         </ul>
 
         <h2>General Project FAQ</h2>
@@ -64,7 +65,7 @@
 
         <h2>Answers</h2>
 
-        <h3><a name="whyupgrade">Why should I upgrade to CruiseControl 2.2?</a></h3>
+        <h3><a name="whyupgrade">Why should I upgrade to CruiseControl 2.2.2?</a></h3>
             <p>
         Depending on what version you're upgrading from, CruiseControl has changed in many ways. Some of the highlights are:</p>
         <ul>
@@ -73,6 +74,8 @@
         <li>Support for building multiple projects in parallel (<i>since 2.2</i>)</li>
         <li>Support for several new <a href="../main/docs/configxml.html#modificationset">source control systems</a>
             and <a href="../main/docs/configxml.html#publishers">publishers</a>. Improved support for existing ones.</li>
+        <li>Support for <a href="../main/docs/configxml.html#property">ant style properties</a>
+            and <a href="../main/docs/plugins.html#preconfiguration">plugin preconfiguration</a> (<i>since 2.2.2</i>)</li>
         <li>Improved documentation</li>
         <li>Improved JMX support (now uses MX4J 2.0.1, including support for RMI through JSR 160).</li>
         <li>Many, many bugfixes and small enhancements</li>
@@ -136,6 +139,7 @@
         against the existing CVS version and should provide unit tests.  If
         you're adding new features, an informal use case is useful so that
         others can quickly understand the utility of your patch.
+        More details <a href="contributions.html">here</a>.
             </p>
 
     </div>
