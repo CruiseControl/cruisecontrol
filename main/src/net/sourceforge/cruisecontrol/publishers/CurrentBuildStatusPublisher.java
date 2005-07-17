@@ -40,23 +40,31 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.util.Date;
 
+/**
+ * Writes an HTML snippet in a file (supposedly in a location where the reporting module can read it), indicating
+ * when the next build is going to take place.
+ *
+ * @see {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * @deprecated Was obsoleted by {@link net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener}
+ */
 public class CurrentBuildStatusPublisher implements Publisher {
+    private static final Logger LOG = Logger.getLogger(CurrentBuildStatusPublisher.class);
+
     private String fileName;
+
+    public CurrentBuildStatusPublisher() {
+        LOG.warn("CurrentBuildStatusPublisher was obsoleted by CurrentBuildStatusListener");
+    }
 
     public void setFile(String fileName) {
         this.fileName = fileName;
     }
 
-    /**
-     * Called after the configuration is read to make sure that all the mandatory parameters
-     * were specified..
-     *
-     * @throws CruiseControlException if there was a configuration error.
-     */
     public void validate() throws CruiseControlException {
         if (fileName == null) {
             throw new CruiseControlException("'filename' is required for CurrentBuildStatusPublisher");
