@@ -14,8 +14,9 @@ Class-Path:
  ../lib/starteam-sdk.jar 
  ../lib/STComm.jar 
  ../lib/x10.jar 
- ../lib/xalan.jar 
- ../lib/xerces.jar 
+ ../lib/xalan-2.6.0.jar
+ ../lib/xercesImpl-2.7.0.jar 
+ ../lib/xml-apis-2.7.0.jar 
  ../lib/ant/ant.jar 
  ../lib/ant/ant-launcher.jar 
 Main-Class: CruiseControl

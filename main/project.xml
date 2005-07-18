@@ -182,12 +182,12 @@
     </dependency>
     <dependency>
       <id>xalan</id>
-      <version>unknown</version>
+      <version>2.6.0</version>
       <url>http://xml.apache.org/xalan-j/</url>
     </dependency>
     <dependency>
       <id>xerces</id>
-      <version>unknown</version>
+      <version>2.7.0</version>
       <url>http://xml.apache.org/xerces-j/</url>
     </dependency>
     <dependency>
