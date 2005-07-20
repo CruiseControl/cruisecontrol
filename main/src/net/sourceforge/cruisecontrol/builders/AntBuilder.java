@@ -154,7 +154,7 @@ public class AntBuilder extends Builder {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
             buildLogElement.setAttribute("error", "build timeout");
-            // although log file is most certainly empy, let's try to preserve it
+            // although log file is most certainly empty, let's try to preserve it
             // somebody should really fix ant's XmlLogger
             if (logFile.exists()) {
                 try {
