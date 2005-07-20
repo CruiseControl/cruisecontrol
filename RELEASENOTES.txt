@@ -100,10 +100,6 @@ JMX Support:
 ----------------------
 * Expose Project's BuildStartTime as JMX attribute (CC-92). Patch by Jerome Lacoste
 
-Macker:
-----------------------
-* Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
-
 MavenBuilder:
 ----------------------
 * Require goal attribute. Fixes problem where builder would silently do nothing without one. Patch by Jerome Lacoste
@@ -188,7 +184,7 @@ reporting jsp app
 
 BuildInfo:
 ----------------------
-* Added better exception message to make debugging easier (CC-49). Patch by Jerome Lacoste.
+* Added better exception message to make debugging easier (CC-49). Patch by Jerome Lacoste
 * Handle files created when using EmptyLabelIncrementor (log20050624104539L.xml)
 
 controlpanel.jsp:
@@ -204,10 +200,18 @@ index.jsp:
 * Use rounded corners on the right of the page (CC-113). Patch by Mark Doliner
 * Add summary line with percentage of passing/failing projects (CC-203). Patch by Tim Shadel
 
+macker.xsl:
+----------------------
+* Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
+
 navigation.jsp:
 ----------------------
 * Hide navigation drop down when it is empty CC-96. Based on patch by Jerome Lacoste
-* Added an RSS feed to the reporting app (CC-117). Patch by Mark Doliner.
+* Added an RSS feed to the reporting app (CC-117). Patch by Mark Doliner
+
+TabSheetTag:
+----------------------
+* Make menu always visible (CC-239). Patch by Jerome Lacoste
 
 testdetails.xsl:
 ----------------------

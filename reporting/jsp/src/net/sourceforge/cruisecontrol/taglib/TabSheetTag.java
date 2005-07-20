@@ -141,7 +141,7 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
     private void printTabHeaders(JspWriter out) throws IOException {
         out.write("<tr>");
         out.write("<td bgcolor=\"#FFFFFF\">");
-        out.write("<div align=\"center\">");
+        out.write("<div align=\"left\">");
         out.write("<table class=\"tab-table\" align=\"center\" valign=\"middle\" cellspacing=\"0\"");
         out.write(" cellpadding=\"0\" border=\"1\"><tbody><tr>");
         for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
