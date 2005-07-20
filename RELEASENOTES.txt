@@ -104,6 +104,7 @@ MavenSnapshotDependency:
 ----------------------
 * fix NPE when dependency lacks version tag. Patch by Josh W. Arnold
 * MavenSnapshotDependency NPE when no deps listed (CC-248). Patch by Tim Shadel
+* add default dependency type of jar (CC-252). Patch by Jerome Lacoste
 
 MKS:
 ----------------------
