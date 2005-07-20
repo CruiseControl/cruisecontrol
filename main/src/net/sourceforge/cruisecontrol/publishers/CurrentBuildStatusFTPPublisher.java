@@ -37,26 +37,34 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import java.util.Date;
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
 import java.io.File;
-import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.jdom.Element;
-import org.apache.commons.net.ftp.FTPClient;
+import org.apache.log4j.Logger;
 
+/**
+ * Does the same thing as CurrentBuildStatusPublisher, but also
+ * sends it to an FTP server.
+ * @deprecated Was obsoleted by {@link net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener}
+ */
 public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
         implements Publisher {
+    private static final Logger LOG = Logger.getLogger(CurrentBuildStatusFTPPublisher.class);
 
     private String fileName;
     private String destdir;
+
+    public CurrentBuildStatusFTPPublisher() {
+        LOG.warn("CurrentBuildStatusFTPPublisher was obsoleted by CurrentBuildStatusFTPListener");
+    }
 
     public void setFile(String fileName) {
         this.fileName = fileName;
@@ -83,58 +91,22 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
         String out = makeFile(cruisecontrolLog);
         String fname = destdir + File.separator + fileName;
-        ByteArrayInputStream bais = new ByteArrayInputStream(
-            out.getBytes());
-        
-        FTPClient ftp = openFTP();
-        
-        // we're sending text; don't set binary!
-        
-        try {
-            makeDirsForFile(ftp, fname, null);
-            sendStream(ftp, bais, fname);
-        } finally {
-            closeFTP(ftp);
-        }
+
+        sendFileToFTPPath(out, fname);
     }
-    
-    
+
     protected String makeFile(Element cruisecontrolLog)
             throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
 
-        long interval = Long.parseLong(
-            helper.getCruiseControlInfoProperty("interval"));
-        Date datePlusInterval = new Date((new Date()).getTime()
-            + (interval * 1000));
+        long interval = Long.parseLong(helper.getCruiseControlInfoProperty("interval"));
+        writeFile(new Date(), interval);
 
-        CurrentBuildFileWriter.writefile(
-            "<span>Next Build Starts At:<br>",
-            datePlusInterval,
-            fileName);
-        
-        FileReader fr = null;
-        StringBuffer out = new StringBuffer();
-        try {
-            fr = new FileReader(fileName);
-            char[] buff = new char[4096];
-            int size = fr.read(buff, 0, 4096);
-            while (size > 0) {
-                out.append(buff, 0, size);
-                size = fr.read(buff, 0, 4096);
-            }
-        } catch (IOException ioe) {
-            throw new CruiseControlException(ioe.getMessage());
-        } finally {
-            if (fr != null) {
-                try {
-                    fr.close();
-                } catch (IOException ioe) {
-                    // ignore
-                }
-            }
-                
-        }
-        return out.toString();
+        return CurrentBuildStatusFTPListener.readFileToString(fileName);
+    }
+
+    protected void writeFile(Date date, long interval) throws CruiseControlException {
+        Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
+        CurrentBuildFileWriter.writefile("<span class=\"link\">Next Build Starts At:<br>", datePlusInterval, fileName);
     }
 }
