@@ -52,6 +52,7 @@
     <property name="tests" value="*Test"/>
     <property name="webcontent" value="webcontent"/>
 
+    <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
 
@@ -96,7 +97,9 @@
     <!-- **************************************************** -->
     <target name="checkstyle" depends="init" description="Generates a report of code convention violations.">
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
+        <touch file="${checkstyle.cache}"/>
         <checkstyle config="checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
+            <property key="cacheFile" value="${checkstyle.cache}"/>
             <formatter type="plain"/>
             <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
             <fileset dir="${src}" includes="**/*.java"/>
