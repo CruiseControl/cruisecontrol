@@ -76,7 +76,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
     /**
      * The short class name of an object.
      * 
-     * @param object
+     * @param plugin
      * @return
      * @throws NullPointerException
      *             if object is null

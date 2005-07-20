@@ -145,7 +145,7 @@ public class EnvCommandline extends Commandline {
       * Gets the value of an environment variable. The variable
       * name is case sensitive. 
       * 
-      * @param variable The variable for which you wish the value
+      * @param var The variable for which you wish the value
       *
       * @return The value of the variable, or <code>null</code>
       *         if not found
