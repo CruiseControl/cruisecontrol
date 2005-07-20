@@ -38,12 +38,13 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.util.Date;
 import java.io.File;
+import java.io.IOException;
 
-import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
-import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener;
+import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
@@ -102,7 +103,11 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
         long interval = Long.parseLong(helper.getCruiseControlInfoProperty("interval"));
         writeFile(new Date(), interval);
 
-        return CurrentBuildStatusFTPListener.readFileToString(fileName);
+        try {
+            return Util.readFileToString(fileName);
+        } catch (IOException ioe) {
+            throw new CruiseControlException(ioe.getMessage());
+        }
     }
 
     protected void writeFile(Date date, long interval) throws CruiseControlException {

@@ -43,10 +43,10 @@ import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
+import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
 
 import java.util.Date;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
 
@@ -72,7 +72,12 @@ public class CurrentBuildStatusFTPListener extends AbstractFTPClass implements L
             final String text = "<span class=\"link\">" + newState.getDescription() + " since<br>";
             CurrentBuildFileWriter.writefile(text, new Date(), fileName);
 
-            String out = readFileToString(fileName);
+            String out;
+            try {
+                out = Util.readFileToString(fileName);
+            } catch (IOException ioe) {
+                throw new CruiseControlException(ioe.getMessage());
+            }
             String fname = destdir + File.separator + fileName;
 
             sendFileToFTPPath(out, fname);
@@ -102,28 +107,4 @@ public class CurrentBuildStatusFTPListener extends AbstractFTPClass implements L
         return fileName;
     }
 
-    public static String readFileToString(String fileName) throws CruiseControlException {
-        FileReader fr = null;
-        StringBuffer out = new StringBuffer();
-        try {
-            fr = new FileReader(fileName);
-            char[] buff = new char[4096];
-            int size = fr.read(buff, 0, 4096);
-            while (size > 0) {
-                out.append(buff, 0, size);
-                size = fr.read(buff, 0, 4096);
-            }
-        } catch (IOException ioe) {
-            throw new CruiseControlException(ioe.getMessage());
-        } finally {
-            if (fr != null) {
-                try {
-                    fr.close();
-                } catch (IOException ioe) {
-                    // ignore
-                }
-            }
-        }
-        return out.toString();
-    }
 }

@@ -36,11 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -57,6 +55,7 @@ import javax.xml.transform.stream.StreamSource;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.launch.Locator;
@@ -442,12 +441,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
         messageBuffer.append("<style>\n");
 
-        BufferedReader reader = new BufferedReader(new FileReader(css));
-        String line = reader.readLine();
-        while (line != null) {
-            messageBuffer.append(line);
-            line = reader.readLine();
-        }
+        Util.appendFileToBuffer(css, messageBuffer);
 
         messageBuffer.append("\n</style>\n</head><body>\n");
     }

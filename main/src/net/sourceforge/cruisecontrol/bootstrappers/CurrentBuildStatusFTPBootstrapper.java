@@ -38,13 +38,14 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.util.Date;
 import java.io.File;
+import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
+import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
 
 
@@ -89,7 +90,11 @@ public class CurrentBuildStatusFTPBootstrapper extends AbstractFTPClass
             new Date(),
             fileName);
 
-        return CurrentBuildStatusFTPListener.readFileToString(fileName);
+        try {
+            return Util.readFileToString(fileName);
+        } catch (IOException ioe) {
+            throw new CruiseControlException(ioe.getMessage());
+        }
     }
 
     /*
