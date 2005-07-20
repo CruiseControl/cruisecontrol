@@ -40,6 +40,8 @@ import org.mortbay.jetty.Server;
 import org.apache.log4j.Logger;
 import java.io.IOException;
 
+import net.sourceforge.cruisecontrol.util.MainArgs;
+
 /**
  * Start up for CruiseControl and Jetty.
  *
@@ -50,13 +52,17 @@ public final class CruiseControlWithJetty {
 
     private CruiseControlWithJetty() { }
 
+    static int parseWebPort(String[] args) {
+        return MainArgs.parseInt(args, "webport", 8080, 8080);
+    }
+
     public static void main(final String[] args) throws Exception {
         //A Thread for Jetty...
         new Thread(new Runnable() {
             public void run() {
                 Server server = new Server();
                 SocketListener listener = new SocketListener();
-                listener.setPort(8080);
+                listener.setPort(parseWebPort(args));
                 server.addListener(listener);
                 try {
                     server.addWebApplication("cruisecontrol", "./webapps/cruisecontrol");
