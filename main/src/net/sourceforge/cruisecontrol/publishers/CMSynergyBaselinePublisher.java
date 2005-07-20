@@ -137,11 +137,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         // If a baseline name was provided, parse it
         String baselineName = null;
         if (name != null) {
-            try {
-                baselineName = parsePropertiesInString(name, logProperties);
-            } catch (CruiseControlException e) {
-                LOG.warn("Could not parse baseline name - using default.", e);
-            }
+            baselineName = parsePropertiesInString(name, logProperties);
         }
 
         // Create the CM Synergy command line
@@ -199,7 +195,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      * @return The release value of the project.
      */
     private String getProjectRelease() throws CruiseControlException {
-        String release = "Unknown";
+        String release;
         
         // Create the CM Synergy command line
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
@@ -234,9 +230,8 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *  
      * @param string The string to be parsed
      * @return The parsed string
-     * @throws CruiseControlException
      */
-    private String parsePropertiesInString(String string, Properties buildProperties) throws CruiseControlException {
+    private String parsePropertiesInString(String string, Properties buildProperties) {
 
         PatternMatcher matcher = new Perl5Matcher();
 
