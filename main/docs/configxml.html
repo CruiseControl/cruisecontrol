@@ -155,6 +155,7 @@
 <a href="#svn">&lt;svn&gt;</a>
 <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
 <a href="#compound">&lt;targets&gt;</a>
+<a href="#timebuild">&lt;timebuild&gt;</a>
 <a href="#threads">&lt;threads&gt;</a>
 <a href="#compound">&lt;triggers&gt;</a>
 <a href="#vss">&lt;vss&gt;</a>
@@ -236,6 +237,7 @@
          <a href="#starteam">&lt;starteam/&gt;</a>
          <a href="#surround">&lt;surround/&gt;</a>
          <a href="#svn">&lt;svn/&gt;</a>
+         <a href="#timebuild">&lt;timebuild&gt;</a>
          <a href="#vss">&lt;vss/&gt;</a>
          <a href="#vssjournal">&lt;vssjournal/&gt;</a>
       &lt;/modificationset&gt;
@@ -3297,6 +3299,59 @@ password=P@ssW0rd!
                 <td>password</td>
                 <td>No</td>
                 <td>used for authentication.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="timebuild">&lt;timebuild&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;timebuild&gt;</pre>
+        </div>
+
+        <p>Triggers a build after a particular time threshold. This will return a
+        single modification from the (fake) user only if no successful build has happened since
+        the last specified time threshold. Once a successful build occurs, no more modification
+        is returned</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+               <td>username</td>
+               <td>No (defaults to "User")</td>
+               <td>The username to use for the single reported (fake) Modification.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>Yes</td>
+                <td>The threshold time to cross that starts triggering a build, specified
+                as <code>hhmm</code> format.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
