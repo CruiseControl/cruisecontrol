@@ -70,11 +70,6 @@ public abstract class CMSynergyPublisher implements Publisher {
     private String sessionName;
     
     /**
-     * The CM Synergy session ID which is mapped to the given name.
-     */
-    private String sessionID;
-
-    /**
      * The CM Synergy project spec (2 part name) of the project we will
      * be referencing.
      */
