@@ -71,12 +71,6 @@ public class FileSystem extends FakeUserSourceControl {
         this.property = property;
     }
 
-    /** 
-     * Unsupported by FileSystem. 
-     */
-    public void setPropertyOnDelete(String propertyOnDelete) {
-    }
-
     public Hashtable getProperties() {
         return properties;
     }

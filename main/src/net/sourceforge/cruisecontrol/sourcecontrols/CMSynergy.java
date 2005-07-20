@@ -51,9 +51,9 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -112,12 +112,6 @@ public class CMSynergy implements SourceControl {
      */
     private String property = "cc.ccm.haschanged";
 
-    /**
-     * The name of the property which will be set and passed to the
-     * builder if any objects have been deleted since the last build.
-     */
-    private String propertyOnDelete;
-    
     /**
      * The version number delimeter used by the database with which
      * this CM Synergy session is connected.
@@ -410,13 +404,6 @@ public class CMSynergy implements SourceControl {
         this.property = property;
     }
 
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.SourceControl#setPropertyOnDelete(java.lang.String)
-     */
-    public void setPropertyOnDelete(String property) {
-        this.propertyOnDelete = property;
-    }
-    
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */

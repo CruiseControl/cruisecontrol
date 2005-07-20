@@ -53,10 +53,10 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -112,14 +112,6 @@ public class P4 implements SourceControl {
 
     public void setPasswd(String p4Passwd) {
         this.p4Passwd = p4Passwd;
-    }
-
-    public void setProperty(String property) {
-        throw new UnsupportedOperationException("Set property not supported by P4");
-    }
-
-    public void setPropertyOnDelete(String propertyOnDelete) {
-        throw new UnsupportedOperationException("Set property on delete not supported by P4");
     }
 
     public Hashtable getProperties() {

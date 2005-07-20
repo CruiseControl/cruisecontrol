@@ -112,10 +112,6 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
       strProperty = property;
    }
 
-   public void setPropertyOnDelete(String propertyOnDelete) {
-      LOG.warn("sscm does not support propertyOnDelete!");
-   }
-
    protected List executeCLICommand(java.util.List paramList, String strDTRangeParam) {
       List listMods = null;
       StringBuffer strbufferCmdLine = new StringBuffer("sscm cc ");

@@ -154,6 +154,10 @@ SocketPublisher:
 ----------------
 * Simple publisher that writes "Success" or "Failure" to a socket.  Written by Darren Cotteril.
 
+SourceControl:
+----------------
+* Remove setProperty() and setPropertyOnDelete(). This unifies the handling for sourcecontrols that don't support the attribute. Patch by Jerome Lacoste
+
 StarTeamBootstrapper:
 ----------------------
 * Prevent StarTeam from needing user interaction (CC-189). Patch by Lee Marlow

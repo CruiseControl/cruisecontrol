@@ -38,8 +38,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
 
@@ -74,8 +74,6 @@ public class ClearCase implements SourceControl {
     private Hashtable properties = new Hashtable();
 
     private String property;
-
-    private String propertyOnDelete;
 
     /**  The path of the clear case view */
     private String viewPath;
@@ -131,10 +129,6 @@ public class ClearCase implements SourceControl {
 
     public void setProperty(String property) {
         this.property = property;
-    }
-
-    public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
     }
 
     public Hashtable getProperties() {

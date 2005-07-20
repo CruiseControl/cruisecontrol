@@ -177,22 +177,4 @@ public class BuildStatusTest extends TestCase {
             yesterdayLog2.delete();
         }
     }
-
-    public void testSetProperty() {
-        try {
-            buildStatus.setProperty("blowup");
-            fail();
-        } catch (UnsupportedOperationException expected) {
-            assertEquals("attribute 'property' is not supported", expected.getMessage());
-        }
-    }
-
-    public void testSetPropertyOnDelete() {
-        try {
-            buildStatus.setPropertyOnDelete("blowup");
-            fail();
-        } catch (UnsupportedOperationException expected) {
-            assertEquals("attribute 'propertyOnDelete' is not supported", expected.getMessage());
-        }
-    }
 }

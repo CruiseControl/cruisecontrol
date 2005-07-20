@@ -60,15 +60,7 @@ public class HttpFile extends FakeUserSourceControl {
     private static Logger log = Logger.getLogger(HttpFile.class);
     private String urlString;
 
-    public void setProperty(String unused) {
-        throw new UnsupportedOperationException("attribute 'property' is not supported");
-    }
-
-    public void setPropertyOnDelete(String unused) {
-        throw new UnsupportedOperationException("attribute 'propertyOnDelete' is not supported");
-    }
-
-    public void setURL(String urlString) {
+        public void setURL(String urlString) {
         this.urlString = urlString;
     }
 

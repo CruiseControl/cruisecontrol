@@ -53,19 +53,6 @@ public class AlwaysBuild extends FakeUserSourceControl {
 
     private static final Hashtable EMPTY_HASHTABLE = new Hashtable();
 
-    /**
-     * Unsupported by AlwaysBuild.
-     */
-    public void setProperty(String property) {
-
-    }
-
-    /**
-     * Unsupported by AlwaysBuild.
-     */
-    public void setPropertyOnDelete(String propertyOnDelete) {
-    }
-
     public Hashtable getProperties() {
         return EMPTY_HASHTABLE;
     }

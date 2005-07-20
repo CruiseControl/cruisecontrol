@@ -85,8 +85,6 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 public class Compound implements SourceControl {
     
     private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
 
     private Triggers triggers = null;
     private Targets targets = null;
@@ -94,16 +92,6 @@ public class Compound implements SourceControl {
     
     public Hashtable getProperties() {
         return this.properties;
-    }
-    
-    public void setProperty(String property) {
-        this.property = property;
-        
-    }
-    
-    public void setPropertyOnDelete(String property) {
-        this.propertyOnDelete = property;
-        
     }
     
     /**
@@ -197,9 +185,7 @@ public class Compound implements SourceControl {
     protected static class Entry implements SourceControl {
         
         private Hashtable properties = new Hashtable();
-        private String property;
-        private String propertyOnDelete;
-        
+
         private List sourceControls = new ArrayList();
         private Compound parent;
         
@@ -224,16 +210,7 @@ public class Compound implements SourceControl {
         public Hashtable getProperties() {
             return this.properties;
         }
-        
-        public void setProperty(String property) {
-            this.property = property;
-            
-        }
-        
-        public void setPropertyOnDelete(String property) {
-            this.propertyOnDelete = property;
-        }
-        
+
         /**
          * Returns a list of modifications since the last build
          * by querying the sourceControl that this object contains.

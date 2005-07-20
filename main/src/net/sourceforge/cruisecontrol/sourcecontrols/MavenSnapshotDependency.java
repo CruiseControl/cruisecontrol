@@ -97,12 +97,6 @@ public class MavenSnapshotDependency implements SourceControl {
         this.property = property;
     }
 
-    /**
-     * Unsupported by MavenDependency.
-     */
-    public void setPropertyOnDelete(String propertyOnDelete) {
-    }
-
     public Hashtable getProperties() {
         return properties;
     }

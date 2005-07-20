@@ -75,14 +75,4 @@ public abstract class FakeUserSourceControl implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
      */
     public abstract Hashtable getProperties();
-
-    /**
-     * @see net.sourceforge.cruisecontrol.SourceControl#setProperty(java.lang.String)
-     */
-    public abstract void setProperty(String property);
-    
-    /**
-     * @see net.sourceforge.cruisecontrol.SourceControl#setPropertyOnDelete(java.lang.String)
-     */
-    public abstract void setPropertyOnDelete(String property);
 }

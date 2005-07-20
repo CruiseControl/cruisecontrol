@@ -1860,10 +1860,11 @@ password=P@ssW0rd!
         <p>A container element for a set of modifications collected from all
         included SourceControl elements. <code>&lt;modificationset&gt;</code>
         can contain multiple elements which can be useful to check only parts
-        of a large project rather than checking all files every time. Combined
-        with the property/propertyOnDelete attributes &mdash; when supported
-        &mdash; this can allow for conditional building that may greatly speed
-        the feedback cycle.</p>
+        of a large project rather than checking all files every time.</p>
+
+        <p>Most SourceControl elements support the <code>property</code>
+        /<code>propertyOnDelete</code> attributes which can allow for
+        conditional building that may greatly speed the feedback cycle.</p>
 
         <h3>Attributes</h3>
 
@@ -1934,7 +1935,7 @@ password=P@ssW0rd!
             </tr>
             <tr>
                 <td><a href="#clearcase">&lt;clearcase&gt;</a></td>
-        <td>0 .. *</td>
+                <td>0 .. *</td>
                 <td>Checks for changes in a ClearCase repository.</td>
             </tr>
             <tr>
@@ -2050,14 +2051,12 @@ password=P@ssW0rd!
             <tr>
                <td>server</td>
                <td>No</td>
-
                <td>The name of the machine hosting the AlienBrain repository. If specified, it will override the value in the NXN_AB_SERVER environment variable.</td>
             </tr>
             <tr>
                <td>database</td>
                <td>No</td>
                <td>The name of the project in the AlienBrain repository. If specified, it will override the value in the NXN_AB_DATABASE environment variable.</td>
-
             </tr>
             <tr>
                <td>user</td>
@@ -2074,12 +2073,21 @@ password=P@ssW0rd!
                <td>path</td>
                <td>Yes</td>
                <td>The path to the item that will be queried for modifications Typically a path like 'alienbrain://Project/SubProject'</td>
-
             </tr>
             <tr>
                <td>branch</td>
                <td>No</td>
                <td>The branch of the project to check for modifications.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2115,6 +2123,16 @@ password=P@ssW0rd!
                <td>username</td>
                <td>No (defaults to "User")</td>
                <td>The username to use for the single reported (fake) Modification.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2160,6 +2178,16 @@ password=P@ssW0rd!
                <td>Yes</td>
                <td>Path to CruiseControl log directory for the project to
                monitor.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2251,11 +2279,9 @@ password=P@ssW0rd!
                use in conditionally controlling the build later.</td>
             </tr>
             <tr>
-               <td>propertyondelete</td>
+               <td>propertyOnDelete</td>
                <td>No</td>
-               <td>Will set this property if a file has been deleted.  For use
-               in conditionally controlling the build later.
-               </td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2432,6 +2458,17 @@ password=P@ssW0rd!
                    object has changed since the last build. The default is
                    cc.ccm.haschanged, and probably shouldn't be altered.</td>
             </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Will set this property if a modification has occurred.  For
+               use in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+               <td>propertyondelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
             </tbody>
         </table>
 
@@ -2557,6 +2594,16 @@ password=P@ssW0rd!
                 to true, the list of modifications will include both
                 <code>&lt;triggers&gt;</code> and <code>&lt;targets&gt;</code>
                 modifications.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2772,6 +2819,11 @@ password=P@ssW0rd!
                 in conditionally controlling the build later.</td>
             </tr>
             <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
                <td>username</td>
                <td>No (defaults to "User")</td>
                <td>The username to use for the reported Modifications.</td>
@@ -2802,7 +2854,28 @@ password=P@ssW0rd!
 
         <h3>Attributes</h3>
 
-        This tag has no attributes.
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            </tbody>
+        </table>
         </div>
 
         <div class="elementdocumentation">
@@ -2841,6 +2914,17 @@ password=P@ssW0rd!
                <td>username</td>
                <td>No (defaults to "User")</td>
                <td>The username to use for the reported Modification.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2895,11 +2979,9 @@ password=P@ssW0rd!
                </td>
             </tr>
             <tr>
-                <td>propertyondelete</td>
-                <td>Ignored</td>
-                <td>Set this property if a file has been deleted.  For use in
-                conditionally controlling the build later. This attribute is currently
-                ignored.</td>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -2957,6 +3039,11 @@ password=P@ssW0rd!
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
             </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -3010,6 +3097,16 @@ password=P@ssW0rd!
                 <td>view</td>
                 <td>Yes</td>
                 <td>Valid Perforce view (i.e. a depot path)</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -3070,6 +3167,16 @@ password=P@ssW0rd!
                 <td>indateformat</td>
                 <td>No (defaults to "MM/dd/yyyy/HH:mm")</td>
                 <td>The format used to parse the lastbuild date.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
             </tr>
             </tbody>
         </table>
@@ -3250,6 +3357,16 @@ password=P@ssW0rd!
                  <td>No</td>
                  <td>Enter the username and password used to login to the Surround SCM server. Format is username:password. If not entered, the last saved login parameters are used.</td>
               </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -3299,6 +3416,18 @@ password=P@ssW0rd!
                 <td>password</td>
                 <td>No</td>
                 <td>used for authentication.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
             </tr>
             </tbody>
         </table>
