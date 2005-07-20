@@ -65,7 +65,7 @@
         <copy todir="${install.bin}">
             <fileset file="${cruisecontrol.main}/bin/cruisecontrol.sh"/>
         </copy>
-        <copy todir="${install.share}" file="${cruisecontrol.main}/license.txt"/>
+        <copy todir="${install.share}" file="${cruisecontrol}/license.txt"/>
         <copy todir="${install.dist}" file="${cruisecontrol.reporting.webapp}"/>
 
         <mkdir dir="${build.rpm.root}/${reporting.user.log.dir}"/>
