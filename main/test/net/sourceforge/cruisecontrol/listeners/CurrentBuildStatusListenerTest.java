@@ -3,10 +3,9 @@ package net.sourceforge.cruisecontrol.listeners;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.util.Util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -80,25 +79,6 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         final String dateString = formatter.format(date);
         final String description = state.getDescription();
         String expected = "<span class=\"link\">" + description + " since<br>" + dateString + "</span>";
-        assertEquals(expected, readFileToString(fileName));
+        assertEquals(expected, Util.readFileToString(fileName));
     }
-
-    private String readFileToString(String fileName) throws IOException {
-        StringBuffer contents = new StringBuffer();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-            String line = br.readLine();
-            while (line != null) {
-                contents.append(line);
-                line = br.readLine();
-            }
-            return contents.toString();
-        } finally {
-            if (br != null) {
-                br.close();
-            }
-        }
-    }
-
 }

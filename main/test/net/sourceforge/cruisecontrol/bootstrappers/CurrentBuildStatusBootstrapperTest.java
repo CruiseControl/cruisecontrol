@@ -38,10 +38,9 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -90,24 +89,6 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
 
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         String expected = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
-        assertEquals(expected, readFileToString(fileName));
-    }
-
-    private String readFileToString(String fileName) throws IOException {
-        StringBuffer contents = new StringBuffer();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-            String line = br.readLine();
-            while (line != null) {
-                contents.append(line);
-                line = br.readLine();
-            }
-            return contents.toString();
-        } finally {
-            if (br != null) {
-                br.close();
-            }
-        }
+        assertEquals(expected, Util.readFileToString(fileName));
     }
 }

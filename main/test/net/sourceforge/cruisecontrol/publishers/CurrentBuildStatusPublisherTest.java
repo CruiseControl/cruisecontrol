@@ -38,10 +38,9 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -89,24 +88,6 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
 
         publisher.writeFile(date, 300);
         String expected = "<span class=\"link\">Next Build Starts At:<br>" + buildTime + "</span>";
-        assertEquals(expected, readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
-    }
-
-    private String readFileToString(String fileName) throws IOException {
-        StringBuffer contents = new StringBuffer();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-            String line = br.readLine();
-            while (line != null) {
-                contents.append(line);
-                line = br.readLine();
-            }
-            return contents.toString();
-        } finally {
-            if (br != null) {
-                br.close();
-            }
-        }
+        assertEquals(expected, Util.readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
     }
 }

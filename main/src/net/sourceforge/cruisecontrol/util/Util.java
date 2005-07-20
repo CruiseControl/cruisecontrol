@@ -70,20 +70,6 @@ public final class Util {
         }
     }
 
-    public static String readFileToString(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuffer result = new StringBuffer();
-
-        String s = reader.readLine();
-        while (s != null) {
-            result.append(s.trim());
-            s = reader.readLine();
-        }
-        reader.close();
-
-        return result.toString();
-    }
-
     /**
      * Deletes a File instance. If the file represents a directory, all
      * the subdirectories and files within.
@@ -177,6 +163,59 @@ public final class Util {
                     e);
         } finally {
             bos.close();
+        }
+    }
+
+    /**
+     * Return the content of the file specified by its path into a <code>String</code>
+     * @param fileName
+     * @return
+     * @throws java.io.IOException
+     */
+    public static String readFileToString(String fileName) throws IOException {
+        StringBuffer out = new StringBuffer();
+        appendFileToBuffer(fileName, out);
+        return out.toString();
+    }
+
+    public static String readFileToString(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        StringBuffer result = new StringBuffer();
+
+        String s = reader.readLine();
+        while (s != null) {
+            result.append(s.trim());
+            s = reader.readLine();
+        }
+        reader.close();
+
+        return result.toString();
+    }
+
+    /**
+     * Append the content of the file specified by its path into a <code>StringBuffer</code>
+     * @param fileName
+     * @param out
+     * @throws java.io.IOException
+     */
+    public static void appendFileToBuffer(String fileName, StringBuffer out) throws IOException {
+        FileReader fr = null;
+        try {
+            fr = new FileReader(fileName);
+            char[] buff = new char[4096];
+            int size = fr.read(buff, 0, 4096);
+            while (size > 0) {
+                out.append(buff, 0, size);
+                size = fr.read(buff, 0, 4096);
+            }
+        } finally {
+            if (fr != null) {
+                try {
+                    fr.close();
+                } catch (IOException ioe) {
+                    // ignore
+                }
+            }
         }
     }
 }
