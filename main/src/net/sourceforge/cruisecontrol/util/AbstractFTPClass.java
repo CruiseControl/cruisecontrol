@@ -36,11 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 import java.util.StringTokenizer;
 
@@ -326,6 +327,28 @@ public abstract class AbstractFTPClass {
         } catch (IOException ex) {
             LOG.error(ex);
             throw new CruiseControlException(ex.getMessage());
+        }
+    }
+
+    /**
+     * Sends the specified text into the specified path on the FTP server
+     * @param text
+     * @param path
+     * @throws CruiseControlException
+     */
+    protected void sendFileToFTPPath(String text, String path) throws CruiseControlException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(
+            text.getBytes());
+
+        FTPClient ftp = openFTP();
+
+        // we're sending text; don't set binary!
+
+        try {
+            makeDirsForFile(ftp, path, null);
+            sendStream(ftp, bais, path);
+        } finally {
+            closeFTP(ftp);
         }
     }
 }

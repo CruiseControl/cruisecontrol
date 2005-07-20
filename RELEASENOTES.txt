@@ -46,13 +46,17 @@ cruisecontrol.sh:
 ----------------------
 * Execute java from JAVA_HOME. Patch by Martin Jaeger.
 
-CruiseControlController
+CruiseControlController:
 ----------------------
 * Reloads the config file if it has changed (CC-74). Contributions by Jerome Lacoste, Tangi Vass, and Jeffrey Fredrick
 
 CurrentBuildStatusBootstrapper/Publisher:
 ----------------------
 * Add javadoc deprecated flag and a warning when they are created to indicate they have been made obsolete by CurrentBuildStatusListener. Patch by Jerome Lacoste.
+
+CurrentBuildStatusFTPListener:
+----------------------
+* Added ftp version of CurrentBuildStatusListener. Contributed by Jerome Lacoste
 
 CVS:
 ----------------------

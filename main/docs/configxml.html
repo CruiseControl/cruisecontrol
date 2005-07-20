@@ -108,6 +108,7 @@
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
 <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
 <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
+<a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a>
 <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
 <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a>
 <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
@@ -198,6 +199,7 @@
       <a href="#labelincrementer">&lt;labelincrementer/&gt;</a>
       <a href="#listeners">&lt;listeners&gt;</a>
          <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor/&gt;</a>
+         <a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener/&gt;</a>
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
       <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
@@ -720,6 +722,11 @@
             </thead>
             <tbody>
             <tr>
+                <td><a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Writes a build status snippet to the filesystem and to an FTP server</td>
+            </tr>
+            <tr>
                 <td><a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
@@ -944,6 +951,47 @@ password=P@ssW0rd!
                 <td>file</td>
                 <td>Yes</td>
                 <td>The filename to write, including path</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#listeners">&lt;listeners&gt;</a>
+      &lt;currentbuildstatusftplistener&gt;</pre>
+        </div>
+
+        <p>This plugin is mostly identical to the <a href="#currentbuildstatuslistener">
+        <code>&lt;currentbuildstatuslistener&gt;</code></a>, to which it adds sending the HTML
+        snippet to a remote FTP server.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>filename</td>
+                <td>Yes</td>
+                <td>The filename to write, including path</td>
+            </tr>
+            <tr>
+                <td>destdir</td>
+                <td>Yes</td>
+                <td>The remote directory in which the file will be sent to.</td>
             </tr>
             </tbody>
         </table>
@@ -1361,6 +1409,9 @@ password=P@ssW0rd!
     <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
       &lt;currentbuildstatusftpbootstrapper&gt;</pre>
         </div>
+
+        <p>Note: this plugin has been made obsolete by the
+        <a href="#currentbuildstatusftplistener"><code>currentbuildstatusftplistener</code></a>.</p>
 
         <p>This performs the same action as <a href="#currentbuildstatusbootstrapper"><code>&lt;currentbuildstatusbootstrapper&gt;</code></a>,
         except that the status file is sent to the remote site via FTP, instead
@@ -6224,6 +6275,9 @@ endlocal</pre>
     <a href="#publishers">&lt;publishers&gt;</a>
       &lt;currentbuildstatusftppublisher&gt;</pre>
         </div>
+
+        <p>Note: this plugin has been made obsolete by the
+        <a href="#currentbuildstatusftplistener"><code>currentbuildstatusftplistener</code></a>.</p>
 
         <p>This performs the same action as
         <a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a>,

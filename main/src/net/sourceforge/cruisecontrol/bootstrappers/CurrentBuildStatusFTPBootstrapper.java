@@ -37,101 +37,48 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.util.Date;
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
 import java.io.File;
-import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.util.AbstractFTPClass;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
-import org.apache.commons.net.ftp.FTPClient;
+import org.apache.log4j.Logger;
 
 
 /**
  * Does the same thing as CurrentBuildStatusBootstrapper, but also
  * sends it to an FTP server.
+ * @deprecated Was obsoleted by {@link net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener}
  */
 public class CurrentBuildStatusFTPBootstrapper extends AbstractFTPClass
         implements Bootstrapper {
+    private static final Logger LOG = Logger.getLogger(CurrentBuildStatusFTPBootstrapper.class);
 
     private String fileName;
-    private String thisHostName;
     private String destdir;
-    private int thisCCPort = 0;
-    private String controlsPropsName = "controls.properties";
-    private String projectName = "not-set";
+
+    public CurrentBuildStatusFTPBootstrapper() {
+        LOG.warn("CurrentBuildStatusFTPBootstrapper was obsoleted by CurrentBuildStatusFTPListener");
+    }
 
     public void setFile(String fileName) {
         this.fileName = fileName;
     }
-    
-    
-    public void setBuildHost(String host) {
-        this.thisHostName = host;
-    }
-    
-    
-    public void setBuildPort(int port) {
-        this.thisCCPort = port;
-    }
-    
-    
+
+
     public void setDestDir(String dir) {
         this.destdir = dir;
     }
-    
-    
-    public void setControlsPropertiesName(String name) {
-        this.controlsPropsName = name;
-    }
 
-    // FIXME unused
-    public void setProjectName(String name) {
-        this.projectName = name;
-    }
-    
 
     public void bootstrap() throws CruiseControlException {
         String out = makeFile();
-        String propText = null;
         String fname = destdir + File.separator + fileName;
-        if (thisHostName != null) {
-            propText = "MBean\\ Controller=http://" + thisHostName
-                + ":" + thisCCPort
-                + "/ViewObjectRes//CruiseControl+Project%3Aname%3D>\n";
-        }
 
-        ByteArrayInputStream baisF = new ByteArrayInputStream(
-            out.getBytes());
-        
-        //String logName = destdir + File.separator + "logBASE.xml";
-        //String baseLog = makeLogFile();
-        //ByteArrayInputStream baisL = new ByteArrayInputStream(
-        //    baseLog.getBytes());
-        
-        FTPClient ftp = openFTP();
-        
-        // we're sending text; don't set binary!
-        
-        try {
-            makeDirsForFile(ftp, fname, null);
-            sendStream(ftp, baisF, fname);
-            
-            //makeDirsForFile(ftp, logName, null);
-            //sendStream(ftp, baisL, logName);
-            
-            if (propText != null && controlsPropsName != null) {
-                ByteArrayInputStream baisP = new ByteArrayInputStream(
-                    propText.getBytes());
-                sendStream(ftp, baisP, destdir + File.separator
-                    + controlsPropsName);
-            }
-        } finally {
-            closeFTP(ftp);
-        }
+        sendFileToFTPPath(out, fname);
     }
     
     
@@ -141,29 +88,10 @@ public class CurrentBuildStatusFTPBootstrapper extends AbstractFTPClass
             "<span class=\"link\">Current Build Started At:<br>",
             new Date(),
             fileName);
-        
-        FileReader fr = null;
-        StringBuffer out = new StringBuffer();
-        try {
-            fr = new FileReader(fileName);
-            char[] buff = new char[4096];
-            int size = fr.read(buff, 0, 4096);
-            while (size > 0) {
-                out.append(buff, 0, size);
-                size = fr.read(buff, 0, 4096);
-            }
-        } catch (IOException ioe) {
-            throw new CruiseControlException(ioe.getMessage());
-        } finally {
-            try {
-                fr.close();
-            } catch (IOException ioe) {
-                // ignore
-            }
-        }
-        return out.toString();
+
+        return CurrentBuildStatusFTPListener.readFileToString(fileName);
     }
-    
+
     /*
     protected String makeLogFile() throws CruiseControlException {
         StringBuffer out = new StringBuffer(
