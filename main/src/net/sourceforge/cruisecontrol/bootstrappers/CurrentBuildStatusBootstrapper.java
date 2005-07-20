@@ -55,7 +55,7 @@ import java.util.Date;
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(CurrentBuildStatusBootstrapper.class);
 
-    private String localWorkingCopy;    private String fileName;
+    private String fileName;
 
     public CurrentBuildStatusBootstrapper() {
         LOG.warn("CurrentBuildStatusBootstrapper was obsoleted by CurrentBuildStatusListener");
