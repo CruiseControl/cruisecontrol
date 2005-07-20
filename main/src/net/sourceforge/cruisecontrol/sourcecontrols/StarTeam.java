@@ -51,7 +51,7 @@ import com.starbase.util.OLEDate;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.XMLHelper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -130,10 +130,10 @@ public class StarTeam implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        XMLHelper.assertNotNull(folder, "folder", this);
-        XMLHelper.assertNotNull(url, "url", this);
-        XMLHelper.assertNotNull(userName, "username", this);
-        XMLHelper.assertNotNull(password, "password", this);
+        ValidationHelper.assertIsSet(folder, "folder", this.getClass());
+        ValidationHelper.assertIsSet(url, "url", this.getClass());
+        ValidationHelper.assertIsSet(userName, "username", this.getClass());
+        ValidationHelper.assertIsSet(password, "password", this.getClass());
     }
 
     /**

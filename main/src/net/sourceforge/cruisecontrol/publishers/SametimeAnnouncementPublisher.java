@@ -262,7 +262,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
             }
             buf.append(strings[i]);
         }
-        XMLHelper.fail(buf.toString());
+        ValidationHelper.fail(buf.toString());
     }
 
     // use the build results URL as the message content
