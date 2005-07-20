@@ -84,6 +84,15 @@
       </description>
     </context-param>
 
+    <context-param>
+      <param-name>fileServlet.welcomeFiles</param-name>
+      <param-value>index.htm index.html</param-value>
+      <description>The list of space separated index files that should be automatically displayed
+          when browsing a directory displayed by the file servlet. The order matters.
+          Let empty or comment out to disable indexes.
+      </description>
+    </context-param>
+
     <servlet>
       <servlet-name>buildresults</servlet-name>
       <display-name>Build Result Reporter</display-name>

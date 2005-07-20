@@ -51,21 +51,25 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.StringTokenizer;
+import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
 
 public class FileServlet extends HttpServlet {
 
     private File rootDir;
+    private List indexFiles;
 
     public void init(ServletConfig servletconfig) throws ServletException {
         super.init(servletconfig);
         rootDir = getRootDir(servletconfig);
+        indexFiles = getIndexFiles(servletconfig);
     }
 
     File getRootDir(ServletConfig servletconfig) throws ServletException {
-        File rootDirectory = null;
-
         String root = servletconfig.getInitParameter("rootDir");
-        rootDirectory = getDirectoryFromName(root);
+        File rootDirectory = getDirectoryFromName(root);
         if (rootDirectory == null) {
             ServletContext context = servletconfig.getServletContext();
             String logDir = context.getInitParameter("logDir");
@@ -80,6 +84,25 @@ public class FileServlet extends HttpServlet {
         }
 
         return rootDirectory;
+    }
+
+    List getIndexFiles(ServletConfig servletconfig) {
+        ServletContext context = servletconfig.getServletContext();
+        String logDir = context.getInitParameter("fileServlet.welcomeFiles");
+        List indexes = Collections.EMPTY_LIST;
+        if (logDir != null) {
+            StringTokenizer tokenizer = new StringTokenizer(logDir);
+            indexes = new ArrayList();
+            while (tokenizer.hasMoreTokens()) {
+                String indexFile = ((String) tokenizer.nextElement());
+                // note: I am pretty sure there's a known issue with StringTokenizer returning "" (cf ant)
+                // but am offline right now and cannot check.
+                if (!"".equals(indexFile)) {
+                    indexes.add(indexFile);
+                }
+            }
+        }
+        return indexes;
     }
 
     private static File getDirectoryFromName(String dir) {
@@ -97,6 +120,19 @@ public class FileServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         WebFile file = new WebFile(rootDir, request.getPathInfo());
+
+        if (file.isDir()) {
+            // note we might want to append the queryString just in case...
+            if (!request.getPathInfo().endsWith("/")) {
+                response.sendRedirect(response.encodeRedirectURL(request.getRequestURI() + '/'));
+                return;
+            }
+            String index = getIndexFile(file);
+            if (index != null) {
+                file = new WebFile(rootDir, request.getPathInfo() + index);
+            }
+        }
+
         if (file.isFile()) {
             String filename = file.getName();
             String mimeType = getMimeType(filename);
@@ -127,11 +163,31 @@ public class FileServlet extends HttpServlet {
         return mimeType;
     }
 
-    private void printDirs(HttpServletRequest request, WebFile file, Writer writer)
+    /**
+     * @return the name of the first found known index file under the
+     *         specified directory or <code>null</code> if none found
+     * @throws IllegalArgumentException if the specified WebFile is not a directory
+     **/
+    private String getIndexFile(WebFile dir) {
+        if (!dir.isDir()) {
+            throw new IllegalArgumentException(dir + " is not a directory");
+        }
+        for (int i = 0; i < indexFiles.size(); i++) {
+            final File file = new File(dir.getFile(), (String) indexFiles.get(i));
+            // what about hidden files? let's display them...
+            if (file.exists() && file.isFile()) {
+                return (String) indexFiles.get(i);
+            }
+        }
+        return null;
+    }
+
+    void printDirs(HttpServletRequest request, WebFile file, Writer writer)
         throws IOException {
         String[] files = file.list();
         writer.write("<ul>");
         for (int i = 0; i < files.length; i++) {
+            WebFile sub = new WebFile(rootDir, request.getPathInfo() + '/' + files[i]);
             writer.write(
                 "<li><a href=\""
                     + request.getRequestURI()
@@ -139,6 +195,7 @@ public class FileServlet extends HttpServlet {
                     + files[i]
                     + "\">"
                     + files[i]
+                    + (sub.isDir() ? "/" : "")
                     + "</a></li>");
         }
         writer.write("</ul>");
@@ -198,4 +255,7 @@ class WebFile {
         return file.toString();
     }
 
+    public File getFile() {
+        return file;
+    }
 }

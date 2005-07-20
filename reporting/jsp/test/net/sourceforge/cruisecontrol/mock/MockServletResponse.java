@@ -52,6 +52,7 @@ public class MockServletResponse implements HttpServletResponse {
     private StringWriter stringWriter = new StringWriter();
     private PrintWriter writer = new PrintWriter(stringWriter);
     private String contentType;
+    private ServletOutputStream outputStream = new MockServletOutputStream(stringWriter);
 
     public String getContentType() {
         return contentType;
@@ -179,7 +180,7 @@ public class MockServletResponse implements HttpServletResponse {
      * @see javax.servlet.ServletResponse#getOutputStream()
      */
     public ServletOutputStream getOutputStream() throws IOException {
-        return null;
+        return outputStream;
     }
 
     /* (non-Javadoc)
