@@ -55,7 +55,7 @@ import mx4j.tools.adaptor.http.HttpAdaptor;
 import mx4j.tools.naming.NamingService;
 import mx4j.tools.naming.NamingServiceMBean;
 import net.sourceforge.cruisecontrol.CruiseControlController;
-import net.sourceforge.cruisecontrol.Main;
+import net.sourceforge.cruisecontrol.util.MainArgs;
 
 import org.apache.log4j.Logger;
 
@@ -197,7 +197,7 @@ public class CruiseControlControllerAgent {
     }
 
     private boolean useHttpAdaptor() {
-        return httpPort != Main.NOT_FOUND;
+        return httpPort != MainArgs.NOT_FOUND;
     }
 
     private void registerConnectorServer(MBeanServer server) throws Exception {
@@ -221,6 +221,6 @@ public class CruiseControlControllerAgent {
     }
 
     private boolean useConnectorServer() {
-        return connectorServerPort != Main.NOT_FOUND;
+        return connectorServerPort != MainArgs.NOT_FOUND;
     }
 }

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.util.MainArgs;
 
 public class MainTest extends TestCase {
     public void testParsePassword() {
@@ -80,7 +81,7 @@ public class MainTest extends TestCase {
         String[] invalidArgs = new String[] {"-port", "ABC"};
 
         assertEquals(123, Main.parseHttpPort(correctArgs));
-        assertEquals(Main.NOT_FOUND, Main.parseHttpPort(missingParam));
+        assertEquals(MainArgs.NOT_FOUND, Main.parseHttpPort(missingParam));
         assertEquals(8000, Main.parseHttpPort(defaultValue));
 
         try {
@@ -98,7 +99,7 @@ public class MainTest extends TestCase {
         String[] invalidArgs = new String[] {"-rmiport", "ABC"};
 
         assertEquals(123, Main.parseRmiPort(correctArgs));
-        assertEquals(Main.NOT_FOUND, Main.parseRmiPort(missingParam));
+        assertEquals(MainArgs.NOT_FOUND, Main.parseRmiPort(missingParam));
         assertEquals(1099, Main.parseRmiPort(defaultValue));
 
         try {
@@ -127,39 +128,6 @@ public class MainTest extends TestCase {
             assertEquals("'xslpath' argument must specify an existing directory but was " + invalidXsl,
                          expected.getMessage());
         }
-    }
-
-    public void testParseArgs() throws Exception {
-        final String argName = "port";
-        final String defaultIfNoParam = "8080";
-        final String defaultIfNoValue = "8000";
-
-        //No args specified. Should get the default back.
-        String[] args = {
-        };
-        String foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
-        assertEquals(defaultIfNoParam, foundValue);
-
-        //One arg specified, should get the value specified, not the default.
-        String setValue = "100";
-        args = new String[] {"-port", setValue};
-        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
-        assertEquals(setValue, foundValue);
-
-        //More than one arg specified, should still get the value specified.
-        args = new String[] {"-port", setValue, "-throwAway", "value"};
-        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
-        assertEquals(setValue, foundValue);
-
-        //Switch the order around, should still get the value specified.
-        args = new String[] {"-throwAway", "value", "-port", setValue};
-        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
-        assertEquals(setValue, foundValue);
-
-        //If arg name is included, but no arg, then should get defaultIfNoValue
-        args = new String[] {"-port"};
-        foundValue = Main.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
-        assertEquals(defaultIfNoValue, foundValue);
     }
 
     public void testUsage() {
