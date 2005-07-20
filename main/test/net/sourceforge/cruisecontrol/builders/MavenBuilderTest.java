@@ -79,7 +79,33 @@ public class MavenBuilderTest extends TestCase {
             "<project><!-- This is a fake Maven project file --></project>\n", true);
         mb.setMultiple(1);
         mb.setMavenScript(testScript.getAbsolutePath());
+
+        try {
+            mb.validate();
+            fail("MavenBuilder should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
         mb.setProjectFile(testProject.getAbsolutePath());
+
+        try {
+            mb.validate();
+            fail("MavenBuilder should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        mb.setGoal("");
+
+        try {
+            mb.validate();
+            fail("MavenBuilder should throw exceptions when required fields are not set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        mb.setGoal("mygoal");
 
         try {
             mb.validate();
