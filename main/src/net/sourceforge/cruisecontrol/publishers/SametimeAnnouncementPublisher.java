@@ -122,8 +122,6 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     private Set usernamesToResolveSet;
     // login, null if not logged in
     private Login login;
-    // true if there is a login problem
-    private boolean loginFailed; 
     // list of resolved STUsers
     private Set recipientUserSet = null;
     // list of resolved STGroups
@@ -477,9 +475,6 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     }
 
     public synchronized void loggedOut(LoginEvent arg0) {
-        if (!this.isLoggedIn()) {
-            this.loginFailed = true;
-        }
         this.login = null;
     }
 
