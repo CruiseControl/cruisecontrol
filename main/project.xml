@@ -125,6 +125,11 @@
       <url>http://commons.jakarta.org/</url>
     </dependency>
     <dependency>
+      <id>fast-md5</id>
+      <version>2.6</version>
+      <url>http://www.twmacinta.com/myjava/fast_md5.php</url>
+    </dependency>
+    <dependency>
       <groupId>jakarta</groupId>
       <artifactId>oro</artifactId>
       <version>2.0.3</version> <!-- FIXME not in ibiblio. upgrade? -->
