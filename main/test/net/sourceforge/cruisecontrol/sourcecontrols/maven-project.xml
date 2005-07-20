@@ -16,7 +16,6 @@
             <groupId>maven</groupId>
             <artifactId>maven-ant-plugin</artifactId>
             <version>1.0</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <id>maven</id>

@@ -208,6 +208,9 @@ public class MavenSnapshotDependency implements SourceControl {
                 String artifactId = dependency.getChildText("artifactId");
                 String id = dependency.getChildText("id");
                 String type = dependency.getChildText("type");
+                if (type == null) {
+                    type = "jar";
+                }
 
                 // Format:
                 // ${repo}/${groupId}/${type}s/${artifactId}-${version}.${type}
