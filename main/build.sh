@@ -94,5 +94,5 @@ fi
 echo ${CLASSPATH}
 
 # Call Ant
-${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.launch.Launcher \
+exec ${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.launch.Launcher \
            -buildfile "${BUILDFILE}" "$@"
