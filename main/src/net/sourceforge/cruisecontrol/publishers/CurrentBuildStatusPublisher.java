@@ -67,7 +67,7 @@ public class CurrentBuildStatusPublisher implements Publisher {
     }
 
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(fileName, "filename", this.getClass());
+        ValidationHelper.assertIsSet(fileName, "file", this.getClass());
         CurrentBuildFileWriter.validate(fileName);
     }
 

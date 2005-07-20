@@ -132,7 +132,7 @@ public class StarTeamBootstrapper implements Bootstrapper {
             || projectname == null
             || viewname == null
             || foldername == null,
-            "'username', 'password','server', 'port', 'project', 'view', 'folder' and 'files'"
+            "'files', 'username', 'password','server', 'port', 'project', 'view' and 'folder'"
               + " are all required for StarTeamBootstrapper");
     }
 

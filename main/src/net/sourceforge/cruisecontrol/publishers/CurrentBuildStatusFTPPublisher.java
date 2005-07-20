@@ -75,7 +75,7 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(fileName, "filename", this.getClass());
+        ValidationHelper.assertIsSet(fileName, "file", this.getClass());
         ValidationHelper.assertIsSet(destdir, "destdir", this.getClass());
         super.validate();
     }
