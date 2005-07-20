@@ -127,8 +127,8 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     /**
      * The instance must be fully initialized before calling this method.
      * @throws IllegalStateException if the instance is not properly initialized 
-     * e.g. if the {@setSeparator set separator} doesn't match the 
-     * {@setDefaultLabel set default label}
+     * e.g. if the {@link #setSeparator set separator} doesn't match the
+     * {@link #setDefaultLabel set default label}
      */
     public String getDefaultLabel() {
         if (defaultLabel != null) {
