@@ -38,10 +38,13 @@ package net.sourceforge.cruisecontrol.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
@@ -121,6 +124,7 @@ public class FileServletTest extends TestCase {
         File file = File.createTempFile("tmp", ".html");
         file.deleteOnExit();
         final File dir = file.getParentFile();
+
         request.setPathInfo(file.getName());
         servlet = new FileServlet() {
             File getRootDir(ServletConfig servletconfig) {
@@ -133,6 +137,108 @@ public class FileServletTest extends TestCase {
         assertEquals(expected, actual);
         String actualMimeType = response.getContentType();
         assertEquals("text/html", actualMimeType);
+    }
+
+    public void testGetIndexes() throws ServletException, IOException {
+        MockServletConfig config = new MockServletConfig();
+        MockServletContext context = new MockServletContext();
+        config.setServletContext(context);
+
+        List indexes;
+
+        // 1- no index defined
+        indexes = servlet.getIndexFiles(config);
+        assertNotNull(indexes);
+        assertEquals(0, indexes.size());
+
+        // 2-
+        context.setInitParameter("fileServlet.welcomeFiles", null);
+        indexes = servlet.getIndexFiles(config);
+        assertNotNull(indexes);
+        assertEquals(0, indexes.size());
+
+        // 3-
+        context.setInitParameter("fileServlet.welcomeFiles", "");
+        indexes = servlet.getIndexFiles(config);
+        assertNotNull(indexes);
+        assertEquals(0, indexes.size());
+
+        // 4- some indexes defined
+        context.setInitParameter("fileServlet.welcomeFiles", "index.htm index.html");
+        indexes = servlet.getIndexFiles(config);
+        assertNotNull(indexes);
+        assertEquals(2, indexes.size());
+        assertEquals("index.htm", indexes.get(0));
+        assertEquals("index.html", indexes.get(1));
+
+        // 5- resistant to strange spacing
+        context.setInitParameter("fileServlet.welcomeFiles", " index.html  index.htm ");
+        indexes = servlet.getIndexFiles(config);
+        assertNotNull(indexes);
+        assertEquals(2, indexes.size());
+        assertEquals("index.html", indexes.get(0));
+        assertEquals("index.htm", indexes.get(1));
+    }
+
+    public void testServiceIndexFile() throws ServletException, IOException {
+        MockServletRequest request = new MockServletRequest() {
+          public String getRequestURI() {
+            return "";
+          }
+        };
+        MyMockServletResponse response1 = new MyMockServletResponse();
+        final File dir = new File(System.getProperty("java.io.tmpdir"));
+
+        MyMockFileServlet myServlet = new MyMockFileServlet();
+        myServlet.setRootDir(dir);
+
+        MockServletConfig config = new MockServletConfig();
+        MockServletContext context = new MockServletContext() {
+            public String getMimeType(String s) {
+                return "text/html";
+            }
+        };
+        config.setServletContext(context);
+        myServlet.init(config);
+
+        File indexFile = new File(dir, "index.html");
+        indexFile.deleteOnExit();
+        assertFalse("cannot test service index if index.html already exists", indexFile.exists());
+        boolean created = indexFile.createNewFile();
+        assertTrue(created);
+
+        // redirect when no trailing path, even if no index defined.
+        request.setPathInfo("");
+        myServlet.service(request, response1);
+        response1.ensureRedirect("/");
+        assertEquals(0, myServlet.printDirCalls);
+
+        // do not display index if none configured
+        myServlet.init();
+        MyMockServletResponse response2 = new MyMockServletResponse();
+        request.setPathInfo("/");
+        myServlet.service(request, response2);
+        String actual = response2.getWritten();
+        assertTrue(actual.startsWith("<html><body><h1>"));
+        assertTrue(myServlet.printDirCalls > 0);
+        String actualMimeType = response2.getContentType();
+        assertEquals("text/html", actualMimeType);
+
+        // use index if one exists when asking for trailing path and fileServlet.indexFiles configured
+        myServlet.init();
+        MyMockServletResponse response3 = new MyMockServletResponse();
+        context.setInitParameter("fileServlet.welcomeFiles", "index.html");
+        config.setServletContext(context);
+        myServlet.init(config);
+
+        request.setPathInfo("/");
+        myServlet.service(request, response3);
+        actual = response3.getWritten();
+        String expected = "";
+        assertEquals(expected, actual);
+        actualMimeType = response3.getContentType();
+        assertEquals("text/html", actualMimeType);
+        assertEquals(0, myServlet.printDirCalls);
     }
 
     public void testGetMimeType() {
@@ -166,4 +272,40 @@ public class FileServletTest extends TestCase {
         }
     }
 
+    static class MyMockServletResponse extends MockServletResponse {
+        private String redirected;
+        public void sendRedirect(String arg0) throws IOException {
+            redirected = arg0;
+        }
+
+        public void ensureRedirect(String expectedRedirect) {
+            assertEquals(expectedRedirect, redirected);
+        }
+
+        public String encodeRedirectURL(String arg0) {
+          return arg0;
+        }
+    };
+
+    static class MyMockFileServlet extends FileServlet {
+        private File rootDir;
+        private int printDirCalls;
+
+        public void init() {
+            printDirCalls = 0;
+        }
+
+        public void setRootDir(File rootDir) {
+            this.rootDir = rootDir;
+        }
+
+        File getRootDir(ServletConfig servletconfig) {
+            return rootDir;
+        }
+
+        void printDirs(HttpServletRequest request, WebFile file, Writer writer) throws IOException {
+            super.printDirs(request, file, writer);
+            printDirCalls++;
+        }
+    }
 }
