@@ -56,12 +56,14 @@
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
 
     <path id="project.runtime.classpath" >
-        <pathelement location="${lib}/servlet.jar"/>
-        <pathelement location="${lib}/xalan.jar"/>
-        <pathelement location="${lib}/junit.jar"/>
-        <pathelement location="${lib}/cewolf.jar"/>
-        <pathelement location="${lib}/jfreechart-0.9.8.jar"/>
-        <pathelement location="${lib}/jcommon-0.8.0.jar"/>
+        <fileset dir="${lib}">
+            <include name="servlet*.jar"/>
+            <include name="xalan*.jar"/>
+            <include name="junit*.jar"/>
+            <include name="cewolf*.jar"/>
+            <include name="jfreechart*.jar"/>
+            <include name="jcommon*.jar"/>
+        </fileset>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
     </path>
@@ -162,15 +164,16 @@
             <fileset dir="${webcontent}" excludes="WEB-INF/web.xml"/>
             <classes dir="${classes}"/>
             <lib dir="${lib}">
-                <include name="xalan.jar"  if="pre1.4"/>
-                <include name="xerces.jar" if="pre1.4"/>
-                <include name="cewolf.jar"/>
-                <include name="commons-logging.jar"/>
-                <include name="jfreechart-0.9.8.jar"/>
-                <include name="jcommon-0.8.0.jar"/>
-                <include name="batik-svggen.jar"/>
-                <include name="batik-awt-util.jar"/>
-                <include name="batik-util.jar"/>
+                <include name="xalan*.jar"  if="pre1.4"/>
+                <include name="xerces*.jar" if="pre1.4"/>
+                <include name="xml-apis*.jar" if="pre1.4"/>
+                <include name="cewolf*.jar"/>
+                <include name="commons-logging*.jar"/>
+                <include name="jfreechart*.jar"/>
+                <include name="jcommon*.jar"/>
+                <include name="batik-svggen*.jar"/>
+                <include name="batik-awt-util*.jar"/>
+                <include name="batik-util*.jar"/>
             </lib>
         </war>
    </target>
