@@ -108,14 +108,18 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
       // Next, we just iterate through the list, adding entries.
       for (int i = 0; i < paramList.size(); ++i) {
          SSCM.SSCMCLIParam param = (SSCM.SSCMCLIParam) paramList.get(i);
-         if (param != null && param.checkRequired()) {
-           String str = param.getFormatted();
-           if (str != null) {
-              strbufferCmdLine.append(str);
-              strbufferCmdLine.append(' ');
-           }
+
+         if (param == null) {
+            throw new IllegalArgumentException("paramList may not contain null values");
+         }
+         if (param.checkRequired()) {
+            String str = param.getFormatted();
+            if (str != null) {
+               strbufferCmdLine.append(str);
+               strbufferCmdLine.append(' ');
+            }
          } else {
-           throw new CruiseControlException("Required parameter '" + param.getParamName() + "' is missing!");
+            throw new CruiseControlException("Required parameter '" + param.getParamName() + "' is missing!");
          }
       }
 
