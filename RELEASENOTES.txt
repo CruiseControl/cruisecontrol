@@ -4,6 +4,9 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+build loop
+======================
+
 AlienBrain:
 ----------------------
 * Add support for AlienBrain SCM. Submitted by Scott Jacobs
@@ -20,15 +23,6 @@ AntBuilder:
 AntPublisher:
 ----------------------
 * Will now pass the property "thisbuildsuccessful" to the ant script.
-
-BuildInfo:
-----------------------
-* Added better exception message to make debugging easier (CC-49). Patch by Jerome Lacoste.
-* Handle files created when using EmptyLabelIncrementor (log20050624104539L.xml)
-
-controlpanel.jsp:
-----------------------
-* Provide direct link to project jmx page (CC-204). Patch by Tim Shadel
 
 contrib:
 ----------------------
@@ -84,19 +78,10 @@ FTPPublisher:
 * Made setDeleteArtifacts take a boolean argument, instead of parsing a String as a boolean, for consistency with other plugins (CC-158).
   This means that you MUST use "true" or "false" now in your config file for deleteArtifacts-attribute, and not "yes" or "no"!
 
-FileServlet:
-----------------------
-* Automatically return welcome files (index.html, etc) when browsing directory (CC-221). Patch by Jerome Lacoste and Jelmer Kuperus
-
 HTMLEmailPublisher:
 ----------------------
 * Now tries to determine the locations for xslDir and css automatically when they're not specified
 * HTMLEmailPublisher fails to transform xml (CC-112)
-
-index.jsp:
-----------------------
-* Use rounded corners on the right of the page (CC-113). Patch by Mark Doliner
-* Add summary line with percentage of passing/failing projects (CC-203). Patch by Tim Shadel
 
 JMX:
 ----------------------
@@ -123,10 +108,6 @@ MavenSnapshotDependency:
 MKS:
 ----------------------
 * Overhaul of MKS source control. Submitted by Dominik Hirt
-
-navigation.jsp:
-----------------------
-* Hide navigation drop down when it is empty CC-96. Based on patch by Jerome Lacoste
 
 OnFailurePublisher & OnSuccessPublisher:
 ----------------------
@@ -176,22 +157,10 @@ StarTeamBootstrapper:
 ----------------------
 * Prevent StarTeam from needing user interaction (CC-189). Patch by Lee Marlow
 
-RSS:
-----------------------
-* Added an RSS feed to the reporting app (CC-117). Patch by Mark Doliner.
-
-testdetails.xsl:
-----------------------
-* Escape '<' and '>' in popup window (CC-22). Patch by Jerome Lacoste
-
 TimeBuild:
 ----------------------
 * Add new source control that will trigger a build at a specified time. Submitted by Eric Pugh
 * Add docs and add to default-plugins.properties. Patch by Jerome Lacoste
-
-TimeChartData:
-----------------------
-* Don't fail when two when there are two logs within the same minute.
 
 ValidationHelper:
 ----------------------
@@ -200,6 +169,40 @@ ValidationHelper:
 VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)
+
+reporting jsp app
+======================
+
+BuildInfo:
+----------------------
+* Added better exception message to make debugging easier (CC-49). Patch by Jerome Lacoste.
+* Handle files created when using EmptyLabelIncrementor (log20050624104539L.xml)
+
+controlpanel.jsp:
+----------------------
+* Provide direct link to project jmx page (CC-204). Patch by Tim Shadel
+
+FileServlet:
+----------------------
+* Automatically return welcome files (index.html, etc) when browsing directory (CC-221). Patch by Jerome Lacoste and Jelmer Kuperus
+
+index.jsp:
+----------------------
+* Use rounded corners on the right of the page (CC-113). Patch by Mark Doliner
+* Add summary line with percentage of passing/failing projects (CC-203). Patch by Tim Shadel
+
+navigation.jsp:
+----------------------
+* Hide navigation drop down when it is empty CC-96. Based on patch by Jerome Lacoste
+* Added an RSS feed to the reporting app (CC-117). Patch by Mark Doliner.
+
+testdetails.xsl:
+----------------------
+* Escape '<' and '>' in popup window (CC-22). Patch by Jerome Lacoste
+
+TimeChartData:
+----------------------
+* Don't fail when two when there are two logs within the same minute.
 
 XSLTag:
 ----------------------
