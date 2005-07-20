@@ -192,7 +192,7 @@ public class AlienBrainCore {
     /**
      * Sets the active branch to the provided branch name.
      *
-     *@param String The branch name.
+     *@param branch The branch name.
      */
     protected void setActiveBranch(String branch) throws IOException, CruiseControlException {
         ManagedCommandline cmdLine = buildCommonCommand();

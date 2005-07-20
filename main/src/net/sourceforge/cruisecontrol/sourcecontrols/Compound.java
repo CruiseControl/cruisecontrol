@@ -135,7 +135,7 @@ public class Compound implements SourceControl {
      * block is empty (otherwise you wouldn't need a compound block
      * to begin with).
      * 
-     * @throws  a CruiseControlException if the validation fails
+     * @throws CruiseControlException if the validation fails
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(triggers != null,
@@ -237,7 +237,7 @@ public class Compound implements SourceControl {
          * Confirms that the sourceControl that this object wraps
          * has been set.
          * 
-         * @throws  a CruiseControlException if the validation fails
+         * @throws CruiseControlException if the validation fails
          */
         public void validate() throws CruiseControlException {
             if (sourceControls.isEmpty()) {
