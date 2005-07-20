@@ -58,7 +58,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
     private static final Logger LOG = Logger.getLogger(CMSynergyTaskPublisher.class);
     private boolean success = false;
     private String folderNumber;
-    private String folderName ;
+    private String folderName;
 
     /**
      * Sets the name (or a substring of the name) of the folder which will 
