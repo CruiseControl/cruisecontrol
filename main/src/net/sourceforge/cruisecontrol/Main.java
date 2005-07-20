@@ -42,6 +42,7 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
+import net.sourceforge.cruisecontrol.util.MainArgs;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -55,9 +56,8 @@ import org.apache.log4j.Logger;
 public final class Main {
     
     private static final Logger LOG = Logger.getLogger(Main.class);
-    public static final int NOT_FOUND = -1;
 
-    private Main() { }  
+    private Main() { }
     
     /**
       * Print the version, configure the project with serialized build info
@@ -69,7 +69,7 @@ public final class Main {
             usage();
         }
         try {
-            if (findIndex(args, "debug") != NOT_FOUND) {
+            if (MainArgs.findIndex(args, "debug") != MainArgs.NOT_FOUND) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
             CruiseControlController controller = new CruiseControlController();
@@ -138,7 +138,7 @@ public final class Main {
      */
     static String parseConfigFileName(String[] args, String configFileName)
         throws CruiseControlException {
-        configFileName = parseArgument(args, "configfile", configFileName, null);
+        configFileName = MainArgs.parseArgument(args, "configfile", configFileName, null);
         if (configFileName == null) {
             throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
         }
@@ -146,7 +146,8 @@ public final class Main {
     }
 
     static boolean shouldStartController(String[] args) {
-        return findIndex(args, "port") != NOT_FOUND || findIndex(args, "rmiport") != NOT_FOUND;
+        return MainArgs.findIndex(args, "port") != MainArgs.NOT_FOUND
+            || MainArgs.findIndex(args, "rmiport") != MainArgs.NOT_FOUND;
     }
 
     /**
@@ -156,28 +157,15 @@ public final class Main {
      * @throws IllegalArgumentException if port argument is invalid
      */
     static int parseHttpPort(String[] args) {
-        return parseInt(args, "port", NOT_FOUND, 8000);
+        return MainArgs.parseInt(args, "port", MainArgs.NOT_FOUND, 8000);
     }
 
     static int parseRmiPort(String[] args) {
-        return parseInt(args, "rmiport", NOT_FOUND, 1099);
-    }
-
-    private static int parseInt(String[] args, String argName, int defaultIfNoParam, int defaultIfNoValue) {
-        String intString = parseArgument(args, 
-                                         argName, 
-                                         Integer.toString(defaultIfNoParam), 
-                                         Integer.toString(defaultIfNoValue));
-        try {
-            return Integer.parseInt(intString);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                "-" + argName + " parameter, specified as '" + intString + "', requires integer argument");
-        }
+        return MainArgs.parseInt(args, "rmiport", MainArgs.NOT_FOUND, 1099);
     }
 
     static String parseXslPath(String[] args) {
-        String xslpath = parseArgument(args, "xslpath", null, null);
+        String xslpath = MainArgs.parseArgument(args, "xslpath", null, null);
         if (xslpath != null) {
             File directory = new File(xslpath);
             if (!directory.isDirectory()) {
@@ -195,7 +183,7 @@ public final class Main {
      * @return final value of password.         
      */
     static String parsePassword(String[] args) {
-        return parseArgument(args, "password", null, null);
+        return MainArgs.parseArgument(args, "password", null, null);
     }
 
     /**
@@ -205,7 +193,7 @@ public final class Main {
      * @return final value of user.
      */
     static String parseUser(String[] args) {
-        return parseArgument(args, "user", null, null);
+        return MainArgs.parseArgument(args, "user", null, null);
     }
 
     /**
@@ -222,53 +210,7 @@ public final class Main {
         LOG.info("CruiseControl Version " + props.getProperty("version"));
     }
 
-    /**
-     * Searches the array of args for the value corresponding to a particular
-     * argument name. This method assumes that the argName doesn't include
-     * a "-", but adds one while looking through the array. For example, if a
-     * user is supposed to type "-port", the appropriate argName to supply to
-     * this method is just "port".
-     *
-     * This method also allows the specification
-     * of a default argument value, in case one was not specified.
-     *
-     * @param args Application arguments like those specified to the standard
-     *      Java main function.
-     * @param argName Name of the argument, without any preceeding "-",
-     *      i.e. "port" not "-port".
-     * @param defaultIfNoParam A default argument value, 
-     *      in case the parameter argName was not specified
-     * @param defaultIfNoValue A default argument value, 
-     *      in case the parameter argName was specified without a value
-     * @return The argument value found, or the default if none was found.
-     */
-    static String parseArgument(String[] args, String argName, String defaultIfNoParam, String defaultIfNoValue) {
-        int argIndex = findIndex(args, argName);
-        if (argIndex == NOT_FOUND) {
-            return defaultIfNoParam;
-        }
-        // check to see if the user supplied a value for the parameter;
-        // if not, return the supplied default
-        if (argIndex == args.length - 1            // last arg
-            || args[argIndex + 1].charAt(0) == '-' // start of new param
-        ) {
-            return defaultIfNoValue;
-        }
-        return args[argIndex + 1];
-    }
-
-    static int findIndex(String[] args, String argName) {
-        
-        String searchString = "-" + argName;
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals(searchString)) {
-                return i;
-            }
-        }
-        return NOT_FOUND;
-    }
-
     static boolean printUsage(String[] args) {
-        return findIndex(args, "?") != NOT_FOUND;
+        return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND;
     }
 }
