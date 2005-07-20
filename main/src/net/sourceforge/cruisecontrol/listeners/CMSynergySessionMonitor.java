@@ -324,7 +324,7 @@ public class CMSynergySessionMonitor implements Listener {
         LOG.debug("Using persisted data from " + sessionFile.getAbsolutePath());
 
         // Load the persisted session information from file
-        Properties sessionMap = null;
+        Properties sessionMap;
         try {
             sessionMap = Util.loadPropertiesFromFile(sessionFile);
         } catch (IOException e) {
@@ -334,7 +334,7 @@ public class CMSynergySessionMonitor implements Listener {
         // Get a list of currently running CM Synergy sessions
         ManagedCommandline cmd = new ManagedCommandline(ccmExe);
         cmd.createArgument().setValue("status");
-        String availableSessions = null;
+        String availableSessions;
         try {
             cmd.execute();
             cmd.assertExitCode(0);
