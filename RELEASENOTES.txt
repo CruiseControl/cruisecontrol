@@ -41,6 +41,7 @@ CMSynergy:
     - added CMSynergyBaselinePublisher
     - added CMSynergyTaskPublisher
     - added instance attribute to CMSynergy source control
+* Use 'task' instead of 'query' to get modified objects. Patch by Mike Pettypiece
 
 cruisecontrol.sh:
 ----------------------

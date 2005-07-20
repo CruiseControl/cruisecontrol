@@ -619,8 +619,9 @@ public class CMSynergy implements SourceControl {
     private void getModifiedObjects(CMSynergyModification mod) {    
         // Construct the CM Synergy command
         cmd.clearArgs();
-        cmd.createArgument().setValue("query");
-        cmd.createArgument().setValue("-u");
+        cmd.createArgument().setValue("task");
+        cmd.createArgument().setValue("-show");
+        cmd.createArgument().setValue("objects");
             
         // Set up the output format
         cmd.createArgument().setValue("-f");
@@ -633,13 +634,8 @@ public class CMSynergy implements SourceControl {
                 "%comment" + CCM_END_OBJECT);       // 5
             
         // Construct the query string
-        cmd.createArgument().setValue(
-                "is_associated_object_of('" 
-                + "task" 
-                + mod.taskNumber 
-                + ccmDelimiter
-                + "1:task:probtrac')"); 
-            
+        cmd.createArgument().setValue(mod.taskNumber); 
+        
         // Execute the command
         try {
             cmd.execute();
