@@ -79,5 +79,4 @@ fi
 
 EXEC="java -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControl $@"
 echo $EXEC
-$EXEC
-
+exec $EXEC
