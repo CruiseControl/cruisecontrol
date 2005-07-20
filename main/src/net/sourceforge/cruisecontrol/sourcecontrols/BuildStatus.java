@@ -48,9 +48,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Log;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.input.SAXBuilder;
 import org.jdom.Document;
@@ -96,14 +96,6 @@ public class BuildStatus implements SourceControl {
      */
     public Hashtable getProperties() {
         return properties;
-    }
-
-    public void setProperty(String unused) {
-        throw new UnsupportedOperationException("attribute 'property' is not supported");
-    }
-
-    public void setPropertyOnDelete(String unused) {
-        throw new UnsupportedOperationException("attribute 'propertyOnDelete' is not supported");
     }
 
     /**

@@ -44,8 +44,8 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.apache.log4j.Logger;
 
@@ -75,19 +75,6 @@ public class TimeBuild extends FakeUserSourceControl {
      */
     public void setTime(String timeString) {
         time = Integer.parseInt(timeString);
-    }
-
-    /**
-     * Unsupported by TimeBuild.
-     */
-    public void setProperty(String property) {
-
-    }
-
-    /**
-     * Unsupported by TimeBuild.
-     */
-    public void setPropertyOnDelete(String propertyOnDelete) {
     }
 
     public Hashtable getProperties() {

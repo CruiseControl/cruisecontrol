@@ -73,21 +73,6 @@ public class ForceOnlyTest extends TestCase {
     public void testSettingProperties() {
         ForceOnly forceOnly = new ForceOnly();
 
-        try {
-            forceOnly.setProperty("myPropertyName");
-            fail("expected an exception");
-        } catch (UnsupportedOperationException e) {
-            assertNotNull("Expected an exception with a message", e.getMessage());
-        }
-
-        try {
-            forceOnly.setPropertyOnDelete("myPropertyName");
-            fail("expected an exception");
-        } catch (UnsupportedOperationException e) {
-            assertNotNull("Expected an exception with a message", e.getMessage());
-        }
-
-        //even after setting properties, the getter should always return an empty hash
         Hashtable props = forceOnly.getProperties();
         assertNotNull(props);
         assertEquals("Expected the properties to be empty", 0, props.size());

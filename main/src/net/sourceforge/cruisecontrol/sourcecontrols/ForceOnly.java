@@ -70,13 +70,4 @@ public class ForceOnly implements SourceControl {
     public Hashtable getProperties() {
         return EMPTY_HASHTABLE;
     }
-
-    public void setProperty(String property) {
-        throw new UnsupportedOperationException("attribute 'property' is not supported");
-    }
-
-    public void setPropertyOnDelete(String property) {
-        throw new UnsupportedOperationException("attribute 'propertyOnDelete' is not supported");
-    }
-
 }

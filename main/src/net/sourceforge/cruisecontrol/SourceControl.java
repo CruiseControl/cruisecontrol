@@ -46,6 +46,20 @@ import java.util.List;
  * gathering information about the changes made to whatever source control tool
  * that you choose.
  *
+ * SourceControl implementations may define 2 special properties:
+ * <ul>
+ * <li> <code>void setProperty(String property)</code>:
+ * name of property to define if a modification is detected.
+ * The property should be added to the set of properties returned by the {@link #getProperties()} call.
+ * Allows the underlying build script to do conditional actions if the files watched by this
+ * SourceControl have been modified.
+ * </li>
+ * <li><code>void setPropertyOnDelete(String property)</code>:
+ * name of property to define if a deletion is detected.
+ * The property should be added to the set of properties returned by the {@link #getProperties()} call.
+ * </li>
+ * </ul>
+ *
  * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
@@ -71,20 +85,4 @@ public interface SourceControl {
      * the underlying Ant script can use them.
      */
     public Hashtable getProperties();
-
-    /**
-     * Name of property to define if a modification is detected.
-     * The property should be added to the set of properties returned by the getProperties() call.
-     * Allows the underlying build script to do conditional actions if the files watched by this
-     * SourceControl have been modified.
-     * @param property name of property to define
-     */
-    public void setProperty(String property);
-
-    /**
-     * Name of property to define if a deletion is detected.
-     * The property should be added to the set of properties returned by the getProperties() call.
-     * @param property name of property to define
-     */
-    public void setPropertyOnDelete(String property);
 }

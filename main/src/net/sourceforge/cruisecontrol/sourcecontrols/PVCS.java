@@ -51,8 +51,8 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
 
@@ -134,18 +134,6 @@ public class PVCS implements SourceControl {
 
     public void setOutDateFormat(String outDateFormat) {
         this.outDateFormat = new SimpleDateFormat(outDateFormat);
-    }
-
-    /**
-     * Unsupported by PVCS.
-     */
-    public void setProperty(String property) {
-    }
-
-    /**
-     * Unsupported by PVCS.
-     */
-    public void setPropertyOnDelete(String propertyOnDelete) {
     }
 
     public Hashtable getProperties() {

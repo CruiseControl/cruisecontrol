@@ -57,20 +57,6 @@ public class HttpFileTest extends TestCase {
             assertEquals("'url' is required for HttpFile", e.getMessage());
         }
 
-        try {
-            httpFile.setProperty("test");
-            fail("HttpFile should throw when property attribute set.");
-        } catch (UnsupportedOperationException e) {
-            assertEquals("attribute 'property' is not supported", e.getMessage());
-        }
-
-        try {
-            httpFile.setPropertyOnDelete("test");
-            fail("HttpFile should throw when setPropertyOnDelete attribute set.");
-        } catch (UnsupportedOperationException e) {
-            assertEquals("attribute 'propertyOnDelete' is not supported", e.getMessage());
-        }
-
         httpFile.setURL("Invalid URL");
         try {
             httpFile.validate();

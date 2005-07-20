@@ -39,8 +39,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 
 import org.apache.log4j.Logger;
 
@@ -77,26 +77,6 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     private static final String AB_MODIFICATION_SUMMARY_PREFIX = "Total of ";
     
     private Hashtable properties = new Hashtable();
-
-    /**
-     * Name of property to define if a modification is detected.
-     * Currently unsupported by the AlienBrain plugin.
-     */
-    public void setProperty(String property) {
-        throwUnsupportedException("Set property");
-    }
-    
-    /**
-     * Name of property to define if a deletion is detected. 
-     * Currently unsupported by the AlienBrain plugin.
-     */
-    public void setPropertyOnDelete(String property) {
-        throwUnsupportedException("Set property on delete");
-    }
-   
-    private void throwUnsupportedException(String operation) {
-        throw new UnsupportedOperationException(operation + " not supported by AlienBrain");
-    }
 
     /**
      * Any properties that have been set in this sourcecontrol. 

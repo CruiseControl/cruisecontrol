@@ -50,8 +50,8 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.log4j.Logger;
 
@@ -75,8 +75,6 @@ public class MKS implements SourceControl {
     private Hashtable properties = new Hashtable();
 
     private String property;
-
-    private String propertyOnDelete;
 
     private String project;
 
@@ -119,10 +117,6 @@ public class MKS implements SourceControl {
         this.property = property;
     }
 
-    public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
-    }
-
     public Hashtable getProperties() {
         return properties;
     }
@@ -158,7 +152,7 @@ public class MKS implements SourceControl {
             }
             return listOfModifications;
         }
-        String cmd = null;
+        String cmd;
 
         cmd = new String("si resync -f -R " + localWorkingDir.getAbsolutePath()
                 + File.separator + project);
@@ -242,8 +236,7 @@ public class MKS implements SourceControl {
      * copy generated properties Member added to project
      * d:/MKS/PCE_Usedom/Products/Info/Info.pj
      * 
-     * @param filename
-     * @return
+     * @param fileName
      */
     private void setUserNameAndComment(Modification modification,
             String folderName, String fileName) {
