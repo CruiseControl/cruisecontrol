@@ -84,6 +84,11 @@ public class MavenBuilder extends Builder {
         ckFile = new File(projectFile);
         ValidationHelper.assertTrue(ckFile.exists(),
             "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
+
+        ValidationHelper.assertIsSet(goal, "goal", this.getClass());
+        if (goal != null && getGoalSets().size() == 0) {
+            ValidationHelper.assertIsSet(null, "goal", this.getClass());
+        }
     }
 
     /**

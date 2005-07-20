@@ -107,6 +107,10 @@ Macker:
 ----------------------
 * Add support for Macker in HTMLEmailPublisher and reporting/JSP app. Patch by Andrew Sadler
 
+MavenBuilder:
+----------------------
+* Require goal attribute. Fixes problem where builder would silently do nothing without one. Patch by Jerome Lacoste
+
 MavenSnapshotDependency:
 ----------------------
 * fix NPE when dependency lacks version tag. Patch by Josh W. Arnold
