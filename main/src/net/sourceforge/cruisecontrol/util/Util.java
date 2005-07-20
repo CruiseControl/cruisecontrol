@@ -108,8 +108,8 @@ public final class Util {
      *            The <code>File</code> from which to load the properties
      * @return A <code>Properties</code> object which contains all properties
      *         defined in the file.
-     * @throws CruiseControlException,
-     *             IOException
+     * @throws CruiseControlException
+     * @throws IOException
      */
     public static Properties loadPropertiesFromFile(File file)
             throws CruiseControlException, IOException {
@@ -126,7 +126,9 @@ public final class Util {
                             + file.getAbsolutePath() + ". It does not exist.",
                     e);
         } finally {
-            bis.close();
+            if (bis != null) {
+                bis.close();
+            }
         }
 
         return properties;
@@ -145,8 +147,8 @@ public final class Util {
      * @param file
      *            The properties file to which the properties will be written.
      * 
-     * @throws CruiseControlException,
-     *             IOException
+     * @throws CruiseControlException
+     * @throws IOException
      */
     public static void storePropertiesToFile(Properties properties,
             String header, File file) throws CruiseControlException,
@@ -162,7 +164,9 @@ public final class Util {
                             + file.getAbsolutePath() + ". It does not exist.",
                     e);
         } finally {
-            bos.close();
+            if (bos != null) {
+                bos.close();
+            }
         }
     }
 
