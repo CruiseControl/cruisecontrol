@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+release format:
+----------------------
+* Add binary release that includes Jetty.
+
 build loop
 ======================
 
