@@ -63,7 +63,7 @@ echo Warning: You have not set the JAVA_HOME environment variable. Any tasks rel
 :setCruise
 set LIBDIR=%CCDIR%lib
 
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\ant-launcher.jar;%LIBDIR%\jasper-compiler.jar;%LIBDIR%\jasper-runtime.jar;%LIBDIR%\xml-apis.jar;%LIBDIR%\xmlParserAPIs-2.5.jar;%LIBDIR%\xercesImpl-2.7.0.jar;%LIBDIR%\xml-apis-2.7.0.jar;%LIBDIR%\xalan-2.6.0.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;%LIBDIR%\fast-md5.jar;%LIBDIR%\javax.servlet.jar;%LIBDIR%\org.mortbay.jetty.jar;%LIBDIR%\commons-logging.jar;%LIBDIR%\commons-el.jar;.
+set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\ant-launcher.jar;%LIBDIR%\jasper-compiler.jar;%LIBDIR%\jasper-runtime.jar;%LIBDIR%\xercesImpl-2.7.0.jar;%LIBDIR%\xml-apis-2.7.0.jar;%LIBDIR%\xalan-2.6.0.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;%LIBDIR%\fast-md5.jar;%LIBDIR%\javax.servlet.jar;%LIBDIR%\org.mortbay.jetty.jar;%LIBDIR%\commons-logging.jar;%LIBDIR%\commons-el.jar;.
 
 set EXEC="%JAVA_HOME%\bin\java" -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %*
 echo %EXEC%
