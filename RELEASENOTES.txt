@@ -46,6 +46,7 @@ CMSynergy:
 cruisecontrol.sh:
 ----------------------
 * Execute java from JAVA_HOME. Patch by Martin Jaeger.
+* Some jars not found (CC-274). Patch by Mykola Nikishov
 
 CruiseControlController:
 ----------------------
