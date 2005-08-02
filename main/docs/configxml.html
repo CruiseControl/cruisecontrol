@@ -361,6 +361,7 @@
             </tr>
             </tbody>
         </table>
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -1184,8 +1185,8 @@ password=P@ssW0rd!
                <td>If localpath is specified the item is copied to the specified local path.</td>
             </tr>
             </tbody>
-
         </table>
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -2465,6 +2466,7 @@ password=P@ssW0rd!
                <td>No</td>
                <td>Used in conjunction with the reconfigure option. If set to true (which is
                    the default) all subprojects will also be reconfigured.</td>
+            </tr>
             <tr>
                <td>ignoreworkarea</td>
                <td>No</td>
@@ -2791,7 +2793,7 @@ password=P@ssW0rd!
                 <td>cvsroot</td>
                 <td>Specifies the location of the CVS repository.  This should
                 be of the form<br/>
-                <i><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code><i>
+                <i><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code></i>
                 </td>
             </tr>
             <tr>
@@ -5634,21 +5636,19 @@ endlocal</pre>
 
         <p>All child elements must meet the following criteria:</p>
 
-        <p>
-            <ol>
-                <li>
-                    They must be registered as publishers. If you are adding a publisher
-                    which ships with CruiseControl, this will be done for you automatically.
-                    If you are adding a custom publisher, you must remember to register it with
-                    CruiseControl using a
-                    <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
-                </li>
-                <li>
-                    They must validate successfully regardless of whether or not
-                    the build was successful.
-                </li>
-            </ol>
-        </p>
+        <ol>
+            <li>
+                They must be registered as publishers. If you are adding a publisher
+                which ships with CruiseControl, this will be done for you automatically.
+                If you are adding a custom publisher, you must remember to register it with
+                CruiseControl using a
+                <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
+            </li>
+            <li>
+                They must validate successfully regardless of whether or not
+                the build was successful.
+            </li>
+        </ol>
 
         <h3>Child Elements</h3>
 
@@ -5664,7 +5664,7 @@ endlocal</pre>
             <tr>
                 <td>Any defined publisher</td>
                 <td>1 .. *</td>
-                <td>You may use any defined publisher as a child element.<br/>
+                <td>You may use any defined publisher as a child element.</td>
             </tr>
             </tbody>
         </table>
@@ -5705,21 +5705,19 @@ endlocal</pre>
 
         <p>All child elements must meet the following criteria:</p>
 
-        <p>
-            <ol>
-                <li>
-                    They must be registered as publishers. If you are adding a publisher
-                    which ships with CruiseControl, this will be done for you automatically.
-                    If you are adding a custom publisher, you must remember to register it with
-                    CruiseControl using a
-                    <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
-                </li>
-                <li>
-                    They must validate successfully regardless of whether or not
-                    the build was successful.
-                </li>
-            </ol>
-        </p>
+        <ol>
+            <li>
+                They must be registered as publishers. If you are adding a publisher
+                which ships with CruiseControl, this will be done for you automatically.
+                If you are adding a custom publisher, you must remember to register it with
+                CruiseControl using a
+                <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
+            </li>
+            <li>
+                They must validate successfully regardless of whether or not
+                the build was successful.
+            </li>
+        </ol>
 
         <h3>Child Elements</h3>
 
@@ -5735,7 +5733,7 @@ endlocal</pre>
             <tr>
                 <td>Any defined publisher</td>
                 <td>1 .. *</td>
-                <td>You may use any defined publisher as a child element.<br/>
+                <td>You may use any defined publisher as a child element.</td>
             </tr>
             </tbody>
         </table>
@@ -6425,7 +6423,6 @@ endlocal</pre>
         </div>
 
     </div>
-</div>
 </div>
 </body>
 </html>
