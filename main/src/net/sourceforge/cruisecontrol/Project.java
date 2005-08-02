@@ -751,14 +751,18 @@ public class Project implements Serializable, Runnable {
     }
 
     public void start() {
-        if (stopped) {
+        if (stopped || getState() == ProjectState.STOPPED) {
             stopped = false;
-            projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
-            projectSchedulingThread.start();
+            createNewSchedulingThread();
             LOG.info("Project " + name + " starting");
             setState(ProjectState.IDLE);
         }
     }
+
+	protected void createNewSchedulingThread() {
+		projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
+		projectSchedulingThread.start();
+	}
 
     public void stop() {
         LOG.info("Project " + name + " stopping");

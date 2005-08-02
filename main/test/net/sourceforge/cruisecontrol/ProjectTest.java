@@ -53,11 +53,13 @@ import org.jdom.Element;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -458,7 +460,31 @@ public class ProjectTest extends TestCase {
             }
         });
     }
+    
+    public void testStartAfterDeserialization() throws Exception {
+        TestProject beforeSerialization = new TestProject();
+        beforeSerialization.start();
 
+        File f = new File("test.ser");
+        filesToClear.add(f);
+        FileOutputStream outFile = new FileOutputStream(f);
+        ObjectOutputStream objects = new ObjectOutputStream(outFile);
+        
+        objects.writeObject(beforeSerialization);
+        objects.flush();
+        objects.close();
+
+        FileInputStream inFile = new FileInputStream(f);
+        ObjectInputStream inObjects = new ObjectInputStream(inFile);
+
+        Object p = inObjects.readObject();
+        inObjects.close();
+        TestProject deserializedProject = (TestProject) p;
+        deserializedProject.createNewSchedulingThreadCalled = false;
+        deserializedProject.start();
+        assertTrue("failed to create schedule thread", deserializedProject.createNewSchedulingThreadCalled);
+    }
+    
     public void testGetProjectPropertiesMap() throws CruiseControlException {
         String label = "LaBeL";
         project.setLabel(label);
@@ -541,5 +567,13 @@ public class ProjectTest extends TestCase {
 
         public void validate() throws CruiseControlException {
         }
+    }
+    
+    static class TestProject extends Project {
+        boolean createNewSchedulingThreadCalled = false;
+
+		protected void createNewSchedulingThread() {
+            createNewSchedulingThreadCalled = true;
+		}
     }
 }
