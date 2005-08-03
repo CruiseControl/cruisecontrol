@@ -53,13 +53,11 @@ import org.jdom.Element;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -480,9 +478,9 @@ public class ProjectTest extends TestCase {
         Object p = inObjects.readObject();
         inObjects.close();
         TestProject deserializedProject = (TestProject) p;
-        deserializedProject.createNewSchedulingThreadCalled = false;
+        deserializedProject.resetCreateNewSchedulingThreadCalled();
         deserializedProject.start();
-        assertTrue("failed to create schedule thread", deserializedProject.createNewSchedulingThreadCalled);
+        assertTrue("failed to create schedule thread", deserializedProject.wasCreateNewSchedulingThreadCalled());
     }
     
     public void testGetProjectPropertiesMap() throws CruiseControlException {
@@ -570,10 +568,18 @@ public class ProjectTest extends TestCase {
     }
     
     static class TestProject extends Project {
-        boolean createNewSchedulingThreadCalled = false;
+        private boolean createNewSchedulingThreadCalled = false;
 
-		protected void createNewSchedulingThread() {
+        protected void createNewSchedulingThread() {
             createNewSchedulingThreadCalled = true;
-		}
+        }
+
+        boolean wasCreateNewSchedulingThreadCalled() {
+            return createNewSchedulingThreadCalled;
+        }
+
+        void resetCreateNewSchedulingThreadCalled() {
+            createNewSchedulingThreadCalled = false;
+        }
     }
 }

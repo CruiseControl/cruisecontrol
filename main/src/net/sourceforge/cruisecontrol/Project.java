@@ -759,10 +759,10 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-	protected void createNewSchedulingThread() {
-		projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
-		projectSchedulingThread.start();
-	}
+    protected void createNewSchedulingThread() {
+        projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
+        projectSchedulingThread.start();
+    }
 
     public void stop() {
         LOG.info("Project " + name + " stopping");
