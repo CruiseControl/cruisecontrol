@@ -95,13 +95,22 @@
         <defaultexcludes remove="**/CVS/**"/>
         <defaultexcludes remove="**/.cvsignore"/>
 
+        <copy todir="target/binzip">
+            <fileset file="binaryrelease/README.txt"/>
+        </copy>
+        <replace dir="target/binzip" token="%%VERSION%%" value="${label}">
+            <include name="**/*"/>
+        </replace>
+
         <zip destfile="target/cruisecontrol-bin-${label}.zip">
             <zipfileset dir="binaryrelease" prefix="cruisecontrol-bin-${label}">
+                <exclude name="README.txt"/>
                 <exclude name="*.zip"/>
                 <exclude name="**/CVS"/>
                 <exclude name="**/CVS/**"/>
                 <exclude name="**/.cvsignore"/>
             </zipfileset>
+            <zipfileset file="binzip/README.txt" prefix="cruisecontrol-bin-${label}"/>
             <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="cruisecontrol-bin-${label}/projects"/>
             <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="cruisecontrol-bin-${label}"/>
             <zipfileset dir="main/lib" includes="*.jar" prefix="cruisecontrol-bin-${label}/lib"/>
