@@ -35,6 +35,9 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************--%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
+<%--
+    The stylesheets used should match the XSL file list in HTMLEmailPublisher
+--%>
 <cruisecontrol:xsl xslFile="/xsl/header.xsl"/>
 
 <cruisecontrol:artifactsLink>

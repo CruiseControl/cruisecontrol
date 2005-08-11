@@ -78,17 +78,13 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private String messageMimeType = "text/html";
     private String charset;
 
+    // Should reflect the same stylesheets as buildresults.jsp in the JSP
+    // reporting application
     private String[] xslFileNames =
         {
             "header.xsl",
-            "maven.xsl",
-            "checkstyle.xsl",
-            "macker.xsl",
-            "errors.xsl",
-            "javadoc.xsl",
-            "unittests.xsl",
-            "modifications.xsl",
-            "distributables.xsl" };
+            "buildresults.xsl"
+        };
 
     /*
      *  Called after the configuration is read to make sure that all the mandatory parameters

@@ -93,6 +93,7 @@ HTMLEmailPublisher:
 ----------------------
 * Now tries to determine the locations for xslDir and css automatically when they're not specified
 * HTMLEmailPublisher fails to transform xml (CC-112)
+* Set the default XSL filelist to header.xsl and buildresult.xsl like the reporting application.
 
 JMX:
 ----------------------
