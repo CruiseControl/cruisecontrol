@@ -1,9 +1,11 @@
 package net.sourceforge.cruisecontrol.util;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -24,7 +26,13 @@ public final class DateUtil {
     /**
      * This is the date format required by commands passed to CVS.
      */
-    public static final SimpleDateFormat CVS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
+    // The timezone is hard coded to GMT to prevent problems with it being
+    // formatted as GMT+00:00. However, we still need to set the time zone
+    // of the formatter so that it knows it's in GMT.
+    private static final String CVS_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss 'GMT'";
+
+    // This cannot be exposed as TimeZones are mutable
+    private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
 
     private DateUtil() {
     }
@@ -133,8 +141,24 @@ public final class DateUtil {
         return date;
     }
 
+    /**
+     * Formats a given date as a the format required by commands passed to CVS.
+     * @param date the date
+     */
     public static String formatCVSDate(Date date) {
-        return CVS_DATE_FORMAT.format(date);
+        DateFormat format = new SimpleDateFormat(CVS_DATE_PATTERN);
+        format.setTimeZone(UTC);
+        return format.format(date);
     }
 
+    /**
+     * Parses a text in CVS date format as a date.
+     * @param text the date to parse
+     * @return a date in the default timezone
+     */
+    public static Date parseCVSDate(String text) throws ParseException {
+        DateFormat format = new SimpleDateFormat(CVS_DATE_PATTERN);
+        format.setTimeZone(UTC);
+        return format.parse(text);
+    }
 }

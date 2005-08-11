@@ -54,6 +54,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -243,21 +244,9 @@ public class CVS implements SourceControl {
     private static final String NEW_LINE = System.getProperty("line.separator");
 
     /**
-     * This is the date format required by commands passed to CVS.
-     */
-    static final SimpleDateFormat CVSDATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'");
-
-    /**
      * This is the date format returned in the log information from CVS.
      */
     static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-
-    static {
-        // The timezone is hard coded to GMT to prevent problems with it being
-        // formatted as GMT+00:00. However, we still need to set the time zone
-        // of the formatter so that it knows it's in GMT.
-        CVSDATE.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
-    }
 
     /**
      * Sets the CVSROOT for all calls to CVS.
@@ -593,8 +582,8 @@ public class CVS implements SourceControl {
         return new Commandline();
     }
 
-    public static String formatCVSDate(Date date) {
-        return CVSDATE.format(date);
+    static String formatCVSDate(Date date) {
+        return DateUtil.formatCVSDate(date);
     }
 
     /**
@@ -773,7 +762,8 @@ public class CVS implements SourceControl {
 
             try {
                 if (newCVSVersion) {
-                    nextModification.modifiedTime = CVSDATE.parse(dateStamp + " " + timeStamp + " GMT");
+                    nextModification.modifiedTime = DateUtil.parseCVSDate(
+                            dateStamp + " " + timeStamp + " GMT");
                 } else {
                     nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
                 }

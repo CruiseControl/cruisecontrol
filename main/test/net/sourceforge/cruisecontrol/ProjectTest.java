@@ -62,9 +62,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class ProjectTest extends TestCase {
     private static final org.apache.log4j.Logger LOG4J = org.apache.log4j.Logger.getLogger(ProjectTest.class);
@@ -491,15 +493,22 @@ public class ProjectTest extends TestCase {
         String lastGoodBuild = "19990101120000";
         project.setLastSuccessfulBuild(lastGoodBuild);
         project.setWasLastBuildSuccessful(true);
-        Date now = new Date();
+        TimeZone cest = TimeZone.getTimeZone("Europe/Copenhagen");
+        Calendar now = new GregorianCalendar(cest);
+        now.set(2005, Calendar.AUGUST, 10, 13, 7, 43);
+        String cvstimestamp = "2005-08-10 11:07:43 GMT";
 
-        Map map = project.getProjectPropertiesMap(now);
+        // The returned time is dependent on the default timezone hence
+        // the use of DateUtil.getFormattedTime()
+        String cctimestamp = DateUtil.getFormattedTime(now.getTime());
+        Map map = project.getProjectPropertiesMap(now.getTime());
 
         assertEquals(label, map.get("label"));
-        assertEquals(DateUtil.getFormattedTime(now), map.get("cctimestamp"));
+        assertEquals(cctimestamp, map.get("cctimestamp"));
         assertEquals(lastGoodBuild, map.get("cclastgoodbuildtimestamp"));
         assertEquals(lastBuild, map.get("cclastbuildtimestamp"));
         assertEquals("true", map.get("lastbuildsuccessful"));
+        assertEquals(cvstimestamp, map.get("cvstimestamp"));
     }
     
     public void testGetTimeToNextBuild_AfterShortBuild() {
