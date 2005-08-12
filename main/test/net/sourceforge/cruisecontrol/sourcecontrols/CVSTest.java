@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
@@ -77,7 +78,7 @@ public class CVSTest extends TestCase {
     }
 
     private Date parseCVSDateFormat(String dateString) throws ParseException {
-        return CVS.CVSDATE.parse(dateString);
+        return DateUtil.parseCVSDate(dateString);
     }
 
     private Date parseLogDateFormat(String dateString) throws ParseException {
