@@ -3,6 +3,7 @@
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
+ * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +46,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -53,10 +55,10 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -79,6 +81,7 @@ import org.jdom.Element;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
  * @author J D Glanville
+ * @author Patrick Conant
  */
 public class P4 implements SourceControl {
 
@@ -89,8 +92,18 @@ public class P4 implements SourceControl {
     private String p4User;
     private String p4View;
     private String p4Passwd;
+    private boolean correctForServerTime = true;
+
     private static final SimpleDateFormat P4_REVISION_DATE =
             new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+
+
+    private static final String SERVER_DATE = "Server date: ";
+    private static final String P4_SERVER_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+
+    private static final SimpleDateFormat P4_SERVER_DATE =
+            new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
+
 
     private Hashtable properties = new Hashtable();
 
@@ -112,6 +125,16 @@ public class P4 implements SourceControl {
 
     public void setPasswd(String p4Passwd) {
         this.p4Passwd = p4Passwd;
+    }
+
+    /**
+     *  Indicates whether to correct for time differences between the p4
+     *  server and the CruiseControl server.  Setting the flag to "true"
+     *  will correct for both time zone differences and for non-synchronized
+     *  system clocks.
+     */
+    public void setCorrectForServerTime(boolean flag) {
+        this.correctForServerTime = flag;
     }
 
     public Hashtable getProperties() {
@@ -318,6 +341,32 @@ public class P4 implements SourceControl {
      * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      */
     public Commandline buildChangesCommand(Date lastBuildTime, Date now, boolean isWindows) {
+
+        //If the Perforce server time is different from the CruiseControl
+        // server time, correct the parameter dates for the difference.
+        if (this.correctForServerTime) {
+            try {
+                int offset = (int) calculateServerTimeOffset();
+                Calendar cal = Calendar.getInstance();
+
+                cal.setTime(lastBuildTime);
+                cal.add(Calendar.MILLISECOND , (int) offset);
+                lastBuildTime = cal.getTime();
+
+                cal.setTime(now);
+                cal.add(Calendar.MILLISECOND , (int) offset);
+                now = cal.getTime();
+
+            } catch (IOException ioe) {
+                LOG.error("Unable to execute \'p4 info\' to get server time: "
+                        + ioe.getMessage()
+                        + "\nProceeding without time offset value.");
+            }
+        } else {
+            LOG.debug("No server time offset determined.");
+        }
+
+
         Commandline commandLine = buildBaseP4Command();
 
         commandLine.createArgument().setValue("changes");
@@ -349,6 +398,58 @@ public class P4 implements SourceControl {
 
         return commandLine;
     }
+
+    /**
+      * Calculate the difference in time between the Perforce server and the
+      * CruiseControl server.  A negative time difference indicates that the
+      * Perforce server time is later than CruiseControl server (e.g. Perforce
+      * in New York, CruiseControl in San Francisco).  A negative offset
+      * indicates that the Perforce server time is before the CruiseControl
+      * server.
+      */
+    private long calculateServerTimeOffset() throws IOException {
+        Commandline command = new Commandline();
+        command.setExecutable("p4");
+        command.createArgument().setValue("info");
+
+        LOG.debug("Executing: " + command.toString());
+        LOG.info(command.toString());
+        Process p = Runtime.getRuntime().exec(command.getCommandline());
+        logErrorStream(p.getErrorStream());
+        long offset = parseServerInfo(p.getInputStream());
+
+        return offset;
+    }
+
+    protected long parseServerInfo(InputStream is) throws IOException {
+
+        BufferedReader p4reader = new BufferedReader(new InputStreamReader(is));
+
+        Date ccServerTime = new Date();
+        Date p4ServerTime = new Date();
+
+        String line = null;
+        long offset = 0;
+        while ((line = p4reader.readLine()) != null && offset == 0) {
+            if (line.startsWith(SERVER_DATE)) {
+                try {
+                    String dateString = line.substring(SERVER_DATE.length(),
+                        SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
+                    p4ServerTime = P4_SERVER_DATE.parse(dateString);
+                    offset = p4ServerTime.getTime() - ccServerTime.getTime();
+                } catch (ParseException pe) {
+                    LOG.error("Unable to parse p4 server time from line \'"
+                            + line
+                            + "\'.  " + pe.getMessage()
+                            + "; Proceeding without time offset.");
+                }
+            }
+        }
+
+        LOG.info("Perforce server time offset: " + offset + " ms");
+        return offset;
+    }
+
 
     private Commandline buildBaseP4Command() {
         Commandline commandLine = new Commandline();

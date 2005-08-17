@@ -3,6 +3,7 @@
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
+ * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +43,7 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
@@ -222,18 +224,47 @@ public class P4Test extends TestCase {
         }
     }
 
+    public void testParseInfoResponse() throws IOException {
+        BufferedInputStream input = new BufferedInputStream(loadTestLog("p4_info.txt"));
+
+        P4 p4 = new P4();
+        p4.setCorrectForServerTime(true);
+
+        Calendar cal = Calendar.getInstance();
+        //this date is encoded in p4_info.txt.  Note month is indexed from 0
+        cal.set(2005, 6, 29, 20, 39, 06);
+        long p4ServerTime = cal.getTime().getTime();
+        long ccServerTime = System.currentTimeMillis();
+        long expectedOffset = p4ServerTime - ccServerTime;
+
+        long offset = p4.parseServerInfo(input);
+        input.close();
+
+        //Need to accept some difference in the expected offset and the actual
+        //offset, because the test takes some time to run.  To be safe, we'll
+        //allow up to 1 minute of variability in the offset value.
+        long maxOffset = 1000 * 60;
+        long offsetDifference = Math.abs(offset - expectedOffset);
+
+        assertTrue("Server time offset wasn't calculated accurately.  Expected "
+                + expectedOffset + " but got " + offset + ".  Maximum allowed"
+                + "difference in these values is " + maxOffset
+                + ".  P4 server time (from test input) is " + p4ServerTime
+                + "; CC server time is " + ccServerTime, offsetDifference < maxOffset);
+    }
+
     public boolean matches(String str, String pattern) throws MalformedPatternException {
         return new Perl5Matcher().matches(str, new Perl5Compiler().compile(pattern));
     }
 
     //    public void testGetModifications() throws Exception {
-    //        
+    //
     //        // REAL TEST IF YOU NEED IT
     //        P4 p4 = new P4();
     //        p4.setView("//depot/...");
     //        List changelists = p4.getModifications(new Date(0), new Date(), 0);
     //        assertEquals("Returned wrong number of changelists", 3, changelists.size());
-    //        
+    //
     //    }
 
     public static void main(String[] args) {
