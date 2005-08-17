@@ -1,0 +1,13 @@
+User name: yourname
+Client name: ZAPPA
+Client host: ZAPPA
+Client root: C:\Work
+Current directory: c:\WINDOWS\system32
+Client address: 10.0.0.5:63988
+Server address: yourp4server.home.yourdomain.net:1666
+Server root: /usr/dev/p4
+Server date: 2005/07/29 20:39:06 +0100 IST
+Server version: P4D/OSF/2005.1/80837 (2005/06/10)
+Proxy version: P4P/HPUX11/2005.1/80837 (2005/06/10)
+Server license: Joe's Crab Shack (fka JCS) 120 users (support ends 2005/11/15)
+

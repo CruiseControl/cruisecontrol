@@ -133,6 +133,7 @@ P4:
 * Migrated to use CommandLine util class for correct execution across environments. Patch by Jason Parrott.
 * Fixed parsing logic when file has more than 100 revisions. Patch by David Golombek.
 * Add optional Perforce password (CC-208). Patch by J D Glanville
+* Add correctForServerTime for when using across timezones. Patch by Patrick Conant
 
 P4Bootstrapper:
 ----------------------
