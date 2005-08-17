@@ -154,7 +154,7 @@ public class MKS implements SourceControl {
         }
         String cmd;
 
-        cmd = new String("si resync -f -R " + localWorkingDir.getAbsolutePath()
+        cmd = new String("si resync -f -R -S " + localWorkingDir.getAbsolutePath()
                 + File.separator + project);
 
         /* Sample output:

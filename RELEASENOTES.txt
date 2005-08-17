@@ -117,6 +117,7 @@ MavenSnapshotDependency:
 MKS:
 ----------------------
 * Overhaul of MKS source control. Submitted by Dominik Hirt
+* Always use -S option on resync. Patch by Engebakken Geir
 
 OnFailurePublisher & OnSuccessPublisher:
 ----------------------
