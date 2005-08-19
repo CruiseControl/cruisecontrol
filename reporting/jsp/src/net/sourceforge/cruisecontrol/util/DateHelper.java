@@ -44,7 +44,7 @@ import java.util.Locale;
  * Helper class for date-related functions.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public final class DateUtil {
+public final class DateHelper {
 
     private static final char YEAR = 'y';
     private static final char DAY = 'd';
@@ -54,7 +54,7 @@ public final class DateUtil {
     private static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd/MM/yyyy" + TWENTY_FOUR_HOUR);
     private static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MM/dd/yyyy" + TWENTY_FOUR_HOUR);
     
-    private DateUtil() {
+    private DateHelper() {
         // private constructor for utility class.
     }
     

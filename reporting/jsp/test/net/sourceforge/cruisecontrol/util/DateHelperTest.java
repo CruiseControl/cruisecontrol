@@ -44,12 +44,12 @@ import junit.framework.TestCase;
  * Test case for the utility date class.
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class DateUtilTest extends TestCase {
+public class DateHelperTest extends TestCase {
     
     /** Create a formatter for US */
     public void testCreateUsDateFormatter() {
         String expectedPattern = "MM/dd/yyyy HH:mm:ss";
-        String actualPattern = DateUtil.createDateFormat(Locale.US).toPattern();
+        String actualPattern = DateHelper.createDateFormat(Locale.US).toPattern();
         
         assertEquals(expectedPattern, actualPattern);
     }
@@ -57,7 +57,7 @@ public class DateUtilTest extends TestCase {
     /** Create a formatter for UK */
     public void testCreateUkDateFormatter() {
         String expectedPattern = "dd/MM/yyyy HH:mm:ss";
-        String actualPattern = DateUtil.createDateFormat(Locale.UK).toPattern();
+        String actualPattern = DateHelper.createDateFormat(Locale.UK).toPattern();
         
         assertEquals(expectedPattern, actualPattern);
     }
@@ -65,7 +65,7 @@ public class DateUtilTest extends TestCase {
     /** Create a formatter for Other */
     public void testCreateOtherDateFormatter() {
         String expectedPattern = "yyyy/MM/dd HH:mm:ss";
-        String actualPattern = DateUtil.createDateFormat(Locale.CANADA_FRENCH).toPattern();
+        String actualPattern = DateHelper.createDateFormat(Locale.CANADA_FRENCH).toPattern();
         
         assertEquals(expectedPattern, actualPattern);
     }
