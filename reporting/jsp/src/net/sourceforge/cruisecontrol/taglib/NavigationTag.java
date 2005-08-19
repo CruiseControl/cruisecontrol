@@ -49,7 +49,7 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
 
 import net.sourceforge.cruisecontrol.BuildInfo;
-import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.DateHelper;
 import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
@@ -180,7 +180,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     
     private DateFormat getDateFormat() {
         if (dateFormat == null) {
-            dateFormat = DateUtil.createDateFormat(getLocale());
+            dateFormat = DateHelper.createDateFormat(getLocale());
         }
         return dateFormat;
     }

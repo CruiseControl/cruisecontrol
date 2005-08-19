@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import net.sourceforge.cruisecontrol.taglib.CruiseControlTagSupport;
-import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.DateHelper;
 
 /**
  * @author Jared Richardson
@@ -112,7 +112,7 @@ public class StatusHelper {
 
     private String getBuildTimeString(BuildInfo logInfo, Locale locale) {
         Date date = logInfo.getBuildDate();
-        return DateUtil.createDateFormat(locale).format(date);
+        return DateHelper.createDateFormat(locale).format(date);
     }    
 
 }
