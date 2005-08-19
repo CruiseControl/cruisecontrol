@@ -44,6 +44,8 @@
     <div class="content">
         <h1><span class="printonly">CruiseControl</span> Plugins</h1>
 
+        <h2><a name="overview"/>Overview</h2>
+
         <p>
         It's tough to imagine all of the ways that CruiseControl can be used.
         Different tools and subtle nuances in team style make it difficult to
@@ -57,6 +59,19 @@
         example, exists in one place.  Encapsulating all of the functionality
         into plugins also makes testing easier.</p>
 
+        <ol>
+            <li><a href="#types">Types</a></li>
+            <li><a href="#initialization">Initialization</a></li>
+            <li><a href="#execution">Execution</a></li>
+            <li><a href="#registration">Registration</a></li>
+                <ul>
+                    <li><a href="#preconfiguration">Preconfiguration</a></li>
+                </ul>
+            </li>
+            <li><a href="#defaultregistry">Default Registry</a></li>
+        </ol>
+
+        <h2><a name="types"/>Plugin Types</h2>
         <p>There are currently six different types of plugins that
         CruiseControl supports. Each has a slightly different role, but all are
         designed similarly. While they all implement different interfaces and
@@ -76,7 +91,7 @@
             <li><code>Listener</code>: handles project events</li>
         </ul>
 
-        <h2>Plugin Initialization</h2>
+        <h2><a name="initialization"/>Plugin Initialization</h2>
         <p>
         The <code>PluginXMLHelper</code> will use introspection to call setter
         methods that correspond to attributes on your xml tag in the config file.
@@ -108,7 +123,7 @@
         determine whether your CruiseControl installation has been
         successful.</p>
 
-        <h2>Plugin Execution</h2>
+        <h2><a name="execution"/>Plugin Execution</h2>
 
         <p>After we have configured and validated all of the plugins, we will
         begin executing them according to their type. Each plugin has an
@@ -120,7 +135,7 @@
         as we iterate over the list of registered bootstrappers.  It's fairly
         similar for each of the other types of plugins.</p>
 
-        <h2>Plugin Registration</h2>
+        <h2><a name="registration"/>Plugin Registration</h2>
 
         <p>The registration of plugins is a simple and straightforward task.
         Directly under the &lt;cruisecontrol&gt; element, or
