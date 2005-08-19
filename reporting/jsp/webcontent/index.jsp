@@ -77,7 +77,7 @@
 
 <h1 class="white" align="center">CruiseControl Status Page</h1>
 
-<table align="center" border="0" cellpadding="0" cellspacing="0" width="70%">
+<table align="center" border="0" cellpadding="0" cellspacing="0">
 <tfoot>
   <tr><td class="link" colspan="2">listing generated at <%=reportTime.toString()%></td></tr>
 </tfoot>
@@ -162,7 +162,7 @@
                    %>
                    <tr><td class="index-passed">Passed</td>
                    <td align="center" class="index-passed"><%=passed%></td>
-                   <td align="center" class="index-passed"><%= NumberFormat.getPercentInstance().format((double) passed / projectDirs.length) %>%</td>
+                   <td align="center" class="index-passed"><%= NumberFormat.getPercentInstance().format((double) passed / projectDirs.length) %></td>
                    <td align="center" class="index-passed">&nbsp;</td>
                    <td align="center" class="index-passed">&nbsp;</td>
                    </tr>
@@ -184,7 +184,7 @@
                     %>
                    <tr><td class="index-unknown">Unknown</td>
                    <td align="center" class="index-unknown"><%=unknown%></td>
-                   <td align="center" class="index-unknown"><%=((double)unknown)/projectDirs.length*100.0%>%</td>
+                   <td align="center" class="index-unknown"><%= NumberFormat.getPercentInstance().format((double) unknown / projectDirs.length) %></td>
                    <td align="center" class="index-unknown">&nbsp;</td>
                    <td align="center" class="index-unknown">&nbsp;</td>
                    </tr>
