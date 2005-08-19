@@ -7,7 +7,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
   *
   * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
   */
-  public final class ValidationHelper {
+public final class ValidationHelper {
     private ValidationHelper() {
     }
 
