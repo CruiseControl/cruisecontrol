@@ -125,29 +125,22 @@ public class ProjectXMLHelperTest extends TestCase {
     }
     
     public void testMissingProperty() {
-        ProjectXMLHelper helper = null;
         try {
-            helper = new ProjectXMLHelper(configFile, "missingprop");
+            new ProjectXMLHelper(configFile, "missingprop");
             fail("A missing property should cause an exception!");
         } catch (CruiseControlException expected) {
         }
     }
 
     public void testDateFormat() throws Exception {
-        String originalFormat = DateFormatFactory.getFormat();
-        assertEquals("MM/dd/yyyy HH:mm:ss", originalFormat);
+        final String originalFormat = DateFormatFactory.getFormat();        
+        new ProjectXMLHelper(configFile, "dateformatfromproperty");
+        final String formatFromProperty = DateFormatFactory.getFormat();
+        DateFormatFactory.setFormat(DateFormatFactory.DEFAULT_FORMAT);
 
-        Element projectElement = new Element("project");
-        Element dateFormatElement = new Element("dateformat");
-        dateFormatElement.setAttribute("format", "yyyy/MM/dd hh:mm:ss a");
-        projectElement.addContent(dateFormatElement);
-
-        ProjectXMLHelper helper = new ProjectXMLHelper();
-        helper.setDateFormat(projectElement);
-
-        assertEquals("yyyy/MM/dd hh:mm:ss a", DateFormatFactory.getFormat());
-
-        DateFormatFactory.setFormat(originalFormat);
+        assertEquals(DateFormatFactory.DEFAULT_FORMAT, originalFormat);
+        assertEquals("MM/dd/yyyy HH:mm:ss a", formatFromProperty);
+        assertFalse(originalFormat.equals(formatFromProperty));
     }
 
     public void testGetBootstrappers() throws CruiseControlException {
@@ -314,6 +307,11 @@ public class ProjectXMLHelperTest extends TestCase {
         config.append("    <property name='global' value='eclipsed'/>\n");
         config.append("  </project>\n");
         
+        config.append("  <project name='dateformatfromproperty' >\n");
+        config.append("    <property name=\"date.format\" value=\"MM/dd/yyyy HH:mm:ss a\"/>\n");
+        config.append("    <dateformat format=\"${date.format}\"/>\n");
+        config.append("  </project>\n");
+
         config.append("</cruisecontrol>\n");
 
         writer = new BufferedWriter(new FileWriter(configFile));

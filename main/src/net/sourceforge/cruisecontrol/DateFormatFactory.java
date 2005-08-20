@@ -41,7 +41,8 @@ import java.text.SimpleDateFormat;
 
 public final class DateFormatFactory {
 
-    private static String format = "MM/dd/yyyy HH:mm:ss";
+    public static final String DEFAULT_FORMAT = "MM/dd/yyyy HH:mm:ss";
+    private static String format = DEFAULT_FORMAT;
 
     private DateFormatFactory() {
     }
