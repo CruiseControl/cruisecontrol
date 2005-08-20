@@ -1,0 +1,66 @@
+AccuRev was unable to understand your command.
+
+USAGE
+
+accurev hist [ -p <depot-name> ] [ -t <transaction-range> ] [ -s <stream> ] [ -k <transaction-kind> ]
+         [ -fevs ] [ -ft ] [ -u <principal-name> ] [ -c <comment> ] [ -a | <element-list> | -e <eid> ]
+
+-a	history of all elements, from most recent to first
+
+-p <depot-name>
+	perform the operation using this depot
+
+-s <stream>
+	perform the operation using this stream
+
+-t <transaction-range>
+	show a specific transaction or a range of transactions.
+
+	<transaction-range> can be:
+	   <time-spec>[.<count>]
+	   <newer-time-spec> - <older-time-spec>[.<count>]
+
+	<time-spec> can be:
+		time in YYYY/MM/DD HH:MM:SS format
+		time keyword: now
+		transaction number
+		transaction keyword: highest
+
+-c <comment>
+	limit results to transactions whose comments contain the specified string
+	(string match is case-insensitive)
+
+-k <transaction-kind>
+	limit results to transactions of a specific kind (eg. promote)
+
+-e <eid>
+	specify element by element-ID instead of by name
+
+-u <principal-name>
+	limit results to a specific user
+
+-f <fmt>
+	format command output
+	'e' - <expanded> expand to include keep operations associated
+	      with promotes
+	'v' - <verbose> show mod time, checksum, element type, and pathname
+	's' - <status> annotate elements that are currently members of default group
+	't' - <transaction> show transaction headline only, not detail lines
+	'x' - (XML> show results in XML format
+
+DESCRIPTION
+
+Display the history of an element, depot, or stream
+
+EXAMPLES
+
+	accurev hist foo.c
+	accurev hist -a -fev
+	accurev hist -t 1125
+
+
+MORE INFORMATION
+
+Type 'accurev help' for a complete list of topics.
+
+AccuRev Inc.   http://www.accurev.com   support@accurev.com

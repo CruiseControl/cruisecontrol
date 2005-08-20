@@ -88,6 +88,8 @@
         <h2>Alphabetical Index</h2>
 
         <pre style="font-size: smaller;">
+<a href="#accurev">&lt;accurev&gt;</a>
+<a href="#accurevbootstrapper">&lt;accurevbootstrapper&gt;</a>
 <a href="#alienbrain">&lt;alienbrain&gt;</a>
 <a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper&gt;</a>
 <a href="#alwaysbuild">&lt;alwaysbuild&gt;</a>
@@ -203,6 +205,7 @@
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
       <a href="#listeners">&lt;/listeners&gt;</a>
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+         <a href="#accurevbootstrapper">&lt;accurevbootstrapper/&gt;</a>
          <a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper/&gt;</a>
          <a href="#antbootstrapper">&lt;antbootstrapper/&gt;</a>
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
@@ -218,6 +221,7 @@
          <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
       &lt;/bootstrappers&gt;
       <a href="#modificationset">&lt;modificationset&gt;</a>
+         <a href="#accurev">&lt;accurev&gt;</a>
          <a href="#alienbrain">&lt;alienbrain/&gt;</a>
          <a href="#alwaysbuild">&lt;alwaysbuild/&gt;</a>
          <a href="#buildstatus">&lt;buildstatus/&gt;</a>
@@ -1030,6 +1034,11 @@ password=P@ssW0rd!
             </thead>
             <tbody>
             <tr>
+                <td><a href="#accurevbootstrapper">&lt;accurevbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Updates the resources of an Accurev workspace</td>
+            </tr>
+            <tr>
                 <td><a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from AlienBrain</td>
@@ -1097,6 +1106,76 @@ password=P@ssW0rd!
             </tbody>
         </table>
         </div>
+
+         <div class="elementdocumentation">
+         <a class="toplink" href="#top">top</a>
+         <h2><a name="accurevbootstrapper">&lt;accurevbootstrapper&gt;</a></h2>
+ 
+         <div class="hierarchy">
+             <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;accurevbootstrapper&gt;</pre>
+        </div>
+ 
+        <p>Automatically updates an accurev workspace. The selected workspace must already exist on the local filesystem.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>keep</td>
+                <td>No (defaults to "false")</td>
+                <td>If true, the plugin runs "accurev keep -m" before trying to update the workspace, to keep all modified elements.</td>
+            </tr>
+            <tr>
+                <td>synctime</td>
+                <td>No (defaults to "false")</td>
+                <td>If true, the plugin runs "accurev synctime" before trying to update the workspace, to synchronize the local clock with the Accurev server's.</td>
+            </tr>            
+            <tr>
+                <td>verbose</td>
+                <td>No (defaults to "false")</td>
+                <td>Enables detailed logging.</td>
+            </tr>            
+            <tr>
+                <td>workspace</td>
+                <td>No (defaults to the current dir)</td>
+                <td>The local path containing the working copy of the desired workspace.</td>
+            </tr>
+
+            </tbody>
+        </table>
+		
+        <h3>Examples</h3>
+
+	<ol>
+            <li>Updates the workspace locally stored on <code>D:\accurev\workspace_user\MyProject</code>, 
+            after synchronizing the local clock with the autokeeping all the modified files.
+
+<pre>
+&lt;bootstrappers&gt;
+    &lt;accurevbootstrapper workspace="D:\accurev\workspace_user\MyProject"
+        synctime="true"
+        keep="true" 
+        verbose="true"/&gt;
+&lt;bootstrappers&gt;
+</pre>
+</li>
+</ol>
+		
+
+        </div>	
+
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -1971,6 +2050,11 @@ password=P@ssW0rd!
             </thead>
             <tbody>
             <tr>
+                <td><a href="#accurev">&lt;accurev&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in an AccuRev stream.</td>
+            </tr>        
+            <tr>
                 <td><a href="#alienbrain">&lt;alienbrain&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in an AlienBrain repository.</td>
@@ -2070,6 +2154,46 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="accurev">&lt;accurev&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+       &lt;accurev&gt;</pre>
+        </div>
+
+        <p>Checks for modifications in an AccuRev stream.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+               <td>stream</td>
+               <td>Yes</td>
+               <td>The name of the AccuRev stream where the plugin looks for Modification(s).</td>
+            </tr>
+            <tr>
+               <td>verbose</td>
+               <td>No (defaults to "false")</td>
+               <td>Set to "true" to enable a more verbose logging style.</td>
+            </tr>           
+            </tbody>
+        </table>
+
         </div>
 
         <div class="elementdocumentation">

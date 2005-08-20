@@ -11,6 +11,10 @@ release format:
 build loop
 ======================
 
+Accurev:
+----------------------
+* Add Accurev source control and AccurevBootstrapper. Submitted by Jason Chown and Nicola Orru, patched by Jerome Lacoste
+
 AlienBrain:
 ----------------------
 * Add support for AlienBrain SCM. Submitted by Scott Jacobs

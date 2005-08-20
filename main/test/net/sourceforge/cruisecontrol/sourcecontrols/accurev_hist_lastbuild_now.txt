@@ -1,0 +1,33 @@
+ 
+transaction 120208; keep; 2005/06/22 10:53:10 ; user: norru
+  # Comment
+  \.\3rdParty\cruisecontrol\main\src\log4j.properties 431/1 (431/1)
+  ancestor: (248/1)
+ 
+  \.\3rdParty\cruisecontrol\main\src\net\sourceforge\cruisecontrol\bootstrappers\AccurevBootstrapper.java 431/1 (431/1)
+  ancestor: (324/3)
+ 
+  \.\3rdParty\cruisecontrol\main\src\net\sourceforge\cruisecontrol\builders\ImogenBuilder.java 431/1 (431/1)
+  ancestor: (324/1)
+ 
+  \.\3rdParty\cruisecontrol\main\src\net\sourceforge\cruisecontrol\sourcecontrols\Accurev.java 431/1 (431/1)
+  ancestor: (324/8)
+ 
+transaction 120209; defcomp; 2005/06/22 10:54:44 ; user: norru
+  \.\3rdParty\cruisecontrol 1/1 (248/1) incl
+ 
+transaction 120210; defcomp; 2005/06/22 10:57:23 ; user: norru
+  \.\3rdParty\cruisecontrol\main 1/1 (248/1) incl
+ 
+transaction 120214; defcomp; 2005/06/22 11:01:07 ; user: norru
+  \.\3rdParty\cruisecontrol\main 1/1 (248/1) clear
+ 
+transaction 120216; defcomp; 2005/06/22 11:06:55 ; user: norru
+  \.\3rdParty\cruisecontrol\main\config.xml 431/1 (431/1) incl
+  ancestor: (none - initial version)
+ 
+transaction 120217; defcomp; 2005/06/22 11:07:27 ; user: norru
+  \.\3rdParty\cruisecontrol\main\config.xml 431/1 (431/1) clear
+  ancestor: (none - initial version)
+ 
+ 
