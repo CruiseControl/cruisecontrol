@@ -1,0 +1,4 @@
+Workspace           Storage                       Host       Stream#
+Server_norru        C:/cygwin/home/norru/accurev/Server norru2k1pc.psygnosis.co.uk 358 121662 121662 1 0
+Server_sync_norru   E:/home/norru/accurev/Server  norru2k1pc.psygnosis.co.uk 370 109342 109342 1 0
+Server_lin_norru    /home/norru/accurev/Server_lin localhost.localdomain 431 121658 121658 1 0

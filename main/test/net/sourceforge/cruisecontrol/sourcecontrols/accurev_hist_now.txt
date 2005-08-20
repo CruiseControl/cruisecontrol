@@ -1,0 +1,8 @@
+
+transaction 121662; keep; 2005/07/04 09:58:08 ; user: norru
+  # CruiseControl automatic keep
+  \.\3rdParty\cruisecontrol\main\src\net\sourceforge\cruisecontrol\sourcecontrols\accurev\AccurevCommandline.java 358/5 (358/5)
+  ancestor: (358/4)
+ 
+  \.\3rdParty\cruisecontrol\main\test\net\sourceforge\cruisecontrol\sourcecontrols\AccurevTest.java 358/6 (358/6)
+  ancestor: (358/5)

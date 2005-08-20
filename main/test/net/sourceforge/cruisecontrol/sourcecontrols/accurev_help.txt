@@ -1,0 +1,12 @@
+
+AccuRev help categories:
+
+all          list all AccuRev commands
+ws           workspace commands
+vc           basic version-control commands
+rpt          reporting commands
+resolve      commands for resolving differences
+moving       commands for moving or removing elements
+security     security-related commands
+
+AccuRev Inc.   http://www.accurev.com   support@accurev.com

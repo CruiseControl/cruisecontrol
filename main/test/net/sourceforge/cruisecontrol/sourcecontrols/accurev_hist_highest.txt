@@ -1,0 +1,5 @@
+
+transaction 121670; promote; 2005/07/04 10:19:53 ; user: nguba
+  \.\Studio\Server\net.scee.cluster\configure 334/27 (380/25)
+ 
+  \.\Studio\Server\net.scee.dcdp\.classpath 334/7 (380/4)

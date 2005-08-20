@@ -1,0 +1,2 @@
+Kept element \.\3rdParty\cruisecontrol\main\src\net\sourceforge\cruisecontrol\sourcecontrols\accurev\AccurevCommandline.java
+Kept element \.\3rdParty\cruisecontrol\main\test\net\sourceforge\cruisecontrol\sourcecontrols\AccurevTest.java

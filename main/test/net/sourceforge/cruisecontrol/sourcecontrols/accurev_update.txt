@@ -1,0 +1,6 @@
+Update started
+Scanning entire workspace for files touched since last scan - ok
+Checking 1 recently touched files for unanchored modified files - ok
+Calculating changes - ok
+Transaction high-water mark updated
+Update complete.
