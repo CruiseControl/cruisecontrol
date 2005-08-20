@@ -115,7 +115,6 @@ public class ProjectXMLHelper {
         }
         
         projectName = projName;
-        setDateFormat(projectElement);
         
         // Register the project's name as a built-in property
         properties.setProperty("project.name", projectName);
@@ -137,6 +136,8 @@ public class ProjectXMLHelper {
         for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
             plugins.register((Element) pluginIter.next());
         }
+        
+        setDateFormat(projectElement);
     }
 
     protected void setDateFormat(Element projElement) {
