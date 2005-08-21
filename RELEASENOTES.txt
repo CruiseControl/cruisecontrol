@@ -99,6 +99,10 @@ HTMLEmailPublisher:
 * HTMLEmailPublisher fails to transform xml (CC-112)
 * Set the default XSL filelist to header.xsl and buildresult.xsl like the reporting application.
 
+JabberPublisher:
+----------------------
+* Altered to reuse a single persistent connection (CC-183). Patch by Jason Vinson
+
 JMX:
 ----------------------
 * Add ability to require username/password for JMX interface (CC-128). Patch by Glenn Brown
