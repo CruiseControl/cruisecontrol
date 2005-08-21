@@ -76,6 +76,8 @@ import org.jdom.Element;
  *      </cruisecontrol>
  *  </pre>
  *
+ *  Note: buildtarget is only present when a target is forced via the JMX interface.
+ *
  *  @author Alden Almagro
  *  @author Jonny Boman
  *  @version $Id$
