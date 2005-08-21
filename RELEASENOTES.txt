@@ -172,6 +172,10 @@ SourceControl:
 ----------------
 * Remove setProperty() and setPropertyOnDelete(). This unifies the handling for sourcecontrols that don't support the attribute. Patch by Jerome Lacoste
 
+StarTeam:
+----------------------
+* Change default for preloadfileinformation to true (CC-281). Patch by Lee Marlow
+
 StarTeamBootstrapper:
 ----------------------
 * Prevent StarTeam from needing user interaction (CC-189). Patch by Lee Marlow

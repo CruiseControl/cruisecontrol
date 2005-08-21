@@ -85,7 +85,7 @@ public class StarTeam implements SourceControl {
     private String property;
     private String propertyOnDelete;
 
-    private boolean preloadFileInformation = false;
+    private boolean preloadFileInformation = true;
     private boolean canLookupEmails = true;
 
     /**
