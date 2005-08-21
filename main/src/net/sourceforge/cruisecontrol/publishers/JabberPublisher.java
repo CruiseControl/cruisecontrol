@@ -62,7 +62,6 @@ import org.jivesoftware.smack.XMPPException;
 public abstract class JabberPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(JabberPublisher.class);
-    private static final int ONE_SECOND = 1000;
 
     private String host;
     private int port = 5222;
@@ -72,7 +71,8 @@ public abstract class JabberPublisher implements Publisher {
     private boolean chatroom = false;
     private boolean ssl = false;
 
-    private XMPPConnection connection;
+    // one connection for the CC session
+    private static XMPPConnection connection;
     private Chat chat;
     private GroupChat groupchat;
 
@@ -109,30 +109,45 @@ public abstract class JabberPublisher implements Publisher {
      * create the necessary chat session to send a message.
      */
     protected void init() {
-        try {
-            // Uncommenting will execute Smack XML-RPC trace GUI
-            //XMPPConnection.DEBUG_ENABLED = true;
-            if (ssl) {
-                connection = new SSLXMPPConnection(host, port);
-            } else {
-                connection = new XMPPConnection(host, port);
+        // Uncommenting will execute Smack XML-RPC trace GUI
+        //XMPPConnection.DEBUG_ENABLED = true;
+        if (null == connection || requiresReconnect()) {
+            try {
+                if (ssl) {
+                    connection = new SSLXMPPConnection(host, port);
+                } else {
+                    connection = new XMPPConnection(host, port);
+                }
+            } catch (XMPPException e) {
+                LOG.error("Error initializing jabber connection", e);
             }
             try {
                 connection.login(username, password);
-
-                if (chatroom) {
-                    groupchat = connection.createGroupChat(recipient);
-                    groupchat.join(username);
-                } else {
-                    chat = connection.createChat(recipient);
-                }
-
             } catch (XMPPException e) {
                 LOG.error("Authentication error on login", e);
             }
-        } catch (XMPPException e) {
-            LOG.error("Error initializing jabber connection", e);
         }
+        
+        try {
+            if (chatroom) {
+                groupchat = connection.createGroupChat(recipient);
+                groupchat.join(username);
+            } else {
+                chat = connection.createChat(recipient);
+            }
+        } catch (XMPPException e) {
+            LOG.error("Could not send message to recipient or chat room", e);
+        }
+    }
+
+    /**
+     * Checks for changes to params or connection failure
+     * @return true if a reconnect is required
+     */
+    private boolean requiresReconnect() {
+        return (!connection.isConnected() 
+                && !connection.isSecureConnection()) 
+                || !connection.isAuthenticated();
     }
 
     /**
@@ -185,11 +200,6 @@ public abstract class JabberPublisher implements Publisher {
             }
         } catch (XMPPException e) {
             LOG.error("Unable to send message via Jabber", e);
-        }
-
-        try {
-            Thread.sleep(ONE_SECOND);
-        } catch (InterruptedException ignore) {
         }
     }
 
