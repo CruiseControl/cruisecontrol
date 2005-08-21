@@ -4796,9 +4796,9 @@ endlocal</pre>
         <h3>Properties Passed to the Publisher</h3>
 
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
-        properties</a>, &lt;antpublisher&gt; passes the following properties to Ant,
-        which can be accessed in your script like any other property, using the
-        syntax ${propertyname}.
+        properties</a>, <code>&lt;antpublisher&gt;</code> passes the following
+        properties to Ant, which can be accessed in your script like any other
+        property, using the syntax <code>${propertyname}</code>.
         </p>
 
         <table class="documentation">
@@ -4822,15 +4822,18 @@ endlocal</pre>
             </tr>
             <tr>
                 <td>lastbuild</td>
-                <td>The timestamp of the last attempted build.</td>
+                <td>The timestamp of the last attempted build, using the format
+                <code>yyyyMMddHHmmss</code>.</td>
             </tr>
             <tr>
                 <td>lastsuccessfulbuild</td>
-                <td>The timestamp of the last successful build.</td>
+                <td>The timestamp of the last successful build, using the format
+                <code>yyyyMMddHHmmss</code>.</td>
             </tr>
             <tr>
                 <td>builddate</td>
-                <td>The date of the last build.</td>
+                <td>The date of the last build, formatted using the default or
+                specified <a href="#dateformat">&lt;dateformat&gt;</a>.</td>
             </tr>
             <tr>
                 <td>interval</td>
