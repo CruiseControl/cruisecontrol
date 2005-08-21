@@ -114,6 +114,7 @@
             <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="cruisecontrol-bin-${label}/projects"/>
             <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="cruisecontrol-bin-${label}"/>
             <zipfileset dir="main/lib" includes="*.jar" prefix="cruisecontrol-bin-${label}/lib"/>
+            <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="cruisecontrol-bin-${label}/lib/licenses"/>
             <zipfileset file="main/lib/ant/ant.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="cruisecontrol-bin-${label}/lib"/>
             <zipfileset file="main/dist/cruisecontrol.jar" prefix="cruisecontrol-bin-${label}/lib"/>
