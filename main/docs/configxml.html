@@ -145,6 +145,7 @@
 <a href="#property">&lt;property&gt;</a>
 <a href="#publishers">&lt;publishers&gt;</a>
 <a href="#pvcs">&lt;pvcs&gt;</a>
+<a href="#rss">&lt;rss&gt;</a>
 <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
 <a href="#schedule">&lt;schedule&gt;</a>
 <a href="#scp">&lt;scp&gt;</a>
@@ -270,6 +271,7 @@
          <a href="#jabber">&lt;jabber/&gt;</a>
          <a href="#onfailure">&lt;onfailure/&gt;</a>
          <a href="#onsuccess">&lt;onsuccess/&gt;</a>
+         <a href="#rss">&lt;rss/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
@@ -5884,6 +5886,61 @@ endlocal</pre>
             </li>
         </ol>
         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="rss">&lt;rss&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre><a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;rss&gt;</pre>
+        </div>
+
+
+        <p>Publishes an Really Simple Syndication (RSS) feed of build results.
+        Multiple CruiseControl projects can publish into the same RSS feed
+        provided that the "file" attribute point to the same location.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>buildresultsurl</td>
+                <td>yes</td>
+                <td>RSS item will include a link to the build results page.  Build results URL should look like 'http://MACHINENAME/cruisecontrol/buildresults/PROJECTNAME'.</td>
+            </tr>
+            <tr>
+                <td>channellinkurl</td>
+                <td>No</td>
+                <td>The primary URL associated with the RSS feed.</td>
+            </tr>
+
+            <tr class="oddrow">
+                <td>file</td>
+                <td>Yes</td>
+                <td>The location to which the RSS file should be published.  If an RSS file already exists in this location,
+                existing RSS attributes (title, description, channel link URL, news items) will be preserved.</td>
+            </tr>
+            <tr>
+                <td>maxlength</td>
+                <td>No</td>
+                <td>The maximum number of items to maintain in the RSS file.  Defaults to 10.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>

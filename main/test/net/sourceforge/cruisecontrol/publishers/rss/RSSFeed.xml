@@ -1,0 +1,93 @@
+<?xml version="1.0" ?>
+<rss version="2.0">
+  <channel>
+    <title>CruiseControl Build Results</title>
+    <link>http://MyMachine.MyDomain.com/cruisecontrol/</link>
+    <description>Automated build results for CruiseControl project(s) VERSION_10</description>
+    <language>en-US</language>
+    <item>
+        <title>VERSION_10 build.7 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050817084109Lbuild.7</link>
+        <description><![CDATA[<em>Build Time:</em> Wed Aug 17 08:41:09 MDT 2005<br/><em>Label:</em> build.7<br/><em>Modifications: </em>1<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/default.build  by jefferson (deploy the mock object dll)</li></ul>]]></description>
+        <pubDate>Wed, 17 Aug 2005 08:41:09 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050817084109Lbuild.7</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.6 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050817082058Lbuild.6</link>
+        <description><![CDATA[<em>Build Time:</em> Wed Aug 17 08:20:58 MDT 2005<br/><em>Label:</em> build.6<br/><em>Modifications: </em>1<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/VENDOR.MyProduct.PlayTime.Mock/VENDOR.MyProduct.PlayTime.Mock.csproj  by jefferson (put ndoc tasks back into the doc target of default.build (now that I finally figured out how to make it work))</li></ul>]]></description>
+        <pubDate>Wed, 17 Aug 2005 08:20:58 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050817082058Lbuild.6</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.5 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816184501Lbuild.5</link>
+        <description><![CDATA[<em>Build Time:</em> Tue Aug 16 18:45:01 MDT 2005<br/><em>Label:</em> build.5<br/><em>Modifications: </em>2<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/VENDOR.MyProduct.PlayTime.Mock/VENDOR.MyProduct.PlayTime.Mock.csproj  by jefferson (added NamespaceSummary.xml to VENDOR.MyProduct.PlayTime.Mock)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/VENDOR.MyProduct.PlayTime.Mock/VENDOR.MyProduct.PlayTime.Mock.csproj  by jefferson (changed documentation file from VENDOR.MyProduct.PlayTime.xml to VENDOR.MyProduct.PlayTime.Mock.xml)</li></ul>]]></description>
+        <pubDate>Tue, 16 Aug 2005 18:45:01 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816184501Lbuild.5</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.4 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816182243Lbuild.4</link>
+        <description><![CDATA[<em>Build Time:</em> Tue Aug 16 18:22:43 MDT 2005<br/><em>Label:</em> build.4<br/><em>Modifications: </em>1<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/VENDOR.MyProduct.PlayTime/VENDOR.MyProduct.PlayTime.csproj  by jefferson (added NamespaceSummary.xml for VENDOR.MyProduct.PlayTime)</li></ul>]]></description>
+        <pubDate>Tue, 16 Aug 2005 18:22:43 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816182243Lbuild.4</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.3 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816175234Lbuild.3</link>
+        <description><![CDATA[<em>Build Time:</em> Tue Aug 16 17:52:34 MDT 2005<br/><em>Label:</em> build.3<br/><em>Modifications: </em>1<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/VENDOR.MyProduct.PlayTime.Mock/VENDOR.MyProduct.PlayTime.Mock.csproj  by jefferson (create documentation as projects' post-build step)</li></ul>]]></description>
+        <pubDate>Tue, 16 Aug 2005 17:52:34 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816175234Lbuild.3</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.2 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816172310Lbuild.2</link>
+        <description><![CDATA[<em>Build Time:</em> Tue Aug 16 17:23:10 MDT 2005<br/><em>Label:</em> build.2<br/><em>Modifications: </em>1<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/messaging/isf/eng/README.txt  by roosevelt (freeze)</li></ul>]]></description>
+        <pubDate>Tue, 16 Aug 2005 17:23:10 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816172310Lbuild.2</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.1 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816170402Lbuild.1</link>
+        <description><![CDATA[<em>Build Time:</em> Tue Aug 16 17:04:02 MDT 2005<br/><em>Label:</em> build.1<br/><em>Modifications: </em>13<br/>
+<ul><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/MischiefServiceProxy/default.build  by joeschmoe (fixed type depoy -> deploy)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/ClientRegistration/AssemblyInfo.cs  by joeschmoe (moved under src sub dir)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/MischiefCheck/default.build  by joeschmoe (fixed deploy location problem)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/ClientRegistration/src/AssemblyInfo.cs  by joeschmoe (moved under src sub dir)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/default.build  by jefferson (added doc target)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/default.build  by jefferson (added doc for mock)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/MischiefCheck/default.build  by joeschmoe (fixed the deploy location)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/default.build  by jefferson (turned off a couple of documentation warnings (for now))</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/OOSRegistration/AssemblyInfo.cs  by joeschmoe (moved under src sub dir)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/ApplicationServer/PlayTime/build.bash  by jefferson (provide documentation.root parameter)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/OOSRegistration/build.bash  by joeschmoe (updated to deploy)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/ClientRegistration/build.bash  by joeschmoe (updated to deploy)</li><li>//depot/MyProduct/VERSION_10/dev/main/src/datacenter/WebServices/OOSRegistration/src/AssemblyInfo.cs  by joeschmoe (moved under src sub dir)</li></ul>]]></description>
+        <pubDate>Tue, 16 Aug 2005 17:04:02 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816170402Lbuild.1</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.1 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816162937Lbuild.1</link>
+        <description><![CDATA[Modifications: 13]]></description>
+        <pubDate>Tue, 16 Aug 2005 16:29:37 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816162937Lbuild.1</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.1 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816145215Lbuild.1</link>
+        <description><![CDATA[Modifications: 13]]></description>
+        <pubDate>Tue, 16 Aug 2005 14:52:15 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816145215Lbuild.1</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.1 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/?log=log20050816143516Lbuild.1</link>
+        <description><![CDATA[Modifications: 13]]></description>
+        <pubDate>Tue, 16 Aug 2005 14:35:16 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/?log=log20050816143516Lbuild.1</guid>
+    </item>
+    <item>
+        <title>VERSION_10 build.1 Build Successful</title>
+        <link>http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816142136Lbuild.1</link>
+        <description><![CDATA[Modifications: 12]]></description>
+        <pubDate>Tue, 16 Aug 2005 14:21:36 MDT</pubDate>
+        <guid isPermaLink="true">http://MyMachine.MyDomain.com/cruisecontrol/buildresults/VERSION_10?log=log20050816142136Lbuild.1</guid>
+    </item>
+  </channel>
+</rss>
