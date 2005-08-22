@@ -4,7 +4,6 @@
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
- * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -45,6 +44,7 @@ import java.io.File;
  *  class keeps track of how many projects are being published into the feed
  *  and uses this information to generate a default feed title and description.
  *
+ *  Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  *  @author Patrick Conant
  */
 public class CruiseControlFeed extends Feed {

@@ -4,7 +4,6 @@
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
- * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -50,6 +49,7 @@ import org.apache.log4j.Logger;
  *  A generic RSS Feed Item (includes the contents of an RSS feed between the
  *  &lt:item&gt; and &lt;/item&gt; tags).
  *
+ *  Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  *  @author Patrick Conant
  */
 public class CruiseControlItem extends Item {

@@ -4,7 +4,6 @@
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
- * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,6 +41,9 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
+/*
+ * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ */
 public class CruiseControlItemTest extends TestCase {
 
 
