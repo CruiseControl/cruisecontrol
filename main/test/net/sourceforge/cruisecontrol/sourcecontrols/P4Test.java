@@ -3,7 +3,6 @@
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
- * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +58,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * @author Robert Watkins
  * @author Jason Yip, jcyip@thoughtworks.com
+ * @author Patrick Conant Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  */
 public class P4Test extends TestCase {
 

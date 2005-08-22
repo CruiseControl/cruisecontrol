@@ -3,7 +3,6 @@
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
- * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +80,7 @@ import org.jdom.Element;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Tim McCune
  * @author J D Glanville
- * @author Patrick Conant
+ * @author Patrick Conant Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  */
 public class P4 implements SourceControl {
 
