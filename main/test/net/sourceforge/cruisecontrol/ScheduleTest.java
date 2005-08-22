@@ -148,7 +148,7 @@ public class ScheduleTest extends TestCase {
 
         Builder nextTimeBuilder = timeBasedSchedule.selectBuilder(3, THURSDAY_1001, THURSDAY_1101);
         assertEquals(NOON_BUILDER, nextTimeBuilder);
-        
+
         try {
             Schedule badSchedule = new Schedule();
             badSchedule.selectBuilder(1, THURSDAY_1001, THURSDAY_1101);
@@ -157,6 +157,21 @@ public class ScheduleTest extends TestCase {
         }
     }
 
+    public void testSelectBuilder_MultipleBuildersWithDaySet() throws CruiseControlException {
+        Builder thursdayBuilder = new MockBuilder();
+        thursdayBuilder.setDay("thursday");
+        Schedule scheduledByDay = new Schedule();
+        scheduledByDay.addBuilder(thursdayBuilder);
+        assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, THURSDAY_1101));
+        assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));        
+
+        Builder fridayBuilder = new MockBuilder();
+        fridayBuilder.setDay("friday");
+        scheduledByDay.addBuilder(fridayBuilder);
+        assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, THURSDAY_1101));
+        assertEquals(fridayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));
+    }
+    
     public void testIsPaused() {
         PauseBuilder pauseBuilder = new PauseBuilder();
         pauseBuilder.setStartTime(2300);
@@ -227,6 +242,18 @@ public class ScheduleTest extends TestCase {
             "chained pauses with day specific pause",
             ONE_DAY + (2 * ONE_HOUR),
             schedule.getTimeToNextBuild(THURSDAY_2301, ONE_HOUR));
+    }
+    
+    public void testGetTimeToNextBuild_MultipleBuilderWithDaySet() {
+        Schedule intervalThursdaysSchedule = new Schedule();
+        Builder intervalThursdays = new MockBuilder();
+        intervalThursdays.setDay("thursday");
+        intervalThursdaysSchedule.addBuilder(intervalThursdays);
+        assertEquals(ONE_MINUTE, intervalThursdaysSchedule.getTimeToNextBuild(THURSDAY_2301, ONE_MINUTE));
+        assertEquals(6 * ONE_DAY + ONE_HOUR - ONE_MINUTE,
+                intervalThursdaysSchedule.getTimeToNextBuild(THURSDAY_2301, ONE_HOUR));
+        assertEquals(6 * ONE_DAY + ONE_HOUR - ONE_MINUTE,
+                intervalThursdaysSchedule.getTimeToNextBuild(THURSDAY_2301, ONE_DAY));
     }
     
     public void testGetTimeToNextBuild_BadSchedule() {

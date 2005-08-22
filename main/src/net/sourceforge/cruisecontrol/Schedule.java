@@ -187,8 +187,10 @@ public class Schedule {
                     return builder;
                 }
             } else if (builder.getMultiple() > 0) {
-                if ((buildNumber % builder.getMultiple()) == 0) {
-                    return builder;
+                if (builder.isValidDay(now)) {
+                    if ((buildNumber % builder.getMultiple()) == 0) {
+                        return builder;
+                    }
                 }
             } else {
                 throw new CruiseControlException("The selected Builder is not properly configured");
@@ -211,6 +213,8 @@ public class Schedule {
     long getTimeToNextBuild(Date now, long sleepInterval) {
         long timeToNextBuild = sleepInterval;
         LOG.debug("getTimeToNextBuild: initial timeToNextBuild = " + timeToNextBuild);
+        timeToNextBuild = checkMultipleBuilders(now, timeToNextBuild);
+        LOG.debug("getTimeToNextBuild: after checkMultipleBuilders = " + timeToNextBuild);
         timeToNextBuild = checkTimeBuilders(now, timeToNextBuild);
         LOG.debug("getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
         long timeTillNotPaused = checkPauseBuilders(now, timeToNextBuild);
@@ -228,6 +232,64 @@ public class Schedule {
         }
         
         return timeToNextBuild;
+    }
+
+    private long checkMultipleBuilders(Date now, long interval) {
+        if (hasOnlyTimeBuilders()) {
+            LOG.debug("has only time builders, so no correction for multiple builders.");
+            return interval;
+        }
+        
+        Date then = getFutureDate(now, interval);
+        
+        List buildersForOtherDays = new ArrayList();
+        Iterator iterator = builders.iterator();
+        while (iterator.hasNext()) {
+            Builder builder = (Builder) iterator.next();
+            boolean isTimeBuilder = builder.getTime() != Builder.NOT_SET;
+            if (!isTimeBuilder) {
+                if (builder.getMultiple() == 1) {
+                    if (builder.isValidDay(then)) {
+                        LOG.debug("multiple=1 builder found that could run on " + then);
+                        return interval;
+                    } else {
+                        buildersForOtherDays.add(builder);
+                    }
+                }
+            }
+        }
+        
+        if (buildersForOtherDays.size() == 0) {
+            LOG.error("configuration error: has some multiple builders but no multiple=1 builders found!");
+            return interval;
+        } else {
+            LOG.debug("no multiple=1 builders found for " + then + ". checking other days");
+        }
+        
+        for (int i = 1; i < 7; i++) {
+            long daysPastInitialInterval = i * ONE_DAY;
+            then = getFutureDate(now, interval + daysPastInitialInterval);
+            iterator = builders.iterator();
+            while (iterator.hasNext()) {
+                Builder builder = (Builder) iterator.next();
+                if (builder.isValidDay(then)) {
+                    LOG.debug("multiple=1 builder found that could run on " + then);
+                    long correctionToMidnight = getTimePastMidnight(then);
+                    return interval + daysPastInitialInterval - correctionToMidnight;
+                }
+            }            
+        }
+        
+        LOG.error("configuration error? could not find appropriate multiple=1 builder.");
+        return interval;
+    }
+
+    private long getTimePastMidnight(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        long time = 60 * ONE_MINUTE * cal.get(Calendar.HOUR_OF_DAY);
+        time += ONE_MINUTE * cal.get(Calendar.MINUTE);
+        return time;
     }
 
     private boolean hasOnlyTimeBuilders() {
