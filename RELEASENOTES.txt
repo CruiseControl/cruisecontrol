@@ -159,6 +159,10 @@ RSSPublisher:
 ----------------------
 * Submitted by Patrick Conant. Patched by Jerome Lacoste.
 
+Schedule:
+----------------------
+* Support the 'day' property on multiple builders (CC-289).
+
 SCPPublisher:
 ----------------------
 * No longer remove first char from xml log file path, since it now causes errors. Patch by Dan Penhurst
