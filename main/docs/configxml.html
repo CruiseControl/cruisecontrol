@@ -3324,7 +3324,7 @@ password=P@ssW0rd!
             <tr>
                 <td>loginid</td>
                 <td>no</td>
-                <td></td>
+                <td>Used to supply a user and password. Example: loginid="sampleuser:samplepassword" or loginid="sampleuser"</td>
             </tr>
             <tr>
                 <td>pvcsproject</td>
@@ -3340,6 +3340,11 @@ password=P@ssW0rd!
                 <td>pvcsbin</td>
                 <td>No</td>
                 <td>Path to directory with pcli.</td>
+            </tr>
+            <tr>
+                <td>pvcsversionlabel</td>
+                <td>No</td>
+                <td>The version label for the PVCS builder to check against. Example: pvcsVersionLabel="SampleVersionLabel"</td>
             </tr>
             <tr>
                 <td>outdateformat</td>
@@ -4063,6 +4068,12 @@ password=P@ssW0rd!
                 <td>antWorkingDir</td>
                 <td>No</td>
                 <td>Will invoke ant in the specified directory.</td>
+            </tr>
+            <tr>
+                <td>saveLogDir</td>
+                <td>No</td>
+                <td>If supplied a copy of the ant log will be saved in the specified directory. Example:
+saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>timeout</td>
