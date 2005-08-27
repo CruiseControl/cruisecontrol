@@ -210,6 +210,7 @@ ValidationHelper:
 VSS(Journal):
 ----------------------
 * Create SimpleDateFormats with Locale.US to fix JUnit build failure on Chinese Windows systems (CC-153 & CC-156)
+* Fix problem with invalid temp file names (CC-290).
 
 reporting jsp app
 ======================
