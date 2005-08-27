@@ -71,6 +71,7 @@ CVS:
 * No longer using environment variable CVS_ROOT. Validation now requires one to either set localworkingcopy or cvsroot and module (CC-207). Patch by Mark Doliner
 * Fixed getting cvs version number to avoid the NPE, and automatically use the old format in that case (CC-105). Patch by Jerome Lacoste.
 * Fixed wrong timezone for the cvstimestamp property passed to builders. Reported by Peter Buckner
+* Support non-branch tags (CC-165). Patch by corporate_gadfly@hotmail.com. Documentation and tests by Jerome Lacoste
 
 CVSBootstrapper:
 ----------------------
