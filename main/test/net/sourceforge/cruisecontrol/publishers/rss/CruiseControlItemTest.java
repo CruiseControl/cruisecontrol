@@ -70,9 +70,11 @@ public class CruiseControlItemTest extends TestCase {
         CruiseControlItem item = new CruiseControlItem(successLogHelper, "link");
 
         assertEquals("someproject somelabel Build Successful", item.getTitle());
-        assertEquals(
-            "<em>Build Time:</em> not available<br/><em>Label:</em> somelabel<br/"
-            + "><em>Modifications: </em>0<br/>\n<ul>",
+        assertEquals("<em>Build Time:</em> Wed Mar 13 12:00:00 PST 2002<br/><em>Label:</em> somelabel<br/>"
+                + "<em>Modifications: </em>4"
+                + "<li>filename1  by user1 (The comment)</li><li>filename3  by user2 (The comment)</li>" 
+                + "<li>filename2  by user2 (The comment)</li><li>filename4  by user3 (The comment)</li>"
+                + "</ul><br/>\n<ul>",
             item.getDescription());
 
         // Can't validate the date published field because the TestUtil.createElement
