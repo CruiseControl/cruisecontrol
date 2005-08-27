@@ -80,6 +80,41 @@ public class TimeBuildTest extends TestCase {
         assertEquals(0, modifications.size());
     }
 
+    public void testTimesDifferentDays() {
+
+        Calendar calender2000Previousday = Calendar.getInstance();
+        calender2000Previousday.set(2002, Calendar.DECEMBER, 22, 20, 00, 00);
+
+        Calendar calender1400 = Calendar.getInstance();
+        calender1400.set(2002, Calendar.DECEMBER, 23, 14, 00, 00);
+
+        Calendar calender1600 = Calendar.getInstance();
+        calender1600.set(2002, Calendar.DECEMBER, 23, 16, 00, 00);
+
+        Calendar calender1601 = Calendar.getInstance();
+        calender1601.set(2002, Calendar.DECEMBER, 23, 16, 01, 00);
+
+        Calendar calender1603 = Calendar.getInstance();
+        calender1603.set(2002, Calendar.DECEMBER, 23, 16, 03, 00);
+
+        TimeBuild timeBuild = new TimeBuild();
+        timeBuild.setTime("1600");
+        timeBuild.setUserName("epugh");
+        List modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
+                calender1400.getTime());
+        assertEquals(0, modifications.size());
+        modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
+                calender1600.getTime());
+        assertEquals(0, modifications.size());
+        modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
+                calender1601.getTime());
+        assertEquals(1, modifications.size());
+        checkUserName("epugh", modifications);
+        modifications = timeBuild.getModifications(calender1601.getTime(),
+                calender1603.getTime());
+        assertEquals(0, modifications.size());
+    }
+
     private void checkUserName(String userName, List modifications) {
         assertEquals(1, modifications.size());
         Modification modification = (Modification) modifications.get(0);
