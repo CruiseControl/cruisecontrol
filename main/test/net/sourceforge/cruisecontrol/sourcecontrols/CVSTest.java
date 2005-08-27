@@ -467,6 +467,35 @@ public class CVSTest extends TestCase {
         assertEquals(mod1, modifications.get(3));
     }
 
+    public void testParseStreamTagNoBranch() throws IOException, ParseException {
+        // ensure CVS version and simulated outputs are in sync
+        CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.12.9"));
+        Hashtable emailAliases = new Hashtable();
+        cvs.setMailAliases(emailAliases);
+
+        cvs.setTag("TEST");
+        BufferedInputStream input =
+                new BufferedInputStream(loadTestLog("cvslog1-12tagnobranch.txt"));
+        List modifications = cvs.parseStream(input);
+        input.close();
+        Collections.sort(modifications);
+
+        assertEquals("Should have returned 1 modification.",
+                1,
+                modifications.size());
+
+        Modification mod1 = new Modification("cvs");
+        mod1.revision = "1.49";
+        mod1.modifiedTime = parseLogDateFormat("2005/08/22 17:28:13 GMT");
+        mod1.userName = "jerome";
+        mod1.comment = "Test commit";
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("test.version", null);
+        mod1file.action = "modified";
+        mod1file.revision = mod1.revision;
+
+        assertEquals(mod1, modifications.get(0));
+    }
+
     public void testGetProperties() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         CVS cvs = new MockVersionCVS(getOfficialCVSVersion("1.11.16"));

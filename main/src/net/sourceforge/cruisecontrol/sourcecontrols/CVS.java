@@ -552,7 +552,7 @@ public class CVS implements SourceControl {
             commandLine.createArgument().setValue("rlog");
         }
         
-        boolean useHead = tag == null || tag.equals("HEAD") || tag.equals("");
+        boolean useHead = tag == null || tag.equals(CVS_HEAD_TAG) || tag.equals("");
         if (useHead) {
             commandLine.createArgument().setValue("-N");
         }
@@ -658,6 +658,8 @@ public class CVS implements SourceControl {
      * more revisions. This method may consume the next CVS_FILE_DELIMITER line
      * from the reader, but no further.
      *
+     * When the log is related to a non branch tag, only the last modification for each file will be listed.
+     *
      * @param reader Reader to parse data from.
      * @return modifications found in this entry; maybe empty, never null.
      * @throws IOException
@@ -691,9 +693,12 @@ public class CVS implements SourceControl {
             tokens.nextToken();
             String revision = tokens.nextToken();
             if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
-                String itsBranchRevisionName = revision.substring(0, revision.lastIndexOf('.'));
-                if (!itsBranchRevisionName.equals(branchRevisionName)) {
-                    break;
+                if (!revision.equals(branchRevisionName)) {
+                    // Indeed this is a branch, not just a regular tag
+                    String itsBranchRevisionName = revision.substring(0, revision.lastIndexOf('.'));
+                    if (!itsBranchRevisionName.equals(branchRevisionName)) {
+                        break;
+                    }
                 }
             }
 
@@ -825,7 +830,7 @@ public class CVS implements SourceControl {
             String branchRevisionLine = readToNotPast(reader, "\t" + tag + ": ", CVS_DESCRIPTION);
 
             if (branchRevisionLine != null) {
-                // Look for the revision of the form "tag: *.(0.)y "
+                // Look for the revision of the form "tag: *.(0.)y ", return "*.y"
                 branchRevisionName = branchRevisionLine.substring(tag.length() + 3);
                 if (branchRevisionName.charAt(branchRevisionName.lastIndexOf(".") - 1) == '0') {
                     branchRevisionName =
