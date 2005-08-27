@@ -44,7 +44,7 @@
     <div class="content">
         <h1><span class="printonly">CruiseControl</span> Plugins</h1>
 
-        <h2><a name="overview"/>Overview</h2>
+        <h2>Introduction</h2>
 
         <p>
         It's tough to imagine all of the ways that CruiseControl can be used.
@@ -60,16 +60,36 @@
         into plugins also makes testing easier.</p>
 
         <ol>
+            <li><a href="#designoverview">Design overview</a></li>
             <li><a href="#types">Types</a></li>
-            <li><a href="#initialization">Initialization</a></li>
+            <li><a href="#initialization">Initialization</a>
+                <ul>
+                    <li><a href="#normalconfiguration">Plugin configuration</a></li>
+                    <li><a href="#selfconfiguring">Self-configuring plugins</a></li>
+                    <li><a href="#validation">Plugin validation</a></li>
+                </ul>
+            </li>
             <li><a href="#execution">Execution</a></li>
             <li><a href="#registration">Registration</a></li>
                 <ul>
                     <li><a href="#preconfiguration">Preconfiguration</a></li>
                 </ul>
-            </li>
+              </li>
             <li><a href="#defaultregistry">Default Registry</a></li>
         </ol>
+
+        <h2><a name="designoverview"/>Plugin Design Overview</h2>
+        Plugins are represented by beans. Plugin classes are mapped to element names
+        in the XML config file thanks to a process known as <a href="#registration">
+        registration</a>. Plugins distributed with cruisecontrol are all
+        <a href="#defaultregistry">registrated by default</a>.</p>
+
+        <p>The configuration will be initiated by the <code>ProjectXMLHelper</code> class
+        which handles the mapping of the registered plugin and delegates the plugin
+        <a href="#initialization">initialization</a> to the <code>PluginXMLHelper</code> class.
+        Once configured, the plugin is <a href="#validation">validated</a>, and
+        <a href="#execution">executed</a> at the appropriate time in the build cycle. This
+        execution time will depend on the plugin type.
 
         <h2><a name="types"/>Plugin Types</h2>
         <p>There are currently six different types of plugins that
@@ -92,9 +112,14 @@
         </ul>
 
         <h2><a name="initialization"/>Plugin Initialization</h2>
-        <p>
-        The <code>PluginXMLHelper</code> will use introspection to call setter
-        methods that correspond to attributes on your xml tag in the config file.
+        <p>The <code>PluginXMLHelper</code> will usually use introspection to
+        configure the bean. The exception to this rule is when the plugin is
+        <a href="#selfconfiguring">self-configuring</a>.</p>
+
+        <h3><a name="normalconfiguration"/>Plugin configuration</h3>
+        <p>In the case of normal initialization, the <code>PluginXMLHelper</code> will
+        call setter methods that correspond to attributes on your xml tag in the
+        config file.
         For example, the method <code>setTarget(String target)</code> on the
         <code>AntBuilder</code> class corresponds to the attribute
         <code>target</code> on the <code>&lt;ant/&gt;</code> element in the
@@ -104,18 +129,35 @@
 
         <p>It is possible for you to declare nested elements within your
         plugin's declaration in the config file.  In this case, CruiseControl
-        will expect your plugin class to implement a create method for each
-        nested element.  Returning to our example <code>AntBuilder</code> class,
-        we will see a <code>createJVMArg()</code> method.  We'll also see that
-        <code>AntBuilder</code> has a nested JVMArg class.  This create method
-        is responsible for creating an instance of <code>JVMArg</code> and
-        keeping a reference to that object for <code>AntBuilder</code> to use
+        will expect your plugin class to implement an <code>add</code> or
+        <code>create</code> method for each nested element, depending whether your
+        nester element is itself a plugin or not:
+        <ul>
+        <li>for nested elements that are also plugins, the <code>PluginXMLHelper</code>
+        doesn't know to which class the element should map and then asks the
+        <code>ProjectXMLHelper</code> to configure the element.</li>
+        <li>for simple (non plugins) nested elements, the plugin knows the
+        type that will map to the config element name. Returning to our example
+        <code>AntBuilder</code> class, we will see a <code>createJVMArg()</code>
+        method.  We'll also see that <code>AntBuilder</code> has a nested JVMArg class.
+        This create method is responsible for creating an instance of <code>JVMArg</code>
+        and keeping a reference to that object for <code>AntBuilder</code> to use
         later.  It returns a reference to the newly created <code>JVMArg</code>
         object, so that <code>PluginXMLHelper</code> can configure the nested
         element in the same way as the parent element.  In theory, there is no
         limit to the depth of your nesting, as long as the appropriate create
-        methods have been written.</p>
+        methods have been written.</li>
+        </ul>
+        </p>
 
+        <h3><a name="selfconfiguring"/>Self-configuring plugins</h3>
+        In some cases, one may want to skip the default configuration facilities offered
+        by the framework. This can be achieved done by making the plugin class implement the
+        <code>SelfConfiguringPlugin</code> interface.
+        In that case the <code>PluginXMLHelper</code> will delegate plugin configuration to the
+        <code>configureObject()</code> defined by this interface.
+
+        <h3><a name="validation"/>Plugin Validation</h3>
         <p>Immediately after the parser has configured your plugin, we will
         validate the plugin using it's own <code>validate()</code> method.
         This will enable us to fail quickly if your plugin has been incorrectly
