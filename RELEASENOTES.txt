@@ -156,6 +156,10 @@ ProjectXMLHelper:
 ----------------------
 * Added support for Ant-style properties in the config file (CC-132). Patch by Robert Smith
 
+PVCS:
+----------------------
+* use loginId. Patch by Jeremy Whitlock
+
 RSSPublisher:
 ----------------------
 * Submitted by Patrick Conant. Patched by Jerome Lacoste.

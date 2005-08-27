@@ -228,8 +228,8 @@ public class PVCS implements SourceControl {
 
     /**
      *  Returns the command to be ran to check for repository changes
-     *  run -ns -q -xo"vlog.txt" -xe"vlog.txt" vlog -ds"11/23/2004 8:00AM"
-     *  -de"11/23/2004 1:00PM" -pr"C:/PVCS-Repos/TestProject"
+     *  run -ns -q -xo"vlog.txt" -xe"vlog.txt" vlog -id"SomeUser" 
+     *  -ds"11/23/2004 8:00AM"-de"11/23/2004 1:00PM" -pr"C:/PVCS-Repos/TestProject"
      *  -v"Test Version Label" -z /TestProject
      *
      *  @return the command to be executed to check for repository changes
@@ -238,7 +238,13 @@ public class PVCS implements SourceControl {
         String command =
             "run -ns -q -xo" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE
             + " -xe" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE
-            + " vlog -ds" + DOUBLE_QUOTE + lastBuild + DOUBLE_QUOTE
+            + " vlog ";
+        
+        if (loginId != null && !loginId.trim().equals("")) {
+            command += "-id" + DOUBLE_QUOTE + loginId + DOUBLE_QUOTE + " ";
+        }
+        
+        command += "-ds" + DOUBLE_QUOTE + lastBuild + DOUBLE_QUOTE
             + " -de" + DOUBLE_QUOTE + now + DOUBLE_QUOTE
             + " -pr" + DOUBLE_QUOTE + pvcsProject + DOUBLE_QUOTE;
 
