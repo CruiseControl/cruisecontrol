@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.publishers;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
@@ -49,11 +50,15 @@ import java.io.StringReader;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+// import org.apache.oro.io.GlobFilenameFilter;
 import org.jdom.input.SAXBuilder;
 import org.jdom.Element;
 
@@ -64,6 +69,7 @@ public class EmailPublisherTest extends TestCase {
     private XMLLogHelper failureLogHelper;
     private XMLLogHelper firstFailureLogHelper;
     private EmailPublisher emailPublisher;
+    private EmailPublisher noAlertsEmailPublisher;
     private File tmpFile;
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
@@ -82,7 +88,46 @@ public class EmailPublisherTest extends TestCase {
         props.store(fos, null);
         fos.close();
         tmpFile.deleteOnExit();
-        //pass in some xml and create the publisher
+
+        String xml = generateXML(true);
+        emailPublisher = initPublisher(propertiesMapper, xml);
+        emailPublisher.setMailHost("mailhost");
+        emailPublisher.setReturnAddress("returnaddress");
+
+        xml = generateXML(false);
+        noAlertsEmailPublisher = initPublisher(propertiesMapper, xml);
+        
+        successLogHelper = createLogHelper(true, true);
+        failureLogHelper = createLogHelper(false, false);
+        fixedLogHelper = createLogHelper(true, false);
+        firstFailureLogHelper = createLogHelper(false, true); 
+    }
+
+    
+
+    protected EmailPublisher initPublisher(PropertiesMapper propMapper,
+                                  String xml)
+                                  throws Exception {
+        
+        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        
+        Element emailPublisherElement = builder.build(new StringReader(xml)).getRootElement();
+        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper());
+
+        EmailPublisher ePublisher =
+            (MockEmailPublisher) xmlHelper.configure(
+                emailPublisherElement,
+                Class.forName("net.sourceforge.cruisecontrol.publishers.MockEmailPublisher"),
+                false);
+
+        ePublisher.add(new DropLetterEmailAddressMapper());        
+        propMapper.setFile(tmpFile.getPath());
+        ePublisher.add(propMapper);
+        
+        return ePublisher;
+    }
+    
+    protected String generateXML(boolean includeAlerts) {
         StringBuffer xml = new StringBuffer();
         xml.append("<email defaultsuffix=\"@host.com\">");
         xml.append("<always address=\"always1\"/>");
@@ -93,26 +138,17 @@ public class EmailPublisherTest extends TestCase {
         xml.append("<success address='success1' />");
         xml.append("<success address='success2@host.com' />");
         xml.append("<map alias=\"user3\" address=\"user3@host2.com\"/>");
+        if (includeAlerts) {
+            //xml.append("<alert file=\".*\" address=\"anyFileMod@host.com\" />");
+            xml.append("<alert fileRegExpr=\"filename1\" address=\"filename1@host.com\" />");
+            xml.append("<alert fileRegExpr=\"basedir/subdirectory2/.*\" address=\"subdir2@host.com\" />");
+            xml.append("<alert fileRegExpr=\"basedir/subdirectory3/filename3\" address=\"filename3@host.com\" />");
+            xml.append("<alert fileRegExpr=\"basedir/subdirectory5/.*\" address=\"basedirSubdirectory5@host.com\" />");
+            xml.append("<alert fileRegExpr=\"\" address=\"\" />");
+        }
         xml.append("</email>");
-
-        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        Element emailPublisherElement = builder.build(new StringReader(xml.toString())).getRootElement();
-
-        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper());
-        emailPublisher =
-            (MockEmailPublisher) xmlHelper.configure(
-                emailPublisherElement,
-                Class.forName("net.sourceforge.cruisecontrol.publishers.MockEmailPublisher"),
-                false);
-        emailPublisher.add(new DropLetterEmailAddressMapper());
-        propertiesMapper.setFile(tmpFile.getPath());
-        emailPublisher.add(propertiesMapper);
-
-        successLogHelper = createLogHelper(true, true);
-        failureLogHelper = createLogHelper(false, false);
-        fixedLogHelper = createLogHelper(true, false);
-        firstFailureLogHelper = createLogHelper(false, true);
-
+        
+        return xml.toString();
     }
 
     public void testValidate() {
@@ -256,4 +292,70 @@ public class EmailPublisherTest extends TestCase {
         assertEquals(returnName, fromAddress.getPersonal());
     }
 
+    public void testSendMail() throws Exception {
+        assertFalse(emailPublisher.sendMail(null, "subject", "message", false));
+        assertFalse(emailPublisher.sendMail(" ", "subject", "message", false));
+    }
+    
+
+    public void testCreateUserSet() throws Exception {
+        emailPublisher.setReportSuccess("success");
+        Set userSet = emailPublisher.createUserSet(successLogHelper);
+        assertNotNull(userSet);
+        assertTrue(userSet.contains("always1"));
+        assertTrue(userSet.contains("always2@host.com"));
+        assertTrue(userSet.contains("ropletteruser1"));
+        assertTrue(userSet.contains("success1"));
+        assertTrue(userSet.contains("user1"));
+        assertTrue(userSet.contains("user2"));
+        assertTrue(userSet.contains("user3@host2.com"));
+    }
+    
+    /**
+     * The following unit test ensures TestUtil.createModsElement
+     * creates a full XMLLogHelper object
+     * 
+     * @throws Exception
+     */
+    public void testCreateModsElement() throws Exception {
+        Set modSet = successLogHelper.getModifications();
+        Modification mod = null;
+        Iterator modIter = modSet.iterator();
+        
+        while (modIter.hasNext()) {
+            mod = (Modification) modIter.next();
+            assertNotNull("getFileName should not return null", mod.getFileName());
+            assertNotNull("getFullPath should not return null", mod.getFullPath());
+            
+            if ("filename1".equalsIgnoreCase(mod.getFileName())) {
+                assertNull(mod.getFolderName());
+            }
+        }
+    }
+    
+    public void testCreateAlertUserSet() throws Exception {
+        emailPublisher.validate();
+        Set alertUsers = emailPublisher.createAlertUserSet(successLogHelper);
+        //assertTrue(alertUsers.contains("anyFileMod@host.com"));
+        assertTrue(alertUsers.contains("filename1@host.com"));
+        assertTrue(alertUsers.contains("filename3@host.com"));
+        assertFalse(alertUsers.contains(""));
+//        assertTrue(alertUsers.contains("subdir2@host.com"));
+//        assertEquals(3, alertUsers.size());
+        assertEquals(2, alertUsers.size());
+        
+        alertUsers = noAlertsEmailPublisher.createAlertUserSet(failureLogHelper); 
+        assertEquals(0, alertUsers.size());
+    }
+    
+    public void testCreateEmailString() {
+        Set emailSet = new TreeSet();
+        emailSet.add("always1@host.com");
+        emailSet.add("always2@host.com");
+        emailSet.add("always1@host.com");
+        emailSet.add("always3@host.com");
+ 
+        assertEquals("always1@host.com,always2@host.com,always3@host.com", 
+                emailPublisher.createEmailString(emailSet));
+    }
 }

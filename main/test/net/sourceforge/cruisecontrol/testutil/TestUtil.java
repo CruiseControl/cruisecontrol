@@ -37,13 +37,13 @@
 
 package net.sourceforge.cruisecontrol.testutil;
 
-import org.jdom.Element;
-
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 
 import junit.framework.Assert;
+
+import org.jdom.Element;
 
 public final class TestUtil {
     
@@ -54,23 +54,53 @@ public final class TestUtil {
     public static Element createElement(boolean success, boolean lastBuildSuccess) {
         return createElement(success, lastBuildSuccess, "2 minutes 20 seconds", 4, null);
     }
-
+    
     public static Element createModsElement(int numMods) {
         Element modificationsElement = new Element("modifications");
         for (int i = 1; i <= numMods; i++) {
             Element modificationElement = new Element("modification");
+            
+            Element dateElement = new Element("date");
+            dateElement.addContent("10/30/2004 13:00:03"); // Put in dynamic value?
+            modificationElement.addContent(dateElement);
+
+            Element commentElement = new Element("comment");
+            commentElement.addContent("The comment");
+            modificationElement.addContent(commentElement);
+            
+            Element revisionElement = new Element("revision");
+            revisionElement.addContent("1." + i);
+            modificationElement.addContent(revisionElement);
+            
+            Element fileElement = new Element("file");
+            fileElement.setAttribute("action", "modified");
+
+            Element revision2 = new Element("revision");
+            revision2.addContent("1." + i);
+            fileElement.addContent(revision2);
+
+            Element fileName = new Element("filename");
+            fileName.addContent("filename" + i);
+            fileElement.addContent(fileName);
+            modificationElement.addContent(fileElement);
+            
+            if (i != 1) {
+                Element projectElement = new Element("project");
+                projectElement.addContent("basedir/subdirectory" + i);
+                fileElement.addContent(projectElement);
+            }
+            
             Element userElement = new Element("user");
-            Element projectElement = new Element("project");
-            projectElement.addContent("basedir/subdirectory" + i);
             int userNumber = (i > 2) ? i - 1 : i;
             userElement.addContent("user" + userNumber);
             modificationElement.addContent(userElement);
-            modificationElement.addContent(projectElement);
+
             modificationsElement.addContent(modificationElement);
         }
         return modificationsElement;
     }
 
+    
     public static Element createElement(
         boolean success,
         boolean lastBuildSuccess,
@@ -106,6 +136,7 @@ public final class TestUtil {
         properties.put("buildfile", "");
         properties.put("target", "");
         properties.put("logfile", "log20020313120000.xml");
+        properties.put("cctimestamp", "20020313120000");
     
         Iterator propertyIterator = properties.keySet().iterator();
         while (propertyIterator.hasNext()) {
