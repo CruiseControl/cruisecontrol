@@ -1,7 +1,7 @@
 <!-- build the release -->
 <project name="release" default="release">
 
-    <property name="label" value="2.2.2-dev"/>
+    <property name="label" value="2.3.1-dev"/>
 
     <target name="release" depends="clean, website, zip, bin-zip"/>
 
