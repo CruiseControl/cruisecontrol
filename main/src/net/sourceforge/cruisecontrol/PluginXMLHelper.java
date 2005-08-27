@@ -47,6 +47,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Helps mapping the XML to object by instanciating and initializing beans.
+ *
+ * Some plugins can be {@link SelfConfiguringPlugin self-configuring}. For the others, the
+ * the {@link #configureObject(org.jdom.Element, Object, boolean)} defines the operations
+ * to be performed.   
+ */
 public class PluginXMLHelper {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelper.class);
     private ProjectXMLHelper projectHelper;
@@ -56,10 +63,15 @@ public class PluginXMLHelper {
     }
 
     /**
-     * given a JDOM Element and a class, this method will instantiate an object
-     * of type pluginClass, and call all setters that correspond to attributes
-     * on the Element.
+     * Given a JDOM Element and a class, this method will instantiate an object
+     * of type pluginClass, and {@link #configure(org.jdom.Element, Class, boolean) configure} the element.
+     * <p>
+     * When the plugin is {@link SelfConfiguringPlugin self-configuring} the plugin takes
+     * the responsibility of {@link SelfConfiguringPlugin#configure(org.jdom.Element) configuring itself}
      *
+     * @param objectElement the JDOM Element defining the plugin configuration
+     * @param pluginClass the class to instanciate
+     * @param skipChildElements <code>false</code> to recurse the configuration. <code>true</code> otherwise
      * @return fully configured Object
      */
     public Object configure(Element objectElement, Class pluginClass,
@@ -84,8 +96,20 @@ public class PluginXMLHelper {
     }
 
     /**
-     * given a JDOM Element and an object, this method will call all setters that correspond to attributes
-     * on the Element.
+     * Configure the specified plugin object given the JDOM Element defining the plugin configuration.
+     *
+     * <ul>
+     * <li>calls setters that corresponds to element attributes</li>
+     * <li>calls <code>public Yyy createXxx()</code> methods that corresponds to non-plugins child elements
+     * (i.e. known by the instance class). The returned instance must be assignable to the Yyy type</li>
+     * <li>calls <code>public void addXxx</code> methods that corresponds to child elements which are
+     * plugins themselves, e.g. which will require asking the ProjectXMLHelper to
+     * {@link ProjectXMLHelper#configurePlugin(org.jdom.Element, boolean)} configure the plugin}</li>
+     * </ul>
+     *
+     * @param objectElement the JDOM Element defining the plugin configuration
+     * @param object the instance to configure to instanciate
+     * @param skipChildElements <code>false</code> to recurse the configuration. <code>true</code> otherwise
      */
     protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
             throws CruiseControlException {
