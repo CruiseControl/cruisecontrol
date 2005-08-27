@@ -428,6 +428,11 @@ public class VssTest extends TestCase {
             assertEquals(expectedCommandWithTimeFormat[i], actualCommandWithTimeFormat[i]);
         }
     }
+    
+    public void testCreateFileNameFromVssPath() {
+        vss.setVsspath("//foo/bar");
+        assertEquals("foo_bar.tmp", vss.createFileNameFromVssPath());
+    }
 
     /**
      *  Utility method to easily create a given date.
