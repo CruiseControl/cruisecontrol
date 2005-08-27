@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -44,8 +45,8 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -93,28 +94,55 @@ public class TimeBuild extends FakeUserSourceControl {
      * @param lastBuild
      *            date of last build
      * @param now
-     *            IGNORED
+     *            current time
      */
     public List getModifications(Date lastBuild, Date now) {
         LOG.debug("LastBuild:" + lastBuild + ", now:" + now);
         List modifications = new ArrayList();
 
+       /*
+        * 
+        * if now and lastbuild occur on the same day, only trigger a build
+        * when lastbuildtime is before 'time' and 'time' is before nowtime
+        * 
+        * if now and lastbuild do not occur on the same day, only trigger a
+        * build when nowtime is after 'time'
+        * 
+        * 
+        */
+
+        int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);        
         int nowTime = DateUtil.getTimeFromDate(now);
-        if (nowTime > time) { // possible opportunity to run
-            int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);
-            if (lastBuildTime < time) {
-                Modification mod = new Modification("always");
-                Modification.ModifiedFile modfile = mod.createModifiedFile(
-                        "time build", "time build");
-                modfile.action = "change";
-                mod.userName = getUserName();
-                mod.modifiedTime = new Date((new Date()).getTime() - 100000);
-                mod.comment = "";
-                modifications.add(mod);
+        if (onSameDay(lastBuild, now)) {
+            if (lastBuildTime < time && time < nowTime) {
+                modifications.add(getMod());
+            }
+        } else {
+            if (nowTime > time) {
+                modifications.add(getMod());
             }
         }
 
         return modifications;
     }
 
+    private boolean onSameDay(Date date1, Date date2) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date1);
+        int day1 = calendar.get(Calendar.DAY_OF_MONTH);
+        calendar.setTime(date2);
+        int day2 = calendar.get(Calendar.DAY_OF_MONTH);
+        return day1 == day2;
+    }
+
+    private Modification getMod() {
+        Modification mod = new Modification("always");
+        Modification.ModifiedFile modfile = mod.createModifiedFile("time build", "time build");
+        modfile.action = "change";
+        mod.userName = getUserName();
+        mod.modifiedTime = new Date((new Date()).getTime() - 100000);
+        mod.comment = "";
+        return mod;
+    }    
+    
 }

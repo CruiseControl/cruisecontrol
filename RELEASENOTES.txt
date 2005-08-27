@@ -201,6 +201,7 @@ TimeBuild:
 ----------------------
 * Add new source control that will trigger a build at a specified time. Submitted by Eric Pugh
 * Add docs and add to default-plugins.properties. Patch by Jerome Lacoste
+* Fix problem with firing at wrong time (CC-227). Patch by Mel Riffe, Patch refreshed by Jerome Lacoste
 
 ValidationHelper:
 ----------------------
