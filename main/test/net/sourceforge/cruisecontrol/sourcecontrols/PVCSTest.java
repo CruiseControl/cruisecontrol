@@ -42,13 +42,21 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class PVCSTest extends TestCase {
 
+    private PVCS pvcs;
+
     public PVCSTest(String name) {
         super(name);
     }
 
-    public void testValidate() {
-        PVCS pvcs = new PVCS();
+    public void setUp() {
+        pvcs = new PVCS();
+    }
 
+    public void tearDown() {
+        pvcs = null;
+    }
+
+    public void testValidate() {
         try {
             pvcs.validate();
             fail("PVCS should throw exceptions when required attributes are not set.");
@@ -68,8 +76,6 @@ public class PVCSTest extends TestCase {
     }
 
     public void testGetExecutable() {
-        PVCS pvcs = new PVCS();
-
         String testExe = "testexe";
         assertEquals(
             "Wrong pvcs bin setting w/out bin set.",
@@ -84,66 +90,92 @@ public class PVCSTest extends TestCase {
     }
 
     public void testBuildExecCommandWithVersionLabel() {
-        PVCS pvcs = new PVCS();
-        String testCommand = "";
-        String ccCommand = "";
-
-        setName("PVCS Exec Command With Version Label Test");
-
         pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
         pvcs.setPvcssubproject("/TestProject");
         pvcs.setPvcsversionlabel("Test Version Label");
 
-        ccCommand = pvcs.getExecutable("pcli") + " "
+        String ccCommand = pvcs.getExecutable("pcli") + " "
                 + pvcs.buildExecCommand("11/23/2004 8:00AM", "11/23/2004 1:00PM");
-        testCommand = pvcs.getExecutable("pcli")
+        String expectedCommand = pvcs.getExecutable("pcli")
                 + " "
                 + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
                 + "-ds\"11/23/2004 8:00AM\" -de\"11/23/2004 1:00PM\" "
                 + "-pr\"C:/PVCS-Repos/TestProject/pvcs\" -v\"Test Version Label\" "
                 + "-z /TestProject";
 
-        assertEquals("Wrong PVCS command generated!", ccCommand, testCommand);
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
     }
 
     public void testBuildExecCommandWithNullVersionLabel() {
-        PVCS pvcs = new PVCS();
-        String testCommand = "";
-        String ccCommand = "";
-
-        setName("PVCS Exec Command With Null Version Label Test");
-
         pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
         pvcs.setPvcssubproject("/TestProject");
         pvcs.setPvcsversionlabel("");
 
-        ccCommand = pvcs.getExecutable("pcli") + " "
+        String ccCommand = pvcs.getExecutable("pcli") + " "
                 + pvcs.buildExecCommand("11/23/2004 8:00AM", "11/23/2004 1:00PM");
-        testCommand = pvcs.getExecutable("pcli") + " "
+        String expectedCommand = pvcs.getExecutable("pcli") + " "
                 + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
                 + "-ds\"11/23/2004 8:00AM\" -de\"11/23/2004 1:00PM\" "
                 + "-pr\"C:/PVCS-Repos/TestProject/pvcs\" " + "-z /TestProject";
-        assertEquals("Wrong PVCS command generated!", ccCommand, testCommand);
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
     }
 
     public void testBuildExecCommandWithoutVersionLabel() {
-        PVCS pvcs = new PVCS();
-        String testCommand = "";
-        String ccCommand = "";
-
-        setName("PVCS Exec Command Without Version Label Test");
-
         pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
         pvcs.setPvcssubproject("/TestProject");
 
-        ccCommand = pvcs.getExecutable("pcli") + " "
+        String ccCommand = pvcs.getExecutable("pcli") + " "
                 + pvcs.buildExecCommand("11/23/2004 8:00AM", "11/23/2004 1:00PM");
-        testCommand = pvcs.getExecutable("pcli") + " "
+        String expectedCommand = pvcs.getExecutable("pcli") + " "
                 + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
                 + "-ds\"11/23/2004 8:00AM\" -de\"11/23/2004 1:00PM\" "
                 + "-pr\"C:/PVCS-Repos/TestProject/pvcs\" " + "-z /TestProject";
 
-        assertEquals("Wrong PVCS command generated!", ccCommand, 
-testCommand);
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
   }
+    
+    public void testBuildExecCommandWithoutLoginId() {
+        pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
+        pvcs.setPvcssubproject("/TestProject");
+
+        String ccCommand = pvcs.getExecutable("pcli") + " "
+                + pvcs.buildExecCommand("11/23/2004 8:00AM", "11/23/2004 1:00PM");
+        String expectedCommand = pvcs.getExecutable("pcli") + " "
+                + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
+                + "-ds\"11/23/2004 8:00AM\" -de\"11/23/2004 1:00PM\" "
+                + "-pr\"C:/PVCS-Repos/TestProject/pvcs\" " + "-z /TestProject";
+
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand); 
+    }
+    
+    public void testBuildExecCommandWithEmptyLoginId() {
+        pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
+        pvcs.setPvcssubproject("/TestProject");
+        pvcs.setLoginid("");
+
+        String ccCommand = pvcs.getExecutable("pcli") + " "
+                + pvcs.buildExecCommand("11/23/2004 8:00AM", "11/23/2004 1:00PM");
+        String expectedCommand = pvcs.getExecutable("pcli") + " "
+                + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
+                + "-ds\"11/23/2004 8:00AM\" -de\"11/23/2004 1:00PM\" "
+                + "-pr\"C:/PVCS-Repos/TestProject/pvcs\" " + "-z /TestProject";
+
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
+    }
+    
+    public void testBuildExecCommandWithLoginId() {
+        pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
+        pvcs.setPvcssubproject("/TestProject");
+        pvcs.setLoginid("TestUser");
+
+        String ccCommand = pvcs.getExecutable("pcli") + " "
+                + pvcs.buildExecCommand("11/23/2004 8:00AM", "11/23/2004 1:00PM");
+        String expectedCommand = pvcs.getExecutable("pcli") + " "
+                + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
+                + "-id\"TestUser\" -ds\"11/23/2004 8:00AM\" "
+                + "-de\"11/23/2004 1:00PM\" -pr\"C:/PVCS-Repos/TestProject/pvcs\" " 
+                + "-z /TestProject";
+
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
+    }
 }
