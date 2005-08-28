@@ -40,6 +40,9 @@ REM ############################################################################
 REM Set this if you're using SSH-based CVS
 REM set CVS_RSH=
 
+REM Uncomment the following line if you have OutOfMemoryError errors
+REM set CC_OPTS=-Xms128m -Xmx256m
+
 REM The root of the CruiseControl directory.  The key requirement is that this is the parent
 REM directory of CruiseControl's lib and dist directories.
 REM By default assume they are using the batch file from the local directory.
@@ -65,7 +68,7 @@ set LIBDIR=%CCDIR%lib
 
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant.jar;%LIBDIR%\ant-launcher.jar;%LIBDIR%\jasper-compiler.jar;%LIBDIR%\jasper-runtime.jar;%LIBDIR%\xercesImpl-2.7.0.jar;%LIBDIR%\xml-apis-2.7.0.jar;%LIBDIR%\xalan-2.6.0.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;%LIBDIR%\fast-md5.jar;%LIBDIR%\javax.servlet.jar;%LIBDIR%\org.mortbay.jetty.jar;%LIBDIR%\commons-logging.jar;%LIBDIR%\commons-el.jar;.
 
-set EXEC="%JAVA_HOME%\bin\java" -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %*
+set EXEC="%JAVA_HOME%\bin\java" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %*
 echo %EXEC%
 %EXEC%
 

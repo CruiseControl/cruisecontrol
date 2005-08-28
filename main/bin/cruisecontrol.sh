@@ -41,6 +41,10 @@
 # directory of CruiseControl's lib and dist directories.
 
 # Inspired by Ant's wrapper script
+
+# Uncomment the following line if you have OutOfMemoryError errors
+# CC_OPTS="-Xms128m -Xmx256m"
+
 if [ -z "$CCDIR" ] ; then
   # resolve links - $0 may be a softlink
   PRG="$0"
@@ -76,6 +80,6 @@ if [ `uname | grep -n CYGWIN` ]; then
   CRUISE_PATH=`cygpath --path --windows "$CRUISE_PATH"`
 fi
 
-EXEC="$JAVA_HOME/bin/java -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControl $@"
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControl $@"
 echo $EXEC
 exec $EXEC
