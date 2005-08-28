@@ -62,6 +62,20 @@ import org.apache.oro.text.regex.Perl5Matcher;
  */
 public class P4Test extends TestCase {
 
+    /**
+     * Mocks a P4 class by returning a specific P4 server-time offset
+     */
+    static class MockP4 extends P4 {
+        private final long timeOffset;
+
+        public MockP4(long offset) {
+            this.timeOffset = offset;
+        }
+        protected long calculateServerTimeOffset() {
+            return timeOffset;
+        }
+    }
+
     public void testGetQuoteChar() {
         boolean windows = true;
         String quoteChar = P4.getQuoteChar(windows);
@@ -93,7 +107,7 @@ public class P4Test extends TestCase {
     }
 
     public void testBuildChangesCommand() throws ParseException {
-        P4 p4 = new P4();
+        P4 p4 = new MockP4(0);
         p4.setView("foo");
 
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -111,7 +125,7 @@ public class P4Test extends TestCase {
     }
 
     public void testBuildChangesCommand_Unix() throws ParseException {
-        P4 p4 = new P4();
+        P4 p4 = new MockP4(0);
         p4.setView("foo");
 
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");

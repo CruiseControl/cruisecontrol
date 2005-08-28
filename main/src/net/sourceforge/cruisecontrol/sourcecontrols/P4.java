@@ -406,7 +406,7 @@ public class P4 implements SourceControl {
       * indicates that the Perforce server time is before the CruiseControl
       * server.
       */
-    private long calculateServerTimeOffset() throws IOException {
+    protected long calculateServerTimeOffset() throws IOException {
         Commandline command = new Commandline();
         command.setExecutable("p4");
         command.createArgument().setValue("info");

@@ -2,6 +2,12 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - Latest CVS
+
+P4:
+----------------------
+* Fix problem where test would fail if Perforce was on the path. Patch by Arent-Jan Banck
+
 CruiseControl Release Notes - 2.3
 
 release format:
