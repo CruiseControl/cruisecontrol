@@ -36,10 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.rss;
 
+import java.util.Date;
+
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.jdom.Element;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+
+import org.jdom.Element;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
@@ -70,7 +74,8 @@ public class CruiseControlItemTest extends TestCase {
         CruiseControlItem item = new CruiseControlItem(successLogHelper, "link");
 
         assertEquals("someproject somelabel Build Successful", item.getTitle());
-        assertEquals("<em>Build Time:</em> Wed Mar 13 12:00:00 PST 2002<br/><em>Label:</em> somelabel<br/>"
+        Date date = DateUtil.parseFormattedTime("20020313120000", "mockcctimestamp");
+        assertEquals("<em>Build Time:</em> " + date + "<br/><em>Label:</em> somelabel<br/>"
                 + "<em>Modifications: </em>4"
                 + "<li>filename1  by user1 (The comment)</li><li>filename3  by user2 (The comment)</li>" 
                 + "<li>filename2  by user2 (The comment)</li><li>filename4  by user3 (The comment)</li>"
