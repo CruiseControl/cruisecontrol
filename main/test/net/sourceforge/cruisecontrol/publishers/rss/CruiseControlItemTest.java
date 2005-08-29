@@ -77,8 +77,8 @@ public class CruiseControlItemTest extends TestCase {
         Date date = DateUtil.parseFormattedTime("20020313120000", "mockcctimestamp");
         assertEquals("<em>Build Time:</em> " + date + "<br/><em>Label:</em> somelabel<br/>"
                 + "<em>Modifications: </em>4"
-                + "<li>filename1  by user1 (The comment)</li><li>filename3  by user2 (The comment)</li>" 
-                + "<li>filename2  by user2 (The comment)</li><li>filename4  by user3 (The comment)</li>"
+                + "<li>filename1  by user1 (The comment)</li><li>filename2  by user2 (The comment)</li>"
+                + "<li>filename3  by user2 (The comment)</li><li>filename4  by user3 (The comment)</li>"
                 + "</ul><br/>\n<ul>",
             item.getDescription());
 
