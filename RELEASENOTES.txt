@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+CruiseControlItemTest
+----------------------
+* Fix test failure for people not in Pacific timezone.
+
 cruisecontrol.bat/.sh
 ----------------------
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck
