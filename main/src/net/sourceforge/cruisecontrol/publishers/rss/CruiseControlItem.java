@@ -37,8 +37,12 @@
 package net.sourceforge.cruisecontrol.publishers.rss;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -130,6 +134,21 @@ public class CruiseControlItem extends Item {
         return url.toString();
     }
 
+    /**
+     * To compare modifications happening in the same project.
+     */
+    static class ModificationComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            Modification mod1 = (Modification) o1;
+            Modification mod2 = (Modification) o2;
+            long modifiedTimeDifference = mod1.modifiedTime.getTime() - mod2.modifiedTime.getTime();
+            if (modifiedTimeDifference != 0) {
+                return modifiedTimeDifference > 0 ? +1 : -1;
+            }
+            return mod1.getFileName().compareTo(mod2.getFileName());
+        }
+    }
+
     private String createDescription(XMLLogHelper logHelper) throws CruiseControlException {
         StringBuffer description = new StringBuffer();
 
@@ -156,8 +175,10 @@ public class CruiseControlItem extends Item {
         // Write out all of the modifications...
         description.append("<em>Modifications: </em>");
         try {
-            description.append(logHelper.getModifications().size());
-            Iterator it = logHelper.getModifications().iterator();
+            final List modifications = new ArrayList(logHelper.getModifications());
+            Collections.sort(modifications, new ModificationComparator());
+            description.append(modifications.size());
+            Iterator it = modifications.iterator();
             while (it.hasNext()) {
                 Modification mod = (Modification) it.next();
                 description.append("<li>");
