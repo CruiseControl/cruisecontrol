@@ -58,7 +58,7 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class MavenScript implements Script, StreamConsumer {
-    private static final Logger LOG = Logger.getLogger(MavenBuilder.class);
+    private static final Logger LOG = Logger.getLogger(MavenScript.class);
     
     private Map buildProperties;    
     private String goalset;    
