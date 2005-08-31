@@ -36,7 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.rss;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
 import junit.framework.TestCase;
 
 /*
@@ -47,7 +51,11 @@ public class CruiseControlFeedTest extends TestCase {
     private File tmpFile;
 
     public void setUp() throws Exception {
-        tmpFile = File.createTempFile("CruiseControlFeedTest", "tmp");
+        tmpFile = File.createTempFile("CruiseControlFeedTest", ".tmp");
+
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile)));
+        bw.write("<rss><channel/></rss>");
+        bw.close();
     }
 
     public void tearDown() throws Exception {
