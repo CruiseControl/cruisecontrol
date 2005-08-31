@@ -48,9 +48,21 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 public class CurrentBuildStatusPublisherTest extends TestCase {
     private static final String TEST_DIR = "tmp";
     private final List filesToClear = new ArrayList();
+    
+    public CurrentBuildStatusPublisherTest(String name) {
+        super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
+    }
 
     public void tearDown() {
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {

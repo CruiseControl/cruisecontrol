@@ -44,15 +44,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import org.apache.oro.text.regex.Perl5Compiler;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
@@ -62,6 +66,13 @@ import org.apache.oro.text.regex.Perl5Matcher;
  */
 public class P4Test extends TestCase {
 
+    public P4Test(String name) {
+        super(name);
+      
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(P4Test.class).getLoggerRepository().setThreshold(Level.OFF);
+    }
     /**
      * Mocks a P4 class by returning a specific P4 server-time offset
      */

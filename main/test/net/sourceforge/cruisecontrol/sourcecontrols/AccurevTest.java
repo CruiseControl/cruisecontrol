@@ -49,6 +49,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
@@ -58,6 +59,10 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.DateTimespec;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Timespec;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.TransactionNumberTimespec;
 import net.sourceforge.cruisecontrol.util.Commandline;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * Basic test cases for the accurev command line utilities
@@ -78,6 +83,10 @@ public class AccurevTest extends TestCase implements AccurevInputParser {
   }
   public AccurevTest() {
     super();
+
+    // Turn off logging
+    BasicConfigurator.configure();
+    Logger.getLogger(AccurevTest.class).getLoggerRepository().setThreshold(Level.OFF);
   }
   /**
    * Tests common "accurev hist" commandline configurations

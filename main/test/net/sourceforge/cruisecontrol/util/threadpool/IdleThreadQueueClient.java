@@ -53,27 +53,27 @@ public class IdleThreadQueueClient implements WorkerThread {
     private Object mutex = new Object();
 
     public void run() {
-        System.out.println("Starting in client tester " + name);
+//        System.out.println("Starting in client tester " + name);
 
         int time = 0;
 
         // sleep but popup and see if you should exit
         while (time < timeToSleep) {
-            System.out.print(".");
+//            System.out.print(".");
             synchronized (mutex) {
                 try {
                     mutex.wait(timeForLoopSleep);
                 } catch (InterruptedException e) {
-                    System.out.println(name + "interrupted while waiting");
+//                    System.out.println(name + "interrupted while waiting");
                 }
             }
             time += timeForLoopSleep;
             if (terminate) {
-                System.out.println("Terminate encountered in " + name);
+//                System.out.println("Terminate encountered in " + name);
                 break;
             }
         }
-        System.out.println("exiting from " + name);
+//        System.out.println("exiting from " + name);
         int numericResult = (new Integer(name)).intValue();
         numericResult = numericResult * 2;
         result = numericResult + "";

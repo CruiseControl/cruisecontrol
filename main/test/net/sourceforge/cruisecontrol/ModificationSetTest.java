@@ -58,6 +58,14 @@ import java.util.List;
 public class ModificationSetTest extends TestCase {
 
     private ModificationSet modSet;
+    
+    public ModificationSetTest(String name) {
+        super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
+    }
 
     public void testIsLastModificationInQuietPeriod() throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -332,15 +340,10 @@ public class ModificationSetTest extends TestCase {
     protected void setUp() throws Exception {
         modSet = new ModificationSet();
         modSet.setQuietPeriod(0);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).setLevel(Level.OFF);
     }
 
     protected void tearDown() throws Exception {
         modSet = null;
-        Logger.getLogger(this.getClass()).setLevel(Level.ALL);
     }
 
 }

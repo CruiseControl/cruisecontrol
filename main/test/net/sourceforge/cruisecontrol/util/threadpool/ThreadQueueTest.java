@@ -36,6 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util.threadpool;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import junit.framework.TestCase;
 
 /**
@@ -46,8 +50,16 @@ import junit.framework.TestCase;
 public class ThreadQueueTest extends TestCase {
     private static final int TASK_COUNT = 5;
     private static final int TASK_SLEEP_TIME = 1000;
+    
+    public ThreadQueueTest(String name) {
+        super(name);
+      
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(ThreadQueueTest.class).getLoggerRepository().setThreshold(Level.OFF);
+    }
 
-    protected void setUp() throws Exception {
+    protected void setUp() throws Exception {  
         for (int i = 0; i < TASK_COUNT; i++) {
             final String taskName = i + "";
 
@@ -71,15 +83,15 @@ public class ThreadQueueTest extends TestCase {
      * each task, checks the state of the pool
      */
     public void testPoolInterruptAll() {
-        System.out.println("\nStarting testPoolInterruptAll");
+//        System.out.println("\nStarting testPoolInterruptAll");
 
         for (int i = 0; i < TASK_COUNT; i++) {
             ThreadQueue.interruptAllRunningTasks();
             sleep(500);
 
-            System.out.println("ThreadQueue.numTotalTasks()->" + ThreadQueue.numTotalTasks());
-            System.out.println("ThreadQueue.numWaitingTasks()->" + ThreadQueue.numWaitingTasks());
-            System.out.println("ThreadQueue.numCompletedTasks()->" + ThreadQueue.numCompletedTasks());
+//            System.out.println("ThreadQueue.numTotalTasks()->" + ThreadQueue.numTotalTasks());
+//            System.out.println("ThreadQueue.numWaitingTasks()->" + ThreadQueue.numWaitingTasks());
+//            System.out.println("ThreadQueue.numCompletedTasks()->" + ThreadQueue.numCompletedTasks());
 
             assertEquals("total tasks should be constant", ThreadQueue.numTotalTasks(), TASK_COUNT);
             int stillWaiting = TASK_COUNT - i - 2;
@@ -93,14 +105,14 @@ public class ThreadQueueTest extends TestCase {
         ThreadQueue.terminate();
         assertEquals(ThreadQueue.numTotalTasks(), 0);
 
-        System.out.println("\nExiting testPoolInterruptAll");
+//        System.out.println("\nExiting testPoolInterruptAll");
     }
 
     /**
      * testPoolFunctions adds tasks to the queue and then checks various thread queue functions
      */
     public void testPoolFunctions() {
-        System.out.println("\nStarting testPoolFunctions");
+//        System.out.println("\nStarting testPoolFunctions");
 
         // ensure the tasks were all created and added
         for (int i = 0; i < TASK_COUNT; i++) {
@@ -127,14 +139,14 @@ public class ThreadQueueTest extends TestCase {
             String taskName = i + "";
             assertFalse(ThreadQueue.isActive(taskName));
         }
-        System.out.println("\nExiting testPoolFunctions");
+//        System.out.println("\nExiting testPoolFunctions");
     }
 
     /**
      * testExecution adds tasks to the queue and then waits for them to finish
      */
     public void testExecution() {
-        System.out.println("\nStarting testExecution");
+//        System.out.println("\nStarting testExecution");
 
         // check that the number of running tasks is the same number as we have
         // worker threads available.  Be sure that every available worker thread
@@ -198,14 +210,14 @@ public class ThreadQueueTest extends TestCase {
             assertEquals((i * 2) + "", rawResult);
         }
 
-        System.out.println("\nExiting testExecution");
+//        System.out.println("\nExiting testExecution");
     }
 
     /**
      * testCounters adds tasks to the queue and then checks various counters as the tasks finish
      */
     public void testCounters() {
-        System.out.println("\nStarting testCounters");
+//        System.out.println("\nStarting testCounters");
 
         // now that all the tasks are loaded and running
         // see if the counts are correct.
@@ -214,9 +226,9 @@ public class ThreadQueueTest extends TestCase {
         while (i < TASK_COUNT) {
             i = i + ThreadQueue.getMaxNumWorkerThreads();
 
-            System.out.println("count is " + TASK_COUNT);
-            System.out.println("i is " + i);
-            System.out.println("ThreadQueue.numWaitingTasks() is " + ThreadQueue.numWaitingTasks());
+//            System.out.println("count is " + TASK_COUNT);
+//            System.out.println("i is " + i);
+//            System.out.println("ThreadQueue.numWaitingTasks() is " + ThreadQueue.numWaitingTasks());
 
             // how many are waiting
             assertEquals(TASK_COUNT - i, ThreadQueue.numWaitingTasks());
@@ -234,11 +246,11 @@ public class ThreadQueueTest extends TestCase {
                 assertEquals(ThreadQueue.numRunningTasks(), ThreadQueue.getMaxNumWorkerThreads());
             }
 
-            System.out.println("waiting for " + (i - 1));
+//            System.out.println("waiting for " + (i - 1));
             ThreadQueue.waitFor((i - 1) + "");
         }
 
-        System.out.println("Exiting testCounters ");
+//        System.out.println("Exiting testCounters ");
     }
 
     /**

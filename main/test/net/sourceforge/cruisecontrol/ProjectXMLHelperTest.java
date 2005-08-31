@@ -38,6 +38,10 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.io.BufferedWriter;
@@ -54,6 +58,14 @@ public class ProjectXMLHelperTest extends TestCase {
     private File propertiesFile;
 
     private static final int ONE_SECOND = 1000;
+    
+    public ProjectXMLHelperTest(String name) {
+        super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
+    }
 
     public void testGlobalProperty() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "simpleprops");
