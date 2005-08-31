@@ -48,29 +48,15 @@ import org.apache.log4j.Logger;
 
 public class MavenScriptTest extends TestCase {
 
-    public MavenScriptTest(String name) {
-      super(name);
-
-      BasicConfigurator.configure();
-      Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.ALL);
-      Logger.getLogger(this.getClass()).setLevel(Level.ALL);
-    }
-  
     /**
      * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
      * @throws CruiseControlException
      */
     public void testGetCommandLineArgs() throws CruiseControlException {
-        MavenScript script = new MavenScript();
-        // none should exist for this test
-        script.setMavenScript("testmaven.sh");
-        script.setProjectFile("testproject.xml");
+        BasicConfigurator.configure();
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
 
-        Hashtable properties = new Hashtable();
-        properties.put("label", "200.1.23");
-        script.setBuildProperties(properties);
-
-        Logger.getRoot().setLevel(Level.INFO);
+        MavenScript script = getScript();
 
         TestUtil.assertArray(
             "NoDebug:",
@@ -81,21 +67,6 @@ public class MavenScriptTest extends TestCase {
             "-p",
             "testproject.xml" },
             script.buildCommandline().getCommandline());
-
-        Logger.getRoot().setLevel(Level.DEBUG);
-
-        TestUtil.assertArray(
-            "WithDebug:",
-            new String[] {
-                "testmaven.sh",
-                "-Dlabel=200.1.23",
-                "-X",
-                "-b",
-                "-p",
-                "testproject.xml" },
-            script.buildCommandline().getCommandline());
-
-        Logger.getRoot().setLevel(Level.INFO);
 
         TestUtil.assertArray(
             "Windows:",
@@ -123,5 +94,34 @@ public class MavenScriptTest extends TestCase {
             script.buildCommandline().getCommandline());
     }
 
+    private MavenScript getScript() {
+      MavenScript script = new MavenScript();
+      // none should exist for this test
+      script.setMavenScript("testmaven.sh");
+      script.setProjectFile("testproject.xml");
 
+      Hashtable properties = new Hashtable();
+      properties.put("label", "200.1.23");
+      script.setBuildProperties(properties);
+      return script;
+    }
+
+    public void testGetCommandLineArgsWithDebug() throws CruiseControlException {
+      BasicConfigurator.configure();
+      Logger.getLogger(MavenScript.class).getLoggerRepository().setThreshold(Level.ALL);
+      Logger.getLogger(MavenScript.class).setLevel(Level.DEBUG);
+
+      MavenScript script = getScript();
+      
+      TestUtil.assertArray(
+          "WithDebug:",
+          new String[] {
+              "testmaven.sh",
+              "-Dlabel=200.1.23",
+              "-X",
+              "-b",
+              "-p",
+              "testproject.xml" },
+          script.buildCommandline().getCommandline());
+    }
 }
