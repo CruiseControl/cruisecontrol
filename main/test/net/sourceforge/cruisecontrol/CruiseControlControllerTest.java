@@ -97,6 +97,7 @@ public class CruiseControlControllerTest extends TestCase {
         ccController = new CruiseControlController() {
             protected Project configureProject(String projectName) {
                 final Project project = new Project();
+                project.setSchedule(new Schedule());
                 project.setName(projectName);
                 project.setConfigFile(configFile); 
                 return project;
@@ -119,6 +120,7 @@ public class CruiseControlControllerTest extends TestCase {
         ccController = new CruiseControlController() {
             protected Project configureProject(String projectName) {
                 final Project project = new Project();
+                project.setSchedule(new Schedule());
                 project.setName(projectName);
                 project.setConfigFile(configFile); 
                 return project;
@@ -146,6 +148,7 @@ public class CruiseControlControllerTest extends TestCase {
         ccController = new CruiseControlController() {
             protected Project configureProject(String projectName) {
                 final Project project = new Project();
+                project.setSchedule(new Schedule());
                 project.setName(projectName);
                 project.setConfigFile(configFile); 
                 return project;

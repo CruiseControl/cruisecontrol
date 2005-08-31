@@ -42,11 +42,20 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public class MavenScriptTest extends TestCase {
 
+    public MavenScriptTest(String name) {
+      super(name);
+
+      BasicConfigurator.configure();
+      Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.ALL);
+      Logger.getLogger(this.getClass()).setLevel(Level.ALL);
+    }
+  
     /**
      * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
      * @throws CruiseControlException

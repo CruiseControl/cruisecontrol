@@ -107,8 +107,7 @@ public class AccurevMockRunner implements Runner {
     try {
       Script script = nextScript();
       if (script == null) { throw new IOException("Script list empty"); }
-      LOG.info("Scripted execution, reading input from resource "
-          + script.getPath());
+      LOG.info("Scripted execution, reading input from resource " + script.getPath());
       InputStream fakeFile = getClass().getClassLoader().getResourceAsStream(script.getPath());
       if (fakeFile == null) { throw new IOException("Script not found: " + script.getPath()); }
       try {

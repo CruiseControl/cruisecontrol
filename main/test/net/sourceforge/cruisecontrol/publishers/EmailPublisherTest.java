@@ -59,6 +59,9 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 // import org.apache.oro.io.GlobFilenameFilter;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jdom.input.SAXBuilder;
 import org.jdom.Element;
 
@@ -71,6 +74,14 @@ public class EmailPublisherTest extends TestCase {
     private EmailPublisher emailPublisher;
     private EmailPublisher noAlertsEmailPublisher;
     private File tmpFile;
+    
+    public EmailPublisherTest(String name) {
+        super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
+    }
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess);

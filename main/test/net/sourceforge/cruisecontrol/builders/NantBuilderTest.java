@@ -49,6 +49,8 @@ import net.sourceforge.cruisecontrol.util.MockProcess;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.jdom.Attribute;
 import org.jdom.DataConversionException;
@@ -65,6 +67,14 @@ public class NantBuilderTest extends TestCase {
     private File rootTempDir = null;
     private String rootTempDirPath = null;
 
+    public NantBuilderTest(String name) {
+        super(name);
+
+        // Turn off logging
+        BasicConfigurator.configure();
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
+    }
+    
     static class InputBasedMockCommandLineBuilder {
         Commandline buildCommandline(final InputStream inputStream) {
             final MockCommandline mockCommandline = getMockCommandline();
