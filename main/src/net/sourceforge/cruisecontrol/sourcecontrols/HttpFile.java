@@ -115,7 +115,10 @@ public class HttpFile extends FakeUserSourceControl {
     protected long getURLLastModified(final URL url) throws IOException {
         final URLConnection con = url.openConnection();
         long lastModified = con.getLastModified();
-        con.getInputStream().close();
+        try {
+          con.getInputStream().close();
+        } catch (IOException ignored) {
+        }
         return lastModified;
     }
 }
