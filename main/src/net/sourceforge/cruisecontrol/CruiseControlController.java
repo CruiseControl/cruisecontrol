@@ -93,7 +93,7 @@ public class CruiseControlController {
 
     private List parseConfigFile() throws CruiseControlException {
         Element configRoot = Util.loadConfigFile(configFile);
-        addPluginsToRootRegistry(configRoot);
+        addPluginsToRootRegistry(configRoot, configFile);
         List allProjects = getAllProjects(configRoot);
         if (allProjects.size() == 0) {
             LOG.warn("no projects found in config file");
@@ -126,7 +126,7 @@ public class CruiseControlController {
         return hash;
     }
 
-    private void addPluginsToRootRegistry(Element configRoot) {
+    static void addPluginsToRootRegistry(Element configRoot, final File configFile) {
         PluginRegistry.resetRootRegistry();
         for (Iterator pluginIter = configRoot.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
             Element pluginElement = (Element) pluginIter.next();
