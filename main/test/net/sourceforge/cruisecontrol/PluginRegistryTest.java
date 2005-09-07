@@ -40,6 +40,11 @@ import org.jdom.Element;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class PluginRegistryTest extends TestCase {
 
@@ -96,6 +101,54 @@ public class PluginRegistryTest extends TestCase {
         // restore the root definition, or we'll wreck the other tests
         pluginElement.setAttribute("classname", antClassName);
         PluginRegistry.registerToRoot(pluginElement);
+    }
+
+    // 2 levels of plugin registry, 1 plugin, 2 properties defined in parent, one overriden in child
+    public void testGetPluginConfigOverride() throws Exception {
+
+        PluginRegistry registry = PluginRegistry.createRegistry();
+
+        Element rootPluginElement = new Element("plugin");
+        rootPluginElement.setAttribute("name", "testlistener");
+        rootPluginElement.setAttribute("classname", ListenerTestPlugin.class.getName());
+        rootPluginElement.setAttribute("string", "default");
+        rootPluginElement.setAttribute("string2", "otherdefault");
+
+        Element rootStringWrapper = new Element("stringwrapper");
+        rootStringWrapper.setAttribute("string", "wrapper");
+        rootPluginElement.addContent(rootStringWrapper);
+
+        PluginRegistry.registerToRoot(rootPluginElement);
+
+        Element pluginElement = new Element("plugin");
+        pluginElement.setAttribute("name", "testlistener");
+        pluginElement.setAttribute("string", "overriden");
+
+        Element stringWrapper = new Element("stringwrapper");
+        stringWrapper.setAttribute("string", "overriden");
+        pluginElement.addContent(stringWrapper);
+
+        registry.register(pluginElement);
+
+        Element pluginConfig = registry.getPluginConfig(ListenerTestPlugin.class);
+        assertEquals("testlistener", pluginConfig.getName());
+        assertEquals("overriden", pluginConfig.getAttributeValue("string"));
+        assertEquals("otherdefault", pluginConfig.getAttributeValue("string2"));
+
+        List wrappers = pluginConfig.getChildren("stringwrapper");
+        assertEquals(2, wrappers.size());
+        Set expectedWrapperAttributes = new TreeSet();
+        expectedWrapperAttributes.add("wrapper");
+        expectedWrapperAttributes.add("overriden");
+
+        Set wrapperAttributes = new TreeSet();
+        for (int i = 0; i < wrappers.size(); i++) {
+            org.jdom.Element element = (org.jdom.Element) wrappers.get(i);
+            wrapperAttributes.add(element.getAttributeValue("string"));
+        }
+        assertEquals(expectedWrapperAttributes, wrapperAttributes);
+
+        PluginRegistry.resetRootRegistry();
     }
 
     public void testCaseInsensitivityPluginNames() throws Exception {
