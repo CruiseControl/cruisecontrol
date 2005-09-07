@@ -8,8 +8,6 @@ CruiseControlItem
 ----------------------
 * Sort items by time and then by file name. Patch by Jerome Lacoste
 
-CruiseControl Release Notes - 2.3.0.1
-
 CruiseControlItemTest
 ----------------------
 * Fix test failure for people not in Pacific timezone.
@@ -21,6 +19,10 @@ cruisecontrol.bat/.sh
 P4:
 ----------------------
 * Fix problem where test would fail if Perforce was on the path. Patch by Arent-Jan Banck
+
+plugins:
+----------------------
+* Can pre-configure plugin subelements, too. CC-299. Patch by Jerome Lacoste.
 
 CruiseControl Release Notes - 2.3
 
