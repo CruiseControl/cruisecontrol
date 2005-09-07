@@ -121,7 +121,7 @@ public class ProjectXMLHelper {
         projectName = projName;
         
         // Register the project's name as a built-in property
-        properties.setProperty("project.name", projectName);
+        setProperty("project.name", projectName);
 
         // Register any global properties
         for (Iterator globProps = rootElement.getChildren("property").iterator(); globProps.hasNext(); ) {
@@ -432,8 +432,7 @@ public class ProjectXMLHelper {
                     }
                     String name = line.substring(0, index).trim();
                     String parsedValue = parsePropertiesInString(line.substring(index + 1).trim());
-                    LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
-                    properties.put(name, parsedValue);
+                    setProperty(name, parsedValue);
                 }
                 reader.close();
             } catch (FileNotFoundException e) {
@@ -463,8 +462,7 @@ public class ProjectXMLHelper {
                     name.append(line.substring(0, index));
                 }
                 String parsedValue = parsePropertiesInString(line.substring(index + 1));
-                LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
-                properties.put(name.toString(), parsedValue);
+                setProperty(name.toString(), parsedValue);
             }
         } else {
             // Try to get a name value pair
@@ -478,11 +476,15 @@ public class ProjectXMLHelper {
                         + new XMLOutputter().outputString(propertyElement)); 
             }
             String parsedValue = parsePropertiesInString(propValue);
-            LOG.debug("Setting property \"" + propName + "\" to \"" + parsedValue + "\".");
-            properties.put(propName, parsedValue);
+            setProperty(propName, parsedValue);
         }
     }
-    
+
+    private void setProperty(String name, String parsedValue) {
+        LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
+        properties.put(name, parsedValue);
+    }
+
     /**
      * Parses a string by replacing all occurences of a property macro with
      * the resolved value of the property. Nested macros are allowed - the 
