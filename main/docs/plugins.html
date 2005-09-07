@@ -155,7 +155,7 @@
         by the framework. This can be achieved done by making the plugin class implement the
         <code>SelfConfiguringPlugin</code> interface.
         In that case the <code>PluginXMLHelper</code> will delegate plugin configuration to the
-        <code>configureObject()</code> defined by this interface.
+        <code>configure(Element element)</code> defined by this interface.
 
         <h3><a name="validation"/>Plugin Validation</h3>
         <p>Immediately after the parser has configured your plugin, we will
