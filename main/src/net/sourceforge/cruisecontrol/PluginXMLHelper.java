@@ -71,7 +71,7 @@ public class PluginXMLHelper {
      *
      * @param objectElement the JDOM Element defining the plugin configuration
      * @param pluginClass the class to instanciate
-     * @param skipChildElements <code>false</code> to recurse the configuration. <code>true</code> otherwise
+     * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      * @return fully configured Object
      */
     public Object configure(Element objectElement, Class pluginClass,
@@ -102,14 +102,14 @@ public class PluginXMLHelper {
      * <li>calls setters that corresponds to element attributes</li>
      * <li>calls <code>public Yyy createXxx()</code> methods that corresponds to non-plugins child elements
      * (i.e. known by the instance class). The returned instance must be assignable to the Yyy type</li>
-     * <li>calls <code>public void addXxx</code> methods that corresponds to child elements which are
+     * <li>calls <code>public void add(Xxx)</code> methods that corresponds to child elements which are
      * plugins themselves, e.g. which will require asking the ProjectXMLHelper to
-     * {@link ProjectXMLHelper#configurePlugin(org.jdom.Element, boolean)} configure the plugin}</li>
+     * {@link ProjectXMLHelper#configurePlugin(org.jdom.Element, boolean) configure the plugin}</li>
      * </ul>
      *
      * @param objectElement the JDOM Element defining the plugin configuration
      * @param object the instance to configure to instanciate
-     * @param skipChildElements <code>false</code> to recurse the configuration. <code>true</code> otherwise
+     * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      */
     protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
             throws CruiseControlException {
