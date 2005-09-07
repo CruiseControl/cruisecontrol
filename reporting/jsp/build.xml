@@ -47,6 +47,7 @@
     <property name="test.classes" value="${target}/test-classes"/>
     <property name="temp.dir" value="${target}/tmp"/>
     <property name="docs" value="docs"/>
+    <property name="apidocs" value="${docs}/api"/>
     <property name="test" value="test"/>
     <property name="test.results" value="${target}/test-results"/>
     <property name="tests" value="*Test"/>
@@ -55,6 +56,12 @@
     <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
+
+    <path id="project.classpath" >
+        <fileset dir="${lib}" includes="*.jar"/>
+        <!-- ant.jar is also needed to compile the ArtifactsPublisher,
+             but is added automatically to the javac classpath -->
+    </path>
 
     <path id="project.runtime.classpath" >
         <fileset dir="${lib}">
@@ -179,6 +186,17 @@
                 <include name="batik-util*.jar"/>
             </lib>
         </war>
+    </target>
+
+    <target name="javadoc" depends="init,compile" description="Generate the javadocs">
+       <mkdir dir="${apidocs}"/>
+
+       <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*">
+           <classpath>
+               <path refid="project.classpath" />
+               <pathelement location="${src}" />
+           </classpath>
+       </javadoc>
     </target>
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>

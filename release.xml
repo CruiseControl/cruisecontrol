@@ -35,9 +35,12 @@
         <copy todir="target/website">
             <fileset dir="docs"/>
         </copy>
+
+        <ant inheritAll="false" dir="main" target="javadoc"/>
         <copy todir="target/website/main">
             <fileset dir="main/docs"/>
         </copy>
+        <ant inheritAll="false" dir="reporting/jsp" target="javadoc"/>
         <copy todir="target/website/reporting/jsp">
             <fileset dir="reporting/jsp/docs"/>
         </copy>
