@@ -387,7 +387,7 @@ public abstract class EmailPublisher implements Publisher {
             } catch (SendFailedException e) {
                 LOG.warn(e.getMessage(), e);
             } catch (MessagingException e) {
-                throw new CruiseControlException(e.getMessage());
+                throw new CruiseControlException(e.getClass().getName() + ": " + e.getMessage(), e);
             }
         }
         
