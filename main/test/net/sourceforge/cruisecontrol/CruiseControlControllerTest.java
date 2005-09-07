@@ -150,7 +150,7 @@ public class CruiseControlControllerTest extends TestCase {
                 final Project project = new Project();
                 project.setSchedule(new Schedule());
                 project.setName(projectName);
-                project.setConfigFile(configFile); 
+                project.setConfigFile(configFile);
                 return project;
             }
         };
@@ -239,9 +239,9 @@ public class CruiseControlControllerTest extends TestCase {
         FileWriter configOut = new FileWriter(configFile);
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
-        configOut.write("  <plugin name=\"testname\" "
-                        + "classname=\"net.sourceforge.cruisecontrol.CruiseControllerTest\"/>\n");
-        configOut.write("  <plugin name=\"labelincrementer\" classname=\"my.global.Incrementer\"/>\n");
+        configOut.write("  <plugin name='testname' "
+                        + "classname='net.sourceforge.cruisecontrol.CruiseControllerTest'/>\n");
+        configOut.write("  <plugin name='labelincrementer' classname='my.global.Incrementer'/>\n");
         configOut.write("</cruisecontrol>\n");
         configOut.close();
 
@@ -253,16 +253,16 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {
-        configOut.write("<project name=\"" + projectName + "\">\n");
-        configOut.write("<modificationset><alwaysbuild/></modificationset>\n");
-        configOut.write("<schedule><ant/></schedule>\n");
+        configOut.write("<project name='" + projectName + "'>\n");
+        configOut.write("  <modificationset><alwaysbuild/></modificationset>\n");
+        configOut.write("  <schedule><ant/></schedule>\n");
         configOut.write("</project>\n");
     }
 
     class MyListener implements CruiseControlController.Listener {
         private List added = new ArrayList();
         private List removed = new ArrayList();
-        public void clear() { 
+        public void clear() {
             added.clear();
             removed.clear();
         }

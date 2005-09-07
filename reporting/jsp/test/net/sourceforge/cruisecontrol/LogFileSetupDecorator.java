@@ -44,6 +44,9 @@ import junit.framework.Test;
 
 /**
  * A test decorator that can be used to set up log files for testing.
+ *
+ * Note: the files are not placed in a project specific folder.
+ *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */

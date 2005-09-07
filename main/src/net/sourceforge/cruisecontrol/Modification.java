@@ -397,7 +397,6 @@ public class Modification implements Comparable {
      * All backward slashes ("\") are converted to forward slashes 
      * ("/").
      *  
-     * @param mod The modification
      * @return A <code>String</code> containing the full path 
      *         of the modification
      */
