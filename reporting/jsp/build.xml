@@ -34,7 +34,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
-<project name="reporting-jsp" default="war" basedir=".">
+<project name="reporting-jsp" default="clean-all" basedir=".">
     <property environment="env"/>
     <property file="override.properties"/>
 
@@ -73,7 +73,7 @@
         <delete dir="${target}"/>
     </target>
 
-    <target name="init" depends="clean">
+    <target name="init">
         <mkdir dir="${dist}"/>
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
@@ -107,7 +107,7 @@
         </checkstyle>
     </target>
 
-    <target name="compile" depends="init,check-duplication,checkstyle">
+    <target name="compile" depends="init">
         <javac srcdir="${src}" destdir="${classes}" debug="true">
             <classpath refid="project.runtime.classpath" />
         </javac>
@@ -162,7 +162,7 @@
             addproperty="cruise.build.artifacts.dir"/>
     </target>
     
-    <target name="war" depends="test, create-web-xml">
+    <target name="war" depends="compile, create-web-xml">
         <war warfile="${deploy.dir}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir="${webcontent}" excludes="WEB-INF/web.xml"/>
             <classes dir="${classes}"/>
@@ -179,6 +179,11 @@
                 <include name="batik-util*.jar"/>
             </lib>
         </war>
-   </target>
+    </target>
+
+    <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>
+    
+    <target name="all" depends="init,compile,checkstyle,check-duplication,test,war" 
+            description="Performs a build, runs tests, and builds war" />
 
 </project>
