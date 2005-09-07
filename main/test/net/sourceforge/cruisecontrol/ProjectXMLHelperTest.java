@@ -38,6 +38,10 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -142,6 +146,84 @@ public class ProjectXMLHelperTest extends TestCase {
             fail("A missing property should cause an exception!");
         } catch (CruiseControlException expected) {
         }
+    }
+
+    public void testGetPluginConfigNoOverride() throws Exception {
+        Element configRoot = Util.loadConfigFile(configFile);
+        CruiseControlController.addPluginsToRootRegistry(configRoot, configFile);
+
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
+        PluginXMLHelper pluginHelper = new PluginXMLHelper(helper);
+        Object plugin;
+
+        plugin = helper.getConfiguredPlugin(pluginHelper, "testnested");
+        assertEquals(ListenerTestNestedPlugin.class, plugin.getClass());
+        ListenerTestNestedPlugin plug1 = (ListenerTestNestedPlugin) plugin;
+        assertEquals("default", plug1.getString());
+        assertEquals("otherdefault", plug1.getOtherString());
+
+        plugin = helper.getConfiguredPlugin(pluginHelper, "testselfconfiguring");
+        assertEquals(null, plugin);
+
+        plugin = helper.getConfiguredPlugin(pluginHelper, "testlistener");
+        assertEquals(null, plugin);
+    }
+
+    public void testGetPluginConfig() throws Exception {
+        Element configRoot = Util.loadConfigFile(configFile);
+        CruiseControlController.addPluginsToRootRegistry(configRoot, configFile);
+
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project4");
+        PluginXMLHelper pluginHelper = new PluginXMLHelper(helper);
+        Object plugin;
+
+        plugin = helper.getConfiguredPlugin(pluginHelper, "testnested");
+        assertEquals(ListenerTestNestedPlugin.class, plugin.getClass());
+        ListenerTestNestedPlugin plug1 = (ListenerTestNestedPlugin) plugin;
+        assertEquals("overriden", plug1.getString());
+        // not overriden
+        assertEquals("otherdefault", plug1.getOtherString());
+
+        plugin = helper.getConfiguredPlugin(pluginHelper, "testselfconfiguring");
+        assertEquals(ListenerTestSelfConfiguringPlugin.class, plugin.getClass());
+        ListenerTestSelfConfiguringPlugin plug2 = (ListenerTestSelfConfiguringPlugin) plugin;
+        assertEquals(null, plug2.getString());
+        assertEquals(null, plug2.getNested());
+
+        plugin = helper.getConfiguredPlugin(pluginHelper, "testlistener");
+        assertEquals(ListenerTestPlugin.class, plugin.getClass());
+        ListenerTestPlugin plug3 = (ListenerTestPlugin) plugin;
+        assertEquals("project4-0", plug3.getString());
+
+    }
+
+    public void testPluginConfiguration() throws Exception {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project4");
+
+        final PluginRegistry plugins = helper.getPlugins();
+        assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
+        assertEquals(ListenerTestNestedPlugin.class, plugins.getPluginClass("testnested"));
+        assertEquals(ListenerTestSelfConfiguringPlugin.class, plugins.getPluginClass("testselfconfiguring"));
+
+        List listeners = helper.getListeners();
+        assertEquals(3, listeners.size());
+
+        Listener listener0 = (Listener) listeners.get(0);
+        assertEquals(ListenerTestPlugin.class, listener0.getClass());
+        ListenerTestPlugin testListener0 = (ListenerTestPlugin) listener0;
+        assertEquals("project4-0", testListener0.getString());
+
+        Listener listener1 = (Listener) listeners.get(1);
+        assertEquals(ListenerTestPlugin.class, listener1.getClass());
+        ListenerTestPlugin testListener1 = (ListenerTestPlugin) listener1;
+        assertEquals("listener1", testListener1.getString());
+        assertEquals("wrapper1", testListener1.getStringWrapper().getString());
+
+        Listener listener2 = (Listener) listeners.get(2);
+        assertEquals(ListenerTestPlugin.class, listener2.getClass());
+        ListenerTestPlugin testListener2 = (ListenerTestPlugin) listener2;
+        assertEquals("listener2", testListener2.getString());
+        assertEquals("wrapper2-works!", testListener2.getStringWrapper().getString());
     }
 
     public void testDateFormat() throws Exception {
@@ -253,6 +335,10 @@ public class ProjectXMLHelperTest extends TestCase {
         config.append("  <property name='global' value='works!'/>\n");
         config.append("  <property name='project.global' value='project=${project.name}'/>\n");
 
+        config.append("  <plugin name='testnested' "
+            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin' "
+            + "string='default' otherstring='otherdefault'/>\n");
+
         config.append("  <project name='project1' />\n");
 
         config.append("  <project name='project2' >\n");
@@ -283,6 +369,34 @@ public class ProjectXMLHelperTest extends TestCase {
 
         config.append("  <project name='project3' >\n");
         config.append("    <log/>\n");
+        config.append("  </project>\n");
+
+        // test plugin configuration inside a project
+        config.append("  <project name='project4' >\n");
+        // property resolution should still work
+        config.append("    <property name='default.testlistener.name' value='${project.name}-0'/>\n");
+        // to check overriding plugin & defaults. No need to respecify class
+        config.append("    <plugin name='testnested' string='overriden'/>\n");
+        // to test self configuring plugins
+        config.append("    <plugin name='testselfconfiguring' "
+            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin'/>\n");
+        // to test nested & self-configuring plugins
+        config.append("    <plugin name='testlistener' string='${default.testlistener.name}' "
+            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'>\n");
+        config.append("      <testnested string='nested'/>");
+        config.append("      <testselfconfiguring string='selfconfiguring'>");
+        config.append("        <testnested string='nestedagain'/>");
+        config.append("      </testselfconfiguring>");
+        config.append("      <stringwrapper string='wrapper1'/>");
+        config.append("    </plugin>\n");
+        // override
+        config.append("    <listeners>\n");
+        config.append("      <testlistener/>\n");
+        config.append("      <testlistener string='listener1'/>\n");
+        config.append("      <testlistener string='listener2'>\n");
+        config.append("        <stringwrapper string='wrapper2-${global}'/>\n");
+        config.append("      </testlistener>\n");
+        config.append("    </listeners>\n");
         config.append("  </project>\n");
 
         config.append("  <project name='propsfromfile' >\n");

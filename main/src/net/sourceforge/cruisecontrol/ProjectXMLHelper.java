@@ -93,7 +93,11 @@ public class ProjectXMLHelper {
     private Properties properties = new Properties();
 
     public ProjectXMLHelper() {
-        plugins = PluginRegistry.createRegistry();
+        this.plugins = PluginRegistry.createRegistry();
+    }
+
+    ProjectXMLHelper(PluginRegistry registry) {
+        this.plugins = registry;
     }
 
     public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
@@ -295,10 +299,38 @@ public class ProjectXMLHelper {
         String pluginName = pluginElement.getName();
 
         if (plugins.isPluginRegistered(pluginName)) {
+            Object pluginInstance = getConfiguredPlugin(pluginHelper, pluginElement.getName());
+            if (pluginInstance != null) { // preconfigured
+                return pluginHelper.configure(pluginElement, pluginInstance, skipChildElements);
+            }
             return pluginHelper.configure(pluginElement, plugins.getPluginClass(pluginName), skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
+    }
+
+    /**
+     * Get a [partially] configured plugin instance given its plugin name.
+     * @param pluginName
+     * @return <code>null</code> if the plugin was never configured.
+     * @throws CruiseControlException
+     *   if the registered class cannot be loaded,
+     *   if a property cannot be resolved,
+     *   if the plugin configuration fails
+     */
+    Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
+        final Class pluginClass = this.plugins.getPluginClass(pluginName);
+        if (pluginClass == null) {
+            return null;
+        }
+        Object configuredPlugin = null;
+        Element pluginElement = plugins.getPluginConfig(pluginClass);
+        if (pluginElement != null) {
+            // Element clonedPluginElement = (Element) pluginElement.clone();
+            parsePropertiesInElement(pluginElement);
+            configuredPlugin = pluginHelper.configure(pluginElement, pluginClass, false);
+        }
+        return configuredPlugin;
     }
 
     /**
@@ -458,7 +490,7 @@ public class ProjectXMLHelper {
      *  
      * @param string The string to be parsed
      * @return The parsed string
-     * @throws CruiseControlException
+     * @throws CruiseControlException if a property cannot be resolved
      */
     String parsePropertiesInString(String string) throws CruiseControlException {
 
@@ -488,7 +520,7 @@ public class ProjectXMLHelper {
      * 
      * @param element The Element to parse
      * 
-     * @throws CruiseControlException
+     * @throws CruiseControlException if a property cannot be resolved
      */
     private void parsePropertiesInElement(Element element) throws CruiseControlException {
 

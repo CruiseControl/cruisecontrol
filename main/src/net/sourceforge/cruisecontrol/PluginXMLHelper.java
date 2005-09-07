@@ -73,11 +73,28 @@ public class PluginXMLHelper {
      * @param pluginClass the class to instanciate
      * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      * @return fully configured Object
+     * @see {@link #configure(org.jdom.Element, Object, boolean)} to use when one already has an instance.
+     * @see {@link ProjectXMLHelper#getConfiguredPlugin(PluginXMLHelper, String)} to retrieve those instances.
+     * @throws CruiseControlException
+     *   if the plugin class cannot be instantiated,
+     *   if the configuration fails
      */
     public Object configure(Element objectElement, Class pluginClass,
                             boolean skipChildElements)
             throws CruiseControlException {
 
+        Object pluginInstance = instantiatePlugin(pluginClass);
+        return configure(objectElement, pluginInstance, skipChildElements);
+
+    }
+
+    /**
+     * Instantiate a plugin
+     * @param pluginClass
+     * @return
+     * @throws CruiseControlException if the plugin class cannot be instantiated
+     */
+    private Object instantiatePlugin(Class pluginClass) throws CruiseControlException {
         Object pluginInstance;
         try {
             pluginInstance = pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
@@ -86,12 +103,26 @@ public class PluginXMLHelper {
             throw new CruiseControlException("Could not instantiate class: "
                     + pluginClass.getName());
         }
+        return pluginInstance;
+    }
+
+    /**
+     * Same as {@link #configure(org.jdom.Element, Class, boolean)}, except that
+     * the client already has a pluginInstance.
+     * @param objectElement
+     * @param pluginInstance
+     * @param skipChildElements
+     * @return
+     * @throws CruiseControlException if the configuration fails
+     */
+    public Object configure(Element objectElement, Object pluginInstance,
+                            boolean skipChildElements) throws CruiseControlException {
+        
         if (pluginInstance instanceof SelfConfiguringPlugin) {
             ((SelfConfiguringPlugin) pluginInstance).configure(objectElement);
         } else {
             configureObject(objectElement, pluginInstance, skipChildElements);
         }
-
         return pluginInstance;
     }
 
@@ -129,8 +160,6 @@ public class PluginXMLHelper {
                 adders.add(method);
             }
         }
-        
-        setFromPluginDef(objectElement.getName(), setters, object);
 
         setFromAttributes(objectElement, setters, object);
 
@@ -183,15 +212,7 @@ public class PluginXMLHelper {
         }
     }
     
-    private void setFromPluginDef(String pluginName, Map setters, Object pluginInstance) throws CruiseControlException {
-        Map defaultProperties = projectHelper.getPlugins().getDefaultProperties(pluginName);
-        for (Iterator iter = defaultProperties.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            callSetter((String) entry.getKey(), (String) entry.getValue(), setters, pluginInstance);
-        }
-    }
-    
-    private void callSetter(String propName, String propValue, Map setters, Object object) 
+    private void callSetter(String propName, String propValue, Map setters, Object object)
         throws CruiseControlException {
         
         if (setters.containsKey(propName.toLowerCase())) {

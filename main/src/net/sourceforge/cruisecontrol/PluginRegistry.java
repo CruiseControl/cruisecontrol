@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,8 +44,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.Attribute;
 
 
 /**
@@ -61,6 +60,11 @@ import org.jdom.Element;
  * The root-registry contains the default list of plugins, i.e. those
  * that are already registered like AntBuilder that don't have to be registered
  * seperately in the configuration file.
+ *
+ * The registry keeps track of the {@link #getPluginConfig(Class) plugin configurations}
+ * in order to allow full plugin preconfigurations (default properties + nested elements).
+ *
+ * @see PluginXMLHelper
  */
 public final class PluginRegistry {
 
@@ -94,11 +98,11 @@ public final class PluginRegistry {
     private final Map plugins = new HashMap();
 
     /**
-     * Map that holds the default properties to set for a plugin class.
-     * Key is the fully qualified classname, 
-     * value is a Map with property keys and values.
+     * Map that holds the DOM element representing the plugin declaration.
+     * Key is the fully qualified classname,
+     * value is the Element representing the plugin configuration.
      */
-    private final Map defaultProperties = new HashMap();
+    private final Map pluginConfigs = new HashMap();
 
     /**
      * Creates a new PluginRegistry with no plugins registered, with the given parent registry.
@@ -121,8 +125,8 @@ public final class PluginRegistry {
     }
     
     /**
-     * Registers the given plugin, including default properties.
-     * 
+     * Registers the given plugin, including plugin configuration.
+     *
      * @param pluginElement the JDom element that contains the plugin definition.
      */
     public void register(Element pluginElement) throws CruiseControlException {
@@ -137,21 +141,17 @@ public final class PluginRegistry {
                         + pluginName + "'; maybe you forgot to specify a classname?");
             }
         }
-        Map properties = new HashMap();
-        List attributes = pluginElement.getAttributes();
-        for (Iterator iter = attributes.iterator(); iter.hasNext(); ) {
-            Attribute attr = (Attribute) iter.next();
-            String name = attr.getName();
-            if (name.equals("name") || name.equals("classname")) {
-                continue;
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("setting default property " + name + " to '" + attr.getValue()
-                    + "' for " + pluginName);
-            }
-            properties.put(name, attr.getValue());
+        if (pluginClassName == null) {
+            pluginClassName = getPluginClassname(pluginName.toLowerCase());
         }
-        defaultProperties.put(pluginName, Collections.unmodifiableMap(properties));
+        Element clonedPluginElement = (Element) pluginElement.clone();
+        clonedPluginElement.removeAttribute("name");
+        clonedPluginElement.removeAttribute("classname");
+        clonedPluginElement.setName(pluginName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("storing plugin configuration " + pluginName);
+        }
+        pluginConfigs.put(pluginClassName, clonedPluginElement);
     }
 
     /**
@@ -168,7 +168,7 @@ public final class PluginRegistry {
      * when reloading the config file. The default-properties are re-read.
      */
     static void resetRootRegistry() {
-        ROOTREGISTRY.defaultProperties.clear();
+        ROOTREGISTRY.pluginConfigs.clear();
         ROOTREGISTRY.plugins.clear();
         ROOTREGISTRY.plugins.putAll(loadDefaultPluginRegistry().plugins);
     }
@@ -181,16 +181,16 @@ public final class PluginRegistry {
      * all treated as the same plugin.
      */
     public String getPluginClassname(String pluginName) {
+        /*
         if (!isPluginRegistered(pluginName)) {
             return null;
         }
+        */
         String className = (String) plugins.get(pluginName.toLowerCase());
-        if (className != null) {
-            return className;
-        } else {
-            // must be registered in our parent, then
-            return parentRegistry.getPluginClassname(pluginName);
+        if (className == null && parentRegistry != null) {
+            className = parentRegistry.getPluginClassname(pluginName);
         }
+        return className;
     }
 
     /**
@@ -231,14 +231,11 @@ public final class PluginRegistry {
      * null pluginName.
      */
     public boolean isPluginRegistered(String pluginName) {
-        boolean knownToSelf = plugins.containsKey(pluginName.toLowerCase());
-        if (knownToSelf) {
-            return true;
+        boolean isRegistered = plugins.containsKey(pluginName.toLowerCase());
+        if (!isRegistered && parentRegistry != null) {
+            isRegistered = parentRegistry.isPluginRegistered(pluginName);
         }
-        if (parentRegistry == null) {
-            return false;
-        }
-        return parentRegistry.isPluginRegistered(pluginName);
+        return isRegistered;
     }
 
     /**
@@ -262,21 +259,64 @@ public final class PluginRegistry {
         }
         return rootRegistry;
     }
-    
+
     /**
-     * Returns a Map containing the default properties for the plugin 
-     * with the given name. If there's no such plugin, an empty
-     * Map will be returned. The default properties can be inherited 
-     * from a parent registry.
+     * Get the plugin configuration particular to this plugin, merged with the parents
+     * @param pluginClass
+     * @return
+     * @throws NullPointerException if pluginClass is null
      */
-    public Map getDefaultProperties(String pluginName) {
-        Map properties = new HashMap();
-        if (parentRegistry != null) {
-            properties.putAll(parentRegistry.getDefaultProperties(pluginName));
+    public Element getPluginConfig(final Class pluginClass) {
+        return overridePluginConfig(pluginClass, null);
+    }
+
+    /**
+     * Return a merged plugin configuration, taking into account parent classes where appropriate.
+     *
+     * This method is used recursively to fill up the specified pluginConfig Element.
+     *
+     * Properties are taken from parent plugins if they have not been defined in the child.
+     * Nested elements of the parent are always added to the child's config.
+     *
+     * Note: as we have no way to enforce the cardinality of the nested elements, the parent/default nested
+     * elements are always added to the config of the child. The validity of the resulting config then
+     * depends on the config to be correctly specified.
+     *
+     * @param pluginClass the class to create a config for
+     * @param pluginConfig the current config, passed up for completion
+     * @return an Element representing the combination of the various plugin configurations for
+     * the same class, following the hierachy.
+     */
+    private Element overridePluginConfig(final Class pluginClass, Element pluginConfig) {
+        Element pluginElement = (Element) pluginConfigs.get(pluginClass.getName());
+        // clone the first found plugin config
+        if (pluginElement != null && pluginConfig == null) {
+            pluginElement = (Element) pluginElement.clone();
         }
-        if (defaultProperties.containsKey(pluginName)) {
-            properties.putAll((Map) defaultProperties.get(pluginName));
+        if (pluginConfig == null) {
+            pluginConfig = pluginElement;
+        } else {
+            if (pluginElement != null) {
+                // override properties
+                List attributes = pluginElement.getAttributes();
+                for (int i = 0; i < attributes.size(); i++) {
+                    Attribute attribute = (Attribute) attributes.get(i);
+                    String name = attribute.getName();
+                    if (pluginConfig.getAttribute(name) == null) {
+                        pluginConfig.setAttribute(name, attribute.getValue());
+                    }
+                }
+                // combine child elements
+                List children = pluginElement.getChildren();
+                for (int i = 0; i < children.size(); i++) {
+                    Element child = (Element) children.get(i);
+                    pluginConfig.addContent((Element) child.clone());
+                }
+            }
         }
-        return properties;
+        if (this.parentRegistry != null) {
+            pluginConfig = this.parentRegistry.overridePluginConfig(pluginClass, pluginConfig);
+        }
+        return pluginConfig;
     }
 }
