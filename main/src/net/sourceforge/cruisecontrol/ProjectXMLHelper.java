@@ -324,7 +324,7 @@ public class ProjectXMLHelper {
             return null;
         }
         Object configuredPlugin = null;
-        Element pluginElement = plugins.getPluginConfig(pluginClass);
+        Element pluginElement = plugins.getPluginConfig(pluginName);
         if (pluginElement != null) {
             // Element clonedPluginElement = (Element) pluginElement.clone();
             parsePropertiesInElement(pluginElement);

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +100,7 @@ public final class PluginRegistry {
 
     /**
      * Map that holds the DOM element representing the plugin declaration.
-     * Key is the fully qualified classname,
+     * Key is the plugin name (as taken from the DOM element),
      * value is the Element representing the plugin configuration.
      */
     private final Map pluginConfigs = new HashMap();
@@ -130,7 +131,7 @@ public final class PluginRegistry {
      * @param pluginElement the JDom element that contains the plugin definition.
      */
     public void register(Element pluginElement) throws CruiseControlException {
-        String pluginName = pluginElement.getAttributeValue("name");
+        String pluginName = pluginElement.getAttributeValue("name").toLowerCase();
         String pluginClassName = pluginElement.getAttributeValue("classname");
         if (pluginClassName != null) {
             register(pluginName, pluginClassName);
@@ -142,7 +143,7 @@ public final class PluginRegistry {
             }
         }
         if (pluginClassName == null) {
-            pluginClassName = getPluginClassname(pluginName.toLowerCase());
+            pluginClassName = getPluginClassname(pluginName);
         }
         Element clonedPluginElement = (Element) pluginElement.clone();
         clonedPluginElement.removeAttribute("name");
@@ -151,7 +152,7 @@ public final class PluginRegistry {
         if (LOG.isDebugEnabled()) {
             LOG.debug("storing plugin configuration " + pluginName);
         }
-        pluginConfigs.put(pluginClassName, clonedPluginElement);
+        pluginConfigs.put(pluginName, clonedPluginElement);
     }
 
     /**
@@ -179,18 +180,23 @@ public final class PluginRegistry {
      * for the plugin class. Note that plugin
      * names are always treated as case insensitive, so Ant, ant, and AnT are
      * all treated as the same plugin.
+     * Note: a parent name->class mapping can be overriden by children registries.
      */
     public String getPluginClassname(String pluginName) {
-        /*
-        if (!isPluginRegistered(pluginName)) {
-            return null;
-        }
-        */
-        String className = (String) plugins.get(pluginName.toLowerCase());
+        pluginName = pluginName.toLowerCase();
+        String className = internalGetPluginClassname(pluginName);
         if (className == null && parentRegistry != null) {
             className = parentRegistry.getPluginClassname(pluginName);
         }
         return className;
+    }
+
+    /**
+     * @return the class name for this plugin on this registry. May be <code>null</code>
+     * Assumes the pluginName is lower case
+     */
+    private String internalGetPluginClassname(String pluginName) {
+        return (String) plugins.get(pluginName);
     }
 
     /**
@@ -262,12 +268,14 @@ public final class PluginRegistry {
 
     /**
      * Get the plugin configuration particular to this plugin, merged with the parents
-     * @param pluginClass
+     * @param pluginName
      * @return
-     * @throws NullPointerException if pluginClass is null
+     * @throws NullPointerException if pluginName is null
      */
-    public Element getPluginConfig(final Class pluginClass) {
-        return overridePluginConfig(pluginClass, null);
+    public Element getPluginConfig(String pluginName) {
+        pluginName = pluginName.toLowerCase();
+        String className = getPluginClassname(pluginName);
+        return overridePluginConfig(pluginName, className, null);
     }
 
     /**
@@ -282,13 +290,14 @@ public final class PluginRegistry {
      * elements are always added to the config of the child. The validity of the resulting config then
      * depends on the config to be correctly specified.
      *
-     * @param pluginClass the class to create a config for
+     * @param pluginName the name of the plugin to create a config for (must be lower case)
+     * @param pluginClass the mapped class name for the plugin
      * @param pluginConfig the current config, passed up for completion
      * @return an Element representing the combination of the various plugin configurations for
-     * the same class, following the hierachy.
+     * the same plugin, following the hierachy.
      */
-    private Element overridePluginConfig(final Class pluginClass, Element pluginConfig) {
-        Element pluginElement = (Element) pluginConfigs.get(pluginClass.getName());
+    private Element overridePluginConfig(final String pluginName, final String pluginClass, Element pluginConfig) {
+        Element pluginElement = (Element) this.pluginConfigs.get(pluginName);
         // clone the first found plugin config
         if (pluginElement != null && pluginConfig == null) {
             pluginElement = (Element) pluginElement.clone();
@@ -296,7 +305,8 @@ public final class PluginRegistry {
         if (pluginConfig == null) {
             pluginConfig = pluginElement;
         } else {
-            if (pluginElement != null) {
+            // do not override if class names do not match
+            if (pluginElement != null && pluginClass.equals(this.internalGetPluginClassname(pluginName))) {
                 // override properties
                 List attributes = pluginElement.getAttributes();
                 for (int i = 0; i < attributes.size(); i++) {
@@ -315,8 +325,36 @@ public final class PluginRegistry {
             }
         }
         if (this.parentRegistry != null) {
-            pluginConfig = this.parentRegistry.overridePluginConfig(pluginClass, pluginConfig);
+            pluginConfig = this.parentRegistry.overridePluginConfig(pluginName, pluginClass, pluginConfig);
         }
         return pluginConfig;
+    }
+
+    /**
+     * Returns a Map containing the default properties for the plugin 
+     * with the given name. If there's no such plugin, an empty
+     * Map will be returned. The default properties can be inherited 
+     * from a parent registry.
+     * @deprecated use FIXME that also supports preconfiguration of nested elements
+     */
+    public Map getDefaultProperties(String pluginName) {
+        Map defaultProperties = new HashMap();
+        Element pluginConfig = this.getPluginConfig(pluginName);
+        if (pluginConfig != null) {
+            List attributes = pluginConfig.getAttributes();
+            for (Iterator iter = attributes.iterator(); iter.hasNext(); ) {
+                Attribute attr = (Attribute) iter.next();
+                String name = attr.getName();
+                if (name.equals("name") || name.equals("classname")) {
+                    continue;
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("setting default property " + name + " to '" + attr.getValue()
+                       + "' for " + pluginName);
+                }
+                defaultProperties.put(name, attr.getValue());
+            }
+        }
+        return Collections.unmodifiableMap(defaultProperties);        
     }
 }

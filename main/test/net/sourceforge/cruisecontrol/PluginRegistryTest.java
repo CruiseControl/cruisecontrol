@@ -43,11 +43,17 @@ import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class PluginRegistryTest extends TestCase {
 
+    public void testGetDefaultPropertiesNoPlugin() {
+        PluginRegistry registry = PluginRegistry.createRegistry();
+        assertEquals(0, registry.getDefaultProperties("qwertyuiop").size());
+    }
+ 
     public void testGettingPluginClass() throws Exception {
         PluginRegistry registry = PluginRegistry.createRegistry();
 
@@ -82,7 +88,7 @@ public class PluginRegistryTest extends TestCase {
         assertEquals(antBuilderClass, registry.getPluginClass("ant"));
     }
 
-    public void testRootRegistry() throws Exception {
+    public void testRootRegistryAndClassnameOverrideOverwrite() throws Exception {
         PluginRegistry registry = PluginRegistry.createRegistry();
         String antClassName = registry.getPluginClassname("ant");
         String nonExistentClassname =
@@ -108,6 +114,7 @@ public class PluginRegistryTest extends TestCase {
 
         PluginRegistry registry = PluginRegistry.createRegistry();
 
+        // 2 plugins in the root, with the same plugin class, but different names
         Element rootPluginElement = new Element("plugin");
         rootPluginElement.setAttribute("name", "testlistener");
         rootPluginElement.setAttribute("classname", ListenerTestPlugin.class.getName());
@@ -120,6 +127,25 @@ public class PluginRegistryTest extends TestCase {
 
         PluginRegistry.registerToRoot(rootPluginElement);
 
+        Element otherRootPluginElement = new Element("plugin");
+        otherRootPluginElement.setAttribute("name", "testlistener2");
+        otherRootPluginElement.setAttribute("classname", ListenerTestPlugin.class.getName());
+        otherRootPluginElement.setAttribute("string", "default2");
+
+        PluginRegistry.registerToRoot(otherRootPluginElement);
+
+        Map defaultProperties;
+        // check getDefaultProperties
+        defaultProperties = registry.getDefaultProperties("testlistener");
+        assertEquals(2, defaultProperties.size());
+        assertEquals("default", defaultProperties.get("string"));
+        assertEquals("otherdefault", defaultProperties.get("string2"));
+
+        defaultProperties = registry.getDefaultProperties("testlistener2");
+        assertEquals(1, defaultProperties.size());
+        assertEquals("default2", defaultProperties.get("string"));
+
+        // now let's make some 'overrides'
         Element pluginElement = new Element("plugin");
         pluginElement.setAttribute("name", "testlistener");
         pluginElement.setAttribute("string", "overriden");
@@ -130,7 +156,13 @@ public class PluginRegistryTest extends TestCase {
 
         registry.register(pluginElement);
 
-        Element pluginConfig = registry.getPluginConfig(ListenerTestPlugin.class);
+        // test the first plugin
+        defaultProperties = registry.getDefaultProperties("testlistener");
+        assertEquals(2, defaultProperties.size());
+        assertEquals("overriden", defaultProperties.get("string"));
+        assertEquals("otherdefault", defaultProperties.get("string2"));
+
+        Element pluginConfig = registry.getPluginConfig("testlistener");
         assertEquals("testlistener", pluginConfig.getName());
         assertEquals("overriden", pluginConfig.getAttributeValue("string"));
         assertEquals("otherdefault", pluginConfig.getAttributeValue("string2"));
@@ -147,6 +179,16 @@ public class PluginRegistryTest extends TestCase {
             wrapperAttributes.add(element.getAttributeValue("string"));
         }
         assertEquals(expectedWrapperAttributes, wrapperAttributes);
+
+        // test the second plugin
+        defaultProperties = registry.getDefaultProperties("testlistener2");
+        assertEquals(1, defaultProperties.size());
+        assertEquals("default2", defaultProperties.get("string"));
+
+        Element otherPluginConfig = registry.getPluginConfig("testlistener2");
+        assertEquals("testlistener2", otherPluginConfig.getName());
+        assertEquals("default2", otherPluginConfig.getAttributeValue("string"));
+        assertEquals(null, otherPluginConfig.getAttributeValue("string2"));
 
         PluginRegistry.resetRootRegistry();
     }
