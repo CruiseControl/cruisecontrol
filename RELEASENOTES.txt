@@ -20,12 +20,9 @@ P4:
 ----------------------
 * Fix problem where test would fail if Perforce was on the path. Patch by Arent-Jan Banck
 
-plugins:
-----------------------
-* Can pre-configure plugin subelements, too. CC-299. Patch by Jerome Lacoste.
-
 PluginXMLHelper:
 ----------------------
+* Can pre-configure plugin subelements, too. CC-299. Patch by Jerome Lacoste.
 * Support properties in project name, properties element, comments in properties file and properties in comments file. Patch by Jerome Lacoste
 
 TimeBuild:
