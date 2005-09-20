@@ -815,6 +815,10 @@ public class Project implements Serializable, Runnable {
         this.listeners = listeners;
     }
 
+    List getListeners() {
+        return listeners;
+    }
+
     void notifyListeners(ProjectEvent event) {
         for (Iterator i = listeners.iterator(); i.hasNext(); ) {
             Listener listener = (Listener) i.next();

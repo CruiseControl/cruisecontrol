@@ -98,9 +98,13 @@ public class Log {
         return logXmlEncoding;
     }
 
+    public String getProjectName() {
+        return projectName;
+    }
+
     public void setLogDir(String logDir) throws CruiseControlException {
+        checkLogDirectory(logDir);
         this.logDir = logDir;
-        checkLogDirectory();
     }
 
     public void setLogXmlEncoding(String logXmlEncoding) {
@@ -123,7 +127,7 @@ public class Log {
      * @throws CruiseControlException if directory can't be created or there is
      * a file of the same name
      */
-    public void checkLogDirectory() throws CruiseControlException {
+    private void checkLogDirectory(String logDir) throws CruiseControlException {
         File logDirectory = new File(logDir);
         if (!logDirectory.exists()) {
             LOG4J.info(

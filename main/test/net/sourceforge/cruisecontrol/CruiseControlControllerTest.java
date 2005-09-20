@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 
 /**
  *
@@ -140,6 +141,56 @@ public class CruiseControlControllerTest extends TestCase {
         } catch (CruiseControlException expected) {
             assertEquals("Duplicate entries in config file for project name testProject1", expected.getMessage());
         }
+    }
+
+    public void testLoadSomeProjectsWithParametrizedNames() throws IOException, CruiseControlException {
+        ccController = new CruiseControlController() {
+            /*
+            protected Project configureProject(String projectName) {
+                final Project project = new Project();
+                project.setName(projectName);
+                project.setConfigFile(configFile);
+                return project;
+            }
+            */
+        };
+        FileWriter configOut = new FileWriter(configFile);
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+        // a property that defines the project name.
+        configOut.write("  <property name='name' value='testProject'/>\n");
+        configOut.write("  <property name='encoding' value='utf8'/>\n");
+        // this to test that plugin preconfiguration still works
+        configOut.write("  <plugin name='testlistener' "
+            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin' "
+            + "string='listener for ${project.name}'/>\n");
+
+        // this to test that project name can be parametrized
+        configOut.write("  <project name='${name}1'>\n");
+        configOut.write("    <modificationset><alwaysbuild/></modificationset>\n");
+        configOut.write("    <schedule><ant/></schedule>\n");
+        configOut.write("    <listeners><testlistener/></listeners>\n");
+        configOut.write("    <log dir='logs/${project.name}' encoding='${encoding}'/>\n");
+        configOut.write("  </project>\n");
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+
+        ccController.setConfigFile(configFile);
+        assertEquals(configFile, ccController.getConfigFile());
+        assertEquals(1, ccController.getProjects().size());
+        final Project project = ((Project) ccController.getProjects().get(0));
+        assertEquals("project name can be resolved", "testProject1", project.getName());
+
+        assertEquals("project name can be resolved", "testProject1", project.getLog().getProjectName());
+
+        List listeners = project.getListeners();
+        assertEquals(1, listeners.size());
+        Listener listener = (Listener) listeners.get(0);
+        assertEquals(ListenerTestPlugin.class, listener.getClass());
+        assertEquals("listener for testProject1", ((ListenerTestPlugin) listener).getString());
+
+        assertEquals("logs/testProject1", project.getLogDir());
+        assertEquals("utf8", project.getLog().getLogXmlEncoding());
     }
 
     public void testConfigReloading() throws IOException, CruiseControlException {
