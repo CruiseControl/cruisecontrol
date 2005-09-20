@@ -41,6 +41,7 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.BasicConfigurator;
@@ -198,6 +199,9 @@ public class ProjectXMLHelperTest extends TestCase {
     }
 
     public void testPluginConfiguration() throws Exception {
+        Element configRoot = Util.loadConfigFile(configFile);
+        CruiseControlController.addPluginsToRootRegistry(configRoot, configFile);
+
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project4");
 
         final PluginRegistry plugins = helper.getPlugins();
@@ -223,7 +227,37 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(ListenerTestPlugin.class, listener2.getClass());
         ListenerTestPlugin testListener2 = (ListenerTestPlugin) listener2;
         assertEquals("listener2", testListener2.getString());
-        assertEquals("wrapper2-works!", testListener2.getStringWrapper().getString());
+        // note this is in fact undefined behavior!! Because we added twice the stringwrapper (first for the child,
+        // then for the parent).
+        // this could probably fail depending on a different platform, except if Element.setContent() specifies
+        // the order in which children are kept within the element.
+        final String wrapper = testListener2.getStringWrapper().getString();
+        assertTrue("wrapper2-works!", "wrapper2-works!".equals(wrapper)
+                                      || "wrapper1".equals(wrapper));
+    }
+
+    public void testPluginConfigurationClassOverride() throws Exception {
+        Element configRoot = Util.loadConfigFile(configFile);
+        CruiseControlController.addPluginsToRootRegistry(configRoot, configFile);
+
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project5");
+
+        final PluginRegistry plugins = helper.getPlugins();
+        assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
+        assertEquals(ListenerTestOtherNestedPlugin.class, plugins.getPluginClass("testnested"));
+
+        List listeners = helper.getListeners();
+        assertEquals(1, listeners.size());
+
+        Listener listener0 = (Listener) listeners.get(0);
+        assertEquals(ListenerTestPlugin.class, listener0.getClass());
+        ListenerTestPlugin testListener0 = (ListenerTestPlugin) listener0;
+        assertEquals("default", testListener0.getString());
+        ListenerTestNestedPlugin nested = testListener0.getNested();
+        assertTrue(nested instanceof ListenerTestOtherNestedPlugin);
+        assertEquals("notshadowing", ((ListenerTestOtherNestedPlugin) nested).getString());
+        assertEquals(null, ((ListenerTestOtherNestedPlugin) nested).getOtherString());
+        assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
     }
 
     public void testDateFormat() throws Exception {
@@ -331,118 +365,139 @@ public class ProjectXMLHelperTest extends TestCase {
         // Note: the project1 and project3 directories will be created 
         // in <testexecutiondir>/logs/
         StringBuffer config = new StringBuffer();
-        config.append("<cruisecontrol>\n");
-        config.append("  <property name='global' value='works!'/>\n");
-        config.append("  <property name='project.global' value='project=${project.name}'/>\n");
-
-        config.append("  <plugin name='testnested' "
-            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin' "
-            + "string='default' otherstring='otherdefault'/>\n");
-
-        config.append("  <project name='project1' />\n");
-
-        config.append("  <project name='project2' >\n");
-        config.append("    <bootstrappers>\n");
-        config.append("      <vssbootstrapper vsspath='foo' localdirectory='"
-                + tempDirectory.getAbsolutePath() + "' />\n");
-        config.append("    </bootstrappers>\n");
-        config.append("    <schedule interval='20' >\n");
-        config.append("      <ant multiple='1' buildfile='"
-                + tempDirectory.getAbsolutePath()
-                + "/foo/bar.xml' target='baz' />\n");
-        config.append("    </schedule>\n");
-        config.append("    <modificationset quietperiod='10' >\n");
-        config.append("      <vss vsspath='"
-                + tempDirectory.getAbsolutePath()
-                + "/foo/bar' login='login' />\n");
-        config.append("    </modificationset>\n");
-        config.append("    <log dir='"
-                + tempDirectory.getAbsolutePath()
-                + "/foo' encoding='utf-8' >\n");
-        config.append("      <merge file='blah' />\n");
-        config.append("    </log>\n");
-        config.append("    <labelincrementer separator='#' />\n");
-        config.append("    <listeners>\n");
-        config.append("      <currentbuildstatuslistener file='status.txt'/>\n");
-        config.append("    </listeners>\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='project3' >\n");
-        config.append("    <log/>\n");
-        config.append("  </project>\n");
-
-        // test plugin configuration inside a project
-        config.append("  <project name='project4' >\n");
-        // property resolution should still work
-        config.append("    <property name='default.testlistener.name' value='${project.name}-0'/>\n");
-        // to check overriding plugin & defaults. No need to respecify class
-        config.append("    <plugin name='testnested' string='overriden'/>\n");
-        // to test self configuring plugins
-        config.append("    <plugin name='testselfconfiguring' "
-            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin'/>\n");
-        // to test nested & self-configuring plugins
-        config.append("    <plugin name='testlistener' string='${default.testlistener.name}' "
-            + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'>\n");
-        config.append("      <testnested string='nested'/>");
-        config.append("      <testselfconfiguring string='selfconfiguring'>");
-        config.append("        <testnested string='nestedagain'/>");
-        config.append("      </testselfconfiguring>");
-        config.append("      <stringwrapper string='wrapper1'/>");
-        config.append("    </plugin>\n");
-        // override
-        config.append("    <listeners>\n");
-        config.append("      <testlistener/>\n");
-        config.append("      <testlistener string='listener1'/>\n");
-        config.append("      <testlistener string='listener2'>\n");
-        config.append("        <stringwrapper string='wrapper2-${global}'/>\n");
-        config.append("      </testlistener>\n");
-        config.append("    </listeners>\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='propsfromfile' >\n");
-        config.append("    <property file='"
-                + propertiesFile.getAbsolutePath()
-                + "' />\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='simpleprops' >\n");
-        config.append("    <property name='simple' value='success!'/>\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='multiprops' >\n");
-        config.append("    <property name='first' value='one'/>\n");
-        config.append("    <property name='second' value='two'/>\n");
-        config.append("    <property name='third' value='three'/>\n");
-        config.append("    <property name='multi' value='${first}.${second}$${third}'/>\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='nestedprops' >\n");
-        config.append("    <property name='first' value='one'/>\n");
-        config.append("    <property name='second' value='two'/>\n");
-        config.append("    <property name='third' value='three'/>\n");
-        config.append("    <property name='one.two.three' value='almost'/>\n");
-        config.append("    <property name='almost' value='threeLevelsDeep'/>\n");
-        config.append("    <property name='nested' value='${${${first}.${second}.${third}}}'/>\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='missingprop' >\n");
-        config.append("    <log dir='${missing}'/>\n");
-        config.append("  </project>\n");
-
-        config.append("  <project name='eclipseprop' >\n");
-        config.append("    <property name='global' value='eclipsed'/>\n");
-        config.append("  </project>\n");
-        
-        config.append("  <project name='dateformatfromproperty' >\n");
-        config.append("    <property name=\"date.format\" value=\"MM/dd/yyyy HH:mm:ss a\"/>\n");
-        config.append("    <dateformat format=\"${date.format}\"/>\n");
-        config.append("  </project>\n");
-
-        config.append("</cruisecontrol>\n");
+        addConfigXmlInfo(config);
 
         writer = new BufferedWriter(new FileWriter(configFile));
         writer.write(config.toString());
         writer.close();
+    }
+
+    private void addConfigXmlInfo(StringBuffer config) {
+      config.append("<cruisecontrol>\n");
+      config.append("  <property name='global' value='works!'/>\n");
+      config.append("  <property name='project.global' value='project=${project.name}'/>\n");
+
+      config.append("  <plugin name='testnested' "
+          + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin' "
+          + "string='default' otherstring='otherdefault'/>\n");
+
+      config.append("  <project name='project1' />\n");
+
+      config.append("  <project name='project2' >\n");
+      config.append("    <bootstrappers>\n");
+      config.append("      <vssbootstrapper vsspath='foo' localdirectory='"
+              + tempDirectory.getAbsolutePath() + "' />\n");
+      config.append("    </bootstrappers>\n");
+      config.append("    <schedule interval='20' >\n");
+      config.append("      <ant multiple='1' buildfile='"
+              + tempDirectory.getAbsolutePath()
+              + "/foo/bar.xml' target='baz' />\n");
+      config.append("    </schedule>\n");
+      config.append("    <modificationset quietperiod='10' >\n");
+      config.append("      <vss vsspath='"
+              + tempDirectory.getAbsolutePath()
+              + "/foo/bar' login='login' />\n");
+      config.append("    </modificationset>\n");
+      config.append("    <log dir='"
+              + tempDirectory.getAbsolutePath()
+              + "/foo' encoding='utf-8' >\n");
+      config.append("      <merge file='blah' />\n");
+      config.append("    </log>\n");
+      config.append("    <labelincrementer separator='#' />\n");
+      config.append("    <listeners>\n");
+      config.append("      <currentbuildstatuslistener file='status.txt'/>\n");
+      config.append("    </listeners>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='project3' >\n");
+      config.append("    <log/>\n");
+      config.append("  </project>\n");
+
+      // test plugin configuration inside a project
+      config.append("  <project name='project4' >\n");
+      // property resolution should still work
+      config.append("    <property name='default.testlistener.name' value='${project.name}-0'/>\n");
+      // to check overriding plugin & defaults. No need to respecify class
+      config.append("    <plugin name='testnested' string='overriden'/>\n");
+      // to test self configuring plugins
+      config.append("    <plugin name='testselfconfiguring' "
+          + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin'/>\n");
+      // to test nested & self-configuring plugins
+      config.append("    <plugin name='testlistener' string='${default.testlistener.name}' "
+          + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'>\n");
+      config.append("      <testnested string='nested'/>");
+      config.append("      <testselfconfiguring string='selfconfiguring'>");
+      config.append("        <testnested string='nestedagain'/>");
+      config.append("      </testselfconfiguring>");
+      config.append("      <stringwrapper string='wrapper1'/>");
+      config.append("    </plugin>\n");
+      // override
+      config.append("    <listeners>\n");
+      config.append("      <testlistener/>\n");
+      config.append("      <testlistener string='listener1'/>\n");
+      config.append("      <testlistener string='listener2'>\n");
+      config.append("        <stringwrapper string='wrapper2-${global}'/>\n");
+      config.append("      </testlistener>\n");
+      config.append("    </listeners>\n");
+      config.append("  </project>\n");
+
+      // test plugin configuration inside a project
+      config.append("  <project name='project5' >\n");
+      // to check overriding plugin & defaults. No need to respecify class
+      config.append("    <plugin name='testnested' "
+          + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin' "
+          + "string='notshadowing' otherotherstring='otherother'/>\n");
+      // to test nested & self-configuring plugins
+      config.append("    <plugin name='testlistener' string='default' "
+          + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'>\n");
+      config.append("      <testnested/>");
+      config.append("    </plugin>\n");
+      // override
+      config.append("    <listeners>\n");
+      config.append("      <testlistener/>\n");
+      config.append("    </listeners>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='propsfromfile' >\n");
+      config.append("    <property file='"
+              + propertiesFile.getAbsolutePath()
+              + "' />\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='simpleprops' >\n");
+      config.append("    <property name='simple' value='success!'/>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='multiprops' >\n");
+      config.append("    <property name='first' value='one'/>\n");
+      config.append("    <property name='second' value='two'/>\n");
+      config.append("    <property name='third' value='three'/>\n");
+      config.append("    <property name='multi' value='${first}.${second}$${third}'/>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='nestedprops' >\n");
+      config.append("    <property name='first' value='one'/>\n");
+      config.append("    <property name='second' value='two'/>\n");
+      config.append("    <property name='third' value='three'/>\n");
+      config.append("    <property name='one.two.three' value='almost'/>\n");
+      config.append("    <property name='almost' value='threeLevelsDeep'/>\n");
+      config.append("    <property name='nested' value='${${${first}.${second}.${third}}}'/>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='missingprop' >\n");
+      config.append("    <log dir='${missing}'/>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='eclipseprop' >\n");
+      config.append("    <property name='global' value='eclipsed'/>\n");
+      config.append("  </project>\n");
+      
+      config.append("  <project name='dateformatfromproperty' >\n");
+      config.append("    <property name=\"date.format\" value=\"MM/dd/yyyy HH:mm:ss a\"/>\n");
+      config.append("    <dateformat format=\"${date.format}\"/>\n");
+      config.append("  </project>\n");
+
+      config.append("</cruisecontrol>\n");
     }
 
 }
