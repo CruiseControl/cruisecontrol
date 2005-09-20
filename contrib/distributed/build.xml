@@ -61,8 +61,18 @@
     <property name="dir.main.lib" value="${dir.main}/lib"/>
     <property name="dir.main.dist" value="${dir.main}/dist"/>
 
+    <property name="dir.webcontent" value="webcontent"/>
+    <property name="dir.webstart" value="${dir.webcontent}/webstart"/>
+
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-3.1.jar"/>
+
+
+    <patternset id="jarnames.xml">
+        <include name="xml-apis-*.jar" />
+        <include name="xercesImpl-*.jar" />
+        <include name="xalan-*.jar" />
+    </patternset>
 
 
     <path id="compile.classpath">
@@ -77,6 +87,7 @@
             <include name="outrigger-dl.jar" />
             <include name="phoenix-dl.jar" />
             <include name="holowaa-dl.jar" />
+            <include name="jnlp.jar" />
         </fileset>
         <fileset dir="${dir.main.lib}">
             <include name="log4j.jar" />
@@ -94,6 +105,8 @@
 	<target name="clean" description="Deletes 'target' and 'dist' directories">
         <delete dir="${target}"/>
 		<delete dir="dist" />
+		<delete dir="${dir.webstart}/conf"/>
+		<delete dir="${dir.webstart}/lib"/>
 	</target>
 
 	<target name="init" description="Initializes master, agent, and target directories">
@@ -126,7 +139,6 @@
 				<include name="jini-core.jar" />
 				<include name="jini-ext.jar" />
 				<include name="jsk-platform.jar" />
-				<include name="jsk-resources.jar" />
 				<include name="tools.jar" />
 				<include name="start.jar" />
 				<include name="reggie.jar" />
@@ -177,15 +189,15 @@
 				<include name="jini-core.jar" />
 				<include name="jini-ext.jar" />
 				<include name="jsk-platform.jar" />
-				<include name="jsk-resources.jar" />
 				<include name="tools.jar" />
 				<include name="start.jar" />
+                <include name="jnlp.jar" />
 			</fileset>
 			<fileset dir="${dir.main.lib}">
 				<include name="log4j.jar" />
 				<include name="jdom.jar" />
-				<include name="xerces.jar" />
                 <include name="jakarta-oro-2.0.3.jar" />
+                <patternset refid="jarnames.xml"/>
 			</fileset>
 			<fileset dir="${dir.main.dist}">
 				<include name="cruisecontrol.jar" />
@@ -234,7 +246,14 @@
 
 	<target name="test" depends="compile-test" description="Runs unit tests for distributed extensions to Cruise Control">
 
-        <!-- @todo Fix startJini() helper methods to work when junit exec dir is dir="${target}" -->
+        <!-- @todo find a cleaner way to prevent collision of multiple test runs on same subnet? -->
+        <tstamp>
+            <format property="start.time" pattern="yyyy.MM.dd.HH:mm:ss.SSS"/>
+        </tstamp>
+        <replace file="${test.classes}/testdist.user-defined.properties"
+            token="build.type=test" value="build.type=${start.time}_test"/>
+
+        <!-- @todo haltonfailure? -->
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true">
             <classpath >
             	<pathelement path="${classes}"/>
@@ -246,11 +265,13 @@
 				<fileset dir="${dir.main.lib}">
 					<include name="log4j.jar" />
 					<include name="jdom.jar" />
+                    <patternset refid="jarnames.xml"/>
 				</fileset>
 				<fileset dir="lib">
 					<include name="reggie-dl.jar" />
 					<include name="jini-core.jar" />
 					<include name="jini-ext.jar" />
+                    <include name="jnlp.jar" />
 				</fileset>
             </classpath>
             <formatter type="brief" usefile="false"/>
@@ -270,6 +291,7 @@
 			</manifest>
 			<fileset dir="${classes}">
 				<include name="**/*" />
+                <exclude name="**/conf/ConfLoaderDummy*"/>
 			</fileset>
 		</jar>
 		<jar destfile="dist/master/lib/cc-agent-dl.jar">
@@ -284,6 +306,69 @@
 			<zipfileset dir="dist/agent" />
 		</zip>
 	</target>
+
+
+    <target name="sign-agent" description="Sign all agent jars for use by Webstart."
+        depends="jar-agent">
+
+        <!-- build cc-agent-conf.jar so webstart can load resource files -->
+        <mkdir dir="${dir.webstart}/conf"/>
+        <jar destfile="${dir.webstart}/conf/cc-agent-conf.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+            </manifest>
+            <fileset dir="dist/agent/conf" >
+                <include name="*"/>
+                <exclude name="log4j.properties"/>
+            </fileset>
+        </jar>
+
+        <!-- copy jars to dir in which they'll be signed. Wish sign jar did filesets w/ output path...-->
+        <copy todir="${dir.webstart}/lib">
+            <fileset dir="dist/agent/lib"/>
+        </copy>
+
+        <!-- load signing properties -->
+        <property file="build-sign.properties"/>
+
+        <signjar keystore="${security.keystore}"
+            storepass="${security.storepass}"
+            alias="${security.alias}"
+            keypass="${security.keypass}"
+            >
+            <!--  maybe 'keypass' is not needed -->
+
+            <fileset dir="${dir.webstart}/lib"/>
+        </signjar>
+
+        <signjar keystore="${security.keystore}"
+            storepass="${security.storepass}"
+            alias="${security.alias}"
+            keypass="${security.keypass}"
+            >
+            <!--  maybe 'keypass' is not needed -->
+
+            <fileset dir="${dir.webstart}/conf"/>
+        </signjar>
+    </target>
+
+    <!-- NOTE: Copy the war file into your web server (the same dir as cruisecontrol.war). -->
+    <target name="war-agent" description="Package the Agent in a war file with a Webstart launcher."
+        depends="sign-agent">
+
+        <war destfile="dist/cc-agent.war" webxml="${dir.webstart}/WEB-INF/agent-web.xml">
+            <lib dir="${dir.webstart}/WEB-INF/lib" includes="**/*"/>
+
+            <fileset dir="${dir.webstart}" includes="*"/><!-- .jnlp file -->
+
+            <zipfileset dir="${dir.webstart}/lib" prefix="lib"/>
+
+            <zipfileset dir="${dir.webstart}/conf" prefix="conf"/>
+            <zipfileset dir="dist/agent/conf" prefix="conf">
+                <include name="log4j.properties"/>
+            </zipfileset>
+        </war>
+    </target>
 
 </project>
 

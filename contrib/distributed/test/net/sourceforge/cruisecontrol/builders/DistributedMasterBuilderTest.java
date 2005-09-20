@@ -29,6 +29,8 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.SearchablePropertyEntries;
 import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Builder;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
 import net.jini.core.entry.Entry;
@@ -47,6 +49,19 @@ public class DistributedMasterBuilderTest extends TestCase {
     public static final String JINI_URL_LOCALHOST = "jini://localhost";
 
     public static final OSEnvironment OS_ENV = new OSEnvironment();
+
+    /** Common element names. */
+    public static final String ELM_NAME_CC = "cruisecontrol";
+    public static final String ELM_NAME_PROJECT = "project";
+    public static final String ELM_NAME_SCHEDULE = "schedule";
+    public static final String ELM_NAME_DIST = "distributed";
+    public static final String ELM_NAME_AND = "ant";
+    /** Common attribute names. */
+    public static final String ATR_NAME_NAME = "name";
+    public static final String ATR_NAME_MODULE = "module";
+    public static final String ATR_NAME_DAY = "day";
+    public static final String ATR_NAME_TIME = "time";
+    public static final String ATR_NAME_MULTIPLE = "multiple";
 
     /** Expose package visible helper method for other Unit Test classes to use. */
     public static void addMissingPluginDefaults(final Element elementToFilter) {
@@ -196,7 +211,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         return OS_ENV.getVariable("JAVA_HOME");
     }
 
-    private static ServiceRegistrar findTestLookupService(int retryTimeoutSecs)
+    public static ServiceRegistrar findTestLookupService(int retryTimeoutSecs)
             throws IOException, ClassNotFoundException, InterruptedException {
 
         // find/wait for lookup _service
@@ -255,6 +270,34 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     private Process jiniProcess;
 
+
+
+    private static Element getDistElement(final String projectName, final int projectIndex)
+            throws CruiseControlException {
+
+        final Element rootElement = Util.loadConfigFile(BuildAgentServiceImplTest.TEST_CONFIG_FILE);
+
+        final List projects = rootElement.getChildren(ELM_NAME_PROJECT);
+        final Element project = (Element) projects.get(projectIndex);
+        assertEquals(ELM_NAME_PROJECT, project.getName());
+        assertEquals(projectName, project.getAttributeValue(ATR_NAME_NAME));
+
+        final Element schedule = (Element) project.getChildren(ELM_NAME_SCHEDULE).get(0);
+        assertEquals(ELM_NAME_SCHEDULE, schedule.getName());
+
+        final Element dist = (Element) schedule.getChildren().get(0);
+        assertEquals(ELM_NAME_DIST, dist.getName());
+        return dist;
+    }
+
+    private static Element getAntElement(final Element dist) {
+        final Element ant = (Element) dist.getChildren().get(0);
+        assertEquals(ELM_NAME_AND, ant.getName());
+        return ant;
+    }
+
+
+
     protected void setUp() throws Exception {
         jiniProcess = DistributedMasterBuilderTest.startJini();
     }
@@ -264,17 +307,13 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
 
+
     public void testDistAttribs() throws Exception {
+
+        final Element dist = getDistElement("testproject2", 1);
+        assertEquals("testmodule-attribs", dist.getAttributeValue(ATR_NAME_MODULE));
+
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
-
-        final Element rootElement = Util.loadConfigFile(BuildAgentServiceImplTest.TEST_CONFIG_FILE);
-        final List projects = rootElement.getChildren("project");
-        final Element project2 = (Element) projects.get(1);
-        assertEquals("testproject2", project2.getAttributeValue("name"));
-        final Element schedule = (Element) project2.getChildren("schedule").get(0);
-        final Element dist = (Element) schedule.getChildren().get(0);
-        assertEquals("testmodule-attribs", dist.getAttributeValue("module"));
-
         masterBuilder.configure(dist);
         assertEquals("agent/log", masterBuilder.getAgentLogDir());
         assertEquals("master/log", masterBuilder.getMasterLogDir());
@@ -292,14 +331,86 @@ public class DistributedMasterBuilderTest extends TestCase {
         assertEquals(preConfMsg, "true", childBuilder.getAttributeValue("uselogger"));
     }
 
+    public void testScheduleDay() throws Exception {
+
+        final Element dist = getDistElement("testprojectNoModule", 2);
+        final Element ant = getAntElement(dist);
+        assertEquals("This unit test requires there be a '" + ATR_NAME_DAY + "' attribute",
+                "7", ant.getAttributeValue(ATR_NAME_DAY));
+
+        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        masterBuilder.configure(dist);
+
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                7, masterBuilder.getDay());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getTime());
+        // @todo Is this logic correct, or should value be NOT_SET?
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                1, masterBuilder.getMultiple());
+    }
+
+    public void testScheduleTime() throws Exception {
+
+        final Element dist = getDistElement("testprojectTime", 3);
+        final Element ant = getAntElement(dist);
+        assertEquals("This unit test requires there be a '" + ATR_NAME_TIME + "' attribute",
+                "0530", ant.getAttributeValue(ATR_NAME_TIME));
+
+        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        masterBuilder.configure(dist);
+
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                530, masterBuilder.getTime());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getDay());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getMultiple());
+    }
+
+    public void testScheduleMultiple() throws Exception {
+
+        final Element dist = getDistElement("testprojectMultiple", 4);
+        final Element ant = getAntElement(dist);
+        assertEquals("This unit test requires there be a '" + ATR_NAME_MULTIPLE + "' attribute",
+                "2", ant.getAttributeValue(ATR_NAME_MULTIPLE));
+
+        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        masterBuilder.configure(dist);
+
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                2, masterBuilder.getMultiple());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getTime());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getDay());
+    }
+
+    public void testDefaultModuleValue() throws Exception {
+
+        final Element dist = getDistElement("testprojectNoModule", 2);
+        assertNull("This unit test requires there be no '" + ATR_NAME_MODULE + "' attribute",
+                dist.getAttributeValue(ATR_NAME_MODULE));
+
+        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        masterBuilder.configure(dist);  // this would fail if default "module" value didn't work
+
+        assertEquals("agent/log", masterBuilder.getAgentLogDir());
+        assertEquals("master/log", masterBuilder.getMasterLogDir());
+        // check PreconfiguredPlugin attib on distributed tag
+        final String preConfMsg = "Are PreConfgured Plugin settings still broken for distributed builds?"
+                + "\nSee " + BuildAgentServiceImplTest.TEST_CONFIG_FILE + " for more info.";
+        assertEquals(preConfMsg, "build.type=test", dist.getAttributeValue("entries"));
+    }
+
     public void testPickAgent2Agents() throws Exception {
         // register agent
         final BuildAgent agentAvailable = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
         final BuildAgent agentAvailable2 = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
         try {
             assertFalse(agentAvailable.getService().isBusy());
             assertFalse(agentAvailable2.getService().isBusy());
@@ -308,12 +419,15 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             // try to find agents
             final BuildAgentService agentFoundFirst = masterBuilder.pickAgent();
+            assertNotNull("Couldn't find first agent", agentFoundFirst);
             assertTrue(agentFoundFirst.isBusy());
             final BuildAgentService agentFoundSecond = masterBuilder.pickAgent();
+            assertNotNull("Couldn't find second agent", agentFoundSecond);
+
             assertTrue(agentFoundFirst.isBusy());
             assertTrue(agentFoundSecond.isBusy());
             final BuildAgentService agentFoundThird = masterBuilder.pickAgent();
-            assertNull(agentFoundThird);
+            assertNull("Shouldn't find third agent", agentFoundThird);
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuild() only needed to clearOuputFiles() will succeed
@@ -335,7 +449,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         // register agent
         final BuildAgent agentAvailable = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
         try {
             assertFalse(agentAvailable.getService().isBusy());
             agentAvailable.getService().claim(); // mark as busy
@@ -365,7 +479,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         // register agent
         final BuildAgent agentAvailable = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
         try {
             assertFalse(agentAvailable.getService().isBusy());
 

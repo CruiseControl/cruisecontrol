@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for Distributed Build Agent -->
+<jnlp spec="1.0+" codebase="$$codebase" href="$$name">
+    <information>
+        <title>CC-Agent</title>
+        <vendor>CruiseControl</vendor>
+        <description>CruiseControl distributed Build Agent</description>
+        <description kind="short">Launches a CruiseControl Build Agent on this machine.</description>
+        <shortcut>
+            <desktop/>
+            <menu submenu="CruiseControl Distributed"/>
+        </shortcut>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+"/>
+        <jar href="lib/cc-agent.jar" main="true"/>
+        <jar href="conf/cc-agent-conf.jar"/>
+        <jar href="lib/cruisecontrol.jar"/>
+
+        <jar href="lib/jakarta-oro-2.0.3.jar"/>
+        <jar href="lib/jdom.jar"/>
+        <jar href="lib/jdom.jar"/>
+        <jar href="lib/log4j.jar"/>
+
+        <jar href="lib/xml-apis-2.7.0.jar"/>
+        <jar href="lib/xercesImpl-2.7.0.jar"/>
+        <jar href="lib/xalan-2.6.0.jar"/>
+
+        <jar href="lib/jini-core.jar"/>
+        <jar href="lib/jini-ext.jar"/>
+        <jar href="lib/jsk-platform.jar"/>
+        <jar href="lib/reggie-dl.jar"/>
+        <jar href="lib/start.jar"/>
+        <jar href="lib/tools.jar"/>
+
+    </resources>
+
+    <application-desc main-class="net.sourceforge.cruisecontrol.distributed.BuildAgent"/>
+
+</jnlp>

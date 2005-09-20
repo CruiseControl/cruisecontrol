@@ -43,11 +43,14 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import net.sourceforge.cruisecontrol.PluginXMLHelper;
+import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 
 public final class PropertiesHelper {
 
     private static final Logger LOG = Logger.getLogger(PropertiesHelper.class);
 
+    public static final String DISTRIBUTED_OVERRIDE_TARGET = "distributed.overrideTarget";
     public static final String DISTRIBUTED_MODULE = "distributed.module";
     public static final String DISTRIBUTED_AGENT_LOGDIR = "distributed.agentlogdir";
     public static final String DISTRIBUTED_AGENT_OUTPUTDIR = "distributed.agentoutputdir";
@@ -57,21 +60,22 @@ public final class PropertiesHelper {
 
     private PropertiesHelper() { }
 
-    public static Map loadOptionalProperties(String filename) {
+    public static Map loadOptionalProperties(final String filename) {
         Properties optionalProperties = new Properties();
         try {
             optionalProperties = (Properties) loadRequiredProperties(filename);
         } catch (RuntimeException e) {
-            LOG.warn("Failed to load optional properties file '" + filename + "'");
-            System.out.println("Failed to load optional properties file '" + filename + "'");
+            LOG.warn("Failed to load optional properties file '" + filename + "'", e);
         }
         return optionalProperties;
     }
 
-    public static Map loadRequiredProperties(String filename) throws RuntimeException {
-        Properties requiredProperties = new Properties();
+    public static Map loadRequiredProperties(final String filename) throws RuntimeException {
+        final Properties requiredProperties = new Properties();
         try {
-            InputStream fileStream = ClassLoader.getSystemResourceAsStream(filename);
+            // resource loading technique below dies in webstart
+            //InputStream fileStream = ClassLoader.getSystemResourceAsStream(filename);
+            final InputStream fileStream = PropertiesHelper.class.getClassLoader().getResourceAsStream(filename);
             requiredProperties.load(fileStream);
         } catch (NullPointerException e) {
             throw new RuntimeException("Failed to load required properties file '" + filename + "'", e);
@@ -81,4 +85,18 @@ public final class PropertiesHelper {
         return requiredProperties;
     }
 
+    /**
+     * Create a PlugingXMLHelper configured with the given overrideTarget (which may be "" or null).
+     * @param overrideTarget overrideTarget (which may be "" or null).
+     * @return a PlugingXMLHelper configured with the given overrideTarget (which may be "" or null).
+     */
+    public static PluginXMLHelper createPluginXMLHelper(final String overrideTarget) {
+        final ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
+        if (overrideTarget != null && !"".equals(overrideTarget)) {
+            LOG.info("Setting Override Target on projectXMLHelper to: " + overrideTarget);
+            projectXMLHelper.setOverrideTarget(overrideTarget);
+        }
+        final PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
+        return pluginXMLHelper;
+    }
 }

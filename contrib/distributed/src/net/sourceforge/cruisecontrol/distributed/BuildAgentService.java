@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.distributed;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
+import java.util.Date;
 
 import org.jdom.Element;
 
@@ -49,9 +50,15 @@ public interface BuildAgentService extends Remote {
 
     public String getMachineName() throws RemoteException;
 
+    public Date getDateStarted() throws RemoteException;
+
     public void claim() throws RemoteException;
     
+    public Date getDateClaimed() throws RemoteException;
+
     public boolean isBusy() throws RemoteException;
+
+    public String getModule() throws RemoteException;
 
     public boolean resultsExist(String resultsType) throws RemoteException;
 
@@ -59,4 +66,17 @@ public interface BuildAgentService extends Remote {
 
     public void clearOutputFiles() throws RemoteException;
     
+    public void kill(boolean afterBuildFinished) throws RemoteException;
+
+    public void restart(boolean afterBuildFinished) throws RemoteException;
+
+    public boolean isPendingKill() throws RemoteException;
+
+    public Date getPendingKillSince() throws RemoteException;
+
+    public boolean isPendingRestart() throws RemoteException;
+
+    public Date getPendingRestartSince() throws RemoteException;
+
+    public String asString() throws RemoteException;
 }

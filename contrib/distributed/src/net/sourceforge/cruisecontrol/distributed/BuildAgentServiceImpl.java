@@ -42,15 +42,19 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
-import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.util.ZipUtil;
 import net.sourceforge.cruisecontrol.util.FileUtil;
@@ -58,6 +62,10 @@ import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+
+import javax.jnlp.ServiceManager;
+import javax.jnlp.BasicService;
+import javax.jnlp.UnavailableServiceException;
 
 public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
@@ -70,7 +78,14 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     static final String DEFAULT_USER_DEFINED_PROPERTIES_FILE = "user-defined.properties";
 
-    private boolean isBusy = false;
+    private final Date dateStarted;
+    private boolean isBusy;
+    private Date dateClaimed;
+    private boolean isPendingKill;
+    private Date pendingKillSince;
+    private boolean isPendingRestart;
+    private Date pendingRestartSince;
+
     private Properties configProperties;
     private Properties projectProperties = new Properties();
     private String logDir = "";
@@ -79,7 +94,17 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private String logsFilePath;
     private String outputFilePath;
 
-    private synchronized String getModule() {
+    private final List agentStatusListeners = new ArrayList();
+
+    public BuildAgentServiceImpl() {
+        dateStarted = new Date();
+    }
+
+    public Date getDateStarted() {
+        return dateStarted;
+    }
+
+    public synchronized String getModule() {
         return projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_MODULE);
     }
 
@@ -91,15 +116,39 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     private final String busyLock = new String("busyLock");
-    private void setBusy(final boolean newIsBusy) {
+    void setBusy(final boolean newIsBusy) {
+        if (!newIsBusy) { // means the claim is being released
+            if (isPendingRestart()) {
+                // restart now
+                doRestart();
+            } else if (isPendingKill()) {
+                // kill now
+                doKill();
+            }
+
+            // clear out projectProperties from last build
+            projectProperties.clear();
+
+            dateClaimed = null;
+        } else {
+            dateClaimed = new Date();
+        }
+
         synchronized (busyLock) {
             isBusy = newIsBusy;
         }
+
+        fireAgentStatusChanged();
+
         LOG.info("agent busy status changed to: " + newIsBusy);
     }
 
     public Element doBuild(Element nestedBuilderElement, Map projectPropertiesMap) throws RemoteException {
+        synchronized (busyLock) {
+            if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
         setBusy(true); // we could remove this, since claim() is called during lookup...
+            }
+        }
         try {
             projectProperties.putAll(projectPropertiesMap);
             String infoMessage = "Building module: " + getModule()
@@ -110,6 +159,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             System.out.println();
             System.out.println(infoMessage);
             LOG.info(infoMessage);
+            // this is done only to update agent UI info regarding Module - which isn't available
+            // until projectPropertiesMap has been set.
+            fireAgentStatusChanged();
 
             final Element buildResults;
             final Builder nestedBuilder;
@@ -144,15 +196,13 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
                 getAgentPropertiesFilename());
 
-        ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
-        PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
+        final String overrideTarget = projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
+        PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
 
         PluginRegistry plugins = PluginRegistry.createRegistry();
         Class pluginClass = plugins.getPluginClass(builderElement.getName());
         final Builder builder = (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
-        // TODO: Should overrideTarget be changed to public for Builders so that
-        // we can do this?
-        //            nestedBuilder.overrideTarget(projectProperties.get("distributed.overrideTarget");
+
         return builder;
     }
 
@@ -196,14 +246,14 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return resultDir;
     }
 
-    public String getMachineName() throws RemoteException {
+    public String getMachineName() {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             String message = "Failed to get hostname";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
-            throw new RemoteException(message, e);
+            throw new RuntimeException(message, e);
         }
     }
 
@@ -212,7 +262,10 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         // when multiple master threads find the same agent, before any build thread has started.
         synchronized (busyLock) {
             if (isBusy()) {
-                throw new IllegalStateException("Cannot claim agent that is busy building module: "
+                String machineName = "unknown";
+                machineName = getMachineName();
+                throw new IllegalStateException("Cannot claim agent on " + machineName
+                        + " that is busy building module: "
                         + getModule());
             }
             setBusy(true);
@@ -225,6 +278,42 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             return isBusy;
         }
     }
+
+    public Date getDateClaimed() {
+        return dateClaimed;
+    }
+
+    private void setPendingKill(final boolean isPendingKill) {
+        synchronized (busyLock) {
+            this.isPendingKill = isPendingKill;
+            pendingKillSince = new Date();
+        }
+    }
+    public boolean isPendingKill() {
+        synchronized (busyLock) {
+            return isPendingKill;
+        }
+    }
+    public Date getPendingKillSince() {
+        return pendingKillSince;
+    }
+
+
+    private void setPendingRestart(final boolean isPendingRestart) {
+        synchronized (busyLock) {
+            this.isPendingRestart = isPendingRestart;
+            pendingRestartSince = new Date();
+        }
+    }
+    public boolean isPendingRestart() {
+        synchronized (busyLock) {
+            return isPendingRestart;
+        }
+    }
+    public Date getPendingRestartSince() {
+        return pendingRestartSince;
+    }
+
 
     public boolean resultsExist(String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
@@ -278,4 +367,122 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         }
     }
 
+
+    private void doRestart() {
+        LOG.info("Attempting agent restart.");
+
+        synchronized (busyLock) {
+            if (!isBusy()) {
+                // claim agent so no new build can start
+                claim();
+            }
+        }
+
+        final BasicService basicService;
+        try {
+            basicService = (BasicService) ServiceManager.lookup(BasicService.class.getName());
+        } catch (UnavailableServiceException e) {
+            final String errMsg = "Couldn't find webstart Basic Service. Is Agent running outside of webstart?";
+            LOG.error(errMsg, e);
+            throw new RuntimeException(errMsg, e);
+        }
+        final URL codeBaseURL = basicService.getCodeBase();
+        LOG.info("basicService.getCodeBase()=" + codeBaseURL.toString());
+
+        // relaunch via new browser session
+        // @todo How to close the browser after jnlp is relaunched?
+        final URL relaunchURL;
+        try {
+            relaunchURL = new URL(codeBaseURL, "agent.jnlp");
+        } catch (MalformedURLException e) {
+            final String errMsg = "Error building webstart relaunch URL from " + codeBaseURL.toString();
+            LOG.error(errMsg, e);
+            throw new RuntimeException(errMsg, e);
+        }
+        if (basicService.showDocument(relaunchURL)) {
+            LOG.info("Relaunched agent via URL: " + relaunchURL.toString() + ". Will kill current agent now.");
+            doKill(); // don't wait for build finish, since we've already relaunched at this point.
+        } else {
+            final String errMsg = "Failed to relaunch agent via URL: " + relaunchURL.toString();
+            LOG.error(errMsg);
+            throw new RuntimeException(errMsg);
+        }
+    }
+
+    private void doKill() {
+        LOG.info("Attempting agent kill.");
+        synchronized (busyLock) {
+            if (!isBusy()) {
+                // claim agent so no new build can start
+                claim();
+            }
+        }
+        BuildAgent.kill();
+    }
+
+    public void kill(final boolean afterBuildFinished) throws RemoteException {
+        setPendingKill(true);
+
+        if (!afterBuildFinished // Kill now, don't waiting for build to finish.
+                || !isBusy()) { // Not busy, so kill now.
+
+            doKill(); // calls back to this agent to terminate lookup stuff
+        } else if (isBusy()) {
+            ; // do nothing. When claim is released, setBusy(false) will perform the kill
+        }
+        fireAgentStatusChanged();
+    }
+
+    public void restart(final boolean afterBuildFinished) throws RemoteException {
+        setPendingRestart(true);
+
+        if (!afterBuildFinished // Restart now, don't waiting for build to finish.
+                || !isBusy()) { // Not busy, so Restart now.
+            
+            doRestart();
+        } else if (isBusy()) {
+            ; // do nothing. When claim is released, setBusy(false) will perform the Restart
+        }
+        fireAgentStatusChanged();        
+    }
+
+    public String asString() {
+        final StringBuffer sb = new StringBuffer();
+        sb.append("Machine Name: ");
+        sb.append(getMachineName());
+        sb.append(";\t");
+        sb.append("Started: ");
+        sb.append(getDateStarted());
+
+        sb.append("\n\tBusy: ");
+        sb.append(isBusy());
+        sb.append(";\tSince: ");
+        sb.append(getDateClaimed());
+        sb.append(";\tModule: ");
+        sb.append(getModule());
+
+        sb.append("\n\tPending Restart: ");
+        sb.append(isPendingRestart());
+        sb.append(";\tPending Restart Since: ");
+        sb.append(getPendingRestartSince());
+
+        sb.append("\n\tPending Kill: ");
+        sb.append(isPendingKill());
+        sb.append(";\tPending Kill Since: ");
+        sb.append(getPendingKillSince());
+
+        return sb.toString();
+    }
+
+    public void addAgentStatusListener(final BuildAgent.AgentStatusListener listener) {
+        agentStatusListeners.add(listener);
+    }
+    public void removeAgentStatusListener(final BuildAgent.AgentStatusListener listener) {
+        agentStatusListeners.remove(listener);
+    }
+    private void fireAgentStatusChanged() {
+        for (int i = 0; i < agentStatusListeners.size(); i++) {
+            ((BuildAgent.AgentStatusListener) agentStatusListeners.get(i)).statusChanged(this);
+        }
+    }
 }

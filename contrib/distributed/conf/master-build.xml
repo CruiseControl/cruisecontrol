@@ -93,6 +93,23 @@
 		</java>
 	</target>
 
+	<target name="agent-util" description="Show active Agent info" >
+		<echo message="Starting BuildAgentUtility..." level="info" />
+		<java classname="net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtility" fork="true">
+			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
+			<classpath>
+				<pathelement path="conf"/>
+				<fileset dir="lib">
+					<include name="**/*.jar" />
+				</fileset>
+                <!-- hack to get InteractiveBuildUtility on path, maybe better solved via packaging change -->
+				<fileset dir="../agent/lib">
+					<include name="cc-agent.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+
 	<target name="test-jini" description="Test that Jini is running and services are registered" >
 		<echo message="Listing registered Jini services..." level="info" />
 		<java classname="net.sourceforge.cruisecontrol.distributed.util.JiniLookUpUtility" fork="true">

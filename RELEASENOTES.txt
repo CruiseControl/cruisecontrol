@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+contrib/distributed:
+----------------------
+* Major update to distributed build support (CC-298). Patch by Dan Rollo
+
 CruiseControlItem
 ----------------------
 * Sort items by time and then by file name. Patch by Jerome Lacoste

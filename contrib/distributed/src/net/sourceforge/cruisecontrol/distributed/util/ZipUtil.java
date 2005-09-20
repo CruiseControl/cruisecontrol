@@ -59,37 +59,33 @@ public final class ZipUtil {
 
     private ZipUtil() { }
 
-    public static void zipFolderContents(String outFilename, String folderToZip) {
+    public static void zipFolderContents(final String outFilename, final String folderToZip) {
         validateParams(outFilename, folderToZip);
         BufferedOutputStream bos = null;
         ZipOutputStream zipOut = null;
         try {
             bos = new BufferedOutputStream(new FileOutputStream(outFilename));
             zipOut = new ZipOutputStream(bos);
-            File folder = new File(folderToZip);
+            final File folder = new File(folderToZip);
             String message = "Zipping files from: " + folderToZip + " to: " + outFilename;
             LOG.info(message);
-            System.out.println(message);
             zipFiles(folder, folder, zipOut);
             message = "Finished zipping files";
             LOG.info(message);
-            System.out.println(message);
         } catch (FileNotFoundException fnfe) {
-            String message = "File not found while zipping files to: " + outFilename;
+            final String message = "File not found while zipping files to: " + outFilename;
             LOG.error(message, fnfe);
-            System.err.println(message + " - " + fnfe.getMessage());
             throw new RuntimeException(message, fnfe);
         } finally {
             try {
-                // TODO: Need to do a flush here?
-                // zipOut.flush();
+                if (zipOut != null) {
                 zipOut.close();
+                }
             } catch (ZipException ze) {
-                File file = new File(outFilename);
+                final File file = new File(outFilename);
                 if ((file.length() == 0) && (file.exists())) {
-                    String message = "Empty zip file created: " + outFilename;
+                    final String message = "Empty zip file created: " + outFilename;
                     LOG.debug(message);
-                    System.out.println(message);
                     try {
                         // this is required in order to close the file stream if zip is empty
                         bos.close();
@@ -103,32 +99,30 @@ public final class ZipUtil {
                         throw new RuntimeException("Error deleting empty zip file: "
                                 + file.getAbsolutePath());
                     }
-                    String message2 = "Deleted empty zip file: " + outFilename;
+                    final String message2 = "Deleted empty zip file: " + outFilename;
                     LOG.debug(message2);
-                    System.out.println(message2);
                     ///*/
                 }
             } catch (IOException ioe) {
-                String message = "Error occured while closing zip file: " + outFilename;
+                final String message = "Error occured while closing zip file: " + outFilename;
                 LOG.error(message, ioe);
-                System.err.println(message);
                 throw new RuntimeException(message, ioe);
             }
         }
     }
 
-    private static void zipFiles(File rootDir, File folderToZip, ZipOutputStream zipOutputStream) {
-        byte[] buf = new byte[1024];
+    private static void zipFiles(final File rootDir, final File folderToZip, final ZipOutputStream zipOutputStream) {
+        final byte[] buf = new byte[1024];
 
-        String relativePath = folderToZip.toString().substring(rootDir.toString().length());
+        final String relativePath = folderToZip.toString().substring(rootDir.toString().length());
 
-        FileInputStream in = null;
-        File[] files = folderToZip.listFiles();
+        FileInputStream in;
+        final File[] files = folderToZip.listFiles();
 
         for (int i = 0; i < files.length; i++) {
-            String filename = files[i].getName();
+            final String filename = files[i].getName();
             if (files[i].isDirectory()) {
-                String dirName = relativePath + File.separator + filename;
+                final String dirName = relativePath + File.separator + filename;
                 LOG.debug("adding dir [" + dirName + "]");
                 zipFiles(rootDir, files[i], zipOutputStream);
             } else {
@@ -147,33 +141,32 @@ public final class ZipUtil {
                     zipOutputStream.closeEntry();
                     in.close();
                 } catch (IOException ioe) {
-                    String message = "Error occured while zipping file " + filePath;
+                    final String message = "Error occured while zipping file " + filePath;
                     LOG.error(message, ioe);
-                    System.err.println(message + " - " + ioe.getMessage());
                     throw new RuntimeException(message, ioe);
                 }
             }
         }
     }
 
-    private static void validateParams(String outFilename, String folderToZip) {
+    private static void validateParams(final String outFilename, final String folderToZip) {
         if (outFilename == null) {
-            String message = "Missing output zip file name";
+            final String message = "Missing output zip file name";
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }
         if (new File(outFilename).isDirectory()) {
-            String message = "Output file already exists as directory";
+            final String message = "Output file already exists as directory";
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }
         if (folderToZip == null) {
-            String message = "Missing folder to zip";
+            final String message = "Missing folder to zip";
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }
         if (!(new File(folderToZip).isDirectory())) {
-            String message = "Target folder to zip does not exist or is not a directory";
+            final String message = "Target folder to zip does not exist or is not a directory";
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }
@@ -184,9 +177,9 @@ public final class ZipUtil {
      * @param toDirName
      * @throws IOException
      */
-    public static void unzipFileToLocation(String zipFilePath, String toDirName) throws IOException {
-        ZipFile zipFile;
-        Enumeration enumr;
+    public static void unzipFileToLocation(final String zipFilePath, final String toDirName) throws IOException {
+        final ZipFile zipFile;
+        final Enumeration enumr;
         boolean isEmptyFile = false;
 
         try {
@@ -194,62 +187,56 @@ public final class ZipUtil {
             if (zipFile.size() == 0) {
                 isEmptyFile = true;
             } else {
-                String infoMessage = "Unzipping file: " + zipFilePath;
+                final String infoMessage = "Unzipping file: " + zipFilePath;
                 LOG.info(infoMessage);
-                System.out.println(infoMessage);
 
                 enumr = zipFile.entries();
                 while (enumr.hasMoreElements()) {
-                    ZipEntry target = (ZipEntry) enumr.nextElement();
-                    String message = "Exploding: " + target.getName();
+                    final ZipEntry target = (ZipEntry) enumr.nextElement();
+                    final String message = "Exploding: " + target.getName();
                     LOG.debug(message);
-                    System.out.println(message);
                     saveItem(zipFile, toDirName, target);
                 }
                 zipFile.close();
             }
         } catch (FileNotFoundException fnfe) {
-            String message = "Could not find zip file" + zipFilePath;
+            final String message = "Could not find zip file" + zipFilePath;
             LOG.error(message, fnfe);
-            System.err.println(message + " - " + fnfe.getMessage());
             throw new RuntimeException(message, fnfe);
         } catch (ZipException ze) {
-            String message = "Zip error occured while unzipping file " + zipFilePath;
+            final String message = "Zip error occured while unzipping file " + zipFilePath;
             LOG.error(message, ze);
-            System.err.println(message + " - " + ze.getMessage());
             throw new RuntimeException(message, ze);
         } catch (IOException ioe) {
-            String message = "Error occured while unzipping file " + zipFilePath;
+            final String message = "Error occured while unzipping file " + zipFilePath;
             LOG.error(message, ioe);
-            System.err.println(message + " - " + ioe.getMessage());
             throw new RuntimeException(message, ioe);
         }
 
         if (isEmptyFile) {
-            String message = "Zip file has no entries: " + zipFilePath;
+            final String message = "Zip file has no entries: " + zipFilePath;
             LOG.warn(message);
-            System.err.println(message);
             throw new IOException(message);
         }
 
-        String infoMessage = "Unzip complete";
+        final String infoMessage = "Unzip complete";
         LOG.info(infoMessage);
-        System.out.println(infoMessage);
     }
 
-    private static void saveItem(ZipFile zipFile, String rootDirName, ZipEntry entry) throws ZipException, IOException {
-        InputStream is = null;
+    private static void saveItem(final ZipFile zipFile, final String rootDirName, final ZipEntry entry)
+            throws ZipException, IOException {
+        final InputStream is;
         BufferedInputStream inStream = null;
-        FileOutputStream outStream = null;
+        final FileOutputStream outStream;
         BufferedOutputStream bufferedOutStream = null;
         try {
-            File file = new File(rootDirName, entry.getName());
+            final File file = new File(rootDirName, entry.getName());
             if (entry.isDirectory()) {
                 file.mkdirs();
             } else {
                 is = zipFile.getInputStream(entry);
                 inStream = new BufferedInputStream(is);
-                File dir = new File(file.getParent());
+                final File dir = new File(file.getParent());
                 dir.mkdirs();
                 outStream = new FileOutputStream(file);
                 bufferedOutStream = new BufferedOutputStream(outStream);
@@ -260,14 +247,12 @@ public final class ZipUtil {
                 }
             }
         } catch (ZipException ze) {
-            String message = "Zip error unzipping entry: " + entry.getName();
+            final String message = "Zip error unzipping entry: " + entry.getName();
             LOG.error(message, ze);
-            System.err.println(message + " - " + ze.getMessage());
             throw new RuntimeException(message, ze);
         } catch (IOException ioe) {
-            String message = "I/O error unzipping entry: " + entry.getName();
+            final String message = "I/O error unzipping entry: " + entry.getName();
             LOG.error(message, ioe);
-            System.err.println(message + " - " + ioe.getMessage());
             throw new RuntimeException(message, ioe);
         } finally {
             if (bufferedOutStream != null) {

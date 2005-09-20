@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.distributed.util;
 import java.rmi.RMISecurityManager;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.List;
 
 import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
@@ -59,13 +60,13 @@ public final class ReggieUtil {
      * @param searchString
      * @return entriesList
      */
-    public static Entry[] convertStringEntries(String searchString) {
+    public static Entry[] convertStringEntries(final String searchString) {
         searchString.replace(',', ';');
-        StringTokenizer tokenizer = new StringTokenizer(searchString.trim(), ";");
-        ArrayList entriesList = new ArrayList();
+        final StringTokenizer tokenizer = new StringTokenizer(searchString.trim(), ";");
+        final List entriesList = new ArrayList();
         while (tokenizer.hasMoreElements()) {
-            String token = tokenizer.nextToken();
-            PropertyEntry entry = new PropertyEntry();
+            final String token = tokenizer.nextToken();
+            final PropertyEntry entry = new PropertyEntry();
             entry.name = token.substring(0, token.indexOf("=")).trim();
             entry.value = token.substring(token.indexOf("=") + 1).trim();
             entriesList.add(entry);
@@ -89,6 +90,8 @@ public final class ReggieUtil {
         final SecurityManager origSecurityManager = System.getSecurityManager();
         if (origSecurityManager == null) {
             System.setSecurityManager(new RMISecurityManager());
+        } else if (origSecurityManager.getClass().getName().indexOf("JavaWebStart") > -1) {
+            // do nothing, we're running under webstart
         } else if (!(origSecurityManager instanceof RMISecurityManager)) {
             final String msg = "Unexpected Security Manager. origSecurityManager: "
                     + origSecurityManager;
