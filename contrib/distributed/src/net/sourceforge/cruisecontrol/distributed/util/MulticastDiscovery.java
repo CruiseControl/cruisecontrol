@@ -55,6 +55,7 @@ import net.jini.lookup.ServiceDiscoveryEvent;
 import net.jini.lookup.ServiceDiscoveryListener;
 import net.jini.lookup.ServiceItemFilter;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
 
@@ -77,27 +78,25 @@ public class MulticastDiscovery {
 
         try {
 
-            LookupDiscoveryManager  discoverMgr = new LookupDiscoveryManager(
+            final LookupDiscoveryManager discoverMgr = new LookupDiscoveryManager(
                 lookupGroups, unicastLocaters, null);
 
             clientMgr = new ServiceDiscoveryManager(discoverMgr, new LeaseRenewalManager());
         } catch (IOException e) {
-            String message = "Error starting discovery";
+            final String message = "Error starting discovery";
             LOG.debug(message, e);
-            System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
 
         // create cache of desired _service providers
-        Class[] classes = new Class[] {klass};
+        final Class[] classes = new Class[] {klass};
         serviceTemplate = new ServiceTemplate(null, classes, entries);
         try {
             lookupCache = getClientManager().createLookupCache(
                     getServiceTemplate(), null, new ServiceDiscListener(this));
         } catch (RemoteException e) {
-            String message = "Error creating _service cache";
+            final String message = "Error creating _service cache";
             LOG.debug(message, e);
-            System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
 
@@ -152,22 +151,35 @@ public class MulticastDiscovery {
             findOnlyNonBusy = onlyNonBusy;
         }
 
-        public boolean check(ServiceItem item) {
+        public boolean check(final ServiceItem item) {
 
             LOG.debug("Service Filter: item.service: " + item.service);
             if (!(item.service instanceof BuildAgentService)) {
                 return false;
-            } else if (!findOnlyNonBusy) {
+            }
+
+            final BuildAgentService agent = (BuildAgentService) item.service;
+            // read agent machine name to make sure agent is still valid
+            final String agentMachine;
+            try {
+                agentMachine = agent.getMachineName();
+            } catch (RemoteException e) {
+                final String msg = "Error reading agent machine name. Filtering out agent.";
+                LOG.debug(msg, e);
+                return false; // filter out this agent by returning false
+            }
+
+            if (!findOnlyNonBusy) {
                 return true; // we don't care if agent is busy or not
             }
 
-            BuildAgentService agent = (BuildAgentService) item.service;
             try {
-                return (!agent.isBusy());
+                return !agent.isBusy();
             } catch (RemoteException e) {
-                final String msg = "Error checking agent busy status.";
-                LOG.error(msg, e);
-                throw new RuntimeException(msg, e);
+                final String msg = "Error checking agent busy status. Filtering out agent on machine: "
+                        + agentMachine;
+                LOG.debug(msg, e);
+                return false; // filter out this agent by returning false
             }
         }
     }
@@ -195,24 +207,16 @@ public class MulticastDiscovery {
             this.discovery = discovery;
         }
 
-        private String buildDiscoveryMsg(ServiceDiscoveryEvent event, final String actionName) {
+        private String buildDiscoveryMsg(final ServiceDiscoveryEvent event, final String actionName) {
             String msg = "\nService " + actionName + ": ";
 
             final ServiceItem postItem = event.getPostEventServiceItem();
             if (postItem != null) {
-                final Entry[] entries = postItem.attributeSets;
-                msg += "PostEvent: " + postItem.service.getClass().toString() + "; ID:" + postItem.serviceID
-                        + "\n\tEntries:\n\t"
-                        + Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
-                        + "\n";
+                msg = toStringServiceItem(postItem, msg + "PostEvent: ");
             } else {
                 final ServiceItem preItem = event.getPreEventServiceItem();
                 if (preItem != null) {
-                    final Entry[] entries = preItem.attributeSets;
-                    msg += "PreEvent: " + preItem.service.getClass().toString() + "; ID:" + preItem.serviceID
-                            + "\n\tEntries:\n\t"
-                            + Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
-                            + "\n";
+                    msg = toStringServiceItem(preItem, msg + "PreEvent: ");
                 } else {
                     msg += "NOT SURE WHAT THIS EVENT IS!!!";
                 }
@@ -220,19 +224,32 @@ public class MulticastDiscovery {
             return msg;
         }
 
-        public void serviceAdded(ServiceDiscoveryEvent event) {
+        public void serviceAdded(final ServiceDiscoveryEvent event) {
             discovery.setDiscovered(true);
             LOG.info(buildDiscoveryMsg(event, "Added"));
         }
 
-        public void serviceRemoved(ServiceDiscoveryEvent event) {
+        public void serviceRemoved(final ServiceDiscoveryEvent event) {
             discovery.setDiscovered(false);
             LOG.info(buildDiscoveryMsg(event, "Removed"));
         }
 
-        public void serviceChanged(ServiceDiscoveryEvent event) {
+        public void serviceChanged(final ServiceDiscoveryEvent event) {
             LOG.info(buildDiscoveryMsg(event, "Changed"));
         }
     }
 
+
+    public static String toStringServiceItem(final ServiceItem serviceItem, String msgPrefix) {
+        msgPrefix += serviceItem.service.getClass().toString() + "; ID:" + serviceItem.serviceID
+                + toStringEntries(serviceItem.attributeSets);
+        return msgPrefix;
+    }
+
+    public static String toStringEntries(final Entry[] entries) {
+        return  "\n\tEntries:\n\t"
+                + Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
+                    .replaceAll(PropertyEntry.class.getName(), "")
+                + "\n";
+    }
 }

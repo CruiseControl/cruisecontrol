@@ -41,8 +41,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.server.ExportException;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Arrays;
 
 import net.jini.core.entry.Entry;
 import net.jini.core.lookup.ServiceID;
@@ -60,14 +62,22 @@ import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
 
 import org.apache.log4j.Logger;
 
+
+
 public class BuildAgent implements DiscoveryListener,
             ServiceIDListener {
 
-    private static final Logger LOG = Logger.getLogger(BuildAgent.class);
+    static final String MAIN_ARG_SKIP_UI = "-skipUI";
+
+    // package visible to allow BuildAgentUI console logger access to this Logger
+    static final Logger LOG = Logger.getLogger(BuildAgent.class);
 
     public static final String JAVA_SECURITY_POLICY = "java.security.policy";
     public static final String JINI_POLICY_FILE = "jini.policy.file";
 
+    private final BuildAgentServiceImpl serviceImpl;
+    private final Entry[] entries;
+    private final Exporter exporter;
     private final JoinManager joinManager;
     private ServiceID serviceID;
     private final Remote proxy;
@@ -75,6 +85,8 @@ public class BuildAgent implements DiscoveryListener,
     private Properties entryProperties;
     private Properties configProperties;
     
+    private final BuildAgentUI ui;
+
     private int registrarCount = 0;
     private synchronized void incrementRegCount() {
         registrarCount++;
@@ -86,29 +98,45 @@ public class BuildAgent implements DiscoveryListener,
         return registrarCount;
     }
 
-    public BuildAgent() {
+    public BuildAgent(final boolean isSkipUI) {
         this(BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE);
+                BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
+                isSkipUI);
     }
 
-    public BuildAgent(final String propsFile, final String userDefinedPropertiesFilename) {
+    public BuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
+                      final boolean isSkipUI) {
         loadProperties(propsFile, userDefinedPropertiesFilename);
 
-        final BuildAgentServiceImpl serviceImpl = new BuildAgentServiceImpl();
+        serviceImpl = new BuildAgentServiceImpl();
         serviceImpl.setAgentPropertiesFilename(propsFile);
-        setService(serviceImpl);
 
-        final Entry[] entries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
-        Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+        entries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
+        if (!isSkipUI) {
+            LOG.info("Loading Build Agent UI (use param " + MAIN_ARG_SKIP_UI + " to bypass).");
+            ui = new BuildAgentUI(this);
+            //ui.updateAgentInfoUI(getService());
+        } else {
+            LOG.info("Bypassing Build Agent UI.");
+            ui = null;
+        }
+
+        exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
                 new BasicILFactory(), false, true);
 
         try {
             proxy = exporter.export(getService());
+        } catch (ExportException e) {
+            final String message = "Error exporting service";
+            LOG.error(message, e);
+            throw new RuntimeException(message, e);
+        }
+
+        try {
             joinManager = new JoinManager(getProxy(), entries, this, null, null);
         } catch (IOException e) {
-            String message = "Error starting discovery";
+            final String message = "Error starting discovery";
             LOG.error(message, e);
-            System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
 
@@ -121,17 +149,52 @@ public class BuildAgent implements DiscoveryListener,
     private void loadProperties(final String propsFile, final String userDefinedPropertiesFilename) {
         configProperties = (Properties) PropertiesHelper.loadRequiredProperties(propsFile);
         entryProperties = new SearchablePropertyEntries(userDefinedPropertiesFilename).getProperties();
-        URL policyFile = ClassLoader.getSystemClassLoader().getResource(configProperties.getProperty(JINI_POLICY_FILE));
+
+        final String policyFileValue = configProperties.getProperty(JINI_POLICY_FILE);
+        LOG.info("policyFileValue: " + policyFileValue);
+
+        // resource loading technique below dies in webstart
+        //URL policyFile = ClassLoader.getSystemClassLoader().getResource(policyFileValue);
+        final URL policyFile = BuildAgent.class.getClassLoader().getResource(policyFileValue);
+        LOG.info("policyFile: " + policyFile);
         System.setProperty(JAVA_SECURITY_POLICY, policyFile.toExternalForm());
         ReggieUtil.setupRMISecurityManager();
+    }
+
+    private Exporter getExporter() {
+        return exporter;
     }
 
     private JoinManager getJoinManager() {
         return joinManager;
     }
 
+    Entry[] getEntries() {
+        return entries;
+    }
+
+    void addAgentStatusListener(final BuildAgent.AgentStatusListener listener) {
+        serviceImpl.addAgentStatusListener(listener);
+    }
+    void removeAgentStatusListener(final BuildAgent.AgentStatusListener listener) {
+        serviceImpl.removeAgentStatusListener(listener);
+    }
+
     public void terminate() {
+        LOG.info("Terminating build agent.");
+        getExporter().unexport(true);
         getJoinManager().terminate();
+        // allow some time for cleanup
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            LOG.warn("Sleep interrupted during terminate", e);
+        }
+
+        if (ui != null) {
+            ui.dispose();
+            LOG.info("UI disposed");
+        }
     }
 
 
@@ -140,106 +203,108 @@ public class BuildAgent implements DiscoveryListener,
     }
 
 
-    private BuildAgentService service;
-    private synchronized void setService(BuildAgentService service) {
-        this.service = service;
-    }
     public synchronized BuildAgentService getService() {
-        return service;
+        return serviceImpl;
     }
 
 
-    public synchronized void serviceIDNotify(ServiceID serviceID) {
+    public synchronized void serviceIDNotify(final ServiceID serviceID) {
         // @todo technically, should serviceID be stored permanently and reused?....
         this.serviceID = serviceID;
         LOG.info("ServiceID assigned: " + this.serviceID);
+        if (ui != null) {
+            ui.updateAgentInfoUI(getService());
+        }
     }
-    private synchronized ServiceID getServiceID() {
+    synchronized ServiceID getServiceID() {
         return serviceID;
     }
 
 
-    private void logRegistration(ServiceRegistrar registrar) {
+    private void logRegistration(final ServiceRegistrar registrar) {
         String host = null;
-        String message = "";
         try {
             host = registrar.getLocator().getHost();
         } catch (RemoteException e) {
-            message = "Failed to get registrar's hostname";
-            LOG.warn(message, e);
-            System.err.println(message + " - " + e.getMessage());
+            LOG.warn("Failed to get registrar's hostname");
         }
-        message = "Registering BuildAgentService with Registrar: " + host;
-        System.out.println(message);
-        LOG.info(message);
+        LOG.info("Registering BuildAgentService with Registrar: " + host);
 
-        String machineName = (String) entryProperties.get("hostname");
-        message = "Registered machineName: " + machineName;
-        System.out.println(message);
-        LOG.debug(message);
+        final String machineName = (String) entryProperties.get("hostname");
+        LOG.debug("Registered machineName: " + machineName);
 
-        System.out.println("Entries: ");
+        LOG.debug("Entries: ");
         for (Iterator iter = entryProperties.keySet().iterator(); iter.hasNext();) {
-            String key = (String) iter.next();
-            message = "  " + key + " = " + entryProperties.get(key);
-            System.out.println(message);
-            LOG.debug(message);
+            final String key = (String) iter.next();
+            LOG.debug("  " + key + " = " + entryProperties.get(key));
         }
     }
 
     private boolean isNotFirstDiscovery;
 
-    public void discovered(DiscoveryEvent evt) {
-        ServiceRegistrar[] registrarsArray = evt.getRegistrars();
+    public void discovered(final DiscoveryEvent evt) {
+        final ServiceRegistrar[] registrarsArray = evt.getRegistrars();
         ServiceRegistrar registrar;
         for (int n = 0; n < registrarsArray.length; n++) {
             incrementRegCount();
             registrar = registrarsArray[n];
             logRegistration(registrar);
-            String message = "Registered with registrar: " + registrar.getServiceID();
-            System.out.println(message);
-            LOG.debug(message);
+            LOG.debug("Registered with registrar: " + registrar.getServiceID());
         }
         if (!isNotFirstDiscovery) {
-            final String message = "BuildAgentService open for business...";
-            System.out.println(message);
-            LOG.info(message);
+            LOG.info("BuildAgentService open for business...");
             isNotFirstDiscovery = true;
         }
     }
 
-    public void discarded(DiscoveryEvent evt) {
-        ServiceRegistrar[] registrarsArray = evt.getRegistrars();
+    public void discarded(final DiscoveryEvent evt) {
+        final ServiceRegistrar[] registrarsArray = evt.getRegistrars();
         ServiceRegistrar registrar;
         for (int n = 0; n < registrarsArray.length; n++) {
             decrementRegCount();
             registrar = registrarsArray[n];
-            String message = "Discarded registrar: " + registrar.getServiceID();
-            System.out.println(message);
-            LOG.debug(message);
+            LOG.debug("Discarded registrar: " + registrar.getServiceID());
         }
     }
 
 
     private static final Object KEEP_ALIVE = new Object();
-    public static void terminateMain() {
-        KEEP_ALIVE.notifyAll();
+    private static Thread mainThread;
+
+    private static synchronized void setMainThread(final Thread newMainThread) {
+        mainThread = newMainThread;
+    }
+    static synchronized Thread getMainThread() {
+        return mainThread;
     }
 
-    public static void main(String[] args) {
-        String message = "Starting agent...";
-        System.out.println(message);
-        LOG.info(message);
+    public static void main(final String[] args) {
+
+        LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
+
+        // @todo cmd line arg processing cleanup
+
+        final boolean isSkipUI;
+        if (args.length < 3 || !args[2].equalsIgnoreCase(MAIN_ARG_SKIP_UI)) {
+            isSkipUI = false;
+        } else {
+            isSkipUI = true;
+    }
+
         final BuildAgent buildAgent;
         if (args.length > 0) {
             if (args.length > 1) {
-                buildAgent = new BuildAgent(args[0], args[1]);
+                buildAgent = new BuildAgent(args[0], args[1], isSkipUI);
             } else {
-                buildAgent = new BuildAgent(args[0], BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE);
+                buildAgent = new BuildAgent(args[0], BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
+                        isSkipUI);
             }
         } else {
-            buildAgent = new BuildAgent();
+            buildAgent = new BuildAgent(isSkipUI);
         }
+
+
+        setMainThread(Thread.currentThread());
 
         // stay around forever
         synchronized (KEEP_ALIVE) {
@@ -247,9 +312,35 @@ public class BuildAgent implements DiscoveryListener,
                KEEP_ALIVE.wait();
            } catch (InterruptedException e) {
                LOG.error("Keep Alive wait interrupted", e);
+            } finally {
+                buildAgent.terminate();
            }
         }
-        buildAgent.terminate();
+    }
+
+    public static void kill() {
+        final Thread main = getMainThread();
+        if (main != null) {
+            main.interrupt();
+            LOG.info("Waiting for main thread to finish.");
+            try {
+                main.join(30 * 1000);
+                //main.join();
+            } catch (InterruptedException e) {
+                LOG.error("Error during waiting from Agent to die.", e);
+            }
+            if (main.isAlive()) {
+                main.interrupt(); // how can this happen?
+                LOG.error("Main thread should have died.");
+            }
+            setMainThread(null);
+        } else {
+            LOG.info("WARNING: Kill was called, but MainThread is null. Doing nothing.");
+        }
+    }
+
+    static interface AgentStatusListener {
+        public void statusChanged(BuildAgentService buildAgentServiceImpl);
     }
 
 }

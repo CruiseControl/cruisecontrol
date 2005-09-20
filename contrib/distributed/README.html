@@ -15,27 +15,22 @@
 				<li>
 					<h4>Building the code</h4>
 					<ol type="A">
-						<li>Go to <a href="http://www.sun.com/software/communitysource/jini/download.html">http://www.sun.com/software/communitysource/jini/download.html</a> and download the Jini Starter Kit, version 2.0_002. Currently you need to register, but Sun has announced its intention to release Jini to open source (probably MIT license) and by March 2005 we should be able to distribute the Jini libraries with Cruise Control, should we choose to. From the starter kit drop the following Jini libraries into <i>contrib/distributed/lib</i>:
+                        <!-- @todo Begin: Remove if we bank the jini & jnlp libs -->
+                        <li>Go to <a href="http://www.sun.com/software/communitysource/jini/download.html">http://www.sun.com/software/communitysource/jini/download.html</a> and download the Jini Technology Starter Kit, version 2.0.2. (This is now released under the Apache 2.0 license, so we are able to distribute the Jini libraries with Cruise Control, should we choose to.) From the starter kit drop the following Jini libraries into <i>contrib/distributed/lib</i>:
 							<ul>
 								<li><code>jini-core.jar</code></li>
 								<li><code>jini-ext.jar</code></li>
 								<li><code>jsk-platform.jar</code></li>
-								<li><code>jsk-resources.jar</code></li>
 								<li><code>reggie.jar</code></li>
 								<li><code>reggie-dl.jar</code></li>
 								<li><code>start.jar</code></li>
 								<li><code>tools.jar</code></li>
-							    (including the jars below fixes jini warnings about missing jars during master startup)
-                                <li><code>fiddler.jar</code></li>
-                                <li><code>fiddler-dl.jar</code></li>
-                                <li><code>mahalo.jar</code></li>
-                                <li><code>mahalo-dl.jar</code></li>
-                                <li><code>mecury.jar</code></li>
-                                <li><code>mecury-dl.jar</code></li>
-                                <li><code>norm.jar</code></li>
-                                <li><code>norm-dl.jar</code></li>
-                                <li><code>outrigger.jar</code></li>
-                                <li><code>outrigger-dl.jar</code></li>
+							</ul>
+						</li>
+                        <!-- @todo End: Remove if we bank the jini & jnlp libs -->
+                        <li>For jdk's prior to 1.5, go to <a href="http://java.sun.com/products/javawebstart/download-jnlp.html">http://java.sun.com/products/javawebstart/download-jnlp.html</a> and download the JNLP Developer's Pack v1.2. For jdk 1.5, you can find this jar in the "sample/jnlp/servlet" directory. Drop the following webstart library into <i>contrib/distributed/lib</i>:
+                            <ul>
+								<li><code>jnlp.jar</code></li>
 							</ul>
 						</li>
 						<li>Build Cruise Control in the usual way.</li>
@@ -74,8 +69,11 @@
 						<li>Test that Jini is running and your agent(s) is/are registered using the <code>JiniLookUpUtility</code>. In <i>contrib/distributed/dist/master</i> run <code>ant test-jini</code>. After 5 seconds you should see a list of services that have been registered with Jini. Since the Jini registrar itself is a Jini service you should have <code>com.sun.jini.reggie.ConstrainableRegistrarProxy</code> listed even if have no agents running. If you do have agents running, however, you should see a <code>Proxy</code> service listed for each of them, with <code>BuildAgentService</code> listed as the type.</li>
 						<li>You can manually run a build using the <code>InteractiveBuildUtility</code>. This allows you to test your configuration without starting Cruise Control. In <i>contrib/distributed/dist/master</i> run <code>ant manual-build</code>. If the distributed tag in your configuration file does not contain any entries you'll be prompted to enter them. These are optional, however, and pressing <i>ENTER</i> at the prompt will pick up whatever agent is available. Note that you can pass in the path to your Cruise Control configuration file as an argument to the <code>InteractiveBuildUtility</code> and save a step when running it. (Note: This ant target is not working right now, but the class should work outside of ant.)</li>
 						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent. Modified startup scripts which include additional jars are in: contrib/disttributed.
-						    <p>The cruisecontrol.bat file currently fails due to Windows command line length limitations. You may wish to remove some jars from the CRUISE_PATH to work around this. One example that works under jdk1.5 is: set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant\ant.jar;%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%DISTRIBDIR%\dist\agent\lib\cc-agent.jar;%DISTRIBDIR%\lib\jini-core.jar;%DISTRIBDIR%\lib\jini-ext.jar;%DISTRIBDIR%\lib\jsk-platform.jar;%DISTRIBDIR%\lib\jsk-resources.jar;%DISTRIBDIR%\lib\reggie.jar;%DISTRIBDIR%\lib\reggie-dl.jar;% DISTRIBDIR%\lib\start.jar;%DISTRIBDIR%\lib\tools.jar;%DISTRIBDIR%\conf;. (removed the following:%LIBDIR%\xerces.jar;%LIBDIR%\xalan.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;)
-						    <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix, register plugin in config.xml:
+						    <p>The cruisecontrol.bat file currently fails due to Windows command line length limitations. You may wish to remove some jars from the CRUISE_PATH to work around this. One example that works under jdk1.5 is: set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant\ant.jar;%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%LIBDIR%\fast-md5.jar;%DISTRIBDIR%\dist\agent\lib\cc-agent.jar;%DISTRIBDIR%\lib\jini-core.jar;%DISTRIBDIR%\lib\jini-ext.jar;%DISTRIBDIR%\lib\jsk-platform.jar;%DISTRIBDIR%\lib\reggie.jar;%DISTRIBDIR%\lib\reggie-dl.jar;% DISTRIBDIR%\lib\start.jar;%DISTRIBDIR%\lib\tools.jar;%DISTRIBDIR%\conf;.
+						    (removed the following:%LIBDIR%\xerces.jar;%LIBDIR%\xalan.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;)
+						    (update: since xml libs where updated, the example above probably doesn't work, because the xml libs are now required.)
+                            <p>Another workaround for command line limits is to manually set the <code>CCDIR</code> environment variable to your <code>CruiseControl/main</code> directory before launching the cruisecontrol.bat file.</p>
+                            <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix this, register the Distributed plugin in your config.xml:
 						    <p><pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"/&gt;</pre>
                         </li>
 					</ol>
@@ -114,6 +112,12 @@
     ...
 &lt;/distributed&gt;</pre>
 						After a remote build, any files on the agent machine in dir "agent/log" will be copied back to the master machine into dir "master/log". The "logs" and "output" dirs will be deleted on the Agent after the build finishes.</li>
+
+						<li>Java Web Start deployment of build agents: <code>ant war-agent</code> will use the file <code>build-sign.properties</code> to sign agent jars and bundle them into a deployable <code>.war</code> file (<code>dist/cc-agnet.war</code>).
+						Be sure you update the <code>build-sign.properties</code> appropriately to use your signing information/certificate.</li>
+						<li>Agent Utility: Running <code>ant agent-util</code> from inside the <code>dist/master</code> dir will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
+						This utility is intended as a starting point to from which to build JMX features to monitor/control Build Agents.
+						<li>Build Agent UI: Build agents now default to showing a simple User Interface. This UI can be bypassed by passing the switch: <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).
 					</ol>
 				</li>
 			</ol>
@@ -125,6 +129,8 @@
 				<li>More secure default Jini policy files.</li>
 				<li>The agent busy state doesn't work. A few attempts were made to solve the problem but without success. Jini contains a transaction framework (mahalo) and a mailbox service (mercury), either of which might be a way of managing busy state. Or the attempted RMI method could be utilized. A solution should be chosen and pursued to completion.</li>
 				<li>Unit tests now run with default build, but the code to start/stop Jini is pretty ugly. Any suggestions to improve it are welcome. (Maybe Jeff's JiniStarter...)</li>
+				<li>Investigate how to make DistributedMasterBuilder.validate() call validate on it's child builder.</li>
+				<li>Add JMX Agent monitor.</li>
 				<li>More unit tests!</li>
 			</ol>
 			<h3>Limitations of this approach</h3>

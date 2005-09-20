@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import java.util.Properties;
 import java.util.Arrays;
+import java.util.Date;
 import java.io.File;
 import java.rmi.RemoteException;
 
@@ -47,6 +48,192 @@ public class BuildAgentServiceImplTest extends TestCase {
             assertTrue("Error cleaning up test directory: " + dirToDelete.getAbsolutePath()
                     +  "\nDir Contents:\n" + Arrays.asList(dirToDelete.listFiles()),
                     dirToDelete.delete());
+        }
+    }
+
+
+    public void testAsString() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        String agentAsString = agentImpl.asString();
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.startsWith("Machine Name: "));
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.endsWith("Busy: false;\tSince: null;\tModule: null\n\t"
+                + "Pending Restart: false;\tPending Restart Since: null\n\t"
+                + "Pending Kill: false;\tPending Kill Since: null"));
+
+        final String testModuleName = "testModuleName";
+        final Properties projectProps = new Properties();
+        projectProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
+
+        try {
+            agentImpl.doBuild(null, projectProps); // gets far enough to set Module name...
+            fail("should fail w/ NPE");
+        } catch (NullPointerException e) {
+            assertEquals(null, e.getMessage());
+        }
+
+        agentAsString = agentImpl.asString();
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.startsWith("Machine Name: "));
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.indexOf("Busy: true;\tSince: ") > -1);
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.endsWith(";\tModule: " + testModuleName
+                + "\n\tPending Restart: false;\tPending Restart Since: null\n\t"
+                + "Pending Kill: false;\tPending Kill Since: null"));
+
+        agentImpl.kill(true);
+        agentAsString = agentImpl.asString();
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.indexOf("Busy: true;\tSince: ") > -1);
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.indexOf(";\tModule: " + testModuleName
+                + "\n\tPending Restart: false;\tPending Restart Since: null\n\t"
+                + "Pending Kill: true;\tPending Kill Since: ") > -1);
+        assertNotNull(agentImpl.getPendingKillSince());
+
+        agentImpl.setBusy(false); // fake build finish
+        agentAsString = agentImpl.asString();
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.indexOf("Busy: false;\tSince: null;\tModule: null\n\t"
+                + "Pending Restart: false;\tPending Restart Since: null\n\t"
+                + "Pending Kill: true;\tPending Kill Since: ") > -1);
+        assertNotNull(agentImpl.getPendingKillSince());
+    }
+
+    public void testGetBuildingModule() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        assertNull(agentImpl.getModule());
+
+        final String testModuleName = "testModuleName";
+        final Properties projectProps = new Properties();
+        projectProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
+
+        try {
+            agentImpl.doBuild(null, projectProps); // gets far enough to set Module name...
+            fail("should fail w/ NPE");
+        } catch (NullPointerException e) {
+            assertEquals(null, e.getMessage());
+        }
+
+        assertEquals(testModuleName, agentImpl.getModule());
+
+        agentImpl.setBusy(false); // fake build finish
+        assertNull(agentImpl.getModule());
+    }
+
+    public void testKillNoWait() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        assertFalse(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertNull(agentImpl.getPendingKillSince());
+        assertFalse(agentImpl.isPendingRestart());
+        assertNull(agentImpl.getPendingRestartSince());
+        // make agent think it's building now
+        agentImpl.claim();
+        assertTrue(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertFalse(agentImpl.isPendingRestart());
+        agentImpl.kill(false);
+        assertTrue(agentImpl.isBusy());
+        assertTrue(agentImpl.isPendingKill());
+        assertNotNull(agentImpl.getPendingKillSince());
+        assertFalse(agentImpl.isPendingRestart());
+        assertNull(agentImpl.getPendingRestartSince());
+
+        // fake finish agent build - not really needed here
+        agentImpl.setBusy(false);
+    }
+
+    public void testRestartNoWait() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        assertFalse(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertNull(agentImpl.getPendingKillSince());
+        assertFalse(agentImpl.isPendingRestart());
+        assertNull(agentImpl.getPendingRestartSince());
+        // make agent think it's building now
+        agentImpl.claim();
+        assertTrue(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertFalse(agentImpl.isPendingRestart());
+        // fake finish agent build
+        try {
+            agentImpl.restart(false);
+            fail("Restart should fail outside of webstart");
+        } catch (RuntimeException e) {
+            assertEquals("Couldn't find webstart Basic Service. Is Agent running outside of webstart?",
+                    e.getMessage());
+        }
+        assertTrue(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertNull(agentImpl.getPendingKillSince());
+        assertTrue(agentImpl.isPendingRestart());
+        assertNotNull(agentImpl.getPendingRestartSince());
+    }
+
+    public void testKillWithWait() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        assertFalse(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertNull(agentImpl.getPendingKillSince());
+        assertFalse(agentImpl.isPendingRestart());
+        assertNull(agentImpl.getPendingRestartSince());
+        // make agent think it's building now
+        agentImpl.claim();
+        assertTrue(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertFalse(agentImpl.isPendingRestart());
+        agentImpl.kill(true);
+        assertTrue(agentImpl.isBusy());
+        assertTrue(agentImpl.isPendingKill());
+        assertNotNull(agentImpl.getPendingKillSince());
+        assertFalse(agentImpl.isPendingRestart());
+
+        // fake finish agent build
+        agentImpl.setBusy(false);
+    }
+
+    public void testRestartWithWait() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        assertFalse(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertNull(agentImpl.getPendingKillSince());
+        assertFalse(agentImpl.isPendingRestart());
+        assertNull(agentImpl.getPendingRestartSince());
+        // make agent think it's building now
+        agentImpl.claim();
+        assertTrue(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertNull(agentImpl.getPendingRestartSince());
+        assertFalse(agentImpl.isPendingRestart());
+        assertNull(agentImpl.getPendingRestartSince());
+        agentImpl.restart(true);
+        assertTrue(agentImpl.isBusy());
+        assertFalse(agentImpl.isPendingKill());
+        assertTrue(agentImpl.isPendingRestart());
+        assertNotNull(agentImpl.getPendingRestartSince());
+
+        // fake finish agent build
+        try {
+            agentImpl.setBusy(false);
+            fail("Restart should fail outside of webstart");
+        } catch (RuntimeException e) {
+            assertEquals("Couldn't find webstart Basic Service. Is Agent running outside of webstart?",
+                    e.getMessage());
         }
     }
 
@@ -143,15 +330,22 @@ public class BuildAgentServiceImplTest extends TestCase {
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
+        assertNull(agentImpl.getDateClaimed());
         agentImpl.claim();
         assertTrue(agentImpl.isBusy());
+        assertNotNull(agentImpl.getDateClaimed());
+        final Date firstClaimDate = agentImpl.getDateClaimed();
 
         try {
             agentImpl.claim();
             fail("Should throw exception if attempt is made to claim a busy agent");
         } catch (IllegalStateException e) {
-            assertEquals("Cannot claim agent that is busy building module: null", e.getMessage());
+            assertTrue("Unexpected error message w/ invalid call to claim(): " + e.getMessage(),
+                    e.getMessage().startsWith("Cannot claim agent on "));
+            assertTrue("Unexpected error message w/ invalid call to claim(): " + e.getMessage(),
+                    e.getMessage().indexOf("that is busy building module: null") > 0);
         }
+        assertEquals(firstClaimDate, agentImpl.getDateClaimed());
 
         // @todo should agent expose a release() method to clear busy flag?
         try {
@@ -164,6 +358,7 @@ public class BuildAgentServiceImplTest extends TestCase {
                     e.getMessage().startsWith("Failed to complete build on agent; nested exception is: \n"
                     + "\tnet.sourceforge.cruisecontrol.CruiseControlException: ant logfile "));
         }
+        assertEquals(firstClaimDate, agentImpl.getDateClaimed());
 
         try {
             agentImpl.clearOutputFiles();
@@ -172,5 +367,9 @@ public class BuildAgentServiceImplTest extends TestCase {
             assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());
         }
         assertTrue("Expected agent busy flag to be true after cleanup failed.", agentImpl.isBusy());
+        assertEquals(firstClaimDate, agentImpl.getDateClaimed());
+
+        agentImpl.setBusy(false);
+        assertNull(agentImpl.getDateClaimed());
     }
 }

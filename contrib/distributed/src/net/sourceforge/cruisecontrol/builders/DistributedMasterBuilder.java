@@ -131,7 +131,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      */
     public void configure(Element element) throws CruiseControlException {
-        this.thisElement = element;
+        thisElement = element;
         List children = element.getChildren();
         if (children.size() > 1) {
             String message = "DistributedMasterBuilder can only have one nested builder";
@@ -149,7 +149,17 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         entries = tempAttribute != null ? tempAttribute.getValue() : "";
 
         tempAttribute = thisElement.getAttribute("module");
-        module = tempAttribute != null ? tempAttribute.getValue() : null;
+        if (tempAttribute != null) {
+            module = tempAttribute.getValue();
+        } else {
+            // try to use project name as default value
+            final Element elmProj = getElementProject(thisElement);
+            if (elmProj != null) {
+                module = elmProj.getAttributeValue("name");
+            } else {
+                module = null;
+            }
+        }
 
         // optional attributes
         tempAttribute = thisElement.getAttribute("agentlogdir");
@@ -173,7 +183,11 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         }
         rootDir = new File(cruiseProperties.getProperty(CRUISE_RUN_DIR));
         LOG.debug("CRUISE_RUN_DIR: " + rootDir);
-        if (!rootDir.exists()) {
+        if (!rootDir.exists()
+                // Don't think non-existant rootDir matters if agent/master log/output dirs are set
+                && (getAgentLogDir() == null && getMasterLogDir() == null)
+                && (getAgentOutputDir() == null && getMasterOutputDir() == null)
+        ) {
             String message = "Could not get property " + CRUISE_RUN_DIR + " from " + CRUISE_PROPERTIES
                     + ", or run dir does not exist: " + rootDir;
             LOG.error(message);
@@ -263,19 +277,93 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return element;
     }
 
+    /** Used to get default value for "module" attribute if not given. */
+    private static Element getElementProject(Element element) {
+        LOG.debug("Searching for Project element, starting at: " + element.toString());
+        while (!"project".equals(element.getName().toLowerCase())) {
+            element = element.getParentElement();
+            LOG.debug("Searching for Project element, moved up to: "
+                    + (element != null ? element.toString() : "Augh! parent element is null"));
+            if (element == null) {
+                LOG.warn("Searching for Project element, not found.");
+                break;
+            }
+        }
+        return element;
+    }
+
     public void validate() throws CruiseControlException {
         super.validate();
-        if (getChildBuilderElement() == null) {
+        final Element elmChildBuilder = getChildBuilderElement();
+        if (elmChildBuilder == null) {
             String message = "A nested Builder is required for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
         }
+
+        // Add default/preconfigured props to builder element
+        addMissingPluginDefaults(elmChildBuilder);
+
+        /* @todo Should we call validate() on the child builder?
+        // If so, figure out how to do in unit tests.
+        // One problem is config file properties, like: "anthome="${env.ANT_HOME}" don't get expanded...
+        final PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
+        PluginRegistry plugins = PluginRegistry.createRegistry();
+        Class pluginClass = plugins.getPluginClass(elmChildBuilder.getName());
+        // this dies due to "anthome="${env.ANT_HOME}" in config file not being expanded...
+        final Builder builder = (Builder) pluginXMLHelper.configure(elmChildBuilder, pluginClass, false);
+        builder.validate();
+        //*/
+
         if (module == null) {
             String message = "The 'module' attribute is required for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
         }
     }
+
+    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    public int getDay() {
+        // @todo Replace with real Builder object if possible
+        final String value = childBuilderElement.getAttributeValue("day");
+        final int retVal;
+        if (value == null) {
+            retVal = NOT_SET;
+        } else {
+            retVal = Integer.parseInt(value);
+        }
+        return retVal;
+    }
+    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    public int getTime() {
+        // @todo Replace with real Builder object if possible
+        final String value = childBuilderElement.getAttributeValue("time");
+        final int retVal;
+        if (value == null) {
+            retVal = NOT_SET;
+        } else {
+            retVal = Integer.parseInt(value);
+        }
+        return retVal;
+    }
+    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    public int getMultiple() {
+        // @todo Replace with real Builder object if possible
+        final String value = childBuilderElement.getAttributeValue("multiple");
+        final int retVal;
+        if (getTime() != NOT_SET) {
+            // can't use both time and multiple
+            retVal = NOT_SET;
+        } else if (value == null) {
+            // no multiple attribute is set
+            // use default multiple value
+            retVal = 1;
+        } else {
+            retVal = Integer.parseInt(value);
+        }
+        return retVal;
+    }
+
 
     public Element build(Map projectProperties) throws CruiseControlException {
         try {
@@ -284,7 +372,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
             final Element buildResults;
             try {
-                projectProperties.put("distributed.overrideTarget", overrideTarget);
+                projectProperties.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, overrideTarget);
                 projectProperties.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
                 projectProperties.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, getAgentLogDir());
                 projectProperties.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, getAgentOutputDir());
@@ -329,8 +417,9 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                 } catch (RemoteException e1) {
                     ; // ignored
                 }
-                String message = "RemoteException from agent on: " + agentMachine
-                        + " while building module: " + module;
+                String message = "RemoteException from"
+                        + "\nagent on: " + agentMachine
+                        + "\nwhile building module: " + module;
                 LOG.error(message, e);
                 System.err.println(message + " - " + e.getMessage());
                 try {

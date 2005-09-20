@@ -69,14 +69,15 @@ fi
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
 DISTRIBDIR=$CCDIR/../contrib/distributed
+LIBS_JINI=$DISTRIBDIR/lib/jini-core.jar:$DISTRIBDIR/lib/jini-ext.jar:$DISTRIBDIR/lib/jsk-platform.jar:$DISTRIBDIR/lib/reggie.jar:$DISTRIBDIR/lib/reggie-dl.jar:$DISTRIBDIR/lib/start.jar:$DISTRIBDIR/lib/tools.jar:$DISTRIBDIR/conf
 
-CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant/ant.jar:$LIBDIR/ant/ant-launcher.jar:$LIBDIR/xerces.jar:$LIBDIR/xalan.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$DISTRIBDIR/lib/jini-core.jar:$DISTRIBDIR$/dist/agent/lib/cc-agent.jar:$DISTRIBDIR/lib/jini-ext.jar:$DISTRIBDIR/lib/jsk-platform.jar:$DISTRIBDIR/lib/jsk-resources.jar:$DISTRIBDIR/lib/reggie.jar:$DISTRIBDIR/lib/reggie-dl.jar:$DISTRIBDIR/lib/start.jar:$DISTRIBDIR/lib/tools.jar:$DISTRIBDIR/conf:.
+CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant/ant.jar:$LIBDIR/ant/ant-launcher.jar:$LIBDIR/xml-apis-2.7.0.jar:$LIBDIR/xercesImpl-2.7.0.jar:$LIBDIR/xalan-2.6.0.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$LIBDIR/fast-md5.jar:$DISTRIBDIR/dist/agent/lib/cc-agent.jar:$LIBS_JINI:.
 
 # convert the existing path to unix
 if [ `uname | grep -n CYGWIN` ]; then
   CRUISE_PATH=`cygpath --path --windows "$CRUISE_PATH"`
 fi
 
-EXEC="java -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControl $@"
+EXEC="java -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy CruiseControl $@"
 echo $EXEC
 exec $EXEC
