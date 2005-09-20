@@ -16,13 +16,17 @@ cruisecontrol.bat/.sh
 ----------------------
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck
 
+JMX:
+----------------------
+* Add ability to get/set the config file via JMX (CC-220). Patch by Allan Wick
+
 P4:
 ----------------------
 * Fix problem where test would fail if Perforce was on the path. Patch by Arent-Jan Banck
 
 PluginXMLHelper:
 ----------------------
-* Can pre-configure plugin subelements, too. CC-299. Patch by Jerome Lacoste.
+* Can pre-configure plugin subelements, too (CC-299). Patch by Jerome Lacoste.
 * Support properties in project name, properties element, comments in properties file and properties in comments file. Patch by Jerome Lacoste
 
 TimeBuild:
