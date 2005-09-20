@@ -29,6 +29,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -55,6 +56,7 @@ public class TimeBuildTest extends TestCase {
 
         Calendar calender1601 = Calendar.getInstance();
         calender1601.set(2002, Calendar.DECEMBER, 23, 16, 01, 00);
+        calender1601.set(Calendar.MILLISECOND, 0);
 
         Calendar calender1603 = Calendar.getInstance();
         calender1603.set(2002, Calendar.DECEMBER, 23, 16, 03, 00);
@@ -74,7 +76,7 @@ public class TimeBuildTest extends TestCase {
         modifications = timeBuild.getModifications(calender1400.getTime(),
                 calender2000.getTime());
         assertEquals(1, modifications.size());
-        checkUserName("epugh", modifications);
+        checkSingleModif(modifications, "epugh", calender1601.getTime());
         modifications = timeBuild.getModifications(calender1603.getTime(),
                 calender2000.getTime());
         assertEquals(0, modifications.size());
@@ -90,6 +92,7 @@ public class TimeBuildTest extends TestCase {
 
         Calendar calender1600 = Calendar.getInstance();
         calender1600.set(2002, Calendar.DECEMBER, 23, 16, 00, 00);
+        calender1600.set(Calendar.MILLISECOND, 0);
 
         Calendar calender1601 = Calendar.getInstance();
         calender1601.set(2002, Calendar.DECEMBER, 23, 16, 01, 00);
@@ -109,15 +112,18 @@ public class TimeBuildTest extends TestCase {
         modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
                 calender1601.getTime());
         assertEquals(1, modifications.size());
-        checkUserName("epugh", modifications);
+        checkSingleModif(modifications, "epugh", calender1600.getTime());
         modifications = timeBuild.getModifications(calender1601.getTime(),
                 calender1603.getTime());
         assertEquals(0, modifications.size());
     }
 
-    private void checkUserName(String userName, List modifications) {
+    private void checkSingleModif(List modifications, String userName, Date expectedModifiedTime) {
         assertEquals(1, modifications.size());
         Modification modification = (Modification) modifications.get(0);
         assertEquals(userName, modification.userName);
+        // assertEquals(expectedModifiedTime, modification.modifiedTime);
+        // this one is redundant but it helps when debugging.
+        assertEquals(expectedModifiedTime.getTime(), modification.modifiedTime.getTime());
     }
 }
