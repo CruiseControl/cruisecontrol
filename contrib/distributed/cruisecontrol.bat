@@ -72,7 +72,7 @@ set LIBS_JINI=%DISTRIBDIR%\lib\jini-core.jar;%DISTRIBDIR%\lib\jini-ext.jar;%DIST
 
 set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant\ant.jar;%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\xml-apis-2.7.0.jar;%LIBDIR%\xercesImpl-2.7.0.jar;%LIBDIR%\xalan-2.6.0.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\fast-md5.jar;%DISTRIBDIR%\dist\agent\lib\cc-agent.jar;%LIBS_JINI%;.
 
-set EXEC="%JAVA_HOME%\bin\java" -Xms128m -Xmx768m -cp "%CRUISE_PATH%" -Dlog4j.configuration=..\..\main\ets_log4j.properties -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=%DISTRIBDIR%\conf\insecure.policy CruiseControl -debug %*
+set EXEC="%JAVA_HOME%\bin\java" -Xms128m -Xmx768m -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=%DISTRIBDIR%\conf\insecure.policy CruiseControl -debug %*
 echo %EXEC%
 %EXEC%
 
