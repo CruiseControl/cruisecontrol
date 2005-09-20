@@ -36,10 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import net.sourceforge.cruisecontrol.CruiseControlController;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Project;
-import org.apache.log4j.Logger;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -48,9 +53,12 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
+
+import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Project;
+
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -71,6 +79,66 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
         return controller.getConfigFile() != null ? controller.getConfigFile().getAbsolutePath() : "";
     }
 
+    public String getConfigFileContents() {
+
+        File theConfigFile = controller.getConfigFile();
+        
+        // guard clause 
+        if (theConfigFile == null) {
+            return "";
+        }
+
+        StringBuffer theResults = new StringBuffer();
+
+        try {
+            BufferedReader theConfigFileReader = new BufferedReader(
+                    new FileReader(theConfigFile));
+
+            // approximate the size
+            theResults = new StringBuffer((int) theConfigFile.length());
+
+            String theCurrentLine = theConfigFileReader.readLine();
+            while (theCurrentLine != null) {
+                theResults.append(theCurrentLine);
+                theCurrentLine = theConfigFileReader.readLine();
+            }
+        } catch (FileNotFoundException fne) {
+
+            LOG.error("Configuration file not found", fne);
+            //throw new CruiseControlException("Configuration file not found");
+        } catch (IOException ioe) {
+
+            LOG.error("Error reading config file for JMX", ioe);
+            //throw new CruiseControlException("Error reading config file");
+        }
+
+        return theResults.toString();
+    }
+    
+    public void setConfigFileContents(String contents) {
+        
+        File theConfigFile = controller.getConfigFile();
+
+        // guard clause if config file not set
+        if (theConfigFile == null) {
+            return;
+        }
+       
+        try {
+            // ensure the file exists
+            theConfigFile.mkdirs();
+            theConfigFile.createNewFile();
+            
+            BufferedWriter out = new BufferedWriter(new FileWriter(theConfigFile));
+            out.write(contents);
+            out.close();
+        } catch (FileNotFoundException fne) {
+            LOG.error("Configuration file not found", fne);
+        } catch (IOException ioe) {
+            LOG.error("Error storing config file for JMX", ioe);
+        }
+    }
+    
     public void setConfigFileName(String fileName) throws InvalidAttributeValueException {
         try {
             controller.setConfigFile(fileName != null ? new File(fileName) : null);

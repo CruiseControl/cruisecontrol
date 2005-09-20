@@ -48,6 +48,10 @@ public interface CruiseControlMBean {
     String getConfigFileName();
     void setConfigFileName(String fileName) throws InvalidAttributeValueException;
 
+    String getConfigFileContents();
+    void setConfigFileContents(String contents);
+    //void validateConfigFile(String contents);
+    
     List getProjects();
 
     void pause();
