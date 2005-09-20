@@ -52,7 +52,9 @@ import org.jdom.Element;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
@@ -134,11 +136,36 @@ public class ProjectXMLHelperTest extends TestCase {
     public void testLoadPropertiesFromFile() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "propsfromfile");
         Properties props = helper.getProperties();
-        assertEquals(7, props.size());
+        assertEquals(8, props.size());
         assertEquals("/home/cruise", props.getProperty("dir1"));
         assertEquals("/home/cruise/logs", props.getProperty("dir2"));
         assertEquals("temp", props.getProperty("tempdir"));
         assertEquals("/home/cruise/logs/temp", props.getProperty("multi"));
+    }
+
+    // test that we are capable of resolving properties in all property attributes 
+    public void testPropertiesInProperties() throws CruiseControlException {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "propsinpropsdef");
+        Properties props = helper.getProperties();
+        // these ones where defined normally, shouldn't be any problem
+        assertEquals("true", props.getProperty("env.toupper"));
+        assertEquals("env", props.getProperty("env.prefix"));
+
+        assertEquals("Resolving property file name attribute worked",
+                     "/home/cruise", props.getProperty("dir1"));
+        assertEquals("Resolving property name attribute worked",
+                      "test1", props.getProperty("test1"));
+        int nbEnvPropertiesFound = 0;
+        for (Enumeration propertyNames = props.propertyNames(); propertyNames.hasMoreElements(); ) {
+           String name = (String) propertyNames.nextElement();
+           if (name.startsWith("env.")) {
+             nbEnvPropertiesFound++;
+           }
+        }
+        assertTrue("Resolving environment prefix attribute worked",
+                       nbEnvPropertiesFound > 0);
+        assertNotNull("Resolving environment prefix and touuper attributes worked",
+                       props.getProperty("env.PATH"));
     }
     
     public void testMissingProperty() {
@@ -227,10 +254,10 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(ListenerTestPlugin.class, listener2.getClass());
         ListenerTestPlugin testListener2 = (ListenerTestPlugin) listener2;
         assertEquals("listener2", testListener2.getString());
-        // note this is in fact undefined behavior!! Because we added twice the stringwrapper (first for the child,
-        // then for the parent).
-        // this could probably fail depending on a different platform, except if Element.setContent() specifies
-        // the order in which children are kept within the element.
+        // note this is in fact undefined behavior!! Because we added twice the stringwrapper
+        // (first for the child, then for the parent).
+        // this could probably fail depending on a different platform, except if Element.setContent()
+        // specifies the order in which children are kept within the element.
         final String wrapper = testListener2.getStringWrapper().getString();
         assertTrue("wrapper2-works!", "wrapper2-works!".equals(wrapper)
                                       || "wrapper1".equals(wrapper));
@@ -328,7 +355,9 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(tempDirectory.getAbsolutePath() + "/foo", helper.getLog().getLogDir());
         helper = new ProjectXMLHelper(configFile, "project3");
         assertEquals("logs" + File.separatorChar + "project3", helper.getLog().getLogDir());
-
+        helper = new ProjectXMLHelper(configFile, "project3bis");
+        assertEquals("logs/project3bis", helper.getLog().getLogDir());
+        
         assertNull(helper.getLog().getLogXmlEncoding());
         helper = new ProjectXMLHelper(configFile, "project2");
         assertEquals("utf-8", helper.getLog().getLogXmlEncoding());
@@ -344,63 +373,69 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals(1, listeners.size());
     }
 
-    protected void setUp() throws Exception {
-        // Set up a properties file to use while testing property expansion
-        propertiesFile = File.createTempFile("temp", "properties");
-        propertiesFile.deleteOnExit();
-        StringBuffer buff = new StringBuffer();
-        buff.append("dir1=/home/cruise\n");
-        buff.append("  dir2 = ${dir1}/logs   \n");
-        buff.append("tempdir= temp\n");
-        buff.append("multi= ${dir2}/${tempdir}\n");
-        
-        Writer writer = new BufferedWriter(new FileWriter(propertiesFile));
-        writer.write(buff.toString());
-        writer.close();
-        
-        // Set up a CruiseControl config file for testing
-        configFile = File.createTempFile("tempConfig", "xml");
-        configFile.deleteOnExit();
-        tempDirectory = configFile.getParentFile();
-        // Note: the project1 and project3 directories will be created 
-        // in <testexecutiondir>/logs/
-        StringBuffer config = new StringBuffer();
-        addConfigXmlInfo(config);
-
-        writer = new BufferedWriter(new FileWriter(configFile));
-        writer.write(config.toString());
+    private void writeContentsToFile(File file, String contents) throws IOException {
+        Writer writer = new BufferedWriter(new FileWriter(file));
+        writer.write(contents);
         writer.close();
     }
 
-    private void addConfigXmlInfo(StringBuffer config) {
+    private File writeTempPropertiesFile() throws IOException {
+        // Set up a properties file to use while testing property expansion
+        File tempPropertiesFile = File.createTempFile("temp", "properties");
+        tempPropertiesFile.deleteOnExit();
+        StringBuffer buff = new StringBuffer();
+        buff.append("dir=dir\n");
+        buff.append("dir1=/home/cruise\n");
+        buff.append("  ${dir}2 = ${dir1}/logs   \n");
+        buff.append("tempdir= temp\n");
+        buff.append("multi= ${dir2}/${tempdir}\n");
+        buff.append("#comment=comment\n");
+        buff.append(" #comment2=comment2\n");
+        
+        writeContentsToFile(tempPropertiesFile, buff.toString());
+
+        return tempPropertiesFile;
+    }
+
+    protected void setUp() throws Exception {
+      propertiesFile = writeTempPropertiesFile();
+      propertiesFile.deleteOnExit();
+      
+      // Set up a CruiseControl config file for testing
+      configFile = File.createTempFile("tempConfig", "xml");
+      configFile.deleteOnExit();
+      tempDirectory = configFile.getParentFile();
+      String tempDirPath = tempDirectory.getAbsolutePath();
+      StringBuffer config = createTestConfigFileContents(tempDirPath);
+
+      writeContentsToFile(configFile, config.toString());
+  }
+
+    private StringBuffer createTestConfigFileContents(String tempDirPath) {
+      // Note: the project1 and project3 directories will be created 
+      // in <testexecutiondir>/logs/
+      StringBuffer config = new StringBuffer();
       config.append("<cruisecontrol>\n");
       config.append("  <property name='global' value='works!'/>\n");
       config.append("  <property name='project.global' value='project=${project.name}'/>\n");
-
+      
       config.append("  <plugin name='testnested' "
           + "classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin' "
           + "string='default' otherstring='otherdefault'/>\n");
-
+      
       config.append("  <project name='project1' />\n");
-
+      
       config.append("  <project name='project2' >\n");
       config.append("    <bootstrappers>\n");
-      config.append("      <vssbootstrapper vsspath='foo' localdirectory='"
-              + tempDirectory.getAbsolutePath() + "' />\n");
+      config.append("      <vssbootstrapper vsspath='foo' localdirectory='" + tempDirPath + "' />\n");
       config.append("    </bootstrappers>\n");
       config.append("    <schedule interval='20' >\n");
-      config.append("      <ant multiple='1' buildfile='"
-              + tempDirectory.getAbsolutePath()
-              + "/foo/bar.xml' target='baz' />\n");
+      config.append("      <ant multiple='1' buildfile='" + tempDirPath + "/foo/bar.xml' target='baz' />\n");
       config.append("    </schedule>\n");
       config.append("    <modificationset quietperiod='10' >\n");
-      config.append("      <vss vsspath='"
-              + tempDirectory.getAbsolutePath()
-              + "/foo/bar' login='login' />\n");
+      config.append("      <vss vsspath='" + tempDirPath + "/foo/bar' login='login' />\n");
       config.append("    </modificationset>\n");
-      config.append("    <log dir='"
-              + tempDirectory.getAbsolutePath()
-              + "/foo' encoding='utf-8' >\n");
+      config.append("    <log dir='" + tempDirPath + "/foo' encoding='utf-8' >\n");
       config.append("      <merge file='blah' />\n");
       config.append("    </log>\n");
       config.append("    <labelincrementer separator='#' />\n");
@@ -408,9 +443,13 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("      <currentbuildstatuslistener file='status.txt'/>\n");
       config.append("    </listeners>\n");
       config.append("  </project>\n");
-
+      
       config.append("  <project name='project3' >\n");
       config.append("    <log/>\n");
+      config.append("  </project>\n");
+      
+      config.append("  <project name='project3bis' >\n");
+      config.append("    <log dir='logs/${project.name}' />\n");
       config.append("  </project>\n");
 
       // test plugin configuration inside a project
@@ -431,16 +470,15 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("      </testselfconfiguring>");
       config.append("      <stringwrapper string='wrapper1'/>");
       config.append("    </plugin>\n");
-      // override
       config.append("    <listeners>\n");
-      config.append("      <testlistener/>\n");
+      config.append("      <testlistener/>\n"); // override
       config.append("      <testlistener string='listener1'/>\n");
       config.append("      <testlistener string='listener2'>\n");
       config.append("        <stringwrapper string='wrapper2-${global}'/>\n");
       config.append("      </testlistener>\n");
       config.append("    </listeners>\n");
       config.append("  </project>\n");
-
+      
       // test plugin configuration inside a project
       config.append("  <project name='project5' >\n");
       // to check overriding plugin & defaults. No need to respecify class
@@ -457,24 +495,32 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("      <testlistener/>\n");
       config.append("    </listeners>\n");
       config.append("  </project>\n");
-
+      
       config.append("  <project name='propsfromfile' >\n");
-      config.append("    <property file='"
-              + propertiesFile.getAbsolutePath()
-              + "' />\n");
+      config.append("    <property file='" + propertiesFile.getAbsolutePath() + "' />\n");
       config.append("  </project>\n");
+      
+      config.append("  <project name='propsinpropsdef' >\n");
+      config.append("    <property name='propsfilename' value='" + propertiesFile.getAbsolutePath() + "' />\n");
+      config.append("    <property file='${propsfilename}' />\n");
+      config.append("    <property name='env.toupper' value='true' />\n");
+      config.append("    <property name='env.prefix' value='env' />\n");
+      config.append("    <property environment='${env.prefix}' toupper='${env.toupper}' />\n");
+      config.append("    <property name='test' value='test' />\n");
+      config.append("    <property name='${test}1' value='test1' />\n");
+      config.append("   </project>\n");
 
       config.append("  <project name='simpleprops' >\n");
       config.append("    <property name='simple' value='success!'/>\n");
       config.append("  </project>\n");
-
+      
       config.append("  <project name='multiprops' >\n");
       config.append("    <property name='first' value='one'/>\n");
       config.append("    <property name='second' value='two'/>\n");
       config.append("    <property name='third' value='three'/>\n");
       config.append("    <property name='multi' value='${first}.${second}$${third}'/>\n");
       config.append("  </project>\n");
-
+      
       config.append("  <project name='nestedprops' >\n");
       config.append("    <property name='first' value='one'/>\n");
       config.append("    <property name='second' value='two'/>\n");
@@ -483,11 +529,11 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("    <property name='almost' value='threeLevelsDeep'/>\n");
       config.append("    <property name='nested' value='${${${first}.${second}.${third}}}'/>\n");
       config.append("  </project>\n");
-
+      
       config.append("  <project name='missingprop' >\n");
       config.append("    <log dir='${missing}'/>\n");
       config.append("  </project>\n");
-
+      
       config.append("  <project name='eclipseprop' >\n");
       config.append("    <property name='global' value='eclipsed'/>\n");
       config.append("  </project>\n");
@@ -496,8 +542,9 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("    <property name=\"date.format\" value=\"MM/dd/yyyy HH:mm:ss a\"/>\n");
       config.append("    <dateformat format=\"${date.format}\"/>\n");
       config.append("  </project>\n");
-
+      
       config.append("</cruisecontrol>\n");
+      return config;
     }
 
 }

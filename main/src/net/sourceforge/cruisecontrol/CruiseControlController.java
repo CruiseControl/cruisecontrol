@@ -267,7 +267,8 @@ public class CruiseControlController {
     }
 
     private String[] getProjectNames(Element rootElement) throws CruiseControlException {
-        ArrayList projectNames = new ArrayList();
+        ProjectXMLHelper.resolveProjectNames(rootElement);
+        List projectNames = new ArrayList();
         Iterator projectIterator = rootElement.getChildren("project").iterator();
         while (projectIterator.hasNext()) {
             Element projectElement = (Element) projectIterator.next();
