@@ -236,6 +236,10 @@ a.external {
     background: right center no-repeat url(external.png);
 }
 
+a.javadoc {
+    padding-left: 13px;
+    background: left center no-repeat url(javadoc.png);
+}
 .printonly {
     display: none;
 }
