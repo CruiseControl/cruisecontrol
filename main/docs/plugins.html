@@ -12,7 +12,9 @@
 <div class="header">
     <div class="hostedby">
         Hosted By:<br/>
-        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
+        <a href="http://sourceforge.net">
+          <img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/>
+        </a>
     </div>
     <img alt="CruiseControl" src="../../docs/banner.png"/>
 </div>
@@ -84,10 +86,12 @@
         registration</a>. Plugins distributed with cruisecontrol are all
         <a href="#defaultregistry">registrated by default</a>.</p>
 
-        <p>The configuration will be initiated by the <code>ProjectXMLHelper</code> class
-        which handles the mapping of the registered plugin and delegates the plugin
-        <a href="#initialization">initialization</a> to the <code>PluginXMLHelper</code> class.
-        Once configured, the plugin is <a href="#validation">validated</a>, and
+        <p>The configuration will be initiated by the <code>
+        <a class="javadoc" href="api/net/sourceforge/cruisecontrol/ProjectXMLHelper.html">
+        ProjectXMLHelper</a></code> class which handles the mapping of the registered
+        plugin and delegates the plugin <a href="#initialization">initialization</a> to the <code>
+        <a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a>
+        </code> class. Once configured, the plugin is <a href="#validation">validated</a>, and
         <a href="#execution">executed</a> at the appropriate time in the build cycle. This
         execution time will depend on the plugin type.
 
@@ -98,30 +102,24 @@
         have slightly different method names, we will refer to them collectively
         as plugins when discussing their similarities. The plugin types are:</p>
 
-        <ul>
-            <li><code>Bootstrapper</code>: run before the build</li>
-            <li><code>SourceControl</code>: poll a code repository and determine
-            if anything has changed</li>
-            <li><code>Builder</code>: perform the actual building and testing of
-            your code</li>
-            <li><code>LabelIncrementer</code>: handles incrementing the label
-            for you to use to tag your source</li>
-            <li><code>Publisher</code>: publish the results of your build, via
-            email for example</li>
-            <li><code>Listener</code>: handles project events</li>
+        <ul><li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Bootstrapper.html">Bootstrapper</a></code>: run before the build</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SourceControl.html">SourceControl</a></code>: poll a code repository and determine if anything has changed</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Builder.html">Builder</a></code>: perform the actual building and testing of your code</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/LabelIncrementer.html">LabelIncrementer</a></code>: handles incrementing the label for you to use to tag your source</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Publisher.html">Publisher</a></code>: publish the results of your build, via email for example</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Listener.html">Listener</a></code>: handles project events</li>
         </ul>
 
         <h2><a name="initialization"/>Plugin Initialization</h2>
-        <p>The <code>PluginXMLHelper</code> will usually use introspection to
+        <p>The <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will usually use introspection to
         configure the bean. The exception to this rule is when the plugin is
         <a href="#selfconfiguring">self-configuring</a>.</p>
 
         <h3><a name="normalconfiguration"/>Plugin configuration</h3>
-        <p>In the case of normal initialization, the <code>PluginXMLHelper</code> will
-        call setter methods that correspond to attributes on your xml tag in the
-        config file.
-        For example, the method <code>setTarget(String target)</code> on the
-        <code>AntBuilder</code> class corresponds to the attribute
+        <p>In the case of normal initialization, the <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will call setter methods that correspond to
+        attributes on your xml tag in the config file.
+        For example, the method <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html#setTarget(java.lang.String)">setTarget(String target)</a></code> on the
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html">AntBuilder</a></code> class corresponds to the attribute
         <code>target</code> on the <code>&lt;ant/&gt;</code> element in the
         config file.  The parser is case insensitive, so the case need not match
         from your attributes to your method names, so the standard
@@ -131,19 +129,23 @@
         plugin's declaration in the config file.  In this case, CruiseControl
         will expect your plugin class to implement an <code>add</code> or
         <code>create</code> method for each nested element, depending whether your
-        nester element is itself a plugin or not:
+        nested element is itself a plugin or not:
         <ul>
-        <li>for nested elements that are also plugins, the <code>PluginXMLHelper</code>
+        <li>for nested elements that are also plugins, the <code><a
+        class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code>
         doesn't know to which class the element should map and then asks the
-        <code>ProjectXMLHelper</code> to configure the element.</li>
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/ProjectXMLHelper.html">
+        ProjectXMLHelper</a></code> to configure the element.</li>
         <li>for simple (non plugins) nested elements, the plugin knows the
         type that will map to the config element name. Returning to our example
-        <code>AntBuilder</code> class, we will see a <code>createJVMArg()</code>
+        <code>AntBuilder</code> class, we will see a <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html#createJVMArg()">createJVMArg()</a></code>
         method.  We'll also see that <code>AntBuilder</code> has a nested JVMArg class.
         This create method is responsible for creating an instance of <code>JVMArg</code>
         and keeping a reference to that object for <code>AntBuilder</code> to use
         later.  It returns a reference to the newly created <code>JVMArg</code>
-        object, so that <code>PluginXMLHelper</code> can configure the nested
+        object, so that <code><a 
+        class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">
+        PluginXMLHelper</a></code> can configure the nested
         element in the same way as the parent element.  In theory, there is no
         limit to the depth of your nesting, as long as the appropriate create
         methods have been written.</li>
@@ -153,9 +155,11 @@
         <h3><a name="selfconfiguring"/>Self-configuring plugins</h3>
         In some cases, one may want to skip the default configuration facilities offered
         by the framework. This can be achieved done by making the plugin class implement the
-        <code>SelfConfiguringPlugin</code> interface.
-        In that case the <code>PluginXMLHelper</code> will delegate plugin configuration to the
-        <code>configure(Element element)</code> defined by this interface.
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SelfConfiguringPlugin.html">SelfConfiguringPlugin</a></code> interface.
+        In that case the <code><a 
+        class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">
+        PluginXMLHelper</a></code> will delegate plugin configuration to the
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SelfConfiguringPlugin.html#configure(org.jdom.Element)">configure(Element element)</a></code> defined by this interface.
 
         <h3><a name="validation"/>Plugin Validation</h3>
         <p>Immediately after the parser has configured your plugin, we will
@@ -235,51 +239,51 @@
             <tbody>
             <tr>
                 <td><a href="configxml.html#alienbrainbootstrapper">alienbrainbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.AlienBrainBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/AlienBrainBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.AlienBrainBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#antbootstrapper">antbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/AntBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#clearcasebootstrapper">clearcasebootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/ClearCaseBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper</a></td>
             </tr>           
             <tr>
                 <td><a href="configxml.html#cmsynergybootstrapper">cmsynergybootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.CMSynergyBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/CMSynergyBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.CMSynergyBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#currentbuildstatusbootstrapper">currentbuildstatusbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/CurrentBuildStatusBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#cvsbootstrapper">cvsbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/CVSBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#p4bootstrapper">p4bootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/P4Bootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#snapshotcmbootstrapper">snapshotcmbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCMBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/SnapshotCMBootstrapper.html">net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCMBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#surroundbootstrapper">surroundbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.SSCMBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/SSCMBootstrapper.html">net/sourceforge/cruisecontrol/sourcecontrols/SSCMBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#svnbootstrapper">svnbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/SVNBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#vssbootstrapper">vssbootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/VssBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#starteambootstrapper">starteambootstrapper</a></td>
-                <td>net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/StarTeamBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper</a></td>
             </tr>
             </tbody>
         </table>
@@ -295,87 +299,87 @@
             <tbody>
             <tr>
                 <td><a href="configxml.html#alienbrain">alienbrain</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/AlienBrain.html">net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#alwaysbuild">alwaysbuild</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/AlwaysBuild.html">net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#buildstatus">buildstatus</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/BuildStatus.html">net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#clearcase">clearcase</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/ClearCase.html">net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#cmsynergy">cmsynergy</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/CMSynergy.html">net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#compound">compound</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.Compound</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols.Compound.html">net.sourceforge.cruisecontrol.sourcecontrols.Compound</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#cvs">cvs</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.CVS</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/CVS.html">net.sourceforge.cruisecontrol.sourcecontrols/CVS</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#filesystem">filesystem</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/FileSystem.html">net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#forceonly">forceonly</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.ForceOnly</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/ForceOnly.html">net.sourceforge.cruisecontrol.sourcecontrols.ForceOnly</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#httpfile">httpfile</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.HttpFile</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/HttpFile.html">net.sourceforge.cruisecontrol.sourcecontrols.HttpFile</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#mavensnapshotdependency">mavensnapshotdependency</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.MavenSnapshotDependency</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/MavenSnapshotDependency.html">net.sourceforge.cruisecontrol.sourcecontrols.MavenSnapshotDependency</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#mks">mks</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.MKS</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/MKS.html">net.sourceforge.cruisecontrol.sourcecontrols.MKS</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#p4">p4</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.P4</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/P4.html">net.sourceforge.cruisecontrol.sourcecontrols.P4</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#pvcs">pvcs</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.PVCS</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/PVCS.html">net.sourceforge.cruisecontrol.sourcecontrols.PVCS</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#snapshotcm">snapshotcm</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCM</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/SnapshotCM.html">net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCM</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#starteam">starteam</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/StarTeam.html">net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#surround">surround</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.SSCM</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/SSCM.html">net.sourceforge.cruisecontrol.sourcecontrols.SSCM</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#svn">svn</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.SVN</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/SVN.html">net.sourceforge.cruisecontrol.sourcecontrols.SVN</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#timebuild">timebuild</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.TimeBuild</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/TimeBuild.html">net.sourceforge.cruisecontrol.sourcecontrols.TimeBuild</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#vss">vss</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.Vss</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/Vss.html">net.sourceforge.cruisecontrol.sourcecontrols.Vss</td>
             </tr>
             <tr>
                 <td><a href="configxml.html#vssjournal">vssjournal</a></td>
-                <td>net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td>
+                <td><a class="javadoc" href="net.sourceforge.cruisecontrol.sourcecontrols/VssJournal.html">net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</td>
             </tr>
             </tbody>
         </table>
@@ -391,19 +395,19 @@
             <tbody>
             <tr>
                 <td><a href="configxml.html#ant">ant</a></td>
-                <td>net.sourceforge.cruisecontrol.builders.AntBuilder</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html">net.sourceforge.cruisecontrol.builders.AntBuilder</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#maven">maven</a></td>
-                <td>net.sourceforge.cruisecontrol.builders.MavenBuilder</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/MavenBuilder.html">net.sourceforge.cruisecontrol.builders.MavenBuilder</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#nant">nant</a></td>
-                <td>net.sourceforge.cruisecontrol.builders.NantBuilder</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/NantBuilder.html">net.sourceforge.cruisecontrol.builders.NantBuilder</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#pause">pause</a></td>
-                <td>net.sourceforge.cruisecontrol.builders.PauseBuilder</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/PauseBuilder.html">net.sourceforge.cruisecontrol.builders.PauseBuilder</a></td>
             </tr>
             </tbody>
         </table>
@@ -419,7 +423,7 @@
             <tbody>
             <tr>
                 <td><a href="configxml.html#labelincrementer">labelincrementer</a></td>
-                <td>net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/labelincrementers/DefaultLabelIncrementer.html">net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</a></td>
             </tr>
             </tbody>
         </table>
@@ -435,67 +439,67 @@
             <tbody>
             <tr>
                 <td><a href="configxml.html#antpublisher">antpublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.AntPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/AntPublisher.html">net.sourceforge.cruisecontrol.publishers.AntPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#artifactspublisher">artifactspublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/ArtifactsPublisher.html">net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#cmsynergybaselinepublisher">cmsynergybaselinepublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.CMSynergyBaselinePublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/CMSynergyBaselinePublisher.html">net.sourceforge.cruisecontrol.publishers.CMSynergyBaselinePublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#cmsynergytaskpublisher">cmsynergytaskpublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.CMSynergyTaskPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/CMSynergyTaskPublisher.html">net.sourceforge.cruisecontrol.publishers.CMSynergyTaskPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#currentbuildstatuspublisher">currentbuildstatuspublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/CurrentBuildStatusPublisher.html">net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#email">email</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/LinkEmailPublisher.html">net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#execute">execute</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.ExecutePublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/ExecutePublisher.html">net.sourceforge.cruisecontrol.publishers.ExecutePublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#ftppublisher">ftppublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.FTPPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/FTPPublisher.html">net.sourceforge.cruisecontrol.publishers.FTPPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#htmlemail">htmlemail</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/HTMLEmailPublisher.html">net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#jabber">jabber</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.LinkJabberPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/LinkJabberPublisher.html">net.sourceforge.cruisecontrol.publishers.LinkJabberPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#onfailure">onfailure</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.OnFailurePublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/OnFailurePublisher.html">net.sourceforge.cruisecontrol.publishers.OnFailurePublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#onsuccess">onsuccess</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/OnSuccessPublisher.html">net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#scp">scp</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.SCPPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/SCPPublisher.html">net.sourceforge.cruisecontrol.publishers.SCPPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#scp">socket</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.SocketPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/SocketPublisher.html">net.sourceforge.cruisecontrol.publishers.SocketPublisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#x10">x10</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.X10Publisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/X10Publisher.html">net.sourceforge.cruisecontrol.publishers.X10Publisher</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#xsltlogpublisher">xsltlogpublisher</a></td>
-                <td>net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/XSLTLogPublisher.html">net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher</a></td>
             </tr>
             </tbody>
         </table>
@@ -511,15 +515,15 @@
             <tbody>
             <tr>
                 <td><a href="configxml.html#currentbuildstatuslistener">currentbuildstatuslistener</a></td>
-                <td>net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CurrentBuildStatusListener.html">net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#currentbuildstatusFTPlistener">currentbuildstatusFTPlistener</a></td>
-                <td>net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CurrentBuildStatusFTPListener.html">net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#cmsynergysessionmonitor">cmsynergysessionmonitor</a></td>
-                <td>net.sourceforge.cruisecontrol.listeners.CMSynergySessionMonitor</td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CMSynergySessionMonitor.html">net.sourceforge.cruisecontrol.listeners.CMSynergySessionMonitor</td>
             </tr>
             </tbody>
         </table>
