@@ -115,11 +115,11 @@ public class TimeBuild extends FakeUserSourceControl {
         int nowTime = DateUtil.getTimeFromDate(now);
         if (onSameDay(lastBuild, now)) {
             if (lastBuildTime < time && time < nowTime) {
-                modifications.add(getMod());
+                modifications.add(getMod(now));
             }
         } else {
             if (nowTime > time) {
-                modifications.add(getMod());
+                modifications.add(getMod(now));
             }
         }
 
@@ -135,12 +135,20 @@ public class TimeBuild extends FakeUserSourceControl {
         return day1 == day2;
     }
 
-    private Modification getMod() {
+    private Modification getMod(Date now) {
         Modification mod = new Modification("always");
         Modification.ModifiedFile modfile = mod.createModifiedFile("time build", "time build");
         modfile.action = "change";
         mod.userName = getUserName();
-        mod.modifiedTime = new Date((new Date()).getTime() - 100000);
+        Calendar nowTimeBuild = Calendar.getInstance();
+        nowTimeBuild.setTime(now);
+        final int modifHour = this.time / 100;
+        final int modifMinute = this.time - modifHour * 100;
+        nowTimeBuild.set(Calendar.HOUR_OF_DAY, modifHour);
+        nowTimeBuild.set(Calendar.MINUTE, modifMinute);
+        nowTimeBuild.set(Calendar.MILLISECOND, 0);
+        nowTimeBuild.set(Calendar.DST_OFFSET, 0);
+        mod.modifiedTime = nowTimeBuild.getTime();
         mod.comment = "";
         return mod;
     }    

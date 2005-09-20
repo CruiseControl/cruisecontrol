@@ -28,6 +28,10 @@ PluginXMLHelper:
 ----------------------
 * Support properties in project name, properties element, comments in properties file and properties in comments file. Patch by Jerome Lacoste
 
+TimeBuild:
+----------------------
+* Fixed problem where an infinite loop could occur based on interaction with quiet period. Patch by Jerome Lacoste
+
 CruiseControl Release Notes - 2.3
 
 release format:
