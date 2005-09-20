@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Collections;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.entry.Entry;
@@ -226,7 +227,9 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     private static Map getPluginDefaults(final Element elementToAlter) {
 
         final PluginRegistry pluginsRegistry = PluginRegistry.createRegistry();
-        final Map pluginDefaults = pluginsRegistry.getDefaultProperties(elementToAlter.getName());
+        final Map pluginDefaults = new HashMap();
+        // note: the map returned here is "unmodifiable"
+        pluginDefaults.putAll(pluginsRegistry.getDefaultProperties(elementToAlter.getName()));
 
         if (pluginDefaults.size() == 0) { // maybe we're in a unit test
             // @todo Remove this kludge when we figure out how to make PluginRegistry work in unit test
@@ -260,7 +263,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             pluginDefaults.putAll(pluginDefaultsHack);
         }
 
-        return pluginDefaults;
+        return Collections.unmodifiableMap(pluginDefaults);
     }
 
     private static Element getElementCruiseControl(Element element) {
