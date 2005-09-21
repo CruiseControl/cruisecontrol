@@ -19,6 +19,7 @@ CruiseControlItemTest
 cruisecontrol.bat/.sh
 ----------------------
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck
+* Use the right xalan.jar (CC-198). Reported by Carlos Sanchez
 
 JMX:
 ----------------------
