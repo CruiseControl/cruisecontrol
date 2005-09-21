@@ -40,6 +40,9 @@
 # The root of the CruiseControl directory.  The key requirement is that this is the parent
 # directory of CruiseControl's lib and dist directories.
 
+# Uncomment the following line if you have OutOfMemoryError errors
+# CC_OPTS="-Xms128m -Xmx256m"
+
 # Inspired by Ant's wrapper script
 if [ -z "$CCDIR" ] ; then
   # resolve links - $0 may be a softlink
@@ -78,6 +81,6 @@ if [ `uname | grep -n CYGWIN` ]; then
   CRUISE_PATH=`cygpath --path --windows "$CRUISE_PATH"`
 fi
 
-EXEC="java -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy CruiseControl $@"
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy CruiseControl $@" 
 echo $EXEC
 exec $EXEC
