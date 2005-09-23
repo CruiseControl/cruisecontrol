@@ -304,6 +304,9 @@
         <jar jarfile="${dist}/cruisecontrol.jar" manifest="${basedir}/manifest.mf">
             <fileset dir="${classes}"/>
             <fileset dir="${xsl}"/>
+            <manifest>
+                <attribute name="Implementation-Version" value="${label}"/>  
+            </manifest>
         </jar>
     </target>
 

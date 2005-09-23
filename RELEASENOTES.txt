@@ -21,6 +21,10 @@ cruisecontrol.bat/.sh
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck
 * Use the right xalan.jar (CC-198). Reported by Carlos Sanchez
 
+Jar/War
+----------------------
+* Includes CruiseControl version number in the archive's manifest file.
+
 JMX:
 ----------------------
 * Add ability to get/set the config file via JMX (CC-220). Patch by Allan Wick
