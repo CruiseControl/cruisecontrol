@@ -38,6 +38,7 @@
     <property environment="env"/>
     <property file="override.properties"/>
 
+    <property name="version" value="2.3.1-dev"/>
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
     <property name="deploy.dir" value="${dist}"/>
@@ -86,6 +87,9 @@
         <mkdir dir="${test.classes}"/>
         <mkdir dir="${test.results}"/>
         <mkdir dir="${temp.dir}"/>
+
+        <tstamp/>
+        <property name="label" value="${version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
     <!-- **************************************************** -->
@@ -185,6 +189,9 @@
                 <include name="batik-awt-util*.jar"/>
                 <include name="batik-util*.jar"/>
             </lib>
+            <manifest>
+                <attribute name="Implementation-Version" value="${label}"/>
+            </manifest>
         </war>
     </target>
 
