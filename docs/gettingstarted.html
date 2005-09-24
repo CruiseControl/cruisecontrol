@@ -41,7 +41,7 @@
 
         <h2>Overview</h2>
 
-        <p>This guide is covers the steps involved in getting CruiseControl up
+        <p>This guide covers the steps involved in getting CruiseControl up
         and running from scratch. It intentionally avoids providing an initial,
         fill-in-the-blanks template, but instead discusses each feature in turn,
         to try and provide a better understanding of how everything works.</p>
@@ -83,7 +83,7 @@
 
         <h2><a name="Before_you_Start">Before you Start</a></h2>
 
-        <p>This guide assumes that you've already got a working project with
+        <p>This guide assumes that you already have a working project with
         the following features:</p>
 
         <ul>
@@ -104,14 +104,14 @@
         <p>This guide also assumes that there is a single output file from the
         build (for example, a zip file containing all of your jars, reports,
         documentation, and so on). Once you've got the simple things working,
-        you'll be able to customize your build exactly how you like it.</p>
+        you'll be able to customize your build to suit your needs.</p>
 
         <h2><a name="Install_CruiseControl">Install CruiseControl</a></h2>
 
-        <p>Firstly, <a href="download.html">download CruiseControl</a>. Unzip
+        <p>First, <a href="download.html">download CruiseControl</a>. Unzip
         this file to your applications directory. The top-level directory
         created when you unzipped this file will be referred to as
-        <code>INSTALL_DIR</code> in the remainder of this guide.</p>
+        <code>INSTALL_DIR</code>.</p>
 
         <p>There are four directories under <code>INSTALL_DIR</code>. These
         are:</p>
@@ -159,8 +159,8 @@
         This means that CruiseControl is correctly installed and ready to run
         (given a valid configuration file).</p>
 
-        <p>You will need to add <code>INSTALL_DIR/bin</code> to the path to
-        allow the examples in the rest of this guide to work.</p>
+        <p>The remaining examples require <code>INSTALL_DIR/bin</code> to be
+        added to the system path.</p>
 
         <h2><a name="Running_the_Build_Loop">Running the Build Loop</a></h2>
 
@@ -169,8 +169,8 @@
         <p>Now you need to set up your CruiseControl working directories, and
         create a configuration file. These should be placed in a separate
         directory to <code>INSTALL_DIR</code>, as they contain your data, as
-        opposed to CruiseControl code. This will make upgrading to a later
-        version of CruiseControl easier.</p>
+        opposed to CruiseControl code. This will simplify later CruiseControl
+        upgrades.</p>
 
         <p>As an example, you might create a working directory
         <code>/work/cruise</code>. This will be referred to as
@@ -474,8 +474,8 @@
         <code>INSTALL_DIR/reporting/jsp/dist/cruisecontrol.war</code>.</p>
 
         <p>It should be possible to install cruisecontrol.war on any J2EE
-        Servlet Container. However, each different contain will have their own
-        methods for installing the war. For example, using <a class="external"
+        Servlet Container. However, each container will has its own
+        steps for installing the war. For example, using <a class="external"
         href="http://jakarta.apache.org/tomcat/">Tomcat</a>, one way to install
         the war is to stop Tomcat, copy cruisecontrol.war to the directory
         <code>TOMCAT_HOME/webapps</code>, and then restart Tomcat. This will
@@ -488,8 +488,8 @@
 
         <p>Open the deployment descriptor from within the deployed location (for
         example, <code>TOMCAT_HOME/webapps/cruisecontrol/WEB-INF/web.xml</code>).
-        Search for the following two parameters will have to be modified as
-        follows (but make sure you replace <code>WORK_DIR</code> with the real
+        The following two parameters will have to be modified as
+        follows (make sure you replace <code>WORK_DIR</code> with the real
         working directory):</p>
 
         <pre>&lt;param-name&gt;logDir&lt;/param-name&gt;
@@ -499,7 +499,7 @@
 &lt;param-value&gt;WORK_DIR/artifacts&lt;/param-value&gt;</pre>
 
         <p>Restart the Servlet Container and test the Reporting Application by
-        opening a web browser and going to:</p>
+        opening a web browser and navigating to:</p>
 
         <pre>http://localhost:8080/cruisecontrol/index.jsp</pre>
 
