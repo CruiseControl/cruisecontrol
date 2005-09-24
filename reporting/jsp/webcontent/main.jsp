@@ -37,9 +37,12 @@
 <%@page contentType="text/html"%>
 <%@page errorPage="/error.jsp"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
+<%
+    String ccname = System.getProperty("ccname", "");
+%>
 <html>
 <head>
-  <title>CruiseControl Build Results</title>
+  <title><%= ccname%> CruiseControl Build Results</title>
   <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
   <link type="application/rss+xml" rel="alternate" href="rss/<%= request.getPathInfo().substring(1) %>" title="RSS"/>

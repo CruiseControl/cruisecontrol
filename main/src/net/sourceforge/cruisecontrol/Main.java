@@ -65,8 +65,8 @@ public final class Main {
       */
     public static void main(String[] args) {
         printVersion();
-        if (printUsage(args)) {
-            usage();
+        if (shouldPrintUsage(args)) {
+            printUsageAndExit();
         }
         try {
             if (MainArgs.findIndex(args, "debug") != MainArgs.NOT_FOUND) {
@@ -95,35 +95,38 @@ public final class Main {
             controller.resume();
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
-            usage();
+            printUsageAndExit();
         }
     }
 
-    /**
-     *  Displays the standard usage message and exit.
-     */
-    public static void usage() {
-        LOG.info("Usage:");
-        LOG.info("");
-        LOG.info("Starts a continuous integration loop");
-        LOG.info("");
-        LOG.info("java CruiseControl [options]");
-        LOG.info("where options (all optional) are:");
-        LOG.info("");
-        LOG.info("  -port [number]       where number is the port of the Controller web site; defaults to 8000");
-        LOG.info("  -user username       where username is the login used to logon to the Controller web site; "
-                + "by default no login is required");
-        LOG.info("  -password pwd        where pwd is the password used to logon to the Controller web site; "
-                + "by default no login is required");
-        LOG.info("  -rmiport [number]    where number is the RMI port of the Controller; defaults to 1099");
-        LOG.info("  -xslpath directory   where directory is location of jmx xsl files;"
-                 + " defaults to files in package");
-        LOG.info("  -configfile file     where file is the configuration file;"
-                 + " defaults to config.xml in the current directory");
-        LOG.info("  -debug               to set the internal logging level to DEBUG");
-        LOG.info("");
-        LOG.info("Please keep in mind that the JMX server will only be started "
-                 + "if you specify -port and/or -rmiport");
+    public static void printUsageAndExit() {
+        System.out.println("");
+        System.out.println("Usage:");
+        System.out.println("");
+        System.out.println("Starts a continuous integration loop");
+        System.out.println("");
+        System.out.println("java CruiseControl [options]");
+        System.out.println("java CruiseControlWithJetty [options]");
+        System.out.println("");
+        System.out.println("Build loop options are:");
+        System.out.println("");
+        System.out.println("  -configfile file     configuration file; default config.xml");
+        System.out.println("  -debug               set logging level to DEBUG");
+        System.out.println("  -? or -help          print this usage message");
+        System.out.println("");
+        System.out.println("Options when using JMX");
+        System.out.println("  Note: JMX server only started if -port and/or -rmiport specified");
+        System.out.println("  -port [number]       port of the JMX HttpAdapter; default 8000");
+        System.out.println("  -rmiport [number]    RMI port of the Controller; default 1099");
+        System.out.println("  -user username       username for HttpAdapter; default no login required");
+        System.out.println("  -password pwd        password for HttpAdapter; default no login required");
+        System.out.println("  -xslpath directory   location of jmx xsl files; default files in package");
+        System.out.println("");
+        System.out.println("Options when using embedded Jetty");
+        System.out.println("  -webport [number]       port for the Reporting website; default 8080");
+        System.out.println("  -cchome directory       location from which to start Cruise; default to .");
+        System.out.println("  -ccname name            name for this Cruise instance; default to none");
+        System.out.println("");
         System.exit(1);
     }
 
@@ -207,10 +210,11 @@ public final class Main {
         } catch (IOException e) {
             LOG.error("Error reading version properties", e);
         }
-        LOG.info("CruiseControl Version " + props.getProperty("version"));
+        System.out.println("CruiseControl Version " + props.getProperty("version"));
     }
 
-    static boolean printUsage(String[] args) {
-        return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND;
+    static boolean shouldPrintUsage(String[] args) {
+        return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND
+                || MainArgs.findIndex(args, "help") != MainArgs.NOT_FOUND;
     }
 }

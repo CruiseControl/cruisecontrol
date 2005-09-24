@@ -174,6 +174,7 @@ public class CruiseControlControllerAgent {
     private void registerHttpAdaptor(MBeanServer server) throws Exception {
         if (useHttpAdaptor()) {
             httpAdaptor.setPort(httpPort);
+            System.setProperty("port", "" + httpPort);
             httpAdaptor.setHost("0.0.0.0");
             ObjectName adaptorName = new ObjectName("Adapter:name=HttpAdaptor,httpPort=" + httpPort);
             server.registerMBean(httpAdaptor, adaptorName);

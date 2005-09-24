@@ -58,10 +58,12 @@
     reportTime.append(minutes);
 
     boolean autoRefresh = "true".equals(request.getParameter("auto_refresh"));
+
+    String name = System.getProperty("ccname", "");
 %>
 <html>
 <head>
-  <title>CruiseControl Status Page</title>
+  <title><%= name%> CruiseControl Status Page</title>
   <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
   <%
@@ -75,7 +77,7 @@
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
 <p>&nbsp;</p>
 
-<h1 class="white" align="center">CruiseControl Status Page</h1>
+<h1 class="white" align="center"><%= name%> CruiseControl Status Page</h1>
 
 <table align="center" border="0" cellpadding="0" cellspacing="0">
 <tfoot>
