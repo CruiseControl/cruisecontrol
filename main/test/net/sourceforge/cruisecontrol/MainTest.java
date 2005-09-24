@@ -133,8 +133,8 @@ public class MainTest extends TestCase {
     public void testUsage() {
         String[] usage = {"-?"};
         String[] notusage = {"-port", "8000"};
-        assertTrue(Main.printUsage(usage));
-        assertFalse(Main.printUsage(notusage));
+        assertTrue(Main.shouldPrintUsage(usage));
+        assertFalse(Main.shouldPrintUsage(notusage));
     }
 
     public void testshouldStartController() throws Exception {

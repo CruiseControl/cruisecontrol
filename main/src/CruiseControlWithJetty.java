@@ -56,6 +56,14 @@ public final class CruiseControlWithJetty {
         return MainArgs.parseInt(args, "webport", 8080, 8080);
     }
 
+    static String parseCCHome(String[] args) {
+        return MainArgs.parseArgument(args, "cchome", ".", ".");
+    }
+
+    static String parseCCName(String[] args) {
+        return MainArgs.parseArgument(args, "ccname", "", "");
+    }
+
     public static void main(final String[] args) throws Exception {
         //A Thread for Jetty...
         new Thread(new Runnable() {
@@ -63,9 +71,10 @@ public final class CruiseControlWithJetty {
                 Server server = new Server();
                 SocketListener listener = new SocketListener();
                 listener.setPort(parseWebPort(args));
+                System.setProperty("ccname", parseCCName(args));
                 server.addListener(listener);
                 try {
-                    server.addWebApplication("cruisecontrol", "./webapps/cruisecontrol");
+                    server.addWebApplication("cruisecontrol", parseCCHome(args) + "/webapps/cruisecontrol");
                 } catch (IOException e) {
                     String msg = "Exception adding cruisecontrol webapp: " + e.getMessage();
                     LOG.error(msg, e);

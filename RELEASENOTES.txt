@@ -4,6 +4,12 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+Binary Distribution
+----------------------
+* Ability to specify the execution directory for CruiseControl via command line option -cchome (CC-310). Patch by Björn Beskow.
+* Adds JMX HttpAdapter port as system property for use by the reporting application (CC-310). Patch by Björn Beskow.
+* Ability to add a logical name to the CruiseControl instance for use by the reporting application (CC-310). Patch by Björn Beskow.
+
 contrib/distributed:
 ----------------------
 * Major update to distributed build support (CC-298). Patch by Dan Rollo
@@ -37,6 +43,11 @@ PluginXMLHelper:
 ----------------------
 * Can pre-configure plugin subelements, too (CC-299). Patch by Jerome Lacoste.
 * Support properties in project name, properties element, comments in properties file and properties in comments file. Patch by Jerome Lacoste
+
+Reporting Application
+----------------------
+* Reads a system property to determine the JMX Control Panel port, defaulting to 8000 (CC-310). Patch by Björn Beskow.
+* Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Björn Beskow.  
 
 TimeBuild:
 ----------------------
