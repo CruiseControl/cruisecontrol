@@ -74,6 +74,10 @@
             <name>insertBreaks</name>
             <required>false</required>
         </attribute>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
     </tag>
     <tag>
         <name>nav</name>
@@ -83,6 +87,10 @@
         <info>
             Builds the navigation
         </info>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
         <attribute>
             <name>dateFormat</name>
             <required>false</required>
@@ -104,6 +112,10 @@
         <info>
             Builds the navigation for projects
         </info>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
     </tag>
     <tag>
         <name>artifactsLink</name>
@@ -113,6 +125,10 @@
         <info>
             Inserts link to the artifacts FileServlet
         </info>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
     </tag>
     <tag>
         <name>buildInfo</name>
@@ -122,6 +138,10 @@
         <info>
             Inserts information about the various builds into the page scope.
         </info>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
     </tag>
     <tag>
         <name>tabsheet</name>
@@ -151,6 +171,10 @@
         <teiclass>net.sourceforge.cruisecontrol.taglib.LinkTagExtraInfo</teiclass>
         <bodycontent>empty</bodycontent>
         <info>Builds up a link URL</info>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
         <attribute>
             <name>id</name>
             <required>true</required>
