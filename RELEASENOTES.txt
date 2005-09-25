@@ -31,6 +31,10 @@ Documentation
 ----------------------
 * Enhanced "getting started" section to incorporate Binary Distribution documentation.
 
+EmailPublisher
+----------------------
+* Fix for bug where committers that also appear in <always> elements are emailed twice. Patch by mathieu.champlon@masagroup.net, with cleanup by Jerome Lacoste.
+
 Jar/War
 ----------------------
 * Includes CruiseControl version number in the archive's manifest file.
