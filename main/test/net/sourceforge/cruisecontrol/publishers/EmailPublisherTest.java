@@ -142,6 +142,7 @@ public class EmailPublisherTest extends TestCase {
         StringBuffer xml = new StringBuffer();
         xml.append("<email defaultsuffix=\"@host.com\">");
         xml.append("<always address=\"always1\"/>");
+        xml.append("<always address=\"always1@host.com\"/>");
         xml.append("<always address=\"always2@host.com\"/>");
         xml.append("<always address=\"dropletteruser1\"/>");
         xml.append("<failure address=\"failure1\"/>");

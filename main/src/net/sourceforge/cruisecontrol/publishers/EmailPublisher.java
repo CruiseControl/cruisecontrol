@@ -726,15 +726,10 @@ public abstract class EmailPublisher implements Publisher {
      */
     protected String createEmailString(Set emails) {
         StringBuffer commaDelimitedString = new StringBuffer();
-        Iterator emailIterator = emails.iterator();
-        
+        Iterator emailIterator = appendDefaultSuffix(emails).iterator();
+
         while (emailIterator.hasNext()) {
             String mappedUser = (String) emailIterator.next();
-            // append default suffix if need to
-            if (mappedUser.indexOf("@") < 0) {
-                mappedUser += defaultSuffix;
-            }
-            
             commaDelimitedString.append(mappedUser);
             if (emailIterator.hasNext()) {
                 commaDelimitedString.append(",");
@@ -744,6 +739,21 @@ public abstract class EmailPublisher implements Publisher {
         LOG.debug("List of emails: " + commaDelimitedString);
         
         return commaDelimitedString.toString();
+    }
+
+    private Set appendDefaultSuffix(Set emails) {
+        Set result = new TreeSet();
+        Iterator emailIterator = emails.iterator();
+
+        while (emailIterator.hasNext()) {
+            String mappedUser = (String) emailIterator.next();
+            // append default suffix if need to
+            if (mappedUser.indexOf("@") < 0) {
+                mappedUser += defaultSuffix;
+            }
+            result.add(mappedUser);
+        }
+        return result;
     }
     
     
