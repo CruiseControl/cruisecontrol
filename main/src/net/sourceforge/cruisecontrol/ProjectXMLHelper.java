@@ -160,11 +160,14 @@ public class ProjectXMLHelper {
         setDateFormat(projectElement);
     }
 
-    protected void setDateFormat(Element projElement) {
-        if (projElement.getChild("dateformat") != null
-                && projElement.getChild("dateformat").getAttributeValue("format") != null) {
-            DateFormatFactory.setFormat(
-                    projElement.getChild("dateformat").getAttributeValue("format"));
+    protected void setDateFormat(Element projElement) throws CruiseControlException {
+        final Element element = projElement.getChild("dateformat");
+        if (element != null) {
+            CCDateFormat dateFormat = (CCDateFormat) configurePlugin(element, false);
+            dateFormat.validate();
+            if (dateFormat.getFormat() != null) {
+                DateFormatFactory.setFormat(dateFormat.getFormat());
+            }
         }
     }
 
