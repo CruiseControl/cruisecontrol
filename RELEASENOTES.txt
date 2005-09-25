@@ -27,6 +27,10 @@ cruisecontrol.bat/.sh
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck
 * Use the right xalan.jar (CC-198). Reported by Carlos Sanchez
 
+Documentation
+----------------------
+* Enhanced "getting started" section to incorporate Binary Distribution documentation.
+
 Jar/War
 ----------------------
 * Includes CruiseControl version number in the archive's manifest file.
@@ -47,7 +51,7 @@ PluginXMLHelper:
 Reporting Application
 ----------------------
 * Reads a system property to determine the JMX Control Panel port, defaulting to 8000 (CC-310). Patch by Björn Beskow.
-* Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Björn Beskow.  
+* Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Björn Beskow.
 
 TimeBuild:
 ----------------------
