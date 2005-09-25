@@ -1,9 +1,17 @@
 <!-- build the release -->
 <project name="release" default="release">
 
-    <property name="label" value="2.3.1-dev"/>
+    <property file="build.properties"/>
+
+    <!-- use a local variable to make sure that a script that would read the
+         properties file would still be capable of overidding this one -->
+    <property name="cc.release.label" value="${cc.version}"/>
 
     <target name="release" depends="clean, website, zip, bin-zip"/>
+
+    <target name="checklabel">
+        <fail unless="cc.release.label" message="label is not defined."/>
+    </target>
 
     <target name="clean">
         <delete dir="target" failonerror="false"/>
@@ -18,7 +26,7 @@
         </ant>
     </target>
 
-    <target name="website">
+    <target name="website" depends="checklabel">
         <fixcrlf srcdir="."
             eol="lf"
             eof="remove"
@@ -45,7 +53,7 @@
             <fileset dir="reporting/jsp/docs"/>
         </copy>
 
-        <replace dir="target/website" token="%%VERSION%%" value="${label}">
+        <replace dir="target/website" token="%%VERSION%%" value="${cc.release.label}">
             <include name="**/*.html"/>
         </replace>
 
@@ -65,7 +73,7 @@
         </replace>
     </target>
 
-    <target name="zip" depends="build">
+    <target name="zip" depends="checklabel,build">
         <mkdir dir="target/zip"/>
         <copy todir="target/zip" overwrite="true">
             <fileset dir=".">
@@ -77,13 +85,14 @@
                 <exclude name=".pc/**"/>
             </fileset>
         </copy>
-        <replace dir="target/zip" token="%%VERSION%%" value="${label}">
+        <replace dir="target/zip" token="%%VERSION%%" value="${cc.release.label}">
             <include name="**/*.html"/>
         </replace>
 
-        <zip zipfile="target/cruisecontrol-${label}.zip">
-            <zipfileset dir="target/zip" prefix="cruisecontrol-${label}"/>
-            <zipfileset dir="." prefix="cruisecontrol-${label}">
+        <property name="cc.zip.prefix" value="cruisecontrol-${cc.release.label}"/>
+        <zip zipfile="target/cruisecontrol-${cc.release.label}.zip">
+            <zipfileset dir="target/zip" prefix="${cc.zip.prefix}"/>
+            <zipfileset dir="." prefix="${cc.zip.prefix}">
                 <exclude name="**/*.html"/>
                 <exclude name="**/target/**"/>
                 <exclude name="reporting/jsp/samplelogs/_cache/**"/>
@@ -103,28 +112,29 @@
         <copy todir="target/binzip">
             <fileset file="binaryrelease/README.txt"/>
         </copy>
-        <replace dir="target/binzip" token="%%VERSION%%" value="${label}">
+        <replace dir="target/binzip" token="%%VERSION%%" value="${cc.release.label}">
             <include name="**/*"/>
         </replace>
 
-        <zip destfile="target/cruisecontrol-bin-${label}.zip">
-            <zipfileset dir="binaryrelease" prefix="cruisecontrol-bin-${label}">
+        <property name="cc.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
+        <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip">
+            <zipfileset dir="binaryrelease" prefix="${cc.zip.prefix}">
                 <exclude name="README.txt"/>
                 <exclude name="*.zip"/>
                 <exclude name="**/CVS"/>
                 <exclude name="**/CVS/**"/>
                 <exclude name="**/.cvsignore"/>
             </zipfileset>
-            <zipfileset file="target/binzip/README.txt" prefix="cruisecontrol-bin-${label}"/>
-            <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="cruisecontrol-bin-${label}/projects"/>
-            <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="cruisecontrol-bin-${label}"/>
-            <zipfileset dir="main/lib" includes="*.jar" prefix="cruisecontrol-bin-${label}/lib"/>
-            <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="cruisecontrol-bin-${label}/lib/licenses"/>
-            <zipfileset file="main/lib/ant/ant.jar" prefix="cruisecontrol-bin-${label}/lib"/>
-            <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="cruisecontrol-bin-${label}/lib"/>
-            <zipfileset file="main/dist/cruisecontrol.jar" prefix="cruisecontrol-bin-${label}/lib"/>
-            <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="cruisecontrol-bin-${label}/webapps/cruisecontrol"/>
-            <zipfileset dir="target/website" prefix="cruisecontrol-bin-${label}/docs"/>
+            <zipfileset file="target/binzip/README.txt" prefix="${cc.zip.prefix}"/>
+            <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="${cc.zip.prefix}/projects"/>
+            <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="${cc.zip.prefix}"/>
+            <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.zip.prefix}/lib"/>
+            <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="${cc.zip.prefix}/lib/licenses"/>
+            <zipfileset file="main/lib/ant/ant.jar" prefix="${cc.zip.prefix}/lib"/>
+            <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="${cc.zip.prefix}/lib"/>
+            <zipfileset file="main/dist/cruisecontrol.jar" prefix="${cc.zip.prefix}/lib"/>
+            <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.zip.prefix}/webapps/cruisecontrol"/>
+            <zipfileset dir="target/website" prefix="${cc.zip.prefix}/docs"/>
         </zip>
 
     </target>

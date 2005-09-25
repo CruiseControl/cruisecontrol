@@ -40,7 +40,8 @@
     <property environment="env"/>
     <property file="override.properties"/>
 
-    <property name="version" value="2.3.1-dev"/>
+    <!-- define version -->
+    <property file="../build.properties"/>
 
     <property name="docs" value="${basedir}/docs"/>
     <property name="apidocs" value="${docs}/api"/>
@@ -95,6 +96,8 @@
     </path>
 
     <target name="init" description="Setup build system">
+        <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
+
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
         <mkdir dir="${target}/tmp"/>
@@ -107,7 +110,7 @@
         <available file="${lib}/STComm.jar" property="sametime-sdk-present"/>
     	<available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
         <tstamp/>
-        <property name="label" value="${version} Compiled on ${TODAY} ${TSTAMP}"/>
+        <property name="label" value="${cc.version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
     <target name="clean" description="Cleans out the build directories" >

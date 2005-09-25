@@ -38,7 +38,9 @@
     <property environment="env"/>
     <property file="override.properties"/>
 
-    <property name="version" value="2.3.1-dev"/>
+    <!-- define version -->
+    <property file="../../build.properties"/>
+
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
     <property name="deploy.dir" value="${dist}"/>
@@ -82,6 +84,8 @@
     </target>
 
     <target name="init">
+        <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
+
         <mkdir dir="${dist}"/>
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
@@ -89,7 +93,7 @@
         <mkdir dir="${temp.dir}"/>
 
         <tstamp/>
-        <property name="label" value="${version} Compiled on ${TODAY} ${TSTAMP}"/>
+        <property name="label" value="${cc.version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
     <!-- **************************************************** -->
