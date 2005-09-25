@@ -184,7 +184,7 @@
         <h2><a name="registration"/>Plugin Registration</h2>
 
         <p>The registration of plugins is a simple and straightforward task.
-        Directly under the &lt;cruisecontrol&gt; element, or
+        Directly under the <code>&lt;cruisecontrol&gt;</code> element, or
         within a <code>&lt;project&gt;</code> element, simply add a
         <code>&lt;plugin&nbsp;name=""&nbsp;classname=""/&gt;</code> element,
         where the name corresponds to the name you wish to use within the config
@@ -193,7 +193,7 @@
         <p>Plugins specified directly under the root element will be available
         to all your projects, plugins under a project element will be only
         available within that project. This is useful to override a plugin
-        like the labelincrementer for a single project.</p>
+        like the <code>labelincrementer</code> for a single project.</p>
 
         <p>In the interest of keeping config file sizes to a minimum, all
         plugins that ship with CruiseControl will be automatically registered.
@@ -209,9 +209,9 @@
         default can be overridden when you actually use the plugin within a
         project.
         If you want to define default values for default plugins, you may
-        leave out the classname attribute of the plugin element. <br />
-        An example: to define some default values for the htmlemail publisher,
-        you can specify something like this in your config file:</p>
+        leave out the <code>classname</code> attribute of the plugin element. <br />
+        An example: to define some default values for the <code>htmlemail</code>
+        publisher, you can specify something like this in your config file:</p>
 <pre>
   &lt;plugin name="htmlemail"
           mailhost="smtp.example.com"
