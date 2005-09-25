@@ -36,7 +36,21 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-set ANT_CLASSPATH=main/lib/ant/ant-launcher.jar;main/lib/junit.jar;main/lib/xerces.jar
+REM #--------------------------------------------
+REM # You may modify the default values below.
+REM #--------------------------------------------
+
+REM # The name of the build file to use
+BUILDFILE=release.xml
+
+REM # Directory where necessary build Java libraries are found
+LIBDIR=main\lib
+
+REM #--------------------------------------------
+REM # No need to edit anything past here
+REM #--------------------------------------------
+
+set ANT_CLASSPATH=%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\junit.jar;%LIBDIR%\xercesImpl-2.7.0.jar
 echo %ANT_CLASSPATH%
 
 if "%JAVA_HOME%" == "" goto noJavaFound
@@ -64,7 +78,7 @@ echo Using Jikes!
 goto exec
 
 :exec
-java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.launch.Launcher -buildfile release.xml %1 %2 %3 %4 %5 %6 %7 %8 %9
+java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.launch.Launcher -buildfile %BUILDFILE% %1 %2 %3 %4 %5 %6 %7 %8 %9
 goto end
 
 :noJavaFound

@@ -61,6 +61,10 @@ PluginXMLHelper:
 * Support properties in project name, properties element, comments in properties file and properties in comments file. Patch by Jerome Lacoste
 * Can pre-configure dateformat. Patch by Jerome Lacoste.
 
+release.xml
+----------------------
+* Ignoring quilt files when creating release. Patch by Jerome Lacoste.
+
 Reporting Application
 ----------------------
 * Reads a system property to determine the JMX Control Panel port, defaulting to 8000 (CC-310). Patch by Björn Beskow.
