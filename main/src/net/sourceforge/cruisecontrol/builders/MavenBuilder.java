@@ -76,15 +76,6 @@ public class MavenBuilder extends Builder {
 
         ValidationHelper.assertIsSet(mavenScript, "mavenScript", this.getClass());
 
-        File ckFile = new File(mavenScript);
-        ValidationHelper.assertTrue(ckFile.exists(),
-            "Script " + ckFile.getAbsolutePath() + " does not exist");
-
-        ValidationHelper.assertIsSet(projectFile, "projectFile", this.getClass());
-        ckFile = new File(projectFile);
-        ValidationHelper.assertTrue(ckFile.exists(),
-            "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
-
         ValidationHelper.assertIsSet(goal, "goal", this.getClass());
         if (goal != null && getGoalSets().size() == 0) {
             ValidationHelper.assertIsSet(null, "goal", this.getClass());
@@ -96,6 +87,15 @@ public class MavenBuilder extends Builder {
      * from log4j category once we get all the logging in place.
      */
     public Element build(Map buildProperties) throws CruiseControlException {
+
+        File ckFile = new File(mavenScript);
+        ValidationHelper.assertTrue(ckFile.exists(),
+            "Script " + ckFile.getAbsolutePath() + " does not exist");
+
+        ValidationHelper.assertIsSet(projectFile, "projectFile", this.getClass());
+        ckFile = new File(projectFile);
+        ValidationHelper.assertTrue(ckFile.exists(),
+            "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
 
         File workingDir = (new File(projectFile)).getParentFile();
 
