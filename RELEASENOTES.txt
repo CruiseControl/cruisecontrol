@@ -35,6 +35,10 @@ cruisecontrol.bat/.sh
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck.
 * Use the right xalan.jar (CC-198). Reported by Carlos Sanchez.
 
+DateUtil
+----------------------
+* Deprecated millTimeDiffernce in favor of refactored millTimeDifference. Patch by Jerome Lacoste. 
+
 Documentation
 ----------------------
 * Enhanced "getting started" section to incorporate Binary Distribution documentation.

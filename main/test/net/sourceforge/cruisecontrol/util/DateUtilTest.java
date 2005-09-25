@@ -70,9 +70,9 @@ public class DateUtilTest extends TestCase {
         long hourFifteenMinutes = (60 + 15) * 60 * 1000;
         long hourFortyFiveMinutes = (60 + 45) * 60 * 1000;
 
-        assertEquals(thirtyMinutes, DateUtil.milliTimeDiffernce(elevenThirty, noon));
-        assertEquals(hourFifteenMinutes, DateUtil.milliTimeDiffernce(noon, oneFifteen));
-        assertEquals(hourFortyFiveMinutes, DateUtil.milliTimeDiffernce(elevenThirty, oneFifteen));
+        assertEquals(thirtyMinutes, DateUtil.milliTimeDifference(elevenThirty, noon));
+        assertEquals(hourFifteenMinutes, DateUtil.milliTimeDifference(noon, oneFifteen));
+        assertEquals(hourFortyFiveMinutes, DateUtil.milliTimeDifference(elevenThirty, oneFifteen));
     }
 
     public void testConvertToMillis() {

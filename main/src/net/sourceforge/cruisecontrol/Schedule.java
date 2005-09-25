@@ -324,7 +324,7 @@ public class Schedule {
                     Date day = new Date(now.getTime() + daysInTheFuture);
                     boolean dayIsValid = builder.isValidDay(day);
                     if (dayIsValid) {
-                        long timeDifference = DateUtil.milliTimeDiffernce(nowTime, thisBuildTime);
+                        long timeDifference = DateUtil.milliTimeDifference(nowTime, thisBuildTime);
                         long daysInBetween = daysInTheFuture;
                         boolean timePassedToday = timeDifference + daysInBetween < 0;
                         if (!timePassedToday) {
@@ -370,7 +370,7 @@ public class Schedule {
         int endPause = pause.getEndTime();
         int currentTime = DateUtil.getTimeFromDate(now);
 
-        long timeToEndOfPause = DateUtil.milliTimeDiffernce(currentTime, endPause);
+        long timeToEndOfPause = DateUtil.milliTimeDifference(currentTime, endPause);
 
         while (timeToEndOfPause < proposedTime) {
             timeToEndOfPause += ONE_DAY;

@@ -89,6 +89,13 @@ public final class DateUtil {
     }
 
     /**
+     * @deprecated Use correctly spelled <code>milliTimeDifference</code> instead.
+     */
+    public static long milliTimeDiffernce(int earlier, int later) {
+        return milliTimeDifference(earlier, later);
+    }
+
+    /**
      * finds the difference in milliseconds between two integer time values of the format "HHmm".
      * 
      * @param earlier
@@ -97,7 +104,7 @@ public final class DateUtil {
      *            integer time value of format "HHmm"
      * @return long millisecond time difference
      */
-    public static long milliTimeDiffernce(int earlier, int later) {
+    public static long milliTimeDifference(int earlier, int later) {
         long earlierMillis = convertToMillis(earlier);
         long laterMillis = convertToMillis(later);
         return laterMillis - earlierMillis;
