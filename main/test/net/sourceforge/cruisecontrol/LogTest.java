@@ -76,6 +76,30 @@ public class LogTest extends TestCase {
         }
     }
 
+    public void testCreatingLog2steps() {
+        //Cannot create a Log instance with a null project name
+        try {
+            Log log = new Log();
+            log.setProjectName(null);
+            fail("Expected an exception when creating a Log instance with "
+                    + "a null Project name.");
+        } catch (NullPointerException npe) {
+            //Good, expected this exception.
+        }
+
+        //Cannot create a Log instance with a null project name
+        try {
+            Log log = new Log();
+            log.validate();
+            fail("Expected an exception when creating a Log instance with "
+                    + "a null Project name.");
+        } catch (IllegalStateException npe) {
+            // Good, expected this exception.
+        } catch (CruiseControlException cce) {
+            fail("unepected: " + cce.getMessage());
+        }
+    }
+
     public void testFormatLogFileName() {
         Calendar augTweleveCalendar = Calendar.getInstance();
         augTweleveCalendar.set(2004, 7, 12, 1, 1, 1);
@@ -117,10 +141,11 @@ public class LogTest extends TestCase {
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         for (int i = 0;  i < encodings.length; i++) {
             Log log = new Log("testXMLEncoding");
-            log.setLogDir("target");
+            log.setDir("target");
             if (encodings[i] != null) {
-                log.setLogXmlEncoding(encodings[i]);
+                log.setEncoding(encodings[i]);
             }
+            log.validate();
 
             // Add a minimal buildLog
             log.addContent(getBuildLogInfo());

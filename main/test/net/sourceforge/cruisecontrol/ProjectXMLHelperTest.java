@@ -362,16 +362,27 @@ public class ProjectXMLHelperTest extends TestCase {
     public void testGetLog() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         assertEquals("logs" + File.separatorChar + "project1", helper.getLog().getLogDir());
+
         helper = new ProjectXMLHelper(configFile, "project2");
         assertEquals(tempDirectory.getAbsolutePath() + "/foo", helper.getLog().getLogDir());
+
         helper = new ProjectXMLHelper(configFile, "project3");
         assertEquals("logs" + File.separatorChar + "project3", helper.getLog().getLogDir());
+
         helper = new ProjectXMLHelper(configFile, "project3bis");
         assertEquals("logs/project3bis", helper.getLog().getLogDir());
-        
         assertNull(helper.getLog().getLogXmlEncoding());
+
         helper = new ProjectXMLHelper(configFile, "project2");
         assertEquals("utf-8", helper.getLog().getLogXmlEncoding());
+    }
+
+    public void testPreconfigureLog() throws Exception {
+        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "logpreconfigured");
+        final Log log = helper.getLog();
+        assertEquals("mylogs/logpreconfigured", log.getLogDir());
+        assertEquals("utf128", log.getLogXmlEncoding());
+        assertEquals("logpreconfigured", log.getProjectName());
     }
 
     public void testGetListeners() throws CruiseControlException {
@@ -560,6 +571,11 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("    <dateformat/>\n");
       config.append("  </project>\n");
       
+      config.append("  <project name='logpreconfigured' >\n");
+      config.append("    <plugin name='log' dir='mylogs/${project.name}' encoding='utf128' />\n");
+      config.append("    <log/>\n");
+      config.append("  </project>\n");
+
       config.append("</cruisecontrol>\n");
       return config;
     }

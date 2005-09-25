@@ -43,6 +43,10 @@ JMX:
 ----------------------
 * Add ability to get/set the config file via JMX (CC-220). Patch by Allan Wick
 
+Log
+----------------------
+* Can preconfigure Log element. Patch by Jerome Lacoste.
+
 MavenBuilder:
 ----------------------
 * Check for required files moved from validation time to "build" time, thereby allowing a bootstrapper to provide the files (CC-25).
