@@ -88,7 +88,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         Date date = new Date();
 
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        String expected = "<span class=\"link\">Current Build Started At:<br>" + formatter.format(date) + "</span>";
+        String expected = "Current Build Started At:\n" + formatter.format(date);
         assertEquals(expected, Util.readFileToString(fileName));
     }
 }

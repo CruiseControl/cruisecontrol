@@ -79,6 +79,6 @@ public class CurrentBuildStatusPublisher implements Publisher {
 
     protected void writeFile(Date date, long interval) throws CruiseControlException {
         Date datePlusInterval = new Date(date.getTime() + (interval * 1000));
-        CurrentBuildFileWriter.writefile("<span class=\"link\">Next Build Starts At:<br>", datePlusInterval, fileName);
+        CurrentBuildFileWriter.writefile("Next Build Starts At:\n", datePlusInterval, fileName);
     }
 }

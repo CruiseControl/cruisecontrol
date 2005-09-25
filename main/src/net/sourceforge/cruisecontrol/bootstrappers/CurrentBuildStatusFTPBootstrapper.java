@@ -86,7 +86,7 @@ public class CurrentBuildStatusFTPBootstrapper extends AbstractFTPClass
     protected String makeFile()
         throws CruiseControlException {
         CurrentBuildFileWriter.writefile(
-            "<span class=\"link\">Current Build Started At:<br>",
+            "Current Build Started At:\n",
             new Date(),
             fileName);
 

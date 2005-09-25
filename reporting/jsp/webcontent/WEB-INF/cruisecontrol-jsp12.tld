@@ -65,8 +65,12 @@
         <tag-class>net.sourceforge.cruisecontrol.taglib.CurrentBuildStatusTag</tag-class>
         <body-content>empty</body-content>
         <description>
-            Report when the build started, or when it will start again.
+            Report when the build started, or when it will start again. InsertBreaks by default.
         </description>
+        <attribute>
+            <name>insertBreaks</name>
+            <required>false</required>
+        </attribute>
     </tag>
     <tag>
         <name>nav</name>

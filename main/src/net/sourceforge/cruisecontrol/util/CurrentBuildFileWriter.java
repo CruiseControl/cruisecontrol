@@ -59,7 +59,6 @@ public final class CurrentBuildFileWriter {
         StringBuffer sb = new StringBuffer();
         sb.append(info);
         sb.append(formatter.format(date));
-        sb.append("</span>");
 
         FileWriter fw = null;
         try {

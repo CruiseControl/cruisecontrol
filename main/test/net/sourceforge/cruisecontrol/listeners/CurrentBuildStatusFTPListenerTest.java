@@ -142,7 +142,7 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         final String dateString = formatter.format(date);
         final String description = state.getDescription();
-        String expected = "<span class=\"link\">" + description + " since<br>" + dateString + "</span>";
+        String expected = description + " since\n" + dateString;
         assertEquals(expected, Util.readFileToString(fileName));
 
         listener.setExpectedPath("/pub" + File.separator + listener.getFileName());
