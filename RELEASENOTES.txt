@@ -58,6 +58,11 @@ Log
 MavenBuilder:
 ----------------------
 * Check for required files moved from validation time to "build" time, thereby allowing a bootstrapper to provide the files (CC-25).
+* Adds a time attribute to the build node in the build cycle XML log for the maven builder to match ant's behavior and make the UI more consistent accross builders. Patch by Jerome Lacoste, review and fixed by Jamie Bisotti.
+
+NantBuilder
+----------------------
+* Adds a time attribute to the build node in the build cycle XML log for the maven builder to match ant's behavior and make the UI more consistent accross builders. Patch by Jerome Lacoste.
 
 P4:
 ----------------------

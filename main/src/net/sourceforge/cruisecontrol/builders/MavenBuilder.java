@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -99,6 +100,8 @@ public class MavenBuilder extends Builder {
 
         File workingDir = (new File(projectFile)).getParentFile();
 
+        long startTime = System.currentTimeMillis();
+
         buildLogElement = new Element("build");
 
         List runs = getGoalSets();
@@ -131,6 +134,10 @@ public class MavenBuilder extends Builder {
             }
 
         }
+
+        long endTime = System.currentTimeMillis();
+
+        buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
         return buildLogElement;
     }
 

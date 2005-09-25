@@ -102,4 +102,13 @@ public class DateUtilTest extends TestCase {
         assertEquals(hoursMinutesSeconds, DateUtil.formatTime(oneHourFiftyNineMinutes + fiveSeconds));
         assertEquals(negativeTime, DateUtil.formatTime(-1 * (oneHourFiftyNineMinutes + fiveSeconds)));
     }
+
+    public void testGetBuildTimeAsString() {
+        int minutes = 50;
+        int seconds = 30;
+        int millis = 123;
+        long timeInMillis = millis + seconds * 1000 + minutes * 60 * 1000;
+        assertEquals("50 minute(s) 30 second(s)",
+            DateUtil.getDurationAsString(timeInMillis));
+    }
 }

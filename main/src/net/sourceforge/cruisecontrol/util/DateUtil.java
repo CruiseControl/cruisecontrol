@@ -197,4 +197,16 @@ public final class DateUtil {
         format.setTimeZone(UTC);
         return format.parse(text);
     }
+
+    /**
+     * Return a String representation of a duration specified in milliseconds.
+     * @param buildLength
+     * @return
+     */
+    public static String getDurationAsString(final long buildLength) {
+        long timeSeconds = buildLength / 1000;
+        long minutes = (timeSeconds / 60);
+        long seconds = timeSeconds - (minutes * 60);
+        return minutes + " minute(s) " + seconds + " second(s)";
+    }
 }
