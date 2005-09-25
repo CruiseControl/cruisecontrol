@@ -66,7 +66,7 @@ public class CurrentBuildStatusBootstrapper implements Bootstrapper {
     }
 
     public void bootstrap() throws CruiseControlException {
-        CurrentBuildFileWriter.writefile("<span class=\"link\">Current Build Started At:<br>", new Date(), fileName);
+        CurrentBuildFileWriter.writefile("Current Build Started At:\n", new Date(), fileName);
     }
 
     public void validate() throws CruiseControlException {

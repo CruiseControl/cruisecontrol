@@ -99,7 +99,7 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
         final String buildTime = formatter.format(new Date(date.getTime() + (300 * 1000)));
 
         publisher.writeFile(date, 300);
-        String expected = "<span class=\"link\">Next Build Starts At:<br>" + buildTime + "</span>";
+        String expected = "Next Build Starts At:\n" + buildTime;
         assertEquals(expected, Util.readFileToString(TEST_DIR + File.separator + "_testCurrentBuildStatus.txt"));
     }
 }

@@ -56,7 +56,7 @@
     <%
     } 
  %>
-            <tr><td><cruisecontrol:currentbuildstatus/></td></tr>
+            <tr><td><span class="link"><cruisecontrol:currentbuildstatus/></span></td></tr>
             <tr><td>&nbsp;</td></tr>
 
             <cruisecontrol:link id="baseUrl" />

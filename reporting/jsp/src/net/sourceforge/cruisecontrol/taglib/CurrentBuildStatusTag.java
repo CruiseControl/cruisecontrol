@@ -48,6 +48,8 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
 
 public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
+    private boolean insertBreaks = true;
+
     public int doEndTag() throws JspException {
         File logDir = findLogDir();
 
@@ -62,6 +64,10 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
         return EVAL_PAGE;
     }
 
+    public void setInsertBreaks(boolean insertBreaks) {
+        this.insertBreaks = insertBreaks;
+    }
+
     private void writeStatus(File currentBuildFile, Writer out) throws JspException {
         BufferedReader br = null;
         try {
@@ -70,6 +76,9 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             while (line != null) {
                 out.write(line);
                 out.write('\n');
+                if (this.insertBreaks) {
+                   out.write("<br/>");
+                }
                 line = br.readLine();
             }
         } catch (IOException e) {

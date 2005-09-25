@@ -116,9 +116,8 @@ public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
         // precision
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         String expected =
-            "<span class=\"link\">Current Build Started At:<br>"
-            + formatter.format(new Date())
-            + "</span>";
+            "Current Build Started At:\n"
+            + formatter.format(new Date());
         String out = cbsfb.makeFile();
         assertEquals(expected, out);
     }

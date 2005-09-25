@@ -16,7 +16,11 @@ build.xml
 
 contrib/distributed:
 ----------------------
-* Major update to distributed build support (CC-298). Patch by Dan Rollo
+* Major update to distributed build support (CC-298). Patch by Dan Rollo.
+
+CurrentBuildStatusListener
+----------------------
+* Moved formatting responsibility to the Reporting Application. Patch by Anil Arora, via Jerome Lacoste's moca build.
 
 CruiseControlItem
 ----------------------
@@ -28,8 +32,8 @@ CruiseControlItemTest
 
 cruisecontrol.bat/.sh
 ----------------------
-* Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck
-* Use the right xalan.jar (CC-198). Reported by Carlos Sanchez
+* Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck.
+* Use the right xalan.jar (CC-198). Reported by Carlos Sanchez.
 
 Documentation
 ----------------------
