@@ -69,6 +69,8 @@ public class CruiseControlTagSupport extends TagSupport {
         }
     };
 
+    private String projectName = null;
+
     protected void info(String message) {
         System.out.println(message);
     }
@@ -117,7 +119,16 @@ public class CruiseControlTagSupport extends TagSupport {
         return value;
     }
 
+    public void setProject(String projectName) {
+        this.projectName = projectName;
+    }
+
     protected String getProject() {
+
+        if (projectName != null) {
+            return "/" + projectName;
+        }
+
         String singleProjectMode = getContextParam("singleProject");
         if (Boolean.valueOf(singleProjectMode).booleanValue()) {
             info("in singleProjectMode");

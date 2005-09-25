@@ -63,13 +63,18 @@
     <tag>
         <name>currentbuildstatus</name>
         <tag-class>net.sourceforge.cruisecontrol.taglib.CurrentBuildStatusTag</tag-class>
-        <body-content>empty</body-content>
+        <body-content>JSP</body-content>
         <description>
             Report when the build started, or when it will start again. InsertBreaks by default.
         </description>
         <attribute>
             <name>insertBreaks</name>
             <required>false</required>
+        </attribute>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
     <tag>
@@ -80,6 +85,11 @@
         <description>
             Builds the navigation
         </description>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
         <attribute>
             <name>dateFormat</name>
             <required>false</required>
@@ -101,6 +111,11 @@
         <description>
             Builds the navigation for projects
         </description>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>artifactsLink</name>
@@ -110,6 +125,11 @@
         <description>
             Inserts link to the artifacts FileServlet
         </description>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
      <tag>
         <name>buildInfo</name>
@@ -119,6 +139,11 @@
         <description>
             Inserts information about the various builds into the page scope.
         </description>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>tabsheet</name>
@@ -146,6 +171,11 @@
         <tei-class>net.sourceforge.cruisecontrol.taglib.LinkTagExtraInfo</tei-class>
         <body-content>empty</body-content>
         <description>Builds up a link URL</description>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
         <attribute>
             <name>id</name>
             <required>true</required>
