@@ -356,19 +356,16 @@ public class ProjectXMLHelper {
      * Returns a Log instance representing the Log element.
      */
     public Log getLog() throws CruiseControlException {
-        Log log = new Log(this.projectName);
-        String logDir = "logs" + File.separatorChar + projectName;
+        Log log;
 
         Element logElement = projectElement.getChild("log");
-        if (logElement != null) {
-            String dirValue = logElement.getAttributeValue("dir");
-            if (dirValue != null) {
-                logDir = dirValue;
-            }
-            log.setLogXmlEncoding(logElement.getAttributeValue("encoding"));
-
-            //Get the BuildLoggers...all the children of the Log element should be
-            //  BuildLogger implementations
+        if (logElement == null) {
+            log = new Log();
+        } else {
+            log = (Log) configurePlugin(logElement, true);
+            // Get the BuildLoggers...all the children of the Log element should be
+            // BuildLogger implementations
+            // note: the doc specifies we only support merge elements. In fact we could support any sub-elements.
             Iterator loggerIter = logElement.getChildren().iterator();
             while (loggerIter.hasNext()) {
                 Element nextLoggerElement = (Element) loggerIter.next();
@@ -377,8 +374,12 @@ public class ProjectXMLHelper {
                 log.addLogger(nextLogger);
             }
         }
-
-        log.setLogDir(logDir);
+        if (log.getLogDir() == null) {
+            final String defaultLogDir = "logs" + File.separatorChar + projectName;
+            log.setDir(defaultLogDir);
+        }
+        log.setProjectName(projectName);
+        log.validate();
         return log;
     }
 
@@ -403,10 +404,10 @@ public class ProjectXMLHelper {
         }
         return listeners;
     }
-    
+
     /**
      * Returns all properties to which this project has access
-     * 
+     *
      * @return The properties accessible to this project
      */
     public Properties getProperties() {

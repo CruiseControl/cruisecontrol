@@ -440,7 +440,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public void setLogXmlEncoding(String encoding) {
-        log.setLogXmlEncoding(encoding);
+        log.setEncoding(encoding);
     }
 
     public void setConfigFile(File fileName) {

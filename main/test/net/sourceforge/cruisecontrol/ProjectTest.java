@@ -121,8 +121,10 @@ public class ProjectTest extends TestCase {
         project.setWasLastBuildSuccessful(false);
         File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
-        project.getLog().setLogDir(TEST_DIR + File.separator + "test-results");
+        project.getLog().setDir(TEST_DIR + File.separator + "test-results");
         project.setLogXmlEncoding("ISO-8859-1");
+        project.getLog().validate();
+
         MergeLogger logger = new MergeLogger();
         logger.setFile(TEST_DIR + File.separator + "_auxLog1.xml");
         logger.validate();

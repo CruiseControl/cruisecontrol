@@ -71,15 +71,49 @@ public class Log {
     private transient File lastLogFile;
     private transient Element buildLog;
     private transient List loggers = new ArrayList();
-    private final transient String projectName;
+    private transient String projectName;
 
+    /**
+     * @param projectName
+     * @throws NullPointerException is projectName is null
+     */
     public Log(String projectName) {
+        this();
+        setProjectName(projectName);
+    }
+
+    /**
+     * Log instances created that way must have their {@link #setProjectName(String) projectName set}.
+     */
+    public Log() {
+        reset();
+    }
+
+    /**
+     * Althought this property is required, it is implicitly defined by the project and doesn't map to
+     * a config file attribute.
+     * @param projectName
+     * @throws NullPointerException is projectName is null
+     */
+    void setProjectName(String projectName) {
         if (projectName == null) {
-            throw new NullPointerException("Cannot create a Log instance"
-                    + " with a null Project name.");
+            throw new NullPointerException("null projectName.");
         }
         this.projectName = projectName;
-        reset();
+    }
+
+    /**
+     * Validate the log. Also creates the log directory if it doesn't exist.
+     * @throws IllegalStateException if projectName wasn't set
+     */
+    public void validate() throws CruiseControlException {
+        if (projectName == null)  {
+            // not a real validation. Not using ValidationHelper
+            throw new IllegalStateException("projectName unset.");
+        }
+        if (logDir != null) {
+            checkLogDirectory(logDir);
+        }
     }
 
     /**
@@ -102,12 +136,28 @@ public class Log {
         return projectName;
     }
 
+    /**
+     * @param logDir
+     * @throws CruiseControlException
+     * @deprecated use {@link #setDir(String)}
+     */
     public void setLogDir(String logDir) throws CruiseControlException {
-        checkLogDirectory(logDir);
+        setDir(logDir);
+    }
+
+    public void setDir(String logDir) throws CruiseControlException {
         this.logDir = logDir;
     }
 
+    /**
+     * @param logXmlEncoding
+     * @deprecated use {@link #setEncoding(String)}
+     */
     public void setLogXmlEncoding(String logXmlEncoding) {
+        setEncoding(logXmlEncoding);
+    }
+
+    public void setEncoding(String logXmlEncoding) {
         this.logXmlEncoding = logXmlEncoding;
     }
 
