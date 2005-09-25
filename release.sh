@@ -44,9 +44,6 @@
 # The name of the build file to use
 BUILDFILE=release.xml
 
-# Root directory for the project
-PROJECTDIR=.
-
 # Directory where necessary build Java libraries are found
 LIBDIR=main/lib
 
@@ -74,7 +71,7 @@ if [ "$JAVABIN" = "" ] ; then
   JAVABIN=${JAVA_HOME}/bin/java
 fi
 
-CLASSPATH=${CLASSPATH}:${LIBDIR}/ant/ant-launcher.jar:${LIBDIR}/junit.jar:${LIBDIR}/xerces.jar
+CLASSPATH=${CLASSPATH}:${LIBDIR}/ant/ant-launcher.jar:${LIBDIR}/junit.jar:${LIBDIR}/xercesImpl-2.7.0.jar
 
 # Try to include tools.jar for compilation
 if test -f ${JAVA_HOME}/lib/tools.jar ; then

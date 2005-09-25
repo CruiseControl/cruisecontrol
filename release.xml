@@ -74,6 +74,7 @@
                 <exclude name="reporting/jsp/samplelogs/_cache/**"/>
                 <exclude name="release*"/>
                 <exclude name="**/binaryrelease/**"/>
+                <exclude name=".pc/**"/>
             </fileset>
         </copy>
         <replace dir="target/zip" token="%%VERSION%%" value="${label}">
@@ -89,6 +90,7 @@
                 <exclude name="reporting/jsp/testresults.xml"/>
                 <exclude name="release*"/>
                 <exclude name="**/binaryrelease/**"/>
+                <exclude name=".pc/**"/>
             </zipfileset>
         </zip>
     </target>
