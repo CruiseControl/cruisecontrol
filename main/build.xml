@@ -234,7 +234,7 @@
         </simian>        
     </target>
 
-    <target name="test" depends="compile-test" description="Executes the unit tests">
+    <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath >
                 <path refid="project.runtime.classpath" />
@@ -262,7 +262,7 @@
         </junit>
     </target>
 
-    <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present">
+    <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present" unless="test.skip">
         <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true">
             <classpath refid="project.runtime.classpath"/>
             <src path="${test}"/>
@@ -281,7 +281,7 @@
 
     </target>
 
-    <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present">
+    <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present" unless="test.skip">
         <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true">
             <classpath refid="project.runtime.classpath"/>
             <src path="${test}"/>
