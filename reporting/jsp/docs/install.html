@@ -61,7 +61,7 @@ Just press the ENTER key when prompted for a password.
 
         <h2>Configuring</h2>
 
-        <p>The WEB-INF/web.xml file holds the required configuration for the
+        <p>The <code>WEB-INF/web.xml</code> file holds the required configuration for the
         JSP.  There are currently 2 parameters that need to be set.  The first
         is the path to the log directory.  This is required so that the JSP can
         read the CruiseControl log files to build the left-hand navigation.
@@ -70,12 +70,12 @@ Just press the ENTER key when prompted for a password.
         know whether it is currently building, or when the next build will
         occur.</p>
 
-        <p> You can edit them directly in the WEB-INF/web.xml file, or you can
+        <p> You can edit them directly in the <code>WEB-INF/web.xml</code> file, or you can
         set them when you <a href="#Building">build the WAR file</a></p>
 
         <p>Depending on the version of the JSP specification that is
         implemented by your app server, you may need to make one minor edit to
-        the buildresults.jsp file.  If you are using a server that is JSP 1.2
+        the <code>buildresults.jsp</code> file.  If you are using a server that is JSP 1.2
         compliant, you will need to change the second line after the license
         text from:</p>
 
@@ -91,7 +91,7 @@ Just press the ENTER key when prompted for a password.
 
         <p>It is also possible to configure the date format used in the
         navigation links.  To change this, we'll need to edit the
-        buildresults.jsp itself.  On the <code>&lt;cruisecontrol:nav&gt;</code>
+        <code>buildresults.jsp</code> itself.  On the <code>&lt;cruisecontrol:nav&gt;</code>
         tag, we can add the <code>dateFormat</code> attribute.  Then we can set
         this value to be whatever we choose, as long as it's a valid date
         format as recognized by Java.</p>
@@ -101,9 +101,9 @@ Just press the ENTER key when prompted for a password.
         <p>CruiseControl uses <a class="external" href="http://jakarta.apache.org/ant">Ant</a> to
         build and package the build results web application.  Everything you
         need to build has been included with the source that you obtained from
-        CVS.  There is a batch file and a shell script (build.bat and build.sh
-        respectively) provided to make building the CruiseControl web
-        application as easy as possible.  The configured cruisecontrol.war file
+        CVS.  There is a batch file and a shell script (<code>build.bat</code> and
+        <code>build.sh</code> respectively) provided to make building the CruiseControl web
+        application as easy as possible.  The configured <code>cruisecontrol.war</code> file
         has been created in the dist directory.</p>
 
         <p>You can include options to configure the log directory, status file, and
@@ -132,8 +132,8 @@ build.bat -Duser.log.dir=C:\Cruise\logs -Duser.build.status.file=status.txt
         <h3>Tomcat</h3>
 
         <p>Copy the cruisecontrol.war file from the dist directory to the
-        %TOMCAT_HOME%/webapps directory.  Then startup the server by going to
-        the %TOMCAT_HOME%/bin directory and using the startup script.  The
+        <code>%TOMCAT_HOME%/webapps</code> directory.  Then startup the server by going to
+        the <code>%TOMCAT_HOME%/bin</code> directory and using the startup script.  The
         cruisecontrol web application should deploy and you should be able to
         test it out by opening a web browser and going to:</p>
 
