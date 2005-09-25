@@ -55,6 +55,7 @@ PluginXMLHelper:
 ----------------------
 * Can pre-configure plugin subelements, too (CC-299). Patch by Jerome Lacoste.
 * Support properties in project name, properties element, comments in properties file and properties in comments file. Patch by Jerome Lacoste
+* Can pre-configure dateformat. Patch by Jerome Lacoste.
 
 Reporting Application
 ----------------------

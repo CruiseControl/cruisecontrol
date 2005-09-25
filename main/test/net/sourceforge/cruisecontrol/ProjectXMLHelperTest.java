@@ -298,6 +298,17 @@ public class ProjectXMLHelperTest extends TestCase {
         assertFalse(originalFormat.equals(formatFromProperty));
     }
 
+    public void testPreconfigureDateFormat() throws Exception {
+        final String originalFormat = DateFormatFactory.getFormat();
+        new ProjectXMLHelper(configFile, "dateformatpreconfigured");
+        final String formatFromProperty = DateFormatFactory.getFormat();
+        DateFormatFactory.setFormat(DateFormatFactory.DEFAULT_FORMAT);
+
+        assertEquals(DateFormatFactory.DEFAULT_FORMAT, originalFormat);
+        assertEquals("MM/dd/yyyy HH:mm:ss a", formatFromProperty);
+        assertFalse(originalFormat.equals(formatFromProperty));
+    }
+
     public void testGetBootstrappers() throws CruiseControlException {
         ProjectXMLHelper helper = new ProjectXMLHelper(configFile, "project1");
         List bootstrappers = helper.getBootstrappers();
@@ -539,8 +550,14 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("  </project>\n");
       
       config.append("  <project name='dateformatfromproperty' >\n");
-      config.append("    <property name=\"date.format\" value=\"MM/dd/yyyy HH:mm:ss a\"/>\n");
-      config.append("    <dateformat format=\"${date.format}\"/>\n");
+      config.append("    <property name='date.format' value='MM/dd/yyyy HH:mm:ss a'/>\n");
+      config.append("    <dateformat format='${date.format}'/>\n");
+      config.append("  </project>\n");
+
+      config.append("  <project name='dateformatpreconfigured' >\n");
+      config.append("    <property name='date.format' value='MM/dd/yyyy HH:mm:ss a'/>\n");
+      config.append("    <plugin name='dateformat' format='${date.format}'/>\n");
+      config.append("    <dateformat/>\n");
       config.append("  </project>\n");
       
       config.append("</cruisecontrol>\n");
