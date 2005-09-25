@@ -131,7 +131,7 @@
         </javac>
     </target>
 
-    <target name="test" depends="compile-test" description="Executes the unit tests">
+    <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath refid="project.runtime.classpath" />
             <formatter type="brief" usefile="false" />
