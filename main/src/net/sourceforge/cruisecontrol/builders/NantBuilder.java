@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
@@ -100,9 +101,11 @@ public class NantBuilder extends Builder {
         script.setUseLogger(useLogger);
         script.setUseQuiet(useQuiet);
         
+        long startTime = System.currentTimeMillis();
+
         ScriptRunner scriptRunner = new ScriptRunner();
         boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
-
+        long endTime = System.currentTimeMillis();
 
         File logFile = new File(nantWorkingDir, tempFileName);
         Element buildLogElement;
@@ -116,7 +119,9 @@ public class NantBuilder extends Builder {
             saveNantLog(logFile);
             logFile.delete();
         }
-        return translateNantErrorElements(buildLogElement);
+        final Element element = translateNantErrorElements(buildLogElement);
+        element.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
+        return element;
     }
 
     // factory method for mock...

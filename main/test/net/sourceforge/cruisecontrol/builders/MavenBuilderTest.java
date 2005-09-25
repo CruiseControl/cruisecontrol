@@ -318,7 +318,6 @@ public class MavenBuilderTest extends TestCase {
 
        
     }
- 
 
     /**
      * Text for build status
