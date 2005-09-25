@@ -39,6 +39,10 @@ JMX:
 ----------------------
 * Add ability to get/set the config file via JMX (CC-220). Patch by Allan Wick
 
+MavenBuilder:
+----------------------
+* Check for required files moved from validation time to "build" time, thereby allowing a bootstrapper to provide the files (CC-25).
+
 P4:
 ----------------------
 * Fix problem where test would fail if Perforce was on the path. Patch by Arent-Jan Banck
