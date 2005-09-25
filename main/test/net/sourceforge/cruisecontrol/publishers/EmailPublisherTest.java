@@ -140,23 +140,23 @@ public class EmailPublisherTest extends TestCase {
     
     protected String generateXML(boolean includeAlerts) {
         StringBuffer xml = new StringBuffer();
-        xml.append("<email defaultsuffix=\"@host.com\">");
-        xml.append("<always address=\"always1\"/>");
-        xml.append("<always address=\"always1@host.com\"/>");
-        xml.append("<always address=\"always2@host.com\"/>");
-        xml.append("<always address=\"dropletteruser1\"/>");
-        xml.append("<failure address=\"failure1\"/>");
-        xml.append("<failure address=\"failure2@host.com\" reportWhenFixed=\"true\"/>");
+        xml.append("<email defaultsuffix='@host.com'>");
+        xml.append("<always address='always1'/>");
+        xml.append("<always address='always1@host.com'/>");
+        xml.append("<always address='always2@host.com'/>");
+        xml.append("<always address='dropletteruser1'/>");
+        xml.append("<failure address='failure1'/>");
+        xml.append("<failure address='failure2@host.com' reportWhenFixed='true'/>");
         xml.append("<success address='success1' />");
         xml.append("<success address='success2@host.com' />");
-        xml.append("<map alias=\"user3\" address=\"user3@host2.com\"/>");
+        xml.append("<map alias='user3' address='user3@host2.com'/>");
         if (includeAlerts) {
-            //xml.append("<alert file=\".*\" address=\"anyFileMod@host.com\" />");
-            xml.append("<alert fileRegExpr=\"filename1\" address=\"filename1@host.com\" />");
-            xml.append("<alert fileRegExpr=\"basedir/subdirectory2/.*\" address=\"subdir2@host.com\" />");
-            xml.append("<alert fileRegExpr=\"basedir/subdirectory3/filename3\" address=\"filename3@host.com\" />");
-            xml.append("<alert fileRegExpr=\"basedir/subdirectory5/.*\" address=\"basedirSubdirectory5@host.com\" />");
-            xml.append("<alert fileRegExpr=\"\" address=\"\" />");
+            //xml.append("<alert file='.*' address='anyFileMod@host.com' />");
+            xml.append("<alert fileRegExpr='filename1' address='filename1@host.com' />");
+            xml.append("<alert fileRegExpr='basedir/subdirectory2/.*' address='subdir2@host.com' />");
+            xml.append("<alert fileRegExpr='basedir/subdirectory3/filename3' address='filename3@host.com' />");
+            xml.append("<alert fileRegExpr='basedir/subdirectory5/.*' address='basedirSubdirectory5@host.com' />");
+            xml.append("<alert fileRegExpr='' address='' />");
         }
         xml.append("</email>");
         
