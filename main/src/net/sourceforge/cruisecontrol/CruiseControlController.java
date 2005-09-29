@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -51,9 +51,9 @@ import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
-import com.twmacinta.util.MD5;
-import com.twmacinta.util.MD5InputStream;
+import com.twmacinta.util.MD5OutputStream;
 
 /**
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
@@ -67,7 +67,7 @@ public class CruiseControlController {
     private BuildQueue buildQueue = new BuildQueue();
 
     private List listeners = new ArrayList();
-    
+
     public CruiseControlController() {
         buildQueue.addListener(new BuildQueueListener());
     }
@@ -104,21 +104,21 @@ public class CruiseControlController {
 
     private String calculateMD5(File file) {
         String hash = null;
-        MD5InputStream in = null;
+        MD5OutputStream stream = null;
         try {
-            byte[] buf = new byte[65536];
-            in = new MD5InputStream(new BufferedInputStream(new FileInputStream(file)));
-            int readResult = in.read(buf);
-            while (readResult != -1) {
-                readResult = in.read(buf);
-            }
-            hash = MD5.asHex(in.hash());
+            Element element = Util.loadConfigFile(file);
+            stream = new MD5OutputStream(new ByteArrayOutputStream());
+            XMLOutputter outputter = new XMLOutputter();
+            outputter.output(element, stream);       
+            hash = stream.getMD5().asHex();
         } catch (IOException e) {
             LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
+        } catch (CruiseControlException e) {
+            LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
         } finally {
-            if (in != null) {
+            if (stream != null) {
                 try {
-                    in.close();
+                    stream.close();
                 } catch (IOException ignore) {
                 }
             }

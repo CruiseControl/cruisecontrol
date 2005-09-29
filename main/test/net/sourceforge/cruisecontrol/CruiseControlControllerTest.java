@@ -53,6 +53,7 @@ public class CruiseControlControllerTest extends TestCase {
 
     private File dir = new File("target");
     private File configFile = new File(dir, "_tempConfigFile");
+    private File configFile2 = new File(dir, "_tempConfigFile2");
     private CruiseControlController ccController;
 
     protected void setUp() {
@@ -63,6 +64,9 @@ public class CruiseControlControllerTest extends TestCase {
     public void tearDown() {
         if (configFile.exists()) {
             configFile.delete();
+        }
+        if (configFile2.exists()) {
+            configFile2.delete();
         }
         ccController = null;
     }
@@ -84,10 +88,8 @@ public class CruiseControlControllerTest extends TestCase {
 
     public void testLoadEmptyProjects() throws IOException, CruiseControlException {
         FileWriter configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeHeader(configOut);
+        writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
         assertEquals(configFile, ccController.getConfigFile());
@@ -105,12 +107,10 @@ public class CruiseControlControllerTest extends TestCase {
             }
         };
         FileWriter configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
         writeProjectDetails(configOut, "testProject2");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
         assertEquals(configFile, ccController.getConfigFile());
@@ -128,12 +128,10 @@ public class CruiseControlControllerTest extends TestCase {
            }
         };
         FileWriter configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
         writeProjectDetails(configOut, "testProject1");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
 
         try {
             ccController.setConfigFile(configFile);
@@ -144,19 +142,9 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadSomeProjectsWithParametrizedNames() throws IOException, CruiseControlException {
-        ccController = new CruiseControlController() {
-            /*
-            protected Project configureProject(String projectName) {
-                final Project project = new Project();
-                project.setName(projectName);
-                project.setConfigFile(configFile);
-                return project;
-            }
-            */
-        };
+        ccController = new CruiseControlController();
         FileWriter configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         // a property that defines the project name.
         configOut.write("  <property name='name' value='testProject'/>\n");
         configOut.write("  <property name='encoding' value='utf8'/>\n");
@@ -172,8 +160,7 @@ public class CruiseControlControllerTest extends TestCase {
         configOut.write("    <listeners><testlistener/></listeners>\n");
         configOut.write("    <log dir='logs/${project.name}' encoding='${encoding}'/>\n");
         configOut.write("  </project>\n");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
         assertEquals(configFile, ccController.getConfigFile());
@@ -207,12 +194,10 @@ public class CruiseControlControllerTest extends TestCase {
         };
         ccController.addListener(listener);
         FileWriter configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
         writeProjectDetails(configOut, "testProject2");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
         ccController.setConfigFile(configFile);
 
         assertEquals(configFile, ccController.getConfigFile());
@@ -228,20 +213,17 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(0, listener.added.size());
         assertEquals(0, listener.removed.size());
 
-
         // add a project:
 
         listener.clear();
 
         sleep(1200);
         configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
         writeProjectDetails(configOut, "testProject2");
         writeProjectDetails(configOut, "testProject3");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
 
         ccController.parseConfigFileIfNecessary();
 
@@ -255,11 +237,9 @@ public class CruiseControlControllerTest extends TestCase {
 
         sleep(1200);
         configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         writeProjectDetails(configOut, "testProject3");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
 
         ccController.reloadConfigFile();
 
@@ -269,12 +249,80 @@ public class CruiseControlControllerTest extends TestCase {
 
     }
 
-    private void sleep(long l) {
-        try {
-            Thread.sleep(l);
-        } catch (InterruptedException dontCare) {
-            System.out.println("dontCare happened");
-        }
+    public void testConfigReloadingWithXmlInclude() throws IOException, CruiseControlException {
+        MyListener listener = new MyListener();
+
+        ccController = new CruiseControlController() {
+            protected Project configureProject(String projectName) {
+                final Project project = new Project();
+                project.setSchedule(new Schedule());
+                project.setName(projectName);
+                project.setConfigFile(configFile);
+                return project;
+            }
+        };
+        ccController.addListener(listener);
+
+        FileWriter configOut2 = new FileWriter(configFile2);
+        writeProjectDetails(configOut2, "testProject1");
+        writeProjectDetails(configOut2, "testProject2");
+        configOut2.close();
+        
+        FileWriter wrapperConfigOut = new FileWriter(configFile);
+        wrapperConfigOut.write("<?xml version=\"1.0\" ?>\n");
+        wrapperConfigOut.write("<!DOCTYPE cruisecontrol [ \n");
+        wrapperConfigOut.write("<!ENTITY projects SYSTEM \"" + configFile2.getName() + "\"> \n");
+        wrapperConfigOut.write("]> \n");
+        wrapperConfigOut.write("<cruisecontrol>\n");
+        wrapperConfigOut.write("&projects;");
+        writeFooterAndClose(wrapperConfigOut);
+        
+        ccController.setConfigFile(configFile);
+
+        assertEquals(configFile, ccController.getConfigFile());
+        assertEquals(2, ccController.getProjects().size());
+        assertEquals(2, listener.added.size());
+        assertEquals(0, listener.removed.size());
+
+        listener.clear();
+
+        // no change - no reload
+        ccController.parseConfigFileIfNecessary();
+        // nothing happened
+        assertEquals(0, listener.added.size());
+        assertEquals(0, listener.removed.size());
+
+        // add a project:
+
+        listener.clear();
+
+        sleep(1200);
+        configOut2 = new FileWriter(configFile2);
+        writeProjectDetails(configOut2, "testProject1");
+        writeProjectDetails(configOut2, "testProject2");
+        writeProjectDetails(configOut2, "testProject3");
+        configOut2.close();
+
+        ccController.parseConfigFileIfNecessary();
+
+        assertEquals(3, ccController.getProjects().size());
+        assertEquals(1, listener.added.size());
+        assertEquals(0, listener.removed.size());
+
+        // remove 2 projects
+
+        listener.clear();
+
+        sleep(1200);
+        configOut2 = new FileWriter(configFile2);
+        writeProjectDetails(configOut2, "testProject3");
+        configOut2.close();
+
+        ccController.reloadConfigFile();
+
+        assertEquals(1, ccController.getProjects().size());
+        assertEquals(0, listener.added.size());
+        assertEquals(2, listener.removed.size());
     }
 
     public void testReadProject() throws IOException {
@@ -288,19 +336,35 @@ public class CruiseControlControllerTest extends TestCase {
 
     public void testRegisterPlugins() throws IOException, CruiseControlException {
         FileWriter configOut = new FileWriter(configFile);
-        configOut.write("<?xml version=\"1.0\" ?>\n");
-        configOut.write("<cruisecontrol>\n");
+        writeHeader(configOut);
         configOut.write("  <plugin name='testname' "
                         + "classname='net.sourceforge.cruisecontrol.CruiseControllerTest'/>\n");
         configOut.write("  <plugin name='labelincrementer' classname='my.global.Incrementer'/>\n");
-        configOut.write("</cruisecontrol>\n");
-        configOut.close();
+        writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
         PluginRegistry newRegistry = PluginRegistry.createRegistry();
         assertTrue(newRegistry.isPluginRegistered("testname"));
         assertFalse(newRegistry.isPluginRegistered("unknown_plugin"));
         assertEquals(newRegistry.getPluginClassname("labelincrementer"), "my.global.Incrementer");
+    }
+
+    private void writeHeader(FileWriter configOut) throws IOException {
+        configOut.write("<?xml version=\"1.0\" ?>\n");
+        configOut.write("<cruisecontrol>\n");
+    }
+
+    private void writeFooterAndClose(FileWriter configOut) throws IOException {
+        configOut.write("</cruisecontrol>\n");
+        configOut.close();
+    }
+
+    private void sleep(long l) {
+        try {
+            Thread.sleep(l);
+        } catch (InterruptedException dontCare) {
+            System.out.println("dontCare happened");
+        }
     }
 
     private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {
