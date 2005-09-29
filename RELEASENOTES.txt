@@ -25,15 +25,16 @@ CurrentBuildStatusListener
 CruiseControlItem
 ----------------------
 * Sort items by time and then by file name. Patch by Jerome Lacoste
-
-CruiseControlItemTest
-----------------------
 * Fix test failure for people not in Pacific timezone.
 
 cruisecontrol.bat/.sh
 ----------------------
 * Introduce CC_OPTS to easily pass arguments to VM when starting CC. Patch by Arent-Jan Banck.
 * Use the right xalan.jar (CC-198). Reported by Carlos Sanchez.
+
+CruiseControlController:
+----------------------
+* Reload config file if included item is changed (CC-297).
 
 DateUtil
 ----------------------
