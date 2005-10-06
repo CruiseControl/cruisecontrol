@@ -90,6 +90,7 @@ public abstract class EmailPublisher implements Publisher {
     private String userName;
     private String password;
     private String mailPort;
+    private boolean useSSL;
     private String buildResultsURL;
     private Always[] alwaysAddresses = new Always[0];
     private Failure[] failureAddresses = new Failure[0];
@@ -337,6 +338,11 @@ public abstract class EmailPublisher implements Publisher {
             "mailHost is " + mailHost + ", mailPort is " + mailPort == null ? "default" : mailPort);
         if (userName != null && password != null) {
             props.put("mail.smtp.auth", "true");
+            if (useSSL) {
+                props.put("mail.smtp.socketFactory.port", mailPort);
+                props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                props.put("mail.smtp.socketFactory.fallback", "false");
+            }
         }
         return props;
     }
@@ -448,6 +454,10 @@ public abstract class EmailPublisher implements Publisher {
 
     public String getMailPort() {
         return mailPort;
+    }
+
+    public void setUseSSL(boolean useSSL) {
+        this.useSSL = useSSL;
     }
 
     public void setSubjectPrefix(String prefix) {
