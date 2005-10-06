@@ -36,6 +36,10 @@ CruiseControlController:
 ----------------------
 * Reload config file if included item is changed (CC-297).
 
+EmailPublisher:
+----------------------
+* Add useSsl attribute (CC-277). Patch by Anatol Pomozov, Doc by Jerome Lacoste
+
 DateUtil
 ----------------------
 * Deprecated millTimeDiffernce in favor of refactored millTimeDifference. Patch by Jerome Lacoste. 
