@@ -14,6 +14,10 @@ build.xml
 ----------------------
 * Use test.skip ant property to NOT execute tests (reporting and main). Patch by Jerome Lacoste.
 
+BuildInfo
+----------------------
+* Fix for threading issue (CC-330). Patch by Jerome Lacoste.
+
 contrib/distributed:
 ----------------------
 * Major update to distributed build support (CC-298). Patch by Dan Rollo.
