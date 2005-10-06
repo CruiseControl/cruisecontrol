@@ -13,6 +13,7 @@ Binary Distribution
 build.xml
 ----------------------
 * Use test.skip ant property to NOT execute tests (reporting and main). Patch by Jerome Lacoste.
+* Split CruiseControl's version information into two components and made easy to override. Patch by Jerome Lacoste.
 
 BuildInfo
 ----------------------
@@ -67,6 +68,7 @@ Jar/War
 JMX:
 ----------------------
 * Add ability to get/set the config file via JMX (CC-220). Patch by Allan Wick
+* CruiseControl version information included in server MBean. Patch by Jerome Lacoste.
 
 Log
 ----------------------

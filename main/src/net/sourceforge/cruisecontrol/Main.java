@@ -64,7 +64,8 @@ public final class Main {
       * and/or arguments and start the project build process.
       */
     public static void main(String[] args) {
-        printVersion();
+        Properties versionProperties = getBuildVersionProperties();
+        printVersion(versionProperties);
         if (shouldPrintUsage(args)) {
             printUsageAndExit();
         }
@@ -73,6 +74,7 @@ public final class Main {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
             CruiseControlController controller = new CruiseControlController();
+            controller.setVersionProperties(versionProperties);
             File configFile =
                 new File(
                    parseConfigFileName(
@@ -200,17 +202,25 @@ public final class Main {
     }
 
     /**
-     * Writes the current version information, as indicated in the
-     * version.properties file, to the logging information stream.
+     * Retrieves the current version information, as indicated in the
+     * version.properties file.
      */
-    private static void printVersion() {
+    private static Properties getBuildVersionProperties() {
         Properties props = new Properties();
         try {
             props.load(Main.class.getResourceAsStream("/version.properties"));
         } catch (IOException e) {
             LOG.error("Error reading version properties", e);
         }
-        System.out.println("CruiseControl Version " + props.getProperty("version"));
+        return props;
+     }
+
+    /**
+     * Writes the current version information to the logging information stream.
+     */
+    private static void printVersion(Properties props) {
+        LOG.info("CruiseControl Version " + props.getProperty("version") 
+                 + " " + props.getProperty("version.info"));
     }
 
     static boolean shouldPrintUsage(String[] args) {

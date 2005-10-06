@@ -45,6 +45,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -73,6 +74,10 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
     public CruiseControlControllerJMXAdaptor(CruiseControlController controlController) {
         controller = controlController;
         controller.addListener(this);
+    }
+
+    public Properties getVersionProperties() {
+        return controller.getVersionProperties();
     }
 
     public String getConfigFileName() {
