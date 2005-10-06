@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
@@ -47,11 +48,18 @@ public class MavenSnapshotDependencyTest extends TestCase {
 
     private static final String BAD_REPOSITORY = "folder";
 
-    // FIXME hardcoded paths...
-    private static final String TEST_PROJECT_XML =
-        "test-classes/net/sourceforge/cruisecontrol/sourcecontrols/maven-project.xml";
+    private static final String PROJECT_XML_RELATIVE_PATH =
+        "net/sourceforge/cruisecontrol/sourcecontrols/maven-project.xml";
 
-    private static final String TEST_REPOSITORY = "test-classes/net/sourceforge/cruisecontrol/sourcecontrols/";
+    private static final String TEST_PROJECT_XML;
+    private static final String TEST_REPOSITORY;
+
+    static {
+        URL projectUrl = ClassLoader.getSystemResource(PROJECT_XML_RELATIVE_PATH);
+        TEST_PROJECT_XML = projectUrl.getPath();
+        // Use the parent folder of the project xml as repository folder
+        TEST_REPOSITORY = new File(TEST_PROJECT_XML).getParentFile().getAbsolutePath();
+    }
 
     public MavenSnapshotDependencyTest(String name) {
         super(name);
@@ -152,8 +160,8 @@ public class MavenSnapshotDependencyTest extends TestCase {
 
         dep.setProjectFile(TEST_PROJECT_XML);
         dep.setLocalRepository(TEST_REPOSITORY);
-        File testProject = new File(TEST_PROJECT_XML);
-        List filenames = dep.getSnapshotFilenames(testProject);
+        File testProjectFile = new File(TEST_PROJECT_XML);
+        List filenames = dep.getSnapshotFilenames(testProjectFile);
         assertEquals("Filename list is not the correct size", 2, filenames.size());
         String filename = (String) filenames.get(0);
         String expectedFilename = TEST_REPOSITORY + "/maven/jars/cc-maven-test-1.0-SNAPSHOT.jar";

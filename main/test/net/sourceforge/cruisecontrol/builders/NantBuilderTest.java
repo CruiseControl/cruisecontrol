@@ -39,6 +39,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -61,11 +63,8 @@ public class NantBuilderTest extends TestCase {
     
     private final List filesToClear = new ArrayList();
     private NantBuilder builder;
-    private String classpath;
     private Hashtable properties;
-    private String nantCmd = "NAnt.exe";
     private File rootTempDir = null;
-    private String rootTempDirPath = null;
 
     public NantBuilderTest(String name) {
         super(name);
@@ -79,10 +78,9 @@ public class NantBuilderTest extends TestCase {
         Commandline buildCommandline(final InputStream inputStream) {
             final MockCommandline mockCommandline = getMockCommandline();
             mockCommandline.setAssertCorrectCommandline(false);
-            // could System.in and System.out create problems here?
-            mockCommandline.setProcessErrorStream(System.in);
+            mockCommandline.setProcessErrorStream(new PipedInputStream());
             mockCommandline.setProcessInputStream(inputStream);
-            mockCommandline.setProcessOutputStream(System.out);
+            mockCommandline.setProcessOutputStream(new PipedOutputStream());
             return mockCommandline;
         }
 
@@ -101,14 +99,12 @@ public class NantBuilderTest extends TestCase {
             notifyAll();
         }
         public int waitFor() throws InterruptedException {
-            System.out.println("waiting for time out");
             synchronized (this) {
                 try {
                     this.wait(timeoutMillis);
                 } catch (InterruptedException e) {
                 }
             }
-            System.out.println("finished waiting for time out");
             return super.waitFor();
         }
     };
@@ -128,7 +124,6 @@ public class NantBuilderTest extends TestCase {
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         rootTempDir = new File(new File(File.createTempFile("temp", "txt").getParent()), "testRoot");
-        rootTempDirPath = rootTempDir.getCanonicalPath();
         rootTempDir.mkdir();
     }
 
@@ -141,7 +136,6 @@ public class NantBuilderTest extends TestCase {
         }
 
         builder = null;
-        classpath = null;
         properties = null;
 
         Util.deleteFile(rootTempDir);
