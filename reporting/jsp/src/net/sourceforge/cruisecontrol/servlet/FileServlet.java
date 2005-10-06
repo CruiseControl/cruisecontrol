@@ -70,6 +70,10 @@ public class FileServlet extends HttpServlet {
     private File rootDir;
     private List indexFiles;
 
+    public File getRootDir() {
+        return rootDir;
+    }
+
     public void init(ServletConfig servletconfig) throws ServletException {
         super.init(servletconfig);
         rootDir = getRootDir(servletconfig);
@@ -128,7 +132,7 @@ public class FileServlet extends HttpServlet {
 
     public void service(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        WebFile file = new WebFile(rootDir, request.getPathInfo());
+        WebFile file = getSubWebFile(request.getPathInfo());
 
         if (file.isDir()) {
             // note we might want to append the queryString just in case...
@@ -138,7 +142,7 @@ public class FileServlet extends HttpServlet {
             }
             String index = getIndexFile(file);
             if (index != null) {
-                file = new WebFile(rootDir, request.getPathInfo() + index);
+                file = getSubWebFile(request.getPathInfo() + index);
             }
         }
 
@@ -195,23 +199,48 @@ public class FileServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * Returns an HTML snippet that allows the browsing of the directory's content.
+     * @param request
+     * @param file
+     * @param writer
+     * @throws IOException
+     */
     void printDirs(HttpServletRequest request, WebFile file, Writer writer)
         throws IOException {
         String[] files = file.list();
         writer.write("<ul>");
         for (int i = 0; i < files.length; i++) {
-            WebFile sub = new WebFile(rootDir, request.getPathInfo() + '/' + files[i]);
+            final String requestURI = request.getRequestURI();
+            int jsessionidIdx = requestURI.indexOf(";jsessionid");
+            String shortRequestURI;
+            String jsessionid;
+            if (jsessionidIdx >= 0) {
+              shortRequestURI = requestURI.substring(0, jsessionidIdx);
+              jsessionid = requestURI.substring(jsessionidIdx);
+            } else {
+              shortRequestURI = requestURI;
+              jsessionid = "";
+            }
+
+            final String subFilePath = request.getPathInfo() + '/' + files[i];
+            WebFile sub = getSubWebFile(subFilePath);
             writer.write(
                 "<li><a href=\""
-                    + request.getRequestURI()
+                    + shortRequestURI
                     + "/"
                     + files[i]
+                    + jsessionid
                     + "\">"
                     + files[i]
                     + (sub.isDir() ? "/" : "")
                     + "</a></li>");
         }
         writer.write("</ul>");
+    }
+
+    protected WebFile getSubWebFile(final String subFilePath) {
+        return new WebFile(rootDir, subFilePath);
     }
 
 }

@@ -54,6 +54,7 @@ EmailPublisher
 FileServlet
 ----------------------
 * Add last-modified header so httpfile source control can be used with reporting app. Patch by Sean Conner <sconner@mercury.com>, tweaked by Jerome Lacoste
+* Allow directory browsing to work with containers that append the sessionid to the URI. Patch by Jerome Lacoste
 
 Jar/War
 ----------------------
