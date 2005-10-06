@@ -244,6 +244,7 @@ public class Modification implements Comparable {
         SimpleDateFormat formatter =
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
+        sb.append("Type: " + type + "\n");
         sb.append("Last Modified: " + formatter.format(modifiedTime) + "\n");
         sb.append("Revision: " + revision + "\n");
         sb.append("UserName: " + userName + "\n");
@@ -254,6 +255,7 @@ public class Modification implements Comparable {
 
     public void log(DateFormat formatter) {
         if (LOG.isDebugEnabled()) {
+            LOG.debug("Type: " + type);
             LOG.debug("Last Modified: " + formatter.format(modifiedTime));
             LOG.debug("UserName: " + userName);
             LOG.debug("EmailAddress: " + emailAddress);
