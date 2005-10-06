@@ -62,7 +62,6 @@ public class BuildInfo implements Comparable, Serializable {
     private static final String LOG_COMPRESSED_SUFFIX = ".gz";
     private static final String LABEL_SEPARATOR = "L";
     private static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
-    private static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat(LOG_DATE_PATTERN);
     private final Date buildDate;
     private final String label;
     private final String fileName;
@@ -102,8 +101,9 @@ public class BuildInfo implements Comparable, Serializable {
             throw new IllegalStateException("infoText has wrong format: " + infoText + " " + e.getMessage());
         }
         Date theDate;
+        final DateFormat logDateFormat = new SimpleDateFormat(LOG_DATE_PATTERN);
         try {
-            theDate = LOG_DATE_FORMAT.parse(dateStamp);
+            theDate = logDateFormat.parse(dateStamp);
         } catch (ParseException e) {
             throw new ParseException("Invalid format: " + infoText + ". Format must be logyyyyMMddHHmmSS.xml or "
                                      + "logyyyyMMddHHmmSSLlabel.xml", e.getErrorOffset());
