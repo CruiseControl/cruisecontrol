@@ -138,6 +138,12 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             String message = "DistributedMasterBuilder can only have one nested builder";
             LOG.error(message);
             throw new CruiseControlException(message);
+        } else if (children.size() == 0) {
+            // @todo Clarify when configure() can be called...
+            String message = "Nested Builder required by DistributedMasterBuilder, "
+                    + "ignoring and assuming this call is during plugin-preconfig";
+            LOG.warn(message);
+            return;
         }
         childBuilderElement = (Element) children.get(0);
         // Add default/preconfigured props to builder element
