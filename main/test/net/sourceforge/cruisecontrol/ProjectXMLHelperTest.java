@@ -169,10 +169,21 @@ public class ProjectXMLHelperTest extends TestCase {
     }
     
     public void testMissingProperty() {
-        try {
-            new ProjectXMLHelper(configFile, "missingprop");
-            fail("A missing property should cause an exception!");
-        } catch (CruiseControlException expected) {
+        // there's in fact little need to check for both cases. 
+        // This will be hardcoded at some point and the default case.
+        // Feel free to scrap the first if when checking it in.
+        if (ProjectXMLHelper.FAIL_UPON_MISSING_PROPERTY) {
+            try {
+                new ProjectXMLHelper(configFile, "missingprop");
+                fail("A missing property should cause an exception!");
+            } catch (CruiseControlException expected) {
+            }
+        } else {
+            try {
+                new ProjectXMLHelper(configFile, "missingprop");
+            } catch (CruiseControlException unexpected) {
+                fail(unexpected.getMessage());
+            }
         }
     }
 

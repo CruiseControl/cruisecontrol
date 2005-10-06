@@ -71,6 +71,8 @@ public class ProjectXMLHelper {
     public static final String LABEL_INCREMENTER = "labelincrementer";
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
     private static final Pattern PROPERTY_PATTERN;
+
+    public static final boolean FAIL_UPON_MISSING_PROPERTY = false;
     
     static {
         // Create a Perl 5 pattern matcher to find embedded properties
@@ -141,12 +143,12 @@ public class ProjectXMLHelper {
 
         // Register any global properties
         for (Iterator globProps = rootElement.getChildren("property").iterator(); globProps.hasNext(); ) {
-            registerProperty(properties, (Element) globProps.next(), true);
+            registerProperty(properties, (Element) globProps.next(), FAIL_UPON_MISSING_PROPERTY);
         }
 
         // Register any project specific properties
         for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext(); ) {
-            registerProperty(properties, (Element) projProps.next(), true);
+            registerProperty(properties, (Element) projProps.next(), FAIL_UPON_MISSING_PROPERTY);
         }
 
         // Parse the entire element tree, expanding all property macros
@@ -519,9 +521,11 @@ public class ProjectXMLHelper {
         props.put(name, parsedValue);
     }
 
+/*
     String parsePropertiesInString(String string) throws CruiseControlException {
         return parsePropertiesInString(this.properties, string, true);
     }
+*/
 
     /**
      * Parses a string by replacing all occurences of a property macro with
@@ -565,7 +569,7 @@ public class ProjectXMLHelper {
      * @throws CruiseControlException if a property cannot be resolved
      */
     private void parsePropertiesInElement(Element element) throws CruiseControlException {
-        parsePropertiesInElement(element, this.properties, this.projectName, true);
+        parsePropertiesInElement(element, this.properties, this.projectName, FAIL_UPON_MISSING_PROPERTY);
     }
 
     private static void parsePropertiesInElement(Element element, Properties props,
