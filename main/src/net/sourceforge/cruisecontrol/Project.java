@@ -407,15 +407,22 @@ public class Project implements Serializable, Runnable {
      * Serialize the project to allow resumption after a process bounce
      */
     public void serializeProject() {
+        ObjectOutputStream s = null;
         try {
-            ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(name + ".ser"));
+            s = new ObjectOutputStream(new FileOutputStream(name + ".ser"));
             s.writeObject(this);
             s.flush();
-            s.close();
             debug("Serializing project to [" + name + ".ser]");
         } catch (Exception e) {
             LOG.warn("Error serializing project to [" + name + ".ser]: "
                     + e.getMessage(), e);
+        } finally {
+           if (s != null) {
+               try {
+                   s.close();
+               } catch (Exception ignore) {
+               }
+           }
         }
     }
 
