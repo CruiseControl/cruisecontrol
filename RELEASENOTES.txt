@@ -36,10 +36,6 @@ CruiseControlController:
 ----------------------
 * Reload config file if included item is changed (CC-297).
 
-EmailPublisher:
-----------------------
-* Add useSsl attribute (CC-277). Patch by Anatol Pomozov, Doc by Jerome Lacoste
-
 DateUtil
 ----------------------
 * Deprecated millTimeDiffernce in favor of refactored millTimeDifference. Patch by Jerome Lacoste. 
@@ -53,6 +49,11 @@ Documentation
 EmailPublisher
 ----------------------
 * Fix for bug where committers that also appear in <always> elements are emailed twice. Patch by mathieu.champlon@masagroup.net, with cleanup by Jerome Lacoste.
+* Add useSsl attribute (CC-277). Patch by Anatol Pomozov, Doc by Jerome Lacoste
+
+FileServlet
+----------------------
+* Add last-modified header so httpfile source control can be used with reporting app. Patch by Sean Conner <sconner@mercury.com>, tweaked by Jerome Lacoste
 
 Jar/War
 ----------------------
