@@ -49,11 +49,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevInputParser;
@@ -78,7 +82,26 @@ public class AccurevSourcecontrolTest extends AccurevTest {
       return true;
     }
   }
-  public void testAccurevSourcecontrol() throws CruiseControlException {
+
+  private static final SimpleDateFormat DTFM = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+  private Date parseLogDateFormat(String dateString) throws ParseException {
+    return DTFM.parse(dateString);
+  }
+
+  Modification createModification(String userName, String emailAddress, String comment, 
+                                  String revision, String modifiedTime, String type) throws ParseException {
+    Modification modification = new Modification();
+    modification.userName = userName;
+    modification.emailAddress = emailAddress;
+    modification.comment = comment;
+    modification.revision = revision;
+    modification.modifiedTime = parseLogDateFormat(modifiedTime);
+    modification.type = type;
+    return modification;
+  }
+
+  public void testAccurevSourcecontrol() throws Exception {
     fake("accurev_show_wspaces.txt", 0);
     fake("accurev_hist_lastbuild_now.txt", 0);
     Accurev accurev = new Accurev();
@@ -90,25 +113,29 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     ago.add(Calendar.MONTH, -1);
     List modifications = accurev.getModifications(ago.getTime(), new GregorianCalendar().getTime());
     accurev.getProperties();
+
     assertNotNull(modifications);
-    assertTrue(modifications.size() == 6);
-    assertEquals("Last Modified: 2005/06/22 10:53:10\nRevision: 120208\n"
-        + "UserName: norru\nEmailAddress: null\nComment:  Comment\n\n", modifications.get(0).toString());
-    assertEquals(
-        "Last Modified: 2005/06/22 10:54:44\nRevision: 120209\nUserName: norru\nEmailAddress: null\nComment: \n",
-        modifications.get(1).toString());
-    assertEquals(
-        "Last Modified: 2005/06/22 10:57:23\nRevision: 120210\nUserName: norru\nEmailAddress: null\nComment: \n",
-        modifications.get(2).toString());
-    assertEquals(
-        "Last Modified: 2005/06/22 11:01:07\nRevision: 120214\nUserName: norru\nEmailAddress: null\nComment: \n",
-        modifications.get(3).toString());
-    assertEquals(
-        "Last Modified: 2005/06/22 11:06:55\nRevision: 120216\nUserName: norru\nEmailAddress: null\nComment: \n",
-        modifications.get(4).toString());
-    assertEquals(
-        "Last Modified: 2005/06/22 11:07:27\nRevision: 120217\nUserName: norru\nEmailAddress: null\nComment: \n",
-        modifications.get(5).toString());
+    assertEquals(6, modifications.size());
+
+    Modification modification;
+
+    modification = createModification("norru", null, " Comment\n", "120208", "2005/06/22 10:53:10", "keep");
+    assertEquals(modification, modifications.get(0));
+
+    modification = createModification("norru", null, "", "120209", "2005/06/22 10:54:44", "defcomp");
+    assertEquals(modification, modifications.get(1));
+
+    modification = createModification("norru", null, "", "120210", "2005/06/22 10:57:23", "defcomp");
+    assertEquals(modification, modifications.get(2));
+
+    modification = createModification("norru", null, "", "120214", "2005/06/22 11:01:07", "defcomp");
+    assertEquals(modification, modifications.get(3));
+
+    modification = createModification("norru", null, "", "120216", "2005/06/22 11:06:55", "defcomp");
+    assertEquals(modification, modifications.get(4));
+
+    modification = createModification("norru", null, "", "120217", "2005/06/22 11:07:27", "defcomp");
+    assertEquals(modification, modifications.get(5));
   }
   /**
    * Picks the last stream name from a list of streams
