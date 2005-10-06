@@ -220,7 +220,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
                      // Comment
                      iRight = str.indexOf(strToken, iLeft);
-                     if (iRight > iLeft) {
+                     if (iRight >= iLeft) {
                         mod.comment = str.substring(iLeft, iRight);
                         iLeft = iRight + strToken.length();
 
