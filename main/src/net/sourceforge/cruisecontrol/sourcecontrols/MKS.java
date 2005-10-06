@@ -50,8 +50,8 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -154,8 +154,11 @@ public class MKS implements SourceControl {
         }
         String cmd;
 
-        cmd = new String("si resync -f -R -S " + localWorkingDir.getAbsolutePath()
-                + File.separator + project);
+        String projectFilePath = localWorkingDir.getAbsolutePath() + File.separator + project;
+        if (!new File(projectFilePath).exists()) {
+            throw new RuntimeException("project file not found at " + projectFilePath);
+        }
+        cmd = new String("si resync -f -R -S " + projectFilePath);
 
         /* Sample output:
          * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
