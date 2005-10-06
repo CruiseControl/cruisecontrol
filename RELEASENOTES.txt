@@ -44,6 +44,7 @@ Documentation
 ----------------------
 * Enhanced "getting started" section to incorporate Binary Distribution documentation.
 * Added overview page and architecture diagram. Patch by Jerome Lacoste
+* Use more of the page width (CC-321). Patch by Jerome Lacoste
 
 EmailPublisher
 ----------------------
