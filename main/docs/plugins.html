@@ -85,7 +85,7 @@
         Plugins are represented by beans. Plugin classes are mapped to element names
         in the XML config file thanks to a process known as <a href="#registration">
         registration</a>. Plugins distributed with cruisecontrol are all
-        <a href="#defaultregistry">registrated by default</a>.</p>
+        <a href="#defaultregistry">registered by default</a>.</p>
 
         <p>The configuration will be initiated by the <code>
         <a class="javadoc" href="api/net/sourceforge/cruisecontrol/ProjectXMLHelper.html">
@@ -205,13 +205,18 @@
         <h3><a name="preconfiguration"/>Plugin Preconfiguration</h3>
 
         <p>On registering plugins, you can also define default values for some
-        of the properties of the plugins. You can do this by simply using the
-        same attributes as you would when using the plugin itself. Every
-        default can be overridden when you actually use the plugin within a
-        project.
-        If you want to define default values for default plugins, you may
-        leave out the <code>classname</code> attribute of the plugin element. <br />
-        An example: to define some default values for the <code>htmlemail</code>
+        of the properties and nested elements of the plugins. You can do this by simply
+        using the same attributes and child nodes as you would when using the plugin itself.
+
+        <p>Defaults can be overridden when you actually use the plugin within a
+        project. Note: when nested elements have a multiple cardinality, overriding an
+        already pre-configured child element might accumulate them.</a> 
+
+        <p>If you want to preconfigure an already registered plugin (whether <a href="#defaultregistry">
+        default plugin</a>, or plugin registered at the root of the config), you may
+        leave out the <code>classname</code> attribute of the plugin element.</p>
+
+        <p>An example: to define some default values for the <code>htmlemail</code>
         publisher, you can specify something like this in your config file:</p>
 <pre>
   &lt;plugin name="htmlemail"
@@ -219,11 +224,21 @@
           returnaddress="buildmaster@example.com"
           subjectprefix="[CC]"
           xsldir="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\xsl"
-          css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\css\cruisecontrol.css"/&gt;
+          css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\css\cruisecontrol.css"&gt;
+     &lt;always address="project-dev@domain.com"/&gt;
+  &lt;plugin/&gt;
 </pre>
+
+        <p>Only plugins can be overriden. As of CruiseControl 2.3.1 some high-level elements, such as
+        such as <code>&lt;listeners&gt;</code>, <code>&lt;schedule&gt;</code> and
+        <code>&lt;publishers&gt;</code> are not plugins, and thus cannot be preconfigured.</p>
 
         <p>Combined with <a href="configxml.html#property">ant style
         properties</a> this will greatly reduce the size of your config files.</p>
+
+        <p>More information and examples can be found on <a class="external"
+        href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">the wiki</a>.
+        </p>
 
         <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
 
