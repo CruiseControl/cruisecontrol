@@ -2857,11 +2857,13 @@ password=P@ssW0rd!
 
         <p>Changes are detected by running a command similar to the following:</p>
 
-        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;<i>module</i></pre>
+        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log|rlog&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;<i>module</i></pre>
 
         <p>The following changes are made to generate the actual command:</p>
 
         <ul>
+            <li><code>log</code> is used when the localworkingcopy attribute is set,
+            <code>rlog</code> otherwise.</li>
             <li><code><i>lastbuildtime</i></code> is replaced with the date of
             the last build, using the date format
             <code>yyyy-MM-dd&nbsp;HH:mm:ss&nbsp;'GMT'</code>.</li>
