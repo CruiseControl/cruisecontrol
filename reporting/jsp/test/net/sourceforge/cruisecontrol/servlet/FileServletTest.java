@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.io.StringWriter;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -178,6 +179,78 @@ public class FileServletTest extends TestCase {
         assertEquals(2, indexes.size());
         assertEquals("index.html", indexes.get(0));
         assertEquals("index.htm", indexes.get(1));
+    }
+
+    /** a mock that allows to specify the names of the files returned by {@link #list()}**/
+    static class MockWebFile extends WebFile {
+        private String[] subFiles;
+
+        public MockWebFile(File root, String path, String[] subFiles) {
+            super(root, path);
+            this.subFiles = subFiles;
+        }
+
+        public String[] list() {
+            return subFiles;
+        }
+    }
+
+    /**
+     * Simulates both a request with or without a sessionid attached.
+     * @throws IOException
+     */
+    public void testPrintDirs() throws IOException {
+        FileServlet fileServlet = new FileServlet() {
+            protected WebFile getSubWebFile(final String subFilePath) {
+                return new WebFile(getRootDir(), subFilePath) {
+                    public boolean isDir() {
+                        String lastPathElt = subFilePath.substring(subFilePath.lastIndexOf('/') + 1);
+                        final boolean b = lastPathElt.indexOf(".") == -1;
+                        return b;
+                    }
+                };
+            }
+        };
+
+        String[] files =
+            {
+                new String("log1.txt"),
+                new String("log2")
+            };
+
+        final StringWriter writer1 = new StringWriter();
+
+        final MockServletRequest request1 = new MockServletRequest() {
+            public String getRequestURI() {
+                return "/artifacts/abc";
+            }
+        };
+        fileServlet.printDirs(request1, new MockWebFile(new File("notimportant"), "notimportant", files), writer1);
+
+        final String expectedOutput1 =
+            "<ul>"
+            + "<li><a href=\"/artifacts/abc/log1.txt\">log1.txt</a></li>"
+            + "<li><a href=\"/artifacts/abc/log2\">log2/</a></li>"
+            + "</ul>";
+
+        assertEquals(expectedOutput1, writer1.getBuffer().toString());
+
+
+        final StringWriter writer2 = new StringWriter();
+        final MockServletRequest request2 = new MockServletRequest() {
+            public String getRequestURI() {
+                return "/artifacts/abc;jsessionid=012456789ABCDEF";
+            }
+        };
+        fileServlet.printDirs(request2, new MockWebFile(new File("/tmp"), "test", files), writer2);
+
+        final String expectedOutput2 =
+            "<ul>"
+            + "<li><a href=\"/artifacts/abc/log1.txt;jsessionid=012456789ABCDEF\">log1.txt</a></li>"
+            + "<li><a href=\"/artifacts/abc/log2;jsessionid=012456789ABCDEF\">log2/</a></li>"
+            + "</ul>";
+
+        assertEquals(expectedOutput2, writer2.getBuffer().toString());
     }
 
     public void testServiceIndexFile() throws ServletException, IOException {
