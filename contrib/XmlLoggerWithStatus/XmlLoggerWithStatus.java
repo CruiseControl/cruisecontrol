@@ -49,7 +49,7 @@ public class XmlLoggerWithStatus extends XmlLogger {
                 out = new FileWriter(statusFileName, true);
             } catch (Exception e) {
                 System.err.println("Error opening file " + statusFileName + " for appending");
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
             inited = true;
         }
@@ -63,8 +63,7 @@ public class XmlLoggerWithStatus extends XmlLogger {
         if (out != null) {
             try {
                 out.close();
-            } catch (IOException e) {
-                ;// no actions
+            } catch (IOException ignored) {
             }
         }
     }
@@ -78,12 +77,11 @@ public class XmlLoggerWithStatus extends XmlLogger {
         if (out != null) {
             String name = event.getTarget().getName();
             StringBuffer content = new StringBuffer();
-            content.append("<br>");
-            content.append("<span class=\"link\">");
+            content.append(System.getProperties("line.separator"));
             content.append(FORMATTER.format(new Date()));
-            content.append("&nbsp;[");
+            content.append(" [");
             content.append(name);
-            content.append("]&nbsp;</span>");
+            content.append("] ");
             writeStatus(content);
         }
     }
@@ -97,7 +95,7 @@ public class XmlLoggerWithStatus extends XmlLogger {
             out.flush();
         } catch (IOException e) {
             System.err.println("Error writing statusline to writer");
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
     }
 
