@@ -17,8 +17,10 @@
         <delete dir="target" failonerror="false"/>
     </target>
 
-    <target name="build">
-        <ant inheritAll="false" dir="main"/>
+    <target name="build" depends="checklabel">
+        <ant inheritAll="false" dir="main">
+            <property name="cc.release.label" value="${cc.release.label}"/>
+        </ant>
         <ant inheritAll="false" dir="reporting/jsp">
             <property name="user.log.dir" value="logs"/>
             <property name="user.build.status.file" value="status.txt"/>

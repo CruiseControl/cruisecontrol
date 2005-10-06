@@ -40,8 +40,12 @@
     <property environment="env"/>
     <property file="override.properties"/>
 
-    <!-- define version -->
+    <!-- define cc.version -->
     <property file="../build.properties"/>
+    <!-- Use a local variable to make sure that a script that would read the 
+         properties file would still be capable of overidding this one.
+         Note: the release.xml overrides this property -->
+    <property name="cc.release.label" value="${cc.version}"/>
 
     <property name="docs" value="${basedir}/docs"/>
     <property name="apidocs" value="${docs}/api"/>
@@ -95,9 +99,11 @@
         <path refid="clover.classpath"/>
     </path>
 
-    <target name="init" description="Setup build system">
-        <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
+    <target name="checklabel">
+        <fail unless="cc.release.label" message="label is not defined."/>
+    </target>
 
+    <target name="init" description="Setup build system" depends="checklabel">
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
         <mkdir dir="${target}/tmp"/>
@@ -110,7 +116,8 @@
         <available file="${lib}/STComm.jar" property="sametime-sdk-present"/>
     	<available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
         <tstamp/>
-        <property name="label" value="${cc.version} Compiled on ${TODAY} ${TSTAMP}"/>
+        <property name="build.version" value="${cc.release.label}"/>
+        <property name="build.version.info" value="Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
 
     <target name="clean" description="Cleans out the build directories" >
@@ -130,7 +137,8 @@
         <copy todir="${classes}">
             <fileset dir="${basedir}" includes="*.properties"/>
             <filterset>
-                <filter token="VERSION" value="${label}" />
+                <filter token="VERSION" value="${build.version}" />
+                <filter token="VERSION_INFO" value="${build.version.info}" />
             </filterset>
         </copy>
         <!-- copy resources like properties from the src-dir -->

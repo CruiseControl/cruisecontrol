@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.EventListener;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -65,6 +66,7 @@ public class CruiseControlController {
     private String configMD5;
     private List projects = new ArrayList();
     private BuildQueue buildQueue = new BuildQueue();
+    private Properties versionProperties;
 
     private List listeners = new ArrayList();
 
@@ -74,6 +76,14 @@ public class CruiseControlController {
 
     public File getConfigFile() {
         return configFile;
+    }
+
+    public void setVersionProperties(Properties versionProperties) {
+        this.versionProperties = versionProperties;
+    }
+
+    public Properties getVersionProperties() {
+       return versionProperties;
     }
 
     public void setConfigFile(File configFile) throws CruiseControlException {
