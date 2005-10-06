@@ -91,6 +91,10 @@ Reporting Application
 * Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Björn Beskow.
 * Clarify installation documentation, specifically around which entries need to be modified (related to CC-264). Patch by Jerome Lacoste.
 
+Surround SCM
+----------------------
+* Handle modifications with no comment (CC-322). Patch by Jerome Lacoste
+
 Tag Libraries
 ----------------------
 * Ability to override the project directory. Patch by Anil Arora, via Jerome Lacoste's moca build.
