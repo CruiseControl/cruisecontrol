@@ -91,8 +91,6 @@ public class CMSynergyModification extends Modification {
     public List changeRequests = new ArrayList();
 
     /**
-     * Constructor
-     * <p>
      * Creates a new <code>CMSynergyModification</code> object and sets it's
      * modification type to "ccmtask".
      */

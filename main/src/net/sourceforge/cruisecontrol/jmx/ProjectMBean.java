@@ -176,7 +176,6 @@ public interface ProjectMBean {
     
     /**
      * Gets the human-readable version of the project status
-     * @return
      */
     public String getStatus();
 }

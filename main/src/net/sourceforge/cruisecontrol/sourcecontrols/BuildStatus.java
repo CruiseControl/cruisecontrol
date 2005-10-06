@@ -80,8 +80,10 @@ public class BuildStatus implements SourceControl {
      *  (e.g. "20040120120000"). */
     public static final String MOST_RECENT_LOGTIME_KEY = "most.recent.logtime";
 
-    /** The label of the newest build included in the modification set
-     *  (e.g. "0.1"). */
+    /**
+     * The label of the newest build included in the modification set
+     *  (e.g. "0.1"). 
+     */
     public static final String MOST_RECENT_LOGLABEL_KEY = "most.recent.loglabel";
 
     private Hashtable properties = new Hashtable();

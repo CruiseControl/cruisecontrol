@@ -79,11 +79,10 @@ public class MergeLogger implements BuildLogger {
     }
 
     /**
-     * sets the pattern which the filenames in a directory must match. 
+     * Sets the pattern which the filenames in a directory must match.
      * Default pattern is "*.xml". Invalidates the current filename
      * filter. The filename filter is compiled using compilePattern().
      * @param pattern a valid Jakarta-ORO Glob pattern.
-     * @see #compilePattern()
      */
     public void setPattern(String pattern) {
         this.pattern = pattern;
@@ -102,7 +101,7 @@ public class MergeLogger implements BuildLogger {
     }
 
     /**
-     * compiles the pattern in the a filename filter. Only compiles
+     * Compiles the pattern in the a filename filter. Only compiles
      * if a pattern is specified and fileNameFilter == null.
      * @throws CruiseControlException if an invalid pattern is specified.
      */
@@ -118,8 +117,6 @@ public class MergeLogger implements BuildLogger {
 
     /**
      * Note: the plugin must be {@link #validate() validated} before calling this method. 
-     * @param buildLog
-     * @throws CruiseControlException
      */
     public void log(Element buildLog) throws CruiseControlException {
         String nextLogFilename = ((file != null) ? file : dir);

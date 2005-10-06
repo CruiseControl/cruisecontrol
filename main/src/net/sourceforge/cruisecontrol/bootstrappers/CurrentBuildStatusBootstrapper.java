@@ -49,7 +49,9 @@ import java.util.Date;
  * Writes an HTML snippet in a file (supposedly in a location where the reporting module can read it), indicating
  * when the current build started.
  *
- * @see {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * <p>See {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat.
+ *
+ * @see net.sourceforge.cruisecontrol.DateFormatFactory
  * @deprecated Was obsoleted by {@link net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener}
  */
 public class CurrentBuildStatusBootstrapper implements Bootstrapper {

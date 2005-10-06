@@ -57,7 +57,7 @@ import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
 
 /**
- * Allows to build and execute a valid accurev command line
+ * Allows to build and execute a valid accurev command line.
  * 
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  * @author <a href="mailto:jason_chown@scee.net">Jason Chown </a>
@@ -303,8 +303,8 @@ public class AccurevCommandline extends EnvCommandline implements AccurevInputPa
     return returnCode;
   }
   /**
-   * Returns the accurev subcommand to be run by this command line object (eg. keep, synctime,
-   * update). The subcommand can be selected by the
+   * Returns the accurev subcommand to be run by this command line object
+   * (eg. keep, synctime, update). The subcommand can be selected by the
    * {@link #AccurevCommandline(AccurevCommand command)} constructor.
    * 
    * @return the command

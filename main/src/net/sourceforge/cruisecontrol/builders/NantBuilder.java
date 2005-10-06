@@ -82,7 +82,7 @@ public class NantBuilder extends Builder {
     }
 
     /**
-     * build and return the results via xml. debug status can be determined from
+     * Build and return the results via xml. Debug status can be determined from
      * log4j category once we get all the logging in place.
      */
     public Element build(Map buildProperties) throws CruiseControlException {

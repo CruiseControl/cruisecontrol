@@ -74,7 +74,6 @@ public class Log {
     private transient String projectName;
 
     /**
-     * @param projectName
      * @throws NullPointerException is projectName is null
      */
     public Log(String projectName) {
@@ -83,16 +82,15 @@ public class Log {
     }
 
     /**
-     * Log instances created that way must have their {@link #setProjectName(String) projectName set}.
+     * Log instances created this way must have their projectName set.
      */
     public Log() {
         reset();
     }
 
     /**
-     * Althought this property is required, it is implicitly defined by the project and doesn't map to
-     * a config file attribute.
-     * @param projectName
+     * Although this property is required, it is implicitly defined by the
+     * project and doesn't map to a config file attribute.
      * @throws NullPointerException is projectName is null
      */
     void setProjectName(String projectName) {
