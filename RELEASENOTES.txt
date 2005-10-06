@@ -43,6 +43,7 @@ DateUtil
 Documentation
 ----------------------
 * Enhanced "getting started" section to incorporate Binary Distribution documentation.
+* Added overview page and architecture diagram. Patch by Jerome Lacoste
 
 EmailPublisher
 ----------------------
