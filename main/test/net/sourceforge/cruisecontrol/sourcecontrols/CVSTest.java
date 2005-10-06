@@ -49,6 +49,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
@@ -126,10 +128,9 @@ public class CVSTest extends TestCase {
             final MockCommandline mockCommandline = new MockCommandline();
             mockCommandline.setExpectedCommandline(expectedCommandline);
             mockCommandline.setExpectedWorkingDirectory(expectedWorkingDirectory);
-            // could System.in and System.out create problems here?
-            mockCommandline.setProcessErrorStream(System.in);
+            mockCommandline.setProcessErrorStream(new PipedInputStream());
             mockCommandline.setProcessInputStream(inputStream);
-            mockCommandline.setProcessOutputStream(System.out);
+            mockCommandline.setProcessOutputStream(new PipedOutputStream());
             return mockCommandline;
         }
     };
