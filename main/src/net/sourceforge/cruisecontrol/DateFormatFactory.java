@@ -49,7 +49,6 @@ public final class DateFormatFactory {
 
     /**
      * Note use {@link #getDateFormat()} when possible.
-     * @return
      */
     public static String getFormat() {
         return format;

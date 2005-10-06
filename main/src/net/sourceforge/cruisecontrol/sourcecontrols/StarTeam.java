@@ -139,10 +139,6 @@ public class StarTeam implements SourceControl {
     /**
      * Populates the modification set with all appropriate information based on
      * the changes since the last successful build.
-     *
-     * @param lastBuild
-     * @param now
-     * @return
      */
     public List getModifications(Date lastBuild, Date now) {
         // Clean out the modifications list.  Otherwise we get duplicate entries

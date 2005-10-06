@@ -266,7 +266,6 @@ public class Modification implements Comparable {
 
     /**
      * Convenience method for getting the filename of the first file
-     * @return
      */
     public String getFileName() {
         if (files.isEmpty()) {
@@ -278,7 +277,6 @@ public class Modification implements Comparable {
 
     /**
      * Convenience method for getting the foldername of the first file
-     * @return
      */
     public String getFolderName() {
         if (files.isEmpty()) {

@@ -207,8 +207,6 @@ public final class DateUtil {
 
     /**
      * Return a String representation of a duration specified in milliseconds.
-     * @param buildLength
-     * @return
      */
     public static String getDurationAsString(final long buildLength) {
         long timeSeconds = buildLength / 1000;

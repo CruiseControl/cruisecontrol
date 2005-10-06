@@ -160,10 +160,6 @@ public class VssJournal implements SourceControl {
     /**
      *  Do the work... I'm writing to a file since VSS will start wrapping lines
      * if I read directly from the stream.
-     *
-     *@param  lastBuild
-     *@param  now
-     *@return
      */
     public List getModifications(Date lastBuild, Date now) {
         this.lastBuild = lastBuild;

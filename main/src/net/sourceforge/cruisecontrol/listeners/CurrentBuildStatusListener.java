@@ -18,7 +18,9 @@ import java.util.Date;
  * Obsoletes both {@link net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper}
  * and {@link net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher}
  *
- * @see {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * 
+ * @see net.sourceforge.cruisecontrol.DateFormatFactory
  * @author jfredrick
  */
 public class CurrentBuildStatusListener implements Listener {

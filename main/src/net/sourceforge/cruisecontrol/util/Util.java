@@ -172,9 +172,6 @@ public final class Util {
 
     /**
      * Return the content of the file specified by its path into a <code>String</code>
-     * @param fileName
-     * @return
-     * @throws java.io.IOException
      */
     public static String readFileToString(String fileName) throws IOException {
         StringBuffer out = new StringBuffer();
@@ -198,9 +195,6 @@ public final class Util {
 
     /**
      * Append the content of the file specified by its path into a <code>StringBuffer</code>
-     * @param fileName
-     * @param out
-     * @throws java.io.IOException
      */
     public static void appendFileToBuffer(String fileName, StringBuffer out) throws IOException {
         FileReader fr = null;

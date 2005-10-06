@@ -62,7 +62,7 @@ import org.jdom.Attribute;
  * that are already registered like AntBuilder that don't have to be registered
  * seperately in the configuration file.
  *
- * The registry keeps track of the {@link #getPluginConfig(Class) plugin configurations}
+ * The registry keeps track of the {@link #getPluginConfig(String) plugin configurations}
  * in order to allow full plugin preconfigurations (default properties + nested elements).
  *
  * @see PluginXMLHelper
@@ -268,8 +268,6 @@ public final class PluginRegistry {
 
     /**
      * Get the plugin configuration particular to this plugin, merged with the parents
-     * @param pluginName
-     * @return
      * @throws NullPointerException if pluginName is null
      */
     public Element getPluginConfig(String pluginName) {

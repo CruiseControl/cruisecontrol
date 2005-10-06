@@ -69,12 +69,13 @@ public class PluginXMLHelper {
      * When the plugin is {@link SelfConfiguringPlugin self-configuring} the plugin takes
      * the responsibility of {@link SelfConfiguringPlugin#configure(org.jdom.Element) configuring itself}
      *
+     * <p>{@link #configure(org.jdom.Element, Object, boolean)} to use when one already has an instance.
+     * 
      * @param objectElement the JDOM Element defining the plugin configuration
      * @param pluginClass the class to instanciate
      * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      * @return fully configured Object
-     * @see {@link #configure(org.jdom.Element, Object, boolean)} to use when one already has an instance.
-     * @see {@link ProjectXMLHelper#getConfiguredPlugin(PluginXMLHelper, String)} to retrieve those instances.
+     * @see #configure(org.jdom.Element, Object, boolean)
      * @throws CruiseControlException
      *   if the plugin class cannot be instantiated,
      *   if the configuration fails
@@ -109,10 +110,6 @@ public class PluginXMLHelper {
     /**
      * Same as {@link #configure(org.jdom.Element, Class, boolean)}, except that
      * the client already has a pluginInstance.
-     * @param objectElement
-     * @param pluginInstance
-     * @param skipChildElements
-     * @return
      * @throws CruiseControlException if the configuration fails
      */
     public Object configure(Element objectElement, Object pluginInstance,

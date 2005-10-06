@@ -56,7 +56,9 @@ import java.io.File;
  * Obsoletes both {@link net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusFTPBootstrapper}
  * and {@link net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher}
  *
- * @see {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * 
+ * @see net.sourceforge.cruisecontrol.DateFormatFactory
  * @author jerome@coffeebreaks.org
  */
 public class CurrentBuildStatusFTPListener extends AbstractFTPClass implements Listener {
