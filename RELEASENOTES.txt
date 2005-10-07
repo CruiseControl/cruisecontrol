@@ -107,6 +107,7 @@ Reporting Application
 * Reads a system property to determine the JMX Control Panel port, defaulting to 8000 (CC-310). Patch by Björn Beskow.
 * Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Björn Beskow.
 * Clarify installation documentation, specifically around which entries need to be modified (related to CC-264). Patch by Jerome Lacoste.
+* XML Log file now sent directly to the browser for rendering, with no more XSLT (CC-294). Patch by Jerome Lacoste.
 
 Surround SCM
 ----------------------
@@ -115,6 +116,7 @@ Surround SCM
 Tag Libraries
 ----------------------
 * Ability to override the project directory. Patch by Anil Arora, via Jerome Lacoste's moca build.
+* Ability to force the URL of a tab. Needed for (CC-294). Patch by Jerome Lacoste.
 
 TimeBuild:
 ----------------------

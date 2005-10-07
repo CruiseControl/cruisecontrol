@@ -105,7 +105,7 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
     /**
      * Having finished the tag, we iterate over the tabs, printing them out correctly.
      * @return  EVAL_PAGE
-     * @throws JspException if there's an error, like an IO error.
+     * @throws JspTagException if there's an error, like an IO error.
      */
     public int doEndTag() throws JspTagException {
         try {
@@ -153,7 +153,7 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
             } else {
                 out.write("<td class=\"tabs\">");
                 out.write("<a class=\"tabs-link\" href=\"");
-                out.write(createUrl("tab", tab.getName()));
+                out.write(tab.getUrl() != null ? tab.getUrl() : createUrl("tab", tab.getName()));
                 out.write("\">");
                 out.write(tab.getLabel());
                 out.write("</a>");

@@ -47,7 +47,9 @@ import javax.servlet.jsp.tagext.Tag;
  */
 public class TabTag extends CruiseControlTagSupport {
     private String name;
+    private String url;
     private String label;
+    private Tab tab;
 
     public int doStartTag() throws JspException {
         Tag parentTag = getParent();
@@ -56,12 +58,22 @@ public class TabTag extends CruiseControlTagSupport {
         }
         TabSheetTag tabSheet = (TabSheetTag) parentTag;
         final boolean selected = isSelected(tabSheet);
-        tabSheet.addTab(new Tab(name, label, selected));
+        tab = new Tab(name, url, label, selected);
+        tabSheet.addTab(tab);
         return selected ? Tag.EVAL_BODY_INCLUDE : Tag.SKIP_BODY;
+    }
+
+    public int doEndTag() throws JspException {
+        tab.setUrl(url);
+        return EVAL_PAGE;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public void setLabel(String label) {

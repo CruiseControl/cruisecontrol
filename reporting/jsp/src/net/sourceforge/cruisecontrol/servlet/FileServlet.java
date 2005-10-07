@@ -148,7 +148,12 @@ public class FileServlet extends HttpServlet {
 
         if (file.isFile()) {
             String filename = file.getName();
-            String mimeType = getMimeType(filename);
+            String mimeType;
+            if (request.getParameter("mimetype") != null) {
+                mimeType = request.getParameter("mimetype");
+            } else {
+                mimeType = getMimeType(filename);
+            }
             Date date = new Date(file.getFile().lastModified());
             SimpleDateFormat lastModifiedDateFormat = new SimpleDateFormat(LAST_MODIFIED_DATE_FORMAT);
             lastModifiedDateFormat.setTimeZone(GMT);
