@@ -325,7 +325,7 @@
        <mkdir dir="${apidocs}"/>
 
        <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*"
-           breakiterator="yes">
+           breakiterator="yes" failonerror="true">
            <classpath>
                <path refid="project.classpath" />
                <pathelement location="${src}" />

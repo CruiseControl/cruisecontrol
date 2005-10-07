@@ -86,25 +86,16 @@ public final class BuildInfoSummary implements Serializable {
         return numSuccessfulBuilds;
     }
     
-    /**
-     * @return
-     */
     public Iterator iterator() {
         return buildInfoList.iterator();
     }
     
-    /**
-     * @return
-     */
     public int size() {
         return buildInfoList.size();
     }
 
 
 
-    /**
-     * @return
-     */
     public BuildInfo[] asArray() {
         return (BuildInfo[]) buildInfoList.toArray(new BuildInfo[buildInfoList.size()]);
     }
