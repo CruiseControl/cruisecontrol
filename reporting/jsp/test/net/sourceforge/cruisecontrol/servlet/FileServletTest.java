@@ -38,8 +38,8 @@ package net.sourceforge.cruisecontrol.servlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -119,7 +119,25 @@ public class FileServletTest extends TestCase {
     /*
      * Test for void service(HttpServletRequest, HttpServletResponse)
      */
-    public void testService() throws ServletException, IOException {
+    public void testServiceInvalidFile() throws ServletException, IOException {
+        MockServletRequest request = new MockServletRequest();
+        MockServletResponse response = new MockServletResponse();
+
+        final String fileName = "tmp12345.html";
+        request.setPathInfo(fileName);
+
+        servlet.service(request, response);
+        String actual = response.getWritten();
+        String expected = "<html><body><h1>" + fileName + "</h1><h1>Invalid File or Directory</h1></body></html>";
+        assertEquals(expected, actual);
+        String actualMimeType = response.getContentType();
+        assertEquals("text/html", actualMimeType);
+    }
+
+    /*
+     * Test for void service(HttpServletRequest, HttpServletResponse)
+     */
+    public void testServiceFile() throws ServletException, IOException {
         MockServletRequest request = new MockServletRequest();
         MockServletResponse response = new MockServletResponse();
         File file = File.createTempFile("tmp", ".html");
@@ -131,13 +149,61 @@ public class FileServletTest extends TestCase {
             File getRootDir(ServletConfig servletconfig) {
                 return dir;
             }
+
+            String getMimeType(String filename) {
+                if (filename.endsWith(".html")) {
+                    return "text/html";
+                }
+                return null;
+            }
         };
+        final MockServletConfig servletconfig = new MockServletConfig();
+        servletconfig.setServletContext(new MockServletContext());
+        servlet.init(servletconfig);
         servlet.service(request, response);
         String actual = response.getWritten();
-        String expected = "<html><body><h1>" + file.getName() + "</h1><h1>Invalid File or Directory</h1></body></html>";
+        String expected = "";
         assertEquals(expected, actual);
         String actualMimeType = response.getContentType();
         assertEquals("text/html", actualMimeType);
+    }
+
+    /*
+     * Test for void service(HttpServletRequest, HttpServletResponse)
+     */
+    public void testServiceParametrizedMimeType() throws ServletException, IOException {
+        MockServletRequest request = new MockServletRequest();
+        MockServletResponse response = new MockServletResponse();
+        File file = File.createTempFile("tmp", ".html");
+        file.deleteOnExit();
+        final File dir = file.getParentFile();
+
+        request.setPathInfo(file.getName());
+        request.addParameter("mimetype", "text/plain");
+        servlet = new FileServlet() {
+            File getRootDir(ServletConfig servletconfig) {
+                return dir;
+            }
+
+            String getMimeType(String filename) {
+                if (filename.endsWith(".html")) {
+                    return "text/html";
+                }
+                return null;
+            }
+        };
+        final MockServletConfig servletconfig = new MockServletConfig();
+        servletconfig.setServletContext(new MockServletContext());
+        servlet.init(servletconfig);
+        servlet.service(request, response);
+        String actual = response.getWritten();
+        String expected = "";
+        assertEquals(expected, actual);
+        String actualMimeType = response.getContentType();
+        assertEquals("text/plain", actualMimeType);
+
+        request.setPathInfo(file.getName());
+
     }
 
     public void testGetIndexes() throws ServletException, IOException {

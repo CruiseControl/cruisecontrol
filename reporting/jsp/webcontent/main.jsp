@@ -58,6 +58,7 @@
         <cruisecontrol:tabsheet>
           <tr>
             <td bgcolor="white" >
+
               <cruisecontrol:tab name="buildResults" label="Build Results" >
                 <%@ include file="buildresults.jsp" %>
               </cruisecontrol:tab>
@@ -66,9 +67,8 @@
                 <%@ include file="testdetails.jsp" %>
               </cruisecontrol:tab>
 
-              <cruisecontrol:tab name="xmlLogFile" label="XML Log File" >
-                <%@ include file="xmllog.jsp" %>
-              </cruisecontrol:tab>
+              <cruisecontrol:xsl url="logs_url" serveContent="false"/>
+              <cruisecontrol:tab name="log" url="<%=logs_url%>" label="XML Log File" />
 
               <cruisecontrol:tab name="metrics" label="Metrics" >
                 <%@ include file="metrics.jsp" %>

@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2003, ThoughtWorks, Inc.
+ * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -36,40 +36,29 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import javax.servlet.jsp.tagext.TagData;
+import javax.servlet.jsp.tagext.TagExtraInfo;
+import javax.servlet.jsp.tagext.VariableInfo;
+
 /**
- *
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author jerome@coffeebreaks.org
  */
-public class Tab {
-    private final String name;
-    private String url;
-    private final String label;
-    private final boolean selected;
+public class XSLTagExtraInfo extends TagExtraInfo {
 
-    public Tab(String name, String url, String label, boolean selected) {
-        this.name = name;
-        this.url = url;
-        this.label = label;
-        this.selected = selected;
+    public VariableInfo[] getVariableInfo(TagData data) {
+        if (data.getAttribute("url") != null) {
+            return new VariableInfo[] {
+                new VariableInfo(data.getAttributeString("url"),
+                                 "java.lang.String",
+                                 true,
+                                 VariableInfo.AT_END)
+            };
+        } else {
+            return new VariableInfo[] {};
+        }
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public boolean isSelected() {
-        return selected;
+    public boolean isValid(TagData tagData) {
+        return true; //FIXME
     }
 }

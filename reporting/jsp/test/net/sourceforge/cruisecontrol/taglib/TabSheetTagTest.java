@@ -98,7 +98,7 @@ public class TabSheetTagTest extends TestCase {
     }
 
     public void testClearTabsOnStart() throws JspException {
-        tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
+        tabSheet.addTab(new Tab("tabname1", null, "Tab Name 1", false));
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag()); // side effect of this should clear
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
         final String expected = START_SHEET
@@ -109,7 +109,7 @@ public class TabSheetTagTest extends TestCase {
     }
 
     public void testClearTabsOnRelease() throws JspException {
-        tabSheet.addTab(new Tab("tabname1", "Tab Name 1", false));
+        tabSheet.addTab(new Tab("tabname1", null, "Tab Name 1", false));
         tabSheet.release();
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag()); // wouldn't normally call this after a release
                                                           // but good enough way to test.
@@ -121,8 +121,9 @@ public class TabSheetTagTest extends TestCase {
 
     // Let's put it all together...
     public void testPrintTabSheetTab1Selected() throws JspException, IOException {
-        final Tab tab1 = new Tab("tabname1", "Tab Name 1", true);
-        final Tab tab2 = new Tab("tabname2", "Tab Name 2", false);
+        final Tab tab1 = new Tab("tabname1", null, "Tab Name 1", true);
+        final Tab tab2 = new Tab("tabname2", null, "Tab Name 2", false);
+        final Tab tab3 = new Tab("tabname3", "mylink", "Tab Name 3", false);
 
         assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag());
 
@@ -130,6 +131,7 @@ public class TabSheetTagTest extends TestCase {
 
         tabSheet.addTab(tab1);
         tabSheet.addTab(tab2);
+        tabSheet.addTab(tab3);
         assertEquals(Tag.SKIP_BODY, tabSheet.doAfterBody());
         assertEquals("", pageContext.getOut().toString());  // don't write out anything during afterbody
         assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
@@ -140,6 +142,8 @@ public class TabSheetTagTest extends TestCase {
                           + "Tab Name 1</td>"
                           + "<td class=\"tabs\"><a class=\"tabs-link\" href=\"/context/servlet?tab=tabname2\">"
                           + "Tab Name 2</a></td>"
+                          + "<td class=\"tabs\"><a class=\"tabs-link\" href=\"mylink\">"
+                          + "Tab Name 3</a></td>"
                           + END_OF_HEADERS
                           + "This is Tab 1" + END_OF_TABLE;
 
@@ -147,8 +151,8 @@ public class TabSheetTagTest extends TestCase {
     }
 
     public void testPrintTabSheetTab2Selected() throws JspException, IOException {
-        final Tab tab1 = new Tab("tabname1", "Tab Name 1", false);
-        final Tab tab2 = new Tab("tabname2", "Tab Name 2", true);
+        final Tab tab1 = new Tab("tabname1", null, "Tab Name 1", false);
+        final Tab tab2 = new Tab("tabname2", null, "Tab Name 2", true);
 
         tabSheet.getBodyContent().write("This is Tab 2");
 
