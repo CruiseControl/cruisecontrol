@@ -316,7 +316,7 @@
             <fileset dir="${classes}"/>
             <fileset dir="${xsl}"/>
             <manifest>
-                <attribute name="Implementation-Version" value="${label}"/>  
+                <attribute name="Implementation-Version" value="${build.version} ${build.version.info}"/>  
             </manifest>
         </jar>
     </target>
