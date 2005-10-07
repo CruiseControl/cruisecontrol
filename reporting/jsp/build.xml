@@ -202,7 +202,8 @@
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
        <mkdir dir="${apidocs}"/>
 
-       <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*">
+       <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*"
+           breakiterator="yes" failonerror="true">
            <classpath>
                <path refid="project.classpath" />
                <pathelement location="${src}" />

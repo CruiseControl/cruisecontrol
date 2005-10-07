@@ -163,7 +163,6 @@ public class CruiseControlTagSupport extends TagSupport {
      * Create a link to the app, including the supplied parameter, but preserving all other parameters.
      * @param paramName  the name of the parameter.
      * @param paramValue the value of the parameter
-     * @return
      */
     protected String createUrl(String paramName, String paramValue) {
         StringBuffer url = new StringBuffer(getServletPath());
@@ -231,9 +230,6 @@ public class CruiseControlTagSupport extends TagSupport {
         }
     }
 
-    /**
-     * @return
-     */
     protected Locale getLocale() {
         return pageContext.getRequest().getLocale();
     }
