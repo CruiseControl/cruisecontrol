@@ -76,7 +76,7 @@ public class AlienBrainTest extends TestCase {
      * Just want to see if the AlienBrain class can even be found.
      */ 
     public void testConstruction() {
-        AlienBrain ab = new AlienBrain();
+        new AlienBrain();
     }
     
     /**

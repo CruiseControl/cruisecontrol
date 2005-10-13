@@ -58,7 +58,6 @@ public class NantScript implements Script {
     private boolean useLogger;
     private boolean useQuiet;
     private boolean useDebug;
-    private boolean useVerbose;
     private String buildFile = "default.build";
     private String target = "";
     private String targetFramework;

@@ -27,14 +27,12 @@ public class SocketPublisherTest extends TestCase {
     private static class MockSocket extends Socket {
 
         private final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        private boolean isClosed = false;
 
         public OutputStream getOutputStream() throws IOException {
             return out;
         }
 
         public synchronized void close() throws IOException {
-            isClosed = true;
         }
 
         public String toString() {

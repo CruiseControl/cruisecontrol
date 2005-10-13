@@ -51,8 +51,6 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class AntScriptTest extends TestCase {
     private AntScript script;
-    private final List filesToClear = new ArrayList();
-    private AntBuilder builder;
     private AntBuilder unixBuilder;
     private AntBuilder windowsBuilder;
     private Hashtable properties;

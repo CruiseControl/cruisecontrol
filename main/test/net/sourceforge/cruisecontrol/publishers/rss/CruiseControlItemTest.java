@@ -50,11 +50,7 @@ import org.jdom.Element;
  */
 public class CruiseControlItemTest extends TestCase {
 
-
     private XMLLogHelper successLogHelper;
-    private XMLLogHelper fixedLogHelper;
-    private XMLLogHelper failureLogHelper;
-    private XMLLogHelper firstFailureLogHelper;
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess);
@@ -64,9 +60,6 @@ public class CruiseControlItemTest extends TestCase {
 
     public void setUp() {
         successLogHelper = createLogHelper(true, true);
-        failureLogHelper = createLogHelper(false, false);
-        fixedLogHelper = createLogHelper(true, false);
-        firstFailureLogHelper = createLogHelper(false, true);
     }
 
 
