@@ -81,23 +81,16 @@ public class HTMLEmailPublisherTest extends TestCase {
         }
     }
 
-    private void checkFileNames(String dir) throws CruiseControlException {
-        String[] fileNames = publisher.getXslFileNames();
-        if (fileNames == null) {
-            throw new CruiseControlException("HTMLEmailPublisher.getXslFileNames() can't return null");
-        }
+    private void checkXslFileNamesExistInDir(String dir, String[] fileNames) {
+        assertNotNull("getXslFileNames() returned null", fileNames);
 
         for (int i = 0; i < fileNames.length; i++) {
             String fileName = fileNames[i];
             File file = new File(dir, fileName);
-            if (!file.exists()) {
-                throw new CruiseControlException(
-                    fileName + " does not exist: " + file.getAbsolutePath());
-            }
-            if (!file.isFile()) {
-                throw new CruiseControlException(
-                    fileName + " is not a file: " + file.getAbsolutePath());
-            }
+            assertTrue("file should exist: " + file.getAbsolutePath(),
+                            file.exists());
+            assertTrue("value shouldn't be a directory: " + file.getAbsolutePath(),
+                            file.isFile());
         }
     }
 
@@ -105,28 +98,22 @@ public class HTMLEmailPublisherTest extends TestCase {
         try {
             publisher.setXSLFileList(null);
             fail("setXSLFileList should fail when called with null");
-        } catch (IllegalArgumentException ex) {
-            // should fail
+        } catch (IllegalArgumentException expected) {
         }
+
         try {
             publisher.setXSLFileList("");
-            fail("should fail if specified xslFileList file is empty");
-        } catch (IllegalArgumentException ex) {
-            // should fail
+            fail("setXSLFileList should fail if specified xslFileList file is empty");
+        } catch (IllegalArgumentException expected) {
         }
         
         tmpFile =  File.createTempFile("HTMLEmailPublisherTest", null);
         tmpFile.deleteOnExit();
-        publisher.setXSLDir(tmpFile.getParent());
-        String[] origFileNames = publisher.getXslFileNames();
+        String xsldir = tmpFile.getParent();
+        publisher.setXSLDir(xsldir);
         publisher.setXSLFileList(tmpFile.getName());
         String[] newFileNames = publisher.getXslFileNames();
-        try {
-            checkFileNames(tmpFile.getParent());
-        } catch (CruiseControlException ex) {
-            fail("setXSLFileList with single filename failed to validate:\n" + ex);
-        }
-
+        checkXslFileNamesExistInDir(xsldir, newFileNames);
         assertEquals(1, newFileNames.length);
 
         // should work, regardless of spaces & comma between filenames
@@ -135,63 +122,20 @@ public class HTMLEmailPublisherTest extends TestCase {
                                  + "   ,,,"
                                  + tmpFile.getName());
         newFileNames = publisher.getXslFileNames();
-        try {
-            checkFileNames(tmpFile.getParent());
-        } catch (CruiseControlException ex) {
-            fail("setXSLFileList with two filenames failed to validate");
-        }
+        checkXslFileNamesExistInDir(xsldir, newFileNames);
         assertEquals(2, newFileNames.length);
 
         // append should work
         publisher.setXSLFileList("+" + tmpFile.getName());
         newFileNames = publisher.getXslFileNames();
-        try {
-            checkFileNames(tmpFile.getParent());
-        } catch (CruiseControlException ex) {
-            fail("setXSLFileList, append mode failed to validate");
-        }
-        
+        checkXslFileNamesExistInDir(xsldir, newFileNames);
         assertEquals(3, newFileNames.length);
 
         // should work, if leading spaces
         publisher.setXSLFileList("     +" + tmpFile.getName());
         newFileNames = publisher.getXslFileNames();
-        try {
-            checkFileNames(tmpFile.getParent());
-        } catch (CruiseControlException ex) {
-            fail("setXSLFileList, append with leading spaces failed to validate");
-        }
+        checkXslFileNamesExistInDir(xsldir, newFileNames);
         assertEquals(4, newFileNames.length);
-
-        // should fail if some files exist, but some don't
-        publisher.setXSLFileList(tmpFile.getName()
-                                 + " "
-                                 + "this-file-does-not-exist");
-        try {
-            checkFileNames(tmpFile.getParent());
-            fail ("should fail if some xslFileList exist, but some files don't");
-        } catch (CruiseControlException ex) {
-            // should fail
-        }
-
-        publisher.setXSLFileList("+"
-                                 + tmpFile.getName()
-                                 + " "
-                                 + "this-file-does-not-exist");
-        try {
-            checkFileNames(tmpFile.getParent());
-            fail ("should fail to append if some xslFileList exist, but some files don't");
-        } catch (CruiseControlException ex) {
-            // should fail
-        }
-        
-        publisher.setXSLFileList("+ " + tmpFile.getName());
-        try {
-            checkFileNames(tmpFile.getParent());
-            fail ("should fail if space between leading '+' and first file in xslFileList");
-        } catch (CruiseControlException ex) {
-            // should fail
-        }
     }
 
     public void testCreateLinkLine() {
