@@ -130,7 +130,9 @@ public class MergeLogger implements BuildLogger {
      */
     private void mergeFile(File nextLogFile, Element buildLog) {
 
-        if (nextLogFile.isDirectory()) {
+        if (!nextLogFile.exists()) {
+            LOG.info(nextLogFile.toString() + " does not exist. Skipping ...");
+        } else if (nextLogFile.isDirectory()) {
             File[] children = nextLogFile.listFiles(new FileFilter() {
                 public boolean accept(File file) {
                     return file.isDirectory()
