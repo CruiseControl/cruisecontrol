@@ -119,7 +119,7 @@
         <servlet-class>net.sourceforge.cruisecontrol.servlet.FileServlet</servlet-class>
         <init-param>
             <param-name>rootDir</param-name>
-            <param-value>@cruise.build.artifacts.dir@</param-value>
+            <param-value>@ARTIFACTS DIRECTORY@</param-value>
         </init-param>
     </servlet>
 

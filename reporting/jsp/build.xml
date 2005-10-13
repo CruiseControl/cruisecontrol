@@ -158,7 +158,7 @@
     <target name="create-web-xml" depends="-set.log.dir, -set.status.file, -set.artifacts.dir">
         <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
         <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
-        <filter token="cruise.build.artifacts.dir" value="${cruise.build.artifacts.dir}"/>
+        <filter token="ARTIFACTS DIRECTORY" value="${cruise.build.artifacts.dir}"/>
         <copy filtering="true" todir="${temp.dir}" file="${webcontent}/WEB-INF/web.xml" />
     </target>
 
