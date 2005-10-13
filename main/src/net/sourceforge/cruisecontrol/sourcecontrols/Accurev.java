@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.StringTokenizer;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -52,6 +54,7 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevInputParser;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.DateTimespec;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -167,7 +170,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
       if (line.startsWith("transaction")) {
         // transaction <id>; <verb>; YYYY/MM/DD hh:mm:ss ; user: <user>
         modification = new Modification();
-        String[] parts = line.split(";");
+        String[] parts = getParts(line);
         modification.comment = "";
         modification.revision = parts[0].substring(parts[0].indexOf(' ') + 1);
         modification.type = parts[1].trim();
@@ -198,6 +201,17 @@ public class Accurev implements SourceControl, AccurevInputParser {
       }
     }
     return true;
+  }
+  
+  private String[] getParts(String line) {
+    List partsList = new ArrayList();
+    StringTokenizer tokenizer = new StringTokenizer(line, ";");
+    while (tokenizer.hasMoreTokens()) {
+        partsList.add(tokenizer.nextToken());
+    }
+    String[] parts = new String[partsList.size()];
+    partsList.toArray(parts);
+    return parts;
   }
   private void addPropertyOnDelete() {
     if (propertyOnDelete != null) {

@@ -49,13 +49,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.StringTokenizer;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
@@ -137,6 +139,7 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     modification = createModification("norru", null, "", "120217", "2005/06/22 11:07:27", "defcomp");
     assertEquals(modification, modifications.get(5));
   }
+  
   /**
    * Picks the last stream name from a list of streams
    */
@@ -148,8 +151,14 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     show.run();
     assertNotNull(collector.lines);
     assertTrue(collector.lines.size() > 1);
-    return collector.lines.get(collector.lines.size() - 1).toString().split("[ \t]")[0];
+    String lastLine = collector.lines.get(collector.lines.size() - 1).toString();
+    return getNameFromLine(lastLine);
   }
+
+  private String getNameFromLine(String lastLine) {
+    return new StringTokenizer(lastLine, " \t").nextToken();
+  }
+  
   public void testValidate() {
     Accurev accurev = new Accurev();
     try {
