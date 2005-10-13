@@ -62,7 +62,6 @@ public class NantBuilder extends Builder {
     private List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
-    private boolean useVerbose = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private File saveLogDir = null;
     private String targetFramework = null;
@@ -261,10 +260,6 @@ public class NantBuilder extends Builder {
 
     public void setUseDebug(boolean debug) {
         useDebug = debug;
-    }
-
-    public void setUseVerbose(boolean verbose) {
-        useVerbose = verbose;
     }
 
     public void setUseQuiet(boolean quiet) {

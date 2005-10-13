@@ -57,20 +57,6 @@ import java.util.List;
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class SnapshotCMTest extends TestCase {
-//    private TimeZone originalTimeZone;
-
-    protected void setUp() throws Exception {
-//        originalTimeZone = TimeZone.getDefault();
-    }
-
-    protected void tearDown() throws Exception {
-//        TimeZone.setDefault(originalTimeZone);
-//        originalTimeZone = null;
-    }
-
-    private Date parseSnaphotInDateFormat(String dateString) throws ParseException {
-        return SnapshotCM.IN_DATE_FORMAT.parse(dateString);
-    }
 
     private Date parseSnaphotOutDateFormat(String dateString) throws ParseException {
         return SnapshotCM.OUT_DATE_FORMAT.parse(dateString);

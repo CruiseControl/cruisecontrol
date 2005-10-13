@@ -51,11 +51,6 @@ import org.jdom.Element;
  */
 public class RSSPublisherTest extends TestCase {
 
-    private XMLLogHelper successLogHelper;
-    private XMLLogHelper fixedLogHelper;
-    private XMLLogHelper failureLogHelper;
-    private XMLLogHelper firstFailureLogHelper;
-    //private RSSPublisher publisher;
     private File tmpFile;
 
 
@@ -66,10 +61,6 @@ public class RSSPublisherTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        successLogHelper = createLogHelper(true, true);
-        failureLogHelper = createLogHelper(false, false);
-        fixedLogHelper = createLogHelper(true, false);
-        firstFailureLogHelper = createLogHelper(false, true);
         tmpFile = File.createTempFile("rsspublisher-test", "tmp");
     }
 

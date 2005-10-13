@@ -74,7 +74,7 @@ public class UtilTest extends TestCase {
     public void testLoadPropertiesFromFileMustExist() {
         File file = new File("NoSuchFile");
         try {
-            Properties properties = Util.loadPropertiesFromFile(file);
+            Util.loadPropertiesFromFile(file);
             fail("A non-existant properties file should cause an exception!");
         } catch (Exception e) {
         }

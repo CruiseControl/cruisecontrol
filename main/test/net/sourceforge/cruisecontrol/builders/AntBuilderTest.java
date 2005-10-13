@@ -60,9 +60,6 @@ public class AntBuilderTest extends TestCase {
     private AntBuilder unixBuilder;
     private AntBuilder windowsBuilder;
     private Hashtable properties;
-    private static final boolean USE_LOGGER = true;
-    private static final boolean USE_SCRIPT = true;
-    private static final boolean IS_WINDOWS = true;
     private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/log4j.jar:"
