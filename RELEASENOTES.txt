@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+CruiseControlTagSupport:
+----------------------
+* Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com. 
+
 general:
 ----------------------
 * Minor changes to make code jdk 1.3 compliant.

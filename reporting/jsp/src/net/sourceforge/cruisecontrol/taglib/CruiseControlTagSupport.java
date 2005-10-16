@@ -49,6 +49,10 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 /**
  * A helper class to consolidate tags that deal with log files.
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
@@ -63,6 +67,10 @@ public class CruiseControlTagSupport extends TagSupport {
         }
     };
 
+    public static Log getLog(Class clazz) {
+        return (LogFactory.getLog(clazz));
+    }
+
     private static final FilenameFilter DIR_FILTER = new FilenameFilter() {
         public boolean accept(File dir, String name) {
             return (new File(dir, name).isDirectory());
@@ -72,15 +80,15 @@ public class CruiseControlTagSupport extends TagSupport {
     private String projectName = null;
 
     protected void info(String message) {
-        System.out.println(message);
+        getLog(this.getClass()).info(message);
     }
 
     protected void err(String message) {
-        System.err.println(message);
+        getLog(this.getClass()).error(message);
     }
 
     protected void err(Throwable exception) {
-        exception.printStackTrace();
+        getLog(this.getClass()).error(exception);
     }
 
     protected String getBaseLogDir() throws JspException {

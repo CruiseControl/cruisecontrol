@@ -74,6 +74,7 @@
             <include name="cewolf*.jar"/>
             <include name="jfreechart*.jar"/>
             <include name="jcommon*.jar"/>
+            <include name="commons-logging*.jar"/>
         </fileset>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
