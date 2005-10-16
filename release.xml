@@ -92,7 +92,7 @@
         </replace>
 
         <property name="cc.zip.prefix" value="cruisecontrol-${cc.release.label}"/>
-        <zip zipfile="target/cruisecontrol-${cc.release.label}.zip">
+        <zip zipfile="target/cruisecontrol-src-${cc.release.label}.zip">
             <zipfileset dir="target/zip" prefix="${cc.zip.prefix}"/>
             <zipfileset dir="." prefix="${cc.zip.prefix}">
                 <exclude name="**/*.html"/>
@@ -102,6 +102,7 @@
                 <exclude name="release*"/>
                 <exclude name="**/binaryrelease/**"/>
                 <exclude name=".pc/**"/>
+                <exclude name="**/dist/**"/>
             </zipfileset>
         </zip>
     </target>

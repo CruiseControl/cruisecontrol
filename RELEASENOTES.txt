@@ -8,6 +8,10 @@ CruiseControlTagSupport:
 ----------------------
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
 
+distribution:
+----------------------
+* Exclude pre-built binaries from source distribution and rename zip to include "src" in the name (CC-336). 
+
 general:
 ----------------------
 * Minor changes to make code jdk 1.3 compliant.
