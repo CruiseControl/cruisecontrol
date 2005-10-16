@@ -82,8 +82,27 @@ public class XSLTag extends CruiseControlTagSupport {
 
     public int doStartTag() throws JspException {
         toServe = prepareContent();
-        String urlValue = toServe.getPath().replace('\\', '/');
         if (url != null) {
+            String urlPath = toServe.getPath();
+            String baseLogDir = getBaseLogDir();
+            String urlValue = urlPath;
+
+            // if logDir was specified with an absolute path, find the relative one.
+            // also makes sure we support relative directory names non equal 
+            // to the uri prefix used by cruisecontrol ("logs")
+            if (urlValue.startsWith(baseLogDir)) {
+                urlValue = urlValue.substring(baseLogDir.length());
+            }
+
+            urlValue = urlValue.replace('\\', '/');
+            if (urlValue.startsWith("/")) {
+                urlValue = urlValue.substring(1);
+            }
+
+            // add the uri prefix, which must be so that the url will be handled by
+            // the log file servlet (Cf. log file servlet servletMapping in web.xml)
+            urlValue = "logs/" + urlValue;
+            info("log file path is: " + urlPath);
             info("logURL is var: " + url + " value: " + urlValue);
             getPageContext().setAttribute(url, urlValue);
         }

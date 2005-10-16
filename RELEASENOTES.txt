@@ -6,7 +6,7 @@ CruiseControl Release Notes - Latest CVS
 
 CruiseControlTagSupport:
 ----------------------
-* Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com. 
+* Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
 
 general:
 ----------------------
@@ -21,6 +21,9 @@ tests:
 ------------
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
 
+XSLTag:
+------------
+* Handle absolute path for logdir attribute (CC-341). Patch by Jerome Lacoste.
 
 CruiseControl Release Notes - 2.3.1
 
