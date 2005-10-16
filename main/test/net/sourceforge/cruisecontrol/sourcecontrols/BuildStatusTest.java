@@ -105,9 +105,7 @@ public class BuildStatusTest extends TestCase {
      * Verify the getModifications() method works properly.
      */
     public void testGetModifications() throws Exception {
-        File tempFile = File.createTempFile("temp", "txt");
-        File tempDir = tempFile.getParentFile();
-        tempFile.delete();
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
 
         buildStatus.setLogDir(tempDir.getAbsolutePath());
         buildStatus.validate();

@@ -54,6 +54,7 @@ public class FeedTest extends TestCase {
 
     public void setUp() throws Exception {
         tempFile = File.createTempFile("FeedTest", "tmp");
+        tempFile.deleteOnExit();
 
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tempFile));
         InputStream is =  getClass().getResourceAsStream("RSSFeed.xml");

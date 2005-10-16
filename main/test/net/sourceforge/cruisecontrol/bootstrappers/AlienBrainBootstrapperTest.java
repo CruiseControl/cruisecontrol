@@ -115,6 +115,7 @@ public class AlienBrainBootstrapperTest extends TestCase {
         bootStrapper.setForceFileUpdate(true);
 
         java.io.File tempFile = java.io.File.createTempFile("AlienBrainBootstrapperTest", null);
+        tempFile.deleteOnExit();
         bootStrapper.setLocalPath(tempFile.getCanonicalPath());
         bootStrapper.setOverwriteWritable("replace");
 

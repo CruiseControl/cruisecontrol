@@ -94,11 +94,11 @@ public class EmailPublisherTest extends TestCase {
         // create a temp file to test propertiesmapper
         Properties props = new Properties();
         tmpFile = File.createTempFile("cruise", "Test");
+        tmpFile.deleteOnExit();
         props.setProperty("always1", "always1");
         FileOutputStream fos = new FileOutputStream(tmpFile);
         props.store(fos, null);
         fos.close();
-        tmpFile.deleteOnExit();
 
         String xml = generateXML(true);
         emailPublisher = initPublisher(propertiesMapper, xml);

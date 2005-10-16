@@ -61,10 +61,7 @@ public class MergeLoggerTest extends TestCase {
         logger = new MergeLogger();
         log = getBasicLog();
 
-        File tempFile = File.createTempFile(MergeLoggerTest.class.getName(), ".test");
-        File tempDir = tempFile.getParentFile();
-        tempFile.delete();
-        
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
         tempSubdir = new File(tempDir, "cruisecontroltest" + System.currentTimeMillis());
         tempSubdir.mkdir();
     }

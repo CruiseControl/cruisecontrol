@@ -13,6 +13,11 @@ MergeLogger:
 ------------
 * cleanly skip non existing log files and directories
 
+tests:
+------------
+* Delete temp files created by tests (CC-344). Patch by Mark Doliner.
+
+
 CruiseControl Release Notes - 2.3.1
 
 Binary Distribution

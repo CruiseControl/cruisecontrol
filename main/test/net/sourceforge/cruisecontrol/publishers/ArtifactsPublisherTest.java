@@ -54,6 +54,7 @@ public class ArtifactsPublisherTest extends TestCase {
     protected void setUp() throws Exception {
         publisher = new ArtifactsPublisher();
         tempFile = File.createTempFile("temp", ".tmp");
+        tempFile.deleteOnExit();
     }
 
     protected void tearDown() throws Exception {

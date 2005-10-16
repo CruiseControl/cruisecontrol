@@ -444,6 +444,15 @@ public class ProjectXMLHelperTest extends TestCase {
       writeContentsToFile(configFile, config.toString());
   }
 
+    protected void tearDown() {
+        // The directory "foo" in the system's temporary file location
+        // is created by CruiseControl when using the config file below.
+        // Specifically because of the line:
+        //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
+        File fooDirectory = new File(tempDirectory, "foo");
+        fooDirectory.delete();
+    }
+
     private StringBuffer createTestConfigFileContents(String tempDirPath) {
       // Note: the project1 and project3 directories will be created 
       // in <testexecutiondir>/logs/

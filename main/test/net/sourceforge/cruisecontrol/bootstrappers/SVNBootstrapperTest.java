@@ -48,8 +48,13 @@ import java.io.IOException;
  */
 public class SVNBootstrapperTest extends TestCase {
 
+    private SVNBootstrapper bootStrapper;
+
+    protected void setUp()  {
+        bootStrapper = new SVNBootstrapper();
+    }
+
     public void testValidate() throws IOException {
-        SVNBootstrapper bootStrapper = new SVNBootstrapper();
         try {
             bootStrapper.validate();
             fail("should throw an exception when no attributes are set");
@@ -98,13 +103,10 @@ public class SVNBootstrapperTest extends TestCase {
         }
     }
 
-    public void testBuildUpdateCommand() throws IOException, CruiseControlException {
-        SVNBootstrapper bootStrapper = new SVNBootstrapper();
+    public void testBuildUpdateCommand() throws CruiseControlException {
+        String tempDir = System.getProperty("java.io.tmpdir");
 
-        File tempFile = File.createTempFile("temp", "txt");
-
-        bootStrapper.setLocalWorkingCopy(tempFile.getParent());
-        tempFile.delete();
+        bootStrapper.setLocalWorkingCopy(tempDir);
         String command = bootStrapper.buildUpdateCommand().toString();
         assertEquals("svn update --non-interactive", command);
 
