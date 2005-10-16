@@ -46,7 +46,6 @@ import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -146,7 +145,7 @@ public class CVSTest extends TestCase {
     }
 
 
-    public void testValidate() throws IOException {
+    public void testValidate() {
         final MockOSEnvironment env = new MockOSEnvironment();
         CVS cvs = new CVS() {
             protected OSEnvironment getOSEnvironment() {
@@ -197,9 +196,7 @@ public class CVSTest extends TestCase {
         }
 
         cvs = new CVS();
-        File tempFile = File.createTempFile("temp", ".txt");
-        cvs.setLocalWorkingCopy(tempFile.getParent());
-        tempFile.delete();
+        cvs.setLocalWorkingCopy(System.getProperty("java.io.tmpdir"));
 
         try {
             cvs.validate();

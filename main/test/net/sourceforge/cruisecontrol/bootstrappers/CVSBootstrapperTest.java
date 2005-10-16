@@ -98,10 +98,10 @@ public class CVSBootstrapperTest extends TestCase {
         }
     }
 
-    public void testBuildUpdateCommand() throws IOException, CruiseControlException {
-        File tempFile = File.createTempFile("temp", "txt");
+    public void testBuildUpdateCommand() throws CruiseControlException {
+        String tempDir = System.getProperty("java.io.tmpdir");
 
-        bootStrapper.setLocalWorkingCopy(tempFile.getParent());
+        bootStrapper.setLocalWorkingCopy(tempDir);
         assertEquals(
             "cvs update -dP",
             bootStrapper.buildUpdateCommand().toString());

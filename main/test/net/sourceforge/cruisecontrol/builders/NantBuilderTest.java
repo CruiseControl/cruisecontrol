@@ -123,7 +123,8 @@ public class NantBuilderTest extends TestCase {
 
         BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
-        rootTempDir = new File(new File(File.createTempFile("temp", "txt").getParent()), "testRoot");
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        rootTempDir = new File(tempDir, "testRoot");
         rootTempDir.mkdir();
     }
 

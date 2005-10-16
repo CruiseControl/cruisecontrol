@@ -56,7 +56,7 @@ public class FileSystemTest extends TestCase {
         super(name);
     }
 
-    public void testValidate() throws IOException {
+    public void testValidate() {
         FileSystem fs = new FileSystem();
 
         try {
@@ -66,9 +66,7 @@ public class FileSystemTest extends TestCase {
             assertEquals("'folder' is required for FileSystem", e.getMessage());
         }
 
-        File tempFile = File.createTempFile("CruiseControl", "TEST");
-        tempFile.deleteOnExit();
-        File tempDirectory = getDirectory(tempFile);
+        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         //Create a subdirectory in the temp directory for us to use.
         tempDirectory = new File(tempDirectory, "filesystemtest2" + System.currentTimeMillis());
         fs.setFolder(tempDirectory.getAbsolutePath());
@@ -93,9 +91,7 @@ public class FileSystemTest extends TestCase {
 
     public void testGettingModifications() throws Exception {
         //Figure out where the temp directory is...
-        File tempFile = File.createTempFile("CruiseControl", "TEST");
-        tempFile.deleteOnExit();
-        File tempDirectory = getDirectory(tempFile);
+        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
 
         //Create a subdirectory in the temp directory for us to use.
         tempDirectory = new File(tempDirectory,
@@ -117,6 +113,8 @@ public class FileSystemTest extends TestCase {
             assertEquals(0, mods.size());
     
             //Write some files...
+            File tempFile;
+
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
             writeContent(tempFile, "testing");
             tempFile.setLastModified(timeOne.getTime());
@@ -161,17 +159,11 @@ public class FileSystemTest extends TestCase {
             //Using this one mod, check the modification information for correctness.
             Modification modification = (Modification) mods.get(0);
             assertEquals(tempFile.getName(), modification.getFileName());
-            assertEquals(getDirectory(tempFile).getPath(), modification.getFolderName());
+            assertEquals(tempFile.getParent(), modification.getFolderName());
             assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
         } finally {
             Util.deleteFile(tempDirectory);
         }
-    }
-
-    private static File getDirectory(File file) {
-        String absPath = file.getAbsolutePath();
-        String dirPath = absPath.substring(0, absPath.lastIndexOf(File.separator));
-        return new File(dirPath);
     }
 
     private static void writeContent(File file, String content)

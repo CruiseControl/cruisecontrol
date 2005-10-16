@@ -325,10 +325,8 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(2, listener.removed.size());
     }
 
-    public void testReadProject() throws IOException {
-        File tempFile = File.createTempFile("foo", ".tmp");
-        String tempDir = tempFile.getParent();
-        tempFile.delete();
+    public void testReadProject() {
+        String tempDir = System.getProperty("java.io.tmpdir");
         Project project = ccController.readProject(tempDir);
         assertNotNull(project);
         assertTrue(project.getBuildForced());

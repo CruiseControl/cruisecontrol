@@ -156,6 +156,7 @@ public class MavenBuilderTest extends TestCase {
             // Prepare mock files.
             if (Util.isWindows()) {
                 testScript = File.createTempFile("MavenBuilderTest.internalTestBuild", "_testmaven.bat");
+                testScript.deleteOnExit();
                 makeTestFile(
                     testScript,
                     "@rem This is a fake maven.bat\n"
@@ -168,6 +169,7 @@ public class MavenBuilderTest extends TestCase {
                     true);
             } else {
                 testScript = File.createTempFile("MavenBuilderTest.internalTestBuild", "_testmaven.sh");
+                testScript.deleteOnExit();
                 makeTestFile(
                     testScript,
                     "#!/bin/sh\n"

@@ -52,6 +52,7 @@ public class CruiseControlFeedTest extends TestCase {
 
     public void setUp() throws Exception {
         tmpFile = File.createTempFile("CruiseControlFeedTest", ".tmp");
+        tmpFile.deleteOnExit();
 
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile)));
         bw.write("<rss><channel/></rss>");

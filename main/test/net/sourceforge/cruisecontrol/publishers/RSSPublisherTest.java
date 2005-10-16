@@ -62,6 +62,7 @@ public class RSSPublisherTest extends TestCase {
 
     public void setUp() throws Exception {
         tmpFile = File.createTempFile("rsspublisher-test", "tmp");
+        tmpFile.deleteOnExit();
     }
 
     public void tearDown() throws Exception {

@@ -90,6 +90,7 @@ public class HttpFileTest extends TestCase {
     public void testGetModificationsInvalidURL() throws Exception {
         HttpFile httpFile = new HttpFile();
         File tempFile = File.createTempFile("HttpFileTest", null);
+        tempFile.deleteOnExit();
         httpFile.setURL(tempFile.toURL().toExternalForm());
         tempFile.delete();
         // should not throw with a URL that cannot be connected to
