@@ -50,7 +50,9 @@ REM Acknowledgments to Ant Project for this batch file incantation
 REM %~dp0 is name of current script under NT
 set CCDIR=%~dp0
 
+if defined ANT_HOME goto antHomeAlreadySet
 set ANT_HOME=%CCDIR%apache-ant-1.6.3
+:antHomeAlreadySet
 
 :setClassPath
 set CRUISE_PATH=
