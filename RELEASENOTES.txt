@@ -8,6 +8,10 @@ Binary release:
 ----------------------
 * No longer overriding ANT_HOME if already set (CC-348).
 
+configxml.html:
+----------------------
+* Included link to timebuild in modificationset documentation.
+
 CruiseControlTagSupport:
 ----------------------
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
