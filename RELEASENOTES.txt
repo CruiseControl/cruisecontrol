@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+Binary release:
+----------------------
+* No longer overriding ANT_HOME if already set (CC-348).
+
 CruiseControlTagSupport:
 ----------------------
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
