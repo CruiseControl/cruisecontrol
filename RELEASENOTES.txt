@@ -12,6 +12,10 @@ configxml.html:
 ----------------------
 * Included link to timebuild in modificationset documentation.
 
+contrib:
+----------------------
+* fix distributed/build.xml so that tests will pass out of the box. Patch by Dan Rollo
+
 CruiseControlTagSupport:
 ----------------------
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
