@@ -98,7 +98,7 @@ public class ProjectXMLHelper {
         this.plugins = PluginRegistry.createRegistry();
     }
 
-    ProjectXMLHelper(PluginRegistry registry) {
+    public ProjectXMLHelper(PluginRegistry registry) {
         this.plugins = registry;
     }
 
@@ -107,7 +107,7 @@ public class ProjectXMLHelper {
      * @param projName the project name, already property-resolved
      * @throws CruiseControlException
      */
-    ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
+    public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
         this();
 
         // Load the configuration file
