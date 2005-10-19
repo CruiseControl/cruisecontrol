@@ -33,6 +33,10 @@ MergeLogger:
 ------------
 * cleanly skip non existing log files and directories
 
+TabSheet:
+---------
+* Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjørn
+
 tests:
 ------------
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.

@@ -180,6 +180,12 @@
         </attribute>
     </tag>
     <tag>
+        <name>tabrow</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.TabRowTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>Creates a new row in the tabsheet.</info>
+    </tag>
+    <tag>
         <name>link</name>
         <tagclass>net.sourceforge.cruisecontrol.taglib.LinkTag</tagclass>
         <teiclass>net.sourceforge.cruisecontrol.taglib.LinkTagExtraInfo</teiclass>

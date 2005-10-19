@@ -82,6 +82,7 @@ public class TabSheetTagTest extends TestCase {
             + " class=\"tab-table\" align=\"center\" valign=\"middle\" cellspacing=\"0\""
             + " cellpadding=\"0\" border=\"1\"><tbody><tr>";
     private static final String END_OF_HEADERS = "</tr></tbody></table></div></td></tr>";
+    private static final String NEW_TAB_ROW = "</tr><tr>";
 
     public TabSheetTagTest(String name) {
         super(name);
@@ -171,6 +172,29 @@ public class TabSheetTagTest extends TestCase {
                           + "<td class=\"tabs-selected\">Tab Name 2</td>"
                           + END_OF_HEADERS
                           + "This is Tab 2" + END_OF_TABLE;
+        assertEquals(expected, pageContext.getOut().toString());
+    }
+
+    public void testPrintTabSheetTwoRows() throws JspException, IOException {
+        final Tab tab1 = new Tab("tabname1", null, "Tab Name 1", false);
+        final Tab tab2 = new Tab("tabname2", null, "Tab Name 2", false, true);
+        final Tab tab3 = new Tab("tabname3", null, "Tab Name 3", true);
+
+        assertEquals(BodyTag.EVAL_BODY_TAG, tabSheet.doStartTag());
+        tabSheet.addTab(tab1);
+        tabSheet.addTab(tab2);
+        tabSheet.addTab(tab3);
+
+        String expected = START_SHEET
+                          + START_OF_HEADERS
+                          + "<td class=\"tabs\"><a class=\"tabs-link\" href=\"/context/servlet?tab=tabname1\">"
+                          + "Tab Name 1</a></td>"
+                          + NEW_TAB_ROW
+                          + "<td class=\"tabs-selected\">Tab Name 3</td>"
+                          + END_OF_HEADERS
+                          + END_OF_TABLE;
+        assertEquals(Tag.SKIP_BODY, tabSheet.doAfterBody());
+        assertEquals(Tag.EVAL_PAGE, tabSheet.doEndTag());
         assertEquals(expected, pageContext.getOut().toString());
     }
 
