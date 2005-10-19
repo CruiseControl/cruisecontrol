@@ -57,3 +57,7 @@ table.header th.big { font-size:12pt; }
 .macker-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .macker-data-error { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FF0000; }
 .macker-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
+
+a img { border: 0 }
+
+.hidden { visibility: hidden }
