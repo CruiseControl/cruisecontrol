@@ -119,26 +119,85 @@
             <include name="**/*"/>
         </replace>
 
-        <property name="cc.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
+        <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip">
-            <zipfileset dir="binaryrelease" prefix="${cc.zip.prefix}">
+            <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
                 <exclude name="README.txt"/>
                 <exclude name="*.zip"/>
                 <exclude name="**/CVS"/>
                 <exclude name="**/CVS/**"/>
                 <exclude name="**/.cvsignore"/>
             </zipfileset>
-            <zipfileset file="target/binzip/README.txt" prefix="${cc.zip.prefix}"/>
-            <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="${cc.zip.prefix}/projects"/>
-            <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="${cc.zip.prefix}"/>
-            <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.zip.prefix}/lib"/>
-            <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="${cc.zip.prefix}/lib/licenses"/>
-            <zipfileset file="main/lib/ant/ant.jar" prefix="${cc.zip.prefix}/lib"/>
-            <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="${cc.zip.prefix}/lib"/>
-            <zipfileset file="main/dist/cruisecontrol.jar" prefix="${cc.zip.prefix}/lib"/>
-            <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.zip.prefix}/webapps/cruisecontrol"/>
-            <zipfileset dir="target/website" prefix="${cc.zip.prefix}/docs"/>
+            <zipfileset file="target/binzip/README.txt" prefix="${cc.bin.zip.prefix}"/>
+            <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="${cc.bin.zip.prefix}/projects"/>
+            <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="${cc.bin.zip.prefix}"/>
+            <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="${cc.bin.zip.prefix}/lib/licenses"/>
+            <zipfileset file="main/lib/ant/ant.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset file="main/dist/cruisecontrol.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
+            <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
         </zip>
+    </target>
 
+    <target name="compile-webtest">
+        <mkdir dir="target/webtest-classes"/>
+        <javac srcdir="webtest" destdir="target/webtest-classes">
+            <classpath>
+                <fileset dir="lib" includes="*.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="webtest" depends="compile-webtest">
+        <parallel>
+            <daemons>
+                <antcall target="deploy-server"/>
+            </daemons>
+            <sequential>
+                <waitfor maxwait="3" maxwaitunit="minute" checkevery="500">
+                    <http url="http://localhost:7854/cruisecontrol"/>
+                </waitfor>
+
+                <mkdir dir="target/webtest-results"/>
+                <junit haltonfailure="no" printsummary="on" failureproperty="junit.failure">
+                    <classpath>
+                        <fileset dir="lib" includes="*.jar"/>
+                        <pathelement location="target/webtest-classes"/>
+                    </classpath>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <batchtest todir="target/webtest-results">
+                        <fileset dir="target/webtest-classes" includes="**/*Test.class"/>
+                    </batchtest>
+                </junit>
+
+                <antcall target="kill-server"/>
+
+                <fail if="junit.failure" message="There were test failures."/>
+            </sequential>
+        </parallel>
+    </target>
+
+    <target name="deploy-server">
+        <mkdir dir="target/webtest"/>
+        <unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="target/webtest"/>
+
+        <chmod file="../cruisecontrol-dev/cruisecontrol.sh" perm="+x"/>
+        <chmod file="../cruisecontrol-dev/apache-ant-1.6.3/bin/ant" perm="+x"/>
+
+        <exec dir="target/webtest/cruisecontrol-bin-${cc.release.label}" executable="cmd.exe" os="Windows 95, Windows 98, Windows NT, Windows CE, Windows 2000, Windows XP">
+            <arg line="/c cruisecontrol.bat -webport 7854 -port 7855"/>
+        </exec>
+
+        <exec dir="target/webtest/cruisecontrol-bin-${cc.release.label}" executable="cruisecontrol.sh" os="Linux, Solaris, SunOS, Mac OS X">
+            <arg line="-webport 7854 -port 7855"/>
+        </exec>
+    </target>
+
+    <target name="kill-server">
+        <get src="http://localhost:7855/invoke?operation=halt&amp;objectname=CruiseControl+Manager%3Aid%3Dunique"
+            dest="target/webtest/.temp" ignoreerrors="true"/>
     </target>
 </project>

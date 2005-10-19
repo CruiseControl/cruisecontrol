@@ -33,6 +33,14 @@ MergeLogger:
 ------------
 * cleanly skip non existing log files and directories
 
+release.xml:
+------------
+* New targets "deploy-server" and "kill-server" for starting/killing the binary release on a testing port.
+
+Reporting:
+------------
+* Added a "Run Build" button to the project status page.
+
 TabSheet:
 ---------
 * Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjørn
@@ -40,6 +48,7 @@ TabSheet:
 tests:
 ------------
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
+* Added "web" tests for the binary distribution. They are executed by the "webtest" target in release.xml.
 
 XSLTag:
 ------------
