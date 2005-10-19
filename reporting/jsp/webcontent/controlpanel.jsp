@@ -47,6 +47,8 @@
         hostname = "localhost";
     }
     String port = System.getProperty("port", "8000");
+    String jmxURL = "http://" + hostname+ ":"+ port + "/mbean?objectname=CruiseControl+Project%3Aname%3D" +
+            request.getPathInfo().substring(1);
 %>
 <p>
 <table width="100%" align="center" cellpadding="0" cellspacing="0">
@@ -57,7 +59,9 @@
     </tr>
     <tr>
         <td align="center">
-            <iframe name="controlPanelFrame" id="controlPanelFrame" height="520" marginheight="0" frameborder="1" marginwidth="0" src="http://<%= hostname%>:<%= port%>/mbean?objectname=CruiseControl+Project%3Aname%3D<%=request.getPathInfo().substring(1)%>" height="600" width="90%"></iframe>
+            <iframe name="controlPanelFrame" id="controlPanelFrame" height="520" marginheight="0" frameborder="1"
+                marginwidth="0" src="<%= jmxURL %>" height="600" width="90%">
+            </iframe>
         </td>
     </tr>
 </table>
