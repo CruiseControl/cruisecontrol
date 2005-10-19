@@ -38,7 +38,9 @@
 <%@page import="java.io.File,
                  java.text.NumberFormat,
                  java.util.Arrays,
-                 java.util.Calendar"%>
+                 java.util.Calendar,
+                java.net.InetAddress,
+                java.io.IOException"%>
 <jsp:useBean id="statusHelper" scope="page" class="net.sourceforge.cruisecontrol.StatusHelper" />
 <%
     String singleProjectMode = application.getInitParameter("singleProject");
@@ -60,6 +62,18 @@
     boolean autoRefresh = "true".equals(request.getParameter("auto_refresh"));
 
     String name = System.getProperty("ccname", "");
+
+    String hostname = "";
+    try
+    {
+        hostname = InetAddress.getLocalHost().getHostName();
+    }
+    catch(IOException e)
+    {
+        hostname = "localhost";
+    }
+    String port = System.getProperty("port", "8000");
+    String jmxURLPrefix = "http://" + hostname+ ":"+ port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
 %>
 <html>
 <head>
@@ -73,11 +87,19 @@
   <%
      }
   %>
+  <script language="JavaScript">
+    function callServer(url)
+    {
+       document.getElementById('serverData').innerHTML = '<IFRAME src="' + url + '" width="640" height="480" frameborder="0"></IFRAME>';
+    }
+  </script>
 </head>
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
 <p>&nbsp;</p>
 
 <h1 class="white" align="center"><%= name%> CruiseControl Status Page</h1>
+
+<div id="serverData" class="hidden" ></div>
 
 <table align="center" border="0" cellpadding="0" cellspacing="0">
 <tfoot>
@@ -143,12 +165,14 @@
                  final String result = statusHelper.getLastBuildResult();
                    if ("passed".equalsIgnoreCase(result)) { passed++; }
                    if ("failed".equalsIgnoreCase(result)) { failed++; }
-         %>        <tr><td><a href="buildresults/<%=project%>"><%=project%></a></td><%
-                 %><td class="index-<%=result%>" align="center"><%=result%></td><%
-                 %><td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td><%
-                 %><td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td><%
-                 %><td><%=statusHelper.getLastSuccessfulBuildLabel()%></td>
-                   </tr>
+         %>    <tr>
+                   <td><a href="buildresults/<%=project%>"><%=project%></a></td>
+                   <td class="index-<%=result%>" align="center"><%=result%></td>
+                   <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
+                   <td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td>
+                   <td><%=statusHelper.getLastSuccessfulBuildLabel()%></td>
+                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href); return false"><img src="images/play_white_bkg.png" alt="Run Build" title="Run Build"/></a></td>
+               </tr>
  <%
                }
          %>
