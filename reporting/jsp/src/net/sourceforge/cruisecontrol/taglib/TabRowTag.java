@@ -34,52 +34,37 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+
 package net.sourceforge.cruisecontrol.taglib;
 
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.Tag;
+
 /**
+ * Add a new row to the tab sheet.
  *
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
-public class Tab {
-    private final String name;
-    private String url;
-    private final String label;
-    private final boolean selected;
-    private final boolean row;
+public class TabRowTag extends CruiseControlTagSupport {
+    private String name;
+    private String label;
 
-    public Tab(String name, String url, String label, boolean selected) {
-        this(name, url, label, selected, false);
+    public int doStartTag() throws JspException {
+        Tag parentTag = getParent();
+        if (!(parentTag instanceof TabSheetTag)) {
+            throw new JspTagException("TabRowTag needs to be directly enclosed in a TabSheetTag");
+        }
+        TabSheetTag tabSheet = (TabSheetTag) parentTag;
+        tabSheet.addTab(new Tab(name, null, label, false, true));
+        return Tag.SKIP_BODY;
     }
-    public Tab(String name, String url, String label, boolean selected, boolean row) {
+
+    public void setName(String name) {
         this.name = name;
-        this.url = url;
+    }
+
+    public void setLabel(String label) {
         this.label = label;
-        this.selected = selected;
-        this.row = row;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public boolean isRow() {
-        return row;
     }
 }

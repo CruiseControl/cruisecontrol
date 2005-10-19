@@ -52,6 +52,7 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  * A sheet of navigation tabs.
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class TabSheetTag extends CruiseControlBodyTagSupport {
     private List tabs = new ArrayList();
@@ -146,7 +147,9 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
         out.write(" cellpadding=\"0\" border=\"1\"><tbody><tr>");
         for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
             Tab tab = (Tab) iterator.next();
-            if (tab == selectedTab) {
+            if (tab.isRow()) {
+                out.write("</tr><tr>");
+            } else if (tab == selectedTab) {
                 out.write("<td class=\"tabs-selected\">");
                 out.write(tab.getLabel());
                 out.write("</td>");
