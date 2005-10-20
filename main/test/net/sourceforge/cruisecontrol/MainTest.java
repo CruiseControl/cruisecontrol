@@ -38,29 +38,36 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.MainArgs;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Layout;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.ErrorHandler;
+import org.apache.log4j.spi.Filter;
+import org.apache.log4j.spi.LoggingEvent;
 
 public class MainTest extends TestCase {
     public void testParsePassword() {
-        String[] correctArgs = new String[] { "-password", "password" };
-        String[] missingValue = new String[] { "-password" };
-        String[] missingParam = new String[] { "" };
+        String[] correctArgs = new String[]{"-password", "password"};
+        String[] missingValue = new String[]{"-password"};
+        String[] missingParam = new String[]{""};
         assertEquals("password", Main.parsePassword(correctArgs));
         assertEquals(null, Main.parseUser(missingValue));
         assertEquals(null, Main.parseUser(missingParam));
     }
+
     public void testParseUser() {
-        String[] correctArgs = new String[] { "-user", "user" };
-        String[] missingValue = new String[] { "-user" };
-        String[] missingParam = new String[] { "" };
+        String[] correctArgs = new String[]{"-user", "user"};
+        String[] missingValue = new String[]{"-user"};
+        String[] missingParam = new String[]{""};
         assertEquals("user", Main.parseUser(correctArgs));
         assertEquals(null, Main.parseUser(missingValue));
         assertEquals(null, Main.parseUser(missingParam));
     }
 
     public void testParseConfigurationFileName() throws Exception {
-        String[] correctArgs = new String[] {"-configfile", "myconfig.xml"};
-        String[] missingParam = new String[] {""};
-        String[] missingValue = new String[] {"-configfile"};
+        String[] correctArgs = new String[]{"-configfile", "myconfig.xml"};
+        String[] missingParam = new String[]{""};
+        String[] missingValue = new String[]{"-configfile"};
 
         assertEquals("myconfig.xml", Main.parseConfigFileName(correctArgs, null));
         assertEquals("config.xml", Main.parseConfigFileName(missingParam, "config.xml"));
@@ -75,28 +82,37 @@ public class MainTest extends TestCase {
     }
 
     public void testParseHttpPort() throws Exception {
-        String[] correctArgs = new String[] {"-port", "123"};
-        String[] missingParam = new String[] {""};
-        String[] defaultValue = new String[] {"-port"};
-        String[] invalidArgs = new String[] {"-port", "ABC"};
+        String[] correctArgs = new String[]{"-jmxhttpport", "123"};
+        String[] missingParam = new String[]{""};
+        String[] defaultValue = new String[]{"-jmxhttpport"};
+        String[] invalidArgs = new String[]{"-jmxhttpport", "ABC"};
+        String[] deprecatedArgs = new String[]{"-port", "123"};
+        String[] deprecatedAndCorrectArgs = new String[]{"-port", "123", "-jmxhttpport", "123"};
 
-        assertEquals(123, Main.parseHttpPort(correctArgs));
-        assertEquals(MainArgs.NOT_FOUND, Main.parseHttpPort(missingParam));
-        assertEquals(8000, Main.parseHttpPort(defaultValue));
+        assertEquals(123, Main.parseJMXHttpPort(correctArgs));
+        assertEquals(MainArgs.NOT_FOUND, Main.parseJMXHttpPort(missingParam));
+        assertEquals(8000, Main.parseJMXHttpPort(defaultValue));
+        assertEquals(123, Main.parseJMXHttpPort(deprecatedArgs));
 
         try {
-            Main.parseHttpPort(invalidArgs);
+            Main.parseJMXHttpPort(invalidArgs);
             fail("Expected IllegalArgumentException on non-int ABC");
         } catch (IllegalArgumentException e) {
             // expected
         }
+
+        try {
+            Main.parseJMXHttpPort(deprecatedAndCorrectArgs);
+            fail("Expected exception");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     public void testParseRmiPort() throws Exception {
-        String[] correctArgs = new String[] {"-rmiport", "123"};
-        String[] missingParam = new String[] {""};
-        String[] defaultValue = new String[] {"-rmiport"};
-        String[] invalidArgs = new String[] {"-rmiport", "ABC"};
+        String[] correctArgs = new String[]{"-rmiport", "123"};
+        String[] missingParam = new String[]{""};
+        String[] defaultValue = new String[]{"-rmiport"};
+        String[] invalidArgs = new String[]{"-rmiport", "ABC"};
 
         assertEquals(123, Main.parseRmiPort(correctArgs));
         assertEquals(MainArgs.NOT_FOUND, Main.parseRmiPort(missingParam));
@@ -111,13 +127,14 @@ public class MainTest extends TestCase {
     }
 
     public void testParseXslPath() {
-        String[] correctArgs = new String[] {"-xslpath", "tmp"};
-        String[] missingParam = new String[] {""};
-        String[] missingValue = new String[] {"-xslpath"};
+        final String tempDirName = System.getProperty("java.io.tmpdir");
+        String[] correctArgs = new String[]{"-xslpath", tempDirName};
+        String[] missingParam = new String[]{""};
+        String[] missingValue = new String[]{"-xslpath"};
         final String invalidXsl = "does_Not_Exist";
-        String[] invalidArgs = new String[] {"-xslpath", invalidXsl};
+        String[] invalidArgs = new String[]{"-xslpath", invalidXsl};
 
-        assertEquals("tmp", Main.parseXslPath(correctArgs));
+        assertEquals(tempDirName, Main.parseXslPath(correctArgs));
         assertNull(Main.parseXslPath(missingParam));
         assertNull(Main.parseXslPath(missingValue));
 
@@ -126,7 +143,7 @@ public class MainTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals("'xslpath' argument must specify an existing directory but was " + invalidXsl,
-                         expected.getMessage());
+                    expected.getMessage());
         }
     }
 
@@ -138,17 +155,92 @@ public class MainTest extends TestCase {
     }
 
     public void testshouldStartController() throws Exception {
-        String[] bothArgs = new String[]{"-port", "8085",
-                                            "-rmiport", "8086"};
+        String[] bothArgs = new String[]{"-jmxhttpport", "8085", "-rmiport", "8086"};
+        String[] bothArgsWithDeprecated = new String[]{"-port", "8085", "-rmiport", "8086"};
         String[] rmiPort = new String[]{"-rmiport", "8086"};
-        String[] httpPort = new String[]{"-port", "8085"};
-        String[] httpPortWithDefault = new String[]{"-port"};
+        String[] httpPort = new String[]{"-jmxhttpport", "8085"};
+        String[] httpPortWithDefault = new String[]{"-jmxhttpport"};
         String[] neitherArg = new String[]{"-foo", "blah"};
+        String[] deprecatedHttpPort = new String[]{"-port", "8085"};
 
         assertTrue(Main.shouldStartController(bothArgs));
+        assertTrue(Main.shouldStartController(bothArgsWithDeprecated));
         assertTrue(Main.shouldStartController(rmiPort));
         assertTrue(Main.shouldStartController(httpPort));
         assertTrue(Main.shouldStartController(httpPortWithDefault));
+        assertTrue(Main.shouldStartController(deprecatedHttpPort));
         assertFalse(Main.shouldStartController(neitherArg));
     }
+
+    public void testDeprecatedArgs() {
+        String[] args = {"-port", "8000"};
+
+        Logger testLogger = Logger.getLogger(MainTest.class);
+        testLogger.removeAllAppenders();
+
+        StringBufferAppender appender = new StringBufferAppender();
+        testLogger.addAppender(appender);
+        Main.checkDeprecatedArguments(args, testLogger);
+
+        assertTrue(appender.toString().indexOf(
+                "WARNING: The port argument is deprecated. Use jmxhttpport instead.") >= 0);
+    }
+
+    public static class StringBufferAppender implements Appender {
+        private final StringBuffer myBuffer = new StringBuffer();
+
+        public void addFilter(Filter filter) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Filter getFilter() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void clearFilters() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void close() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void doAppend(LoggingEvent event) {
+            myBuffer.append(event.getMessage() + "\n");
+        }
+
+        public String getName() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setErrorHandler(ErrorHandler errorHandler) {
+            throw new UnsupportedOperationException();
+        }
+
+        public ErrorHandler getErrorHandler() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setLayout(Layout layout) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Layout getLayout() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setName(String s) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean requiresLayout() {
+            throw new UnsupportedOperationException();
+        }
+
+        public String toString() {
+            return myBuffer.toString();
+        }
+    }
+
+
 }

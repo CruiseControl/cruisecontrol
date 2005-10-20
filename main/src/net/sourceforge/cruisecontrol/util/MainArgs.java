@@ -104,4 +104,8 @@ public final class MainArgs {
         }
         return NOT_FOUND;
     }
+
+    public static boolean argumentPresent(String[] args, String argName) {
+        return findIndex(args, argName) != NOT_FOUND;
+    }
 }

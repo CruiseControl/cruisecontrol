@@ -28,6 +28,7 @@ general:
 ----------------------
 * Minor changes to make code jdk 1.3 compliant.
 * Added fast-md5.jar to manifest for cruisecontrol.jar
+* Deprecated the command-line argument named "port" in favor of "jmxhttpport" to be more explicit.
 
 MergeLogger:
 ------------
