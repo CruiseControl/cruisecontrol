@@ -46,7 +46,7 @@
     {
         hostname = "localhost";
     }
-    String port = System.getProperty("port", "8000");
+    String port = System.getProperty("cruisecontrol.jmxport", "8000");
     String jmxURL = "http://" + hostname+ ":"+ port + "/mbean?objectname=CruiseControl+Project%3Aname%3D" +
             request.getPathInfo().substring(1);
 %>
