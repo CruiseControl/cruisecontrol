@@ -177,7 +177,7 @@ time to build
             </tr></thead>
             <tbody>
                 <tr>
-                  <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
+                  <td>-jmxhttpport&nbsp;<i>[port&nbsp;number]</i></td>
                     <td>No</td>
                     <td>Port number for the JMX HTTP adapter.  This will activate
                       the JMX admin functionality of CruiseControl.
@@ -220,6 +220,11 @@ time to build
                     <td>No</td>
                     <td>Sets a password for the JMX HTTP Adapter. This will require users to
                     login to use the JMX Web interface.<i>The -user flag must also be set</i>.</td>
+                </tr>
+                <tr>
+                  <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
+                    <td>No</td>
+                    <td>DEPRECATED: Use jmxHttpPort instead.</td>
                 </tr>
             </tbody>
         </table>

@@ -110,10 +110,11 @@
                 <th>Required</th>
                 <th>Description</th>
             </tr></thead>
-            <tbody><tr>
-              <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
+            <tbody>
+            <tr>
+              <td>-jmxhttpport&nbsp;<i>[port&nbsp;number]</i></td>
                 <td>No</td>
-                <td>Port number for the JMX HTML adaptor.  This will activate
+                <td>Port number for the JMX HTTP adaptor.  This will activate
                   the JMX admin functionality of CruiseControl.
                   If no number is specified, this will default to 8000,
                   which means you can access the site at
@@ -163,10 +164,16 @@
                 <td>Changes the logging level of the internal log4j Logger to DEBUG.
                   Please note that this will NOT cause your ant scripts to run as if
                   using 'ant -debug', you need to specify that in your config.xml file</td>
-            </tr></tbody>
+            </tr>
+            <tr>
+              <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
+                <td>No</td>
+                <td>DEPRECATED: Use jmxHttpPort instead.</td>
+            </tr>
+          </tbody>
         </table>
 
-        <p>If you specify the -port and/or the -rmiport parameter, a JMX Server will be started
+        <p>If you specify the -jmxhttpport and/or the -rmiport parameter, a JMX Server will be started
         which can be used to control CruiseControl (force project builds, monitor the state
         of projects, change the logging level used internally, etc.).</p>
 
@@ -174,7 +181,7 @@
         config.xml file in the current working directory and do not want to use JMX to
         control CruiseControl, you don't need to specify any parameters.
         <br />
-        Most users will specify (only) the -port parameter, since the HTML interface to the
+        Most users will specify (only) the -jmxhttpport parameter, since the HTML interface to the
         JMX server is very convenient.</p>
 
         <p>More information on getting CruiseControl up and running can be found on the

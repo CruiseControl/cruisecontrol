@@ -70,6 +70,8 @@ public final class Main {
             printUsageAndExit();
         }
         try {
+            checkDeprecatedArguments(args, LOG);
+
             if (MainArgs.findIndex(args, "debug") != MainArgs.NOT_FOUND) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
@@ -87,7 +89,7 @@ public final class Main {
                 CruiseControlControllerAgent agent =
                     new CruiseControlControllerAgent(
                         controller,
-                        parseHttpPort(args),
+                        parseJMXHttpPort(args),
                         parseRmiPort(args),
                         parseUser(args),
                         parsePassword(args),
@@ -98,6 +100,12 @@ public final class Main {
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             printUsageAndExit();
+        }
+    }
+
+    protected static void checkDeprecatedArguments(String[] args, Logger logger) {
+        if (MainArgs.findIndex(args, "port") != MainArgs.NOT_FOUND) {
+            logger.warn("WARNING: The port argument is deprecated. Use jmxhttpport instead.");
         }
     }
 
@@ -117,12 +125,12 @@ public final class Main {
         System.out.println("  -? or -help          print this usage message");
         System.out.println("");
         System.out.println("Options when using JMX");
-        System.out.println("  Note: JMX server only started if -port and/or -rmiport specified");
-        System.out.println("  -port [number]       port of the JMX HttpAdapter; default 8000");
-        System.out.println("  -rmiport [number]    RMI port of the Controller; default 1099");
-        System.out.println("  -user username       username for HttpAdapter; default no login required");
-        System.out.println("  -password pwd        password for HttpAdapter; default no login required");
-        System.out.println("  -xslpath directory   location of jmx xsl files; default files in package");
+        System.out.println("  Note: JMX server only started if -jmxHttpPort and/or -rmiport specified");
+        System.out.println("  -jmxhttpport [number]  port of the JMX HttpAdapter; default 8000");
+        System.out.println("  -rmiport [number]      RMI port of the Controller; default 1099");
+        System.out.println("  -user username         username for HttpAdapter; default no login required");
+        System.out.println("  -password pwd          password for HttpAdapter; default no login required");
+        System.out.println("  -xslpath directory     location of jmx xsl files; default files in package");
         System.out.println("");
         System.out.println("Options when using embedded Jetty");
         System.out.println("  -webport [number]       port for the Reporting website; default 8080");
@@ -151,8 +159,8 @@ public final class Main {
     }
 
     static boolean shouldStartController(String[] args) {
-        return MainArgs.findIndex(args, "port") != MainArgs.NOT_FOUND
-            || MainArgs.findIndex(args, "rmiport") != MainArgs.NOT_FOUND;
+        return MainArgs.argumentPresent(args, "jmxhttpport") || MainArgs.argumentPresent(args, "rmiport")
+                || MainArgs.argumentPresent(args, "port");
     }
 
     /**
@@ -161,8 +169,15 @@ public final class Main {
      * @return port number
      * @throws IllegalArgumentException if port argument is invalid
      */
-    static int parseHttpPort(String[] args) {
-        return MainArgs.parseInt(args, "port", MainArgs.NOT_FOUND, 8000);
+    static int parseJMXHttpPort(String[] args) {
+        if (MainArgs.argumentPresent(args, "jmxhttpport") && MainArgs.argumentPresent(args, "port")) {
+            throw new IllegalArgumentException("'jmxhttpport' and 'port' arguments are not valid together. Use"
+                    + " 'jmxhttpport' instead.");
+        } else if (MainArgs.argumentPresent(args, "jmxhttpport")) {
+            return MainArgs.parseInt(args, "jmxhttpport", MainArgs.NOT_FOUND, 8000);
+        } else {
+            return MainArgs.parseInt(args, "port", MainArgs.NOT_FOUND, 8000);
+        }
     }
 
     static int parseRmiPort(String[] args) {

@@ -71,4 +71,13 @@ public class MainArgsTest extends TestCase {
         foundValue = MainArgs.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
         assertEquals(defaultIfNoValue, foundValue);
     }
+
+    public void testArgumentPresent() {
+        String[] args = {"-port", "8000"};
+        assertTrue(MainArgs.argumentPresent(args, "port"));
+        assertFalse(MainArgs.argumentPresent(args, "foo"));
+
+        assertFalse(MainArgs.argumentPresent(new String[0], "foo"));
+
+    }
 }
