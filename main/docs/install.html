@@ -112,7 +112,7 @@
             </tr></thead>
             <tbody>
             <tr>
-              <td>-jmxhttpport&nbsp;<i>[port&nbsp;number]</i></td>
+              <td>-jmxport&nbsp;<i>[port&nbsp;number]</i></td>
                 <td>No</td>
                 <td>Port number for the JMX HTTP adaptor.  This will activate
                   the JMX admin functionality of CruiseControl.
@@ -173,7 +173,7 @@
           </tbody>
         </table>
 
-        <p>If you specify the -jmxhttpport and/or the -rmiport parameter, a JMX Server will be started
+        <p>If you specify the -jmxport and/or the -rmiport parameter, a JMX Server will be started
         which can be used to control CruiseControl (force project builds, monitor the state
         of projects, change the logging level used internally, etc.).</p>
 
@@ -181,7 +181,7 @@
         config.xml file in the current working directory and do not want to use JMX to
         control CruiseControl, you don't need to specify any parameters.
         <br />
-        Most users will specify (only) the -jmxhttpport parameter, since the HTML interface to the
+        Most users will specify (only) the -jmxport parameter, since the HTML interface to the
         JMX server is very convenient.</p>
 
         <p>More information on getting CruiseControl up and running can be found on the
