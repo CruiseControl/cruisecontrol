@@ -105,7 +105,7 @@ public final class Main {
 
     protected static void checkDeprecatedArguments(String[] args, Logger logger) {
         if (MainArgs.findIndex(args, "port") != MainArgs.NOT_FOUND) {
-            logger.warn("WARNING: The port argument is deprecated. Use jmxhttpport instead.");
+            logger.warn("WARNING: The port argument is deprecated. Use jmxport instead.");
         }
     }
 
@@ -126,7 +126,7 @@ public final class Main {
         System.out.println("");
         System.out.println("Options when using JMX");
         System.out.println("  Note: JMX server only started if -jmxHttpPort and/or -rmiport specified");
-        System.out.println("  -jmxhttpport [number]  port of the JMX HttpAdapter; default 8000");
+        System.out.println("  -jmxport [number]  port of the JMX HttpAdapter; default 8000");
         System.out.println("  -rmiport [number]      RMI port of the Controller; default 1099");
         System.out.println("  -user username         username for HttpAdapter; default no login required");
         System.out.println("  -password pwd          password for HttpAdapter; default no login required");
@@ -159,7 +159,7 @@ public final class Main {
     }
 
     static boolean shouldStartController(String[] args) {
-        return MainArgs.argumentPresent(args, "jmxhttpport") || MainArgs.argumentPresent(args, "rmiport")
+        return MainArgs.argumentPresent(args, "jmxport") || MainArgs.argumentPresent(args, "rmiport")
                 || MainArgs.argumentPresent(args, "port");
     }
 
@@ -170,11 +170,11 @@ public final class Main {
      * @throws IllegalArgumentException if port argument is invalid
      */
     static int parseJMXHttpPort(String[] args) {
-        if (MainArgs.argumentPresent(args, "jmxhttpport") && MainArgs.argumentPresent(args, "port")) {
-            throw new IllegalArgumentException("'jmxhttpport' and 'port' arguments are not valid together. Use"
-                    + " 'jmxhttpport' instead.");
-        } else if (MainArgs.argumentPresent(args, "jmxhttpport")) {
-            return MainArgs.parseInt(args, "jmxhttpport", MainArgs.NOT_FOUND, 8000);
+        if (MainArgs.argumentPresent(args, "jmxport") && MainArgs.argumentPresent(args, "port")) {
+            throw new IllegalArgumentException("'jmxport' and 'port' arguments are not valid together. Use"
+                    + " 'jmxport' instead.");
+        } else if (MainArgs.argumentPresent(args, "jmxport")) {
+            return MainArgs.parseInt(args, "jmxport", MainArgs.NOT_FOUND, 8000);
         } else {
             return MainArgs.parseInt(args, "port", MainArgs.NOT_FOUND, 8000);
         }

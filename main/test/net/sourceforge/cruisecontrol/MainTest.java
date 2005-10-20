@@ -82,12 +82,12 @@ public class MainTest extends TestCase {
     }
 
     public void testParseHttpPort() throws Exception {
-        String[] correctArgs = new String[]{"-jmxhttpport", "123"};
+        String[] correctArgs = new String[]{"-jmxport", "123"};
         String[] missingParam = new String[]{""};
-        String[] defaultValue = new String[]{"-jmxhttpport"};
-        String[] invalidArgs = new String[]{"-jmxhttpport", "ABC"};
+        String[] defaultValue = new String[]{"-jmxport"};
+        String[] invalidArgs = new String[]{"-jmxport", "ABC"};
         String[] deprecatedArgs = new String[]{"-port", "123"};
-        String[] deprecatedAndCorrectArgs = new String[]{"-port", "123", "-jmxhttpport", "123"};
+        String[] deprecatedAndCorrectArgs = new String[]{"-port", "123", "-jmxport", "123"};
 
         assertEquals(123, Main.parseJMXHttpPort(correctArgs));
         assertEquals(MainArgs.NOT_FOUND, Main.parseJMXHttpPort(missingParam));
@@ -155,11 +155,11 @@ public class MainTest extends TestCase {
     }
 
     public void testshouldStartController() throws Exception {
-        String[] bothArgs = new String[]{"-jmxhttpport", "8085", "-rmiport", "8086"};
+        String[] bothArgs = new String[]{"-jmxport", "8085", "-rmiport", "8086"};
         String[] bothArgsWithDeprecated = new String[]{"-port", "8085", "-rmiport", "8086"};
         String[] rmiPort = new String[]{"-rmiport", "8086"};
-        String[] httpPort = new String[]{"-jmxhttpport", "8085"};
-        String[] httpPortWithDefault = new String[]{"-jmxhttpport"};
+        String[] httpPort = new String[]{"-jmxport", "8085"};
+        String[] httpPortWithDefault = new String[]{"-jmxport"};
         String[] neitherArg = new String[]{"-foo", "blah"};
         String[] deprecatedHttpPort = new String[]{"-port", "8085"};
 
@@ -183,7 +183,7 @@ public class MainTest extends TestCase {
         Main.checkDeprecatedArguments(args, testLogger);
 
         assertTrue(appender.toString().indexOf(
-                "WARNING: The port argument is deprecated. Use jmxhttpport instead.") >= 0);
+                "WARNING: The port argument is deprecated. Use jmxport instead.") >= 0);
     }
 
     public static class StringBufferAppender implements Appender {
