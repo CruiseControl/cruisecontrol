@@ -78,7 +78,11 @@
 <html>
 <head>
   <title><%= name%> CruiseControl Status Page</title>
-  <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
+  <%
+      String baseURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                + request.getContextPath() + "/";
+  %>
+  <base href="<%=baseURL%>" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
   <%
      if (autoRefresh) { 
@@ -88,13 +92,35 @@
      }
   %>
   <script language="JavaScript">
-    function callServer(url)
-    {
+    function callServer(url) {
        document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
+    }
+
+    function checkIframe(stylesheetURL) {
+       if (top != self) {//We are being framed!
+
+          //For Internet Explorer
+          if(document.createStyleSheet) {
+            document.createStyleSheet(stylesheetURL);
+
+          } else { //Non-ie browsers
+
+            var styles = "@import url('"+stylesheetURL+"');";
+
+            var newSS=document.createElement('link');
+
+            newSS.rel='stylesheet';
+
+            newSS.href='data:text/css,'+escape(styles);
+
+            document.getElementsByTagName("head")[0].appendChild(newSS);
+
+          }
+       }
     }
   </script>
 </head>
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="checkIframe(<%=baseURL + "css/cruisecontrol.css"%>)">
 <p>&nbsp;</p>
 
 <h1 class="white" align="center"><%= name%> CruiseControl Status Page</h1>
