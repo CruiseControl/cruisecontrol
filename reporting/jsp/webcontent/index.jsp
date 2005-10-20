@@ -90,7 +90,7 @@
   <script language="JavaScript">
     function callServer(url)
     {
-       document.getElementById('serverData').innerHTML = '<IFRAME src="' + url + '" width="640" height="480" frameborder="0"></IFRAME>';
+       document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
     }
   </script>
 </head>
