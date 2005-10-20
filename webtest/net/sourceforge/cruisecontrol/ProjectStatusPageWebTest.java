@@ -11,7 +11,6 @@ public class ProjectStatusPageWebTest extends WebTestCase {
     }
 
     public void testForceBuild() {
-        //HttpUnitOptions.setExceptionsThrownOnScriptError(false);
         beginAt("/cruisecontrol");
         assertTextPresent("CruiseControl Status Page");
         clickLinkWithImage("play_white_bkg.png");
