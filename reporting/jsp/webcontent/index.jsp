@@ -120,7 +120,7 @@
     }
   </script>
 </head>
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="checkIframe(<%=baseURL + "css/cruisecontrol.css"%>)">
+<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
 <p>&nbsp;</p>
 
 <h1 class="white" align="center"><%= name%> CruiseControl Status Page</h1>
