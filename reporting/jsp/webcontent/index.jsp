@@ -72,7 +72,9 @@
     {
         hostname = "localhost";
     }
-    String port = System.getProperty("port", "8000");
+
+    String port = System.getProperty("cruisecontrol.jmxport");
+    boolean jmxEnabled = port != null;
     String jmxURLPrefix = "http://" + hostname+ ":"+ port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
 %>
 <html>
@@ -170,14 +172,17 @@
                %><tr><td>no project directories found under <%=logDirPath%></td></tr><%
            }
            else {
-%>    <thead class="index-header">
+%>  <thead class="index-header">
       <tr>
         <td>Project</td>
+        <% if (jmxEnabled) { %>
+        <td>&nbsp;</td>
+        <% } //end if jmxEnabled %>
         <td align="center">Last build result</td>
         <td align="center">Last build time</td>
         <td align="center">Last successful build time</td>
         <td align="center">Last label</td>
-    </tr>
+      </tr>
     </thead>
     <tbody>
  <%
@@ -193,21 +198,25 @@
                    if ("failed".equalsIgnoreCase(result)) { failed++; }
          %>    <tr>
                    <td><a href="buildresults/<%=project%>"><%=project%></a></td>
+               <% if (jmxEnabled) { %>
+                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href); return false"><img src="images/play_white_bkg.png" alt="Run Build" title="Run Build"/></a></td>
+               <% } //end if jmxEnabled %>
                    <td class="index-<%=result%>" align="center"><%=result%></td>
                    <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
                    <td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td>
                    <td><%=statusHelper.getLastSuccessfulBuildLabel()%></td>
-                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href); return false"><img src="images/play_white_bkg.png" alt="Run Build" title="Run Build"/></a></td>
                </tr>
- <%
-               }
-         %>
-                   <tr><td style="font-weight:bold;border-top:thin solid black">Total</td>
+         <% } //end for loop over project dirs  %>
+
+               <tr><td style="font-weight:bold;border-top:thin solid black">Total</td>
                    <td align="center" style="font-weight:bold;border-top:thin solid black"><%=projectDirs.length%></td>
                    <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
                    <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
                    <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
-                   </tr>
+               <% if (jmxEnabled) { %>
+                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
+               <% } //end if jmxEnabled %>
+               </tr>
 
                    <%
                       if (passed > 0) {
