@@ -107,7 +107,7 @@
         </zip>
     </target>
 
-    <target name="bin-zip" depends="build">
+    <target name="bin-zip" depends="build, website">
         <defaultexcludes remove="**/CVS"/>
         <defaultexcludes remove="**/CVS/**"/>
         <defaultexcludes remove="**/.cvsignore"/>
