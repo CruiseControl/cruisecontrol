@@ -94,8 +94,9 @@
      }
   %>
   <script language="JavaScript">
-    function callServer(url) {
+    function callServer(url, projectName) {
        document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
+       alert('Scheduling build for ' + projectName);
     }
 
     function checkIframe(stylesheetURL) {
@@ -199,7 +200,7 @@
          %>    <tr>
                    <td><a href="buildresults/<%=project%>"><%=project%></a></td>
                <% if (jmxEnabled) { %>
-                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href); return false"><img src="images/play_white_bkg.png" alt="Run Build" title="Run Build"/></a></td>
+                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href, '<%=project%>'); return false"><img src="images/play_white_bkg.png" alt="Run Build" title="Run Build"/></a></td>
                <% } //end if jmxEnabled %>
                    <td class="index-<%=result%>" align="center"><%=result%></td>
                    <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
@@ -208,14 +209,12 @@
                </tr>
          <% } //end for loop over project dirs  %>
 
-               <tr><td style="font-weight:bold;border-top:thin solid black">Total</td>
-                   <td align="center" style="font-weight:bold;border-top:thin solid black"><%=projectDirs.length%></td>
-                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
-                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
-                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
-               <% if (jmxEnabled) { %>
-                   <td style="font-weight:bold;border-top:thin solid black">&nbsp;</td>
-               <% } //end if jmxEnabled %>
+  </table></tr>
+  <tr><td colspan="2" class="index"><hr/></td></tr>
+  <tr><td align="left" colspan="2" class="index" width="100%"><table class="index" width="50%">
+               <tr><td class="index-header">Total</td>
+                   <td align="center" class="index-header"><%=projectDirs.length%></td>
+                   <td>&nbsp;</td>
                </tr>
 
                    <%
@@ -224,8 +223,6 @@
                    <tr><td class="index-passed">Passed</td>
                    <td align="center" class="index-passed"><%=passed%></td>
                    <td align="center" class="index-passed"><%= NumberFormat.getPercentInstance().format((double) passed / projectDirs.length) %></td>
-                   <td align="center" class="index-passed">&nbsp;</td>
-                   <td align="center" class="index-passed">&nbsp;</td>
                    </tr>
                    <% } %>
 
@@ -235,8 +232,6 @@
                    <tr><td class="index-failed">Failed</td>
                    <td align="center" class="index-failed"><%=failed%></td>
                    <td align="center" class="index-failed"><%= NumberFormat.getPercentInstance().format((double) failed / projectDirs.length) %></td>
-                   <td align="center" class="index-failed">&nbsp;</td>
-                   <td align="center" class="index-failed">&nbsp;</td>
                    </tr>
                    <% } %>
 
@@ -246,8 +241,6 @@
                    <tr><td class="index-unknown">Unknown</td>
                    <td align="center" class="index-unknown"><%=unknown%></td>
                    <td align="center" class="index-unknown"><%= NumberFormat.getPercentInstance().format((double) unknown / projectDirs.length) %></td>
-                   <td align="center" class="index-unknown">&nbsp;</td>
-                   <td align="center" class="index-unknown">&nbsp;</td>
                    </tr>
                    <% } %>
                </tbody>
