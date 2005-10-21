@@ -80,24 +80,32 @@ public class FileServlet extends HttpServlet {
         indexFiles = getIndexFiles(servletconfig);
     }
 
-    File getRootDir(ServletConfig servletconfig) throws ServletException {
+    protected File getRootDir(ServletConfig servletconfig) throws ServletException {
         String root = servletconfig.getInitParameter("rootDir");
         File rootDirectory = getDirectoryFromName(root);
         if (rootDirectory == null) {
-            ServletContext context = servletconfig.getServletContext();
-            String logDir = context.getInitParameter("logDir");
-            rootDirectory = getDirectoryFromName(logDir);
+            rootDirectory = getLogDir(servletconfig);
             if (rootDirectory == null) {
                 String message = "ArtifactServlet not configured correctly in web.xml.\n"
                      + "Either rootDir or logDir must point to existing directory.\n"
                      + "rootDir is currently set to <" + root + "> "
-                     + "while logDir is <" + logDir + ">";
+                     + "while logDir is <" + getLogDirParameter(servletconfig) + ">";
                 throw new ServletException(message);
             }
         }
 
         return rootDirectory;
     }
+
+    protected String getLogDirParameter(ServletConfig servletconfig) throws ServletException {
+        ServletContext context = servletconfig.getServletContext();
+        return context.getInitParameter("logDir");
+    }
+    protected File getLogDir(ServletConfig servletconfig) throws ServletException {
+        String logDir = getLogDirParameter(servletconfig);
+        return getDirectoryFromName(logDir);
+    }
+
 
     List getIndexFiles(ServletConfig servletconfig) {
         ServletContext context = servletconfig.getServletContext();
@@ -177,12 +185,16 @@ public class FileServlet extends HttpServlet {
         writer.write("</html>");
     }
 
-    String getMimeType(String filename) {
+    protected String getMimeType(String filename) {
         String mimeType = getServletContext().getMimeType(filename);
         if (mimeType == null) {
-            mimeType = "text/plain";
+            mimeType = getDefaultMimeType();
         }
         return mimeType;
+    }
+
+    protected String getDefaultMimeType() {
+        return "text/plain";
     }
 
     /**
@@ -254,6 +266,10 @@ class WebFile {
 
     private final File file;
 
+    public WebFile(File logfile) {
+        file = logfile;
+    }
+
     public WebFile(File root, String path) {
         file = WebFile.parsePath(root, path);
     }
@@ -266,8 +282,12 @@ class WebFile {
         return file.isDirectory();
     }
 
+    protected InputStream getInputStream() throws IOException {
+        return new FileInputStream(file);
+    }
+
     public void write(ServletOutputStream stream) throws IOException {
-        InputStream input = new BufferedInputStream(new FileInputStream(file));
+        InputStream input = new BufferedInputStream(getInputStream());
         OutputStream output = new BufferedOutputStream(stream);
         try {
             int i;

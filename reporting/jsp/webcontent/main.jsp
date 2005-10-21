@@ -67,7 +67,7 @@
                 <%@ include file="testdetails.jsp" %>
               </cruisecontrol:tab>
 
-              <cruisecontrol:xsl url="logs_url" serveContent="false"/>
+              <cruisecontrol:loglink id="logs_url"/>
               <cruisecontrol:tab name="log" url="<%=logs_url%>" label="XML Log File" />
 
               <cruisecontrol:tab name="metrics" label="Metrics" >
