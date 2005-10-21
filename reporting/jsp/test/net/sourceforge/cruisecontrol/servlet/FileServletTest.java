@@ -146,11 +146,11 @@ public class FileServletTest extends TestCase {
 
         request.setPathInfo(file.getName());
         servlet = new FileServlet() {
-            File getRootDir(ServletConfig servletconfig) {
+            protected File getRootDir(ServletConfig servletconfig) {
                 return dir;
             }
 
-            String getMimeType(String filename) {
+            protected String getMimeType(String filename) {
                 if (filename.endsWith(".html")) {
                     return "text/html";
                 }
@@ -181,11 +181,11 @@ public class FileServletTest extends TestCase {
         request.setPathInfo(file.getName());
         request.addParameter("mimetype", "text/plain");
         servlet = new FileServlet() {
-            File getRootDir(ServletConfig servletconfig) {
+            protected File getRootDir(ServletConfig servletconfig) {
                 return dir;
             }
 
-            String getMimeType(String filename) {
+            protected String getMimeType(String filename) {
                 if (filename.endsWith(".html")) {
                     return "text/html";
                 }
@@ -438,7 +438,7 @@ public class FileServletTest extends TestCase {
             this.rootDir = rootDir;
         }
 
-        File getRootDir(ServletConfig servletconfig) {
+        protected File getRootDir(ServletConfig servletconfig) {
             return rootDir;
         }
 
