@@ -50,25 +50,16 @@
     <tag>
         <name>xsl</name>
         <tagclass>net.sourceforge.cruisecontrol.taglib.XSLTag</tagclass>
-        <teiclass>net.sourceforge.cruisecontrol.taglib.XSLTagExtraInfo</teiclass>
         <bodycontent>JSP</bodycontent>
         <info>
             Transforms the xml build log using XSL.
         </info>
         <attribute>
             <name>xslFile</name>
-            <required>false</required>
+            <required>true</required>
         </attribute>
         <attribute>
             <name>xslRootContext</name>
-            <required>false</required>
-        </attribute>
-        <attribute>
-            <name>serveContent</name>
-            <required>false</required>
-        </attribute>
-        <attribute>
-            <name>url</name>
             <required>false</required>
         </attribute>
     </tag>
