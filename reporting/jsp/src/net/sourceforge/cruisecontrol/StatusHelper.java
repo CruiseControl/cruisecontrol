@@ -41,7 +41,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
-import net.sourceforge.cruisecontrol.taglib.CruiseControlTagSupport;
 import net.sourceforge.cruisecontrol.util.DateHelper;
 
 /**
@@ -58,22 +57,22 @@ public class StatusHelper {
     private static final String FAILED = "failed";
 
     public void setProjectDirectory(File directory) {
-        File newestLogfile = CruiseControlTagSupport.getLatestLogFile(directory);
+        LogFile newestLogfile = LogFile.getLatestLogFile(directory);
         if (newestLogfile == null) {
             newestBuild = null;
         } else {
             try {
-                newestBuild = new BuildInfo(newestLogfile.getName());
+                newestBuild = new BuildInfo(newestLogfile);
             } catch (ParseException pe) {
                 newestBuild = null;
             }
         }
-        File newestSuccessfulLogfile = CruiseControlTagSupport.getLatestSuccessfulLogFile(directory);
+        LogFile newestSuccessfulLogfile = LogFile.getLatestSuccessfulLogFile(directory);
         if (newestSuccessfulLogfile == null) {
             newestSuccessfulBuild = null;
         } else {
             try {
-                newestSuccessfulBuild = new BuildInfo(newestSuccessfulLogfile.getName());
+                newestSuccessfulBuild = new BuildInfo(newestSuccessfulLogfile);
             } catch (ParseException pe) {
                 newestBuild = null;
             }

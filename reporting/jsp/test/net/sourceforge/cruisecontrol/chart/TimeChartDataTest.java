@@ -1,5 +1,6 @@
 package net.sourceforge.cruisecontrol.chart;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,9 +31,9 @@ public class TimeChartDataTest extends TestCase {
         Map map = new HashMap();
 
         List buildInfos = new ArrayList();
-        BuildInfo info = new BuildInfo("log20050708100401.log");
+        BuildInfo info = new BuildInfo(new File("log20050708100401.log"));
         buildInfos.add(info);
-        info = new BuildInfo("log20050708100431.log");
+        info = new BuildInfo(new File("log20050708100431.log"));
         buildInfos.add(info);
         BuildInfoSummary buildInfoSummary = new BuildInfoSummary(buildInfos);
         map.put("buildInfo", buildInfoSummary);

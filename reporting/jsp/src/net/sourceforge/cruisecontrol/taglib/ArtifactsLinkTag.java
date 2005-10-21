@@ -43,6 +43,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
 
+import net.sourceforge.cruisecontrol.LogFile;
 import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
@@ -126,7 +127,7 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
         final char labelSeparator = 'L';
         
         File logDir = findLogDir();
-        File latestFile = getLatestLogFile(logDir);
+        File latestFile = LogFile.getLatestLogFile(logDir).getFile();
         String logName = latestFile.getName();
         
         int startIndex = logPrefix.length();

@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
+import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter;
 
 /**
  * Contains various information about a specific build.  The
@@ -57,33 +58,36 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class BuildInfo implements Comparable, Serializable {
-    private static final String LOG_PREFIX = "log";
+    public static final String LOG_PREFIX = "log";
     public static final String LOG_SUFFIX = ".xml";
     public static final String LOG_COMPRESSED_SUFFIX = ".gz";
-    private static final String LABEL_SEPARATOR = "L";
-    private static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
+    public static final char LABEL_SEPARATOR = 'L';
+    public static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
     private final Date buildDate;
     private final String label;
-    private final String fileName;
-    
-    
-    public BuildInfo(String infoText) throws ParseException {
-        buildDate = deriveDate(infoText);
-        label = deriveLabel(infoText);
-        fileName = infoText;
-        
+    private final LogFile logFile;
+
+    // Convenience constructor used by the testcasess
+    BuildInfo(String infoText) throws ParseException {
+        this(new File(infoText));
     }
-    
-    private String deriveLabel(String infoText) {
-        boolean logfileCompressed = infoText.endsWith(LOG_COMPRESSED_SUFFIX);
-        boolean buildSuccessful = (infoText.length() > (LOG_PREFIX
-                + LOG_DATE_PATTERN + LOG_SUFFIX).length()
-                + (logfileCompressed ? LOG_COMPRESSED_SUFFIX.length() : 0));
+    public BuildInfo(File logFile) throws ParseException {
+        this(new LogFile(logFile));
+    }
+    public BuildInfo(LogFile logFile) throws ParseException {
+        this.logFile = logFile;
+        buildDate = deriveDate();
+        label = deriveLabel();
+    }
+
+    private String deriveLabel() {
+        String infoText = logFile.getName();
+        boolean buildSuccessful = new CruiseControlSuccessfulLogFileFilter().isSuccessful(infoText);
         String theLabel;
         if (buildSuccessful) {
             int labelStartIndex = (LOG_PREFIX + LOG_DATE_PATTERN + LABEL_SEPARATOR).length();
             int labelEndIndex = infoText.length() - LOG_SUFFIX.length();
-            if (logfileCompressed) {
+            if (logFile.isCompressed()) {
                 labelEndIndex -= LOG_COMPRESSED_SUFFIX.length();
             }
             theLabel = infoText.substring(labelStartIndex, labelEndIndex);
@@ -93,8 +97,9 @@ public class BuildInfo implements Comparable, Serializable {
         return theLabel;
     }
 
-    private Date deriveDate(String infoText) throws ParseException {
+    private Date deriveDate() throws ParseException {
         String dateStamp;
+        String infoText = logFile.getName();
         try {
             dateStamp = infoText.substring(LOG_PREFIX.length(), LOG_PREFIX.length() + LOG_DATE_PATTERN.length());
         } catch (StringIndexOutOfBoundsException e) {
@@ -124,11 +129,11 @@ public class BuildInfo implements Comparable, Serializable {
     }
 
     public String getFileName() {
-        return fileName;
+        return logFile.getName();
     }
 
     public static BuildInfoSummary loadFromDir(File logDir) throws CruiseControlWebAppException {
-        String [] logFileNames = logDir.list(new CruiseControlLogFileFilter());
+        File [] logFileNames = logDir.listFiles(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
             throw new CruiseControlWebAppException("Could not access the directory " + logDir.getAbsolutePath());
         } else if (logFileNames.length == 0) {
@@ -137,11 +142,11 @@ public class BuildInfo implements Comparable, Serializable {
         }
         List buildInfoList = new ArrayList(logFileNames.length);
         for (int i = 0; i < logFileNames.length; i++) {
-            String logFileName = logFileNames[i];
+            File file = logFileNames[i];
             try {
-                buildInfoList.add(new BuildInfo(logFileName));
+                buildInfoList.add(new BuildInfo(file));
             } catch (ParseException e) {
-                throw new CruiseControlWebAppException("Could not parse log file name " + logFileName
+                throw new CruiseControlWebAppException("Could not parse log file name " + file.getName()
                                            + ". Is the filter broken?", e);
             }
         }

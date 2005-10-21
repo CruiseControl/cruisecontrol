@@ -41,21 +41,18 @@ import java.io.File;
 import net.sourceforge.cruisecontrol.BuildInfo;
 
 /**
+ * Accepts successful XML log files.
  *
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
-public class CruiseControlLogFileFilter implements FilenameFilter {
+public class CruiseControlSuccessfulLogFileFilter
+        extends CruiseControlLogFileFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
-        if (!name.startsWith("log")) {
-            return false;
-        } else if (name.length() < (BuildInfo.LOG_PREFIX + BuildInfo.LOG_DATE_PATTERN).length()) {
-            return false;
-        } else if (!name.endsWith(".xml") && !name.endsWith(".xml.gz")) {
-            return false;
-        } else if (new File(dir, name).isDirectory()) {
-            return false;
-        }
-        return true;
+        return super.accept(dir, name) && isSuccessful(name);
+    }
+    public boolean isSuccessful(String name) {
+        int length = (BuildInfo.LOG_PREFIX + BuildInfo.LOG_DATE_PATTERN + BuildInfo.LABEL_SEPARATOR).length();
+        return name.length() >= length
+                && name.charAt(length - 1) == BuildInfo.LABEL_SEPARATOR;
     }
 }

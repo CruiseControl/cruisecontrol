@@ -61,6 +61,10 @@ public class MockPageContext extends PageContext {
     private MockServletContext servletContext = new MockServletContext();
     private MockServletConfig servletConfig = new MockServletConfig();
 
+    public MockPageContext() {
+        servletConfig.setServletContext(servletContext);
+    }
+
     public void initialize(Servlet servlet, ServletRequest servletRequest, ServletResponse servletResponse,
                            String errorPageURL, boolean needsSession, int bufferSize, boolean autoFlush)
             throws IOException, IllegalStateException, IllegalArgumentException {

@@ -53,7 +53,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -297,12 +296,10 @@ public class XSLTag extends CruiseControlTagSupport {
     protected LogFile getXMLFile(String logName, File logDir) {
         LogFile logFile;
         if (logName == null || logName.trim().equals("")) {
-            File xmlFile = getLatestLogFile(logDir);
-            logFile = new LogFile(xmlFile);
-            info("Using latest log file: " + xmlFile.getAbsolutePath());
+            logFile = LogFile.getLatestLogFile(logDir);
+            info("Using latest log file: " + logFile.getFile().getAbsolutePath());
         } else {
             logFile = new LogFile(logDir, logName);
-
             info("Using specified log file: " + logFile.getFile().getAbsolutePath());
         }
         return logFile;
