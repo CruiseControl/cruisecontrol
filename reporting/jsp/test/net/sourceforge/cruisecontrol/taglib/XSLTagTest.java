@@ -156,20 +156,25 @@ public class XSLTagTest extends TestCase {
         assertEquals(expectedValue, tag.getCachedCopyFileName(new File("log20020221120000.xml")));
     }
 
-    /*
-public void testIsCachedCopyCurrent() {
-    writeFile("testresults/log1.xml", "");
-    writeFile("testresults/log2.xml", "");
-    writeFile("testresults/log3.xml", "");
-    File log1 = new File("testresults/log1.xml");
-    File log2 = new File("testresults/log2.xml");
-    File log3 = new File("testresults/log3.xml");
+    public void testIsNoCacheCurrent() throws Exception {
+        writeFile(log1, "");
 
-    XSLTag tag = new XSLTag();
-    assertEquals(true, tag.isCacheFileCurrent(log1, log2, log3));
-    assertEquals(false, tag.isCacheFileCurrent(log2, log3, log1));
-}
-      */
+        XSLTag tag = createXSLTag();
+        assertFalse(tag.isCacheFileCurrent(log1, log2));
+    }
+
+    public void testIsEmptyCacheCurrent() throws Exception {
+        writeFile(log1, "");
+        writeFile(log2, "");
+
+        XSLTag tag = createXSLTag();
+        assertFalse(tag.isCacheFileCurrent(log1, log2));
+    }
+
+    // NOTE: Testing if a the XSL file is newer than the cache or XML log file
+    // cannot use newly created files because of the timestamp granularity of
+    // the filesystem which can be as high as 2 seconds
+
     public void testServeCachedCopy() throws Exception {
         writeFile(log3, "<test></test>");
         StringWriter out = new StringWriter();
