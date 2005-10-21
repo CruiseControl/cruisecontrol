@@ -50,6 +50,7 @@ import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.Tag;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.BuildInfo;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
@@ -93,11 +94,16 @@ public class NavigationTagTest extends TestCase {
         logDir.delete();
     }
 
-    public void testGetLinkText() throws JspTagException {
-        assertEquals("02/22/2002 12:00:00", tag.getLinkText("log20020222120000"));
-        assertEquals("02/22/2002 12:00:00", tag.getLinkText("log200202221200"));
-        assertEquals("02/22/2002 12:00:00 (3.11)", tag.getLinkText("log20020222120000L3.11"));
-        assertEquals("02/22/2002 12:00:00 (L.0)", tag.getLinkText("log20020222120000LL.0"));
+    private String getLinkText(String infoText) throws ParseException {
+        return tag.getLinkText(new BuildInfo(new File(infoText + ".xml")));
+    }
+    public void testGetLinkText() throws JspTagException, ParseException {
+        assertEquals("02/22/2002 12:00:00", getLinkText("log20020222120000"));
+
+        // XXX Do we want to support log files without seconds?
+        //assertEquals("02/22/2002 12:00:00", getLinkText("log200202221200"));
+        assertEquals("02/22/2002 12:00:00 (3.11)", getLinkText("log20020222120000L3.11"));
+        assertEquals("02/22/2002 12:00:00 (L.0)", getLinkText("log20020222120000LL.0"));
     }
 
     public void testGetFormattedLinkText() throws ParseException, JspTagException {
@@ -109,8 +115,8 @@ public class NavigationTagTest extends TestCase {
         DateFormat expectedFormat = new SimpleDateFormat(formatString);
         String expectedDate = expectedFormat.format(date); 
 
-        assertEquals(expectedDate, tag.getLinkText("log20020222120000"));
-        assertEquals(expectedDate + " (3.11)", tag.getLinkText("log20020222120000L3.11"));
+        assertEquals(expectedDate, getLinkText("log20020222120000"));
+        assertEquals(expectedDate + " (3.11)", getLinkText("log20020222120000L3.11"));
     }
     
     public void testGetLinks() throws JspException {

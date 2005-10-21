@@ -56,13 +56,11 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  *
  */
 public class NavigationTag extends CruiseControlBodyTagSupport {
-    public static final String LABEL_SEPARATOR = "L";
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String URL_ATTR = "url";
     public static final String LOG_FILE_ATTR = "logfile";
 
     private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
-    private static final SimpleDateFormat LOG_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
     private BuildInfo[] buildInfo; // the log files in the log directory.
     private int count;  // How many times around the loop have we gone.
@@ -72,37 +70,13 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     private int endPoint;
     private DateFormat dateFormat = null;
 
-    private String extractLogNameFromFileName(String fileName) {
-        return fileName.substring(0, fileName.lastIndexOf(".xml"));
-    }
-
-    protected String getLinkText(String fileName) throws JspTagException {
-        String dateString = "";
+    protected String getLinkText(BuildInfo info) {
         String label = "";
-        if (fileName.lastIndexOf(LABEL_SEPARATOR) > -1) {
-            dateString = fileName.substring(3, fileName.indexOf(LABEL_SEPARATOR));
-            label = " (" + fileName.substring(fileName.indexOf(LABEL_SEPARATOR) + 1, fileName.length())
-                    + ")";
-        } else {
-            dateString = fileName.substring(3, fileName.length());
-        }
-        DateFormat inputDate = null;
-        if (dateString.length() == 14) {
-            inputDate = LOG_TIME_FORMAT_SECONDS;
-        } else {
-            inputDate = LOG_TIME_FORMAT;
+        if (info.getLabel() != null) {
+            label = " (" + info.getLabel() + ")";
         }
 
-        Date date = null;
-        try {
-            date = inputDate.parse(dateString);
-        } catch (ParseException e) {
-            err(e);
-            throw new CCTagException("Error parsing '" + dateString + "': " + e.getMessage(), e);
-
-        }
-
-        return getDateFormat().format(date) + label;
+        return getDateFormat().format(info.getBuildDate()) + label;
     }
 
     public int doStartTag() throws JspException {
@@ -129,10 +103,10 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     }
 
     void setupLinkVariables() throws JspTagException {
-        final String fileName = buildInfo[count].getFileName();
-        String logName = extractLogNameFromFileName(fileName);
+        final BuildInfo info = buildInfo[count];
+        String logName = info.getLogName();
         getPageContext().setAttribute(URL_ATTR, createUrl("log", logName));
-        getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(logName));
+        getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(info));
         getPageContext().setAttribute(LOG_FILE_ATTR, logName);
         count++;
     }
@@ -170,9 +144,12 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     }
 
     /**
-     * Set the DateFormat to use. The default is for US-Style (MM/dd/yyyy HH:mm:ss).
-     * @param dateFormatString  the date format to use. Any format appropriate for the java.text.SimpleDataFormat is
+     * Set the DateFormat to use.
+     * The default is based on the client's locale with a 24 hour time. For a
+     * client with a US locale that would be MM/dd/yyyy HH:mm:ss.
+     * @param dateFormatString  the date format to use. Any format appropriate for the SimpleDataFormat is
      *                          okay to use.
+     * @see java.text.SimpleDataFormat
      */
     public void setDateFormat(String dateFormatString) {
         dateFormat = new SimpleDateFormat(dateFormatString);

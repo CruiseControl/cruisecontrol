@@ -31,9 +31,9 @@ public class TimeChartDataTest extends TestCase {
         Map map = new HashMap();
 
         List buildInfos = new ArrayList();
-        BuildInfo info = new BuildInfo(new File("log20050708100401.log"));
+        BuildInfo info = new BuildInfo(new File("log20050708100401.xml"));
         buildInfos.add(info);
-        info = new BuildInfo(new File("log20050708100431.log"));
+        info = new BuildInfo(new File("log20050708100431.xml"));
         buildInfos.add(info);
         BuildInfoSummary buildInfoSummary = new BuildInfoSummary(buildInfos);
         map.put("buildInfo", buildInfoSummary);
