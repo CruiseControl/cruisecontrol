@@ -39,10 +39,8 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
