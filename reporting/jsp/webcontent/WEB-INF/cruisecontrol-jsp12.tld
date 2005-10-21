@@ -205,4 +205,20 @@
             <required>false</required>
         </attribute>
     </tag>
+    <tag>
+        <name>loglink</name>
+        <tag-class>net.sourceforge.cruisecontrol.taglib.LogLinkTag</tag-class>
+        <tei-class>net.sourceforge.cruisecontrol.taglib.LogLinkTagExtraInfo</tei-class>
+        <body-content>empty</body-content>
+        <description>Builds up a link to the logs FileServlet</description>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>id</name>
+            <required>true</required>
+        </attribute>
+    </tag>
 </taglib>
