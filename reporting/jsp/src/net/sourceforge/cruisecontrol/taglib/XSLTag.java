@@ -207,7 +207,7 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @return true if the cache file is current.
      */
     protected boolean isCacheFileCurrent(File xmlFile, File cacheFile) {
-        if (!cacheFile.exists()) {
+        if (!cacheFile.exists() || cacheFile.length() == 0) {
             return false;
         }
         boolean isCurrent = false;
