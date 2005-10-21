@@ -36,8 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.File;
 import java.io.IOException;
+
+import java.text.ParseException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -47,12 +48,13 @@ import net.sourceforge.cruisecontrol.LogFile;
 import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
+ * Creates an <code>artifacts_url</code> variable with the link to the artifacts
+ * for this project and log file.
  * @author jfredrick
  */
 public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
 
     static final String URL_ATTRIBUTE = "artifacts_url";
-    static final String LOG_PARAMETER = "log";
     static final String ARTIFACTS_SERVLET_CONTEXT = "artifacts";
 
     private static final String NO_LOG_PARAM = "";
@@ -85,59 +87,24 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
         } else {
             info("getProject().length() is " + project.length());
         }
+
         String timeString = getTimeString();
-        if (timeString != null && timeString.length() > 0) {
-            urlBuffer.append("/" + timeString);
-        }
+        // JDK1.4
+        // assert timeString != null && timeString.length() > 0;
+        urlBuffer.append("/");
+        urlBuffer.append(timeString);
         return urlBuffer.toString();
     }
 
     String getTimeString() throws JspException {
-        String timeString = getTimeFromLogParam();
-        if (timeString == NO_LOG_PARAM) {
-            info("no log param, trying log file name");
-            timeString = getTimeFromLatestLogFile();
+        String timeString = null;
+        LogFile latestFile = findLogFile();
+
+        try {
+            timeString = latestFile.getBuildInfo().getDateStamp();
+        } catch (ParseException pex) {
+            throw new CCTagException(pex.getMessage(), pex);
         }
-        info("timeString is " + timeString);
         return timeString;
     }
-
-    String getTimeFromLogParam() {
-        String timeString;
-        final String logPrefix = "log";
-        final char labelSeparator = 'L';
-
-        String logParameter = getPageContext().getRequest().getParameter("log");
-        if (logParameter == null) {
-            return NO_LOG_PARAM;
-        }
-
-        int labelIndex = logParameter.indexOf(labelSeparator);
-        if (labelIndex != -1) {
-            timeString = logParameter.substring(logPrefix.length(), labelIndex);
-        } else {
-            timeString = logParameter.substring(logPrefix.length());
-        }
-
-        return timeString;
-    }
-
-    String getTimeFromLatestLogFile() throws JspException {
-        final String logPrefix = "log";
-        final char labelSeparator = 'L';
-        
-        File logDir = findLogDir();
-        File latestFile = LogFile.getLatestLogFile(logDir).getFile();
-        String logName = latestFile.getName();
-        
-        int startIndex = logPrefix.length();
-        int endIndex = logName.indexOf('.');
-        int labelSeparatorIndex = logName.indexOf(labelSeparator);
-        if (labelSeparatorIndex > startIndex && labelSeparatorIndex < endIndex) {
-            endIndex = labelSeparatorIndex;
-        }
-        String timeString = logName.substring(startIndex, endIndex);
-        return timeString;
-    }
-
 }

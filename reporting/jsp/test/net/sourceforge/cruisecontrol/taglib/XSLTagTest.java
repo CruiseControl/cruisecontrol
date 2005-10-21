@@ -149,15 +149,6 @@ public class XSLTagTest extends TestCase {
          assertEquals("\u00c6\u00d8\u00c5", writer.toString());
      }
 
-    public void testGetXmlFile() throws Exception {
-        writeFile(log1, "");
-        writeFile(log3, "");
-
-        XSLTag tag = createXSLTag();
-        assertEquals(tag.getXMLFile("", logDir).getFile().getName(), log3.getName());
-        assertEquals(tag.getXMLFile("log20040903010203", logDir).getFile().getName(), log1.getName());
-    }
-
     public void testGetCachedCopyFileName() {
         XSLTag tag = createXSLTag();
         tag.setXslFile("xsl/cruisecontrol.xsl");
