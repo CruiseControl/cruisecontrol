@@ -39,19 +39,21 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.FilenameFilter;
 import java.io.File;
 import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.LogFile;
 
 /**
+ * Accepts CruiseControl XML logs files.
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class CruiseControlLogFileFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
-        if (!name.startsWith("log")) {
+        if (!name.startsWith(BuildInfo.LOG_PREFIX)) {
             return false;
         } else if (name.length() < (BuildInfo.LOG_PREFIX + BuildInfo.LOG_DATE_PATTERN).length()) {
             return false;
-        } else if (!name.endsWith(".xml") && !name.endsWith(".xml.gz")) {
+        } else if (!name.endsWith(LogFile.LOG_SUFFIX) && !name.endsWith(LogFile.LOG_COMPRESSED_SUFFIX)) {
             return false;
         } else if (new File(dir, name).isDirectory()) {
             return false;

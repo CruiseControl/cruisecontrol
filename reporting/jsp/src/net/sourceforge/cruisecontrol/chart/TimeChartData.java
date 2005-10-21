@@ -78,7 +78,7 @@ public class TimeChartData extends AbstractCruiseControlChartData implements Cha
             if (seriesToAddTo.getDataPair(timePeriod) == null) {
                 seriesToAddTo.add(timePeriod, timeValue);
             } else {
-                System.err.println("multiple logs in the same minute; ignoring: " + buildInfo.getFileName());
+                System.err.println("multiple logs in the same minute; ignoring: " + buildInfo.getLogName());
             }
         }
         TimeSeriesCollection dataset = new TimeSeriesCollection();

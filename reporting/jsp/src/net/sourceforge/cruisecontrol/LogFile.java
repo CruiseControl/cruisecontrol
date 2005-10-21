@@ -49,11 +49,16 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter
 
 
 /**
- * Contains information about a XML log file.
+ * Represents a XML log file.
+ * Build information that is based on the log name is in the <code>BuildInfo</code>
+ * class
  *
+ * @see BuildInfo
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class LogFile {
+    public static final String LOG_SUFFIX = ".xml";
+    public static final String LOG_COMPRESSED_SUFFIX = LOG_SUFFIX + ".gz";
     private static final FilenameFilter LOG_FILTER = new CruiseControlLogFileFilter();
     private static final FilenameFilter SUCCESSFUL_FILTER = new CruiseControlSuccessfulLogFileFilter();
 
@@ -65,9 +70,9 @@ public class LogFile {
      * @param logName name of the XML log file
      */
     public LogFile(File logDir, String logName) {
-        this.xmlFile = new File(logDir, logName + BuildInfo.LOG_SUFFIX);
+        this.xmlFile = new File(logDir, logName + LOG_SUFFIX);
         if (!xmlFile.exists()) {
-            xmlFile = new File(logDir, logName + BuildInfo.LOG_SUFFIX + BuildInfo.LOG_COMPRESSED_SUFFIX);
+            xmlFile = new File(logDir, logName + LOG_COMPRESSED_SUFFIX);
         }
     }
 
@@ -125,15 +130,22 @@ public class LogFile {
      * @return <code>true</code> if the file is compressed
      */
     public boolean isCompressed() {
-        return getName().endsWith(BuildInfo.LOG_COMPRESSED_SUFFIX);
+        return getName().endsWith(LOG_COMPRESSED_SUFFIX);
     }
 
     /**
-     * Gets the name of the log file.
-     * @return the name of the log file
+     * Gets the log's name.
+     * This is the file name without a file extension like <code>.xml<code> or
+     * <code>.xml.gz</code>. Use <code>getFile().getName()</code> to get the
+     * file name with extension.
+     *
+     * @return the name of the log
      */
     public String getName() {
-        return getFile().getName();
+        return extractLogNameFromFileName(getFile().getName());
+    }
+    private String extractLogNameFromFileName(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf(BuildInfo.LOG_SUFFIX));
     }
 
     /**

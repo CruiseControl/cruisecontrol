@@ -59,8 +59,6 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter
  */
 public class BuildInfo implements Comparable, Serializable {
     public static final String LOG_PREFIX = "log";
-    public static final String LOG_SUFFIX = ".xml";
-    public static final String LOG_COMPRESSED_SUFFIX = ".gz";
     public static final char LABEL_SEPARATOR = 'L';
     public static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
     private final Date buildDate;
@@ -86,11 +84,7 @@ public class BuildInfo implements Comparable, Serializable {
         String theLabel;
         if (buildSuccessful) {
             int labelStartIndex = (LOG_PREFIX + LOG_DATE_PATTERN + LABEL_SEPARATOR).length();
-            int labelEndIndex = infoText.length() - LOG_SUFFIX.length();
-            if (logFile.isCompressed()) {
-                labelEndIndex -= LOG_COMPRESSED_SUFFIX.length();
-            }
-            theLabel = infoText.substring(labelStartIndex, labelEndIndex);
+            theLabel = infoText.substring(labelStartIndex);
         } else {
             theLabel = null;
         }
@@ -128,7 +122,10 @@ public class BuildInfo implements Comparable, Serializable {
         return getLabel() != null;
     }
 
-    public String getFileName() {
+    /**
+     * Gets the log's name with a file extension.
+     */
+    public String getLogName() {
         return logFile.getName();
     }
 

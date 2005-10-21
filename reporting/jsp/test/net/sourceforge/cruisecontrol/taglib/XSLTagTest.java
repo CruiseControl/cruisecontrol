@@ -154,8 +154,8 @@ public class XSLTagTest extends TestCase {
         writeFile(log3, "");
 
         XSLTag tag = createXSLTag();
-        assertEquals(tag.getXMLFile("", logDir).getName(), log3.getName());
-        assertEquals(tag.getXMLFile("log20040903010203", logDir).getName(), log1.getName());
+        assertEquals(tag.getXMLFile("", logDir).getFile().getName(), log3.getName());
+        assertEquals(tag.getXMLFile("log20040903010203", logDir).getFile().getName(), log1.getName());
     }
 
     public void testGetCachedCopyFileName() {
