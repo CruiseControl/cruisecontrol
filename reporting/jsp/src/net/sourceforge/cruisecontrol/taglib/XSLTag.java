@@ -49,7 +49,13 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -73,12 +79,19 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  */
 public class XSLTag extends CruiseControlTagSupport {
     private static final String DEFAULT_XSL_ROOT = "/xsl/";
+    private static final String XSLT_PARAMETER_PREFIX = "xslt.";
     private String xslFileName;
     private File toServe;
     private String url;
     private String xslRootContext = DEFAULT_XSL_ROOT;
     private boolean serveContent = true;
     private static final String CACHE_DIR = "_cache";
+
+    public void release() {
+        xslFileName = null;
+        xslRootContext = DEFAULT_XSL_ROOT;
+        url = null;
+    }
 
     public int doStartTag() throws JspException {
         toServe = prepareContent();
@@ -139,6 +152,15 @@ public class XSLTag extends CruiseControlTagSupport {
             };
             tFactory.setURIResolver(resolver);
             Transformer transformer = tFactory.newTransformer(new StreamSource(style));
+            Map parameters = getXSLTParameters();
+            if (!parameters.isEmpty()) {
+                transformer.clearParameters();
+                for (Iterator i = parameters.entrySet().iterator(); i.hasNext(); ) {
+                    Map.Entry entry = (Map.Entry) i.next();
+                    transformer.setParameter((String) entry.getKey(), entry.getValue());
+                }
+            }
+
             try {
                 in = xmlFile.getInputStream();
             } catch (IOException ioex) {
@@ -284,6 +306,34 @@ public class XSLTag extends CruiseControlTagSupport {
             info("Using specified log file: " + logFile.getFile().getAbsolutePath());
         }
         return logFile;
+    }
+
+    Map getXSLTParameters() {
+        Map xsltParameters = new HashMap();
+        ServletConfig config = pageContext.getServletConfig();
+        Enumeration names = config.getInitParameterNames();
+        while (names.hasMoreElements()) {
+            String parameterName = (String) names.nextElement();
+            if (parameterName.startsWith(XSLT_PARAMETER_PREFIX)) {
+                String value = config.getInitParameter(parameterName);
+                String name = parameterName.substring(XSLT_PARAMETER_PREFIX.length());
+                info("using XSLT parameter: " + name + "=" + value);
+                xsltParameters.put(name, value);
+            }
+        }
+        ServletContext context = config.getServletContext();
+        names = context.getInitParameterNames();
+        while (names.hasMoreElements()) {
+            String parameterName = (String) names.nextElement();
+            if (parameterName.startsWith(XSLT_PARAMETER_PREFIX)) {
+                String value = context.getInitParameter(parameterName);
+                String name = parameterName.substring(XSLT_PARAMETER_PREFIX.length());
+                info("using XSLT parameter: " + name + "=" + value);
+                xsltParameters.put(name, value);
+            }
+        }
+
+        return xsltParameters;
     }
 
     /**
