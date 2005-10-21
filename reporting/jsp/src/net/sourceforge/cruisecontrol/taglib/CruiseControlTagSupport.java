@@ -48,6 +48,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import net.sourceforge.cruisecontrol.LogFile;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -57,6 +59,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class CruiseControlTagSupport extends TagSupport {
+    protected static final String LOG_PARAMETER = "log";
 
     public static Log getLog(Class clazz) {
         return (LogFactory.getLog(clazz));
@@ -97,6 +100,30 @@ public class CruiseControlTagSupport extends TagSupport {
             throw new JspException(logDirName + " either does not exist, or is not a directory");
         }
         return logDir;
+    }
+
+    /**
+     *  Gets the correct log file, based on the project and log file requested
+     *  in the query string.
+     *
+     *  @return The specifed log file or the latest log, if no log file is
+     *          specified in the request.
+     */
+    protected LogFile findLogFile() throws JspException {
+        String logFile = getPageContext().getRequest().getParameter(LOG_PARAMETER);
+        return getXMLFile(findLogDir(), logFile);
+    }
+
+    LogFile getXMLFile(File logDir, String logName) {
+        LogFile logFile;
+        if (logName == null || logName.trim().equals("")) {
+            logFile = LogFile.getLatestLogFile(logDir);
+            info("Using latest log file: " + logFile.getFile().getAbsolutePath());
+        } else {
+            logFile = new LogFile(logDir, logName);
+            info("Using specified log file: " + logFile.getFile().getAbsolutePath());
+        }
+        return logFile;
     }
 
     protected String[] findProjects() throws JspException {

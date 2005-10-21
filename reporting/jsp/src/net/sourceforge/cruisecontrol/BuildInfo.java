@@ -62,6 +62,7 @@ public class BuildInfo implements Comparable, Serializable {
     public static final char LABEL_SEPARATOR = 'L';
     public static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
     private final Date buildDate;
+    private final String dateStamp;
     private final String label;
     private final LogFile logFile;
 
@@ -74,6 +75,7 @@ public class BuildInfo implements Comparable, Serializable {
     }
     public BuildInfo(LogFile logFile) throws ParseException {
         this.logFile = logFile;
+        dateStamp = deriveDateStamp();
         buildDate = deriveDate();
         label = deriveLabel();
     }
@@ -91,14 +93,17 @@ public class BuildInfo implements Comparable, Serializable {
         return theLabel;
     }
 
-    private Date deriveDate() throws ParseException {
-        String dateStamp;
+    private String deriveDateStamp() throws ParseException {
         String infoText = logFile.getName();
         try {
-            dateStamp = infoText.substring(LOG_PREFIX.length(), LOG_PREFIX.length() + LOG_DATE_PATTERN.length());
+            return infoText.substring(LOG_PREFIX.length(), LOG_PREFIX.length() + LOG_DATE_PATTERN.length());
         } catch (StringIndexOutOfBoundsException e) {
             throw new IllegalStateException("infoText has wrong format: " + infoText + " " + e.getMessage());
         }
+    }
+
+    private Date deriveDate() throws ParseException {
+        String infoText = logFile.getName();
         Date theDate;
         final DateFormat logDateFormat = new SimpleDateFormat(LOG_DATE_PATTERN);
         try {
@@ -110,8 +115,16 @@ public class BuildInfo implements Comparable, Serializable {
         return theDate;
     }
 
-   public Date getBuildDate() {
+    public Date getBuildDate() {
         return buildDate;
+    }
+
+    /**
+     * Gets the date stamp of the log name.
+     * @return the build date as a stamp.
+     */
+    public String getDateStamp() {
+        return dateStamp;
     }
 
     public String getLabel() {

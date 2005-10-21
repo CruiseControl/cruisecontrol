@@ -41,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
@@ -115,6 +116,15 @@ public class LogFile {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Gets the build information for this log file like the label and build
+     * date.
+     * @return the log file's build information
+     */
+    public BuildInfo getBuildInfo() throws ParseException {
+        return new BuildInfo(this);
     }
 
     /**

@@ -103,7 +103,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     void setupLinkVariables() throws JspTagException {
         final BuildInfo info = buildInfo[count];
         String logName = info.getLogName();
-        getPageContext().setAttribute(URL_ATTR, createUrl("log", logName));
+        getPageContext().setAttribute(URL_ATTR, createUrl(LOG_PARAMETER, logName));
         getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(info));
         getPageContext().setAttribute(LOG_FILE_ATTR, logName);
         count++;

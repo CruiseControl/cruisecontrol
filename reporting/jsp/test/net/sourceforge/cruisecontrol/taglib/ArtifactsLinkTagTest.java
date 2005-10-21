@@ -83,22 +83,6 @@ public class ArtifactsLinkTagTest extends TestCase {
         pageContext = null;
     }
 
-    public void testGetTimeFromLogParam() {
-        assertEquals("", tag.getTimeFromLogParam());
-
-        request.addParameter("log", "log20020224120000");
-        assertEquals("20020224120000", tag.getTimeFromLogParam());
-        request.removeParameter("log");
-
-        request.addParameter("log", "log20020223120000LBuild.1");
-        assertEquals("20020223120000", tag.getTimeFromLogParam());
-        request.removeParameter("log");
-    }
-
-    public void testGetTimeFromLatestLogFile() throws Exception {
-        assertEquals("20041018170000", tag.getTimeFromLatestLogFile());
-    }
-
     public void testDoStartTag() throws JspException {
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
     }

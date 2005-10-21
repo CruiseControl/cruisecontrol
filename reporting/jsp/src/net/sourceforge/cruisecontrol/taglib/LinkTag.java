@@ -45,7 +45,7 @@ import javax.servlet.jsp.tagext.Tag;
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
 public class LinkTag extends CruiseControlTagSupport {
-    private String exclude = "log";
+    private String exclude = LOG_PARAMETER;
 
     public int doStartTag() throws JspException {
         getPageContext().setAttribute(getId(), createUrl(exclude));

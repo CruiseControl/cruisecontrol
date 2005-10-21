@@ -50,7 +50,10 @@ import net.sourceforge.cruisecontrol.mock.MockServletRequest;
 public class CruiseControlTagSupportTest extends TestCase {
     private CruiseControlTagSupport tag;
     private MockServletRequest request;
-    
+
+    private String logName1;
+    private String logName2;
+    private String logName3;
     private File logDir;
     private File log1;
     private File log2;
@@ -67,9 +70,12 @@ public class CruiseControlTagSupportTest extends TestCase {
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
-        log1 = new File(logDir, "log1.xml");
-        log2 = new File(logDir, "log20040905010203Lsuccessful-build-file.1.xml");
-        log3 = new File(logDir, "log3.xml");
+        logName1 = "log1";
+        logName2 = "log20040905010203Lsuccessful-build-file.1";
+        logName3 = "log20051021142446";
+        log1 = new File(logDir, logName1 + ".xml");
+        log2 = new File(logDir, logName2 + ".xml");
+        log3 = new File(logDir, logName3 + ".xml.gz");
     }
     
     public void tearDown() {
@@ -107,10 +113,17 @@ public class CruiseControlTagSupportTest extends TestCase {
         assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
     }
 
+    public void testGetXmlFile() throws Exception {
+        writeFile(log2, "");
+        writeFile(log3, "");
+
+        assertEquals(tag.getXMLFile(logDir, "").getName(), logName3);
+        assertEquals(tag.getXMLFile(logDir, logName2).getName(), logName2);
+    }
+
     private void writeFile(File file, String body) throws Exception {
         FileWriter writer = new FileWriter(file);
         writer.write(body);
         writer.close();
     }
-
 }

@@ -286,25 +286,6 @@ public class XSLTag extends CruiseControlTagSupport {
             : xmlFileName;
     }
 
-    /**
-     *  Gets the correct log file, based on the query string and the log directory.
-     *
-     *  @param logName The name of the log file.
-     *  @param logDir The directory where the log files reside.
-     *  @return The specifed log file or the latest log, if nothing is specified
-     */
-    protected LogFile getXMLFile(String logName, File logDir) {
-        LogFile logFile;
-        if (logName == null || logName.trim().equals("")) {
-            logFile = LogFile.getLatestLogFile(logDir);
-            info("Using latest log file: " + logFile.getFile().getAbsolutePath());
-        } else {
-            logFile = new LogFile(logDir, logName);
-            info("Using specified log file: " + logFile.getFile().getAbsolutePath());
-        }
-        return logFile;
-    }
-
     Map getXSLTParameters() {
         Map xsltParameters = new HashMap();
         ServletConfig config = pageContext.getServletConfig();
@@ -358,13 +339,12 @@ public class XSLTag extends CruiseControlTagSupport {
 
     /**
      * Prepare the content if there's need to.
-     * THe content must be prepared if it is zipped or/and if a transformation is required.
+     * The content must be prepared if it is zipped or/and if a transformation is required.
      *
      * @return the file served/to serve
      */
     File prepareContent() throws JspException {
-        File logDir = findLogDir();
-        LogFile xmlFile = findLogFile(logDir);
+        LogFile xmlFile = findLogFile();
         File fileToServe;
         if (isCacheRequired(xmlFile)) {
             File cacheFile = findCacheFile(xmlFile);
@@ -423,12 +403,6 @@ public class XSLTag extends CruiseControlTagSupport {
         }
         File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile.getFile()));
         return cacheFile;
-    }
-
-    private LogFile findLogFile(File logDir) {
-        info("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
-        String logFile = getPageContext().getRequest().getParameter("log");
-        return getXMLFile(logFile, logDir);
     }
 
     public int doEndTag() throws JspException {
