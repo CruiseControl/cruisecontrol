@@ -208,7 +208,7 @@ public void testIsCachedCopyCurrent() {
         MockServletContext context = (MockServletContext) tag.getPageContext().getServletContext();
         context.setInitParameter("xslt.context.parameter", "context.value");
         tag.setXslFile(log1.getName());
-        tag.updateCacheFile(log2, log3);
+        tag.updateCacheFile(new LogFile(log2), log3);
         Writer writer = new CharArrayWriter();
         tag.serveCachedCopy(log3, writer);
         assertEquals("config.valuecontext.value", writer.toString());
