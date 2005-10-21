@@ -145,7 +145,7 @@ public class LogFile {
         return extractLogNameFromFileName(getFile().getName());
     }
     private String extractLogNameFromFileName(String fileName) {
-        return fileName.substring(0, fileName.lastIndexOf(BuildInfo.LOG_SUFFIX));
+        return fileName.substring(0, fileName.lastIndexOf(LOG_SUFFIX));
     }
 
     /**
