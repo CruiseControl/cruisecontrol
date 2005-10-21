@@ -36,26 +36,65 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.FilenameFilter;
 import java.io.File;
-import net.sourceforge.cruisecontrol.BuildInfo;
+import java.io.FileWriter;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.LogFile;
 
 /**
  *
- * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
-public class CruiseControlLogFileFilter implements FilenameFilter {
-    public boolean accept(File dir, String name) {
-        if (!name.startsWith("log")) {
-            return false;
-        } else if (name.length() < (BuildInfo.LOG_PREFIX + BuildInfo.LOG_DATE_PATTERN).length()) {
-            return false;
-        } else if (!name.endsWith(".xml") && !name.endsWith(".xml.gz")) {
-            return false;
-        } else if (new File(dir, name).isDirectory()) {
-            return false;
+public class LogFileTest extends TestCase {
+    private File logDir;
+    private File log1;
+    private File log2;
+    private File log3;
+
+    public void setUp() {
+        logDir = new File("testresults/");
+        if (!logDir.exists()) {
+            assertTrue("Failed to create test result dir", logDir.mkdir());
         }
-        return true;
+        log1 = new File(logDir, "log20040903010203.xml");
+        log2 = new File(logDir, "log20040905010203Lsuccessful-build-file.1.xml");
+        log3 = new File(logDir, "log20051021103500.xml");
+    }
+    
+    public void tearDown() {
+        log1.delete();
+        log2.delete();
+        log3.delete();
+        logDir.delete();
+
+        log1 = null;
+        log2 = null;
+        log3 = null;
+        logDir = null;
+    }
+
+    public void testGetLatestLog() throws Exception {
+        writeFile(log1, "");
+        writeFile(log2, "");
+        writeFile(log3, "");
+
+        File result = LogFile.getLatestLogFile(logDir).getFile();
+        assertEquals("log20051021103500.xml", result.getName());
+    }
+
+    public void testGetLatestSuccessfulLog() throws Exception {
+        writeFile(log1, "");
+        writeFile(log2, "");
+        writeFile(log3, "");
+
+        File result = LogFile.getLatestSuccessfulLogFile(logDir).getFile();
+        assertEquals(log2, result);
+    }
+
+    private void writeFile(File file, String body) throws Exception {
+        FileWriter writer = new FileWriter(file);
+        writer.write(body);
+        writer.close();
     }
 }

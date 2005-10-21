@@ -67,9 +67,9 @@ public class XSLTagTest extends TestCase {
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
         }
-        log1 = new File(logDir, "log1.xml");
-        log2 = new File(logDir, "log2.xml");
-        log3 = new File(logDir, "log3.xml");
+        log1 = new File(logDir, "log20040903010203.xml");
+        log2 = new File(logDir, "log20040905010203.xml");
+        log3 = new File(logDir, "log20051021103500.xml");
     }
 
     protected void tearDown() throws Exception {
@@ -114,7 +114,7 @@ public class XSLTagTest extends TestCase {
                 "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
                         + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
                     + "<xsl:output method=\"text\"/>"
-                    + "<xsl:include href=\"log1.xml\" />"
+                    + "<xsl:include href=\"" + log1.getName() + "\" />"
                     + "<xsl:template match=\"/\">"
                         +  "<xsl:apply-templates />"
                     + "</xsl:template>"
@@ -154,8 +154,8 @@ public class XSLTagTest extends TestCase {
         writeFile(log3, "");
 
         XSLTag tag = createXSLTag();
-        assertEquals(tag.getXMLFile("", logDir).getName(), "log3.xml");
-        assertEquals(tag.getXMLFile("log1", logDir).getName(), "log1.xml");
+        assertEquals(tag.getXMLFile("", logDir).getName(), log3.getName());
+        assertEquals(tag.getXMLFile("log20040903010203", logDir).getName(), log1.getName());
     }
 
     public void testGetCachedCopyFileName() {

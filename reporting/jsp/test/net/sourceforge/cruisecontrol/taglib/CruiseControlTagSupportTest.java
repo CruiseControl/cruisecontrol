@@ -107,24 +107,6 @@ public class CruiseControlTagSupportTest extends TestCase {
         assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
     }
 
-    public void testGetLatestLog() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
-
-        File result = CruiseControlTagSupport.getLatestLogFile(logDir);
-        assertEquals("log3.xml", result.getName());
-    }
-
-    public void testGetLatestSuccessfulLog() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
-
-        File result = CruiseControlTagSupport.getLatestSuccessfulLogFile(logDir);
-        assertEquals(log2, result);
-}
-
     private void writeFile(File file, String body) throws Exception {
         FileWriter writer = new FileWriter(file);
         writer.write(body);

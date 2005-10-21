@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class MockServletContext implements ServletContext {
     }
 
     public URL getResource(String s) throws MalformedURLException {
-        return null;
+        return new URL(baseResourceDir.toURL(), s);
     }
 
     public InputStream getResourceAsStream(String resourceName) {
@@ -136,7 +137,7 @@ public class MockServletContext implements ServletContext {
     }
 
     public Enumeration getInitParameterNames() {
-        return null;
+        return Collections.enumeration(initParams.keySet());
     }
 
     public Object getAttribute(String s) {

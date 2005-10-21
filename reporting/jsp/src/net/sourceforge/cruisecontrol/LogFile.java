@@ -38,9 +38,14 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.zip.GZIPInputStream;
+import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
+import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter;
 
 
 /**
@@ -49,7 +54,9 @@ import java.util.zip.GZIPInputStream;
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class LogFile {
-    private static final String XML_SUFFIX = ".xml";
+    private static final FilenameFilter LOG_FILTER = new CruiseControlLogFileFilter();
+    private static final FilenameFilter SUCCESSFUL_FILTER = new CruiseControlSuccessfulLogFileFilter();
+
     private File xmlFile;
 
     /**
@@ -70,6 +77,39 @@ public class LogFile {
      */
     public LogFile(File xmlFile) {
         this.xmlFile = xmlFile;
+    }
+
+    /**
+     *  Gets the latest log file in a given directory.  Since all of our logs contain a date/time string, this method
+     *  is actually getting the log file that comes last alphabetically.
+     *
+     *  @return The latest log file or <code>null</code> if there are no log
+     *          files in the given directory.
+     */
+    public static LogFile getLatestLogFile(File logDir) {
+        File[] logs = logDir.listFiles(LOG_FILTER);
+        if (logs != null && logs.length > 0) {
+            return new LogFile((File) Collections.max(Arrays.asList(logs)));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     *  Gets the latest successful log file in a given directory.
+     *  Since all of our logs contain a date/time string, this method
+     *  is actually getting the log file that comes last alphabetically.
+     *
+     *  @return The latest log file or <code>null</code> if there are no
+     *          sucessful log files in the given directory
+     */
+    public static LogFile getLatestSuccessfulLogFile(File logDir) {
+        File[] logs = logDir.listFiles(SUCCESSFUL_FILTER);
+        if (logs != null && logs.length > 0) {
+            return new LogFile((File) Collections.max(Arrays.asList(logs)));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -105,7 +145,8 @@ public class LogFile {
     }
 
     /**
-     * Gets ...
+     * Gets a stream with the log file's content.
+     *
      * @throws java.io.IOException if there is an error reading the file
      * @return the file content as a stream
      */

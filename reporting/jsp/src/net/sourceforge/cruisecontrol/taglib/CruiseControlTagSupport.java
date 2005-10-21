@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -58,14 +57,6 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
  */
 public class CruiseControlTagSupport extends TagSupport {
-
-    private static final FilenameFilter LOG_FILTER = new CruiseControlLogFileFilter();
-
-    private static final FilenameFilter SUCCESSFUL_FILTER = new CruiseControlLogFileFilter() {
-        public boolean accept(File dir, String name) {
-            return super.accept(dir, name) && name.length() > 16 && name.charAt(17) == 'L';
-        }
-    };
 
     public static Log getLog(Class clazz) {
         return (LogFactory.getLog(clazz));
@@ -205,37 +196,6 @@ public class CruiseControlTagSupport extends TagSupport {
 
     protected String createUrl(String paramToExclude) {
         return createUrl(paramToExclude, null);
-    }
-
-    /**
-     *  Gets the latest log file in a given directory.  Since all of our logs contain a date/time string, this method
-     *  is actually getting the log file that comes last alphabetically.
-     *
-     *  @return The latest log file.
-     */
-    public static File getLatestLogFile(File logDir) {
-        File[] logs = logDir.listFiles(LOG_FILTER);
-        if (logs != null && logs.length > 0) {
-            return (File) Collections.max(Arrays.asList(logs));
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     *  Gets the latest successful log file in a given directory.
-     *  Since all of our logs contain a date/time string, this method
-     *  is actually getting the log file that comes last alphabetically.
-     *
-     *  @return The latest log file.
-     */
-    public static File getLatestSuccessfulLogFile(File logDir) {
-        File[] logs = logDir.listFiles(SUCCESSFUL_FILTER);
-        if (logs != null && logs.length > 0) {
-            return (File) Collections.max(Arrays.asList(logs));
-        } else {
-            return null;
-        }
     }
 
     protected Locale getLocale() {

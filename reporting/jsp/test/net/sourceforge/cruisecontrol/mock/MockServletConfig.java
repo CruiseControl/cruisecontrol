@@ -36,10 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.mock;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
@@ -63,7 +63,7 @@ public class MockServletConfig implements ServletConfig {
     }
 
     public Enumeration getInitParameterNames() {
-        return new Properties().propertyNames();
+        return Collections.enumeration(initParams.keySet());
     }
 
     public String getServletName() {
