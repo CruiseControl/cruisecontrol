@@ -46,6 +46,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.LogFile;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
 
@@ -95,7 +96,7 @@ public class XSLTagTest extends TestCase {
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
-        tag.transform(log3, style, out);
+        tag.transform(new LogFile(log3), style, out);
         assertEquals("test=3.1", out.toString());
     }
 
@@ -123,7 +124,7 @@ public class XSLTagTest extends TestCase {
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
-        tag.transform(log3, style, out);
+        tag.transform(new LogFile(log3), style, out);
         assertEquals("test=3.1", out.toString());
     }
     
@@ -141,7 +142,7 @@ public class XSLTagTest extends TestCase {
 
          XSLTag tag = createXSLTag();
          tag.setXslFile(log1.getName());
-         tag.updateCacheFile(log2, log3);
+         tag.updateCacheFile(new LogFile(log2), log3);
          Writer writer = new CharArrayWriter();
          tag.serveCachedCopy(log3, writer);
          assertEquals("\u00c6\u00d8\u00c5", writer.toString());

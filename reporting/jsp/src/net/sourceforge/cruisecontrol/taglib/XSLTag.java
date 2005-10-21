@@ -49,7 +49,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
@@ -60,6 +59,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sourceforge.cruisecontrol.LogFile;
 import net.sourceforge.cruisecontrol.util.CCTagException;
 
 /**
@@ -116,7 +116,7 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param style stream containing the xsl stylesheet. Null means no style applied
      *  @param out stream to output the results of the transformation
      */
-    protected void transform(File xmlFile, InputStream style, OutputStream out) throws JspTagException {
+    protected void transform(LogFile xmlFile, InputStream style, OutputStream out) throws JspTagException {
         InputStream in = null;
 
         try {
@@ -139,7 +139,13 @@ public class XSLTag extends CruiseControlTagSupport {
             };
             tFactory.setURIResolver(resolver);
             Transformer transformer = tFactory.newTransformer(new StreamSource(style));
-            in = getXmlFileInputStream(xmlFile);
+            try {
+                in = xmlFile.getInputStream();
+            } catch (IOException ioex) {
+                err(ioex);
+                throw new CCTagException("Cannot read logfile: "
+                        + ioex.getMessage(), ioex);
+            }
             transformer.transform(new StreamSource(in), new StreamResult(out));
         } catch (ArrayIndexOutOfBoundsException e) {
             err(e);
@@ -162,31 +168,11 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param xmlFile the xml file to be transformed
      *  @param os stream to output the results of the transformation
      */
-    protected void cache(File xmlFile, OutputStream os) throws JspTagException, IOException {
-        info("Caching file: " + xmlFile.getAbsolutePath());
+    protected void cache(LogFile xmlFile, OutputStream os) throws JspTagException, IOException {
+        info("Caching file: " + xmlFile.getFile().getAbsolutePath());
         final OutputStreamWriter out = new OutputStreamWriter(os);
-        copy(getXmlFileInputStream(xmlFile), out);
+        copy(xmlFile.getInputStream(), out);
         closeQuietly(out);
-    }
-
-    private InputStream getXmlFileInputStream(File xmlFile) throws CCTagException {
-        InputStream in = null;
-        if (xmlFile.getName().endsWith(".gz")) {
-            try {
-                in = new GZIPInputStream(new FileInputStream(xmlFile));
-            } catch (IOException ioe) {
-                err(ioe);
-            }
-        } else {
-            try {
-                in = new FileInputStream(xmlFile);
-            } catch (IOException ioex) {
-                err(ioex);
-                throw new CCTagException("Assertion error: "
-                        + ioex.getMessage(), ioex);
-            }
-        }
-        return in;
     }
 
     public void setUrl(String url) {
@@ -286,19 +272,18 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param logDir The directory where the log files reside.
      *  @return The specifed log file or the latest log, if nothing is specified
      */
-    protected File getXMLFile(String logName, File logDir) {
-        File xmlFile;
+    protected LogFile getXMLFile(String logName, File logDir) {
+        LogFile logFile;
         if (logName == null || logName.trim().equals("")) {
-            xmlFile = getLatestLogFile(logDir);
+            File xmlFile = getLatestLogFile(logDir);
+            logFile = new LogFile(xmlFile);
             info("Using latest log file: " + xmlFile.getAbsolutePath());
         } else {
-            xmlFile = new File(logDir, logName + ".xml");
-            if (!xmlFile.exists()) {
-                xmlFile = new File(logDir, logName + ".xml.gz");
-            }
-            info("Using specified log file: " + xmlFile.getAbsolutePath());
+            logFile = new LogFile(logDir, logName);
+
+            info("Using specified log file: " + logFile.getFile().getAbsolutePath());
         }
-        return xmlFile;
+        return logFile;
     }
 
     /**
@@ -332,11 +317,11 @@ public class XSLTag extends CruiseControlTagSupport {
      */
     File prepareContent() throws JspException {
         File logDir = findLogDir();
-        File xmlFile = findLogFile(logDir);
+        LogFile xmlFile = findLogFile(logDir);
         File fileToServe;
         if (isCacheRequired(xmlFile)) {
-            File cacheFile = findCacheFile(logDir, xmlFile);
-            if (!isCacheFileCurrent(xmlFile, cacheFile)) {
+            File cacheFile = findCacheFile(xmlFile);
+            if (!isCacheFileCurrent(xmlFile.getFile(), cacheFile)) {
                 info("Updating cached copy: " + cacheFile.getAbsolutePath());
                 updateCacheFile(xmlFile, cacheFile);
             } else {
@@ -344,16 +329,16 @@ public class XSLTag extends CruiseControlTagSupport {
             }
             fileToServe = cacheFile;
         } else {
-            fileToServe = xmlFile;
+            fileToServe = xmlFile.getFile();
         }
         return fileToServe;
     }
 
-    private boolean isCacheRequired(File file) {
-        return shouldBeTransformed() || file.getName().endsWith(".gz");
+    private boolean isCacheRequired(LogFile file) {
+        return shouldBeTransformed() || file.isCompressed();
     }
 
-    protected void updateCacheFile(File xmlFile, File cacheFile) throws JspTagException {
+    protected void updateCacheFile(LogFile xmlFile, File cacheFile) throws JspTagException {
         OutputStream out = null;
         try {
             out = new FileOutputStream(cacheFile);
@@ -381,23 +366,22 @@ public class XSLTag extends CruiseControlTagSupport {
         return xslFileName != null;
     }
 
-    private File findCacheFile(File logDir, File xmlFile) {
+    private File findCacheFile(LogFile xmlFile) {
         String cacheRoot = getContextParam("cacheRoot");
         File cacheDir = cacheRoot == null 
-            ? new File(logDir, CACHE_DIR)
+            ? new File(xmlFile.getLogDirectory(), CACHE_DIR)
             : new File(cacheRoot + File.separator + getProject());
         if (!cacheDir.exists()) {
             cacheDir.mkdir();
         }
-        File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile));
+        File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile.getFile()));
         return cacheFile;
     }
 
-    private File findLogFile(File logDir) {
+    private LogFile findLogFile(File logDir) {
         info("Scanning directory: " + logDir.getAbsolutePath() + " for log files.");
         String logFile = getPageContext().getRequest().getParameter("log");
-        File xmlFile = getXMLFile(logFile, logDir);
-        return xmlFile;
+        return getXMLFile(logFile, logDir);
     }
 
     public int doEndTag() throws JspException {
