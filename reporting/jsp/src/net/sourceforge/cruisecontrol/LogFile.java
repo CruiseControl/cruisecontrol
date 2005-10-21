@@ -140,7 +140,7 @@ public class LogFile {
      * @return <code>true</code> if the file is compressed
      */
     public boolean isCompressed() {
-        return getName().endsWith(LOG_COMPRESSED_SUFFIX);
+        return getFile().getName().endsWith(LOG_COMPRESSED_SUFFIX);
     }
 
     /**
@@ -173,11 +173,9 @@ public class LogFile {
      * @return the file content as a stream
      */
     public InputStream getInputStream() throws IOException {
-        InputStream in = null;
+        InputStream in = new FileInputStream(xmlFile);
         if (isCompressed()) {
-            in = new GZIPInputStream(new FileInputStream(xmlFile));
-        } else {
-            in = new FileInputStream(xmlFile);
+            in = new GZIPInputStream(in);
         }
         return in;
     }
