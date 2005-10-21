@@ -58,8 +58,8 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
  */
 public class BuildInfo implements Comparable, Serializable {
     private static final String LOG_PREFIX = "log";
-    private static final String LOG_SUFFIX = ".xml";
-    private static final String LOG_COMPRESSED_SUFFIX = ".gz";
+    public static final String LOG_SUFFIX = ".xml";
+    public static final String LOG_COMPRESSED_SUFFIX = ".gz";
     private static final String LABEL_SEPARATOR = "L";
     private static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
     private final Date buildDate;
