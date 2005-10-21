@@ -48,6 +48,7 @@ import java.io.Writer;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.LogFile;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
+import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
 
 public class XSLTagTest extends TestCase {
@@ -185,6 +186,32 @@ public void testIsCachedCopyCurrent() {
 
         tag.serveCachedCopy(log3, out);
         assertEquals("<test></test>", out.toString());
+    }
+
+    public void testGetXSLTParameters() throws Exception {
+        final String styleSheetText =
+                 "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">"
+                     + "<xsl:output method=\"text\"/>"
+                     + "<xsl:param name=\"context.parameter\"/>"
+                     + "<xsl:param name=\"config.parameter\"/>"
+                     + "<xsl:template match=\"/\">"
+                         + "<xsl:value-of select=\"$config.parameter\"/>"
+                         + "<xsl:value-of select=\"$context.parameter\"/>"
+                     + "</xsl:template>"
+                 + "</xsl:stylesheet>";
+        writeFile(log1, styleSheetText);
+        writeFile(log2, "<test/>");
+
+        XSLTag tag = createXSLTag();
+        MockServletConfig config = (MockServletConfig) tag.getPageContext().getServletConfig();
+        config.setInitParameter("xslt.config.parameter", "config.value");
+        MockServletContext context = (MockServletContext) tag.getPageContext().getServletContext();
+        context.setInitParameter("xslt.context.parameter", "context.value");
+        tag.setXslFile(log1.getName());
+        tag.updateCacheFile(log2, log3);
+        Writer writer = new CharArrayWriter();
+        tag.serveCachedCopy(log3, writer);
+        assertEquals("config.valuecontext.value", writer.toString());
     }
 
     private XSLTag createXSLTag() {
