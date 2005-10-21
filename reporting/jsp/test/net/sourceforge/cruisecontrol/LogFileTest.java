@@ -59,7 +59,7 @@ public class LogFileTest extends TestCase {
         }
         log1 = new File(logDir, "log20040903010203.xml");
         log2 = new File(logDir, "log20040905010203Lsuccessful-build-file.1.xml");
-        log3 = new File(logDir, "log20051021103500.xml");
+        log3 = new File(logDir, "log20051021103500.xml.gz");
     }
     
     public void tearDown() {
@@ -80,7 +80,17 @@ public class LogFileTest extends TestCase {
         writeFile(log3, "");
 
         File result = LogFile.getLatestLogFile(logDir).getFile();
-        assertEquals("log20051021103500.xml", result.getName());
+        assertEquals(log3.getName(), result.getName());
+    }
+
+    public void testIsCompressed() throws Exception {
+        writeFile(log1, "");
+        writeFile(log2, "");
+        writeFile(log3, "");
+
+        assertFalse(new LogFile(log1).isCompressed());
+        assertFalse(new LogFile(log2).isCompressed());
+        assertTrue(new LogFile(log3).isCompressed());
     }
 
     public void testGetLatestSuccessfulLog() throws Exception {
