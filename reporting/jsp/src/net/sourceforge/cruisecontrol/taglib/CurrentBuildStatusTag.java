@@ -100,7 +100,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
     private File getFile(File logDir, String currentBuildFileName) {
         File currentBuildFile = new File(logDir, currentBuildFileName);
         if (currentBuildFile.isDirectory()) {
-            System.err.println(
+            err(
                 "CruiseControl: currentBuildStatusFile "
                     + currentBuildFile.getAbsolutePath()
                     + " is a directory." 
@@ -108,7 +108,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
             return null;
         }
         if (!currentBuildFile.exists()) {
-            System.err.println(
+            err(
                 "CruiseControl: currentBuildStatusFile "
                     + currentBuildFile.getAbsolutePath()
                     + " does not exist."
@@ -122,7 +122,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
     private String getFileName() {
         String currentBuildFileName = getContextParam("currentBuildStatusFile");
         if (currentBuildFileName == null || currentBuildFileName.equals("")) {
-            System.err.println("CruiseControl: currentBuildStatusFile not defined in the web.xml");
+            err("CruiseControl: currentBuildStatusFile not defined in the web.xml");
             return null;
         }
         return currentBuildFileName;
