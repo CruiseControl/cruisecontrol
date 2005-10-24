@@ -200,7 +200,7 @@
          %>    <tr>
                    <td><a href="buildresults/<%=project%>"><%=project%></a></td>
                <% if (jmxEnabled) { %>
-                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href, '<%=project%>'); return false"><img src="images/play_white_bkg.png" alt="Run Build" title="Run Build"/></a></td>
+                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href, '<%=project%>'); return false"><img src="images/run.gif" alt="Run Build" title="Run Build"/></a></td>
                <% } //end if jmxEnabled %>
                    <td class="index-<%=result%>" align="center"><%=result%></td>
                    <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
