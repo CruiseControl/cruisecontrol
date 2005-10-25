@@ -150,6 +150,7 @@
 <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
 <a href="#schedule">&lt;schedule&gt;</a>
 <a href="#scp">&lt;scp&gt;</a>
+<a href="#sfeefrs">&lt;sfeefrs&gt;</a>
 <a href="#snapshotcm">&lt;snapshotcm&gt;</a>
 <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a>
 <a href="#socket">&lt;socket&gt;</a>
@@ -275,6 +276,7 @@
          <a href="#rss">&lt;rss/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
+         <a href="#sfeefrs">&lt;sfeefrs/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
          <a href="#x10">&lt;x10/&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
@@ -4764,7 +4766,12 @@ endlocal</pre>
                 <td><a href="#scp"><code>&lt;scp&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies a file using SCP</td>
-    </tr>
+            </tr>
+            <tr>
+                <td><a href="#sfeefrs"><code>&lt;sfeefrs&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Uploads a file to a SourceForge Enterprise Edition project's file release system (FRS).</td>
+            </tr>
             <tr>
                 <td><a href="#socket"><code>&lt;socket&gt;</code></a></td>
                 <td>0 .. *</td>
@@ -5321,6 +5328,88 @@ endlocal</pre>
             </tr>
             </tbody>
          </table>
+         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="sfeefrs">&lt;sfeefrs&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;sfeefrs&gt;</pre>
+        </div>
+
+        <p>Uploads a file to a SourceForge Enterprise Edition project's file release system (FRS).</p>
+
+        <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.
+            The publisher is compiled against a stub implementation of that SDK. Remove the stub jar
+            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place.
+        </p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>file</td>
+                <td>Yes</td>
+                <td>Path to a file on the local filesystem that should be uploaded.</td>
+            </tr>
+            <tr>
+                <td>serverurl</td>
+                <td>Yes</td>
+                <td>URL for the SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Valid username for the specified SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password for the specified username.</td>
+            </tr>
+            <tr>
+                <td>releaseid</td>
+                <td>Yes</td>
+                <td>The SFEE id for the FRS release, e.g. rel2509.</td>
+            </tr>
+            <tr>
+                <td>uploadname</td>
+                <td>No (defaults to the same name as the local file)</td>
+                <td>The name to be used for the file in the FRS.</td>
+            </tr>
+            </tbody>
+         </table>
+
+         <h3>Examples</h3>
+         <pre>
+&lt;!-- Upload myapp-1.0.0.jar to SFEE using the same filename. --&gt;
+&lt;sfeefrs file="target/myapp-1.0.0.jar"
+    serverurl="http://mysfeeinstance.com"
+    username="sfeeuser"
+    password="mypassword"
+    releaseid="rel2509"/&gt;</pre>
+         <pre>
+&lt;!-- Upload myapp-1.0.0.jar to SFEE, but call it myapp-current.jar
+    in the FRS. --&gt;
+&lt;sfeefrs file="target/myapp-1.0.0.jar"
+    serverurl="http://mysfeeinstance.com"
+    username="sfeeuser"
+    password="mypassword"
+    releaseid="rel2509"
+    uploadname="myapp-current.jar"/&gt;</pre>
          </div>
 
         <div class="elementdocumentation">
