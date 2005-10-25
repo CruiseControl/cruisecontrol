@@ -40,6 +40,11 @@ package net.sourceforge.cruisecontrol.testutil;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import junit.framework.Assert;
 
@@ -166,5 +171,12 @@ public final class TestUtil {
         }
         Assert.assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
         Assert.assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
+    }
+
+    public static void write(String text, File file) throws IOException {
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+        out.print(text);
+        out.flush();
+        out.close();
     }
 }

@@ -1,19 +1,20 @@
 package net.sourceforge.cruisecontrol.util;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import java.io.File;
 
 /**
-  * Reusable assertion like facility for handling configuration mistakes (e.g. unsupported/required attributes).
-  *
-  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
-  */
+ * Reusable assertion like facility for handling configuration mistakes (e.g. unsupported/required attributes).
+ *
+ * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
+ */
 public final class ValidationHelper {
     private ValidationHelper() {
     }
 
     /**
      * Handle required plugin attributes.
-     * 
+     *
      * @param attribute
      * @param attributeName
      * @param plugin
@@ -26,7 +27,7 @@ public final class ValidationHelper {
 
     /**
      * Handle required plugin attributes.
-     * 
+     *
      * @param attribute
      * @param attributeName
      * @param pluginName
@@ -41,11 +42,10 @@ public final class ValidationHelper {
 
     /**
      * Handle required plugin attributes.
-     * 
+     *
      * @param attribute
      * @param plugin
-     * @throws CruiseControlException
-     *             if empty (null OK)
+     * @throws CruiseControlException if empty (null OK)
      */
     public static void assertNotEmpty(final String attribute, final String attributeName, final Class plugin)
             throws CruiseControlException {
@@ -75,14 +75,47 @@ public final class ValidationHelper {
 
     /**
      * The short class name of an object.
-     * 
+     *
      * @param plugin
      * @return
-     * @throws NullPointerException
-     *             if object is null
+     * @throws NullPointerException if object is null
      */
     private static String getShortClassName(final Class plugin) {
         final String fullClassName = plugin.getName();
         return fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+    }
+
+    public static void assertExists(File file, String attributeName, Class plugin) throws CruiseControlException {
+        if (file == null || attributeName == null || plugin == null) {
+            throw new IllegalArgumentException("All parameters are required.");
+        }
+
+        if (!file.exists()) {
+            fail("File specified [" + file.getAbsolutePath() + "] for attribute [" + attributeName + "] on plugin ["
+                    + plugin.getName() + "] doesn't exist.");
+        }
+    }
+
+    public static void assertIsNotDirectory(File file, String attributeName, Class plugin)
+            throws CruiseControlException {
+        if (file == null || attributeName == null || plugin == null) {
+            throw new IllegalArgumentException("All parameters are required.");
+        }
+
+        if (file.isDirectory()) {
+            fail("File specified [" + file.getAbsolutePath() + "] for attribute [" + attributeName + "] on plugin ["
+                    + plugin.getName() + "] is really a directory where a file was expected.");
+        }
+    }
+
+    public static void assertIsReadable(File file, String attributeName, Class plugin) throws CruiseControlException {
+        if (file == null || attributeName == null || plugin == null) {
+            throw new IllegalArgumentException("All parameters are required.");
+        }
+
+        if (!file.canRead()) {
+            fail("File specified [" + file.getAbsolutePath() + "] for attribute [" + attributeName + "] on plugin ["
+                    + plugin.getName() + "] is not readable.");
+        }
     }
 }
