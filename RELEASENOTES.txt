@@ -16,6 +16,10 @@ contrib:
 ----------------------
 * fix distributed/build.xml so that tests will pass out of the box. Patch by Dan Rollo
 
+CruiseControlLogFileFilter:
+---------------------------
+* Only accept files with at least 16 characters ('log' + date pattern + extension)
+
 CruiseControlTagSupport:
 ----------------------
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
@@ -30,9 +34,21 @@ general:
 * Added fast-md5.jar to manifest for cruisecontrol.jar
 * Deprecated the command-line argument named "port" in favor of "jmxport" to be more explicit.
 
+LogFile:
+--------
+* Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn
+
+LogFileServlet:
+---------------
+* Extract the log file serving specific code from FileServlet into a new subclass
+
 MergeLogger:
 ------------
 * cleanly skip non existing log files and directories
+
+NavigationTag:
+--------------
+* Remove support for log files timestamped without a second part
 
 release.xml:
 ------------
@@ -55,6 +71,8 @@ tests:
 XSLTag:
 ------------
 * Handle absolute path for logdir attribute (CC-341). Patch by Jerome Lacoste.
+* Empty cache files left over from a failed transformation are not considered current and are regenerated. Patch by Hack Kampbjørn
+
 
 CruiseControl Release Notes - 2.3.1
 
