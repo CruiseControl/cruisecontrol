@@ -42,6 +42,10 @@ public class SfeeFrsPublisher implements Publisher {
         this.file = file;
     }
 
+    public void setFile(String filename) {
+        setFile(new File(filename));
+    }
+
     public void setReleaseID(String releaseID) {
         this.releaseID = releaseID;
     }
