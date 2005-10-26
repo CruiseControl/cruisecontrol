@@ -137,7 +137,7 @@ public class SFEEFrsPublisherTest extends TestCase {
         publisher.setReleaseID(RELEASE_ID);
 
         //A file that exists, but isn't readable
-        UnreadableMockFile unreadableFile = new UnreadableMockFile("foo");
+        UnreadableMockFile unreadableFile = new UnreadableMockFile();
         publisher.setFile(unreadableFile);
 
         publisher.validate();
