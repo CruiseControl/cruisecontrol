@@ -176,13 +176,13 @@
 %>  <thead class="index-header">
       <tr>
         <td>Project</td>
-        <% if (jmxEnabled) { %>
-        <td>&nbsp;</td>
-        <% } //end if jmxEnabled %>
         <td align="center">Last build result</td>
         <td align="center">Last build time</td>
         <td align="center">Last successful build time</td>
         <td align="center">Last label</td>
+        <% if (jmxEnabled) { %>
+        <td align="center">Force build</td>
+        <% } //end if jmxEnabled %>
       </tr>
     </thead>
     <tbody>
@@ -199,13 +199,15 @@
                    if ("failed".equalsIgnoreCase(result)) { failed++; }
          %>    <tr>
                    <td><a href="buildresults/<%=project%>"><%=project%></a></td>
-               <% if (jmxEnabled) { %>
-                   <td><a href="<%= jmxURLPrefix + project %>" onclick="callServer(this.href, '<%=project%>'); return false"><img src="images/run.gif" alt="Run Build" title="Run Build"/></a></td>
-               <% } //end if jmxEnabled %>
                    <td class="index-<%=result%>" align="center"><%=result%></td>
                    <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
                    <td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td>
                    <td><%=statusHelper.getLastSuccessfulBuildLabel()%></td>
+                   <% if (jmxEnabled) { %>
+                   <td><form id="force_<%=project%>" onsubmit="callServer('<%= jmxURLPrefix + project %>', '<%=project%>'); return false">
+                        <input type="submit" value="Force" alt="Run Build" title="Run Build"/>
+                   </form></td>
+                   <% } //end if jmxEnabled %>
                </tr>
          <% } //end for loop over project dirs  %>
 

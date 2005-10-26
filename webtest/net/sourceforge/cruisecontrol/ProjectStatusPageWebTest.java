@@ -13,7 +13,8 @@ public class ProjectStatusPageWebTest extends WebTestCase {
     public void testForceBuild() {
         beginAt("/cruisecontrol");
         assertTextPresent("CruiseControl Status Page");
-        clickLinkWithImage("run.gif");
+        setWorkingForm("force_commons-math");
+        submit();
         assertTextPresent("CruiseControl Status Page");
 
         //Make sure the build actually started running.
