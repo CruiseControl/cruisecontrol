@@ -68,7 +68,7 @@ public class ValidationHelperTest extends TestCase {
     public void testIsReadable() throws CruiseControlException, IOException {
         try {
             //A file that exists, but isn't readable
-            UnreadableMockFile unreadableFile = new UnreadableMockFile("foo");
+            UnreadableMockFile unreadableFile = new UnreadableMockFile();
             ValidationHelper.assertIsReadable(unreadableFile, "foo", this.getClass());
             fail("Expected an exception");
         } catch (CruiseControlException expected) {
