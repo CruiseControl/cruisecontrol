@@ -34,13 +34,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.taglib;
-
-import java.io.File;
-import java.io.FileWriter;
+package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.LogFile;
+import java.io.File;
+import java.io.FileWriter;
 
 /**
  *
