@@ -15,26 +15,13 @@
 				<li>
 					<h4>Building the code</h4>
 					<ol type="A">
-                        <!-- @todo Begin: Remove if we bank the jini & jnlp libs -->
-                        <li>Go to <a href="http://www.sun.com/software/communitysource/jini/download.html">http://www.sun.com/software/communitysource/jini/download.html</a> and download the Jini Technology Starter Kit, version 2.0.2. (This is now released under the Apache 2.0 license, so we are able to distribute the Jini libraries with Cruise Control, should we choose to.) From the starter kit drop the following Jini libraries into <i>contrib/distributed/lib</i>:
-							<ul>
-								<li><code>jini-core.jar</code></li>
-								<li><code>jini-ext.jar</code></li>
-								<li><code>jsk-platform.jar</code></li>
-								<li><code>reggie.jar</code></li>
-								<li><code>reggie-dl.jar</code></li>
-								<li><code>start.jar</code></li>
-								<li><code>tools.jar</code></li>
-							</ul>
-						</li>
-                        <!-- @todo End: Remove if we bank the jini & jnlp libs -->
                         <li>For jdk's prior to 1.5, go to <a href="http://java.sun.com/products/javawebstart/download-jnlp.html">http://java.sun.com/products/javawebstart/download-jnlp.html</a> and download the JNLP Developer's Pack v1.2. For jdk 1.5, you can find this jar in the "sample/jnlp/servlet" directory. Drop the following webstart library into <i>contrib/distributed/lib</i>:
                             <ul>
 								<li><code>jnlp.jar</code></li>
 							</ul>
 						</li>
 						<li>Build Cruise Control in the usual way.</li>
-						<li>In the directory in which you found this file, run <code>ant</code>. The default target will build the distributed extensions. A new directory will be created called <i>dist</i> that contains subdirectories entitled <i>master</i> and <i>agent</i>. Also, a file will be created called <i>cc-agent.zip</i>. The zip file contents are identical to the <i>agent</i> subdirectory. The zip file can easily be transferred to any machine you wish to serve as a build agent while the <i>agent</i> subdirectory can be used for testing by running a build agent locally (more below).</li>
+						<li>In the directory in which you found this file, run <code>ant</code>. The default target will build the distributed extensions. <p><b>NOTE: Compilation requires jdk1.4 or greater.</b> If you get a compile error like: <code>"class file has wrong version 48.0, should be 47.0"</code>, check your jdk version.</p> A new directory will be created called <i>dist</i> that contains subdirectories entitled <i>master</i> and <i>agent</i>. Also, a file will be created called <i>cc-agent.zip</i>. The zip file contents are identical to the <i>agent</i> subdirectory. The zip file can easily be transferred to any machine you wish to serve as a build agent while the <i>agent</i> subdirectory can be used for testing by running a build agent locally (more below).</li>
 					</ol>
 				</li>
 				<li>
