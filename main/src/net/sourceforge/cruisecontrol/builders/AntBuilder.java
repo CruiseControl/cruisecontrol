@@ -95,10 +95,6 @@ public class AntBuilder extends Builder {
             LOG.warn("usedebug and usequiet are ignored if uselogger is not set to 'true'!");
         }
 
-        if (antScript != null && !args.isEmpty()) {
-            LOG.warn("jvmargs will be ignored if you specify your own antscript!");
-        }
-
         if (saveLogDir != null) {
             ValidationHelper.assertTrue(saveLogDir.isDirectory(), "'saveLogDir' must exist and be a directory");
         }
@@ -118,6 +114,10 @@ public class AntBuilder extends Builder {
                 + antScriptInAntHome.getAbsolutePath());
 
             antScript = antScriptInAntHome.getAbsolutePath();
+        }
+
+        if (antScript != null && !args.isEmpty()) {
+            LOG.warn("jvmargs will be ignored if you specify anthome or your own antscript!");
         }
     }
 
@@ -323,7 +323,11 @@ public class AntBuilder extends Builder {
     protected static Element getAntLogAsElement(File file) throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException("ant logfile " + file.getAbsolutePath() + " does not exist.");
+        } else if (file.length() == 0) {
+            throw new CruiseControlException("ant logfile " + file.getAbsolutePath()
+                    + " is empty. Your build probably failed. Check your CruiseControl logs.");
         }
+
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
 
