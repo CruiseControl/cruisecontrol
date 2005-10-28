@@ -184,8 +184,8 @@
         <mkdir dir="target/webtest"/>
         <unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="target/webtest"/>
 
-        <chmod file="../cruisecontrol-dev/cruisecontrol.sh" perm="+x"/>
-        <chmod file="../cruisecontrol-dev/apache-ant-1.6.3/bin/ant" perm="+x"/>
+        <chmod file="target/webtest/cruisecontrol-bin-${cc.release.label}/cruisecontrol.sh" perm="+x"/>
+        <chmod file="target/webtest/cruisecontrol-bin-${cc.release.label}/apache-ant-1.6.3/bin/ant" perm="+x"/>
 
         <exec dir="target/webtest/cruisecontrol-bin-${cc.release.label}" executable="cmd.exe" os="Windows 95, Windows 98, Windows NT, Windows CE, Windows 2000, Windows XP">
             <arg line="/c cruisecontrol.bat -webport 7854 -jmxport 7855"/>
