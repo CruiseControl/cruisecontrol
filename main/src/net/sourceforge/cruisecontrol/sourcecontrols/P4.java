@@ -349,11 +349,11 @@ public class P4 implements SourceControl {
                 Calendar cal = Calendar.getInstance();
 
                 cal.setTime(lastBuildTime);
-                cal.add(Calendar.MILLISECOND , (int) offset);
+                cal.add(Calendar.MILLISECOND , offset);
                 lastBuildTime = cal.getTime();
 
                 cal.setTime(now);
-                cal.add(Calendar.MILLISECOND , (int) offset);
+                cal.add(Calendar.MILLISECOND , offset);
                 now = cal.getTime();
 
             } catch (IOException ioe) {

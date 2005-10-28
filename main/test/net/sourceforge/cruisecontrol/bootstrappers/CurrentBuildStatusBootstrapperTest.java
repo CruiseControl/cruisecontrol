@@ -48,6 +48,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @deprecated Tests deprecated code
+ */
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
     private static final String TEST_DIR = "tmp";
     private final List filesToClear = new ArrayList();

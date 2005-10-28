@@ -128,7 +128,7 @@
     </target>
 
     <target name="compile" depends="init" description="Compile source code">
-        <javac destdir="${classes}" debug="true" deprecation="true" fork="true">
+        <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
            <classpath refid="project.classpath"/>
            <src path="${src}"/>
            <exclude name="**/StarTeam*"/>
@@ -148,7 +148,7 @@
     </target>
 
     <target name="compile-starteam" if="starteam-sdk-present" depends="init">
-        <javac destdir="${classes}" debug="true" deprecation="true" fork="true">
+        <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
             <classpath refid="project.classpath"/>
             <src path="${src}"/>
             <include name="**/StarTeam*"/>
@@ -156,7 +156,7 @@
     </target>
 
     <target name="compile-sametime" if="sametime-sdk-present" depends="init">
-        <javac destdir="${classes}" debug="true" deprecation="true" fork="true">
+        <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
             <classpath refid="project.classpath"/>
             <src path="${src}"/>
             <include name="**/Sametime*"/>
@@ -166,7 +166,7 @@
     <target name="compile-test" depends="compile"
         description="Compile test code">
 
-        <javac debug="on" deprecation="true" srcdir="${test}" fork="true"
+        <javac debug="on" deprecation="true" srcdir="${test}" fork="true" source="1.3" target="1.3"
             destdir="${test.classes}" excludes="**/*StarTeam*,**/*Sametime*"
             classpathref="project.runtime.classpath" />
 
@@ -274,7 +274,7 @@
     </target>
 
     <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present" unless="test.skip">
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true">
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true" source="1.3" target="1.3">
             <classpath refid="project.runtime.classpath"/>
             <src path="${test}"/>
             <include name="**/StarTeam*"/>
@@ -293,7 +293,7 @@
     </target>
 
     <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present" unless="test.skip">
-        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true">
+        <javac debug="on" deprecation="true" srcdir="${test}" destdir="${test.classes}" fork="true" source="1.3" target="1.3">
             <classpath refid="project.runtime.classpath"/>
             <src path="${test}"/>
             <include name="**/Sametime*"/>

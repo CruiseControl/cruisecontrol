@@ -361,7 +361,7 @@ public class ClearCase implements SourceControl {
 
     /**
      * @param attributeList
-     * @return
+     * @return parsed list
      */
     private Hashtable extractAttributesMap(String attributeList) {
         Hashtable attributes = null;
@@ -386,7 +386,7 @@ public class ClearCase implements SourceControl {
 
     /**
      * @param labelList
-     * @return
+     * @return parsed list
      */
     private Vector extractLabelsList(String labelList) {
         Vector labels = null;

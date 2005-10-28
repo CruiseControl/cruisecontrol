@@ -46,6 +46,9 @@ import java.io.File;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
+/**
+ * @deprecated Tests deprecated code
+ */
 public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
     private final List filesToClear = new ArrayList();
 

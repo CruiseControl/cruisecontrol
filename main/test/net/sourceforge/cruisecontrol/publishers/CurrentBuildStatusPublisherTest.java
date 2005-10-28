@@ -52,6 +52,9 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * @deprecated Test deprecated with code
+ */
 public class CurrentBuildStatusPublisherTest extends TestCase {
     private static final String TEST_DIR = "tmp";
     private final List filesToClear = new ArrayList();

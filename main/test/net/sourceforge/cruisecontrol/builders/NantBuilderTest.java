@@ -107,7 +107,7 @@ public class NantBuilderTest extends TestCase {
             }
             return super.waitFor();
         }
-    };
+    }
 
 
     protected void setUp() throws Exception {

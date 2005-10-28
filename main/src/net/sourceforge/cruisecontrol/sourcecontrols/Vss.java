@@ -478,7 +478,7 @@ public class Vss implements SourceControl {
      * Parse comment from VSS history (could be multi-line)
      * 
      * @param commentList
-     * @return
+     * @return the comment
      */
     private String parseComment(List commentList, int commentIndex) {
         StringBuffer comment = new StringBuffer();

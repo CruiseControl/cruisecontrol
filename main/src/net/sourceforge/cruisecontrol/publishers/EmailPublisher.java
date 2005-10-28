@@ -301,7 +301,7 @@ public abstract class EmailPublisher implements Publisher {
 
         Set userSet = new HashSet();
         Set alertSet = createAlertUserSet(helper);
-        String subject = createSubject(helper);;
+        String subject = createSubject(helper);
         
         if (!alertSet.isEmpty()) {
             String alertSubject = "[MOD ALERT] " + subject;

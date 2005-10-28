@@ -358,7 +358,7 @@ public class SVN implements SourceControl {
         /**
          * Converts the specified SVN date string into a Date.
          * @param date with format "yyyy-MM-dd'T'HH:mm:ss.SSS" + "...Z"
-         * @return
+         * @return converted date
          * @throws ParseException if specified date doesn't match the expected format 
          */
         static Date convertDate(String date) throws ParseException {

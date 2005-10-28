@@ -49,6 +49,9 @@ import java.util.TreeSet;
 
 public class PluginRegistryTest extends TestCase {
 
+    /**
+     * @deprecated Testing deprecated code
+     */
     public void testGetDefaultPropertiesNoPlugin() {
         PluginRegistry registry = PluginRegistry.createRegistry();
         assertEquals(0, registry.getDefaultProperties("qwertyuiop").size());
@@ -109,7 +112,13 @@ public class PluginRegistryTest extends TestCase {
         PluginRegistry.registerToRoot(pluginElement);
     }
 
-    // 2 levels of plugin registry, 1 plugin, 2 properties defined in parent, one overriden in child
+    /**
+     * 2 levels of plugin registry, 1 plugin, 2 properties defined in
+     * parent, one overriden in child
+     *
+     * @deprecated Testing deprecated code
+     * @throws Exception on failure
+     */
     public void testGetPluginConfigOverride() throws Exception {
 
         PluginRegistry registry = PluginRegistry.createRegistry();

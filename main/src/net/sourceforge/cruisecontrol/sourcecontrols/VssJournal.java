@@ -288,7 +288,7 @@ public class VssJournal implements SourceControl {
      *  parse comment from vss history (could be multiline)
      *
      *@param  a
-     *@return
+     *@return the comment
      */
     private String parseComment(List a) {
         StringBuffer comment = new StringBuffer();
