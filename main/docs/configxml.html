@@ -2454,6 +2454,19 @@ password=P@ssW0rd!
                <td>Whether to check sub-folders in the viewpath.</td>
             </tr>
             <tr>
+               <td>all</td>
+               <td>No (defaults to false)</td>
+               <td>Set when checking the entire view path.
+                   <p>When checking the entire view path this option invokes 'lshistory -all'
+                   instead of 'lshistory -recursive', which is much faster.<p/>
+                   <p>This option is mutually exclusive with the recursive property.<p/>
+                   <p>Note that 'all' does not use your view's config-spec rules. It behaves
+                   like having a single line config-spec that selects just ELEMENT * /&lt;branch&gt;/LATEST
+                   (i.e. 'lshistory -all' results that contain @@ are discarded). This differs from
+                   'recurse', which only shows items selected by your current view.</p>
+               </td>
+            </tr>
+            <tr>
                <td>viewpath</td>
                <td>Yes</td>
                <td>Local working copy to use when making queries</td>

@@ -17,6 +17,10 @@ main/build.xml:
 ----------------------
 * Allow build for jdk 1.3 no matter which jdk is being used. Patch by Brad Clarke. 
 
+ClearCase:
+----------------------
+* New 'all' attribute can be used to increase performance when checking the entire view. Patch by Rick Reimer.
+
 configxml.html:
 ----------------------
 * Included link to timebuild in modificationset documentation.

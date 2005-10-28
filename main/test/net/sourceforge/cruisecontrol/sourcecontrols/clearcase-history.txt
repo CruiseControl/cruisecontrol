@@ -3,5 +3,6 @@ userid2#~#20030408.083300#~#dir1\dir11\dir111\file2.txt#~#\main\1#~#checkin#~#!#
 userid1#~#20030408.083300#~#dir1\dir11\file3.txt#~#\main\dev\1#~#checkin#~#!#~#!#~#multi
 line
 comment@#@#@#@#@#@#@#@#@#@#@#@
+userid2#~#20051011.143000#~#dir1\dir11@@\main\other\3\dir111\main\other\2\file4.txt#~#\main\dev\1#~#checkin#~#!#~#!#~#some comment@#@#@#@#@#@#@#@#@#@#@#@
 userid2#~#20030407.083500#~#dir1\dir11\dir111\file1.txt#~#\main\dev\1#~#checkin#~#!(label1, label2)#~#!(ATTR1=123, ATTR2="asdf")#~#one line comment, no cr/lf@#@#@#@#@#@#@#@#@#@#@#@
 userid2#~#20030407.083500#~#dir1\dir11\dir111\file2.txt#~#\main\dev\1#~#checkin#~#!(label1, label2)#~#!(ATTR1=123, ATTR2="asdf")#~#one line comment, no cr/lf but includes # character@#@#@#@#@#@#@#@#@#@#@#@
