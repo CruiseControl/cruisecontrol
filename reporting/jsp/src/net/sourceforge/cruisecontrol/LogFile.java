@@ -36,17 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
+import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
-import net.sourceforge.cruisecontrol.taglib.CruiseControlLogFileFilter;
-import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter;
 
 
 /**
@@ -57,7 +59,9 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter
  * @see BuildInfo
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
-public class LogFile {
+public class LogFile implements Serializable {
+    // NOTE: LogFile must be Serializable for Metrics tab (charts) to work
+    
     public static final String LOG_SUFFIX = ".xml";
     public static final String LOG_COMPRESSED_SUFFIX = LOG_SUFFIX + ".gz";
     private static final FilenameFilter LOG_FILTER = new CruiseControlLogFileFilter();

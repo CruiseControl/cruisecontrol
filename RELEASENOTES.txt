@@ -52,6 +52,7 @@ general:
 LogFile:
 --------
 * Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn
+* Serializable so that the Metrics tab in the reporting application will work. Patch by Dan Rollo.
 
 LogFileServlet:
 ---------------

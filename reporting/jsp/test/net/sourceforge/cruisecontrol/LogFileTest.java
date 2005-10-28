@@ -37,11 +37,12 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Serializable;
 
 /**
- *
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class LogFileTest extends TestCase {
@@ -59,7 +60,7 @@ public class LogFileTest extends TestCase {
         log2 = new File(logDir, "log20040905010203Lsuccessful-build-file.1.xml");
         log3 = new File(logDir, "log20051021103500.xml.gz");
     }
-    
+
     public void tearDown() {
         log1.delete();
         log2.delete();
@@ -98,6 +99,13 @@ public class LogFileTest extends TestCase {
 
         File result = LogFile.getLatestSuccessfulLogFile(logDir).getFile();
         assertEquals(log2, result);
+    }
+
+    public void testSerializable() throws Exception {
+        writeFile(log1, "");
+
+        assertTrue("LogFile class must be serializable for Metrics Tab (charting) to work",
+                (new LogFile(log1)) instanceof Serializable);
     }
 
     private void writeFile(File file, String body) throws Exception {
