@@ -143,7 +143,7 @@
 
     <target name="compile-webtest">
         <mkdir dir="target/webtest-classes"/>
-        <javac srcdir="webtest" destdir="target/webtest-classes">
+        <javac srcdir="webtest" destdir="target/webtest-classes" debug="true">
             <classpath>
                 <fileset dir="lib" includes="*.jar"/>
             </classpath>
