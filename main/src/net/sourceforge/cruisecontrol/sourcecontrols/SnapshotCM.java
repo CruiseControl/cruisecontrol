@@ -283,9 +283,10 @@ public class SnapshotCM implements SourceControl {
         }
 
         // ignore next 5 lines.
-        while (!(st.nextToken()).equals(REVISION_HEADER)) {
-            ; //ignore all lines until we get to the next revision.
-        }
+        String nextToken = null;
+        do {
+            nextToken = st.nextToken();
+        } while (!(nextToken).equals(REVISION_HEADER));
 
         /*
          *  Now read in each modification.

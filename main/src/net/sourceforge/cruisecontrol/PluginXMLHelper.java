@@ -92,7 +92,7 @@ public class PluginXMLHelper {
     /**
      * Instantiate a plugin
      * @param pluginClass
-     * @return
+     * @return The instantiated plugin
      * @throws CruiseControlException if the plugin class cannot be instantiated
      */
     private Object instantiatePlugin(Class pluginClass) throws CruiseControlException {

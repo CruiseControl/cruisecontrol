@@ -208,7 +208,7 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     public void setLogDir(String logdir) throws CruiseControlException {
         log("setting log dir to [" + logdir + "]");
-        project.getLog().setLogDir(logdir);
+        project.getLog().setDir(logdir);
     }
 
     public String getLogDir() {

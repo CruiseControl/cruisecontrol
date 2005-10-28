@@ -132,7 +132,7 @@ public class CVSTest extends TestCase {
             mockCommandline.setProcessOutputStream(new PipedOutputStream());
             return mockCommandline;
         }
-    };
+    }
 
     static class MockOSEnvironment extends OSEnvironment {
         private Map myVariables = new HashMap();

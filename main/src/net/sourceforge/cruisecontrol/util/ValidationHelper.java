@@ -77,7 +77,7 @@ public final class ValidationHelper {
      * The short class name of an object.
      *
      * @param plugin
-     * @return
+     * @return The short class name
      * @throws NullPointerException if object is null
      */
     private static String getShortClassName(final Class plugin) {
