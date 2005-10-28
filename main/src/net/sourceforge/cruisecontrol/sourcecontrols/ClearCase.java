@@ -59,8 +59,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- *  This class implements the SourceControlElement methods for a Clear Case
- *  repository.
+ * This class implements the SourceControlElement methods for a Clear Case
+ * repository.
  *
  * @author Thomas Leseney
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -68,6 +68,9 @@ import java.util.Vector;
  * @author Ralf Krakowski
  */
 public class ClearCase implements SourceControl {
+    private static final int DEFAULT = 0;
+    private static final int DISABLED = 1;
+    private static final int ENABLED = 2;
 
     private static final Logger LOG = Logger.getLogger(ClearCase.class);
 
@@ -75,28 +78,37 @@ public class ClearCase implements SourceControl {
 
     private String property;
 
-    /**  The path of the clear case view */
+    /**
+     * The path of the clear case view
+     */
     private String viewPath;
 
-    /**  The branch to check for modifications */
+    /**
+     * The branch to check for modifications
+     */
     private String branch;
-    private boolean recursive = true;
+    private int recursive = DEFAULT; // default is true
+    private int all = DEFAULT; // default is false
 
-    /**  Date format required by commands passed to Clear Case */
+    /**
+     * Date format required by commands passed to Clear Case
+     */
     static final SimpleDateFormat IN_DATE_FORMAT =
             new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
-    /**  Date format returned in the output of Clear Case commands. */
+    /**
+     * Date format returned in the output of Clear Case commands.
+     */
     static final SimpleDateFormat OUT_DATE_FORMAT =
             new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     /**
-     *  Unlikely combination of characters to separate fields in a ClearCase query
+     * Unlikely combination of characters to separate fields in a ClearCase query
      */
     static final String DELIMITER = "#~#";
 
     /**
-     *  Even more unlikely combination of characters to indicate end of one line in query.
+     * Even more unlikely combination of characters to indicate end of one line in query.
      * Carriage return (\n) can be used in comments and so is not available to us.
      */
     static final String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
@@ -104,7 +116,7 @@ public class ClearCase implements SourceControl {
     /**
      * Sets the local working copy to use when making queries.
      *
-     *@param  path
+     * @param path
      */
     public void setViewpath(String path) {
         //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
@@ -114,7 +126,7 @@ public class ClearCase implements SourceControl {
     /**
      * Sets the branch that we're concerned about checking files into.
      *
-     *@param  branch
+     * @param branch
      */
     public void setBranch(String branch) {
         this.branch = branch;
@@ -124,7 +136,29 @@ public class ClearCase implements SourceControl {
      * Set whether to check against sub-folders in the view path
      */
     public void setRecursive(boolean recursive) {
-        this.recursive = recursive;
+        this.recursive = recursive ? ENABLED : DISABLED;
+    }
+
+
+    /**
+     * Set when checking the entire view path.
+     * <p/>
+     * When checking the entire view path this option invokes 'lshistory -all'
+     * instead of 'lshistory -recursive', which is much faster.
+     * <p/>
+     * This option is mutually exclusive with the recursive property.
+     * <p/>
+     * Note that 'all' does not use your view's config-spec rules. It behaves
+     * like having a single line config-spec that selects just ELEMENT * /<branch>/LATEST
+     * (i.e. 'lshistory -all' results that contain @@ are discarded). This differs from
+     * 'recurse', which only shows items selected by your current view.
+     */
+    public void setAll(boolean all) {
+        this.all = all ? ENABLED : DISABLED;
+
+        if (this.recursive == DEFAULT && all) {
+            this.recursive = DISABLED;
+        }
     }
 
     public void setProperty(String property) {
@@ -138,16 +172,19 @@ public class ClearCase implements SourceControl {
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(branch, "branch", this.getClass());
         ValidationHelper.assertIsSet(viewPath, "viewpath", this.getClass());
+        if (recursive == ENABLED && all == ENABLED) {
+            ValidationHelper.fail("'recursive' and 'all' are mutually exclusive attributes for ClearCase");
+        }
     }
 
     /**
-     *  Returns an {@link java.util.List List} of {@link ClearCaseModification}
-     *  detailing all the changes between now and the last build.
+     * Returns an {@link java.util.List List} of {@link ClearCaseModification}
+     * detailing all the changes between now and the last build.
      *
-     *@param  lastBuild the last build time
-     *@param  now time now, or time to check, NOT USED
-     *@return  the list of modifications, an empty (not null) list if no
-     *      modifications.
+     * @param lastBuild the last build time
+     * @param now       time now, or time to check, NOT USED
+     * @return the list of modifications, an empty (not null) list if no
+     *         modifications.
      */
     public List getModifications(Date lastBuild, Date now) {
         String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
@@ -172,8 +209,10 @@ public class ClearCase implements SourceControl {
             command += " -branch " + branch;
         }
 
-        if (recursive) {
-            command += " -r ";
+        if (recursive == DEFAULT || recursive == ENABLED) {
+            command += " -r";
+        } else if (all == ENABLED) {
+            command += " -all";
         }
 
         command += " -nco -since " + lastBuildDate;
@@ -226,12 +265,12 @@ public class ClearCase implements SourceControl {
     }
 
     /**
-     *  Parses the input stream to construct the modifications list.
+     * Parses the input stream to construct the modifications list.
      * Package-private to make it available to the unit test.
      *
-     *@param  input the stream to parse
-     *@return  a list of modification elements
-     *@exception  IOException
+     * @param input the stream to parse
+     * @return a list of modification elements
+     * @throws IOException
      */
     List parseStream(InputStream input) throws IOException {
         ArrayList modifications = new ArrayList();
@@ -259,13 +298,12 @@ public class ClearCase implements SourceControl {
     }
 
     /**
-     *  Parses a single line from the reader. Each line contains a signe revision
-     *  with the format : <br>
-     *  username#~#date_of_revision#~#element_name#~#operation_type#~#comments  <br>
+     * Parses a single line from the reader. Each line contains a signe revision
+     * with the format : <br>
+     * username#~#date_of_revision#~#element_name#~#operation_type#~#comments  <br>
      *
-     *
-     *@param  line the line to parse
-     *@return  a modification element corresponding to the given line
+     * @param line the line to parse
+     * @return a modification element corresponding to the given line
      */
     private ClearCaseModification parseEntry(String line) {
         LOG.debug("parsing entry: " + line);
@@ -290,6 +328,11 @@ public class ClearCase implements SourceControl {
 
         // A branch event shouldn't trigger a build
         if (operationType.equals("mkbranch") || operationType.equals("rmbranch")) {
+            return null;
+        }
+
+        // Element names that contain @@ are discarded (see setAll(boolean))
+        if (elementName.indexOf("@@") >= 0) {
             return null;
         }
 
@@ -336,10 +379,10 @@ public class ClearCase implements SourceControl {
     private String[] tokeniseEntry(String line) {
         int maxTokens = 8;
         int minTokens = maxTokens - 1; // comment may be absent.
-        String[] tokens  = new String[maxTokens];
+        String[] tokens = new String[maxTokens];
         Arrays.fill(tokens, "");
         int tokenIndex = 0;
-        for (int oldIndex = 0, index = line.indexOf(DELIMITER, 0); true; 
+        for (int oldIndex = 0, index = line.indexOf(DELIMITER, 0); true;
              oldIndex = index + DELIMITER.length(), index = line.indexOf(DELIMITER, oldIndex), tokenIndex++) {
             if (tokenIndex > maxTokens) {
                 LOG.debug("Too many tokens; skipping entry");

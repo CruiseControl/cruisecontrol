@@ -57,10 +57,10 @@ import java.util.Vector;
  */
 public class ClearCaseTest extends TestCase {
 
-     private static final String WINDOWS_LOG = "clearcase-history.txt";
-     private static final String UNIX_LOG = "clearcase-history-alt.txt";
-     private static final String WINDOWS_XML = "clearcase-history.xml";
-     private static final String UNIX_XML = "clearcase-history-alt.xml";
+    private static final String WINDOWS_LOG = "clearcase-history.txt";
+    private static final String UNIX_LOG = "clearcase-history-alt.txt";
+    private static final String WINDOWS_XML = "clearcase-history.xml";
+    private static final String UNIX_XML = "clearcase-history-alt.xml";
 
     public static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
@@ -92,10 +92,10 @@ public class ClearCaseTest extends TestCase {
 
         Iterator it = elts.iterator();
         while (it.hasNext()) {
-           Element elt = (Element) it.next();
-           ClearCaseModification mod = new ClearCaseModification();
-           mod.fromElement(elt, DATE_FMT);
-           mods.add(mod);
+            Element elt = (Element) it.next();
+            ClearCaseModification mod = new ClearCaseModification();
+            mod.fromElement(elt, DATE_FMT);
+            mods.add(mod);
         }
     }
 
@@ -110,7 +110,7 @@ public class ClearCaseTest extends TestCase {
             testLog = UNIX_LOG;
         }
         BufferedInputStream stream =
-            new BufferedInputStream(loadTestLog(testLog));
+                new BufferedInputStream(loadTestLog(testLog));
 
         List list = clearCase.parseStream(stream);
         assertEquals(mods.size(), list.size());
@@ -142,9 +142,9 @@ public class ClearCaseTest extends TestCase {
 
             StringBuffer bc = new StringBuffer(b.comment);
             for (int j = 0; j < bc.length(); j++) {
-               if (bc.charAt(j) == 13) {
-                  bc.deleteCharAt(j);
-               }
+                if (bc.charAt(j) == 13) {
+                    bc.deleteCharAt(j);
+                }
             }
             assertEquals(a.comment, bc.toString());
 
@@ -173,8 +173,47 @@ public class ClearCaseTest extends TestCase {
         }
     }
 
+    public void testRecursiveAndAll() {
+        ClearCase cc = new ClearCase();
+        cc.setViewpath("path");
+        cc.setBranch("branch");
+
+        // test setting just 'all'
+        cc.setAll(true);
+        try {
+            cc.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("ClearCase should not throw exceptions when only the 'all' attribute is set.");
+        }
+
+        // test 'recursive' together with 'all'
+        cc.setRecursive(true);
+        try {
+            cc.validate();
+            fail("ClearCase should throw an exception when both 'recursive' and 'all' are set.");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+
+        // reset object to make sure we are testing with defaults
+        cc = new ClearCase();
+        cc.setViewpath("path");
+        cc.setBranch("branch");
+
+        // test setting just 'recursive'
+        cc.setRecursive(true);
+        try {
+            cc.validate();
+            assertTrue(true);
+        } catch (CruiseControlException e) {
+            fail("ClearCase should not throw an exception when only the 'all' attribute is set.");
+        }
+    }
+
+
     public void testOutput() throws IOException {
-        
+
     }
 
     public static void main(java.lang.String[] args) {
