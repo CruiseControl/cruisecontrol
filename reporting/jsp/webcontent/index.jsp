@@ -150,8 +150,8 @@
   </td></tr>
   <tr><td colspan="2">&nbsp;</td></tr>
   <tr>
-    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"></td>
-    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"></td>
+    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"/></td>
+    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"/></td>
   </tr>
   <tr><td colspan="2"><table class="index" width="100%">
 <%
@@ -252,8 +252,8 @@
    }
 %></table></td></tr>
   <tr>
-    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"></td>
-    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"></td>
+    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"/></td>
+    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"/></td>
   </tr>
   <tr><td colspan="2">&nbsp;</td></tr>
 </tbody>

@@ -63,15 +63,15 @@
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
     <tr>
       <td valign="top">
-        <img src="images/blank8.gif" border="0"><br>
-        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"></a><p>
+        <img src="images/blank8.gif" border="0"/><br/>
+        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"/></a><p>
       </td>
       <td valign="top">
-        &nbsp;<br>
+        &nbsp;<br/>
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
           <tbody>
             <tr>
-              <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"></td>
+              <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"/></td>
             </tr>
             <tr>
               <td bgcolor="white" >
@@ -86,7 +86,7 @@
               </td>
             </tr>
             <tr>
-              <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"></td>
+              <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"/></td>
             </tr>
           </tbody>
         </table>
