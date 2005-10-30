@@ -28,6 +28,7 @@ configxml.html:
 Configuration Editor:
 ----------------------
 * Created a browser based configuration editor, included in the reporting application.
+* RMI port and server dynamically set.
 
 contrib:
 ----------------------
@@ -52,6 +53,7 @@ general:
 * Added fast-md5.jar to manifest for cruisecontrol.jar
 * Deprecated the command-line argument named "port" in favor of "jmxport" to be more explicit.
 * Javadoc, code, and test deprecation cleanup. Patch by Brad Clarke.
+* New system property named "cruisecontrol.rmiport" set when -rmiport specified on the command line.
 
 LogFile:
 --------
