@@ -1,10 +1,46 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2005, ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
 import org.jdom.Document;
 import org.jdom.JDOMException;
-import org.jdom.output.XMLOutputter;
-import org.jdom.output.Format;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.management.Attribute;
 import javax.management.AttributeNotFoundException;
@@ -26,33 +62,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Configuration {
-    private JMXServiceURL address;
 
-    private Map environment = new HashMap();
-
-    private JMXConnector cntor;
-
-    private MBeanServerConnection mbsc;
-
-    private ObjectName ccMgrObjName;
+    private MBeanServerConnection server;
+    private ObjectName ccMgr;
 
     public Configuration() throws IOException, MalformedObjectNameException {
-        address = new JMXServiceURL(
-                "service:jmx:rmi://localhost:7856/jndi/jrmp");
-        environment.put(Context.INITIAL_CONTEXT_FACTORY,
-                "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://localhost:7856/jndi/jrmp");
+
+        Map environment = new HashMap();
+        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
         environment.put(Context.PROVIDER_URL, "rmi://localhost:7856");
-        cntor = JMXConnectorFactory.connect(address, environment);
-        mbsc = cntor.getMBeanServerConnection();
-        ccMgrObjName = ObjectName
-                .getInstance("CruiseControl Manager:id=unique");
+
+        JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
+        server = cntor.getMBeanServerConnection();
+        ccMgr = ObjectName.getInstance("CruiseControl Manager:id=unique");
     }
 
     public String getConfiguration() throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
 
-        String xml = (String) mbsc.getAttribute(ccMgrObjName, "ConfigFileContents");
+        String xml = (String) server.getAttribute(ccMgr, "ConfigFileContents");
         Document doc = new SAXBuilder().build(new StringReader(xml));
         xml = new XMLOutputter(Format.getPrettyFormat()).outputString(doc);
         return xml.trim();
@@ -62,7 +92,7 @@ public class Configuration {
             throws InstanceNotFoundException, AttributeNotFoundException,
             InvalidAttributeValueException, MBeanException,
             ReflectionException, IOException {
-        mbsc.setAttribute(ccMgrObjName, new Attribute("ConfigFileContents",
+        server.setAttribute(ccMgr, new Attribute("ConfigFileContents",
                 URLDecoder.decode(configuration)));
     }
 }
