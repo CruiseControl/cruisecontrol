@@ -77,6 +77,8 @@
             <include name="commons-logging*.jar"/>
             <include name="xml*.jar"/>
             <include name="xerces*.jar"/>
+            <include name="mx4j*.jar"/>
+            <include name="jdom*.jar"/>
         </fileset>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>

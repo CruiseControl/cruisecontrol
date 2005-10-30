@@ -54,7 +54,7 @@
         <%@ include file="navigation.jsp" %>
       </td>
       <td valign="top">
-        &nbsp;<br>
+        &nbsp;<br/>
         <cruisecontrol:tabsheet>
           <tr>
             <td bgcolor="white" >
@@ -72,6 +72,10 @@
 
               <cruisecontrol:tab name="metrics" label="Metrics" >
                 <%@ include file="metrics.jsp" %>
+              </cruisecontrol:tab>
+
+              <cruisecontrol:tab name="config" label="Config" >
+                <%@ include file="config.jsp" %>
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
