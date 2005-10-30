@@ -25,6 +25,10 @@ configxml.html:
 ----------------------
 * Included link to timebuild in modificationset documentation.
 
+Configuration Editor:
+----------------------
+* Created a browser based configuration editor, included in the reporting application.
+
 contrib:
 ----------------------
 * fix distributed/build.xml so that tests will pass out of the box. Patch by Dan Rollo

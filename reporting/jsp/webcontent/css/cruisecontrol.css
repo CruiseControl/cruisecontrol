@@ -61,3 +61,6 @@ table.header th.big { font-size:12pt; }
 a img { border: 0 }
 
 .hidden { visibility: hidden }
+
+.config-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
+.config-resultmsg { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FF0000; }
