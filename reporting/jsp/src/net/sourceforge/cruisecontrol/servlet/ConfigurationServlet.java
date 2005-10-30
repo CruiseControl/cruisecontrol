@@ -50,18 +50,13 @@ public class ConfigurationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String newConfiguration = req.getParameter("configuration");
-        if (newConfiguration == null || newConfiguration.trim().length() == 0) {
-            throw new ServletException("parameter named 'configuration' cannot be null or blank");
-        }
-
-        String projectName = req.getParameter("projectName");
-        if (projectName == null || projectName.trim().length() == 0) {
-            throw new ServletException("parameter named 'projectName' cannot be null or blank");
-        }
+        String newConfiguration = getRequiredParameter(req, "configuration");
+        String projectName = getRequiredParameter(req, "projectName");
+        String jmxServer = getRequiredParameter(req, "jmxServer");
+        int rmiPort = Integer.parseInt(getRequiredParameter(req, "rmiPort"));
 
         try {
-            Configuration configurator = new Configuration();
+            Configuration configurator = new Configuration(jmxServer, rmiPort);
             configurator.setConfiguration(newConfiguration);
         } catch (Exception e) {
             throw new ServletException(e);
@@ -72,5 +67,13 @@ public class ConfigurationServlet extends HttpServlet {
         session.setAttribute("resultMsg", "Configuration saved!");
         resp.sendRedirect(resp.encodeRedirectURL(
                 req.getContextPath() + "/config/" + projectName + "?tab=config"));
+    }
+
+    private String getRequiredParameter(HttpServletRequest req, String paramName) throws ServletException {
+        String projectName = req.getParameter(paramName);
+        if (projectName == null || projectName.trim().length() == 0) {
+            throw new ServletException("parameter named '" + paramName + "' cannot be null or blank");
+        }
+        return projectName;
     }
 }

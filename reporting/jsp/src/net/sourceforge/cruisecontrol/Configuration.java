@@ -66,12 +66,12 @@ public class Configuration {
     private MBeanServerConnection server;
     private ObjectName ccMgr;
 
-    public Configuration() throws IOException, MalformedObjectNameException {
-        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://localhost:7856/jndi/jrmp");
+    public Configuration(String jmxServer, int rmiPort) throws IOException, MalformedObjectNameException {
+        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://" + jmxServer + ":" + rmiPort + "/jndi/jrmp");
 
         Map environment = new HashMap();
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        environment.put(Context.PROVIDER_URL, "rmi://localhost:7856");
+        environment.put(Context.PROVIDER_URL, "rmi://" + jmxServer + ":" + rmiPort);
 
         JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
         server = cntor.getMBeanServerConnection();
