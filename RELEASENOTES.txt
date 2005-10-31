@@ -81,12 +81,16 @@ Reporting:
 * Added a "Run Build" button to the project status page.
 * Added script to detect if we are framed/iframed in, as is the case with SFEE integration, to add the cruise stylesheet into those loaded by the parent page.
 
+Schedule:
+------------
+* Fix getTimeToNextBuild to adjust for daylight savings time (CC-104).
+
 SfeeFrsPublisher:
 ------------
 * A new publisher for uploading files to a SourceForge Enterprise Edition's File Release System.
 
 TabSheet:
----------
+------------
 * Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjørn
 
 tests:
