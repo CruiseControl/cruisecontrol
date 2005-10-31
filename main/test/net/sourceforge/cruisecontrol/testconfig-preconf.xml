@@ -1,0 +1,57 @@
+<cruisecontrol>
+  <property name='project.dir' value='checkout/${project.name}/'/>
+
+  <plugin name='antvssproject'
+          classname='net.sourceforge.cruisecontrol.ProjectConfig'>
+      <bootstrappers>
+          <vssbootstrapper vsspath='foo' localdirectory='tmp' />
+      </bootstrappers>
+      <schedule interval='20' >
+        <ant buildfile='${project.dir}/build.xml' target='thetarget' />
+      </schedule>
+      <log/>
+      <listeners>
+        <currentbuildstatuslistener file='status.txt'/>
+      </listeners>
+  </plugin>
+
+  <plugin name="maven"
+          mavenscript='/usr/local/lib/maven/bin/maven'
+          goal='thegoal'
+          projectfile='${project.dir}/project.xml' />
+  <plugin name="maven1.1" classname="net.sourceforge.cruisecontrol.builders.MavenBuilder"
+          mavenscript='/usr/local/lib/maven1.1/bin/maven'
+          goal='thegoal'
+          projectfile='${project.dir}/project.xml' />
+
+  <plugin name='maven1.0svnproject'
+            classname='net.sourceforge.cruisecontrol.ProjectConfig'>
+    <schedule>
+      <maven/>
+    </schedule>
+    <log/>
+    <listeners>
+      <currentbuildstatuslistener file='buildstatus.txt'/>
+    </listeners>
+  </plugin>
+
+  <plugin name='maven1.1svnproject'
+          classname='net.sourceforge.cruisecontrol.ProjectConfig'>
+    <schedule>
+      <maven1.1/>
+    </schedule>
+    <log/>
+    <listeners>
+      <currentbuildstatuslistener file='buildstatus.txt'/>
+    </listeners>
+  </plugin>
+
+  <antvssproject name='project1' />
+  <antvssproject name='project2' />
+  <antvssproject name='project3' />
+
+  <maven1.0svnproject name='project4' />
+  <maven1.1svnproject name='project5' />
+  <maven1.1svnproject name='project6' />
+
+</cruisecontrol>

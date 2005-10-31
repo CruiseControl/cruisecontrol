@@ -52,7 +52,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,13 +69,11 @@ public class Project implements Serializable, Runnable {
 
     private transient ProjectState state;
 
-    private transient List bootstrappers;
-    private transient ModificationSet modificationSet;
-    private transient Schedule schedule;
-    private transient Log log;
-    private transient List publishers;
+    private ConfigManager configManager;
+
+    // the config and the config elements that can be overriden
+    private transient ProjectConfig projectConfig;
     private transient LabelIncrementer labelIncrementer;
-    private transient List listeners;
 
     /**
      * If this attribute is set, then it means that the user has overriden
@@ -98,7 +95,6 @@ public class Project implements Serializable, Runnable {
     private Date lastSuccessfulBuild = lastBuild;
     private boolean wasLastBuildSuccessful = true;
     private String label;
-    private File configFile;
     private String name;
     private boolean buildForced = false;
     private String buildTarget = null;
@@ -113,12 +109,8 @@ public class Project implements Serializable, Runnable {
 
     private void initializeTransientFields() {
         state = ProjectState.STOPPED;
-        
-        // we never add to the following 3 Lists,
-        // so we don't need to create a new List for them
-        bootstrappers = Collections.EMPTY_LIST;
-        publishers = Collections.EMPTY_LIST;
-        listeners = Collections.EMPTY_LIST;
+
+        projectConfig = new ProjectConfig(); // FIXME initialize better (log, labelincrementer, schedule, ...)?
 
         pausedMutex = new Object();
         scheduleMutex = new Object();
@@ -171,6 +163,7 @@ public class Project implements Serializable, Runnable {
         
         try {
             setBuildStartTime(new Date());
+            Schedule schedule = projectConfig.getSchedule();
             if (schedule.isPaused(buildStartTime)) {
                 // a regularly scheduled paused
                 // is different than ProjectState.PAUSED
@@ -187,29 +180,30 @@ public class Project implements Serializable, Runnable {
                 return;
             }
 
-            log.addContent(modifications);
+            projectConfig.getLog().addContent(modifications);
 
-            Date now = modificationSet.getTimeOfCheck();
+            Date now = projectConfig.getModificationSet().getTimeOfCheck();
 
-            if (labelIncrementer.isPreBuildIncrementer()) {
-                label = labelIncrementer.incrementLabel(label, log.getContent());
+            if (getLabelIncrementer().isPreBuildIncrementer()) {
+                label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
             }
 
             // collect project information
-            log.addContent(getProjectPropertiesElement(now));
+            projectConfig.getLog().addContent(getProjectPropertiesElement(now));
 
             setState(ProjectState.BUILDING);
-            log.addContent(schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now)).detach());
+            Element buildLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now));
+            projectConfig.getLog().addContent(buildLog.detach());
 
-            boolean buildSuccessful = log.wasBuildSuccessful();
+            boolean buildSuccessful = projectConfig.getLog().wasBuildSuccessful();
             fireResultEvent(new BuildResultEvent(this, buildSuccessful));
 
-            if (!labelIncrementer.isPreBuildIncrementer() && buildSuccessful) {
-                label = labelIncrementer.incrementLabel(label, log.getContent());
+            if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
+                label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
             }
 
             setState(ProjectState.MERGING_LOGS);
-            log.writeLogFile(now);
+            projectConfig.getLog().writeLogFile(now);
 
             // If we only want to build after a check in, even when broken, set the last build to now,
             // regardless of success or failure (buildAfterFailed = false in config.xml)
@@ -232,7 +226,7 @@ public class Project implements Serializable, Runnable {
             serializeProject();
 
             publish();
-            log.reset();
+            projectConfig.getLog().reset();
         } finally {
             setState(ProjectState.IDLE);
         }
@@ -299,7 +293,7 @@ public class Project implements Serializable, Runnable {
     }
 
     long getTimeToNextBuild(Date now) {
-        long waitTime = schedule.getTimeToNextBuild(now, getBuildInterval());
+        long waitTime = projectConfig.getSchedule().getTimeToNextBuild(now, getBuildInterval());
         if (waitTime == 0) {
             // check for the exceptional case that we're dealing with a
             // project that has just built within a minute time
@@ -308,7 +302,7 @@ public class Project implements Serializable, Runnable {
                 if (millisSinceLastBuild < Schedule.ONE_MINUTE) {
                     debug("build finished within a minute, getting new time to next build");
                     Date oneMinuteInFuture = new Date(now.getTime() + Schedule.ONE_MINUTE);
-                    waitTime = schedule.getTimeToNextBuild(oneMinuteInFuture, getBuildInterval());
+                    waitTime = projectConfig.getSchedule().getTimeToNextBuild(oneMinuteInFuture, getBuildInterval());
                     waitTime += Schedule.ONE_MINUTE;
                 }
             }
@@ -355,13 +349,13 @@ public class Project implements Serializable, Runnable {
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
         if (checkNewChangesFirst) {
             debug("getting changes since last build");
-            modifications = modificationSet.getModifications(lastBuild);
+            modifications = projectConfig.getModificationSet().getModifications(lastBuild);
         } else {
             debug("getting changes since last successful build");
-            modifications = modificationSet.getModifications(lastSuccessfulBuild);
+            modifications = projectConfig.getModificationSet().getModifications(lastSuccessfulBuild);
         }
 
-        if (!modificationSet.isModified()) {
+        if (!projectConfig.getModificationSet().isModified()) {
             info("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
@@ -380,7 +374,7 @@ public class Project implements Serializable, Runnable {
 
         if (checkNewChangesFirst) {
             debug("new changes found; now getting complete set");
-            modifications = modificationSet.getModifications(lastSuccessfulBuild);
+            modifications = projectConfig.getModificationSet().getModifications(lastSuccessfulBuild);
         }
 
         return modifications;
@@ -426,18 +420,6 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    public void setModificationSet(ModificationSet modSet) {
-        modificationSet = modSet;
-    }
-
-    public void setSchedule(Schedule newSchedule) {
-        schedule = newSchedule;
-    }
-
-    public LabelIncrementer getLabelIncrementer() {
-        return labelIncrementer;
-    }
-
     public void setLabelIncrementer(LabelIncrementer incrementer) throws CruiseControlException {
         labelIncrementer = incrementer;
         if (label == null) {
@@ -446,17 +428,21 @@ public class Project implements Serializable, Runnable {
         validateLabel(label, labelIncrementer);
     }
 
+    public LabelIncrementer getLabelIncrementer() {
+        return labelIncrementer;
+    }
+
+    /** deprecated */
     public void setLogXmlEncoding(String encoding) {
-        log.setEncoding(encoding);
+        projectConfig.getLog().setEncoding(encoding);
     }
 
-    public void setConfigFile(File fileName) {
-        debug("Config file set to [" + fileName + "]");
-        configFile = fileName;
+    public void setConfigManager(ConfigManager configManager) {
+        this.configManager = configManager;
     }
 
-    public File getConfigFile() {
-        return configFile;
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
 
     public void setName(String projectName) {
@@ -522,7 +508,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public String getLogDir() {
-        return log.getLogDir();
+        return projectConfig.getLog().getLogDir();
     }
 
     /**
@@ -534,7 +520,7 @@ public class Project implements Serializable, Runnable {
      */
     public long getBuildInterval() {
         if (overrideBuildInterval == null) {
-            return schedule.getInterval();
+            return projectConfig.getSchedule().getInterval();
         } else {
             return overrideBuildInterval.longValue();
         }
@@ -589,38 +575,26 @@ public class Project implements Serializable, Runnable {
     }
 
     public Log getLog() {
-        if (this.log == null) {
-            this.log = new Log(getName());
-        }
-        return this.log;
+        return this.projectConfig.getLog();
     }
 
     /**
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        if (configFile == null) {
-            throw new IllegalStateException("set config file on project before calling init()");
+        if (configManager == null) {
+            throw new IllegalStateException("configManager must be set on project before calling init()");
         }
-        info("reading settings from config file [" + configFile.getAbsolutePath() + "]");
-        ProjectXMLHelper helper = new ProjectXMLHelper(configFile, name);
 
-        setListeners(helper.getListeners());
-        bootstrappers = helper.getBootstrappers();
+        setProjectConfig(configManager.getConfig(name));
+
         if (buildTarget != null) {
             // tell the helper to set the given buildTarget
             // on all Builders, just for this run (so we need to reset it)
             info("Overriding build target with \"" + buildTarget + "\"");
-            helper.setOverrideTarget(buildTarget);
+            projectConfig.getSchedule().overrideTargets(buildTarget);
             buildTarget = null;
         }
-        setSchedule(helper.getSchedule());
-        log = helper.getLog();
-        setModificationSet(helper.getModificationSet());
-        setLabelIncrementer(helper.getLabelIncrementer());
-        setPublishers(helper.getPublishers());
-
-        setBuildAfterFailed(helper.getBuildAfterFailed());
 
         if (lastBuild == null) {
             lastBuild = DateUtil.getMidnight();
@@ -629,6 +603,9 @@ public class Project implements Serializable, Runnable {
         if (lastSuccessfulBuild == null) {
             lastSuccessfulBuild = lastBuild;
         }
+
+        // should we move this to build? This singleton thingy is scaring me..
+        setDateFormat(projectConfig.getDateFormat());
 
         if (LOG.isDebugEnabled()) {
             debug("buildInterval          = [" + getBuildInterval() + "]");
@@ -639,14 +616,16 @@ public class Project implements Serializable, Runnable {
             debug("label                  = [" + label + "]");
             debug("lastBuild              = [" + DateUtil.getFormattedTime(lastBuild) + "]");
             debug("lastSuccessfulBuild    = [" + DateUtil.getFormattedTime(lastSuccessfulBuild) + "]");
-            debug("logDir                 = [" + log.getLogDir() + "]");
-            debug("logXmlEncoding         = [" + log.getLogXmlEncoding() + "]");
+            debug("logDir                 = [" + projectConfig.getLog().getLogDir() + "]");
+            debug("logXmlEncoding         = [" + projectConfig.getLog().getLogXmlEncoding() + "]");
             debug("wasLastBuildSuccessful = [" + wasLastBuildSuccessful + "]");
         }
     }
 
-    protected void setPublishers(List listOfPublishers) {
-        publishers = listOfPublishers;
+    private void setDateFormat(CCDateFormat dateFormat) {
+        if (dateFormat != null && dateFormat.getFormat() != null) {
+            DateFormatFactory.setFormat(dateFormat.getFormat());
+        }
     }
 
     protected Element getProjectPropertiesElement(Date now) {
@@ -683,8 +662,8 @@ public class Project implements Serializable, Runnable {
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
         buildProperties.put("lastbuildsuccessful", String.valueOf(isLastBuildSuccessful()));
-        if (modificationSet != null) {
-            buildProperties.putAll(modificationSet.getProperties());
+        if (projectConfig.getModificationSet() != null) {
+            buildProperties.putAll(projectConfig.getModificationSet().getProperties());
         }
         return buildProperties;
     }
@@ -695,11 +674,11 @@ public class Project implements Serializable, Runnable {
      */
     protected void publish() throws CruiseControlException {
         setState(ProjectState.PUBLISHING);
-        for (Iterator i = publishers.iterator(); i.hasNext(); ) {
+        for (Iterator i = projectConfig.getPublishers().iterator(); i.hasNext(); ) {
             Publisher publisher = (Publisher) i.next();
             // catch all errors, Publishers shouldn't cause failures in the build method
             try {
-                publisher.publish(getLog().getContent());
+                publisher.publish(projectConfig.getLog().getContent());
             } catch (Throwable t) {
                 StringBuffer message = new StringBuffer("exception publishing results");
                 message.append(" with " + publisher.getClass().getName());
@@ -715,7 +694,7 @@ public class Project implements Serializable, Runnable {
      */
     protected void bootstrap() throws CruiseControlException {
         setState(ProjectState.BOOTSTRAPPING);
-        for (Iterator i = bootstrappers.iterator(); i.hasNext(); ) {
+        for (Iterator i = projectConfig.getBootstrappers().iterator(); i.hasNext(); ) {
             ((Bootstrapper) i.next()).bootstrap();
         }
     }
@@ -818,16 +797,17 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    protected void setListeners(List listeners) {
-        this.listeners = listeners;
+    List getListeners() {
+        return projectConfig.getListeners();
     }
 
-    List getListeners() {
-        return listeners;
+    public void setProjectConfig(ProjectConfig projectConfig) throws CruiseControlException {
+        this.projectConfig = projectConfig;
+        setLabelIncrementer(projectConfig.getLabelIncrementer());
     }
 
     void notifyListeners(ProjectEvent event) {
-        for (Iterator i = listeners.iterator(); i.hasNext(); ) {
+        for (Iterator i = projectConfig.getListeners().iterator(); i.hasNext(); ) {
             Listener listener = (Listener) i.next();
             try {
                 listener.handleEvent(event);

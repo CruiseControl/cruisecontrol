@@ -82,7 +82,14 @@ public final class PluginRegistry {
      * @return PluginRegistry with the ROOTREGISTRY as its parent.
      */
     public static final PluginRegistry createRegistry() {
-        return new PluginRegistry(ROOTREGISTRY);
+        return createRegistry(ROOTREGISTRY);
+    }
+
+    /**
+     * @return PluginRegistry with the specified registry as its parent.
+     */
+    public static final PluginRegistry createRegistry(PluginRegistry parent) {
+        return new PluginRegistry(parent);
     }
 
     /**

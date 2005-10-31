@@ -53,6 +53,22 @@ public final class ValidationHelper {
                 + " must be meaningful or not provided on " + getShortClassName(plugin));
     }
 
+    /**
+     * Handle required plugin child elements.
+     *
+     * @param childType
+     * @param usualChildNodeName
+     * @param plugin
+     * @throws CruiseControlException
+     */
+    public static void assertHasChild(final Object child, final Class childType,
+        final String usualChildNodeName, final Class plugin) throws CruiseControlException {
+        if (child == null) {
+            fail("child <" + usualChildNodeName + "> (or type " + getShortClassName(childType) 
+                 + ") is required for plugin " + getShortClassName(plugin));
+        }
+    }
+
     public static void assertTrue(boolean condition, String message) throws CruiseControlException {
         if (!condition) {
             fail(message);

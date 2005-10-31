@@ -75,11 +75,23 @@ public class Schedule {
     /** date formatting for time statements */
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
+    /** @deprecated */
     public void addBuilder(Builder builder) {
         checkParamNotNull("builder", builder);
         builders.add(builder);
     }
 
+    public void add(Builder builder) {
+        // FIXME see if we can improve this
+        if (builder instanceof PauseBuilder) {
+            this.addPauseBuilder((PauseBuilder) builder);
+        } else {
+            this.addBuilder(builder);
+        }
+        //builders.add(builder);
+    }
+
+    /** @deprecated */
     public void addPauseBuilder(PauseBuilder pauseBuilder) {
         checkParamNotNull("pauseBuilder", pauseBuilder);
         pauseBuilders.add(pauseBuilder);
@@ -431,4 +443,17 @@ public class Schedule {
         }
     }
 
+    public void overrideTargets(String buildTarget) {
+        if (buildTarget != null) {
+            for (int i = 0; i < builders.size(); i++) {
+                Builder builder = (Builder) builders.get(i);
+                builder.overrideTarget(buildTarget);
+            }
+            for (int i = 0; i < pauseBuilders.size(); i++) {
+                PauseBuilder builder = (PauseBuilder) pauseBuilders.get(i);
+                builder.overrideTarget(buildTarget);
+            }
+        }
+
+    }
 }

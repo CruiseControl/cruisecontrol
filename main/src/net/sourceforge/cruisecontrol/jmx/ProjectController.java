@@ -36,24 +36,25 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.JMException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.Notification;
+import javax.management.NotificationBroadcasterSupport;
+import javax.management.ObjectName;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Project;
-import net.sourceforge.cruisecontrol.events.BuildProgressListener;
-import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.config.XMLConfigManager;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import org.apache.log4j.Logger;
 
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.NotificationBroadcasterSupport;
-import javax.management.Notification;
-import javax.management.MBeanRegistrationException;
-import javax.management.InstanceNotFoundException;
-import java.io.File;
+import org.apache.log4j.Logger;
 
 /**
  * @author Niclas Olofsson
@@ -144,12 +145,11 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     public void setConfigFileName(String fileName) {
-        log("setting config file to [" + fileName + "]");
-        project.setConfigFile(new File(fileName));
+        throw new UnsupportedOperationException("To change the config path, use the CruiseControlController bean");
     }
 
     public String getConfigFileName() {
-        return project.getConfigFile().getAbsolutePath();
+        return ((XMLConfigManager) project.getConfigManager()).getConfigFile().getAbsolutePath();
     }
 
     public void setLabel(String label) {

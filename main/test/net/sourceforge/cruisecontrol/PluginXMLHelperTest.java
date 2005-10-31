@@ -47,11 +47,13 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import java.util.Map;
+import java.util.HashMap;
 
 public class PluginXMLHelperTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
     private PluginXMLHelper helper;
     private ProjectXMLHelper projectXmlHelper;
+    private PluginRegistry registry;
 
     private static final int SOME_INT = 15;
     private static final int SOME_OTHER_INT = 16;
@@ -64,7 +66,8 @@ public class PluginXMLHelperTest extends TestCase {
     }
 
     protected void setUp() throws CruiseControlException {
-        projectXmlHelper = new ProjectXMLHelper();
+        registry = PluginRegistry.loadDefaultPluginRegistry();
+        projectXmlHelper = new ProjectXMLHelper(new HashMap(), registry);
         helper = new PluginXMLHelper(projectXmlHelper);
         LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
@@ -91,7 +94,7 @@ public class PluginXMLHelperTest extends TestCase {
         pluginElement.setAttribute("classname", "net.sourceforge.cruisecontrol.publishers.email.MockMapping");
         // set a default value for the 'mockProperty' property of the MockMapping
         pluginElement.setAttribute("mockProperty", "bar");
-        PluginRegistry registry = projectXmlHelper.getPlugins();
+
         registry.register(pluginElement);
 
         MockPublisher plugin = (MockPublisher) helper.configure(testElement,
@@ -113,13 +116,13 @@ public class PluginXMLHelperTest extends TestCase {
         } catch (CruiseControlException expected) {
         }
     }
-    
+
     public void testConfigureDefaultsForKnownPlugin() throws CruiseControlException {
         Element pluginElement = new Element("plugin");
         pluginElement.setAttribute("name", "ant");
         final String loggerClassName = "net.sourceforge.cruisecontrol.util.XmlLoggerWithStatus";
         pluginElement.setAttribute("loggerClassName", loggerClassName);
-        PluginRegistry registry = projectXmlHelper.getPlugins();
+
         try {
             registry.register(pluginElement);
         } catch (CruiseControlException e) {

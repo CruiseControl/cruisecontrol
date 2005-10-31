@@ -36,25 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Properties;
 
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.config.XMLConfigManager;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
-import com.twmacinta.util.MD5OutputStream;
 
 /**
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
@@ -63,12 +58,12 @@ public class CruiseControlController {
     private static final Logger LOG = Logger.getLogger(CruiseControlController.class);
     public static final String DEFAULT_CONFIG_FILE_NAME = "config.xml";
     private File configFile;
-    private String configMD5;
     private List projects = new ArrayList();
     private BuildQueue buildQueue = new BuildQueue();
     private Properties versionProperties;
 
     private List listeners = new ArrayList();
+    private ConfigManager configManager;
 
     public CruiseControlController() {
         buildQueue.addListener(new BuildQueueListener());
@@ -87,13 +82,19 @@ public class CruiseControlController {
     }
 
     public void setConfigFile(File configFile) throws CruiseControlException {
+        // TODO: we could optimize here
+        // only reparse if, configFile != old or file has changed.
         this.configFile = configFile;
+
         if (configFile == null) {
             throw new CruiseControlException("No config file");
         }
         if (!configFile.exists()) {
             throw new CruiseControlException("Config file not found: " + configFile.getAbsolutePath());
         }
+
+        configManager = new XMLConfigManager(configFile);
+
         List projectList = parseConfigFile();
         for (Iterator iterator = projectList.iterator(); iterator.hasNext();) {
             Project project = (Project) iterator.next();
@@ -102,55 +103,11 @@ public class CruiseControlController {
     }
 
     private List parseConfigFile() throws CruiseControlException {
-        Element configRoot = Util.loadConfigFile(configFile);
-        addPluginsToRootRegistry(configRoot, configFile);
-        List allProjects = getAllProjects(configRoot);
+        List allProjects = getAllProjects(configManager);
         if (allProjects.size() == 0) {
             LOG.warn("no projects found in config file");
         }
-        configMD5 = calculateMD5(configFile);
         return allProjects;
-    }
-
-    private String calculateMD5(File file) {
-        String hash = null;
-        MD5OutputStream stream = null;
-        try {
-            Element element = Util.loadConfigFile(file);
-            stream = new MD5OutputStream(new ByteArrayOutputStream());
-            XMLOutputter outputter = new XMLOutputter();
-            outputter.output(element, stream);       
-            hash = stream.getMD5().asHex();
-        } catch (IOException e) {
-            LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
-        } catch (CruiseControlException e) {
-            LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-        return hash;
-    }
-
-    static void addPluginsToRootRegistry(Element configRoot, final File configFile) {
-        PluginRegistry.resetRootRegistry();
-        for (Iterator pluginIter = configRoot.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
-            Element pluginElement = (Element) pluginIter.next();
-            String pluginName = pluginElement.getAttributeValue("name");
-            if (pluginName == null) {
-                LOG.warn(configFile.getName() + " contains plugin without a name-attribute, ignoring it");
-                continue;
-            }
-            try {
-                PluginRegistry.registerToRoot(pluginElement);
-            } catch (CruiseControlException e) {
-                LOG.warn("Can't register plugin '" + pluginName + "':\n" + e.getMessage());
-            }
-        }
     }
 
     private void addProject(Project project) {
@@ -212,11 +169,11 @@ public class CruiseControlController {
         return Collections.unmodifiableList(projects);
     }
 
-    private List getAllProjects(Element configRoot) throws CruiseControlException {
-        String[] projectNames = getProjectNames(configRoot);
-        ArrayList allProjects = new ArrayList(projectNames.length);
-        for (int i = 0; i < projectNames.length; i++) {
-            String projectName = projectNames[i];
+    private List getAllProjects(ConfigManager configManager) throws CruiseControlException {
+        Set projectNames = configManager.getProjectNames();
+        List allProjects = new ArrayList(projectNames.size());
+        for (Iterator it = projectNames.iterator(); it.hasNext();) {
+            String projectName = (String) it.next();
             LOG.info("projectName = [" + projectName + "]");
             Project project = configureProject(projectName);
             allProjects.add(project);
@@ -227,9 +184,13 @@ public class CruiseControlController {
     protected Project configureProject(String projectName) throws CruiseControlException {
         Project project = readProject(projectName);
         project.setName(projectName);
-        project.setConfigFile(configFile);
+        project.setConfigManager(getConfigManager());
         project.init();
         return project;
+    }
+
+    protected ConfigManager getConfigManager() {
+        return configManager;
     }
 
     /**
@@ -276,27 +237,6 @@ public class CruiseControlController {
         }
     }
 
-    private String[] getProjectNames(Element rootElement) throws CruiseControlException {
-        ProjectXMLHelper.resolveProjectNames(rootElement);
-        List projectNames = new ArrayList();
-        Iterator projectIterator = rootElement.getChildren("project").iterator();
-        while (projectIterator.hasNext()) {
-            Element projectElement = (Element) projectIterator.next();
-            String projectName = projectElement.getAttributeValue("name");
-            if (projectName == null) {
-                // TODO: will be ignored?
-                LOG.warn("configuration file contains project element with no name");
-            } else {
-                if (projectNames.contains(projectName)) {
-                    final String message = "Duplicate entries in config file for project name " + projectName;
-                    throw new CruiseControlException(message);
-                }
-                projectNames.add(projectName);
-            }
-        }
-        return (String[]) projectNames.toArray(new String[]{});
-    }
-
     public void addListener(Listener listener) {
         LOG.debug("Listener added");
         listeners.add(listener);
@@ -304,14 +244,19 @@ public class CruiseControlController {
 
     public void reloadConfigFile() {
         LOG.debug("reload config file called");
-        configMD5 = null;
         parseConfigFileIfNecessary();
     }
     
     public void parseConfigFileIfNecessary() {
-        String newMD5 = calculateMD5(configFile);
-        boolean fileChanged = !newMD5.equals(configMD5);
-        if (fileChanged) {
+        boolean reloaded;
+        try {
+            reloaded = configManager.reloadIfNecessary();
+        } catch (CruiseControlException e) {
+            LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
+            return;
+        }
+
+        if (reloaded) {
             LOG.debug("config file changed");
             try {
                 List projectsFromFile = parseConfigFile();
@@ -330,13 +275,12 @@ public class CruiseControlController {
                     Project project = (Project) added.next();
                     addProject(project);
                 }
-                
-                configMD5 = newMD5;
+
             } catch (CruiseControlException e) {
                 LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
             }
         } else {
-            LOG.debug("config file didn't change. MD5 of " + newMD5);
+            LOG.debug("config file didn't change.");
         }
     }
 

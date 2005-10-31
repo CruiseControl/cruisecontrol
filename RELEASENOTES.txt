@@ -25,6 +25,11 @@ configxml.html:
 ----------------------
 * Included link to timebuild in modificationset documentation.
 
+config.xml:
+----------------------
+* Allow preconfiguration of <log ..> element and sub-elements. Patch by Jerome Lacoste.
+* Allow preconfiguration of project and subelements (CC-352). Patch by Jerome Lacoste.
+
 Configuration Editor:
 ----------------------
 * Created a browser based configuration editor, included in the reporting application.
@@ -71,10 +76,6 @@ MergeLogger:
 NavigationTag:
 --------------
 * Remove support for log files timestamped without a second part
-
-ProjectXMLHelper:
-----------------------
-* Allow preconfiguration of <log ..> element and sub-elements. Patch by Jerome Lacoste.
 
 release.xml:
 ------------
