@@ -17,8 +17,8 @@ public class ProjectStatusPageWebTest extends WebTestCase {
         assertTextPresent("CruiseControl Status Page");
 
         // Make sure the build actually started running.
-         clickLinkWithText("commons-math");
-         clickLinkWithText("Control Panel");
-         assertTextNotPresent("waiting for next time to build");
+        clickLinkWithText("commons-math");
+        clickLinkWithText("Control Panel");
+        assertTextNotPresent("waiting for next time to build");
     }
 }
