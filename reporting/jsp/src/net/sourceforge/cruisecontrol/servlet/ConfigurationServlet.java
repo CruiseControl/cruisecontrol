@@ -70,10 +70,10 @@ public class ConfigurationServlet extends HttpServlet {
     }
 
     private String getRequiredParameter(HttpServletRequest req, String paramName) throws ServletException {
-        String projectName = req.getParameter(paramName);
-        if (projectName == null || projectName.trim().length() == 0) {
+        String parameter = req.getParameter(paramName);
+        if (parameter == null || parameter.trim().length() == 0) {
             throw new ServletException("parameter named '" + paramName + "' cannot be null or blank");
         }
-        return projectName;
+        return parameter;
     }
 }
