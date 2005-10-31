@@ -44,6 +44,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+import net.sourceforge.cruisecontrol.config.XMLConfigManager;
 
 /**
  *
@@ -56,9 +57,41 @@ public class CruiseControlControllerTest extends TestCase {
     private File configFile2 = new File(dir, "_tempConfigFile2");
     private CruiseControlController ccController;
 
-    protected void setUp() {
+    protected void setUp() throws CruiseControlException {
         dir.mkdirs();
         ccController = new CruiseControlController();
+    }
+
+    // makes sure the project is complete...
+    static class MockConfigManager extends XMLConfigManager {
+        public MockConfigManager(File file) throws CruiseControlException {
+            super(file);
+        }
+        public ProjectConfig getConfig(String projectName) throws CruiseControlException {
+            ProjectConfig config = super.getConfig(projectName);
+            // the projects we work with do not have schedules in them...
+            config.add(new Schedule());
+            return config;
+        }
+    }
+
+    // we need to lazy instanciate the config otherwise
+    // the MockConfigManager tries to read the file when being built.
+    class MockCruiseControlController extends CruiseControlController {
+        /*
+        ConfigManager configManager;
+
+        protected ConfigManager getConfigManager() {
+            if (configManager == null) {
+                try {
+                    configManager = new MockConfigManager(configFile);
+                } catch (CruiseControlException e) {
+                    throw new IllegalStateException("Failure to parsing configFile: " + configFile, e);
+                }
+            }
+            return configManager;
+        }
+        */
     }
 
     public void tearDown() {
@@ -97,15 +130,8 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadSomeProjects() throws IOException, CruiseControlException {
-        ccController = new CruiseControlController() {
-            protected Project configureProject(String projectName) {
-                final Project project = new Project();
-                project.setSchedule(new Schedule());
-                project.setName(projectName);
-                project.setConfigFile(configFile); 
-                return project;
-            }
-        };
+        ccController = new MockCruiseControlController();
+
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
@@ -118,15 +144,8 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadSomeProjectsWithDuplicates() throws IOException, CruiseControlException {
-        ccController = new CruiseControlController() {
-            protected Project configureProject(String projectName) {
-                final Project project = new Project();
-                project.setSchedule(new Schedule());
-                project.setName(projectName);
-                project.setConfigFile(configFile); 
-                return project;
-           }
-        };
+        ccController = new MockCruiseControlController();
+
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
@@ -141,8 +160,10 @@ public class CruiseControlControllerTest extends TestCase {
         }
     }
 
+    // FIXME this is a test for the XMLConfigManager
     public void testLoadSomeProjectsWithParametrizedNames() throws IOException, CruiseControlException {
-        ccController = new CruiseControlController();
+        ccController = new MockCruiseControlController();
+
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
         // a property that defines the project name.
@@ -183,21 +204,15 @@ public class CruiseControlControllerTest extends TestCase {
     public void testConfigReloading() throws IOException, CruiseControlException {
         MyListener listener = new MyListener();
 
-        ccController = new CruiseControlController() {
-            protected Project configureProject(String projectName) {
-                final Project project = new Project();
-                project.setSchedule(new Schedule());
-                project.setName(projectName);
-                project.setConfigFile(configFile);
-                return project;
-            }
-        };
+        ccController = new MockCruiseControlController();
+
         ccController.addListener(listener);
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
         writeProjectDetails(configOut, "testProject1");
         writeProjectDetails(configOut, "testProject2");
         writeFooterAndClose(configOut);
+
         ccController.setConfigFile(configFile);
 
         assertEquals(configFile, ccController.getConfigFile());
@@ -252,22 +267,15 @@ public class CruiseControlControllerTest extends TestCase {
     public void testConfigReloadingWithXmlInclude() throws IOException, CruiseControlException {
         MyListener listener = new MyListener();
 
-        ccController = new CruiseControlController() {
-            protected Project configureProject(String projectName) {
-                final Project project = new Project();
-                project.setSchedule(new Schedule());
-                project.setName(projectName);
-                project.setConfigFile(configFile);
-                return project;
-            }
-        };
+        ccController = new MockCruiseControlController();
+
         ccController.addListener(listener);
 
         FileWriter configOut2 = new FileWriter(configFile2);
         writeProjectDetails(configOut2, "testProject1");
         writeProjectDetails(configOut2, "testProject2");
         configOut2.close();
-        
+
         FileWriter wrapperConfigOut = new FileWriter(configFile);
         wrapperConfigOut.write("<?xml version=\"1.0\" ?>\n");
         wrapperConfigOut.write("<!DOCTYPE cruisecontrol [ \n");
@@ -276,7 +284,7 @@ public class CruiseControlControllerTest extends TestCase {
         wrapperConfigOut.write("<cruisecontrol>\n");
         wrapperConfigOut.write("&projects;");
         writeFooterAndClose(wrapperConfigOut);
-        
+
         ccController.setConfigFile(configFile);
 
         assertEquals(configFile, ccController.getConfigFile());
@@ -341,7 +349,10 @@ public class CruiseControlControllerTest extends TestCase {
         writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
-        PluginRegistry newRegistry = PluginRegistry.createRegistry();
+        XMLConfigManager configManager = (XMLConfigManager) ccController.getConfigManager();
+        CruiseControlConfig config = configManager.getCruiseControlConfig();
+
+        PluginRegistry newRegistry = config.getRootPlugins();
         assertTrue(newRegistry.isPluginRegistered("testname"));
         assertFalse(newRegistry.isPluginRegistered("unknown_plugin"));
         assertEquals(newRegistry.getPluginClassname("labelincrementer"), "my.global.Incrementer");

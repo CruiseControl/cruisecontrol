@@ -36,299 +36,65 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
-import net.sourceforge.cruisecontrol.util.Util;
-
-import org.apache.log4j.Logger;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
+import org.apache.log4j.Logger;
+import org.jdom.Attribute;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 /**
  *  Instantiates a project from a JDOM Element. Supports the use of Ant-like patterns in
  *  attribute values that look like this: <code>${propertyname}</code>
+ * @todo extract out generic Helper methods
  */
-public class ProjectXMLHelper {
-
-    public static final String LABEL_INCREMENTER = "labelincrementer";
+public class ProjectXMLHelper implements ProjectHelper {
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
-    private static final Pattern PROPERTY_PATTERN;
 
-    public static final boolean FAIL_UPON_MISSING_PROPERTY = false;
-    
-    static {
-        // Create a Perl 5 pattern matcher to find embedded properties
-        PatternCompiler compiler = new Perl5Compiler();
-        try {
-            //                                    1           2         3
-            PROPERTY_PATTERN = compiler.compile("(.*)\\$\\{([^${}]+)\\}(.*)");
-        } catch (MalformedPatternException e) {
-            // shouldn't happen
-            LOG.fatal("Error compiling pattern for property matching", e);
-            throw new IllegalStateException();
-        }
-
-    }
-
-    private PluginRegistry plugins;
-    private Element projectElement;
-    private String projectName;
-    private String overrideTarget = null;
-    private Properties properties = new Properties();
+    private Map projectProperties;
+    private PluginRegistry projectPlugins;
 
     public ProjectXMLHelper() {
-        this.plugins = PluginRegistry.createRegistry();
+        this.projectProperties = new HashMap();
+        this.projectPlugins = PluginRegistry.createRegistry(PluginRegistry.loadDefaultPluginRegistry());
     }
 
-    public ProjectXMLHelper(PluginRegistry registry) {
-        this.plugins = registry;
-    }
-
-    /**
-     * @param configFile
-     * @param projName the project name, already property-resolved
-     * @throws CruiseControlException
-     */
-    public ProjectXMLHelper(File configFile, String projName) throws CruiseControlException {
-        this();
-
-        // Load the configuration file
-        Element rootElement = Util.loadConfigFile(configFile);
-
-
-        Properties globalProperties = new Properties();
-        // Register any global properties
-        for (Iterator globProps = rootElement.getChildren("property").iterator(); globProps.hasNext(); ) {
-            registerProperty(globalProperties, (Element) globProps.next(), false);
-        }
-
-        // Find this project's element within the config file
-        for (Iterator projects = rootElement.getChildren("project").iterator(); projects.hasNext(); ) {
-            Element currentProjectElement = (Element) projects.next();
-            String parsedProjectName = parsePropertiesInString(globalProperties,
-                currentProjectElement.getAttributeValue("name"), true);
-            if (projName.equals(parsedProjectName)) {
-                projectElement = currentProjectElement;
-                // from now on, the projectName is correctly resolved.
-                currentProjectElement.setAttribute("name", parsedProjectName);
-                break;
-            }
-        }
-
-        if (projectElement == null) {
-            throw new CruiseControlException("Project not found in config file: " + projName);
-        }
-        projectName = projName;
-
-        // Register the project's name as a built-in property
-        setProperty(properties, "project.name", projectName);
-
-        // Register any global properties
-        for (Iterator globProps = rootElement.getChildren("property").iterator(); globProps.hasNext(); ) {
-            registerProperty(properties, (Element) globProps.next(), FAIL_UPON_MISSING_PROPERTY);
-        }
-
-        // Register any project specific properties
-        for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext(); ) {
-            registerProperty(properties, (Element) projProps.next(), FAIL_UPON_MISSING_PROPERTY);
-        }
-
-        // Parse the entire element tree, expanding all property macros
-        parsePropertiesInElement(rootElement);
-
-        // Register any custom plugins
-        for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
-            plugins.register((Element) pluginIter.next());
-        }
-
-        setDateFormat(projectElement);
-    }
-
-    protected void setDateFormat(Element projElement) throws CruiseControlException {
-        final Element element = projElement.getChild("dateformat");
-        if (element != null) {
-            CCDateFormat dateFormat = (CCDateFormat) configurePlugin(element, false);
-            dateFormat.validate();
-            if (dateFormat.getFormat() != null) {
-                DateFormatFactory.setFormat(dateFormat.getFormat());
-            }
-        }
-    }
-
-    public boolean getBuildAfterFailed() {
-        String buildAfterFailedAttr = projectElement.getAttributeValue("buildafterfailed");
-        boolean buildafterfailed = !"false".equalsIgnoreCase(buildAfterFailedAttr);
-        LOG.debug("Setting BuildAfterFailed to " + buildafterfailed);
-        return buildafterfailed;
-    }
-
-    public List getBootstrappers() throws CruiseControlException {
-        List bootstrappers = new ArrayList();
-        Element element = projectElement.getChild("bootstrappers");
-        if (element != null) {
-            Iterator bootstrapperIterator = element.getChildren().iterator();
-            while (bootstrapperIterator.hasNext()) {
-                Element bootstrapperElement = (Element) bootstrapperIterator.next();
-                Bootstrapper bootstrapper =
-                        (Bootstrapper) configurePlugin(bootstrapperElement, false);
-                bootstrapper.validate();
-                bootstrappers.add(bootstrapper);
-            }
-        } else {
-            LOG.debug("Project " + projectName + " has no bootstrappers");
-        }
-        return bootstrappers;
-    }
-
-    public List getPublishers() throws CruiseControlException {
-        List publishers = new ArrayList();
-        Element publishersElement = projectElement.getChild("publishers");
-        if (publishersElement != null) {
-            Iterator publisherIterator = publishersElement.getChildren().iterator();
-            while (publisherIterator.hasNext()) {
-                Element publisherElement = (Element) publisherIterator.next();
-                Publisher publisher = (Publisher) configurePlugin(publisherElement, false);
-                publisher.validate();
-                publishers.add(publisher);
-            }
-        } else {
-            LOG.debug("Project " + projectName + " has no publishers");
-        }
-        return publishers;
-    }
-
-    public Schedule getSchedule() throws CruiseControlException {
-        Element scheduleElement = getRequiredElement(projectElement, "schedule");
-        Schedule schedule = (Schedule) configurePlugin(scheduleElement, true);
-        Iterator builderIterator = scheduleElement.getChildren().iterator();
-        while (builderIterator.hasNext()) {
-            Element builderElement = (Element) builderIterator.next();
-            
-            Builder builder = (Builder) configurePlugin(builderElement, false);
-            if (overrideTarget != null) {
-                builder.overrideTarget(overrideTarget);
-            }
-            builder.validate();
-            // TODO: PauseBuilder should be able to be handled like any other
-            // Builder
-            if (builder instanceof PauseBuilder) {
-                schedule.addPauseBuilder((PauseBuilder) builder);
-            } else {
-                schedule.addBuilder(builder);
-            }
-        }
-        schedule.validate();
-
-        return schedule;
-    }
-
-    public ModificationSet getModificationSet() throws CruiseControlException {
-        final Element modSetElement = getRequiredElement(projectElement, "modificationset");
-        ModificationSet modificationSet = (ModificationSet) configurePlugin(modSetElement, true);
-        Iterator sourceControlIterator = modSetElement.getChildren().iterator();
-        while (sourceControlIterator.hasNext()) {
-            Element sourceControlElement = (Element) sourceControlIterator.next();
-            SourceControl sourceControl = (SourceControl) configurePlugin(sourceControlElement, false);
-            sourceControl.validate();
-            modificationSet.addSourceControl(sourceControl);
-        }
-        modificationSet.validate();
-        return modificationSet;
-    }
-
-    public LabelIncrementer getLabelIncrementer() throws CruiseControlException {
-        LabelIncrementer incrementer;
-        Element labelIncrementerElement = projectElement.getChild(LABEL_INCREMENTER);
-        if (labelIncrementerElement != null) {
-            incrementer = (LabelIncrementer) configurePlugin(labelIncrementerElement, false);
-        } else {
-            Class labelIncrClass = plugins.getPluginClass(LABEL_INCREMENTER);
-            try {
-                incrementer = (LabelIncrementer) labelIncrClass.newInstance();
-            } catch (Exception e) {
-                LOG.error(
-                        "Error instantiating label incrementer named "
-                        + labelIncrClass.getName()
-                        + ". Using DefaultLabelIncrementer instead.",
-                        e);
-                incrementer = new DefaultLabelIncrementer();
-            }
-        }
-        return incrementer;
-    }
-
-    /**
-     *  returns the String value of an attribute on an element, exception if it's not set
-     */
-    protected String getRequiredAttribute(Element element, String attributeName)
-            throws CruiseControlException {
-        final String requiredAttribute = element.getAttributeValue(attributeName);
-        if (requiredAttribute == null) {
-            throw new CruiseControlException(
-                    "Project "
-                    + projectName
-                    + ":  attribute "
-                    + attributeName
-                    + " is required on "
-                    + element.getName());
-        }
-        return requiredAttribute;
-    }
-
-    private Element getRequiredElement(final Element parentElement, final String childName)
-            throws CruiseControlException {
-        final Element requiredElement = parentElement.getChild(childName);
-        if (requiredElement == null) {
-            throw new CruiseControlException(
-                    "Project "
-                    + projectName
-                    + ": <"
-                    + parentElement.getName()
-                    + ">"
-                    + " requires a <"
-                    + childName
-                    + "> element");
-        }
-        return requiredElement;
+    public ProjectXMLHelper(Map projectProperties, PluginRegistry projectPlugins) {
+        this.projectProperties = projectProperties;
+        this.projectPlugins = projectPlugins;
     }
 
     /**
      *  TODO: also check that instantiated class implements/extends correct interface/class
      */
-    protected Object configurePlugin(Element pluginElement, boolean skipChildElements)
+    public Object configurePlugin(Element pluginElement, boolean skipChildElements)
             throws CruiseControlException {
         String name = pluginElement.getName();
         PluginXMLHelper pluginHelper = new PluginXMLHelper(this);
         String pluginName = pluginElement.getName();
 
-        if (plugins.isPluginRegistered(pluginName)) {
+        LOG.debug("configuring plugin " + pluginElement.getName() + " skip " + skipChildElements);
+
+        if (projectPlugins.isPluginRegistered(pluginName)) {
             Object pluginInstance = getConfiguredPlugin(pluginHelper, pluginElement.getName());
             if (pluginInstance != null) { // preconfigured
                 return pluginHelper.configure(pluginElement, pluginInstance, skipChildElements);
             }
-            return pluginHelper.configure(pluginElement, plugins.getPluginClass(pluginName), skipChildElements);
+            return pluginHelper.configure(pluginElement, projectPlugins.getPluginClass(pluginName), skipChildElements);
         } else {
             throw new CruiseControlException("Unknown plugin for: <" + name + ">");
         }
     }
+
 
     /**
      * Get a [partially] configured plugin instance given its plugin name.
@@ -340,14 +106,17 @@ public class ProjectXMLHelper {
      *   if the plugin configuration fails
      */
     Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
-        final Class pluginClass = this.plugins.getPluginClass(pluginName);
+        final Class pluginClass = projectPlugins.getPluginClass(pluginName);
         if (pluginClass == null) {
             return null;
         }
         Object configuredPlugin = null;
-        Element pluginElement = plugins.getPluginConfig(pluginName);
+        Element pluginElement = projectPlugins.getPluginConfig(pluginName);
         if (pluginElement != null) {
-            // Element clonedPluginElement = (Element) pluginElement.clone();
+            // FIXME
+            // the only reason we have to do this here
+            // is because the plugins registered in the ROOT registry have not had their properties parsed.
+            // See CruiseControlController.addPluginsToRootRegistry
             parsePropertiesInElement(pluginElement);
             configuredPlugin = pluginHelper.configure(pluginElement, pluginClass, false);
         }
@@ -355,82 +124,37 @@ public class ProjectXMLHelper {
     }
 
     /**
-     * Returns a Log instance representing the Log element.
-     */
-    public Log getLog() throws CruiseControlException {
-        Log log;
-
-        Element logElement = projectElement.getChild("log");
-        if (logElement == null) {
-            log = new Log();
-        } else {
-            log = (Log) configurePlugin(logElement, false);
-        }
-        if (log.getLogDir() == null) {
-            final String defaultLogDir = "logs" + File.separatorChar + projectName;
-            log.setDir(defaultLogDir);
-        }
-        log.setProjectName(projectName);
-        log.validate();
-        return log;
-    }
-
-    PluginRegistry getPlugins() {
-        return plugins;
-    }
-
-    public List getListeners() throws CruiseControlException {
-        List listeners = new ArrayList();
-        Element element = projectElement.getChild("listeners");
-        if (element != null) {
-            Iterator listenerIterator = element.getChildren().iterator();
-            while (listenerIterator.hasNext()) {
-                Element listenerElement = (Element) listenerIterator.next();
-                Listener listener = (Listener) configurePlugin(listenerElement, false);
-                listener.validate();
-                listeners.add(listener);
-            }
-            LOG.debug("Project " + projectName + " has " + listeners.size() + " listeners");
-        } else {
-            LOG.debug("Project " + projectName + " has no listeners");
-        }
-        return listeners;
-    }
-
-    /**
-     * Returns all properties to which this project has access
+     * Recurses through an Element tree, substituting resolved values
+     * for any property macros.
      *
-     * @return The properties accessible to this project
+     * @param element The Element to parse
+     *
+     * @throws CruiseControlException if a property cannot be resolved
      */
-    public Properties getProperties() {
-        return this.properties;
+    private void parsePropertiesInElement(Element element) throws CruiseControlException {
+        parsePropertiesInElement(element, this.projectProperties, CruiseControlConfig.FAIL_UPON_MISSING_PROPERTY);
     }
-    
-    /**
-     * @param overrideTarget An overrideTarget to set on Builders in the Schedule.
-     */
-    public void setOverrideTarget(String overrideTarget) {
-        this.overrideTarget = overrideTarget;
-    }
-    
+
+
+
     /**
      * Registers one or more properties as defined in a property element.
-     *  
+     *
      * @param propertyElement The element from which we will register properties
      * @throws CruiseControlException
      */
-    private static void registerProperty(Properties props, Element propertyElement,
+    public static void registerProperty(Map props, Element propertyElement,
                                          boolean failIfMissing) throws CruiseControlException {
         // Determine which attributes were set in the element
         String fileName = parsePropertiesInString(props, propertyElement.getAttributeValue("file"),
                                                   failIfMissing);
-        String environment = parsePropertiesInString(props, 
+        String environment = parsePropertiesInString(props,
                                                      propertyElement.getAttributeValue("environment"),
                                                      failIfMissing);
         String propName = parsePropertiesInString(props, propertyElement.getAttributeValue("name"),
                                                   failIfMissing);
         String propValue = propertyElement.getAttributeValue("value");
-        String toUpperValue = parsePropertiesInString(props, 
+        String toUpperValue = parsePropertiesInString(props,
                                                       propertyElement.getAttributeValue("toupper"),
                                                       failIfMissing);
         boolean toupper = "true".equalsIgnoreCase(toUpperValue);
@@ -439,6 +163,7 @@ public class ProjectXMLHelper {
         // from the given filename.
         if (fileName != null && fileName.trim().length() > 0) {
             File file = new File(fileName);
+            // FIXME add exists check.
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 // Read the file line by line, expanding macros
@@ -454,7 +179,7 @@ public class ProjectXMLHelper {
                     if (index < 0) {
                         continue;
                     }
-                    String parsedName 
+                    String parsedName
                         = parsePropertiesInString(props, line.substring(0, index).trim(), failIfMissing);
                     String parsedValue
                         = parsePropertiesInString(props, line.substring(index + 1).trim(), failIfMissing);
@@ -493,89 +218,92 @@ public class ProjectXMLHelper {
         } else {
             // Try to get a name value pair
             if (propName == null) {
-                throw new CruiseControlException("Bad property definition - " 
+                throw new CruiseControlException("Bad property definition - "
                         + new XMLOutputter().outputString(propertyElement));
             }
             if (propValue == null) {
                 throw new CruiseControlException(
-                        "No value provided for property \"" + propName + "\" - " 
-                        + new XMLOutputter().outputString(propertyElement)); 
+                        "No value provided for property \"" + propName + "\" - "
+                        + new XMLOutputter().outputString(propertyElement));
             }
             String parsedValue = parsePropertiesInString(props, propValue, failIfMissing);
             setProperty(props, propName, parsedValue);
         }
     }
 
-    private static void setProperty(Properties props, String name, String parsedValue) {
+    // FIXME Helper extract ?
+    private static void setProperty(Map props, String name, String parsedValue) {
         LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
         props.put(name, parsedValue);
     }
 
-/*
-    String parsePropertiesInString(String string) throws CruiseControlException {
-        return parsePropertiesInString(this.properties, string, true);
-    }
-*/
 
+    // FIXME Helper extract ?
     /**
      * Parses a string by replacing all occurences of a property macro with
-     * the resolved value of the property. Nested macros are allowed - the 
+     * the resolved value of the property. Nested macros are allowed - the
      * inner most macro will be resolved first, moving out from there.
-     *  
+     *
      * @param string The string to be parsed
      * @return The parsed string
      * @throws CruiseControlException if a property cannot be resolved
      */
-    private static String parsePropertiesInString(Properties props, String string,
-                                                  boolean failIfMissing) throws CruiseControlException {
-
+    static String parsePropertiesInString(Map props, String string,
+                                          boolean failIfMissing) throws CruiseControlException {
         if (string != null) {
-            PatternMatcher matcher = new Perl5Matcher();
-
-            // Expand all (possibly nested) properties
-            while (matcher.contains(string, PROPERTY_PATTERN)) {
-                MatchResult result = matcher.getMatch();
-                String pre = result.group(1);
-                String propertyName = result.group(2);
-                String post = result.group(3);
-                String value = props.getProperty(propertyName);
-                if (value == null && failIfMissing) {
-                    throw new CruiseControlException("Property \"" + propertyName
-                            + "\" is not defined. Please check the order in which you have used your properties.");
+            int startIndex = string.indexOf("${");
+            if (startIndex != -1) {
+                int openedBrackets = 1;
+                int lastStartIndex = startIndex + 2;
+                int endIndex;
+                do {
+                    endIndex = string.indexOf("}", lastStartIndex);
+                    int otherStartIndex = string.indexOf("${", lastStartIndex);
+                    if (otherStartIndex != -1 && otherStartIndex < endIndex) {
+                        openedBrackets++;
+                        lastStartIndex = otherStartIndex + 2;
+                    } else {
+                        openedBrackets--;
+                        if (openedBrackets == 0) {
+                            break;
+                        }
+                        lastStartIndex = endIndex + 1;
+                    }
+                } while (true);
+                if (endIndex < startIndex + 2) {
+                    throw new CruiseControlException("Unclosed brackets in " + string);
+                }
+                String property = string.substring(startIndex + 2, endIndex);
+                // not necessarily resolved
+                String propertyName = parsePropertiesInString(props, property, failIfMissing);
+                String value = "".equals(propertyName) ? "" : (String) props.get(propertyName);
+                if (value == null) {
+                    if (failIfMissing) {
+                        throw new CruiseControlException("Property \"" + propertyName
+                                + "\" is not defined. Please check the order in which you have used your properties.");
+                    } else {
+                        // we don't resolve missing properties
+                        value = "${" + propertyName + "}";
+                    }
                 }
                 LOG.debug("Replacing the string \"" + propertyName + "\" with \"" + value + "\".");
-                string = pre + value + post;
+                string = string.substring(0, startIndex) + value
+                    + parsePropertiesInString(props, string.substring(endIndex + 1), failIfMissing);
             }
         }
         return string;
-    }
-    
-    /**
-     * Recurses through an Element tree, substituting resolved values
-     * for any property macros.
-     * 
-     * @param element The Element to parse
-     *
-     * @throws CruiseControlException if a property cannot be resolved
-     */
-    private void parsePropertiesInElement(Element element) throws CruiseControlException {
-        parsePropertiesInElement(element, this.properties, this.projectName, FAIL_UPON_MISSING_PROPERTY);
+
     }
 
-    private static void parsePropertiesInElement(Element element, Properties props,
-                                                 String projectName, boolean failIfMissing)
+    // FIXME Helper extract ?
+    public static void parsePropertiesInElement(Element element,
+                                                Map props,
+                                                boolean failIfMissing)
         throws CruiseControlException {
-        
-        // Do not attempt to parse properties from within other projects
-        if (element.getName().equals("project")
-            && projectName != null
-            && !element.getAttributeValue("name").equals(projectName)) {
-            return;
-        }
 
         // Recurse through the element tree - depth first
         for (Iterator children = element.getChildren().iterator(); children.hasNext(); ) {
-            parsePropertiesInElement((Element) children.next(), props, projectName, failIfMissing);
+            parsePropertiesInElement((Element) children.next(), props, failIfMissing);
         }
 
         // Parse the attribute value strings
@@ -588,20 +316,6 @@ public class ProjectXMLHelper {
         String text = element.getTextTrim();
         if (text.length() > 0) {
             element.setText(parsePropertiesInString(props, text, failIfMissing));
-        }
-    }
-
-    public static void resolveProjectNames(Element rootElement) throws CruiseControlException {
-        Properties props = new Properties();
-        // Register any global properties
-        for (Iterator globProps = rootElement.getChildren("property").iterator(); globProps.hasNext(); ) {
-            registerProperty(props, (Element) globProps.next(), false);
-        }
-
-        // parsePropertiesInElement(rootElement, props, null, false);
-
-        for (Iterator projects = rootElement.getChildren("project").iterator(); projects.hasNext(); ) {
-            parsePropertiesInElement((Element) projects.next(), props, null, false);
         }
     }
 }

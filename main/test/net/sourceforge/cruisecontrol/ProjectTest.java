@@ -36,20 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.builders.MockBuilder;
-import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
-import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
-import net.sourceforge.cruisecontrol.events.BuildProgressListener;
-import net.sourceforge.cruisecontrol.events.BuildResultEvent;
-import net.sourceforge.cruisecontrol.events.BuildResultListener;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.Util;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.jdom.Element;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,7 +52,23 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.builders.MockBuilder;
+import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
+import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
     private static final org.apache.log4j.Logger LOG4J = org.apache.log4j.Logger.getLogger(ProjectTest.class);
@@ -75,6 +77,26 @@ public class ProjectTest extends TestCase {
 
     private Project project;
     private final List filesToClear = new ArrayList();
+
+    static class MockConfigManager implements ConfigManager {
+        private transient ProjectConfig projectConfig;
+
+        public MockConfigManager(ProjectConfig config) {
+            this.projectConfig = config;
+        }
+
+        public ProjectConfig getConfig(String projectName) throws CruiseControlException {
+            return projectConfig;
+        }
+
+        public Set getProjectNames() {
+            throw new UnsupportedOperationException("functionality not needed in this test");
+        }
+
+        public boolean reloadIfNecessary() {
+            throw new UnsupportedOperationException("functionality not needed in this test");
+        }
+    }
 
     public ProjectTest(String name) {
         super(name);
@@ -99,11 +121,17 @@ public class ProjectTest extends TestCase {
         }
     }
 
-    public void testNotifyListeners() {
+    public void testNotifyListeners() throws CruiseControlException {
+        ProjectConfig projectConfig = new ProjectConfig();
+
         MockListener listener = new MockListener();
-        List listeners = new ArrayList();
+        ProjectConfig.Listeners listeners = new ProjectConfig.Listeners();
         listeners.add(listener);
-        project.setListeners(listeners);
+        projectConfig.add(listeners);
+        // this for init to work only.
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.init();
         ProjectEvent event = new ProjectEvent("foo") {
         };
         project.notifyListeners(event);
@@ -115,28 +143,37 @@ public class ProjectTest extends TestCase {
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
         MockSchedule sched = new MockSchedule();
-        project.setSchedule(sched);
-        project.setLabel("1.2.2");
-        project.setName("myproject");
-        project.setWasLastBuildSuccessful(false);
+
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(sched);
+
+        Log log = new Log();
         File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
-        project.getLog().setDir(TEST_DIR + File.separator + "test-results");
-        project.setLogXmlEncoding("ISO-8859-1");
-        project.getLog().validate();
+        log.setProjectName("myproject");
+        log.setDir(logDir.getAbsolutePath());
+        log.setEncoding("ISO-8859-1");
+        log.validate();
+
+        projectConfig.add(log);
 
         MergeLogger logger = new MergeLogger();
         logger.setFile(TEST_DIR + File.separator + "_auxLog1.xml");
         logger.validate();
-        project.getLog().add(logger);
+        log.add(logger);
 
         logger = new MergeLogger();
         logger.setDir(TEST_DIR + File.separator + "_auxLogs");
         logger.validate();
-        project.getLog().add(logger);
+        log.add(logger);
 
-        project.setLabelIncrementer(new DefaultLabelIncrementer());
-        project.setModificationSet(modSet);
+        projectConfig.add(modSet);
+        project.setConfigManager(new MockConfigManager(projectConfig));
+
+        project.setLabel("1.2.2");
+        project.setName("myproject");
+        project.setWasLastBuildSuccessful(false);
+
         project.setLastBuild(formatTime(now));
         project.setLastSuccessfulBuild(formatTime(now));
         writeFile(TEST_DIR + File.separator + "_auxLog1.xml", "<one/>");
@@ -160,10 +197,13 @@ public class ProjectTest extends TestCase {
             }
         });
 
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.init();
+
         project.start();
         project.build();
         project.stop();
-        filesToClear.add(project.getLog().getLastLogFile());
+        filesToClear.add(log.getLastLogFile());
 
         assertTrue(project.isLastBuildSuccessful());
 
@@ -194,7 +234,7 @@ public class ProjectTest extends TestCase {
                 + DateUtil.getFormattedTime(now)
                 + "L1.2.2.xml\" />"
                 + "</info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
-        assertEquals(expected, Util.readFileToString(project.getLog().getLastLogFile()));
+        assertEquals(expected, Util.readFileToString(log.getLastLogFile()));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 
         //look for sourcecontrol properties
@@ -225,7 +265,9 @@ public class ProjectTest extends TestCase {
 
     public void testPublish() throws CruiseControlException {
         MockSchedule sched = new MockSchedule();
-        project.setSchedule(sched);
+        final ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(sched);
+        project.setConfigManager(new MockConfigManager(projectConfig));
 
         MockPublisher publisher = new MockPublisher();
         Publisher exceptionThrower = new MockPublisher() {
@@ -234,15 +276,20 @@ public class ProjectTest extends TestCase {
             }
         };
 
-        List publishers = new ArrayList();
+        ProjectConfig.Publishers publishers = new ProjectConfig.Publishers();
         publishers.add(publisher);
         publishers.add(exceptionThrower);
         publishers.add(publisher);
 
-        project.setPublishers(publishers);
+        projectConfig.add(publishers);
         project.setName("projectName");
-        project.setLabel("label");
+        project.setLabel("label.1");
         //Element element = project.getProjectPropertiesElement(new Date());
+
+        projectConfig.add(new DefaultLabelIncrementer());
+        projectConfig.add(new Log());
+        project.init();
+
         project.publish();
 
         assertEquals(2, publisher.getPublishCount());
@@ -279,7 +326,11 @@ public class ProjectTest extends TestCase {
     public void testGetModifications() throws CruiseControlException {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.getModifications(null);
-        project.setModificationSet(modSet);
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(modSet);
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.init();
 
         modSet.setModified(true);
         assertEquals(modifications, project.getModifications());
@@ -321,7 +372,7 @@ public class ProjectTest extends TestCase {
         assertEquals(false, project.checkOnlySinceLastBuild());
     }
 
-    public void testWaitIfPaused() throws InterruptedException {
+    public void testWaitIfPaused() throws InterruptedException, CruiseControlException {
         MockProject mockProject = new MockProject() {
             public void run() {
                 loop();
@@ -331,6 +382,12 @@ public class ProjectTest extends TestCase {
                 waitIfPaused();
             }
         };
+
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new MockSchedule());
+        projectConfig.add(new DefaultLabelIncrementer());
+        mockProject.setConfigManager(new MockConfigManager(projectConfig));
+        mockProject.init();
 
         new Thread(mockProject).start();
 
@@ -355,7 +412,10 @@ public class ProjectTest extends TestCase {
         mockProject.stopLooping();
     }
 
-    public void testWaitForNextBuild() throws InterruptedException {
+    public void testWaitForNextBuild() throws InterruptedException, CruiseControlException {
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new MockSchedule());
+
         MockProject mockProject = new MockProject() {
             public void run() {
                 loop();
@@ -366,7 +426,10 @@ public class ProjectTest extends TestCase {
             }
         };
         mockProject.overrideBuildInterval(1000);
-        mockProject.setSchedule(new MockSchedule());
+        projectConfig.add(new DefaultLabelIncrementer());
+        mockProject.setConfigManager(new MockConfigManager(projectConfig));
+        mockProject.init();
+
         new Thread(mockProject).start();
 
         Thread.sleep(100);
@@ -425,7 +488,7 @@ public class ProjectTest extends TestCase {
         try {
             project.init();
         } catch (IllegalStateException expected) {
-            assertEquals("set config file on project before calling init()", expected.getMessage());
+            assertEquals("configManager must be set on project before calling init()", expected.getMessage());
         }
     }
 
@@ -458,13 +521,18 @@ public class ProjectTest extends TestCase {
         Project deserializedProject = (Project) p;
         deserializedProject.addBuildProgressListener(new BuildProgressListener() {
             public void handleBuildProgress(BuildProgressEvent event) {
-
             }
         });
     }
     
     public void testStartAfterDeserialization() throws Exception {
         TestProject beforeSerialization = new TestProject();
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new MockSchedule());
+        projectConfig.add(new DefaultLabelIncrementer());
+        beforeSerialization.setConfigManager(new MockConfigManager(projectConfig));
+        beforeSerialization.init();
+
         beforeSerialization.start();
 
         File f = new File("test.ser");
@@ -488,7 +556,7 @@ public class ProjectTest extends TestCase {
     }
     
     public void testGetProjectPropertiesMap() throws CruiseControlException {
-        String label = "LaBeL";
+        String label = "labeL.1";
         project.setLabel(label);
         String lastBuild = "20000101120000";
         project.setLastBuild(lastBuild);
@@ -499,6 +567,12 @@ public class ProjectTest extends TestCase {
         Calendar now = new GregorianCalendar(cest);
         now.set(2005, Calendar.AUGUST, 10, 13, 7, 43);
         String cvstimestamp = "2005-08-10 11:07:43 GMT";
+
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new MockSchedule());
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.init();
 
         // The returned time is dependent on the default timezone hence
         // the use of DateUtil.getFormattedTime()
@@ -513,14 +587,19 @@ public class ProjectTest extends TestCase {
         assertEquals(cvstimestamp, map.get("cvstimestamp"));
     }
     
-    public void testGetTimeToNextBuild_AfterShortBuild() {
+    public void testGetTimeToNextBuild_AfterShortBuild() throws CruiseControlException {
         Schedule schedule = new Schedule();
         MockBuilder noonBuilder = new MockBuilder();
         noonBuilder.setTime("1200");
         noonBuilder.setBuildLogXML(new Element("builder1"));
-        schedule.addBuilder(noonBuilder);
-        project.setSchedule(schedule);
-        
+        schedule.add(noonBuilder);
+
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(schedule);
+
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.setConfigManager(new MockConfigManager(projectConfig));
+
         Calendar cal = Calendar.getInstance();
         cal.set(2001, Calendar.NOVEMBER, 22);
         cal.set(Calendar.HOUR_OF_DAY, 12);
@@ -528,9 +607,11 @@ public class ProjectTest extends TestCase {
         Date noonBuild = cal.getTime();
         project.setBuildStartTime(noonBuild);
         
+        project.init();
+
         cal.set(Calendar.SECOND, 30);
         Date postNoonBuild = cal.getTime();
-        
+
         long time = project.getTimeToNextBuild(postNoonBuild);
         assertEquals(Schedule.ONE_DAY, time);
     }

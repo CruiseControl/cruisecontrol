@@ -56,9 +56,9 @@ import java.util.Set;
  */
 public class PluginXMLHelper {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelper.class);
-    private ProjectXMLHelper projectHelper;
+    private ProjectHelper projectHelper;
 
-    public PluginXMLHelper(ProjectXMLHelper plugins) {
+    public PluginXMLHelper(ProjectHelper plugins) {
         projectHelper = plugins;
     }
 
@@ -115,6 +115,9 @@ public class PluginXMLHelper {
     public Object configure(Element objectElement, Object pluginInstance,
                             boolean skipChildElements) throws CruiseControlException {
         
+        LOG.debug("configure " + objectElement.getName() + " instance " + pluginInstance.getClass()
+                  + " self configuring: " + (pluginInstance instanceof SelfConfiguringPlugin)
+                  + " skip:" + skipChildElements);
         if (pluginInstance instanceof SelfConfiguringPlugin) {
             ((SelfConfiguringPlugin) pluginInstance).configure(objectElement);
         } else {
@@ -141,6 +144,10 @@ public class PluginXMLHelper {
      */
     protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
             throws CruiseControlException {
+
+        LOG.debug("configuring object " + objectElement.getName()
+            + " object " + object.getClass() + " skip " + skipChildElements);
+
         Map setters = new HashMap();
         Map creators = new HashMap();
         Set adders = new HashSet();
@@ -165,6 +172,7 @@ public class PluginXMLHelper {
             while (childElementIterator.hasNext()) {
                 Element childElement = (Element) childElementIterator.next();
                 if (creators.containsKey(childElement.getName().toLowerCase())) {
+                    LOG.debug("treating child with creator " + childElement.getName());
                     try {
                         Method method = (Method) creators.get(childElement.getName().toLowerCase());
                         Object childObject = method.invoke(object, (Object[]) null);
@@ -189,6 +197,7 @@ public class PluginXMLHelper {
 
                     if (adder != null) {
                         try {
+                            LOG.debug("treating child with adder " + childElement.getName() + " adding " + childObject);
                             adder.invoke(object, new Object[]{childObject});
                         } catch (Exception e) {
                             LOG.fatal("Error configuring plugin.", e);
