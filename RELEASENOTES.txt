@@ -72,6 +72,10 @@ NavigationTag:
 --------------
 * Remove support for log files timestamped without a second part
 
+ProjectXMLHelper:
+----------------------
+* Allow preconfiguration of <log ..> element and sub-elements. Patch by Jerome Lacoste.
+
 release.xml:
 ------------
 * New targets "deploy-server" and "kill-server" for starting/killing the binary release on a testing port.

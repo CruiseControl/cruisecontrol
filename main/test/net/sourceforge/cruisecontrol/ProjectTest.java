@@ -128,12 +128,12 @@ public class ProjectTest extends TestCase {
         MergeLogger logger = new MergeLogger();
         logger.setFile(TEST_DIR + File.separator + "_auxLog1.xml");
         logger.validate();
-        project.getLog().addLogger(logger);
+        project.getLog().add(logger);
 
         logger = new MergeLogger();
         logger.setDir(TEST_DIR + File.separator + "_auxLogs");
         logger.validate();
-        project.getLog().addLogger(logger);
+        project.getLog().add(logger);
 
         project.setLabelIncrementer(new DefaultLabelIncrementer());
         project.setModificationSet(modSet);

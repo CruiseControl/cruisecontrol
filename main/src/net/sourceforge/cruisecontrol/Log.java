@@ -118,7 +118,7 @@ public class Log {
      * Adds a BuildLogger that will be called to manipulate the project log
      * just prior to writing the log.
      */
-    public void addLogger(BuildLogger logger) {
+    public void add(BuildLogger logger) {
         loggers.add(logger);
     }
 
