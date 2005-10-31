@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
@@ -49,12 +50,12 @@ import org.jdom.Element;
 
 public class ScheduleTest extends TestCase {
     private Schedule schedule;
+    private Locale defaultLocale;
 
     private static final long ONE_MINUTE = Schedule.ONE_MINUTE;
     private static final long ONE_HOUR = 60 * ONE_MINUTE;
     private static final long TWELVE_HOURS = 12 * ONE_HOUR;
     private static final long ONE_DAY = Schedule.ONE_DAY;
-
 
     private static final Calendar FRIDAY;
     private static final Calendar THURSDAY;
@@ -114,10 +115,14 @@ public class ScheduleTest extends TestCase {
         schedule.addBuilder(MIDNIGHT_BUILDER);
         schedule.addBuilder(MULTIPLE_5);
         schedule.addBuilder(MULTIPLE_1);
+        
+        defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.US);
     }
 
     protected void tearDown() throws Exception {
         schedule = null;
+        Locale.setDefault(defaultLocale);
     }
 
     /**
@@ -181,6 +186,23 @@ public class ScheduleTest extends TestCase {
         scheduledByDay.addBuilder(fridayBuilder);
         assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, THURSDAY_1101));
         assertEquals(fridayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));
+    }
+
+    public void testSelectBuilder_ForcedBuildAcrossTimeChangeBoundary() throws CruiseControlException {
+        Builder thursdayBuilder = new MockBuilder();
+
+        thursdayBuilder.setTime("1120");
+        thursdayBuilder.setDay("thursday");
+        Schedule scheduledByDay = new Schedule();
+        scheduledByDay.addBuilder(thursdayBuilder);
+
+        Calendar oct272005 = Calendar.getInstance();
+        oct272005.set(2005, Calendar.OCTOBER, 27);
+
+        // mimic a JMX trigger
+        Date last = getDate(oct272005, 11, 20);
+        Date now = getDate(oct272005, 11, 25);
+        assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(123, last, now));
     }
     
     public void testIsPaused() {
@@ -316,6 +338,23 @@ public class ScheduleTest extends TestCase {
 
         assertEquals((ONE_DAY * 2) + ONE_HOUR,
                 schedule.getTimeToNextBuild(FRIDAY_0000, ONE_MINUTE));
+    }
+
+    public void testGetTimeToNextBuild_WeeklyBuildAcrossDaylightSavingsTimeBoundary() {
+        Builder thursdayBuilder = new MockBuilder();
+
+        thursdayBuilder.setTime("1120");
+        thursdayBuilder.setDay("thursday");
+        Schedule scheduledByDay = new Schedule();
+        scheduledByDay.addBuilder(thursdayBuilder);
+
+        Calendar oct272005 = Calendar.getInstance();
+        oct272005.set(2005, Calendar.OCTOBER, 27);
+
+        Date now = getDate(oct272005, 11, 25);
+        long dstEndingAdjustment = ONE_HOUR;
+        assertEquals(((ONE_DAY * 6) + (ONE_HOUR * 23) + (ONE_MINUTE * 55) + dstEndingAdjustment),
+                        scheduledByDay.getTimeToNextBuild(now, ONE_MINUTE));        
     }
 
     public void testGetTimeToNextBuild_MonthlyBuild() {

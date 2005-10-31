@@ -36,12 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,6 +44,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  *  Handles scheduling different builds.
@@ -181,7 +181,8 @@ public class Schedule {
             boolean isTimeBuilder = buildTime >= 0;
             if (isTimeBuilder) {
                 boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
-                boolean isAfterBuildTime = buildTime <= DateUtil.getTimeFromDate(now);
+                int nowTime = DateUtil.getTimeFromDate(now);
+                boolean isAfterBuildTime = buildTime <= nowTime;
                 boolean isValidDay = builder.isValidDay(now);
                 if (didntBuildToday && isAfterBuildTime && isValidDay) {
                     return builder;
@@ -319,16 +320,22 @@ public class Schedule {
             boolean isTimeBuilder = thisBuildTime != Builder.NOT_SET;
             if (isTimeBuilder) {
                 long timeToThisBuild = Long.MAX_VALUE;
-                long maxDays = MAX_INTERVAL_MILLISECONDS;
-                for (long daysInTheFuture = 0; daysInTheFuture < maxDays; daysInTheFuture += ONE_DAY) {
-                    Date day = new Date(now.getTime() + daysInTheFuture);
-                    boolean dayIsValid = builder.isValidDay(day);
+                Calendar cal = Calendar.getInstance();
+                long oneYear = 365;
+                for (int daysInTheFuture = 0; daysInTheFuture < oneYear; daysInTheFuture++) {
+                    cal.setTime(now);
+                    cal.add(Calendar.DATE, daysInTheFuture);
+                    Date future = cal.getTime();
+                    boolean dayIsValid = builder.isValidDay(future);
                     if (dayIsValid) {
-                        long timeDifference = DateUtil.milliTimeDifference(nowTime, thisBuildTime);
-                        long daysInBetween = daysInTheFuture;
-                        boolean timePassedToday = timeDifference + daysInBetween < 0;
+                        boolean timePassedToday = (daysInTheFuture == 0) && (nowTime > thisBuildTime);
                         if (!timePassedToday) {
-                            timeToThisBuild = timeDifference + daysInBetween;
+                            int buildHour = thisBuildTime / 100;
+                            int buildMinute = thisBuildTime % 100;
+                            cal.set(Calendar.HOUR_OF_DAY, buildHour);
+                            cal.set(Calendar.MINUTE, buildMinute);
+                            future = cal.getTime();
+                            timeToThisBuild = future.getTime() - now.getTime();
                             break;
                         }
                     }
