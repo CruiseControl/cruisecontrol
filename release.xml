@@ -145,6 +145,8 @@
         <mkdir dir="target/webtest-classes"/>
         <javac srcdir="webtest" destdir="target/webtest-classes" debug="true">
             <classpath>
+                <pathelement location="reporting/jsp/target/classes"/>
+                <fileset dir="reporting/jsp/lib" includes="*.jar"/>
                 <fileset dir="lib" includes="*.jar"/>
             </classpath>
         </javac>
@@ -163,6 +165,8 @@
                 <mkdir dir="target/webtest-results"/>
                 <junit haltonfailure="no" printsummary="on" failureproperty="junit.failure">
                     <classpath>
+                        <pathelement location="reporting/jsp/target/classes"/>
+                        <fileset dir="reporting/jsp/lib" includes="*.jar"/>
                         <fileset dir="lib" includes="*.jar"/>
                         <pathelement location="target/webtest-classes"/>
                     </classpath>
