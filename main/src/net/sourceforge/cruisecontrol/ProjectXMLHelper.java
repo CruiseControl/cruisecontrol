@@ -364,17 +364,7 @@ public class ProjectXMLHelper {
         if (logElement == null) {
             log = new Log();
         } else {
-            log = (Log) configurePlugin(logElement, true);
-            // Get the BuildLoggers...all the children of the Log element should be
-            // BuildLogger implementations
-            // note: the doc specifies we only support merge elements. In fact we could support any sub-elements.
-            Iterator loggerIter = logElement.getChildren().iterator();
-            while (loggerIter.hasNext()) {
-                Element nextLoggerElement = (Element) loggerIter.next();
-                BuildLogger nextLogger = (BuildLogger) configurePlugin(nextLoggerElement, false);
-                nextLogger.validate();
-                log.addLogger(nextLogger);
-            }
+            log = (Log) configurePlugin(logElement, false);
         }
         if (log.getLogDir() == null) {
             final String defaultLogDir = "logs" + File.separatorChar + projectName;

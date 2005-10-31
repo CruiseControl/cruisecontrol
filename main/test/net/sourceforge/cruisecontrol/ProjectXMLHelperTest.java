@@ -394,6 +394,9 @@ public class ProjectXMLHelperTest extends TestCase {
         assertEquals("mylogs/logpreconfigured", log.getLogDir());
         assertEquals("utf128", log.getLogXmlEncoding());
         assertEquals("logpreconfigured", log.getProjectName());
+        
+        BuildLogger[] loggers = log.getLoggers();
+        assertEquals(2, loggers.length);
     }
 
     public void testGetListeners() throws CruiseControlException {
@@ -592,8 +595,12 @@ public class ProjectXMLHelperTest extends TestCase {
       config.append("  </project>\n");
       
       config.append("  <project name='logpreconfigured' >\n");
-      config.append("    <plugin name='log' dir='mylogs/${project.name}' encoding='utf128' />\n");
-      config.append("    <log/>\n");
+      config.append("    <plugin name='log' dir='mylogs/${project.name}' encoding='utf128' >\n");
+      config.append("      <merge dir='${project.name}/target/test-reports'/>\n");
+      config.append("    </plugin>\n");
+      config.append("    <log>\n");
+      config.append("      <merge dir='${project.name}/target/other-test-reports'/>\n");
+      config.append("    </log>\n");
       config.append("  </project>\n");
 
       config.append("</cruisecontrol>\n");
