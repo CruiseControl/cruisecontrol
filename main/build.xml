@@ -166,7 +166,7 @@
     <target name="compile-test" depends="compile"
         description="Compile test code">
 
-        <javac debug="on" deprecation="true" srcdir="${test}" fork="true" source="1.3" target="1.3"
+        <javac debug="on" deprecation="false" srcdir="${test}" fork="true" source="1.3" target="1.3"
             destdir="${test.classes}" excludes="**/*StarTeam*,**/*Sametime*"
             classpathref="project.runtime.classpath" />
 
