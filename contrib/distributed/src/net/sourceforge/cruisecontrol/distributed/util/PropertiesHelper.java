@@ -93,8 +93,10 @@ public final class PropertiesHelper {
     public static PluginXMLHelper createPluginXMLHelper(final String overrideTarget) {
         final ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
         if (overrideTarget != null && !"".equals(overrideTarget)) {
-            LOG.info("Setting Override Target on projectXMLHelper to: " + overrideTarget);
-            projectXMLHelper.setOverrideTarget(overrideTarget);
+            // @todo Does ProjectConfig/Schedule/Builder refactor handle this already???
+            LOG.info("!!!Ignoring Override Target on projectXMLHelper: " + overrideTarget);            
+            //LOG.info("Setting Override Target on projectXMLHelper to: " + overrideTarget);
+            //projectXMLHelper.setOverrideTarget(overrideTarget);
         }
         final PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
         return pluginXMLHelper;
