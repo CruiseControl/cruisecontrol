@@ -36,16 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
-import net.sourceforge.cruisecontrol.events.BuildProgressListener;
-import net.sourceforge.cruisecontrol.events.BuildResultEvent;
-import net.sourceforge.cruisecontrol.events.BuildResultListener;
-import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -57,6 +47,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
+import net.sourceforge.cruisecontrol.util.DateUtil;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * Represents a single logical project consisting of source code that needs to
@@ -234,16 +234,6 @@ public class Project implements Serializable, Runnable {
 
     void setBuildStartTime(Date date) {
         buildStartTime = date;
-    }
-
-    /**
-     * Returns just the filename from the File object, i.e. no path information
-     * included. So if the File instance represents c:\java\ant\build.xml
-     * this method will return build.xml.
-     */
-    public static String getSimpleFilename(File file) {
-        String fullPath = file.getAbsolutePath();
-        return fullPath.substring(fullPath.lastIndexOf(File.separator));
     }
 
     public void run() {
