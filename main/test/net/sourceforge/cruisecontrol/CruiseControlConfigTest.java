@@ -58,19 +58,44 @@ import java.net.URL;
 public class CruiseControlConfigTest extends TestCase {
 
     private CruiseControlConfig config;
-
     private File configFile;
     private File tempDirectory;
     private File propertiesFile;
+    private Level defaultThreshold;
 
     private static final int ONE_SECOND = 1000;
-    
-    public CruiseControlConfigTest(String name) {
-        super(name);
 
+    protected void setUp() throws Exception {
         // Turn off logging
         BasicConfigurator.configure();
+        defaultThreshold = Logger.getLogger(this.getClass()).getLoggerRepository().getThreshold();
         Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.ERROR);
+      
+        URL url;
+        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
+        propertiesFile = new File(url.getPath());
+
+        // Set up a CruiseControl config file for testing
+        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
+        configFile = new File(url.getPath());
+        tempDirectory = configFile.getParentFile();
+
+        Element rootElement = Util.loadConfigFile(configFile);
+        Properties globalProperties = new Properties();
+        globalProperties.put("test.properties.dir", propertiesFile.getParentFile().getAbsolutePath());
+        config = new CruiseControlConfig(globalProperties);
+        config.configure(rootElement);
+    }
+
+    protected void tearDown() {
+        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(defaultThreshold);
+      
+        // The directory "foo" in the system's temporary file location
+        // is created by CruiseControl when using the config file below.
+        // Specifically because of the line:
+        //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
+        File fooDirectory = new File(tempDirectory, "foo");
+        fooDirectory.delete();
     }
 
     public void testGetProjectNames() {
@@ -171,7 +196,7 @@ public class CruiseControlConfigTest extends TestCase {
                        props.getProperty("env.PATH"));
     }
 
-    // FIXME backport
+    // TODO backport
     /*
     public void testMissingProperty() {
         // there's in fact little need to check for both cases.
@@ -193,7 +218,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
     */
 
-    // FIXME this a test of the PluginHelper
+    // TODO this a test of the PluginHelper
     public void testGetPluginConfigNoOverride() throws Exception {
         ProjectConfig projConfig = config.getConfig("project1");
         PluginRegistry registry = config.getProjectPlugins("project1");
@@ -219,7 +244,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(null, plugin);
     }
 
-    // FIXME this a test of the PluginHelper
+    // TODO this a test of the PluginHelper
     public void testGetPluginConfig() throws Exception {
         ProjectConfig projConfig = config.getConfig("project4");
         PluginRegistry registry = config.getProjectPlugins("project4");
@@ -305,7 +330,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
     }
 
-    // FIXME DateFormat management was moved to Project.init()
+    // TODO DateFormat management was moved to Project.init()
     /*
     public void testDateFormat() throws Exception {
         final String originalFormat = DateFormatFactory.getFormat();
@@ -343,7 +368,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     public void testGetSchedule() throws CruiseControlException {
         ProjectConfig projConfig;
-        // FIXME
+        // TODO
         /*
         projConfig = config.getConfig("project1");
         try {
@@ -360,7 +385,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     public void testGetModificationSet() throws CruiseControlException {
         ProjectConfig projConfig;
-        // FIXME
+        // TODO
         /*
         projConfig = config.getConfig("project1");
         try {
@@ -427,31 +452,5 @@ public class CruiseControlConfigTest extends TestCase {
         projConfig = config.getConfig("project2");
         listeners = projConfig.getListeners();
         assertEquals(1, listeners.size());
-    }
-
-    protected void setUp() throws Exception {
-        URL url;
-        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
-        propertiesFile = new File(url.getPath());
-
-        // Set up a CruiseControl config file for testing
-        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
-        configFile = new File(url.getPath());
-        tempDirectory = configFile.getParentFile();
-
-        Element rootElement = Util.loadConfigFile(configFile);
-        Properties globalProperties = new Properties();
-        globalProperties.put("test.properties.dir", propertiesFile.getParentFile().getAbsolutePath());
-        config = new CruiseControlConfig(globalProperties);
-        config.configure(rootElement);
-  }
-
-    protected void tearDown() {
-        // The directory "foo" in the system's temporary file location
-        // is created by CruiseControl when using the config file below.
-        // Specifically because of the line:
-        //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
-        File fooDirectory = new File(tempDirectory, "foo");
-        fooDirectory.delete();
     }
 }

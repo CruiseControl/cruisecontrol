@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.MainArgs;
+
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Logger;
@@ -175,19 +176,13 @@ public class MainTest extends TestCase {
     public void testDeprecatedArgs() {
         String[] args = {"-port", "8000"};
 
-        Logger testLogger = Logger.getLogger(MainTest.class);
-        testLogger.removeAllAppenders();
-
         StringBufferAppender appender = new StringBufferAppender();
+        Logger testLogger = Logger.getLogger(Main.class);
         testLogger.addAppender(appender);
         Main.checkDeprecatedArguments(args, testLogger);
 
-        System.out.println("appender = " + appender);
-        System.out.println("appender.toString() = " + appender.toString());
-        
-        // TODO: figure out why this isn't working from command-line
-        //assertTrue(appender.toString().indexOf(
-        //        "WARNING: The port argument is deprecated. Use jmxport instead.") >= 0);
+        assertTrue(appender.toString().indexOf(
+                "WARNING: The port argument is deprecated. Use jmxport instead.") >= 0);
     }
 
     public static class StringBufferAppender implements Appender {
