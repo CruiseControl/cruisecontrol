@@ -194,7 +194,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
                 handleRootPlugin(childElement);
             } else if (isProject(nodeName)) {
                 handleProject(childElement);
-            } else {
+            } else if (!"system".equals(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
         }
