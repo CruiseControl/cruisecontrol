@@ -125,7 +125,7 @@ public final class Main {
         System.out.println("  -? or -help          print this usage message");
         System.out.println("");
         System.out.println("Options when using JMX");
-        System.out.println("  Note: JMX server only started if -jmxHttpPort and/or -rmiport specified");
+        System.out.println("  Note: JMX server only started if -jmxport and/or -rmiport specified");
         System.out.println("  -jmxport [number]  port of the JMX HttpAdapter; default 8000");
         System.out.println("  -rmiport [number]      RMI port of the Controller; default 1099");
         System.out.println("  -user username         username for HttpAdapter; default no login required");
