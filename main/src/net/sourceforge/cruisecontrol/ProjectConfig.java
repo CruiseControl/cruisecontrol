@@ -47,30 +47,6 @@ import java.util.Properties;
  */
 public class ProjectConfig {
 
-    public static class Bootstrappers {
-        private List bootstrappers = new ArrayList();
-        public void add(Bootstrapper bootstrapper) {
-            bootstrappers.add(bootstrapper);
-        }
-        public List getBootstrappers() { return bootstrappers; }
-    }
-
-    public static class Listeners {
-        private List listeners = new ArrayList();
-        public void add(Listener listener) {
-            listeners.add(listener);
-        }
-        public List getListeners() { return listeners; }
-    }
-
-    public static class Publishers {
-        private List publishers = new ArrayList();
-        public void add(Publisher publisher) {
-            publishers.add(publisher);
-        }
-        public List getPublishers() { return publishers; }
-    }
-
     private String name;
     private boolean buildAfterFailed;
     private CCDateFormat dateFormat;
@@ -102,7 +78,7 @@ public class ProjectConfig {
         this.name = name;
     }
 
-    // FIXME think about how to turn properties into plugins
+    // TODO think about how to turn properties into plugins
     void setProperties(Map properties) {
         this.properties = properties;
     }
@@ -172,4 +148,27 @@ public class ProjectConfig {
         return props;
     }
     
+    public static class Bootstrappers {
+        private List bootstrappers = new ArrayList();
+        public void add(Bootstrapper bootstrapper) {
+            bootstrappers.add(bootstrapper);
+        }
+        public List getBootstrappers() { return bootstrappers; }
+    }
+
+    public static class Listeners {
+        private List listeners = new ArrayList();
+        public void add(Listener listener) {
+            listeners.add(listener);
+        }
+        public List getListeners() { return listeners; }
+    }
+
+    public static class Publishers {
+        private List publishers = new ArrayList();
+        public void add(Publisher publisher) {
+            publishers.add(publisher);
+        }
+        public List getPublishers() { return publishers; }
+    }
 }
