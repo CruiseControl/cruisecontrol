@@ -107,6 +107,10 @@ tests:
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
 * Added "web" tests for the binary distribution. They are executed by the "webtest" target in release.xml.
 
+VSSJournal:
+------------
+* handle dirs with same prefix (CC-307).  Patch by Dan Rollo.
+
 XSLTag:
 ------------
 * Handle absolute path for logdir attribute (CC-341). Patch by Jerome Lacoste.
