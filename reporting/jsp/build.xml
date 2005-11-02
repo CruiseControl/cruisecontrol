@@ -192,6 +192,8 @@
                 <include name="xml-apis*.jar" if="pre1.4"/>
                 <include name="cewolf*.jar"/>
                 <include name="commons-logging*.jar"/>
+                <include name="jdom*.jar"/>
+                <include name="mx4j*.jar"/>
                 <include name="jfreechart*.jar"/>
                 <include name="jcommon*.jar"/>
                 <include name="batik-svggen*.jar"/>
