@@ -52,7 +52,6 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -77,26 +76,6 @@ public class ProjectTest extends TestCase {
 
     private Project project;
     private final List filesToClear = new ArrayList();
-
-    static class MockConfigManager implements ConfigManager {
-        private transient ProjectConfig projectConfig;
-
-        public MockConfigManager(ProjectConfig config) {
-            this.projectConfig = config;
-        }
-
-        public ProjectConfig getConfig(String projectName) throws CruiseControlException {
-            return projectConfig;
-        }
-
-        public Set getProjectNames() {
-            throw new UnsupportedOperationException("functionality not needed in this test");
-        }
-
-        public boolean reloadIfNecessary() {
-            throw new UnsupportedOperationException("functionality not needed in this test");
-        }
-    }
 
     public ProjectTest(String name) {
         super(name);
@@ -130,7 +109,7 @@ public class ProjectTest extends TestCase {
         projectConfig.add(listeners);
         // this for init to work only.
         projectConfig.add(new DefaultLabelIncrementer());
-        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.setProjectConfig(projectConfig);
         project.init();
         ProjectEvent event = new ProjectEvent("foo") {
         };
@@ -145,6 +124,7 @@ public class ProjectTest extends TestCase {
         MockSchedule sched = new MockSchedule();
 
         ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.add(sched);
 
         Log log = new Log();
@@ -168,7 +148,7 @@ public class ProjectTest extends TestCase {
         log.add(logger);
 
         projectConfig.add(modSet);
-        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.setProjectConfig(projectConfig);
 
         project.setLabel("1.2.2");
         project.setName("myproject");
@@ -266,8 +246,9 @@ public class ProjectTest extends TestCase {
     public void testPublish() throws CruiseControlException {
         MockSchedule sched = new MockSchedule();
         final ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.add(sched);
-        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.setProjectConfig(projectConfig);
 
         MockPublisher publisher = new MockPublisher();
         Publisher exceptionThrower = new MockPublisher() {
@@ -284,7 +265,6 @@ public class ProjectTest extends TestCase {
         projectConfig.add(publishers);
         project.setName("projectName");
         project.setLabel("label.1");
-        //Element element = project.getProjectPropertiesElement(new Date());
 
         projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.add(new Log());
@@ -329,7 +309,7 @@ public class ProjectTest extends TestCase {
         ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(modSet);
         projectConfig.add(new DefaultLabelIncrementer());
-        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.setProjectConfig(projectConfig);
         project.init();
 
         modSet.setModified(true);
@@ -386,7 +366,7 @@ public class ProjectTest extends TestCase {
         ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
         projectConfig.add(new DefaultLabelIncrementer());
-        mockProject.setConfigManager(new MockConfigManager(projectConfig));
+        mockProject.setProjectConfig(projectConfig);
         mockProject.init();
 
         new Thread(mockProject).start();
@@ -427,7 +407,7 @@ public class ProjectTest extends TestCase {
         };
         mockProject.overrideBuildInterval(1000);
         projectConfig.add(new DefaultLabelIncrementer());
-        mockProject.setConfigManager(new MockConfigManager(projectConfig));
+        mockProject.setProjectConfig(projectConfig);
         mockProject.init();
 
         new Thread(mockProject).start();
@@ -484,12 +464,16 @@ public class ProjectTest extends TestCase {
         assertEquals("Project foo: stopped (paused)", project.toString());
     }
 
-    public void testInit() throws CruiseControlException {
+    public void testInitShouldThrowExceptionWhenConfigNotSet() throws CruiseControlException {
         try {
             project.init();
         } catch (IllegalStateException expected) {
-            assertEquals("configManager must be set on project before calling init()", expected.getMessage());
+            assertEquals("projectConfig must be set on project before calling init()", expected.getMessage());
         }
+        
+        ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.setProjectConfig(projectConfig);
     }
 
     public void testSerialization() throws IOException {
@@ -532,7 +516,7 @@ public class ProjectTest extends TestCase {
         ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
         projectConfig.add(new DefaultLabelIncrementer());
-        beforeSerialization.setConfigManager(new MockConfigManager(projectConfig));
+        beforeSerialization.setProjectConfig(projectConfig);
         beforeSerialization.init();
 
         beforeSerialization.start();
@@ -553,6 +537,7 @@ public class ProjectTest extends TestCase {
         inObjects.close();
         TestProject deserializedProject = (TestProject) p;
         deserializedProject.resetCreateNewSchedulingThreadCalled();
+        deserializedProject.setProjectConfig(projectConfig);
         deserializedProject.start();
         assertTrue("failed to create schedule thread", deserializedProject.wasCreateNewSchedulingThreadCalled());
     }
@@ -573,7 +558,7 @@ public class ProjectTest extends TestCase {
         ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
         projectConfig.add(new DefaultLabelIncrementer());
-        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.setProjectConfig(projectConfig);
         project.init();
 
         // The returned time is dependent on the default timezone hence
@@ -600,7 +585,7 @@ public class ProjectTest extends TestCase {
         projectConfig.add(schedule);
 
         projectConfig.add(new DefaultLabelIncrementer());
-        project.setConfigManager(new MockConfigManager(projectConfig));
+        project.setProjectConfig(projectConfig);
 
         Calendar cal = Calendar.getInstance();
         cal.set(2001, Calendar.NOVEMBER, 22);
@@ -631,7 +616,7 @@ public class ProjectTest extends TestCase {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(time);
     }
 
-    class MockPublisher implements Publisher {
+    private class MockPublisher implements Publisher {
         private int publishCount = 0;
 
         public void validate() {
@@ -646,7 +631,7 @@ public class ProjectTest extends TestCase {
         }
     }
 
-    class MockListener implements Listener {
+    private class MockListener implements Listener {
         private boolean notified = false;
 
         public boolean wasNotified() {
@@ -661,7 +646,7 @@ public class ProjectTest extends TestCase {
         }
     }
     
-    static class TestProject extends Project {
+    private static class TestProject extends Project {
         private boolean createNewSchedulingThreadCalled = false;
 
         protected void createNewSchedulingThread() {

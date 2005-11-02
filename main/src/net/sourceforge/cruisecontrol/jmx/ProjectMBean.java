@@ -96,16 +96,6 @@ public interface ProjectMBean {
     public String getBuildStartTime();
 
     /**
-     * Change the name of the config file that the Project should read
-     * configuration information from
-     *
-     * @param fileName the name of the new config file
-     */
-    public void setConfigFileName(String fileName);
-
-    public String getConfigFileName();
-
-    /**
      * Change the Project label
      *
      * @param label a new label; should be valid for the current

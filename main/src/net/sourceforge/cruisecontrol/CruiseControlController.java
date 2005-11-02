@@ -184,7 +184,7 @@ public class CruiseControlController {
     protected Project configureProject(String projectName) throws CruiseControlException {
         Project project = readProject(projectName);
         project.setName(projectName);
-        project.setConfigManager(getConfigManager());
+        project.setProjectConfig(getConfigManager().getConfig(projectName));
         project.init();
         return project;
     }

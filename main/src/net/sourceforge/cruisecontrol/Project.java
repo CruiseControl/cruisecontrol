@@ -69,9 +69,6 @@ public class Project implements Serializable, Runnable {
 
     private transient ProjectState state;
 
-    private transient ConfigManager configManager;
-
-    // the config and the config elements that can be overriden
     private transient ProjectConfig projectConfig;
     private transient LabelIncrementer labelIncrementer;
 
@@ -109,8 +106,6 @@ public class Project implements Serializable, Runnable {
 
     private void initializeTransientFields() {
         state = ProjectState.STOPPED;
-
-        projectConfig = new ProjectConfig(); // FIXME initialize better (log, labelincrementer, schedule, ...)?
 
         pausedMutex = new Object();
         scheduleMutex = new Object();
@@ -411,6 +406,9 @@ public class Project implements Serializable, Runnable {
     }
 
     public void setLabelIncrementer(LabelIncrementer incrementer) throws CruiseControlException {
+        if (incrementer == null) {
+            throw new IllegalArgumentException("label incrementer can't be null");
+        }
         labelIncrementer = incrementer;
         if (label == null) {
             label = labelIncrementer.getDefaultLabel();
@@ -425,14 +423,6 @@ public class Project implements Serializable, Runnable {
     /** deprecated */
     public void setLogXmlEncoding(String encoding) {
         projectConfig.getLog().setEncoding(encoding);
-    }
-
-    public void setConfigManager(ConfigManager configManager) {
-        this.configManager = configManager;
-    }
-
-    public ConfigManager getConfigManager() {
-        return configManager;
     }
 
     public void setName(String projectName) {
@@ -572,12 +562,10 @@ public class Project implements Serializable, Runnable {
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
     protected void init() throws CruiseControlException {
-        if (configManager == null) {
-            throw new IllegalStateException("configManager must be set on project before calling init()");
+        if (projectConfig == null) {
+            throw new IllegalStateException("projectConfig must be set on project before calling init()");
         }
-
-        setProjectConfig(configManager.getConfig(name));
-
+        
         if (buildTarget != null) {
             // tell the helper to set the given buildTarget
             // on all Builders, just for this run (so we need to reset it)
@@ -792,11 +780,18 @@ public class Project implements Serializable, Runnable {
     }
 
     public void setProjectConfig(ProjectConfig projectConfig) throws CruiseControlException {
+        if (projectConfig == null) {
+            throw new IllegalArgumentException("project config can't be null");
+        }
         this.projectConfig = projectConfig;
         setLabelIncrementer(projectConfig.getLabelIncrementer());
     }
 
     void notifyListeners(ProjectEvent event) {
+        if (projectConfig == null) {
+            throw new IllegalStateException("projectConfig is null");
+        }
+        
         for (Iterator i = projectConfig.getListeners().iterator(); i.hasNext(); ) {
             Listener listener = (Listener) i.next();
             try {
@@ -826,4 +821,5 @@ public class Project implements Serializable, Runnable {
     public int hashCode() {
         return name.hashCode();
     }
+
 }
