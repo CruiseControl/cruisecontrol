@@ -371,6 +371,27 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(newRegistry.getPluginClassname("labelincrementer"), "my.global.Incrementer");
     }
 
+    public void testBuildLoggerValidate() throws IOException {
+        FileWriter configOut = new FileWriter(configFile);
+        writeHeader(configOut);
+        configOut.write("  <project name='buildlogger'>\n");
+        configOut.write("    <modificationset><alwaysbuild/></modificationset>\n");
+        configOut.write("    <schedule><ant/></schedule>\n");
+        configOut.write("    <log>\n");
+        configOut.write("      <merge/>\n");
+         configOut.write("    </log>\n");
+        configOut.write("  </project>\n");
+        writeFooterAndClose(configOut);
+
+        try {
+            ccController.setConfigFile(configFile);
+            fail("BuildLogger.validate() was not called");
+        } catch (CruiseControlException ccex) {
+            assertEquals("one of file or dir are required attributes",
+                    ccex.getMessage());
+        }
+    }
+
     private void writeHeader(FileWriter configOut) throws IOException {
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
