@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -111,6 +112,11 @@ public class Log {
         }
         if (logDir != null) {
             checkLogDirectory(logDir);
+        }
+
+        for (Iterator i = loggers.iterator(); i.hasNext();) {
+            BuildLogger logger = (BuildLogger) i.next();
+            logger.validate();
         }
     }
 
