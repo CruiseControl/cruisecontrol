@@ -47,7 +47,6 @@ import javax.management.ObjectName;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Project;
-import net.sourceforge.cruisecontrol.config.XMLConfigManager;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
@@ -142,14 +141,6 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     public boolean isPaused() {
         return project.isPaused();
-    }
-
-    public void setConfigFileName(String fileName) {
-        throw new UnsupportedOperationException("To change the config path, use the CruiseControlController bean");
-    }
-
-    public String getConfigFileName() {
-        return ((XMLConfigManager) project.getConfigManager()).getConfigFile().getAbsolutePath();
     }
 
     public void setLabel(String label) {

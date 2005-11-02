@@ -65,6 +65,10 @@ NavigationTag:
 --------------
 * Remove support for log files timestamped without a second part
 
+Project:
+----------------------
+* Remove methods to get/set config file from Project and corresponding jmx interface classes
+
 Schedule:
 ------------
 * Fix getTimeToNextBuild to adjust for daylight savings time (CC-104).
