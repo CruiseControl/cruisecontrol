@@ -147,9 +147,9 @@ public class Project implements Serializable, Runnable {
             build();
         } catch (CruiseControlException e) {
             LOG.error("exception attempting build in project " + name, e);
+        } finally {
+            buildFinished();
         }
-
-        buildFinished();
     }
 
     /**
