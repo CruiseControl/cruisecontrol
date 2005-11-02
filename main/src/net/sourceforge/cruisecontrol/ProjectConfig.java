@@ -42,7 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-/** A plugin that represents the project node
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+/** 
+ * A plugin that represents the project node
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class ProjectConfig {
@@ -71,6 +74,7 @@ public class ProjectConfig {
         if (dateFormat != null) {
              dateFormat.validate();
         }
+        ValidationHelper.assertTrue(schedule != null, "project requires a schedule");
         // ValidationHelper.assertHasChild(dateFormat, CCDateFormat.class, "dateformat", this.getClass());
     }
 
