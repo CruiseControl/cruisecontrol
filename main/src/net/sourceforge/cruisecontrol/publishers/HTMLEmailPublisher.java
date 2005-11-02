@@ -406,10 +406,11 @@ public class HTMLEmailPublisher extends EmailPublisher {
         url.append("log=");
         url.append(baseLogFileName);
 
+        // JDK-1.4: just append the url as a StringBuffer
         linkLine.append("View results here -> <a href=\"");
         linkLine.append(url.toString());
         linkLine.append("\">");
-        linkLine.append(url);
+        linkLine.append(url.toString());
         linkLine.append("</a>");
 
         return linkLine.toString();
