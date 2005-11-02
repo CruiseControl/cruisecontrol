@@ -37,6 +37,9 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import javax.management.InvalidAttributeValueException;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -52,8 +55,8 @@ public interface CruiseControlMBean {
     void setConfigFileName(String fileName) throws InvalidAttributeValueException;
 
     String getConfigFileContents();
-    void setConfigFileContents(String contents);
-    //void validateConfigFile(String contents);
+    void setConfigFileContents(String contents) throws CruiseControlException;
+    //void validateConfigFile(String contents) throws CruiseControlException;
     
     List getProjects();
 

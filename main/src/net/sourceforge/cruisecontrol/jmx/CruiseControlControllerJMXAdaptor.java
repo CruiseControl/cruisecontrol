@@ -43,6 +43,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -55,11 +56,14 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  *
@@ -120,7 +124,7 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
         return theResults.toString();
     }
     
-    public void setConfigFileContents(String contents) {
+    public void setConfigFileContents(String contents) throws CruiseControlException {
         
         File theConfigFile = controller.getConfigFile();
 
@@ -129,6 +133,8 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
             return;
         }
        
+        validateConfig(contents);
+        
         try {
             // ensure the file exists
             theConfigFile.mkdirs();
@@ -142,6 +148,15 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
         } catch (IOException ioe) {
             LOG.error("Error storing config file for JMX", ioe);
         }
+    }
+    
+    public void validateConfig(String contents) throws CruiseControlException {
+
+        StringReader theInputReader = new StringReader(contents);
+        
+        Element theConfigRoot = Util.parseConfig(theInputReader);
+        
+        new CruiseControlConfig().configure(theConfigRoot);
     }
     
     public void setConfigFileName(String fileName) throws InvalidAttributeValueException {
