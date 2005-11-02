@@ -62,38 +62,6 @@ public class CruiseControlControllerTest extends TestCase {
         ccController = new CruiseControlController();
     }
 
-    // makes sure the project is complete...
-    static class MockConfigManager extends XMLConfigManager {
-        public MockConfigManager(File file) throws CruiseControlException {
-            super(file);
-        }
-        public ProjectConfig getConfig(String projectName) throws CruiseControlException {
-            ProjectConfig config = super.getConfig(projectName);
-            // the projects we work with do not have schedules in them...
-            config.add(new Schedule());
-            return config;
-        }
-    }
-
-    // we need to lazy instanciate the config otherwise
-    // the MockConfigManager tries to read the file when being built.
-    class MockCruiseControlController extends CruiseControlController {
-        /*
-        ConfigManager configManager;
-
-        protected ConfigManager getConfigManager() {
-            if (configManager == null) {
-                try {
-                    configManager = new MockConfigManager(configFile);
-                } catch (CruiseControlException e) {
-                    throw new IllegalStateException("Failure to parsing configFile: " + configFile, e);
-                }
-            }
-            return configManager;
-        }
-        */
-    }
-
     public void tearDown() {
         if (configFile.exists()) {
             configFile.delete();
@@ -143,7 +111,7 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadSomeProjects() throws IOException, CruiseControlException {
-        ccController = new MockCruiseControlController();
+        ccController = new CruiseControlController();
 
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
@@ -157,7 +125,7 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void testLoadSomeProjectsWithDuplicates() throws IOException, CruiseControlException {
-        ccController = new MockCruiseControlController();
+        ccController = new CruiseControlController();
 
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
@@ -175,7 +143,7 @@ public class CruiseControlControllerTest extends TestCase {
 
     // FIXME this is a test for the XMLConfigManager
     public void testLoadSomeProjectsWithParametrizedNames() throws IOException, CruiseControlException {
-        ccController = new MockCruiseControlController();
+        ccController = new CruiseControlController();
 
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
@@ -217,7 +185,7 @@ public class CruiseControlControllerTest extends TestCase {
     public void testConfigReloading() throws IOException, CruiseControlException {
         MyListener listener = new MyListener();
 
-        ccController = new MockCruiseControlController();
+        ccController = new CruiseControlController();
 
         ccController.addListener(listener);
         FileWriter configOut = new FileWriter(configFile);
@@ -280,7 +248,7 @@ public class CruiseControlControllerTest extends TestCase {
     public void testConfigReloadingWithXmlInclude() throws IOException, CruiseControlException {
         MyListener listener = new MyListener();
 
-        ccController = new MockCruiseControlController();
+        ccController = new CruiseControlController();
 
         ccController.addListener(listener);
 
