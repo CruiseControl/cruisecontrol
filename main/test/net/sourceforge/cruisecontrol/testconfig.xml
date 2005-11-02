@@ -7,6 +7,12 @@
           classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin'
           string='default' otherstring='otherdefault'/>
 
+  <plugin name='project'>
+    <schedule interval='20' >
+      <ant multiple='1' buildfile='tmp/foo/bazz.xml' target='baz' />
+    </schedule>
+  </plugin>
+
   <project name='project1' />
 
   <project name='project2' >
