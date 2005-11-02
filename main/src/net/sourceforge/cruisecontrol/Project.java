@@ -69,7 +69,7 @@ public class Project implements Serializable, Runnable {
 
     private transient ProjectState state;
 
-    private ConfigManager configManager;
+    private transient ConfigManager configManager;
 
     // the config and the config elements that can be overriden
     private transient ProjectConfig projectConfig;
