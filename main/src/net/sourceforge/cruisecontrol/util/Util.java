@@ -36,6 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -45,13 +49,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.Properties;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 public final class Util {
 
@@ -71,14 +70,12 @@ public final class Util {
         }
     }
     
-    public static Element parseConfig(Reader aReader) throws CruiseControlException {
+    public static Element parseConfig(InputStream in) throws CruiseControlException {
         try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-            return builder.build(aReader).getRootElement();
+            SAXBuilder builder = new SAXBuilder();
+            return builder.build(in).getRootElement();
         } catch (Exception e) {
-            throw new CruiseControlException(
-                    "failed to parse configuration",
-                    e);
+            throw new CruiseControlException("failed to parse configuration", e);
         }
     }
     

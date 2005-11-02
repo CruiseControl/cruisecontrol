@@ -43,7 +43,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -152,11 +153,10 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
     
     public void validateConfig(String contents) throws CruiseControlException {
 
-        StringReader theInputReader = new StringReader(contents);
+        InputStream in = new ByteArrayInputStream(contents.getBytes());
+        Element config = Util.parseConfig(in);
         
-        Element theConfigRoot = Util.parseConfig(theInputReader);
-        
-        new CruiseControlConfig().configure(theConfigRoot);
+        new CruiseControlConfig().configure(config);
     }
     
     public void setConfigFileName(String fileName) throws InvalidAttributeValueException {
