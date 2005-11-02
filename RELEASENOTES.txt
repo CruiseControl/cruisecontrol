@@ -60,6 +60,10 @@ general:
 * Javadoc, code, and test deprecation cleanup. Patch by Brad Clarke.
 * New system property named "cruisecontrol.rmiport" set when -rmiport specified on the command line.
 
+JMX interface:
+--------
+* When setting the configuration contents via JMX, the contents are validated (CC-333). Patch by Allan Wick.
+
 LogFile:
 --------
 * Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn

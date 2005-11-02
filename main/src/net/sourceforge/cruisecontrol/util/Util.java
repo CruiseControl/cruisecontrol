@@ -45,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -69,7 +70,18 @@ public final class Util {
                     e);
         }
     }
-
+    
+    public static Element parseConfig(Reader aReader) throws CruiseControlException {
+        try {
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            return builder.build(aReader).getRootElement();
+        } catch (Exception e) {
+            throw new CruiseControlException(
+                    "failed to parse configuration",
+                    e);
+        }
+    }
+    
     /**
      * Deletes a File instance. If the file represents a directory, all
      * the subdirectories and files within.

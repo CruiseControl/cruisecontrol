@@ -499,6 +499,8 @@ public class ProjectTest extends TestCase {
         objects.writeObject(new Project());
         objects.flush();
         objects.close();
+
+        project.serializeProject();
     }
 
     public void testDeserialization() throws Exception {
