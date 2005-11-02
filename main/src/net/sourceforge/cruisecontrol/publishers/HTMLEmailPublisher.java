@@ -407,7 +407,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         url.append(baseLogFileName);
 
         linkLine.append("View results here -> <a href=\"");
-        linkLine.append(url);
+        linkLine.append(url.toString());
         linkLine.append("\">");
         linkLine.append(url);
         linkLine.append("</a>");
