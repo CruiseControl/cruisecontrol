@@ -98,8 +98,15 @@ public class VssJournalTest extends TestCase {
         element1.setSsDir("/somedir");
         assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
         // Should be case insensitive
-        assertTrue(element1.isInSsDir("$/SomeDir/Another/Directory/page.htm"));  
-        
+        assertTrue(element1.isInSsDir("$/SomeDir/Another/Directory/page.htm"));
+        // Should handle similarly prefixed folder names
+        assertFalse(element1.isInSsDir("$/somedirsimilar"));
+        assertFalse(element1.isInSsDir("$/somedirsimilar/sameprefix_longer/page.htm"));
+        assertFalse(element1.isInSsDir("$/some"));
+        assertFalse(element1.isInSsDir("$/some/sameprefix_shorter"));
+        // test for StringIndexOutOfBoundsException
+        assertTrue(element1.isInSsDir("$/somedir"));
+
         element1.setSsDir("/");
         assertTrue(element1.isInSsDir("$/anythingCouldBeHere/Blah/blah"));
     }
