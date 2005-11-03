@@ -41,23 +41,28 @@ import java.net.InetAddress;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
 import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.JDOMSearcher;
 
+import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import com.opensymphony.xwork.ActionSupport;
 
-public class ConfigurationServlet extends ActionSupport {
-    private Configuration configHelper;
-    private String project;
+public class CVSServlet extends ActionSupport {
+    private Configuration configuration;
 
-    public ConfigurationServlet() throws MalformedObjectNameException,
-            NumberFormatException, IOException {
+    private Element cvs;
+
+    public CVSServlet() throws MalformedObjectNameException,
+            NumberFormatException, IOException, AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
+            JDOMException {
         super();
 
         String jmxServer;
@@ -69,33 +74,85 @@ public class ConfigurationServlet extends ActionSupport {
 
         String rmiPort = System.getProperty("cruisecontrol.rmiport");
 
-        configHelper = new Configuration(jmxServer, Integer.parseInt(rmiPort));
+        configuration = new Configuration(jmxServer, Integer.parseInt(rmiPort));
+        cvs = JDOMSearcher.getElement(configuration.getDocument(), "cvs");
     }
 
-    public String execute() {
+    public String execute() throws Exception {
+        Document doc = configuration.getDocument();
+        Element parent = JDOMSearcher.getElement(doc,
+                cvs.getParentElement().getName());
+        cvs = detachElement(cvs);
+        parent.removeChild("cvs");
+        parent.addContent(cvs);
+        configuration.setConfiguration(doc);
+
         return SUCCESS;
     }
 
-    public String getConfiguration() throws AttributeNotFoundException,
-            InstanceNotFoundException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException, JDOMException {
-        return configHelper.getConfiguration();
+    public String getCvsroot() {
+        return getAttribute("cvsroot");
     }
 
-    public void setConfiguration(String configuration)
-            throws InstanceNotFoundException, AttributeNotFoundException,
-            InvalidAttributeValueException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException {
-        this.configHelper.setConfiguration(configuration);
+    public void setCvsroot(String cvsroot) {
+        setAttribute("cvsroot", cvsroot);
     }
 
-    public String getProject() {
-        return project;
+    public String getLocalWorkingCopy() {
+        return getAttribute("localWorkingCopy");
     }
 
-    public void setProject(String project) {
-        this.project = project;
+    public void setLocalWorkingCopy(String localWorkingCopy) {
+        setAttribute("localWorkingCopy", localWorkingCopy);
+    }
+
+    public String getModule() {
+        return getAttribute("module");
+    }
+
+    public void setModule(String module) {
+        setAttribute("module", module);
+    }
+
+    public String getProperty() {
+        return getAttribute("property");
+    }
+
+    public void setProperty(String property) {
+        setAttribute("property", property);
+    }
+
+    public String getPropertyOnDelete() {
+        return getAttribute("propertyOnDelete");
+    }
+
+    public void setPropertyOnDelete(String propertyOnDelete) {
+        setAttribute("propertyOnDelete", propertyOnDelete);
+    }
+
+    public String getTag() {
+        return getAttribute("tag");
+    }
+
+    public void setTag(String tag) {
+        setAttribute("tag", tag);
+    }
+    
+    private Element detachElement(Element element) {
+        Element parent = element.getParentElement();
+        if (parent != null) {
+            parent.removeContent(element);
+        }
+        return element;
+    }
+
+    private String getAttribute(String name) {
+        return cvs.getAttributeValue(name);
+    }
+
+    private void setAttribute(String name, String property) {
+        if (property != null && !("".equals(property))) {
+            cvs.setAttribute(name, property);
+        }
     }
 }

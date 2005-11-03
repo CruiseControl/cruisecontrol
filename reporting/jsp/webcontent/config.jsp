@@ -1,9 +1,6 @@
-<%@ page import="java.net.InetAddress"%>
-<%@ page import="java.io.IOException"%>
-<%@ page import="net.sourceforge.cruisecontrol.Configuration"%>
 <%--********************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
-* Copyright (c) 2001, ThoughtWorks, Inc.
+* Copyright (c) 2005 ThoughtWorks, Inc.
 * 651 W Washington Ave. Suite 600
 * Chicago, IL 60661 USA
 * All rights reserved.
@@ -38,47 +35,49 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************--%>
 <%@page errorPage="/error.jsp"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<%
-    String projectName = request.getPathInfo().substring(1);
-    String hostname = "";
-    try {
-        hostname = InetAddress.getLocalHost().getHostName();
-    } catch(IOException e) {
-        hostname = "localhost";
-    }
-    String rmiPort = System.getProperty("cruisecontrol.rmiport");
-
-    Configuration configuration = new Configuration(hostname, Integer.parseInt(rmiPort));
-%>
-
-<form action="ConfigurationServlet" id="<%= projectName %>-config" method="post">
-    <input type="hidden" name="projectName" value="<%=projectName%>"/>
-    <input type="hidden" name="jmxServer" value="<%=hostname%>"/>
-    <input type="hidden" name="rmiPort" value="<%=rmiPort%>"/>
-
-    <table xmlns="http://www.w3.org/TR/html4/strict.dtd" width="98%" border="0" cellspacing="0" cellpadding="2" align="center">
+<%@ taglib uri="webwork" prefix="ww"%>
+<html>
+<head>
+<title><ww:property value="project" /> Configuration</title>
+<link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
+</head>
+<body>
+<ww:form action="config" id="commons-math-config"
+    name="commons-math-config" method="post">
+    <table xmlns="http://www.w3.org/TR/html4/strict.dtd" width="98%"
+        border="0" cellspacing="0" cellpadding="2" align="center">
         <thead>
-            <%
-                String resultMsg = (String) session.getAttribute("resultMsg");
-                if (resultMsg != null && resultMsg.trim().length() > 0) {
-                    out.println("<tr><td class='config-resultmsg'>");
-                    out.println(resultMsg);
-                    out.println("</td></tr>");
-                    session.removeAttribute("resultMsg");
-                }
-            %>
+            <ww:if test="false">
+                <tr>
+                    <td class='config-resultmsg'></td>
+                </tr>
+            </ww:if>
             <tr>
-                <td class="config-sectionheader">
-                    <label for="configurationID">Configuration</label>
-                </td>
+                <td class="config-sectionheader"><label
+                    for="configurationID">Configuration</label></td>
             </tr>
         </thead>
         <tbody>
-            <tr><td>
-                <textarea name="configuration" id="configurationID" rows="24" cols="80"><%=configuration.getConfiguration()%></textarea>
-            </td></tr>
+            <tr>
+                <td>
+                    <ul>
+                        <li><a href="cvs.action">Configure source control</a></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><textarea name="configuration" id="configurationID"
+                    rows="24" cols="80"><ww:property
+                    value="configuration" /></textarea></td>
+            </tr>
         </tbody>
-        <tfoot><tr><td><input type="submit" name="configure" value="Configure" /></td></tr></tfoot>
+        <tfoot>
+            <tr>
+                <td><input type="submit" name="configure"
+                    value="Configure" /></td>
+            </tr>
+        </tfoot>
     </table>
-</form>
+</ww:form>
+</body>
+</html>

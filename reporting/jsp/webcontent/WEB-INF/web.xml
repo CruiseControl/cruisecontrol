@@ -101,13 +101,6 @@
     </servlet>
 
     <servlet>
-        <servlet-name>config</servlet-name>
-        <display-name>Project Configuration Page</display-name>
-        <description>JSP-based CruiseControl Project Configuration</description>
-        <jsp-file>/main.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
       <servlet-name>rss</servlet-name>
       <display-name>Build Result RSS Feed</display-name>
       <description>Presents build results in the RSS XML format.</description>
@@ -136,8 +129,14 @@
     </servlet>
 
     <servlet>
-        <servlet-name>ConfigurationServlet</servlet-name>
-        <servlet-class>net.sourceforge.cruisecontrol.servlet.ConfigurationServlet</servlet-class>
+        <servlet-name>webwork</servlet-name>
+        <servlet-class>com.opensymphony.webwork.dispatcher.ServletDispatcher</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>config</servlet-name>
+      <display-name>Project configuration UI</display-name>
+      <description>Wraps webwork configuration actions inside main page.</description>
+      <jsp-file>/main.jsp</jsp-file>
     </servlet>
 
     <!-- Used for charting... -->
@@ -168,6 +167,10 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>webwork</servlet-name>
+        <url-pattern>*.action</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>config</servlet-name>
         <url-pattern>/config/*</url-pattern>
     </servlet-mapping>
@@ -180,11 +183,6 @@
     <servlet-mapping>
         <servlet-name>index</servlet-name>
         <url-pattern>/index</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ConfigurationServlet</servlet-name>
-        <url-pattern>/ConfigurationServlet</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

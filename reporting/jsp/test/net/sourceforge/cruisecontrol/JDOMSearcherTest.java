@@ -34,68 +34,46 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.servlet;
+package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
-import net.sourceforge.cruisecontrol.Configuration;
-
+import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 
-import com.opensymphony.xwork.ActionSupport;
+import junit.framework.TestCase;
 
-public class ConfigurationServlet extends ActionSupport {
-    private Configuration configHelper;
-    private String project;
-
-    public ConfigurationServlet() throws MalformedObjectNameException,
-            NumberFormatException, IOException {
-        super();
-
-        String jmxServer;
-        try {
-            jmxServer = InetAddress.getLocalHost().getHostName();
-        } catch (IOException e) {
-            jmxServer = "localhost";
-        }
-
-        String rmiPort = System.getProperty("cruisecontrol.rmiport");
-
-        configHelper = new Configuration(jmxServer, Integer.parseInt(rmiPort));
+public class JDOMSearcherTest extends TestCase {
+    private Document doc;
+    private Element root = new Element("root");
+    private Element firstChild = new Element("first-child");
+    private Element subChild = new Element("sub-child");
+    
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        root.addContent(firstChild);
+        firstChild.addContent(subChild);
+        doc = new Document(root);
     }
 
-    public String execute() {
-        return SUCCESS;
+    public void testFindElement() throws Exception {
+        assertEquals(firstChild, JDOMSearcher.findElement(root, "first-child"));
+        assertEquals(subChild, JDOMSearcher.findElement(firstChild, "sub-child"));
+        assertEquals(subChild, JDOMSearcher.findElement(root, "sub-child"));
     }
 
-    public String getConfiguration() throws AttributeNotFoundException,
-            InstanceNotFoundException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
+    public void testGetElement() throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-        return configHelper.getConfiguration();
-    }
-
-    public void setConfiguration(String configuration)
-            throws InstanceNotFoundException, AttributeNotFoundException,
-            InvalidAttributeValueException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException {
-        this.configHelper.setConfiguration(configuration);
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
+        assertEquals(root, JDOMSearcher.getElement(doc, "root"));
+        assertEquals(firstChild, JDOMSearcher.getElement(doc, "first-child"));
+        assertEquals(subChild, JDOMSearcher.getElement(doc, "sub-child"));
     }
 }
