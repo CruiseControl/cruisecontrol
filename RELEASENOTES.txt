@@ -89,6 +89,7 @@ Configuration Editor:
 ----------------------
 * Created a browser based configuration editor, included in the reporting application.
 * RMI port and server dynamically set.
+* Initial, alpha quality, CVS element edit form, using webwork framework. Patch by Kent Spillner, with Paul Julius.
 
 CruiseControlLogFileFilter:
 ----------------------

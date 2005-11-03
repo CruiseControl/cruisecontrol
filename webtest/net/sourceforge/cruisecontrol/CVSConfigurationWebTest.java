@@ -38,35 +38,50 @@ package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.jwebunit.WebTestCase;
 
-public class ProjectConfigurationPageWebTest extends WebTestCase {
-    private static final String CONFIG_URL = "/cruisecontrol/config.action";
+public class CVSConfigurationWebTest extends WebTestCase {
+    private static final String CONFIG_URL = "/cruisecontrol/cvs.action";
 
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl("http://localhost:7854");
     }
 
-    public void testShouldLoadRawXMLConfigurationData() {
-        beginAt(CONFIG_URL);
+    public void testShouldBeAccessibleFromBasicConfigPage() throws Exception {
+        beginAt("/cruisecontrol/config.action");
+        assertLinkPresentWithText("Configure source control");
+        clickLinkWithText("Configure source control");
+        assertLinkPresentWithText("Return to project configuration");
+        clickLinkWithText("Return to project configuration");
         assertFormPresent("commons-math-config");
-        assertFormElementPresent("configuration");
-        assertTextPresent("<cruisecontrol>");
-        assertTextPresent("</cruisecontrol>");
     }
 
-    public void testShouldSaveChangesToXMLConfigurationData() throws Exception {
+    public void testShouldLoadCVSConfiguration() {
         beginAt(CONFIG_URL);
-        setWorkingForm("commons-math-config");
-
-        String origConfig = getDialog().getForm().getParameterValue("configuration");
-        setFormElement("configuration", origConfig
-                + "<!-- Hello, world! -->");
+        assertFormPresent("cvs");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("projects/jakarta-commons/math");
+        assertFormElementPresent("cvsroot");
+        assertFormElementPresent("module");
+        assertFormElementPresent("tag");
+        assertFormElementPresent("property");
+        assertFormElementPresent("propertyOnDelete");
+        assertSubmitButtonPresent("configure");
+    }
+    
+    public void testShouldSaveCVSConfiguration() throws Exception {
+        beginAt(CONFIG_URL);
+        setWorkingForm("cvs");
+        setFormElement("localWorkingCopy", "projects/jakarta-commons/cli");
         assertSubmitButtonPresent("configure");
         submit();
+        assertFormPresent("cvs");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("projects/jakarta-commons/cli");
+        clickLinkWithText("Return to project configuration");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("configuration");
         assertTextPresent("<cruisecontrol>");
         assertTextPresent("</cruisecontrol>");
-        assertTextPresent("<!-- Hello, world! -->");
+        assertTextPresent("<cvs localWorkingCopy=\"projects/jakarta-commons/cli\" />");
     }
 }

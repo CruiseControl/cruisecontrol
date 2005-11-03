@@ -39,13 +39,14 @@
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <%
     String ccname = System.getProperty("ccname", "");
+    String project = request.getPathInfo().substring(1);
 %>
 <html>
 <head>
   <title><%= ccname%> CruiseControl Build Results</title>
   <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <link type="application/rss+xml" rel="alternate" href="rss/<%= request.getPathInfo().substring(1) %>" title="RSS"/>
+  <link type="application/rss+xml" rel="alternate" href="rss/<%= project %>" title="RSS"/>
 </head>
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
@@ -74,8 +75,8 @@
                 <%@ include file="metrics.jsp" %>
               </cruisecontrol:tab>
 
-              <cruisecontrol:tab name="config" label="Config" >
-                <%@ include file="config.jsp" %>
+              <cruisecontrol:tab name="config" label="Config">
+                <iframe src="config.action?project=<%= project %>" width="90%" height="600"></iframe>
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >

@@ -1,0 +1,16 @@
+<!DOCTYPE xwork PUBLIC "-//OpenSymphony Group//XWork 1.0//EN"
+	"http://www.opensymphony.com/xwork/xwork-1.0.dtd">
+<xwork>
+    <include file="webwork-default.xml"/>
+    <package name="default" extends="webwork-default">
+        <default-interceptor-ref name="completeStack"/>
+
+        <action name="config" class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet">
+            <result name="success">config.jsp</result>
+        </action>
+        <action name="cvs" class="net.sourceforge.cruisecontrol.servlet.CVSServlet">
+            <result name="input">cvs.jsp</result>
+            <result name="success">cvs.jsp</result>
+        </action>
+    </package>
+</xwork>

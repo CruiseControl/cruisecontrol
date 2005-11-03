@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2005, ThoughtWorks, Inc.
+ * Copyright (c) 2005 ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -36,11 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.management.Attribute;
 import javax.management.AttributeNotFoundException;
@@ -55,23 +55,29 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 public class Configuration {
 
     private MBeanServerConnection server;
+
     private ObjectName ccMgr;
 
-    public Configuration(String jmxServer, int rmiPort) throws IOException, MalformedObjectNameException {
-        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://" + jmxServer + ":" + rmiPort + "/jndi/jrmp");
+    public Configuration(String jmxServer, int rmiPort) throws IOException,
+            MalformedObjectNameException {
+        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://"
+                + jmxServer + ":" + rmiPort + "/jndi/jrmp");
 
         Map environment = new HashMap();
-        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        environment.put(Context.PROVIDER_URL, "rmi://" + jmxServer + ":" + rmiPort);
+        environment.put(Context.INITIAL_CONTEXT_FACTORY,
+                "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        environment.put(Context.PROVIDER_URL, "rmi://" + jmxServer + ":"
+                + rmiPort);
 
         JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
         server = cntor.getMBeanServerConnection();
@@ -81,11 +87,7 @@ public class Configuration {
     public String getConfiguration() throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-
-        String xml = (String) server.getAttribute(ccMgr, "ConfigFileContents");
-        Document doc = new SAXBuilder().build(new StringReader(xml));
-        xml = new XMLOutputter(Format.getPrettyFormat()).outputString(doc);
-        return xml.trim();
+        return docToString(getDocument());
     }
 
     public void setConfiguration(String configuration)
@@ -94,5 +96,26 @@ public class Configuration {
             ReflectionException, IOException {
         server.setAttribute(ccMgr, new Attribute("ConfigFileContents",
                 URLDecoder.decode(configuration)));
+    }
+
+    public void setConfiguration(Document doc)
+            throws InstanceNotFoundException, AttributeNotFoundException,
+            InvalidAttributeValueException, MBeanException,
+            ReflectionException, IOException, JDOMException {
+        setConfiguration(docToString(doc));
+    }
+
+    public Document getDocument() throws MBeanException,
+            AttributeNotFoundException, InstanceNotFoundException,
+            ReflectionException, IOException, JDOMException {
+        String xml = (String) server.getAttribute(ccMgr, "ConfigFileContents");
+        return new SAXBuilder().build(new StringReader(xml));
+    }
+
+    private String docToString(Document doc) throws MBeanException,
+            AttributeNotFoundException, InstanceNotFoundException,
+            ReflectionException, IOException, JDOMException {
+        return new XMLOutputter(Format.getPrettyFormat()).outputString(doc)
+                .trim();
     }
 }

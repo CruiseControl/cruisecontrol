@@ -34,68 +34,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.servlet;
+package net.sourceforge.cruisecontrol;
 
-import java.io.IOException;
-import java.net.InetAddress;
+import junit.framework.TestCase;
+import org.jdom.JDOMException;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
+import java.io.IOException;
 
-import net.sourceforge.cruisecontrol.Configuration;
+public class ConfigurationTest extends TestCase {
+    private Configuration configuration;
 
-import org.jdom.JDOMException;
+    protected void setUp() throws Exception {
+        super.setUp();
 
-import com.opensymphony.xwork.ActionSupport;
-
-public class ConfigurationServlet extends ActionSupport {
-    private Configuration configHelper;
-    private String project;
-
-    public ConfigurationServlet() throws MalformedObjectNameException,
-            NumberFormatException, IOException {
-        super();
-
-        String jmxServer;
-        try {
-            jmxServer = InetAddress.getLocalHost().getHostName();
-        } catch (IOException e) {
-            jmxServer = "localhost";
-        }
-
-        String rmiPort = System.getProperty("cruisecontrol.rmiport");
-
-        configHelper = new Configuration(jmxServer, Integer.parseInt(rmiPort));
+        configuration = new Configuration("localhost", 7856);
     }
 
-    public String execute() {
-        return SUCCESS;
-    }
-
-    public String getConfiguration() throws AttributeNotFoundException,
-            InstanceNotFoundException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
+    public void testGetConfiguration() throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-        return configHelper.getConfiguration();
+        String contents = getContents();
+        String xmlHdr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        assertTrue(contents.indexOf(xmlHdr) == 0);
+        assertTrue(contents.indexOf("<cruisecontrol>") != -1);
+        assertTrue(contents.indexOf("</cruisecontrol>") != -1);
     }
 
-    public void setConfiguration(String configuration)
-            throws InstanceNotFoundException, AttributeNotFoundException,
-            InvalidAttributeValueException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException {
-        this.configHelper.setConfiguration(configuration);
+    public void testSetConfiguration() throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException, JDOMException, InvalidAttributeValueException {
+        String addContent = "<!-- Hello, world! -->";
+        configuration.setConfiguration(getContents() + addContent);
+        assertTrue(getContents().indexOf(addContent) != -1);
     }
 
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
+    private String getContents() throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException, JDOMException {
+        return configuration.getConfiguration();
     }
 }

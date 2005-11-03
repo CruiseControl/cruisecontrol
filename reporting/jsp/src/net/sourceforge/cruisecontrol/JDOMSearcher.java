@@ -34,68 +34,46 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.servlet;
+package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
-import net.sourceforge.cruisecontrol.Configuration;
-
+import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 
-import com.opensymphony.xwork.ActionSupport;
+public final class JDOMSearcher {
+    
+    private JDOMSearcher() {
+    }
+    
+    public static Element getElement(Document doc, String name)
+            throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException, JDOMException {
+        return findElement(doc.getRootElement(), name);
+    }
 
-public class ConfigurationServlet extends ActionSupport {
-    private Configuration configHelper;
-    private String project;
-
-    public ConfigurationServlet() throws MalformedObjectNameException,
-            NumberFormatException, IOException {
-        super();
-
-        String jmxServer;
-        try {
-            jmxServer = InetAddress.getLocalHost().getHostName();
-        } catch (IOException e) {
-            jmxServer = "localhost";
+    protected static Element findElement(Element parent, String name) {
+        if (parent.getName().equals(name)) {
+            return parent;
         }
 
-        String rmiPort = System.getProperty("cruisecontrol.rmiport");
+        List children = parent.getChildren();
+        for (Iterator i = children.iterator(); i.hasNext();) {
+            Element child = (Element) i.next();
+            Element tmp = findElement(child, name);
+            if (tmp != null) {
+                return tmp;
+            }
+        }
 
-        configHelper = new Configuration(jmxServer, Integer.parseInt(rmiPort));
-    }
-
-    public String execute() {
-        return SUCCESS;
-    }
-
-    public String getConfiguration() throws AttributeNotFoundException,
-            InstanceNotFoundException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException, JDOMException {
-        return configHelper.getConfiguration();
-    }
-
-    public void setConfiguration(String configuration)
-            throws InstanceNotFoundException, AttributeNotFoundException,
-            InvalidAttributeValueException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException {
-        this.configHelper.setConfiguration(configuration);
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
+        return null;
     }
 }
