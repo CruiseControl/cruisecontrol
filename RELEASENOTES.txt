@@ -14,7 +14,7 @@ contrib:
 * updated distributed/README.html to indicate that downloading the JINI jars is no longer required, but jdk1.4+ is. Patch by Dan Rollo.
 
 release.xml:
-------------
+----------------------
 * New targets "deploy-server" and "kill-server" for starting/killing the binary release on a testing port.
 * Added "web" tests for the binary distribution. They are executed by the "webtest" target in release.xml.
 * Exclude pre-built binaries from source distribution and rename zip to include "src" in the name (CC-336). 
@@ -23,7 +23,7 @@ build loop
 ======================
 
 AntBuilder:
------------
+----------------------
 * Fails with an explicit error message if the ant log is empty instead of a XML parse Error on line -1: Premature end of file. Patch by Jerome Lacoste.
 * Warn that jvmargs are ignored when specifing anthome
 
@@ -54,15 +54,15 @@ general:
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
 
 JMX interface:
---------
+----------------------
 * When setting the configuration contents via JMX, the contents are validated (CC-333). Patch by Allan Wick.
 
 MergeLogger:
-------------
+----------------------
 * cleanly skip non existing log files and directories
 
 NavigationTag:
---------------
+----------------------
 * Remove support for log files timestamped without a second part
 
 Project:
@@ -70,15 +70,15 @@ Project:
 * Remove methods to get/set config file from Project and corresponding jmx interface classes
 
 Schedule:
-------------
+----------------------
 * Fix getTimeToNextBuild to adjust for daylight savings time (CC-104).
 
 SfeeFrsPublisher:
-------------
+----------------------
 * A new publisher for uploading files to a SourceForge Enterprise Edition's File Release System.
 
 VSSJournal:
-------------
+----------------------
 * handle dirs with same prefix (CC-307).  Patch by Dan Rollo.
 
 reporting jsp app
@@ -90,7 +90,7 @@ Configuration Editor:
 * RMI port and server dynamically set.
 
 CruiseControlLogFileFilter:
----------------------------
+----------------------
 * Only accept files with at least 16 characters ('log' + date pattern + extension)
 
 CruiseControlTagSupport:
@@ -98,25 +98,25 @@ CruiseControlTagSupport:
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
 
 LogFile:
---------
+----------------------
 * Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn
 * Serializable so that the Metrics tab in the reporting application will work. Patch by Dan Rollo.
 
 LogFileServlet:
----------------
+----------------------
 * Extract the log file serving specific code from FileServlet into a new subclass
 
 Reporting:
-------------
+----------------------
 * Added a "Run Build" button to the project status page.
 * Added script to detect if we are framed/iframed in, as is the case with SFEE integration, to add the cruise stylesheet into those loaded by the parent page.
 
 TabSheet:
-------------
+----------------------
 * Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjørn
 
 XSLTag:
-------------
+----------------------
 * Handle absolute path for logdir attribute (CC-341). Patch by Jerome Lacoste.
 * Empty cache files left over from a failed transformation are not considered current and are regenerated. Patch by Hack Kampbjørn
 
