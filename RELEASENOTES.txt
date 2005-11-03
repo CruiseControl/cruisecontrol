@@ -7,6 +7,7 @@ CruiseControl Release Notes - Latest CVS
 Binary release:
 ----------------------
 * cruisecontrol.bat no longer sets ANT_HOME (CC-348).
+* cruisecontrol reporting application now started under root context, for example http://localhost:8080 will now show the reporting app. "cruisecontrol" context supported for backwards compatability, for example http://localhost:8080/cruisecontrol. Patch by Kent Spillner.
 
 contrib:
 ----------------------
