@@ -195,8 +195,8 @@
             <arg line="/c cruisecontrol.bat -webport 7854 -jmxport 7855 -rmiport 7856"/>
         </exec>
 
-        <exec dir="target/webtest/cruisecontrol-bin-${cc.release.label}" executable="cruisecontrol.sh" os="Linux, Solaris, SunOS, Mac OS X">
-            <arg line="-webport 7854 -jmxport 7855 -rmiport 7856"/>
+        <exec dir="target/webtest/cruisecontrol-bin-${cc.release.label}" executable="/bin/sh" os="Linux, Solaris, SunOS, Mac OS X">
+            <arg line="cruisecontrol.sh -webport 7854 -jmxport 7855 -rmiport 7856"/>
         </exec>
     </target>
 
