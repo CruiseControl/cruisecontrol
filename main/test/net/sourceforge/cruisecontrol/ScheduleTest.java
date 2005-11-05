@@ -100,10 +100,10 @@ public class ScheduleTest extends TestCase {
     protected void setUp() {
         schedule = new Schedule();
 
-        schedule.addBuilder(NOON_BUILDER);
-        schedule.addBuilder(MIDNIGHT_BUILDER);
-        schedule.addBuilder(MULTIPLE_5);
-        schedule.addBuilder(MULTIPLE_1);
+        schedule.add(NOON_BUILDER);
+        schedule.add(MIDNIGHT_BUILDER);
+        schedule.add(MULTIPLE_5);
+        schedule.add(MULTIPLE_1);
         
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
@@ -148,8 +148,8 @@ public class ScheduleTest extends TestCase {
         assertEquals(MIDNIGHT_BUILDER, timeBuildAcrossDays);
 
         Schedule timeBasedSchedule = new Schedule();
-        timeBasedSchedule.addBuilder(NOON_BUILDER);
-        timeBasedSchedule.addBuilder(MIDNIGHT_BUILDER);
+        timeBasedSchedule.add(NOON_BUILDER);
+        timeBasedSchedule.add(MIDNIGHT_BUILDER);
 
         Builder nextTimeBuilder = timeBasedSchedule.selectBuilder(3, THURSDAY_1001, THURSDAY_1101);
         assertEquals(NOON_BUILDER, nextTimeBuilder);
@@ -166,13 +166,13 @@ public class ScheduleTest extends TestCase {
         Builder thursdayBuilder = new MockBuilder();
         thursdayBuilder.setDay("thursday");
         Schedule scheduledByDay = new Schedule();
-        scheduledByDay.addBuilder(thursdayBuilder);
+        scheduledByDay.add(thursdayBuilder);
         assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, THURSDAY_1101));
         assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));        
 
         Builder fridayBuilder = new MockBuilder();
         fridayBuilder.setDay("friday");
-        scheduledByDay.addBuilder(fridayBuilder);
+        scheduledByDay.add(fridayBuilder);
         assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, THURSDAY_1101));
         assertEquals(fridayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));
     }
@@ -183,7 +183,7 @@ public class ScheduleTest extends TestCase {
         thursdayBuilder.setTime("1120");
         thursdayBuilder.setDay("thursday");
         Schedule scheduledByDay = new Schedule();
-        scheduledByDay.addBuilder(thursdayBuilder);
+        scheduledByDay.add(thursdayBuilder);
 
         Calendar oct272005 = Calendar.getInstance();
         oct272005.set(2005, Calendar.OCTOBER, 27);
@@ -198,7 +198,7 @@ public class ScheduleTest extends TestCase {
         PauseBuilder pauseBuilder = new PauseBuilder();
         pauseBuilder.setStartTime(2300);
         pauseBuilder.setEndTime(2359);
-        schedule.addPauseBuilder(pauseBuilder);
+        schedule.add(pauseBuilder);
 
         assertEquals(schedule.isPaused(THURSDAY_2301), true);
         assertEquals(schedule.isPaused(THURSDAY_1101), false);
@@ -212,7 +212,7 @@ public class ScheduleTest extends TestCase {
         PauseBuilder pause = new PauseBuilder();
         pause.setStartTime(2300);
         pause.setEndTime(2359);
-        schedule.addPauseBuilder(pause);
+        schedule.add(pause);
 
         assertEquals(
             "next time build > build interval",
@@ -242,7 +242,7 @@ public class ScheduleTest extends TestCase {
         pause = new PauseBuilder();
         pause.setStartTime(0000);
         pause.setEndTime(100);
-        schedule.addPauseBuilder(pause);
+        schedule.add(pause);
 
         assertEquals(
             "wait till after pause on next day",
@@ -258,7 +258,7 @@ public class ScheduleTest extends TestCase {
         pause.setStartTime(0000);
         pause.setEndTime(2359);
         pause.setDay("friday");
-        schedule.addPauseBuilder(pause);
+        schedule.add(pause);
 
         assertEquals(
             "chained pauses with day specific pause",
@@ -270,7 +270,7 @@ public class ScheduleTest extends TestCase {
         Schedule intervalThursdaysSchedule = new Schedule();
         Builder intervalThursdays = new MockBuilder();
         intervalThursdays.setDay("thursday");
-        intervalThursdaysSchedule.addBuilder(intervalThursdays);
+        intervalThursdaysSchedule.add(intervalThursdays);
         assertEquals(ONE_MINUTE, intervalThursdaysSchedule.getTimeToNextBuild(THURSDAY_2301, ONE_MINUTE));
         assertEquals(6 * ONE_DAY + ONE_HOUR - ONE_MINUTE,
                 intervalThursdaysSchedule.getTimeToNextBuild(THURSDAY_2301, ONE_HOUR));
@@ -289,7 +289,7 @@ public class ScheduleTest extends TestCase {
         PauseBuilder alwaysPaused = new PauseBuilder();
         alwaysPaused.setStartTime(0000);
         alwaysPaused.setEndTime(2359);
-        badSchedule.addPauseBuilder(alwaysPaused);
+        badSchedule.add(alwaysPaused);
 
         assertEquals(
             "pause doesn't exceed maximum interval",
@@ -299,7 +299,7 @@ public class ScheduleTest extends TestCase {
     
     public void testGetTimeToNextBuild_DailyBuild() {
         Schedule dailyBuildSchedule = new Schedule();
-        dailyBuildSchedule.addBuilder(NOON_BUILDER);
+        dailyBuildSchedule.add(NOON_BUILDER);
 
         assertEquals(
             "ignore interval when only time builds",
@@ -310,7 +310,7 @@ public class ScheduleTest extends TestCase {
         pause.setStartTime(0000);
         pause.setEndTime(2359);
         pause.setDay("friday");
-        dailyBuildSchedule.addPauseBuilder(pause);
+        dailyBuildSchedule.add(pause);
 
         assertEquals(
             "pause w/only time builder",
@@ -323,7 +323,7 @@ public class ScheduleTest extends TestCase {
         Builder weeklyBuilder = new MockBuilder();
         weeklyBuilder.setTime("0100");
         weeklyBuilder.setDay("Sunday");
-        schedule.addBuilder(weeklyBuilder);
+        schedule.add(weeklyBuilder);
 
         assertEquals((ONE_DAY * 2) + ONE_HOUR,
                 schedule.getTimeToNextBuild(FRIDAY_0000, ONE_MINUTE));
@@ -335,7 +335,7 @@ public class ScheduleTest extends TestCase {
         thursdayBuilder.setTime("1120");
         thursdayBuilder.setDay("thursday");
         Schedule scheduledByDay = new Schedule();
-        scheduledByDay.addBuilder(thursdayBuilder);
+        scheduledByDay.add(thursdayBuilder);
 
         Calendar oct272005 = Calendar.getInstance();
         oct272005.set(2005, Calendar.OCTOBER, 27);
@@ -355,7 +355,7 @@ public class ScheduleTest extends TestCase {
             }
         };
         monthlyBuilder.setTime("0000");
-        schedule.addBuilder(monthlyBuilder);
+        schedule.add(monthlyBuilder);
 
         assertEquals(ONE_DAY * 30,
                 schedule.getTimeToNextBuild(FRIDAY_0000, ONE_MINUTE));
@@ -377,7 +377,7 @@ public class ScheduleTest extends TestCase {
         } catch (CruiseControlException e) {
         }
 
-        schedule.addBuilder(MULTIPLE_1);
+        schedule.add(MULTIPLE_1);
         schedule.validate();
 
         long oneYearInSeconds = 60 * 60 * 24 * 365;

@@ -130,8 +130,8 @@ public class ModificationSetTest extends TestCase {
         MockSourceControl mock2 = new MockSourceControl();
         mock2.setType(2);
 
-        modSet.addSourceControl(mock1);
-        modSet.addSourceControl(mock2);
+        modSet.add(mock1);
+        modSet.add(mock2);
 
         Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
 
@@ -184,7 +184,7 @@ public class ModificationSetTest extends TestCase {
 
         assertEquals(mod1.modifiedTime.getTime(), modSet.getLastModificationMillis(result));
 
-        modSet.addSourceControl(new MockSourceControl() {
+        modSet.add(new MockSourceControl() {
             public List getModifications(Date lastBuild, Date now) {
                 return result;
             }
@@ -207,8 +207,8 @@ public class ModificationSetTest extends TestCase {
         MockSourceControl mock2 = new MockSourceControl();
         mock2.setType(2);
 
-        modSet.addSourceControl(mock1);
-        modSet.addSourceControl(mock2);
+        modSet.add(mock1);
+        modSet.add(mock2);
 
         modSet.getModifications(new Date()); //mock source controls don't care about the date
 
@@ -225,8 +225,8 @@ public class ModificationSetTest extends TestCase {
         mock1.setProperty("property");
         mock2.setPropertyOnDelete("propertyOnDelete");
 
-        modSet.addSourceControl(mock1);
-        modSet.addSourceControl(mock2);
+        modSet.add(mock1);
+        modSet.add(mock2);
 
         modSet.getModifications(new Date()); //mock source controls don't care about the date
 
@@ -242,7 +242,7 @@ public class ModificationSetTest extends TestCase {
         mock1.setType(1);
         mock1.setProperty("property");
 
-        modSet.addSourceControl(mock1);
+        modSet.add(mock1);
         modSet.getModifications(new Date()); //mock source controls don't care about the date
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -257,7 +257,7 @@ public class ModificationSetTest extends TestCase {
         } catch (CruiseControlException e) {
         }
 
-        modSet.addSourceControl(new Vss());
+        modSet.add(new Vss());
         modSet.validate();
     }
 
