@@ -249,6 +249,28 @@ public class ProjectTest extends TestCase {
         project.build();
     }
     
+    public void testBuildRequiresSchedule() throws CruiseControlException {
+        project.start();
+        project.init();
+        try {
+            project.build();
+            fail();
+        } catch (IllegalStateException expected) {
+            assertEquals("project must have a schedule", expected.getMessage());
+        }
+    }
+    
+    public void testBuildWithMinimumConfig() throws CruiseControlException {
+        Schedule schedule = new Schedule();
+        schedule.add(new MockBuilder());
+        projectConfig.add(schedule);
+        projectConfig.add(new MockLog());
+        project.start();
+        project.setBuildForced(true);
+        project.init();
+        project.build();
+    }
+    
     public void testBadLabel() {
         try {
             project.validateLabel("build_0", projectConfig.getLabelIncrementer());
@@ -339,6 +361,12 @@ public class ProjectTest extends TestCase {
         assertEquals(null, project.getModifications());
 
         // TODO: need tests for when lastBuildSuccessful = false
+    }
+    
+    public void testGetModifications_NoModificationElementRequired() {
+        assertNull(project.getModifications());
+        project.setBuildForced(true);
+        assertNotNull(project.getModifications());
     }
 
     public void testCheckOnlySinceLastBuild() throws CruiseControlException {
@@ -656,5 +684,12 @@ public class ProjectTest extends TestCase {
         void resetCreateNewSchedulingThreadCalled() {
             createNewSchedulingThreadCalled = false;
         }
+    }
+    
+    private class MockLog extends Log {
+
+        public void writeLogFile(Date now) throws CruiseControlException {
+        }
+        
     }
 }
