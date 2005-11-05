@@ -15,9 +15,6 @@ import java.util.Date;
  * Writes an HTML snippet in a file (typically in a location where the reporting module can read it), indicating
  * the current build status.
  *
- * Obsoletes both {@link net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper}
- * and {@link net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher}
- *
  * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
  * 
  * @see net.sourceforge.cruisecontrol.DateFormatFactory
