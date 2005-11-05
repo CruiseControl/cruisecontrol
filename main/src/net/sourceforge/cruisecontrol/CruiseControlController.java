@@ -82,16 +82,16 @@ public class CruiseControlController {
     }
 
     public void setConfigFile(File configFile) throws CruiseControlException {
-        // TODO: we could optimize here
-        // only reparse if, configFile != old or file has changed.
-        this.configFile = configFile;
-
         if (configFile == null) {
             throw new CruiseControlException("No config file");
         }
         if (!configFile.exists()) {
             throw new CruiseControlException("Config file not found: " + configFile.getAbsolutePath());
         }
+
+        // TODO: we could optimize here
+        // only reparse if, configFile != old or file has changed.
+        this.configFile = configFile;
 
         configManager = new XMLConfigManager(configFile);
 
