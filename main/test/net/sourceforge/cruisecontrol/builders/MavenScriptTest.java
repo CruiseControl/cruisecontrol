@@ -42,7 +42,6 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggerRepository;
@@ -105,7 +104,6 @@ public class MavenScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgsWithDebug() throws CruiseControlException {
-      BasicConfigurator.configure();
       Logger logger = Logger.getLogger(MavenScript.class);
       LoggerRepository loggerRepository = logger.getLoggerRepository();
       Level threshold = loggerRepository.getThreshold();
