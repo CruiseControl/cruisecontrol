@@ -75,6 +75,7 @@ public class ProjectTest extends TestCase {
     private static final String TEST_DIR = "tmp";
 
     private Project project;
+    private ProjectConfig projectConfig;
     private final List filesToClear = new ArrayList();
 
     public ProjectTest(String name) {
@@ -84,14 +85,21 @@ public class ProjectTest extends TestCase {
         BasicConfigurator.configure();
     }
 
-    protected void setUp() {
+    protected void setUp() throws CruiseControlException {
         project = new Project();
         project.setName("TestProject");
+        
+        projectConfig = new ProjectConfig();
+        projectConfig.add(new DefaultLabelIncrementer());
+        project.setProjectConfig(projectConfig);
+        
         LOG4J.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void tearDown() {
+        project.stop();
         project = null;
+        projectConfig = null;
 
         LOG4J.getLoggerRepository().setThreshold(Level.ALL);
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
@@ -101,15 +109,12 @@ public class ProjectTest extends TestCase {
     }
 
     public void testNotifyListeners() throws CruiseControlException {
-        ProjectConfig projectConfig = new ProjectConfig();
 
         MockListener listener = new MockListener();
         ProjectConfig.Listeners listeners = new ProjectConfig.Listeners();
         listeners.add(listener);
         projectConfig.add(listeners);
         // this for init to work only.
-        projectConfig.add(new DefaultLabelIncrementer());
-        project.setProjectConfig(projectConfig);
         project.init();
         ProjectEvent event = new ProjectEvent("foo") {
         };
@@ -122,9 +127,6 @@ public class ProjectTest extends TestCase {
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
         MockSchedule sched = new MockSchedule();
-
-        ProjectConfig projectConfig = new ProjectConfig();
-        projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.add(sched);
 
         Log log = new Log();
@@ -235,29 +237,29 @@ public class ProjectTest extends TestCase {
     }
     
     public void testBuildShouldThrowExceptionWhenNoConfig() throws CruiseControlException {
+        project = new Project();
         try {
             project.build();
             fail();
         } catch (IllegalStateException expected) {
             assertEquals("projectConfig must be set on project before calling build()", expected.getMessage());
         }
+        
+        project.setProjectConfig(projectConfig);
+        project.build();
     }
-
+    
     public void testBadLabel() {
         try {
-            project.validateLabel("build_0", new DefaultLabelIncrementer());
+            project.validateLabel("build_0", projectConfig.getLabelIncrementer());
             fail("Expected exception due to bad label");
         } catch (CruiseControlException expected) {
-
         }
     }
 
     public void testPublish() throws CruiseControlException {
         MockSchedule sched = new MockSchedule();
-        final ProjectConfig projectConfig = new ProjectConfig();
-        projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.add(sched);
-        project.setProjectConfig(projectConfig);
 
         MockPublisher publisher = new MockPublisher();
         Publisher exceptionThrower = new MockPublisher() {
@@ -315,10 +317,7 @@ public class ProjectTest extends TestCase {
     public void testGetModifications() throws CruiseControlException {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.getModifications(null);
-        ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(modSet);
-        projectConfig.add(new DefaultLabelIncrementer());
-        project.setProjectConfig(projectConfig);
         project.init();
 
         modSet.setModified(true);
@@ -372,9 +371,7 @@ public class ProjectTest extends TestCase {
             }
         };
 
-        ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
-        projectConfig.add(new DefaultLabelIncrementer());
         mockProject.setProjectConfig(projectConfig);
         mockProject.init();
 
@@ -402,7 +399,6 @@ public class ProjectTest extends TestCase {
     }
 
     public void testWaitForNextBuild() throws InterruptedException, CruiseControlException {
-        ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
 
         MockProject mockProject = new MockProject() {
@@ -415,7 +411,6 @@ public class ProjectTest extends TestCase {
             }
         };
         mockProject.overrideBuildInterval(1000);
-        projectConfig.add(new DefaultLabelIncrementer());
         mockProject.setProjectConfig(projectConfig);
         mockProject.init();
 
@@ -474,15 +469,16 @@ public class ProjectTest extends TestCase {
     }
 
     public void testInitShouldThrowExceptionWhenConfigNotSet() throws CruiseControlException {
+        project = new Project();
         try {
             project.init();
+            fail();
         } catch (IllegalStateException expected) {
             assertEquals("projectConfig must be set on project before calling init()", expected.getMessage());
         }
         
-        ProjectConfig projectConfig = new ProjectConfig();
-        projectConfig.add(new DefaultLabelIncrementer());
         project.setProjectConfig(projectConfig);
+        project.init();
     }
 
     public void testSerialization() throws IOException {
@@ -522,9 +518,7 @@ public class ProjectTest extends TestCase {
     
     public void testStartAfterDeserialization() throws Exception {
         TestProject beforeSerialization = new TestProject();
-        ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
-        projectConfig.add(new DefaultLabelIncrementer());
         beforeSerialization.setProjectConfig(projectConfig);
         beforeSerialization.init();
 
@@ -564,10 +558,7 @@ public class ProjectTest extends TestCase {
         now.set(2005, Calendar.AUGUST, 10, 13, 7, 43);
         String cvstimestamp = "2005-08-10 11:07:43 GMT";
 
-        ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(new MockSchedule());
-        projectConfig.add(new DefaultLabelIncrementer());
-        project.setProjectConfig(projectConfig);
         project.init();
 
         // The returned time is dependent on the default timezone hence
@@ -590,11 +581,7 @@ public class ProjectTest extends TestCase {
         noonBuilder.setBuildLogXML(new Element("builder1"));
         schedule.add(noonBuilder);
 
-        ProjectConfig projectConfig = new ProjectConfig();
         projectConfig.add(schedule);
-
-        projectConfig.add(new DefaultLabelIncrementer());
-        project.setProjectConfig(projectConfig);
 
         Calendar cal = Calendar.getInstance();
         cal.set(2001, Calendar.NOVEMBER, 22);
