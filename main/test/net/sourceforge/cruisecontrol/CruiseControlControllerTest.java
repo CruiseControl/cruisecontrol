@@ -60,25 +60,38 @@ public class CruiseControlControllerTest extends TestCase {
     protected void setUp() throws CruiseControlException {
         dir.mkdirs();
         ccController = new CruiseControlController();
+        ensureFileDoesntExist(configFile);
+        ensureFileDoesntExist(configFile2);
     }
 
     public void tearDown() {
-        if (configFile.exists()) {
-            configFile.delete();
-        }
-        if (configFile2.exists()) {
-            configFile2.delete();
-        }
         ccController = null;
+        ensureFileDoesntExist(configFile);
+        ensureFileDoesntExist(configFile2);
     }
 
-    public void testSetNoFile() {
+    private void ensureFileDoesntExist(File file) {
+        final long start = System.currentTimeMillis();
+        final long oneMinute = 60 * 1000;
+        while (file.exists()) {
+          file.delete();
+          if (System.currentTimeMillis() > (start + oneMinute)) {
+              fail("unable to delete file " + file.getPath());
+          }
+        }
+        assertFalse(file.exists());
+    }
+
+    public void testSetFileFailsWithNull() {
         try {
             ccController.setConfigFile(null);
             fail("Allowed to not set a config file");
         } catch (CruiseControlException expected) {
             assertEquals("No config file", expected.getMessage());
         }
+    }
+    
+    public void testSetFileFailsIfFileDoesntExist() {
         try {
             ccController.setConfigFile(configFile);
             fail("Config file must exist");
@@ -124,7 +137,7 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(2, ccController.getProjects().size());
     }
 
-    public void testLoadSomeProjectsWithDuplicates() throws IOException, CruiseControlException {
+    public void testSetConfigFileShouldFailWithDuplicateProjects() throws IOException, CruiseControlException {
         ccController = new CruiseControlController();
 
         FileWriter configOut = new FileWriter(configFile);
@@ -242,7 +255,6 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(1, ccController.getProjects().size());
         assertEquals(0, listener.added.size());
         assertEquals(2, listener.removed.size());
-
     }
 
     public void testConfigReloadingWithXmlInclude() throws IOException, CruiseControlException {
@@ -339,7 +351,7 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(newRegistry.getPluginClassname("labelincrementer"), "my.global.Incrementer");
     }
 
-    public void testBuildLoggerValidate() throws IOException {
+    public void testSetConfigFileShouldValidateAllElements() throws IOException {
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
         configOut.write("  <project name='buildlogger'>\n");
