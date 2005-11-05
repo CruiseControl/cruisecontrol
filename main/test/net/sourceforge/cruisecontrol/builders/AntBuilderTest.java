@@ -49,9 +49,6 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
 import org.jdom.Element;
 
 public class AntBuilderTest extends TestCase {
@@ -124,8 +121,6 @@ public class AntBuilderTest extends TestCase {
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
-
-        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
     }
 
     public void tearDown() {

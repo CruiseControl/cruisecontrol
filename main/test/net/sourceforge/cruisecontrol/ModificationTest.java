@@ -41,19 +41,7 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 public class ModificationTest extends TestCase {
-
-    public ModificationTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(ModificationTest.class).getLoggerRepository().setThreshold(Level.OFF);
-    }
 
     public void testToXml() {
         Date modifiedTime = new Date();

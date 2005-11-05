@@ -43,9 +43,6 @@ import java.util.Locale;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class ScheduleTest extends TestCase {
@@ -100,14 +97,6 @@ public class ScheduleTest extends TestCase {
         FRIDAY_0000 = getDate(FRIDAY, 0, 0);
     }
 
-    public ScheduleTest(String name) {
-        super(name);
-        
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(ScheduleTest.class).getLoggerRepository().setThreshold(Level.OFF);
-    }
-    
     protected void setUp() {
         schedule = new Schedule();
 

@@ -34,10 +34,6 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-
 public class NantScriptTest extends TestCase {
     
     private Hashtable properties;
@@ -58,9 +54,6 @@ public class NantScriptTest extends TestCase {
         script.setLoggerClassName(NantBuilder.DEFAULT_LOGGER);
         script.setTarget("target");
         script.setBuildFile("buildfile");
-
-        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
-
     }
 
    

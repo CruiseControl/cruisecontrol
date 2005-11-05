@@ -36,20 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.PluginXMLHelper;
-import net.sourceforge.cruisecontrol.ProjectXMLHelper;
-import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
-import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
-
-import java.io.StringReader;
 import java.io.File;
 import java.io.FileOutputStream;
-
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
@@ -58,12 +47,18 @@ import java.util.TreeSet;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-// import org.apache.oro.io.GlobFilenameFilter;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jdom.input.SAXBuilder;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.PluginXMLHelper;
+import net.sourceforge.cruisecontrol.ProjectXMLHelper;
+import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
+import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+
 import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 public class EmailPublisherTest extends TestCase {
 
@@ -74,14 +69,6 @@ public class EmailPublisherTest extends TestCase {
     private EmailPublisher emailPublisher;
     private EmailPublisher noAlertsEmailPublisher;
     private File tmpFile;
-    
-    public EmailPublisherTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-    }
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess);

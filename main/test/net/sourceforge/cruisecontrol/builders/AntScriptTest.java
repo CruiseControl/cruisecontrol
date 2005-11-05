@@ -40,12 +40,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-
 import junit.framework.TestCase;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
@@ -127,8 +122,6 @@ public class AntScriptTest extends TestCase {
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
-
-        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
     }
     
     public void testGetAntLauncherJarLocationForWindows() throws Exception {

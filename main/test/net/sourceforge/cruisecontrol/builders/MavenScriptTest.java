@@ -45,6 +45,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerRepository;
 
 public class MavenScriptTest extends TestCase {
 
@@ -53,9 +54,6 @@ public class MavenScriptTest extends TestCase {
      * @throws CruiseControlException
      */
     public void testGetCommandLineArgs() throws CruiseControlException {
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-
         MavenScript script = getScript();
 
         TestUtil.assertArray(
@@ -108,11 +106,14 @@ public class MavenScriptTest extends TestCase {
 
     public void testGetCommandLineArgsWithDebug() throws CruiseControlException {
       BasicConfigurator.configure();
-      Logger.getLogger(MavenScript.class).getLoggerRepository().setThreshold(Level.ALL);
-      Logger.getLogger(MavenScript.class).setLevel(Level.DEBUG);
-
-      MavenScript script = getScript();
+      Logger logger = Logger.getLogger(MavenScript.class);
+      LoggerRepository loggerRepository = logger.getLoggerRepository();
+      Level threshold = loggerRepository.getThreshold();
+      Level level = logger.getLevel();
       
+      loggerRepository.setThreshold(Level.ALL);
+      logger.setLevel(Level.DEBUG);
+      MavenScript script = getScript();
       TestUtil.assertArray(
           "WithDebug:",
           new String[] {
@@ -123,5 +124,8 @@ public class MavenScriptTest extends TestCase {
               "-p",
               "testproject.xml" },
           script.buildCommandline().getCommandline());
+      
+      loggerRepository.setThreshold(threshold);
+      logger.setLevel(level);
     }
 }
