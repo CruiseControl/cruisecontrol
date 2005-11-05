@@ -53,9 +53,6 @@ import java.io.File;
 /**
  * Does the same thing as CurrentBuildStatusListener, but also sends it to an FTP server.
  *
- * Obsoletes both {@link net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusFTPBootstrapper}
- * and {@link net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher}
- *
  * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
  * 
  * @see net.sourceforge.cruisecontrol.DateFormatFactory
