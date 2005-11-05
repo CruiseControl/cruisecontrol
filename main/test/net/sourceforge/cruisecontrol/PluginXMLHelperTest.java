@@ -44,11 +44,9 @@ import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.publishers.MockPublisher;
 import net.sourceforge.cruisecontrol.publishers.email.MockMapping;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class PluginXMLHelperTest extends TestCase {
-    private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
     private PluginXMLHelper helper;
     private ProjectXMLHelper projectXmlHelper;
     private PluginRegistry registry;
