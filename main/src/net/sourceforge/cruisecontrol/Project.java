@@ -151,6 +151,10 @@ public class Project implements Serializable, Runnable {
      * Unless paused, runs any bootstrappers and then the entire build.
      */
     protected void build() throws CruiseControlException {
+        if (projectConfig == null) {
+            throw new IllegalStateException("projectConfig must be set on project before calling build()");
+        }
+        
         if (stopped) {
             LOG.warn("not building project " + name + " because project has been stopped.");
             return;

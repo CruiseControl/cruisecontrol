@@ -233,6 +233,15 @@ public class ProjectTest extends TestCase {
         assertTrue("Should be successful build result event", resultEvent.isBuildSuccessful());
         assertTrue("Should have at least one of each project state except queued", progressEvents.size() >= 8);
     }
+    
+    public void testBuildShouldThrowExceptionWhenNoConfig() throws CruiseControlException {
+        try {
+            project.build();
+            fail();
+        } catch (IllegalStateException expected) {
+            assertEquals("projectConfig must be set on project before calling build()", expected.getMessage());
+        }
+    }
 
     public void testBadLabel() {
         try {
