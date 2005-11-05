@@ -163,6 +163,9 @@ public class Project implements Serializable, Runnable {
         try {
             setBuildStartTime(new Date());
             Schedule schedule = projectConfig.getSchedule();
+            if (schedule == null) {
+                throw new IllegalStateException("project must have a schedule");
+            }
             if (schedule.isPaused(buildStartTime)) {
                 // a regularly scheduled paused
                 // is different than ProjectState.PAUSED
@@ -181,7 +184,10 @@ public class Project implements Serializable, Runnable {
 
             projectConfig.getLog().addContent(modifications);
 
-            Date now = projectConfig.getModificationSet().getTimeOfCheck();
+            Date now = new Date();
+            if (projectConfig.getModificationSet() != null) {
+                now = projectConfig.getModificationSet().getTimeOfCheck();
+            }
 
             if (getLabelIncrementer().isPreBuildIncrementer()) {
                 label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
@@ -335,16 +341,26 @@ public class Project implements Serializable, Runnable {
         setState(ProjectState.MODIFICATIONSET);
         Element modifications;
 
+        ModificationSet modificationSet = projectConfig.getModificationSet();
+        if (modificationSet == null) {
+            debug("no modification set, nothing to detect.");
+            if (buildForced) {
+                info("no modification set but build was forced");
+                return new Element("modifications");
+            }
+            return null;
+        }
+        
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
         if (checkNewChangesFirst) {
             debug("getting changes since last build");
-            modifications = projectConfig.getModificationSet().getModifications(lastBuild);
+            modifications = modificationSet.getModifications(lastBuild);
         } else {
             debug("getting changes since last successful build");
-            modifications = projectConfig.getModificationSet().getModifications(lastSuccessfulBuild);
+            modifications = modificationSet.getModifications(lastSuccessfulBuild);
         }
 
-        if (!projectConfig.getModificationSet().isModified()) {
+        if (!modificationSet.isModified()) {
             info("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
@@ -363,7 +379,7 @@ public class Project implements Serializable, Runnable {
 
         if (checkNewChangesFirst) {
             debug("new changes found; now getting complete set");
-            modifications = projectConfig.getModificationSet().getModifications(lastSuccessfulBuild);
+            modifications = modificationSet.getModifications(lastSuccessfulBuild);
         }
 
         return modifications;
