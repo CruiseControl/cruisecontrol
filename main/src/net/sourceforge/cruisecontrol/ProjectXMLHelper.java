@@ -55,9 +55,9 @@ import org.jdom.output.XMLOutputter;
 /**
  *  Instantiates a project from a JDOM Element. Supports the use of Ant-like patterns in
  *  attribute values that look like this: <code>${propertyname}</code>
- * @todo extract out generic Helper methods
  */
 public class ProjectXMLHelper implements ProjectHelper {
+    // TODO: extract out generic Helper methods
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
 
     private Map projectProperties;
