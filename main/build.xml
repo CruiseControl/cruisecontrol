@@ -92,9 +92,9 @@
     </path>
 
     <path id="project.runtime.classpath" >
+        <pathelement location="${test.classes}" />
         <path refid="project.classpath" />
         <pathelement location="${classes}" />
-        <pathelement location="${test.classes}" />
         <pathelement path="${java.class.path}"/>
         <path refid="clover.classpath"/>
     </path>
@@ -127,7 +127,7 @@
        <delete dir="${target}"/>
     </target>
 
-    <target name="compile" depends="init" description="Compile source code">
+    <target name="compile" depends="init" unless="compile.skip" description="Compile source code">
         <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
            <classpath refid="project.classpath"/>
            <src path="${src}"/>

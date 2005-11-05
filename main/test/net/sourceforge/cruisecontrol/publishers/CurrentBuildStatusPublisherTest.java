@@ -36,10 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Util;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -48,9 +44,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  * @deprecated Test deprecated with code
@@ -59,14 +55,6 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
     private static final String TEST_DIR = "tmp";
     private final List filesToClear = new ArrayList();
     
-    public CurrentBuildStatusPublisherTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-    }
-
     public void tearDown() {
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
             File file = (File) iterator.next();

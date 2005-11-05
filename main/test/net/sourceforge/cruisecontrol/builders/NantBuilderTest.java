@@ -27,37 +27,32 @@
  ******************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.net.URL;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.MockProcess;
+import net.sourceforge.cruisecontrol.util.Util;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.jdom.Attribute;
+import org.jdom.CDATA;
 import org.jdom.DataConversionException;
 import org.jdom.Element;
-import org.jdom.CDATA;
 
 public class NantBuilderTest extends TestCase {
     
@@ -65,14 +60,6 @@ public class NantBuilderTest extends TestCase {
     private NantBuilder builder;
     private Hashtable properties;
     private File rootTempDir = null;
-
-    public NantBuilderTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-    }
     
     static class InputBasedMockCommandLineBuilder {
         Commandline buildCommandline(final InputStream inputStream) {
@@ -120,8 +107,6 @@ public class NantBuilderTest extends TestCase {
 //                new URI(ClassLoader.getSystemResource("test.build").toString())).getParent());
         properties = new Hashtable();
         properties.put("label", "200.1.23");
-
-        BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%m%n")));
 
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         rootTempDir = new File(tempDir, "testRoot");

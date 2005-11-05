@@ -36,18 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.publishers.MockPublisher;
 import net.sourceforge.cruisecontrol.publishers.email.MockMapping;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-
-import java.util.Map;
-import java.util.HashMap;
 
 public class PluginXMLHelperTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelperTest.class);
@@ -58,22 +56,16 @@ public class PluginXMLHelperTest extends TestCase {
     private static final int SOME_INT = 15;
     private static final int SOME_OTHER_INT = 16;
 
-    public PluginXMLHelperTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-    }
-
     protected void setUp() throws CruiseControlException {
         registry = PluginRegistry.loadDefaultPluginRegistry();
         projectXmlHelper = new ProjectXMLHelper(new HashMap(), registry);
         helper = new PluginXMLHelper(projectXmlHelper);
-        LOG.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     protected void tearDown() throws Exception {
-        LOG.getLoggerRepository().setThreshold(Level.ALL);
+        registry = null;
+        projectXmlHelper = null;
+        helper = null;
     }
 
     public void testConfigure() throws Exception {

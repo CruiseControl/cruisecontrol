@@ -40,19 +40,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 public class ProjectXMLHelperTest extends TestCase {
-
-    public ProjectXMLHelperTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.ERROR);
-    }
 
     public void testParsePropertiesInString1() throws CruiseControlException {
         Properties properties = new Properties();

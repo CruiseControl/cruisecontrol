@@ -36,10 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util.threadpool;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import junit.framework.TestCase;
 
 /**
@@ -51,14 +47,6 @@ public class ThreadQueueTest extends TestCase {
     private static final int TASK_COUNT = 5;
     private static final int TASK_SLEEP_TIME = 1000;
     
-    public ThreadQueueTest(String name) {
-        super(name);
-      
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(ThreadQueueTest.class).getLoggerRepository().setThreshold(Level.OFF);
-    }
-
     protected void setUp() throws Exception {  
         for (int i = 0; i < TASK_COUNT; i++) {
             final String taskName = i + "";

@@ -65,7 +65,6 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.jdom.Element;
 
@@ -78,13 +77,6 @@ public class ProjectTest extends TestCase {
     private ProjectConfig projectConfig;
     private final List filesToClear = new ArrayList();
 
-    public ProjectTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-    }
-
     protected void setUp() throws CruiseControlException {
         project = new Project();
         project.setName("TestProject");
@@ -92,8 +84,6 @@ public class ProjectTest extends TestCase {
         projectConfig = new ProjectConfig();
         projectConfig.add(new DefaultLabelIncrementer());
         project.setProjectConfig(projectConfig);
-        
-        LOG4J.getLoggerRepository().setThreshold(Level.OFF);
     }
 
     public void tearDown() {

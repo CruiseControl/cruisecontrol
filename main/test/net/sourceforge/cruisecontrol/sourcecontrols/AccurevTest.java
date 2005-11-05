@@ -60,10 +60,6 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Timespec;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.TransactionNumberTimespec;
 import net.sourceforge.cruisecontrol.util.Commandline;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 /**
  * Basic test cases for the accurev command line utilities
  * 
@@ -81,13 +77,11 @@ public class AccurevTest extends TestCase implements AccurevInputParser {
     mockRunner = new AccurevMockRunner();
     mockRunner.setScriptRoot("net/sourceforge/cruisecontrol/sourcecontrols");
   }
-  public AccurevTest() {
-    super();
 
-    // Turn off logging
-    BasicConfigurator.configure();
-    Logger.getLogger(AccurevTest.class).getLoggerRepository().setThreshold(Level.OFF);
+  protected void tearDown() throws Exception {
+    mockRunner = null;
   }
+
   /**
    * Tests common "accurev hist" commandline configurations
    */
@@ -242,4 +236,5 @@ public class AccurevTest extends TestCase implements AccurevInputParser {
   public void fake(String path, int returnCode) {
     mockRunner.addScript(path, returnCode);
   }
+
 }

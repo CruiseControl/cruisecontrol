@@ -48,20 +48,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Util;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class MavenBuilderTest extends TestCase {
-  
-    public MavenBuilderTest(String name) {
-        super(name);
-        
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-    }
 
     private static final String MOCK_SUCCESS = "successful build";
     private static final String MOCK_BUILD_FAILURE = "failed build";

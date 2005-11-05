@@ -37,35 +37,25 @@
 
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
-import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
+import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
+
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
 public class ModificationSetTest extends TestCase {
 
     private ModificationSet modSet;
-    
-    public ModificationSetTest(String name) {
-        super(name);
-
-        // Turn off logging
-        BasicConfigurator.configure();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-    }
 
     public void testIsLastModificationInQuietPeriod() throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");

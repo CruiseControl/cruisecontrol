@@ -45,21 +45,10 @@
  */
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.AccurevTest;
 
 public class AccurevBootstrapperTest extends AccurevTest {
-  public AccurevBootstrapperTest() {
-    super();
-
-    // Turn off logging
-    BasicConfigurator.configure();
-    Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.OFF);
-  }
   /**
    * Runs accurev keep, accurev synctime and accurev update in the default workspace
    * 

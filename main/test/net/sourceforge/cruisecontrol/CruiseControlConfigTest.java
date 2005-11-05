@@ -36,24 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
-import net.sourceforge.cruisecontrol.util.Util;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.File;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import java.net.URL;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import org.jdom.Element;
 
 public class CruiseControlConfigTest extends TestCase {
 
@@ -61,16 +58,10 @@ public class CruiseControlConfigTest extends TestCase {
     private File configFile;
     private File tempDirectory;
     private File propertiesFile;
-    private Level defaultThreshold;
 
     private static final int ONE_SECOND = 1000;
 
     protected void setUp() throws Exception {
-        // Turn off logging
-        BasicConfigurator.configure();
-        defaultThreshold = Logger.getLogger(this.getClass()).getLoggerRepository().getThreshold();
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(Level.ERROR);
-      
         URL url;
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
         propertiesFile = new File(url.getPath());
@@ -88,8 +79,6 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     protected void tearDown() {
-        Logger.getLogger(this.getClass()).getLoggerRepository().setThreshold(defaultThreshold);
-      
         // The directory "foo" in the system's temporary file location
         // is created by CruiseControl when using the config file below.
         // Specifically because of the line:
