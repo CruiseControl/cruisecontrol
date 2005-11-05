@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -289,10 +288,6 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
             log = new Log();
         }
 
-        if (log.getLogDir() == null) {
-            final String defaultLogDir = "logs" + File.separatorChar + projectName;
-            log.setDir(defaultLogDir);
-        }
         log.setProjectName(projectName);
         log.validate();
         projectConfig.add(log);
