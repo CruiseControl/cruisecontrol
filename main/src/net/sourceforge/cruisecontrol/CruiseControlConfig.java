@@ -262,7 +262,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         projectElement.removeChildren("property");
         projectElement.removeChildren("plugin");
 
-        LOG.debug("**************** configuring project *******************");
+        LOG.debug("**************** configuring project" + projectName + " *******************");
         ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins);
         ProjectConfig projectConfig = (ProjectConfig) projectHelper.configurePlugin(projectElement, false);
 
@@ -276,6 +276,8 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
             } catch (Exception e) {
                 LOG.error("Error instantiating label incrementer named "
                     + labelIncrClass.getName()
+                    + "in project "
+                    + projectName 
                     + ". Using DefaultLabelIncrementer instead.",
                     e);
                 labelIncrementer = new DefaultLabelIncrementer();
@@ -293,7 +295,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         projectConfig.add(log);
 
         projectConfig.validate();
-        LOG.debug("**************** end configuring project *******************");
+        LOG.debug("**************** end configuring project" + projectName + " *******************");
 
         this.projectConfigs.put(projectName, projectConfig);
         this.projectPluginRegitries.put(projectName, projectPlugins);
