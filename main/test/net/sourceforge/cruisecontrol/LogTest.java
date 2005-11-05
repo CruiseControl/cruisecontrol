@@ -68,17 +68,6 @@ public class LogTest extends TestCase {
     public void testCreatingLog() {
         //Cannot create a Log instance with a null project name
         try {
-            new Log(null);
-            fail("Expected an exception when creating a Log instance with "
-                    + "a null Project name.");
-        } catch (NullPointerException npe) {
-            //Good, expected this exception.
-        }
-    }
-
-    public void testCreatingLog2steps() {
-        //Cannot create a Log instance with a null project name
-        try {
             Log log = new Log();
             log.setProjectName(null);
             fail("Expected an exception when creating a Log instance with "
@@ -98,6 +87,12 @@ public class LogTest extends TestCase {
         } catch (CruiseControlException cce) {
             fail("unepected: " + cce.getMessage());
         }
+    }
+    
+    public void testDefaultLogLocation() {
+        Log log = new Log();
+        log.setProjectName("foo");
+        assertEquals("logs" + File.separatorChar + "foo", log.getLogDir());
     }
 
     public void testFormatLogFileName() {
@@ -140,7 +135,8 @@ public class LogTest extends TestCase {
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         for (int i = 0;  i < encodings.length; i++) {
-            Log log = new Log("testXMLEncoding");
+            Log log = new Log();
+            log.setProjectName("testXMLEncoding");
             log.setDir("target");
             if (encodings[i] != null) {
                 log.setEncoding(encodings[i]);

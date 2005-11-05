@@ -75,14 +75,6 @@ public class Log {
     private transient String projectName;
 
     /**
-     * @throws NullPointerException is projectName is null
-     */
-    public Log(String projectName) {
-        this();
-        setProjectName(projectName);
-    }
-
-    /**
      * Log instances created this way must have their projectName set.
      */
     public Log() {
@@ -99,6 +91,9 @@ public class Log {
             throw new NullPointerException("null projectName.");
         }
         this.projectName = projectName;
+        if (logDir == null) {
+            logDir = "logs" + File.separatorChar + projectName;
+        }
     }
 
     /**
