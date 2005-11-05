@@ -328,6 +328,8 @@
            breakiterator="yes" failonerror="true">
            <classpath>
                <path refid="project.classpath" />
+               <pathelement location="${lib}/ant/ant.jar"/>
+               <pathelement location="${lib}/ant/ant-launcher.jar"/>
                <pathelement location="${src}" />
            </classpath>
        </javadoc>
