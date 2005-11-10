@@ -6,7 +6,8 @@
     <!-- use a local variable to make sure that a script that would read the
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
-
+    <property name="cc.libs" location="main/dist"/>
+    
     <target name="release" depends="clean, website, zip, bin-zip"/>
 
     <target name="checklabel">
@@ -22,6 +23,7 @@
             <property name="cc.release.label" value="${cc.release.label}"/>
         </ant>
         <ant inheritAll="false" dir="reporting/jsp">
+            <property name="cc.libs" value="${cc.libs}"/>
             <property name="user.log.dir" value="logs"/>
             <property name="user.build.status.file" value="status.txt"/>
             <property name="cruise.build.artifacts.dir" value="artifacts"/>
@@ -50,7 +52,9 @@
         <copy todir="target/website/main">
             <fileset dir="main/docs"/>
         </copy>
-        <ant inheritAll="false" dir="reporting/jsp" target="javadoc"/>
+        <ant inheritAll="false" dir="reporting/jsp" target="javadoc">
+            <property name="cc.libs" value="${cc.libs}"/>
+        </ant>
         <copy todir="target/website/reporting/jsp">
             <fileset dir="reporting/jsp/docs"/>
         </copy>
