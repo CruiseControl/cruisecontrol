@@ -67,9 +67,11 @@
     </path>
 
     <path id="project.runtime.classpath" >
+	<!--
         <fileset dir="${cc.libs}" id="cc.jar">
             <include name="cruisecontrol.jar"/>
-        </fileset        
+        </fileset>
+	-->
         <fileset dir="${lib}" id="req.libs">
             <include name="batik*.jar"/>
             <include name="cewolf*.jar"/>
@@ -199,7 +201,9 @@
             <fileset dir="${webcontent}" excludes="WEB-INF/web.xml"/>
             <classes dir="${classes}"/>
             <lib refid="req.libs"/>
+	    <!--
             <lib refid="cc.jar"/>            
+	    -->
             <manifest>
                 <attribute name="Implementation-Version" value="${label}"/>
             </manifest>
