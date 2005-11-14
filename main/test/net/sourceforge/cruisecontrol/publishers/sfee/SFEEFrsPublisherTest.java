@@ -49,9 +49,12 @@ public class SFEEFrsPublisherTest extends TestCase {
         }
     }
 
+    public void testIsCorrectType() throws Exception {
+        assertTrue(Publisher.class.isAssignableFrom(SfeeFrsPublisher.class));
+    }
+
     public void testSimpleUpload() throws IOException, CruiseControlException {
         SfeeFrsPublisher publisher = new SfeeFrsPublisher();
-        assertTrue(publisher instanceof Publisher);
 
         publisher.setServerURL(SERVER_URL);
         publisher.setUsername(USERNAME);
@@ -171,7 +174,6 @@ public class SFEEFrsPublisherTest extends TestCase {
 
     public void testUploadFileWithNewName() throws IOException, CruiseControlException {
         SfeeFrsPublisher publisher = new SfeeFrsPublisher();
-        assertTrue(publisher instanceof Publisher);
 
         String uploadname = "differentFromLocalFilename" + System.currentTimeMillis();
         publisher.setServerURL(SERVER_URL);

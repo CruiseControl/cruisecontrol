@@ -307,7 +307,8 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         // ensure CVS version and simulated outputs are in sync
         final String cvsVersion = "1.11.16";
         ConcurrentVersionsSystem cvs = new MockVersionCVS(getOfficialCVSVersion(cvsVersion));
-        cvs.setModule("cruisecontrol/cruisecontrol");
+        cvs.setModule("cruisecontrol");
+        cvs.setCvsRoot(":pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol");
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         emailAliases.put("tim", "tim@tim.net");
@@ -377,7 +378,6 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     }
 
     public void testParseStreamNewFormat() throws IOException, ParseException {
-        // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs = new MockVersionCVS(getOfficialCVSVersion("1.12.9"));
         Hashtable emailAliases = new Hashtable();
         emailAliases.put("jerome", "jerome@coffeebreaks.org");
