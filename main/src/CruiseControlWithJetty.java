@@ -75,8 +75,8 @@ public final class CruiseControlWithJetty {
                 server.addListener(listener);
                 try {
                     String webApp = parseCCHome(args) + "/webapps/cruisecontrol";
-                    server.addWebApplication("cruisecontrol", webApp);
-                    server.addWebApplication("/", webApp);                    
+                    server.addWebApplication("/cruisecontrol", webApp);
+                    server.addWebApplication("/", webApp);
                 } catch (IOException e) {
                     String msg = "Exception adding cruisecontrol webapp: " + e.getMessage();
                     LOG.error(msg, e);
