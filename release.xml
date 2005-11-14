@@ -6,9 +6,8 @@
     <!-- use a local variable to make sure that a script that would read the
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
-    <property name="cc.libs" location="main/dist"/>
-    
-    <target name="release" depends="clean, website, zip, bin-zip"/>
+
+    <target name="release" depends="clean, build, website, zip, bin-zip"/>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined."/>
@@ -23,7 +22,6 @@
             <property name="cc.release.label" value="${cc.release.label}"/>
         </ant>
         <ant inheritAll="false" dir="reporting/jsp">
-            <property name="cc.libs" value="${cc.libs}"/>
             <property name="user.log.dir" value="logs"/>
             <property name="user.build.status.file" value="status.txt"/>
             <property name="cruise.build.artifacts.dir" value="artifacts"/>
@@ -52,9 +50,7 @@
         <copy todir="target/website/main">
             <fileset dir="main/docs"/>
         </copy>
-        <ant inheritAll="false" dir="reporting/jsp" target="javadoc">
-            <property name="cc.libs" value="${cc.libs}"/>
-        </ant>
+        <ant inheritAll="false" dir="reporting/jsp" target="javadoc"/>
         <copy todir="target/website/reporting/jsp">
             <fileset dir="reporting/jsp/docs"/>
         </copy>
@@ -152,6 +148,7 @@
                 <pathelement location="reporting/jsp/target/classes"/>
                 <fileset dir="reporting/jsp/lib" includes="*.jar"/>
                 <fileset dir="lib" includes="*.jar"/>
+                <fileset file="main/dist/cruisecontrol.jar"/>
             </classpath>
         </javac>
     </target>
@@ -172,6 +169,7 @@
                         <pathelement location="reporting/jsp/target/classes"/>
                         <fileset dir="reporting/jsp/lib" includes="*.jar"/>
                         <fileset dir="lib" includes="*.jar"/>
+                        <fileset file="main/dist/cruisecontrol.jar"/>
                         <pathelement location="target/webtest-classes"/>
                     </classpath>
                     <formatter type="brief" usefile="false"/>
