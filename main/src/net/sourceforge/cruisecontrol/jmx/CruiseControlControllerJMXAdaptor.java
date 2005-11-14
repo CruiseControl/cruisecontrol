@@ -60,7 +60,11 @@ import javax.management.ObjectName;
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
+import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
+import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -170,7 +174,23 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
     public List getProjects() {
         return controller.getProjects();
     }
+    
+    public BootstrapperDetail[] getAvailableBootstrappers() {
+        return controller.getAvailableBootstrappers();
+    }
+    
+    public PublisherDetail[] getAvailablePublishers() {
+        return controller.getAvailablePublishers();
+    }
 
+    public SourceControlDetail[] getAvailableSourceControls() {
+        return controller.getAvailableSourceControls();
+    }
+    
+    public PluginDetail[] getAvailablePlugins() {
+        return controller.getAvailablePlugins();
+    }
+    
     public void resume() {
         controller.resume();
     }

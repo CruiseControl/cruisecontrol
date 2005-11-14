@@ -36,25 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import junit.framework.TestCase;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+public class AttributeTest extends TestCase {
+    private Attribute attr;
 
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+        
+        attr = new Attribute("count", Integer.TYPE);
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
-
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+    public void testNameAndDataType() {
+        assertEquals("count", attr.getName());
+    }
+    
+    public void testDatatype() {
+        assertEquals(Integer.TYPE, attr.getDataType());
     }
 }

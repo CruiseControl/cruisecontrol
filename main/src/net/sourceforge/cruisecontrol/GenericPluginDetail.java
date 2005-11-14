@@ -36,25 +36,59 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+/**
+ * Understands information common to all plugins.
+ */
+public abstract class GenericPluginDetail implements PluginDetail {
+    private String pluginName;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+    private String pluginType;
+
+    private Attribute[] requiredAttributes;
+
+    public GenericPluginDetail(Class plugin, String type) {
+        String fqcn = plugin.getName();
+        this.pluginName = fqcn.substring(fqcn.lastIndexOf('.') + 1).toLowerCase();
+        this.pluginType = type;
+        this.requiredAttributes = findRequiredAttributes(plugin);
+        Arrays.sort(this.requiredAttributes);
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
+    public String getPluginName() {
+        return pluginName;
+    }
 
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+    public String getPluginType() {
+        return pluginType;
+    }
+
+    public Attribute[] getRequiredAttributes() {
+        return requiredAttributes;
+    }
+
+    private Attribute[] findRequiredAttributes(Class sourceControl) {
+        List attrs = new LinkedList();
+
+        Method[] methods = sourceControl.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            String methodName = method.getName();
+            if (methodName.startsWith("set")
+                    && Modifier.isPublic(method.getModifiers())) {
+                String attrName = methodName.substring(3, 4).toLowerCase()
+                        + methodName.substring(4);
+                Attribute attr = new Attribute(attrName, method
+                        .getParameterTypes()[0]);
+                attrs.add(attr);
+            }
+        }
+
+        return (Attribute[]) attrs.toArray(new Attribute[attrs.size()]);
     }
 }

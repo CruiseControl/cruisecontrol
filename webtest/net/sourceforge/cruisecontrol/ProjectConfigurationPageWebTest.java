@@ -39,34 +39,44 @@ package net.sourceforge.cruisecontrol;
 import net.sourceforge.jwebunit.WebTestCase;
 
 public class ProjectConfigurationPageWebTest extends WebTestCase {
-    private static final String CONFIG_URL = "/cruisecontrol/config.action";
+    private static final String CONFIG_URL = "/cruisecontrol/config.jspa";
+
+    private Configuration configuration;
+
+    private String contents;
 
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl("http://localhost:7854");
+
+        configuration = new Configuration("localhost", 7856);
+        contents = configuration.getConfiguration();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+
+        configuration.setConfiguration(contents);
     }
 
     public void testShouldLoadRawXMLConfigurationData() {
         beginAt(CONFIG_URL);
         assertFormPresent("commons-math-config");
-        assertFormElementPresent("configuration");
-        assertTextPresent("<cruisecontrol>");
-        assertTextPresent("</cruisecontrol>");
+        assertFormElementPresent("contents");
+        assertTextPresent("&lt;cruisecontrol&gt;");
+        assertTextPresent("&lt;/cruisecontrol&gt;");
     }
 
     public void testShouldSaveChangesToXMLConfigurationData() throws Exception {
         beginAt(CONFIG_URL);
         setWorkingForm("commons-math-config");
 
-        String origConfig = getDialog().getForm().getParameterValue("configuration");
-        setFormElement("configuration", origConfig
-                + "<!-- Hello, world! -->");
-        assertSubmitButtonPresent("configure");
+        setFormElement("contents", contents + "<!-- Hello, world! -->");
         submit();
         assertFormPresent("commons-math-config");
-        assertFormElementPresent("configuration");
-        assertTextPresent("<cruisecontrol>");
-        assertTextPresent("</cruisecontrol>");
-        assertTextPresent("<!-- Hello, world! -->");
+        assertFormElementPresent("contents");
+        assertTextPresent("&lt;cruisecontrol&gt;");
+        assertTextPresent("&lt;/cruisecontrol&gt;");
+        assertTextPresent("&lt;!-- Hello, world! --&gt;");
     }
 }

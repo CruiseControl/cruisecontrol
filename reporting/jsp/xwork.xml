@@ -3,14 +3,35 @@
 <xwork>
     <include file="webwork-default.xml"/>
     <package name="default" extends="webwork-default">
-        <default-interceptor-ref name="completeStack"/>
+        <interceptors>
+            <interceptor name="cc-config"
+                class="net.sourceforge.cruisecontrol.interceptor.ConfigurationInterceptor"/>
+            <interceptor name="cc-plugins"
+                class="net.sourceforge.cruisecontrol.interceptor.PluginsInterceptor"/>
+            <interceptor name="cc-details"
+                class="net.sourceforge.cruisecontrol.interceptor.DetailsInterceptor"/>
+            
+            <interceptor-stack name="configStack">
+                <interceptor-ref name="cc-config"/>
+                <interceptor-ref name="completeStack"/>
+                <interceptor-ref name="cc-plugins"/>
+                <interceptor-ref name="cc-details"/>
+            </interceptor-stack>
+        </interceptors>
+        <default-interceptor-ref name="configStack"/>
 
-        <action name="config" class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet">
+        <action name="config"
+            class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet">
             <result name="success">config.jsp</result>
         </action>
-        <action name="cvs" class="net.sourceforge.cruisecontrol.servlet.CVSServlet">
-            <result name="input">cvs.jsp</result>
-            <result name="success">cvs.jsp</result>
+        <action name="details"
+            class="net.sourceforge.cruisecontrol.servlet.PluginDetailsServlet">
+            <result name="input">details.jsp</result>
+            <result name="success" type="redirect">config.jspa</result>
+        </action>
+        <action name="plugins"
+            class="net.sourceforge.cruisecontrol.servlet.PluginsServlet">
+            <result name="success">plugins.jsp</result>
         </action>
     </package>
 </xwork>

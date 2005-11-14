@@ -36,25 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import java.io.Serializable;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
-    }
-
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
-
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
-    }
+/**
+ * Represents information common to all plugins.
+ */
+public interface PluginDetail extends Serializable {
+    public String getPluginName();
+    public String getPluginType();
+    public Attribute[] getRequiredAttributes();
 }

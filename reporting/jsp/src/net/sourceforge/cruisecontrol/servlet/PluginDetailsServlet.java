@@ -34,27 +34,70 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.servlet;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import java.util.Iterator;
+import java.util.Map;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.PluginConfiguration;
+import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
+import net.sourceforge.cruisecontrol.interceptor.DetailsAware;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+import com.opensymphony.webwork.interceptor.ParameterAware;
+import com.opensymphony.xwork.ActionSupport;
+
+/**
+ * Understands how to edit plugin details via a web interface.
+ */
+public class PluginDetailsServlet extends ActionSupport implements
+        ConfigurationAware, DetailsAware, ParameterAware {
+    private Configuration configuration;
+
+    private Map parameters;
+
+    private PluginConfiguration pluginConfiguration;
+
+    public String doDefault() {
+        return INPUT;
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
+    public String execute() throws Exception {
+        setDetails();
+        configuration.updatePlugin(pluginConfiguration);
 
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+        return SUCCESS;
+    }
+
+    public String getPluginName() {
+        return this.pluginConfiguration.getName();
+    }
+
+    public String getPluginType() {
+        return this.pluginConfiguration.getType();
+    }
+
+    public Map getDetails() {
+        return this.pluginConfiguration.getDetails();
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void setDetails(PluginConfiguration pluginConfiguration) {
+        this.pluginConfiguration = pluginConfiguration;
+    }
+
+    private void setDetails() {
+        for (Iterator i = parameters.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            this.pluginConfiguration.setDetail((String) entry.getKey(),
+                    ((String[]) entry.getValue())[0]);
+        }
+    }
+
+    public void setParameters(Map parameters) {
+        this.parameters = parameters;
     }
 }

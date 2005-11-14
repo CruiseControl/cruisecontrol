@@ -39,6 +39,10 @@ package net.sourceforge.cruisecontrol.jmx;
 import javax.management.InvalidAttributeValueException;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
+import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
+import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
 
 import java.util.List;
 import java.util.Properties;
@@ -60,6 +64,11 @@ public interface CruiseControlMBean {
     
     List getProjects();
 
+    BootstrapperDetail[] getAvailableBootstrappers();
+    PublisherDetail[] getAvailablePublishers();
+    SourceControlDetail[] getAvailableSourceControls();
+    PluginDetail[] getAvailablePlugins();
+    
     void pause();
     void resume();
     void halt();

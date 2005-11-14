@@ -34,27 +34,49 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.servlet;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.interceptor.PluginsAware;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+import com.opensymphony.xwork.ActionSupport;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+/**
+ * Understands how to load available plugins for users to choose from via a
+ * web interface.
+ */
+public class PluginsServlet extends ActionSupport implements PluginsAware {
+    private PluginDetail[] plugins;
+
+    private String project;
+    
+    private String pluginType;
+
+    public String execute() throws Exception {
+        return SUCCESS;
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
+    public PluginDetail[] getPlugins() {
+        return plugins;
+    }
+    
+    public void setPlugins(PluginDetail[] plugins) {
+        this.plugins = plugins;
+    }
 
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+    public String getPluginType() {
+        return pluginType;
+    }
+
+    public void setPluginType(String pluginType) {
+        this.pluginType = pluginType;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 }

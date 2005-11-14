@@ -34,27 +34,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.publishers;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.cruisecontrol.Attribute;
+import net.sourceforge.cruisecontrol.PluginDetail;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
-    }
-
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
-
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
-    }
+/**
+ * Represents publisher-specific information.
+ */
+public interface PublisherDetail extends PluginDetail {
+    public static final String TYPE = "publishers";
+    
+    // Placate checkstyle
+    public String getPluginName();
+    public String getPluginType();
+    public Attribute[] getRequiredAttributes();
 }

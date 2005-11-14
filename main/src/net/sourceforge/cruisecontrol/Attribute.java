@@ -36,25 +36,30 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import java.io.Serializable;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+/**
+ * Understands plugin attributes.
+ */
+public class Attribute implements Comparable, Serializable {
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+    private final String name;
+    private final Class dataType;
+
+    public Attribute(String name, Class dataType) {
+        this.name = name;
+        this.dataType = dataType;
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
+    public String getName() {
+        return name;
+    }
 
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+    public Class getDataType() {
+        return dataType;
+    }
+
+    public int compareTo(Object o) {
+        return name.compareTo(((Attribute) o).name);
     }
 }
