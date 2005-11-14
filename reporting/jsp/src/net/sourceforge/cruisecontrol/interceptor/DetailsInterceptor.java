@@ -34,75 +34,56 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.servlet;
+package net.sourceforge.cruisecontrol.interceptor;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
 import net.sourceforge.cruisecontrol.Configuration;
-import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
-import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
-import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
+import net.sourceforge.cruisecontrol.PluginConfiguration;
+import net.sourceforge.cruisecontrol.PluginDetail;
 
 import org.jdom.JDOMException;
 
-import com.opensymphony.xwork.ActionSupport;
+import com.opensymphony.xwork.Action;
+import com.opensymphony.xwork.ActionInvocation;
+import com.opensymphony.xwork.interceptor.AroundInterceptor;
 
 /**
- * Understands how to edit the configuration via a web interface.
+ * Understands how to load plugin details for DetailsAware actions.
  */
-public class ConfigurationServlet extends ActionSupport implements
-        ConfigurationAware {
-    private Configuration configuration;
+public class DetailsInterceptor extends AroundInterceptor {
+    protected void before(ActionInvocation invocation) throws Exception {
+        Action action = invocation.getAction();
 
-    private String project;
+        if (action instanceof DetailsAware) {
+            Configuration configuration = (Configuration) invocation
+                    .getInvocationContext().getApplication().get(
+                            "cc-configuration");
+            Map parameters = invocation.getInvocationContext().getParameters();
+            String pluginName = ((String[]) parameters.get("pluginName"))[0];
+            String pluginType = ((String[]) parameters.get("pluginType"))[0];
 
-    public String execute() {
-        return SUCCESS;
+            ((DetailsAware) action).setDetails(getPluginConfiguration(
+                    pluginName, pluginType, configuration));
+        }
     }
 
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
+    protected void after(ActionInvocation dispatcher, String result)
+            throws Exception {
     }
 
-    public String getContents() throws AttributeNotFoundException,
-            InstanceNotFoundException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException, JDOMException {
-        return configuration.getConfiguration();
-    }
-
-    public void setContents(String contents)
-            throws InstanceNotFoundException, AttributeNotFoundException,
-            InvalidAttributeValueException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException {
-        this.configuration.setConfiguration(contents);
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
-    }
-
-    public BootstrapperDetail[] getBootstrappers()
+    private PluginConfiguration getPluginConfiguration(String name,
+            String type, Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-        return configuration.getBootstrappers();
-    }
-
-    public SourceControlDetail[] getSourceControls()
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-        return configuration.getSourceControls();
+            MBeanException, ReflectionException, IOException, JDOMException {
+        PluginLocator locator = new PluginLocator(configuration);
+        PluginDetail pluginDetail = locator.getPluginDetail(name, type);
+        return new PluginConfiguration(pluginDetail, configuration);
     }
 }

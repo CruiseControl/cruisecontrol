@@ -34,27 +34,40 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.interceptor;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import java.util.Map;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.PluginDetail;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+import com.opensymphony.xwork.Action;
+import com.opensymphony.xwork.ActionContext;
+import com.opensymphony.xwork.ActionInvocation;
+import com.opensymphony.xwork.interceptor.AroundInterceptor;
+
+/**
+ * Understands how to load available plugins for PluginAware actions.
+ */
+public class PluginsInterceptor extends AroundInterceptor {
+    protected void before(ActionInvocation invocation) throws Exception {
+        Action action = invocation.getAction();
+
+        if (action instanceof PluginsAware) {
+            ActionContext invocationContext = invocation.getInvocationContext();
+            Map parameters = invocationContext.getParameters();
+
+            Configuration configuration = (Configuration) invocationContext
+                    .getApplication().get("cc-configuration");
+
+            PluginLocator locator = new PluginLocator(configuration);
+            PluginDetail[] plugins = locator.getPlugins(((String[]) parameters
+                    .get("pluginType"))[0]);
+            ((PluginsAware) action).setPlugins(plugins);
+        }
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
-
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+    protected void after(ActionInvocation dispatcher, String result)
+            throws Exception {
     }
 }

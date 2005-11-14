@@ -76,7 +76,8 @@
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="config" label="Config">
-                <iframe src="config.action?project=<%= project %>" width="90%" height="600"></iframe>
+                <iframe src="config.jspa?project=<%= project %>" width="90%"
+                    height="600" frameborder="0"></iframe>
               </cruisecontrol:tab>
 
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >

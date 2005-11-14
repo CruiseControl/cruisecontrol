@@ -34,27 +34,53 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.interceptor;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import java.io.IOException;
 
-public class ProjectStatusPageWebTest extends WebTestCase {
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.PluginDetail;
+
+/**
+ * Understands how to find plugins.
+ */
+public class PluginLocator {
+    private Configuration configuration;
+
+    public PluginLocator(Configuration configuration) {
+        this.configuration = configuration;
     }
 
-    public void testForceBuild() {
-        beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        setWorkingForm("force_commons-math");
-        submit();
-        assertTextPresent("CruiseControl Status Page");
+    public PluginDetail[] getPlugins(String type)
+            throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException {
+        PluginDetail[] plugins = null;
+        if ("bootstrappers".equals(type)) {
+            plugins = configuration.getBootstrappers();
+        } else if ("publishers".equals(type)) {
+            plugins = configuration.getPublishers();
+        } else if ("modificationset".equals(type)) {
+            plugins = configuration.getSourceControls();
+        }
 
-        // Make sure the build actually started running.
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Control Panel");
-        assertTextNotPresent("waiting for next time to build");
+        return plugins;
+    }
+
+    public PluginDetail getPluginDetail(String name, String type)
+            throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException {
+        PluginDetail[] plugins = getPlugins(type);
+        for (int i = 0; i < plugins.length; i++) {
+            if (plugins[i].getPluginName().equals(name)) {
+                return plugins[i];
+            }
+        }
+
+        return null;
     }
 }

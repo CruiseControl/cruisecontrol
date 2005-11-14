@@ -34,54 +34,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.publishers;
 
-import net.sourceforge.jwebunit.WebTestCase;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.Attribute;
 
-public class CVSConfigurationWebTest extends WebTestCase {
-    private static final String CONFIG_URL = "/cruisecontrol/cvs.action";
+public class GenericPublisherDetailTest extends TestCase {
+    private Attribute[] ftpPublisherAttrs;
+    
+    private Attribute[] xsltLogPublisherAttrs;
 
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl("http://localhost:7854");
-    }
-
-    public void testShouldBeAccessibleFromBasicConfigPage() throws Exception {
-        beginAt("/cruisecontrol/config.action");
-        assertLinkPresentWithText("Configure source control");
-        clickLinkWithText("Configure source control");
-        assertLinkPresentWithText("Return to project configuration");
-        clickLinkWithText("Return to project configuration");
-        assertFormPresent("commons-math-config");
-    }
-
-    public void testShouldLoadCVSConfiguration() {
-        beginAt(CONFIG_URL);
-        assertFormPresent("cvs");
-        assertFormElementPresent("localWorkingCopy");
-        assertTextPresent("projects/jakarta-commons/math");
-        assertFormElementPresent("cvsroot");
-        assertFormElementPresent("module");
-        assertFormElementPresent("tag");
-        assertFormElementPresent("property");
-        assertFormElementPresent("propertyOnDelete");
-        assertSubmitButtonPresent("configure");
+        
+        ftpPublisherAttrs = new GenericPublisherDetail(FTPPublisher.class).getRequiredAttributes();
+        xsltLogPublisherAttrs = new GenericPublisherDetail(XSLTLogPublisher.class).getRequiredAttributes();
     }
     
-    public void testShouldSaveCVSConfiguration() throws Exception {
-        beginAt(CONFIG_URL);
-        setWorkingForm("cvs");
-        setFormElement("localWorkingCopy", "projects/jakarta-commons/cli");
-        assertSubmitButtonPresent("configure");
-        submit();
-        assertFormPresent("cvs");
-        assertFormElementPresent("localWorkingCopy");
-        assertTextPresent("projects/jakarta-commons/cli");
-        clickLinkWithText("Return to project configuration");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("configuration");
-        assertTextPresent("<cruisecontrol>");
-        assertTextPresent("</cruisecontrol>");
-        assertTextPresent("<cvs localWorkingCopy=\"projects/jakarta-commons/cli\" />");
+    public void testShouldDetermineRequiredAttributes() {
+        assertEquals(3, ftpPublisherAttrs.length);
+
+        assertEquals("deleteArtifacts", ftpPublisherAttrs[0].getName());
+        assertEquals(Boolean.TYPE, ftpPublisherAttrs[0].getDataType());
+        assertEquals("destDir", ftpPublisherAttrs[1].getName());
+        assertEquals(String.class, ftpPublisherAttrs[1].getDataType());
+        assertEquals("srcDir", ftpPublisherAttrs[2].getName());
+        assertEquals(String.class, ftpPublisherAttrs[2].getDataType());
+
+        assertEquals(4, xsltLogPublisherAttrs.length);
+
+        assertEquals("directory", xsltLogPublisherAttrs[0].getName());
+        assertEquals(String.class, xsltLogPublisherAttrs[0].getDataType());
+        assertEquals("outFileName", xsltLogPublisherAttrs[1].getName());
+        assertEquals(String.class, xsltLogPublisherAttrs[1].getDataType());
+        assertEquals("publishOnFail", xsltLogPublisherAttrs[2].getName());
+        assertEquals(Boolean.TYPE, xsltLogPublisherAttrs[2].getDataType());
+        assertEquals("xsltFile", xsltLogPublisherAttrs[3].getName());
+        assertEquals(String.class, xsltLogPublisherAttrs[3].getDataType());
     }
 }

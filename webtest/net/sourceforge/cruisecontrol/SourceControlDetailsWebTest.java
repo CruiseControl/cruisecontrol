@@ -1,0 +1,170 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2005 ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol;
+
+import net.sourceforge.jwebunit.WebTestCase;
+
+public class SourceControlDetailsWebTest extends WebTestCase {
+    private static final String BASE = "/cruisecontrol/details!default.jspa?"
+        + "project=commons-math&pluginType=modificationset";
+
+    private static final String CVS_URL = BASE + "&pluginName=cvs";
+
+    private static final String SVN_URL = BASE + "&pluginName=svn";
+
+    private Configuration configuration;
+
+    private String contents;
+
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        getTestContext().setBaseUrl("http://localhost:7854");
+
+        configuration = new Configuration("localhost", 7856);
+        contents = configuration.getConfiguration();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+
+        configuration.setConfiguration(contents);
+    }
+
+    public void testShouldBeAccessibleFromSourceControlsPage() {
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?"
+            + "project=commons-math&pluginType=modificationset";
+        
+        beginAt(pluginsUrl);
+        assertLinkPresentWithText("Configure cvs");
+        clickLinkWithText("Configure cvs");
+        assertFormPresent("cvs-details");
+        
+        gotoPage(pluginsUrl);
+        assertLinkPresentWithText("Configure svn");
+        clickLinkWithText("Configure svn");
+        assertFormPresent("svn-details");
+    }
+
+    public void testShouldLoadCVSConfiguration() {
+        beginAt(CVS_URL);
+        assertFormPresent("cvs-details");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("projects/jakarta-commons/math");
+        assertFormElementPresent("cvsroot");
+        assertFormElementPresent("module");
+        assertFormElementPresent("tag");
+        assertFormElementPresent("property");
+        assertFormElementPresent("propertyOnDelete");
+    }
+
+    public void testShouldLoadSVNConfiguration() {
+        beginAt(SVN_URL);
+        assertFormPresent("svn-details");
+        assertFormElementPresent("localWorkingCopy");
+        assertFormElementPresent("password");
+        assertFormElementPresent("property");
+        assertFormElementPresent("propertyOnDelete");
+        assertFormElementPresent("repositoryLocation");
+        assertFormElementPresent("username");
+    }
+
+    public void testShouldSaveCVSConfiguration() {
+        beginAt(CVS_URL);
+        setWorkingForm("cvs-details");
+        setFormElement("localWorkingCopy", "foo/bar");
+        submit();
+        assertFormPresent("commons-math-config");
+        assertFormElementPresent("contents");
+        assertTextPresent("&lt;cruisecontrol&gt;");
+        assertTextPresent("&lt;/cruisecontrol&gt;");
+        assertTextPresent("&lt;cvs ");
+        assertTextPresent("localWorkingCopy=&quot;foo/bar&quot; /&gt;");
+    }
+
+    public void testShouldSaveSVNConfiguration() {
+        beginAt(SVN_URL);
+        setWorkingForm("svn-details");
+        setFormElement("localWorkingCopy", "repos/trunk/foobar");
+        submit();
+        assertFormPresent("commons-math-config");
+        assertFormElementPresent("contents");
+        assertTextPresent("&lt;cruisecontrol&gt;");
+        assertTextPresent("&lt;/cruisecontrol&gt;");
+        assertTextPresent("&lt;svn localWorkingCopy=&quot;repos/trunk/foobar&quot; /&gt;");
+    }
+
+    public void testShouldAllowUsersToClearCVSAttributes() {
+        String cvsroot = "/cvs/foo";
+
+        beginAt(CVS_URL);
+        setWorkingForm("cvs-details");
+        setFormElement("cvsroot", cvsroot);
+        submit();
+        assertTextPresent(cvsroot);
+        clickLinkWithText("Configure Source Control");
+        clickLinkWithText("Configure cvs");
+        assertTextPresent(cvsroot);
+        setWorkingForm("cvs-details");
+        setFormElement("cvsroot", "");
+        submit();
+        assertTextNotPresent(cvsroot);
+        clickLinkWithText("Configure Source Control");
+        clickLinkWithText("Configure cvs");
+        assertTextNotPresent(cvsroot);
+    }
+
+    public void testShouldAllowUsersToClearSVNAttributes() {
+        String repositoryLocation = "/cvs/foo";
+
+        beginAt(SVN_URL);
+        setWorkingForm("svn-details");
+        setFormElement("repositoryLocation", repositoryLocation);
+        submit();
+        assertTextPresent(repositoryLocation);
+        clickLinkWithText("Configure Source Control");
+        clickLinkWithText("Configure svn");
+        assertTextPresent(repositoryLocation);
+        setWorkingForm("svn-details");
+        setFormElement("repositoryLocation", "");
+        submit();
+        assertTextNotPresent(repositoryLocation);
+        clickLinkWithText("Configure Source Control");
+        clickLinkWithText("Configure svn");
+        assertTextNotPresent(repositoryLocation);
+    }
+}

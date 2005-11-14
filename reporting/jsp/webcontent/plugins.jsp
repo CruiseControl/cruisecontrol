@@ -38,26 +38,17 @@
 <%@ taglib uri="webwork" prefix="ww"%>
 <html>
 <head>
-<title><ww:property value="project" /> Configuration</title>
+<title><ww:property value="project" /> <ww:property value="pluginType"/></title>
 <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
 </head>
 <body>
-<p class="config-sectionheader"><ww:property value="pluginName" />Configuration</p>
-<ww:form action="config" id="commons-math-config"
-    name="commons-math-config" method="post">
-    <ul>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=bootstrappers">Configure Bootstrappers</a>
-        </li>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=publishers">Configure Publishers</a>
-        </li>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=modificationset">Configure Source Control</a>
-        </li>
-    </ul>
-    <ww:textarea name="contents" rows="24" cols="80"/>
-    <ww:submit value="Configure"/>
-</ww:form>
+<p class="config-sectionheader"><ww:property value="pluginType" /> Configuration</p>
+<ul>
+    <ww:iterator value="plugins">
+    <li>
+        <a href="<ww:url value="details!default.jspa?pluginName=%{pluginName}"/>">Configure <ww:property value="pluginName"/></a>
+    </li>
+    </ww:iterator>
+</ul>
 </body>
 </html>

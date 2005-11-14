@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.management.Attribute;
@@ -56,14 +57,22 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 
+import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
+import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
+import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
+
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+/**
+ * Understands the CruiseControl configuration.
+ */
 public class Configuration {
-
     private MBeanServerConnection server;
 
     private ObjectName ccMgr;
@@ -112,10 +121,70 @@ public class Configuration {
         return new SAXBuilder().build(new StringReader(xml));
     }
 
+    public Element getElement(String name) throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException, JDOMException {
+        return JDOMSearcher.getElement(getDocument(), name);
+    }
+
+    public BootstrapperDetail[] getBootstrappers()
+            throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException {
+        return (BootstrapperDetail[]) getDetails("AvailableBootstrappers");
+    }
+
+    public PublisherDetail[] getPublishers() throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException {
+        return (PublisherDetail[]) getDetails("AvailablePublishers");
+    }
+
+    public SourceControlDetail[] getSourceControls()
+            throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException {
+        return (SourceControlDetail[]) getDetails("AvailableSourceControls");
+    }
+
+    public PluginDetail[] getPlugins() throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException {
+        return getDetails("AvailablePlugins");
+    }
+
+    public void updatePlugin(PluginConfiguration pluginConfiguration)
+            throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException, JDOMException,
+            InvalidAttributeValueException {
+        Element plugin = new Element(pluginConfiguration.getName());
+        for (Iterator i = pluginConfiguration.getDetails().entrySet()
+                .iterator(); i.hasNext();) {
+            Map.Entry element = (Map.Entry) i.next();
+            String key = (String) element.getKey();
+            String value = (String) element.getValue();
+            if (StringUtils.isNotBlank(value)) {
+                plugin.setAttribute(key, value);
+            }
+        }
+
+        Document doc = getDocument();
+        Element parent = JDOMSearcher.getElement(doc, pluginConfiguration
+                .getType());
+        // plugin = detachElement(plugin);
+        parent.removeChild(plugin.getName());
+        parent.addContent(plugin);
+        setConfiguration(doc);
+    }
+
     private String docToString(Document doc) throws MBeanException,
             AttributeNotFoundException, InstanceNotFoundException,
             ReflectionException, IOException, JDOMException {
         return new XMLOutputter(Format.getPrettyFormat()).outputString(doc)
                 .trim();
+    }
+
+    private PluginDetail[] getDetails(String name) throws MBeanException,
+            AttributeNotFoundException, InstanceNotFoundException,
+            ReflectionException, IOException {
+        return (PluginDetail[]) server.getAttribute(ccMgr, name);
     }
 }

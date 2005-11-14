@@ -38,25 +38,19 @@
 <%@ taglib uri="webwork" prefix="ww"%>
 <html>
 <head>
-<title><ww:property value="project" /> Configuration</title>
+<title><ww:property value="pluginName" /> Configuration</title>
 <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
 </head>
 <body>
-<p class="config-sectionheader"><ww:property value="pluginName" />Configuration</p>
-<ww:form action="config" id="commons-math-config"
-    name="commons-math-config" method="post">
-    <ul>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=bootstrappers">Configure Bootstrappers</a>
-        </li>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=publishers">Configure Publishers</a>
-        </li>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=modificationset">Configure Source Control</a>
-        </li>
-    </ul>
-    <ww:textarea name="contents" rows="24" cols="80"/>
+<p class="config-sectionheader"><ww:property value="pluginName" />
+Configuration</p>
+<ww:form action="details" name="%{pluginName}-details" method="post">
+    <ww:hidden name="pluginName" value="%{pluginName}" />
+    <ww:hidden name="pluginType" value="%{pluginType}" />
+    <ww:iterator value="details">
+        <ww:textfield name="%{key}" label="%{key}"
+            value="%{value}" size="32" />
+    </ww:iterator>
     <ww:submit value="Configure"/>
 </ww:form>
 </body>
