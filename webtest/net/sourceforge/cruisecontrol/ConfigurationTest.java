@@ -45,7 +45,7 @@ import javax.management.MBeanException;
 import javax.management.ReflectionException;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
+import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
 import net.sourceforge.cruisecontrol.sourcecontrols.GenericSourceControlDetail;
 
 import org.jdom.JDOMException;
@@ -91,7 +91,7 @@ public class ConfigurationTest extends TestCase {
             MBeanException, ReflectionException, IOException, JDOMException,
             InvalidAttributeValueException {
         String addContent = "projects/foobar";
-        PluginDetail cvsDetail = new GenericSourceControlDetail(CVS.class);
+        PluginDetail cvsDetail = new GenericSourceControlDetail(ConcurrentVersionsSystem.class);
         PluginConfiguration pluginConfiguration = new PluginConfiguration(
                 cvsDetail, configuration);
         pluginConfiguration.setDetail("cvsroot", "projects/foobar");

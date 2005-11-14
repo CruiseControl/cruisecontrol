@@ -46,7 +46,7 @@ public class GenericSourceControlDetailsTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         
-        cvsAttrs = new GenericSourceControlDetail(CVS.class).getRequiredAttributes();
+        cvsAttrs = new GenericSourceControlDetail(ConcurrentVersionsSystem.class).getRequiredAttributes();
         svnAttrs = new GenericSourceControlDetail(SVN.class).getRequiredAttributes();
     }
 
