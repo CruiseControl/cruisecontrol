@@ -674,8 +674,10 @@ public class ConcurrentVersionsSystem implements SourceControl {
         // Read to the working file name line to get the filename.
         // If working file name line isn't found we'll extract is from the RCS file line
         String workingFileName;
-        if (module != null) {
-            workingFileName = rcsLine.substring(rcsLine.indexOf(module) + module.length(), rcsLine.length() - 2);
+        if (module != null && cvsroot != null) {
+            final String repositoryRoot = cvsroot.substring(cvsroot.lastIndexOf(":") + 1);
+            final int startAt = "RCS file: ".length() + repositoryRoot.length();
+            workingFileName = rcsLine.substring(startAt, rcsLine.length() - 2);
         } else {
             String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
             workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
