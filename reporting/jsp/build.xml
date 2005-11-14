@@ -67,15 +67,13 @@
     </path>
 
     <path id="project.runtime.classpath" >
-	<!--
-        <fileset dir="${cc.libs}" id="cc.jar">
-            <include name="cruisecontrol.jar"/>
-        </fileset>
-	-->
+
+        <fileset file="../../main/dist/cruisecontrol.jar"/>
+
         <fileset dir="${lib}" id="req.libs">
             <include name="batik*.jar"/>
             <include name="cewolf*.jar"/>
-            <include name="commons-lang*.jar"/>            
+            <include name="commons-lang*.jar"/>
             <include name="commons-logging*.jar"/>
             <include name="jcommon*.jar"/>
             <include name="jdom*.jar"/>
@@ -121,7 +119,7 @@
         <!-- Simian is failing even if no duplicated lines? -->
         <simian failOnDuplication="false">
             <fileset dir="${src}" includes="**/*.java"/>
-        </simian>        
+        </simian>
     </target>
 
     <!-- **************************************************** -->
@@ -193,7 +191,7 @@
         <input message="WARNING! Property cruise.build.artifacts.dir not set!  Please enter the absolute path to the directory where additional build artifacts are stored:"
             addproperty="cruise.build.artifacts.dir"/>
     </target>
-    
+
     <target name="war" depends="compile, create-web-xml">
         <copy file="webwork.properties" todir="${classes}"/>
         <copy file="xwork.xml" todir="${classes}"/>
@@ -201,9 +199,7 @@
             <fileset dir="${webcontent}" excludes="WEB-INF/web.xml"/>
             <classes dir="${classes}"/>
             <lib refid="req.libs"/>
-	    <!--
-            <lib refid="cc.jar"/>            
-	    -->
+            <lib file="../../main/dist/cruisecontrol.jar"/>
             <manifest>
                 <attribute name="Implementation-Version" value="${label}"/>
             </manifest>
