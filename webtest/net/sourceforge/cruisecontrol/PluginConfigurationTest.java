@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
+import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
 import net.sourceforge.cruisecontrol.sourcecontrols.GenericSourceControlDetail;
 import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
 
@@ -52,7 +52,7 @@ public class PluginConfigurationTest extends TestCase {
         super.setUp();
 
         Configuration configuration = new Configuration("localhost", 7856);
-        PluginDetail cvsDetails = new GenericSourceControlDetail(CVS.class);
+        PluginDetail cvsDetails = new GenericSourceControlDetail(ConcurrentVersionsSystem.class);
         PluginDetail svnDetails = new GenericSourceControlDetail(SVN.class);
 
         this.cvs = new PluginConfiguration(cvsDetails, configuration);

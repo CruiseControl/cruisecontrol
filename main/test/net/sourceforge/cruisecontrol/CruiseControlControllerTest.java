@@ -402,7 +402,7 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(18, srcControls.length);
         assertEquals("accurev", srcControls[0].getPluginName());
         assertEquals("modificationset", srcControls[0].getPluginType());
-        assertEquals("cvs", srcControls[7].getPluginName());
+        assertEquals("concurrentversionssystem", srcControls[7].getPluginName());
         assertEquals("modificationset", srcControls[7].getPluginType());
         assertEquals("svn", srcControls[15].getPluginName());
         assertEquals("modificationset", srcControls[15].getPluginType());

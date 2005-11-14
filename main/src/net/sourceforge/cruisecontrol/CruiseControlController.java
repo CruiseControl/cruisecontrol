@@ -88,7 +88,7 @@ import net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain;
 import net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild;
 import net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
-import net.sourceforge.cruisecontrol.sourcecontrols.CVS;
+import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
 import net.sourceforge.cruisecontrol.sourcecontrols.ClearCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.Compound;
 import net.sourceforge.cruisecontrol.sourcecontrols.FileSystem;
@@ -403,7 +403,7 @@ public class CruiseControlController {
                 new GenericSourceControlDetail(ClearCase.class),
                 new GenericSourceControlDetail(CMSynergy.class),
                 new GenericSourceControlDetail(Compound.class),
-                new GenericSourceControlDetail(CVS.class),
+                new GenericSourceControlDetail(ConcurrentVersionsSystem.class),
                 new GenericSourceControlDetail(FileSystem.class),
                 new GenericSourceControlDetail(ForceOnly.class),
                 new GenericSourceControlDetail(HttpFile.class),

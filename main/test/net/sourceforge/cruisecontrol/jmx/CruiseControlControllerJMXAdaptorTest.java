@@ -74,7 +74,7 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
         SourceControlDetail[] srcControls = adaptor.getAvailableSourceControls();
         assertEquals(18, srcControls.length);
         assertEquals("accurev", srcControls[0].getPluginName());
-        assertEquals("cvs", srcControls[7].getPluginName());
+        assertEquals("concurrentversionssystem", srcControls[7].getPluginName());
         assertEquals("svn", srcControls[15].getPluginName());
     }
     

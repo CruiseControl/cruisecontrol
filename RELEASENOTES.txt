@@ -45,6 +45,10 @@ config.xml:
 * Allow preconfiguration of <log ..> element and sub-elements. Patch by Jerome Lacoste.
 * Allow preconfiguration of project and subelements (CC-352). Patch by Jerome Lacoste.
 
+CVS.java:
+----------------------
+* Deprecated CVS.java in favor of ConcurrentVersionsSystem.java to overcome issues with directory/filename conflicts, specifically with Eclipse IDE (CC-164). Note: CVS.java and other deprecated methods/classes are scheduled for deletion in the 3.0 release.
+
 general:
 ----------------------
 * Minor changes to make code jdk 1.3 compliant.
