@@ -70,23 +70,19 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 /**
- * Understands the CruiseControl configuration.
+ * Communicates with the CruiseControl JMX server to allow CRUD operations on the CruiseControl configuration.
  */
 public class Configuration {
     private MBeanServerConnection server;
-
     private ObjectName ccMgr;
 
     public Configuration(String jmxServer, int rmiPort) throws IOException,
             MalformedObjectNameException {
-        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://"
-                + jmxServer + ":" + rmiPort + "/jndi/jrmp");
+        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://" + jmxServer + ":" + rmiPort + "/jndi/jrmp");
 
         Map environment = new HashMap();
-        environment.put(Context.INITIAL_CONTEXT_FACTORY,
-                "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        environment.put(Context.PROVIDER_URL, "rmi://" + jmxServer + ":"
-                + rmiPort);
+        environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        environment.put(Context.PROVIDER_URL, "rmi://" + jmxServer + ":" + rmiPort);
 
         JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
         server = cntor.getMBeanServerConnection();
@@ -96,65 +92,68 @@ public class Configuration {
     public String getConfiguration() throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-        return docToString(getDocument());
+
+        return docToString(getConfigurationDocument());
     }
 
     public void setConfiguration(String configuration)
             throws InstanceNotFoundException, AttributeNotFoundException,
             InvalidAttributeValueException, MBeanException,
             ReflectionException, IOException {
-        server.setAttribute(ccMgr, new Attribute("ConfigFileContents",
-                URLDecoder.decode(configuration)));
+
+        server.setAttribute(ccMgr, new Attribute("ConfigFileContents", URLDecoder.decode(configuration)));
     }
 
     public void setConfiguration(Document doc)
             throws InstanceNotFoundException, AttributeNotFoundException,
             InvalidAttributeValueException, MBeanException,
             ReflectionException, IOException, JDOMException {
+
         setConfiguration(docToString(doc));
     }
 
-    public Document getDocument() throws MBeanException,
-            AttributeNotFoundException, InstanceNotFoundException,
-            ReflectionException, IOException, JDOMException {
+    public Document getConfigurationDocument()
+            throws ReflectionException, IOException, InstanceNotFoundException, MBeanException,
+            AttributeNotFoundException, JDOMException {
+
         String xml = (String) server.getAttribute(ccMgr, "ConfigFileContents");
         return new SAXBuilder().build(new StringReader(xml));
     }
 
-    public Element getElement(String name) throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
-            IOException, JDOMException {
-        return JDOMSearcher.getElement(getDocument(), name);
+    public Element getElement(String name) throws ReflectionException, InstanceNotFoundException, IOException,
+            MBeanException, AttributeNotFoundException, JDOMException {
+        return JDOMSearcher.getElement(getConfigurationDocument(), name);
     }
 
-    public BootstrapperDetail[] getBootstrappers()
-            throws AttributeNotFoundException, InstanceNotFoundException,
+    public BootstrapperDetail[] getBootstrappers() throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
-        return (BootstrapperDetail[]) getDetails("AvailableBootstrappers");
+
+        return (BootstrapperDetail[]) server.getAttribute(ccMgr, "AvailableBootstrappers");
     }
 
-    public PublisherDetail[] getPublishers() throws AttributeNotFoundException,
+    public PublisherDetail[] getPublishers() throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException {
+
+        return (PublisherDetail[]) server.getAttribute(ccMgr, "AvailablePublishers");
+    }
+
+    public SourceControlDetail[] getSourceControls() throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException {
+
+        return (SourceControlDetail[]) server.getAttribute(ccMgr, "AvailableSourceControls");
+    }
+
+    public PluginDetail[] getAllPlugins() throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException {
-        return (PublisherDetail[]) getDetails("AvailablePublishers");
-    }
-
-    public SourceControlDetail[] getSourceControls()
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-        return (SourceControlDetail[]) getDetails("AvailableSourceControls");
-    }
-
-    public PluginDetail[] getPlugins() throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
-            IOException {
-        return getDetails("AvailablePlugins");
+        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailablePlugins");
     }
 
     public void updatePlugin(PluginConfiguration pluginConfiguration)
             throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException, JDOMException,
             InvalidAttributeValueException {
+
         Element plugin = new Element(pluginConfiguration.getName());
         for (Iterator i = pluginConfiguration.getDetails().entrySet()
                 .iterator(); i.hasNext();) {
@@ -166,25 +165,18 @@ public class Configuration {
             }
         }
 
-        Document doc = getDocument();
-        Element parent = JDOMSearcher.getElement(doc, pluginConfiguration
-                .getType());
-        // plugin = detachElement(plugin);
+        //TODO: This currently only allows for one subelement with the same name. In most cases, there can be
+        //  more than one. For example, <modificationset> may contain multiple <cvs> subelements
+        Document doc = getConfigurationDocument();
+        Element parent = JDOMSearcher.getElement(doc, pluginConfiguration.getType());
         parent.removeChild(plugin.getName());
         parent.addContent(plugin);
+
         setConfiguration(doc);
     }
 
-    private String docToString(Document doc) throws MBeanException,
-            AttributeNotFoundException, InstanceNotFoundException,
-            ReflectionException, IOException, JDOMException {
-        return new XMLOutputter(Format.getPrettyFormat()).outputString(doc)
-                .trim();
+    private static String docToString(Document doc) {
+        return new XMLOutputter(Format.getPrettyFormat()).outputString(doc).trim();
     }
 
-    private PluginDetail[] getDetails(String name) throws MBeanException,
-            AttributeNotFoundException, InstanceNotFoundException,
-            ReflectionException, IOException {
-        return (PluginDetail[]) server.getAttribute(ccMgr, name);
-    }
 }

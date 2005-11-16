@@ -52,6 +52,7 @@ import com.opensymphony.xwork.interceptor.AroundInterceptor;
  * Understands how to load the configuration for ConfigurationAware actions.
  */
 public class ConfigurationInterceptor extends AroundInterceptor {
+
     protected void before(ActionInvocation invocation) throws Exception {
         Action action = invocation.getAction();
         Configuration configuration = getConfiguration(invocation);
@@ -61,27 +62,24 @@ public class ConfigurationInterceptor extends AroundInterceptor {
         }
     }
 
-    protected void after(ActionInvocation dispatcher, String result)
-            throws Exception {
+    protected void after(ActionInvocation dispatcher, String result) throws Exception {
     }
 
-    private Configuration createConfiguration(Map app) throws IOException,
-            MalformedObjectNameException {
+    private Configuration createConfiguration() throws IOException, MalformedObjectNameException {
         String jmxServer = getJMXServer();
-        String rmiPort = System.getProperty("cruisecontrol.rmiport");
-        Configuration configuration = new Configuration(jmxServer, Integer
-                .parseInt(rmiPort));
+        int rmiPort = Integer.parseInt(System.getProperty("cruisecontrol.rmiport"));
+        Configuration configuration = new Configuration(jmxServer, rmiPort);
         return configuration;
     }
 
     private Configuration getConfiguration(ActionInvocation invocation)
             throws IOException, MalformedObjectNameException {
+
         Map app = invocation.getInvocationContext().getApplication();
-        Configuration configuration = (Configuration) app
-                .get("cc-configuration");
+        Configuration configuration = (Configuration) app.get("cc-configuration");
 
         if (configuration == null) {
-            configuration = createConfiguration(app);
+            configuration = createConfiguration();
             app.put("cc-configuration", configuration);
             invocation.getInvocationContext().setApplication(app);
         }
