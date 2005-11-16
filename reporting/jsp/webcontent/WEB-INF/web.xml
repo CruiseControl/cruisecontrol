@@ -132,11 +132,12 @@
         <servlet-name>webwork</servlet-name>
         <servlet-class>com.opensymphony.webwork.dispatcher.ServletDispatcher</servlet-class>
     </servlet>
+
     <servlet>
         <servlet-name>config</servlet-name>
-      <display-name>Project configuration UI</display-name>
-      <description>Wraps webwork configuration actions inside main page.</description>
-      <jsp-file>/main.jsp</jsp-file>
+        <display-name>Project configuration UI</display-name>
+        <description>Wraps webwork configuration actions inside main page.</description>
+        <jsp-file>/main.jsp</jsp-file>
     </servlet>
 
     <!-- Used for charting... -->
@@ -170,6 +171,7 @@
         <servlet-name>webwork</servlet-name>
         <url-pattern>*.jspa</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>config</servlet-name>
         <url-pattern>/config/*</url-pattern>
