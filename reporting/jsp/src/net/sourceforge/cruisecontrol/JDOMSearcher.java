@@ -36,27 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
-
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
+
+import java.util.Iterator;
+import java.util.List;
 
 public final class JDOMSearcher {
     
     private JDOMSearcher() {
     }
     
-    public static Element getElement(Document doc, String name)
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException, JDOMException {
+    public static Element getElement(Document doc, String name) {
         return findElement(doc.getRootElement(), name);
     }
 

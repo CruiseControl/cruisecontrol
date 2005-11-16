@@ -55,14 +55,11 @@ import org.jdom.JDOMException;
 public class PluginConfiguration {
 
     private Map details;
-
     private String name;
-
     private String type;
 
-    public PluginConfiguration(PluginDetail pluginDetail,
-            Configuration configuration) throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
+    public PluginConfiguration(PluginDetail pluginDetail, Configuration configuration)
+            throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
         this.name = pluginDetail.getPluginName();
         this.type = pluginDetail.getPluginType();
@@ -82,17 +79,16 @@ public class PluginConfiguration {
     }
 
     public void setDetail(String name, String value) {
+
         if (details.containsKey(name)
-                && (StringUtils.isNotBlank((String) details.get(name)) || StringUtils
-                        .isNotBlank(value))) {
+                && (StringUtils.isNotBlank((String) details.get(name)) || StringUtils.isNotBlank(value))) {
             details.remove(name);
             details.put(name, value);
         }
     }
 
-    private Map createDetails(PluginDetail pluginDetail,
-            Configuration configuration) throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
+    private Map createDetails(PluginDetail pluginDetail, Configuration configuration)
+            throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
         Map tmp = new HashMap();
         Element currentConfiguration = getElement(configuration);
@@ -101,8 +97,7 @@ public class PluginConfiguration {
         for (int i = 0; i < attributes.length; i++) {
             Attribute attribute = attributes[i];
             String key = attribute.getName();
-            String realName = key.substring(0, 1).toLowerCase()
-                    + key.substring(1);
+            String realName = key.substring(0, 1).toLowerCase() + key.substring(1);
             tmp.put(realName, currentConfiguration.getAttributeValue(realName));
         }
 
@@ -112,6 +107,7 @@ public class PluginConfiguration {
     private Element getElement(Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException, JDOMException {
+
         Element currentConfiguration = configuration.getElement(this.name);
 
         if (currentConfiguration == null) {

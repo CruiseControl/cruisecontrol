@@ -58,30 +58,29 @@ import com.opensymphony.xwork.interceptor.AroundInterceptor;
  * Understands how to load plugin details for DetailsAware actions.
  */
 public class DetailsInterceptor extends AroundInterceptor {
+
     protected void before(ActionInvocation invocation) throws Exception {
         Action action = invocation.getAction();
 
         if (action instanceof DetailsAware) {
-            Configuration configuration = (Configuration) invocation
-                    .getInvocationContext().getApplication().get(
-                            "cc-configuration");
+            Configuration configuration = (Configuration) invocation.getInvocationContext().getApplication()
+                    .get("cc-configuration");
             Map parameters = invocation.getInvocationContext().getParameters();
             String pluginName = ((String[]) parameters.get("pluginName"))[0];
             String pluginType = ((String[]) parameters.get("pluginType"))[0];
 
-            ((DetailsAware) action).setDetails(getPluginConfiguration(
-                    pluginName, pluginType, configuration));
+            PluginConfiguration details = getPluginConfiguration(pluginName, pluginType, configuration);
+            ((DetailsAware) action).setDetails(details);
         }
     }
 
-    protected void after(ActionInvocation dispatcher, String result)
-            throws Exception {
+    protected void after(ActionInvocation dispatcher, String result) throws Exception {
     }
 
-    private PluginConfiguration getPluginConfiguration(String name,
-            String type, Configuration configuration)
+    private PluginConfiguration getPluginConfiguration(String name, String type, Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException, JDOMException {
+        
         PluginLocator locator = new PluginLocator(configuration);
         PluginDetail pluginDetail = locator.getPluginDetail(name, type);
         return new PluginConfiguration(pluginDetail, configuration);
