@@ -55,17 +55,9 @@ import java.util.StringTokenizer;
 import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class FileServlet extends HttpServlet {
-
-    /** For the last-modified header.
-     * Follows the rfc1123-date grammar specified at http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html
-     */
-    private static final String LAST_MODIFIED_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
-    private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
     private File rootDir;
     private List indexFiles;
@@ -163,9 +155,7 @@ public class FileServlet extends HttpServlet {
                 mimeType = getMimeType(filename);
             }
             Date date = new Date(file.getFile().lastModified());
-            SimpleDateFormat lastModifiedDateFormat = new SimpleDateFormat(LAST_MODIFIED_DATE_FORMAT);
-            lastModifiedDateFormat.setTimeZone(GMT);
-            response.addHeader("Last-Modified:", lastModifiedDateFormat.format(date));
+            response.addDateHeader("Last-Modified", date.getTime());
             response.setContentType(mimeType);
             file.write(response.getOutputStream());
             return;

@@ -109,6 +109,10 @@ CruiseControlTagSupport:
 ----------------------
 * Use commons logging instead of sysout (CC-337). Patch by ajbanck@informatica.com.
 
+FileServlet:
+----------------------
+* Fix a bug with Last-Modified date format. Patch by Torsten Buerger
+
 LogFile:
 ----------------------
 * Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn
