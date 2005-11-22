@@ -85,7 +85,7 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         assertFormPresent("cvs-details");
         assertFormElementPresent("localWorkingCopy");
         assertTextPresent("projects/jakarta-commons/math");
-        assertFormElementPresent("cvsroot");
+        assertFormElementPresent("cvsRoot");
         assertFormElementPresent("module");
         assertFormElementPresent("tag");
         assertFormElementPresent("property");
@@ -133,14 +133,14 @@ public class SourceControlDetailsWebTest extends WebTestCase {
 
         beginAt(CVS_URL);
         setWorkingForm("cvs-details");
-        setFormElement("cvsroot", cvsroot);
+        setFormElement("cvsRoot", cvsroot);
         submit();
         assertTextPresent(cvsroot);
         clickLinkWithText("Configure Source Control");
         clickLinkWithText("Configure cvs");
         assertTextPresent(cvsroot);
         setWorkingForm("cvs-details");
-        setFormElement("cvsroot", "");
+        setFormElement("cvsRoot", "");
         submit();
         assertTextNotPresent(cvsroot);
         clickLinkWithText("Configure Source Control");
