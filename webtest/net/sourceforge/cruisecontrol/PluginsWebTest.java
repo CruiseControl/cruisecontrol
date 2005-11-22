@@ -77,7 +77,7 @@ public class PluginsWebTest extends WebTestCase {
         assertLinkPresentWithText("Configure clearcasebootstrapper");
         assertLinkPresentWithText("Configure cmsynergybootstrapper");
         assertLinkPresentWithText("Configure currentbuildstatusbootstrapper");
-        assertLinkPresentWithText("Configure currentbuildstatusftpbootstrapper");
+//        assertLinkPresentWithText("Configure currentbuildstatusftpbootstrapper");
         assertLinkPresentWithText("Configure cvsbootstrapper");
         assertLinkPresentWithText("Configure p4bootstrapper");
         assertLinkPresentWithText("Configure snapshotcmbootstrapper");
@@ -91,18 +91,18 @@ public class PluginsWebTest extends WebTestCase {
         assertLinkPresentWithText("Configure cmsynergybaselinepublisher");
         assertLinkPresentWithText("Configure cmsynergytaskpublisher");
         assertLinkPresentWithText("Configure currentbuildstatuspublisher");
-        assertLinkPresentWithText("Configure currentbuildstatusftppublisher");
-        assertLinkPresentWithText("Configure emailpublisher");
-        assertLinkPresentWithText("Configure executepublisher");
+//        assertLinkPresentWithText("Configure currentbuildstatusftppublisher");
+        assertLinkPresentWithText("Configure email");
+        assertLinkPresentWithText("Configure execute");
         assertLinkPresentWithText("Configure ftppublisher");
-        assertLinkPresentWithText("Configure htmlemailpublisher");
-        assertLinkPresentWithText("Configure jabberpublisher");
-        assertLinkPresentWithText("Configure onfailurepublisher");
-        assertLinkPresentWithText("Configure onsuccesspublisher");
-        assertLinkPresentWithText("Configure rsspublisher");
-        assertLinkPresentWithText("Configure scppublisher");
-        assertLinkPresentWithText("Configure socketpublisher");
-        assertLinkPresentWithText("Configure x10publisher");
+        assertLinkPresentWithText("Configure htmlemail");
+        assertLinkPresentWithText("Configure jabber");
+        assertLinkPresentWithText("Configure onfailure");
+        assertLinkPresentWithText("Configure onsuccess");
+//        assertLinkPresentWithText("Configure rss");
+        assertLinkPresentWithText("Configure scp");
+        assertLinkPresentWithText("Configure socket");
+        assertLinkPresentWithText("Configure x10");
         assertLinkPresentWithText("Configure xsltlogpublisher");
     }
     
@@ -118,7 +118,7 @@ public class PluginsWebTest extends WebTestCase {
         assertLinkPresentWithText("Configure cvs");
         assertLinkPresentWithText("Configure filesystem");
         assertLinkPresentWithText("Configure forceonly");
-        assertLinkPresentWithText("Configure httpfile");
+//        assertLinkPresentWithText("Configure httpfile");
         assertLinkPresentWithText("Configure mks");
         assertLinkPresentWithText("Configure p4");
         assertLinkPresentWithText("Configure pvcs");

@@ -46,7 +46,7 @@
 <ul>
     <ww:iterator value="plugins">
     <li>
-        <a href="<ww:url value="details!default.jspa?pluginName=%{pluginName}"/>">Configure <ww:property value="pluginName"/></a>
+        <a href="<ww:url value="details!default.jspa?pluginName=%{name}"/>">Configure <ww:property value="name"/></a>
     </li>
     </ww:iterator>
 </ul>

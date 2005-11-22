@@ -38,15 +38,15 @@
 <%@ taglib uri="webwork" prefix="ww"%>
 <html>
 <head>
-<title><ww:property value="pluginName" /> Configuration</title>
+<title><ww:property value="name" /> Configuration</title>
 <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
 </head>
 <body>
-<p class="config-sectionheader"><ww:property value="pluginName" />
+<p class="config-sectionheader"><ww:property value="name" />
 Configuration</p>
-<ww:form action="details" name="%{pluginName}-details" method="post">
-    <ww:hidden name="pluginName" value="%{pluginName}" />
-    <ww:hidden name="pluginType" value="%{pluginType}" />
+<ww:form action="details" name="%{name}-details" method="post">
+    <ww:hidden name="pluginName" value="%{name}" />
+    <ww:hidden name="pluginType" value="%{type}" />
     <ww:iterator value="details">
         <ww:textfield name="%{key}" label="%{key}"
             value="%{value}" size="32" />

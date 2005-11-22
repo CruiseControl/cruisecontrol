@@ -43,23 +43,23 @@ import java.io.Serializable;
  */
 public class Attribute implements Comparable, Serializable {
 
-    private final String name;
-    private final Class dataType;
+    private String name;
+    private Class type;
 
-    public Attribute(String name, Class dataType) {
+    public Attribute(String name, Class type) {
         this.name = name;
-        this.dataType = dataType;
+        this.type = type;
     }
 
     public String getName() {
         return name;
     }
 
-    public Class getDataType() {
-        return dataType;
+    public Class getType() {
+        return type;
     }
 
-    public int compareTo(Object o) {
-        return name.compareTo(((Attribute) o).name);
+    public int compareTo(Object other) {
+        return name.compareTo(((Attribute) other).name);
     }
 }

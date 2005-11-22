@@ -38,57 +38,55 @@ package net.sourceforge.cruisecontrol;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Understands information common to all plugins.
  */
-public abstract class GenericPluginDetail implements PluginDetail {
-    private String pluginName;
+public class GenericPluginDetail implements PluginDetail {
+    private final String name;
+    private final PluginType type;
+    private final Attribute[] requiredAttributes;
 
-    private String pluginType;
-
-    private Attribute[] requiredAttributes;
-
-    public GenericPluginDetail(Class plugin, String type) {
-        String fqcn = plugin.getName();
-        this.pluginName = fqcn.substring(fqcn.lastIndexOf('.') + 1).toLowerCase();
-        this.pluginType = type;
-        this.requiredAttributes = findRequiredAttributes(plugin);
-        Arrays.sort(this.requiredAttributes);
+    public GenericPluginDetail(String name, Class plugin) {
+        this.name = name;
+        this.requiredAttributes = lookupRequiredAttributes(plugin);
+        this.type = PluginType.find(plugin);
     }
 
-    public String getPluginName() {
-        return pluginName;
+    public String getName() {
+        return name;
     }
 
-    public String getPluginType() {
-        return pluginType;
+    public PluginType getType() {
+        return type;
     }
 
     public Attribute[] getRequiredAttributes() {
         return requiredAttributes;
     }
+    
+    public int compareTo(Object other) {
+        return this.getName().compareTo(((PluginDetail) other).getName());
+    }
 
-    private Attribute[] findRequiredAttributes(Class sourceControl) {
+    private static Attribute[] lookupRequiredAttributes(Class plugin) {
         List attrs = new LinkedList();
-
-        Method[] methods = sourceControl.getDeclaredMethods();
+        Method[] methods = plugin.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            String methodName = method.getName();
-            if (methodName.startsWith("set")
-                    && Modifier.isPublic(method.getModifiers())) {
-                String attrName = methodName.substring(3, 4).toLowerCase()
-                        + methodName.substring(4);
-                Attribute attr = new Attribute(attrName, method
-                        .getParameterTypes()[0]);
-                attrs.add(attr);
+            if (isRequiredAttribute(method)) {
+                String methodName = method.getName();
+                String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+                attrs.add(new Attribute(attributeName, method.getParameterTypes()[0]));
             }
         }
-
+        
         return (Attribute[]) attrs.toArray(new Attribute[attrs.size()]);
+    }
+
+    private static boolean isRequiredAttribute(Method method) {
+        return method.getName().startsWith("set") && Modifier.isPublic(method.getModifiers());
     }
 }

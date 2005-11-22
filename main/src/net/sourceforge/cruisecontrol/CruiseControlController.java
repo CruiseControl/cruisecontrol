@@ -40,69 +40,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import net.sourceforge.cruisecontrol.bootstrappers.AccurevBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.AlienBrainBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
-import net.sourceforge.cruisecontrol.bootstrappers.CMSynergyBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusFTPBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.GenericBootstrapperDetail;
-import net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.SnapshotCMBootstrapper;
-import net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper;
 import net.sourceforge.cruisecontrol.config.XMLConfigManager;
-import net.sourceforge.cruisecontrol.publishers.AntPublisher;
-import net.sourceforge.cruisecontrol.publishers.CMSynergyBaselinePublisher;
-import net.sourceforge.cruisecontrol.publishers.CMSynergyTaskPublisher;
-import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher;
-import net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher;
-import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
-import net.sourceforge.cruisecontrol.publishers.ExecutePublisher;
-import net.sourceforge.cruisecontrol.publishers.FTPPublisher;
-import net.sourceforge.cruisecontrol.publishers.GenericPublisherDetail;
-import net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher;
-import net.sourceforge.cruisecontrol.publishers.JabberPublisher;
-import net.sourceforge.cruisecontrol.publishers.OnFailurePublisher;
-import net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher;
-import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
-import net.sourceforge.cruisecontrol.publishers.RSSPublisher;
-import net.sourceforge.cruisecontrol.publishers.SCPPublisher;
-import net.sourceforge.cruisecontrol.publishers.SocketPublisher;
-import net.sourceforge.cruisecontrol.publishers.X10Publisher;
-import net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher;
-import net.sourceforge.cruisecontrol.sourcecontrols.Accurev;
-import net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain;
-import net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild;
-import net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus;
-import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
-import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
-import net.sourceforge.cruisecontrol.sourcecontrols.ClearCase;
-import net.sourceforge.cruisecontrol.sourcecontrols.Compound;
-import net.sourceforge.cruisecontrol.sourcecontrols.FileSystem;
-import net.sourceforge.cruisecontrol.sourcecontrols.ForceOnly;
-import net.sourceforge.cruisecontrol.sourcecontrols.GenericSourceControlDetail;
-import net.sourceforge.cruisecontrol.sourcecontrols.HttpFile;
-import net.sourceforge.cruisecontrol.sourcecontrols.MKS;
-import net.sourceforge.cruisecontrol.sourcecontrols.P4;
-import net.sourceforge.cruisecontrol.sourcecontrols.PVCS;
-import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
-import net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCM;
-import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
-import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
-import net.sourceforge.cruisecontrol.sourcecontrols.VssJournal;
 
 import org.apache.log4j.Logger;
 
@@ -350,80 +295,34 @@ public class CruiseControlController {
         }
     }
 
-    public BootstrapperDetail[] getAvailableBootstrappers() {
-        BootstrapperDetail[] bootstrappers = {
-                new GenericBootstrapperDetail(AccurevBootstrapper.class),
-                new GenericBootstrapperDetail(AlienBrainBootstrapper.class),
-                new GenericBootstrapperDetail(AntBootstrapper.class),
-                new GenericBootstrapperDetail(ClearCaseBootstrapper.class),
-                new GenericBootstrapperDetail(CMSynergyBootstrapper.class),
-                new GenericBootstrapperDetail(
-                        CurrentBuildStatusBootstrapper.class),
-                new GenericBootstrapperDetail(
-                        CurrentBuildStatusFTPBootstrapper.class),
-                new GenericBootstrapperDetail(CVSBootstrapper.class),
-                new GenericBootstrapperDetail(P4Bootstrapper.class),
-                new GenericBootstrapperDetail(SnapshotCMBootstrapper.class),
-                // new GenericBootstrapperDetail(StarTeamBootstrapper.class),
-                new GenericBootstrapperDetail(SVNBootstrapper.class),
-                new GenericBootstrapperDetail(VssBootstrapper.class) };
-        return bootstrappers;
+    public PluginDetail[] getAvailableBootstrappers() {
+        return getPluginsByType(getAvailablePlugins(), PluginType.BOOTSTRAPPER);
     }
 
-    public PublisherDetail[] getAvailablePublishers() {
-        PublisherDetail[] publishers = {
-                new GenericPublisherDetail(AntPublisher.class),
-                new GenericPublisherDetail(CMSynergyBaselinePublisher.class),
-                new GenericPublisherDetail(CMSynergyTaskPublisher.class),
-                new GenericPublisherDetail(CurrentBuildStatusPublisher.class),
-                new GenericPublisherDetail(CurrentBuildStatusFTPPublisher.class),
-                new GenericPublisherDetail(EmailPublisher.class),
-                new GenericPublisherDetail(ExecutePublisher.class),
-                new GenericPublisherDetail(FTPPublisher.class),
-                new GenericPublisherDetail(HTMLEmailPublisher.class),
-                new GenericPublisherDetail(JabberPublisher.class),
-                new GenericPublisherDetail(OnFailurePublisher.class),
-                new GenericPublisherDetail(OnSuccessPublisher.class),
-                new GenericPublisherDetail(RSSPublisher.class),
-                // new
-                // GenericPublisherDetail(SametimeAnnouncementPublisher.class),
-                new GenericPublisherDetail(SCPPublisher.class),
-                new GenericPublisherDetail(SocketPublisher.class),
-                new GenericPublisherDetail(X10Publisher.class),
-                new GenericPublisherDetail(XSLTLogPublisher.class) };
-        return publishers;
+    public PluginDetail[] getAvailablePublishers() {
+        return getPluginsByType(getAvailablePlugins(), PluginType.PUBLISHER);
     }
 
-    public SourceControlDetail[] getAvailableSourceControls() {
-        SourceControlDetail[] srcCtrls = {
-                new GenericSourceControlDetail(Accurev.class),
-                new GenericSourceControlDetail(AlienBrain.class),
-                new GenericSourceControlDetail(AlwaysBuild.class),
-                new GenericSourceControlDetail(BuildStatus.class),
-                new GenericSourceControlDetail(ClearCase.class),
-                new GenericSourceControlDetail(CMSynergy.class),
-                new GenericSourceControlDetail(Compound.class),
-                new GenericSourceControlDetail(ConcurrentVersionsSystem.class),
-                new GenericSourceControlDetail(FileSystem.class),
-                new GenericSourceControlDetail(ForceOnly.class),
-                new GenericSourceControlDetail(HttpFile.class),
-                new GenericSourceControlDetail(MKS.class),
-                new GenericSourceControlDetail(P4.class),
-                new GenericSourceControlDetail(PVCS.class),
-                new GenericSourceControlDetail(SnapshotCM.class),
-                // new GenericSourceControlDetail(StarTeam.class),
-                new GenericSourceControlDetail(SVN.class),
-                new GenericSourceControlDetail(Vss.class),
-                new GenericSourceControlDetail(VssJournal.class) };
-        return srcCtrls;
+    public PluginDetail[] getAvailableSourceControls() {
+        return getPluginsByType(getAvailablePlugins(), PluginType.SOURCE_CONTROL);
     }
 
     public PluginDetail[] getAvailablePlugins() {
-        List plugins = new LinkedList();
-        plugins.addAll(Arrays.asList(getAvailableBootstrappers()));
-        plugins.addAll(Arrays.asList(getAvailablePublishers()));
-        plugins.addAll(Arrays.asList(getAvailableSourceControls()));
-        return (PluginDetail[]) plugins
-                .toArray(new PluginDetail[plugins.size()]);
+        try {
+            return ((XMLConfigManager) configManager).getCruiseControlConfig().getRootPlugins().getPluginDetails();
+        } catch (CruiseControlException e) {
+            return new PluginDetail[0];
+        }
+    }
+
+    private static PluginDetail[] getPluginsByType(PluginDetail[] details, PluginType type) {
+        List plugins = new ArrayList();
+        for (int i = 0; i < details.length; i++) {
+            if (details[i].getType().equals(type)) {
+                plugins.add(details[i]);
+            }
+        }
+
+        return (PluginDetail[]) plugins.toArray(new PluginDetail[plugins.size()]);
     }
 }

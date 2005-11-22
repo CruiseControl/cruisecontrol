@@ -43,11 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
-import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
-import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
-import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
 import net.sourceforge.cruisecontrol.config.XMLConfigManager;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 
 /**
  *
@@ -373,43 +370,6 @@ public class CruiseControlControllerTest extends TestCase {
             assertEquals("one of file or dir are required attributes",
                     ccex.getMessage());
         }
-    }
-    
-    public void testGetAvailableBootstrappers() {
-        BootstrapperDetail[] bootstrappers = ccController.getAvailableBootstrappers();
-        assertEquals(12, bootstrappers.length);
-        assertEquals("accurevbootstrapper", bootstrappers[0].getPluginName());
-        assertEquals("bootstrappers", bootstrappers[0].getPluginType());
-        assertEquals("cvsbootstrapper", bootstrappers[7].getPluginName());
-        assertEquals("bootstrappers", bootstrappers[7].getPluginType());
-        assertEquals("svnbootstrapper", bootstrappers[10].getPluginName());
-        assertEquals("bootstrappers", bootstrappers[10].getPluginType());
-    }
-    
-    public void testGetAvailablePublishers() {
-        PublisherDetail[] publishers = ccController.getAvailablePublishers();
-        assertEquals(17, publishers.length);
-        assertEquals("antpublisher", publishers[0].getPluginName());
-        assertEquals("publishers", publishers[0].getPluginType());
-        assertEquals("ftppublisher", publishers[7].getPluginName());
-        assertEquals("publishers", publishers[7].getPluginType());
-        assertEquals("xsltlogpublisher", publishers[16].getPluginName());
-        assertEquals("publishers", publishers[16].getPluginType());
-    }
-
-    public void testGetAvailableSourceControls() {
-        SourceControlDetail[] srcControls = ccController.getAvailableSourceControls();
-        assertEquals(18, srcControls.length);
-        assertEquals("accurev", srcControls[0].getPluginName());
-        assertEquals("modificationset", srcControls[0].getPluginType());
-        assertEquals("concurrentversionssystem", srcControls[7].getPluginName());
-        assertEquals("modificationset", srcControls[7].getPluginType());
-        assertEquals("svn", srcControls[15].getPluginName());
-        assertEquals("modificationset", srcControls[15].getPluginType());
-    }
-    
-    public void testGetAvailablePlugins() {
-        assertEquals(47, ccController.getAvailablePlugins().length);
     }
     
     private void writeHeader(FileWriter configOut) throws IOException {

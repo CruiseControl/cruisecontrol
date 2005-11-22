@@ -76,7 +76,7 @@ public class PluginLocator {
             MBeanException, ReflectionException, IOException {
         PluginDetail[] plugins = getPlugins(type);
         for (int i = 0; i < plugins.length; i++) {
-            if (plugins[i].getPluginName().equals(name)) {
+            if (plugins[i].getName().equals(name)) {
                 return plugins[i];
             }
         }

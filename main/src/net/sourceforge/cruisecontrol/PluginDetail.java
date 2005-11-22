@@ -41,8 +41,8 @@ import java.io.Serializable;
 /**
  * Represents information common to all plugins.
  */
-public interface PluginDetail extends Serializable {
-    public String getPluginName();
-    public String getPluginType();
+public interface PluginDetail extends Comparable, Serializable {
+    public String getName();
+    public PluginType getType();
     public Attribute[] getRequiredAttributes();
 }
