@@ -144,10 +144,9 @@ public class AntBuilder extends Builder {
         script.setSystemClassPath(getSystemClassPath());
        
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
-        
-        ScriptRunner scriptRunner = new ScriptRunner();
-        boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
-                    
+
+        boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
+
         File logFile = new File(antWorkingDir, tempFileName);
         Element buildLogElement;
         if (!scriptCompleted) {

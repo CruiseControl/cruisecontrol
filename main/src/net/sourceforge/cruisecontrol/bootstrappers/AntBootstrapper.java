@@ -36,31 +36,35 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import java.util.HashMap;
-
+import net.sourceforge.cruisecontrol.Bootstrapper;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.builders.Property;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
-import net.sourceforge.cruisecontrol.Bootstrapper;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import java.util.HashMap;
 
 /**
  * A thin wrapper around the AntBuilder class, this class allows you to
- * call an Ant script as a bootstrapper. 
+ * call an Ant script as a bootstrapper.
+ *
+ * @see net.sourceforge.cruisecontrol.builders.AntBuilder
  * 
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
-public class AntBootstrapper extends AntBuilder implements Bootstrapper {
-    
+public class AntBootstrapper implements Bootstrapper {
+
     private static final Logger LOG = Logger.getLogger(AntBootstrapper.class);
-    
-    /* (non-Javadoc)
+
+    private AntBuilder delegate = new AntBuilder();
+
+    /**
      * @see net.sourceforge.cruisecontrol.Bootstrapper#bootstrap()
      */
     public void bootstrap() throws CruiseControlException {
-        Element result = build(new HashMap());
+        Element result = delegate.build(new HashMap());
         if (result == null) {
             LOG.error("Bootstrap failed.\n\n");
         } else {
@@ -68,10 +72,119 @@ public class AntBootstrapper extends AntBuilder implements Bootstrapper {
             if (error == null) {
                 LOG.info("Bootstrap successful.");
             } else {
-                LOG.error("Bootstrap failed.\n\n" 
-                        + error.getValue() 
+                LOG.error("Bootstrap failed.\n\n"
+                        + error.getValue()
                         + "\n");
-            }         
+            }
         }
+    }
+
+    public void validate() throws CruiseControlException {
+        delegate.validate();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setSaveLogDir(String)
+     */
+    public void setSaveLogDir(String dir) {
+        delegate.setSaveLogDir(dir);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntWorkingDir(String)
+     */
+    public void setAntWorkingDir(String dir) {
+        delegate.setAntWorkingDir(dir);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntScript(String)
+     */
+    public void setAntScript(String antScript) {
+        delegate.setAntScript(antScript);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntHome(String)
+     */
+    public void setAntHome(String antHome) {
+        delegate.setAntHome(antHome);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTempFile(String)
+     */
+    public void setTempFile(String tempFileName) {
+        delegate.setTempFile(tempFileName);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTarget(String)
+     */
+    public void setTarget(String target) {
+        delegate.setTarget(target);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setBuildFile(String)
+     */
+    public void setBuildFile(String buildFile) {
+        delegate.setBuildFile(buildFile);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseLogger(boolean)
+     */
+    public void setUseLogger(boolean useLogger) {
+        delegate.setUseLogger(useLogger);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createJVMArg()
+     */
+    public Object createJVMArg() {
+        return delegate.createJVMArg();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createProperty()
+     */
+    public Property createProperty() {
+        return delegate.createProperty();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseDebug(boolean)
+     */
+    public void setUseDebug(boolean debug) {
+        delegate.setUseDebug(debug);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseQuiet(boolean)
+     */
+    public void setUseQuiet(boolean quiet) {
+        delegate.setUseQuiet(quiet);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#getLoggerClassName()
+     */
+    public String getLoggerClassName() {
+        return delegate.getLoggerClassName();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setLoggerClassName(String)
+     */
+    public void setLoggerClassName(String string) {
+        delegate.setLoggerClassName(string);
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTimeout(long)
+     */
+    public void setTimeout(long timeout) {
+        delegate.setTimeout(timeout);
     }
 }
