@@ -46,9 +46,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
 import net.sourceforge.cruisecontrol.Configuration;
-import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
+import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
-import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
 
 import org.jdom.JDOMException;
 
@@ -94,13 +93,13 @@ public class ConfigurationServlet extends ActionSupport implements
         this.project = project;
     }
 
-    public BootstrapperDetail[] getBootstrappers()
+    public PluginDetail[] getBootstrappers()
             throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
         return configuration.getBootstrappers();
     }
 
-    public SourceControlDetail[] getSourceControls()
+    public PluginDetail[] getSourceControls()
             throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
         return configuration.getSourceControls();

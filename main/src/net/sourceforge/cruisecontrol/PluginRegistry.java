@@ -37,16 +37,18 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
 import org.jdom.Attribute;
+import org.jdom.Element;
 
 
 /**
@@ -226,9 +228,53 @@ public final class PluginRegistry {
             String msg = "Attemping to load plugin named [" + pluginName
                     + "], but couldn't load corresponding class ["
                     + pluginClassname + "].";
-            LOG.error(msg, e);
+//            LOG.error(msg, e);
             throw new CruiseControlException(msg);
         }
+    }
+    
+    public String getPluginName(Class pluginClass) {
+        String pluginName = null;
+
+        if (parentRegistry != null) {
+            pluginName = parentRegistry.getPluginName(pluginClass);
+        }
+
+        if (pluginName == null) {
+            for (Iterator i = plugins.entrySet().iterator(); i.hasNext();) {
+                Map.Entry entry = (Map.Entry) i.next();
+                String value = (String) entry.getValue();
+                if (value.equals(pluginClass.getName())) {
+                    pluginName = ((String) entry.getKey());
+                    break;
+                }
+            }
+        }
+
+        return pluginName;
+    }
+
+    public PluginDetail[] getPluginDetails() throws CruiseControlException {
+        List availablePlugins = new LinkedList();
+        
+        if (parentRegistry != null) {
+            availablePlugins.addAll(Arrays.asList(parentRegistry.getPluginDetails()));
+        }
+        
+        for (Iterator i = plugins.keySet().iterator(); i.hasNext();) {
+            String pluginName = (String) i.next();
+            try {
+                Class pluginClass = getPluginClass(pluginName);
+                availablePlugins.add(new GenericPluginDetail(pluginName, pluginClass));
+            } catch (CruiseControlException e) {
+                String message = e.getMessage();
+                if (message.indexOf("starteam") < 0) {
+                    throw e;
+                }
+            }
+        }
+        
+        return (PluginDetail[]) availablePlugins.toArray(new PluginDetail[availablePlugins.size()]);
     }
 
     /**

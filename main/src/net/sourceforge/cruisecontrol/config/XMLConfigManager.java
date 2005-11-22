@@ -37,7 +37,7 @@ public class XMLConfigManager implements ConfigManager {
 
     private static final Logger LOG = Logger.getLogger(XMLConfigManager.class);
     private File configFile;
-    private CruiseControlConfig config;
+    private CruiseControlConfig config =  new CruiseControlConfig();
     private String hash;
 
     public XMLConfigManager(File file) throws CruiseControlException {

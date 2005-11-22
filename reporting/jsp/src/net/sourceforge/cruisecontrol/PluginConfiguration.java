@@ -56,13 +56,13 @@ public class PluginConfiguration {
 
     private Map details;
     private String name;
-    private String type;
+    private PluginType type;
 
     public PluginConfiguration(PluginDetail pluginDetail, Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-        this.name = pluginDetail.getPluginName();
-        this.type = pluginDetail.getPluginType();
+        this.name = pluginDetail.getName();
+        this.type = pluginDetail.getType();
         this.details = createDetails(pluginDetail, configuration);
     }
 
@@ -71,7 +71,7 @@ public class PluginConfiguration {
     }
 
     public String getType() {
-        return this.type;
+        return this.type.getName();
     }
 
     public Map getDetails() {

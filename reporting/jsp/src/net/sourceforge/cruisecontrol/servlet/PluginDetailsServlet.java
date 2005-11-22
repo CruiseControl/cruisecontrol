@@ -66,14 +66,16 @@ public class PluginDetailsServlet extends ActionSupport implements
         setDetails();
         configuration.updatePlugin(pluginConfiguration);
 
+        addActionMessage("Updated configuration.");
+        
         return SUCCESS;
     }
 
-    public String getPluginName() {
+    public String getName() {
         return this.pluginConfiguration.getName();
     }
 
-    public String getPluginType() {
+    public String getType() {
         return this.pluginConfiguration.getType();
     }
 

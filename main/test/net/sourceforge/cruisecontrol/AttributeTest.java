@@ -39,19 +39,30 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 
 public class AttributeTest extends TestCase {
-    private Attribute attr;
+    private Attribute cvsRoot;
+    private Attribute exitOnFailure;
 
     protected void setUp() throws Exception {
         super.setUp();
         
-        attr = new Attribute("count", Integer.TYPE);
+        cvsRoot = new Attribute("cvsRoot", String.class);
+        exitOnFailure = new Attribute("exitOnFailure", Boolean.TYPE);
     }
 
-    public void testNameAndDataType() {
-        assertEquals("count", attr.getName());
+    public void testGettingName() {
+        assertEquals("cvsRoot", cvsRoot.getName());
+        assertEquals("exitOnFailure", exitOnFailure.getName());
     }
     
-    public void testDatatype() {
-        assertEquals(Integer.TYPE, attr.getDataType());
+    public void testGettingType() {
+        assertEquals(String.class, cvsRoot.getType());
+        assertEquals(Boolean.TYPE, exitOnFailure.getType());
+    }
+
+    public void testComparing() {
+        assertEquals(0, cvsRoot.compareTo(cvsRoot));
+        assertEquals(0, exitOnFailure.compareTo(exitOnFailure));
+        assertTrue(cvsRoot.compareTo(exitOnFailure) < 0);
+        assertTrue(exitOnFailure.compareTo(cvsRoot) > 0);
     }
 }

@@ -170,7 +170,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
     private Map projectConfigs = new TreeMap();
     // for test purposes only
-    private Map projectPluginRegitries = new TreeMap();
+    private Map projectPluginRegistries = new TreeMap();
 
     public CruiseControlConfig() {
     }
@@ -298,7 +298,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         LOG.debug("**************** end configuring project" + projectName + " *******************");
 
         this.projectConfigs.put(projectName, projectConfig);
-        this.projectPluginRegitries.put(projectName, projectPlugins);
+        this.projectPluginRegistries.put(projectName, projectPlugins);
     }
 
     private String getProjectName(Element childElement) throws CruiseControlException {
@@ -328,6 +328,6 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     }
 
     PluginRegistry getProjectPlugins(String name) {
-        return (PluginRegistry) this.projectPluginRegitries.get(name);
+        return (PluginRegistry) this.projectPluginRegistries.get(name);
     }
 }

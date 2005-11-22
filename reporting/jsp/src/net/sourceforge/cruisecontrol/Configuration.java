@@ -57,10 +57,6 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 
-import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
-import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
-import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
-
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -125,22 +121,22 @@ public class Configuration {
         return JDOMSearcher.getElement(getConfigurationDocument(), name);
     }
 
-    public BootstrapperDetail[] getBootstrappers() throws AttributeNotFoundException, InstanceNotFoundException,
+    public PluginDetail[] getBootstrappers() throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
 
-        return (BootstrapperDetail[]) server.getAttribute(ccMgr, "AvailableBootstrappers");
+        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailableBootstrappers");
     }
 
-    public PublisherDetail[] getPublishers() throws AttributeNotFoundException, InstanceNotFoundException,
+    public PluginDetail[] getPublishers() throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
 
-        return (PublisherDetail[]) server.getAttribute(ccMgr, "AvailablePublishers");
+        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailablePublishers");
     }
 
-    public SourceControlDetail[] getSourceControls() throws AttributeNotFoundException, InstanceNotFoundException,
+    public PluginDetail[] getSourceControls() throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
 
-        return (SourceControlDetail[]) server.getAttribute(ccMgr, "AvailableSourceControls");
+        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailableSourceControls");
     }
 
     public PluginDetail[] getAllPlugins() throws AttributeNotFoundException,

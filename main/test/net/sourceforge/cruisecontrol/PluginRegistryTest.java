@@ -36,19 +36,32 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Element;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.builders.AntBuilder;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+import net.sourceforge.cruisecontrol.publishers.ExecutePublisher;
+import net.sourceforge.cruisecontrol.publishers.SCPPublisher;
+import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
+import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
+
+import org.jdom.Element;
+
 public class PluginRegistryTest extends TestCase {
 
+    private PluginRegistry defaultRegistry;
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        defaultRegistry = PluginRegistry.loadDefaultPluginRegistry();
+    }
+    
     /**
      * @deprecated Testing deprecated code
      */
@@ -241,7 +254,8 @@ public class PluginRegistryTest extends TestCase {
                 "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
         verifyPluginClass("alienbrain", "net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain");
         verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
-        verifyPluginClass("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.CVS");
+        verifyPluginClass("cvs",
+                "net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem");
         verifyPluginClass("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
         verifyPluginClass("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
         verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
@@ -284,6 +298,28 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("onsuccess", "net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher");
     }
 
+    public void testCanLoadDefaultRegistry() {
+        assertTrue(defaultRegistry.isPluginRegistered("cvs"));
+        assertTrue(defaultRegistry.isPluginRegistered("antbootstrapper"));
+    }
+    
+    public void testCanGetPluginName() {
+        PluginRegistry registry = defaultRegistry;
+        
+        assertEquals("cvs", registry.getPluginName(ConcurrentVersionsSystem.class));
+        assertEquals("cvsbootstrapper", registry.getPluginName(CVSBootstrapper.class));
+        assertEquals("svn", registry.getPluginName(SVN.class));
+        assertEquals("execute", registry.getPluginName(ExecutePublisher.class));
+        assertEquals("scp", registry.getPluginName(SCPPublisher.class));
+    }
+    
+    public void testCanGetPluginDetails() throws CruiseControlException {
+        PluginDetail[] defaultPlugins = defaultRegistry.getPluginDetails();
+        
+        assertNotNull(defaultPlugins);
+        assertTrue(0 < defaultPlugins.length);
+    }
+    
     static void verifyPluginClass(String pluginName, String expectedName)
             throws Exception {
         PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();

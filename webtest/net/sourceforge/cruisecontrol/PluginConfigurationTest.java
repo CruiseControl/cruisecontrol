@@ -40,7 +40,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
-import net.sourceforge.cruisecontrol.sourcecontrols.GenericSourceControlDetail;
 import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
 
 public class PluginConfigurationTest extends TestCase {
@@ -52,8 +51,8 @@ public class PluginConfigurationTest extends TestCase {
         super.setUp();
 
         Configuration configuration = new Configuration("localhost", 7856);
-        PluginDetail cvsDetails = new GenericSourceControlDetail(ConcurrentVersionsSystem.class);
-        PluginDetail svnDetails = new GenericSourceControlDetail(SVN.class);
+        PluginDetail cvsDetails = new GenericPluginDetail("cvs", ConcurrentVersionsSystem.class);
+        PluginDetail svnDetails = new GenericPluginDetail("svn", SVN.class);
 
         this.cvs = new PluginConfiguration(cvsDetails, configuration);
         this.svn = new PluginConfiguration(svnDetails, configuration);
@@ -72,8 +71,8 @@ public class PluginConfigurationTest extends TestCase {
     public void testShouldGetDetails() {
         Map cvsDetails = cvs.getDetails();
         assertEquals(6, cvsDetails.size());
-        assertTrue(cvsDetails.containsKey("cvsroot"));
-        assertNull(cvsDetails.get("cvsroot"));
+        assertTrue(cvsDetails.containsKey("cvsRoot"));
+        assertNull(cvsDetails.get("cvsRoot"));
         assertTrue(cvsDetails.containsKey("localWorkingCopy"));
         assertEquals("projects/jakarta-commons/math", cvsDetails
                 .get("localWorkingCopy"));

@@ -38,13 +38,13 @@ package net.sourceforge.cruisecontrol.jmx;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -62,9 +62,6 @@ import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.Project;
-import net.sourceforge.cruisecontrol.bootstrappers.BootstrapperDetail;
-import net.sourceforge.cruisecontrol.publishers.PublisherDetail;
-import net.sourceforge.cruisecontrol.sourcecontrols.SourceControlDetail;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -175,15 +172,15 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
         return controller.getProjects();
     }
     
-    public BootstrapperDetail[] getAvailableBootstrappers() {
+    public PluginDetail[] getAvailableBootstrappers() {
         return controller.getAvailableBootstrappers();
     }
     
-    public PublisherDetail[] getAvailablePublishers() {
+    public PluginDetail[] getAvailablePublishers() {
         return controller.getAvailablePublishers();
     }
 
-    public SourceControlDetail[] getAvailableSourceControls() {
+    public PluginDetail[] getAvailableSourceControls() {
         return controller.getAvailableSourceControls();
     }
     
