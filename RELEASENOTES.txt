@@ -66,6 +66,7 @@ general:
 * Javadoc, code, and test deprecation cleanup. Patch by Brad Clarke.
 * New system property named "cruisecontrol.rmiport" set when -rmiport specified on the command line.
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
+* Missing x10.jar origin in lib/readme.txt. Reported by Adrian Cho.
 
 JMX interface:
 ----------------------
