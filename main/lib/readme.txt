@@ -42,6 +42,9 @@ http://mx4j.sourceforge.net/
 Smack
 http://www.jivesoftware.com/xmpp/smack/
 
+X10
+http://www.jpeterson.com/
+
 Xalan-Java
 http://xml.apache.org/xalan-j/
 
