@@ -23,6 +23,10 @@ release.xml:
 build loop
 ======================
 
+AccurevBootstrapper:
+----------------------
+* No longer extends AntBuilder, but delegates to an AntBuilder instance. AccurevBootstrapper previously could have been used as a builder and a bootstrapper, but this wasn't semantically correct. It also made it more difficult to look at the class signature and understand its responsibilities. Patch by Kent Spillner.
+
 AntBootstrapper:
 ----------------------
 * No longer extends AntBuilder, but delegates to an AntBuilder instance. AntBootstrapper previously could have been used as a builder and a bootstrapper, but this wasn't semantically correct. It also made it more difficult to look at the class signature and understand its responsibilities.
@@ -31,6 +35,10 @@ AntBuilder:
 ----------------------
 * Fails with an explicit error message if the ant log is empty instead of a XML parse Error on line -1: Premature end of file. Patch by Jerome Lacoste.
 * Warn that jvmargs are ignored when specifing anthome
+
+AntPublisher:
+----------------------
+* No longer extends AntBuilder, but delegates to an AntBuilder instance. AntPublisher previously could have been used as a builder and a publisher, but this wasn't semantically correct. It also made it more difficult to look at the class signature and understand its responsibilities. Patch by Kent Spillner.
 
 main/build.xml:
 ----------------------
