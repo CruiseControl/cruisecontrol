@@ -71,13 +71,9 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         
         beginAt(pluginsUrl);
         assertLinkPresentWithText("Configure cvs");
-        clickLinkWithText("Configure cvs");
-        assertFormPresent("cvs-details");
         
         gotoPage(pluginsUrl);
         assertLinkPresentWithText("Configure svn");
-        clickLinkWithText("Configure svn");
-        assertFormPresent("svn-details");
     }
 
     public void testShouldLoadCVSConfiguration() {
@@ -108,6 +104,7 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         setWorkingForm("cvs-details");
         setFormElement("localWorkingCopy", "foo/bar");
         submit();
+        assertTextPresent("Updated configuration.");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
@@ -121,6 +118,7 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         setWorkingForm("svn-details");
         setFormElement("localWorkingCopy", "repos/trunk/foobar");
         submit();
+        assertTextPresent("Updated configuration.");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
@@ -135,16 +133,18 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         setWorkingForm("cvs-details");
         setFormElement("cvsRoot", cvsroot);
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextPresent(cvsroot);
-        clickLinkWithText("Configure Source Control");
-        clickLinkWithText("Configure cvs");
+
+        gotoPage(CVS_URL);
         assertTextPresent(cvsroot);
         setWorkingForm("cvs-details");
         setFormElement("cvsRoot", "");
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextNotPresent(cvsroot);
-        clickLinkWithText("Configure Source Control");
-        clickLinkWithText("Configure cvs");
+
+        gotoPage(CVS_URL);
         assertTextNotPresent(cvsroot);
     }
 
@@ -155,16 +155,18 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         setWorkingForm("svn-details");
         setFormElement("repositoryLocation", repositoryLocation);
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextPresent(repositoryLocation);
-        clickLinkWithText("Configure Source Control");
-        clickLinkWithText("Configure svn");
+
+        gotoPage(SVN_URL);
         assertTextPresent(repositoryLocation);
         setWorkingForm("svn-details");
         setFormElement("repositoryLocation", "");
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextNotPresent(repositoryLocation);
-        clickLinkWithText("Configure Source Control");
-        clickLinkWithText("Configure svn");
+
+        gotoPage(SVN_URL);
         assertTextNotPresent(repositoryLocation);
     }
 }

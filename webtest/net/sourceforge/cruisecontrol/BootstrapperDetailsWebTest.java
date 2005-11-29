@@ -40,7 +40,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 public class BootstrapperDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-        + "project=commons-math&pluginType=bootstrappers";
+            + "project=commons-math&pluginType=bootstrappers";
 
     private static final String CVS_URL = BASE + "&pluginName=cvsbootstrapper";
 
@@ -66,18 +66,13 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromBootstrappersPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?"
-            + "project=commons-math&pluginType=bootstrappers";
-        
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?" + "project=commons-math&pluginType=bootstrappers";
+
         beginAt(pluginsUrl);
         assertLinkPresentWithText("Configure cvsbootstrapper");
-        clickLinkWithText("Configure cvsbootstrapper");
-        assertFormPresent("cvsbootstrapper-details");
-        
+
         gotoPage(pluginsUrl);
         assertLinkPresentWithText("Configure svnbootstrapper");
-        clickLinkWithText("Configure svnbootstrapper");
-        assertFormPresent("svnbootstrapper-details");
     }
 
     public void testShouldLoadCVSBootstrapperConfiguration() {
@@ -104,6 +99,7 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
         setWorkingForm("cvsbootstrapper-details");
         setFormElement("localWorkingCopy", "projects/jakarta-commons/cli");
         submit();
+        assertTextPresent("Updated configuration.");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
@@ -116,6 +112,7 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
         setWorkingForm("svnbootstrapper-details");
         setFormElement("localWorkingCopy", "repos/trunk/foobar");
         submit();
+        assertTextPresent("Updated configuration.");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
@@ -130,16 +127,18 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
         setWorkingForm("cvsbootstrapper-details");
         setFormElement("cvsroot", cvsroot);
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextPresent(cvsroot);
-        clickLinkWithText("Configure Bootstrappers");
-        clickLinkWithText("Configure cvsbootstrapper");
+
+        gotoPage(CVS_URL);
         assertTextPresent(cvsroot);
         setWorkingForm("cvsbootstrapper-details");
         setFormElement("cvsroot", "");
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextNotPresent(cvsroot);
-        clickLinkWithText("Configure Bootstrappers");
-        clickLinkWithText("Configure cvsbootstrapper");
+
+        gotoPage(CVS_URL);
         assertTextNotPresent(cvsroot);
     }
 
@@ -150,16 +149,18 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
         setWorkingForm("svnbootstrapper-details");
         setFormElement("localWorkingCopy", localWorkingCopy);
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextPresent(localWorkingCopy);
-        clickLinkWithText("Configure Bootstrappers");
-        clickLinkWithText("Configure svnbootstrapper");
+
+        gotoPage(SVN_URL);
         assertTextPresent(localWorkingCopy);
         setWorkingForm("svnbootstrapper-details");
         setFormElement("localWorkingCopy", "");
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextNotPresent(localWorkingCopy);
-        clickLinkWithText("Configure Bootstrappers");
-        clickLinkWithText("Configure svnbootstrapper");
+
+        gotoPage(SVN_URL);
         assertTextNotPresent(localWorkingCopy);
     }
 }

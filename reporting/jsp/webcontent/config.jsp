@@ -34,30 +34,79 @@
 * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************--%>
-<%@page errorPage="/error.jsp"%>
-<%@ taglib uri="webwork" prefix="ww"%>
+<%@ page errorPage="/error.jsp" %>
+<%@ taglib uri="webwork" prefix="ww" %>
 <html>
 <head>
-<title><ww:property value="project" /> Configuration</title>
-<link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
+    <title><ww:property value="project"/> Configuration</title>
+    <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
+    <script type="text/javascript" language="JavaScript" src="prototype.js"></script>
+    <script type="text/javascript" language="JavaScript" src="cc-config.js"></script>
 </head>
+
 <body>
-<p class="config-sectionheader"><ww:property value="pluginName" />Configuration</p>
-<ww:form action="config" id="commons-math-config"
-    name="commons-math-config" method="post">
+<ww:if test="actionMessages != null">
     <ul>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=bootstrappers">Configure Bootstrappers</a>
-        </li>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=publishers">Configure Publishers</a>
-        </li>
-        <li>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=modificationset">Configure Source Control</a>
-        </li>
+        <ww:iterator value="actionMessages">
+            <li class='config-resultmsg'><ww:property/></li>
+        </ww:iterator>
     </ul>
-    <ww:textarea name="contents" rows="24" cols="80"/>
-    <ww:submit value="Configure"/>
-</ww:form>
+    <hr/>
+</ww:if>
+<table>
+    <tr>
+        <td width="50%">
+            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=listener"
+               onclick="loadPlugins(this.href, 'listenersID'); return false;">
+                <img id="listenersID-icon" src="images/plus_nolines.gif"/>
+                Listeners</a>
+
+            <div id="listenersID" style="display: none; margin-left: 15%"></div>
+            <br/>
+            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=bootstrapper"
+               onclick="loadPlugins(this.href, 'bootstrappersID'); return false;">
+                <img id="bootstrappersID-icon" src="images/plus_nolines.gif"/>
+                Bootstrappers</a>
+
+            <div id="bootstrappersID" style="display: none; margin-left: 15%"></div>
+            <br/>
+            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=sourcecontrol"
+               onclick="loadPlugins(this.href, 'sourceControlID'); return false;">
+                <img id="sourceControlID-icon" src="images/plus_nolines.gif"/>
+                Source Controls</a>
+
+            <div id="sourceControlID" style="display: none; margin-left: 15%"></div>
+            <br/>
+            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=builder"
+               onclick="loadPlugins(this.href, 'builderID'); return false;">
+                <img id="builderID-icon" src="images/plus_nolines.gif"/>
+                Schedule</a>
+
+            <div id="builderID" style="display: none; margin-left: 15%"></div>
+            <br/>
+            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=logger"
+               onclick="loadPlugins(this.href, 'loggerID'); return false;">
+                <img id="loggerID-icon" src="images/plus_nolines.gif"/>
+                Log</a>
+
+            <div id="loggerID" style="display: none; margin-left: 15%"></div>
+            <br/>
+            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=publisher"
+               onclick="loadPlugins(this.href, 'publishersID'); return false;">
+                <img id="publishersID-icon" src="images/plus_nolines.gif"/>
+                Publishers</a>
+
+            <div id="publishersID" style="display: none; margin-left: 15%"></div>
+        </td>
+        <td width="50%"><div id="plugin-details"></div></td>
+    </tr>
+    <tr><td colspan="2">
+        <ww:form action="config" id="commons-math-config"
+                 name="commons-math-config" method="post">
+            <ww:textarea name="contents" rows="24" cols="80"/>
+            <ww:submit value="Configure"/>
+        </ww:form>
+    </td></tr>
+</table>
 </body>
 </html>

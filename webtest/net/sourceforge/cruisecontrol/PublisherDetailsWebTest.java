@@ -71,13 +71,9 @@ public class PublisherDetailsWebTest extends WebTestCase {
         
         beginAt(pluginsUrl);
         assertLinkPresentWithText("Configure ftppublisher");
-        clickLinkWithText("Configure ftppublisher");
-        assertFormPresent("ftppublisher-details");
         
         gotoPage(pluginsUrl);
         assertLinkPresentWithText("Configure xsltlogpublisher");
-        clickLinkWithText("Configure xsltlogpublisher");
-        assertFormPresent("xsltlogpublisher-details");
     }
     
     public void testShouldLoadFTPPublisherConfiguration() {
@@ -102,6 +98,7 @@ public class PublisherDetailsWebTest extends WebTestCase {
         setWorkingForm("ftppublisher-details");
         setFormElement("destDir", "/tmp");
         submit();
+        assertTextPresent("Updated configuration.");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
@@ -114,6 +111,7 @@ public class PublisherDetailsWebTest extends WebTestCase {
         setWorkingForm("xsltlogpublisher-details");
         setFormElement("xsltFile", "templates/foobar.xslt");
         submit();
+        assertTextPresent("Updated configuration.");
         assertFormPresent("commons-math-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
@@ -128,16 +126,18 @@ public class PublisherDetailsWebTest extends WebTestCase {
         setWorkingForm("ftppublisher-details");
         setFormElement("destDir", destDir);
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextPresent(destDir);
-        clickLinkWithText("Configure Publishers");
-        clickLinkWithText("Configure ftppublisher");
+
+        gotoPage(FTP_URL);
         assertTextPresent(destDir);
         setWorkingForm("ftppublisher-details");
         setFormElement("destDir", "");
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextNotPresent(destDir);
-        clickLinkWithText("Configure Publishers");
-        clickLinkWithText("Configure ftppublisher");
+
+        gotoPage(FTP_URL);
         assertTextNotPresent(destDir);
     }
 
@@ -148,16 +148,18 @@ public class PublisherDetailsWebTest extends WebTestCase {
         setWorkingForm("xsltlogpublisher-details");
         setFormElement("xsltFile", xsltFile);
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextPresent(xsltFile);
-        clickLinkWithText("Configure Publishers");
-        clickLinkWithText("Configure xsltlogpublisher");
+
+        gotoPage(XSLT_URL);
         assertTextPresent(xsltFile);
         setWorkingForm("xsltlogpublisher-details");
         setFormElement("xsltFile", "");
         submit();
+        assertTextPresent("Updated configuration.");
         assertTextNotPresent(xsltFile);
-        clickLinkWithText("Configure Publishers");
-        clickLinkWithText("Configure xsltlogpublisher");
+
+        gotoPage(XSLT_URL);
         assertTextNotPresent(xsltFile);
     }
 }

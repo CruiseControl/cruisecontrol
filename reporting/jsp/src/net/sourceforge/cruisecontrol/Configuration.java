@@ -36,12 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.management.Attribute;
 import javax.management.AttributeNotFoundException;
@@ -56,14 +57,12 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
-
-import org.apache.commons.lang.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Communicates with the CruiseControl JMX server to allow CRUD operations on the CruiseControl configuration.
@@ -121,24 +120,6 @@ public class Configuration {
         return JDOMSearcher.getElement(getConfigurationDocument(), name);
     }
 
-    public PluginDetail[] getBootstrappers() throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-
-        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailableBootstrappers");
-    }
-
-    public PluginDetail[] getPublishers() throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-
-        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailablePublishers");
-    }
-
-    public PluginDetail[] getSourceControls() throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-
-        return (PluginDetail[]) server.getAttribute(ccMgr, "AvailableSourceControls");
-    }
-
     public PluginDetail[] getAllPlugins() throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException {
@@ -164,7 +145,7 @@ public class Configuration {
         //TODO: This currently only allows for one subelement with the same name. In most cases, there can be
         //  more than one. For example, <modificationset> may contain multiple <cvs> subelements
         Document doc = getConfigurationDocument();
-        Element parent = JDOMSearcher.getElement(doc, pluginConfiguration.getType());
+        Element parent = JDOMSearcher.getElement(doc, pluginConfiguration.getParentElementName());
         parent.removeChild(plugin.getName());
         parent.addContent(plugin);
 

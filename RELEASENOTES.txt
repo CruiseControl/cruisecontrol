@@ -114,6 +114,7 @@ Configuration Editor:
 * RMI port and server dynamically set.
 * Initial, alpha quality, CVS element edit form, using webwork framework. Patch by Kent Spillner, with Paul Julius.
 * Cleaned up "PluginType" for more concise communication between daemon and configuration editor. Patch by Kent Spillner, with Paul Julius.
+* Added a "tree view" of configuration elements using AJAX for updates from the server. Patch by Kent Spillner, with Paul Julius.
 
 CruiseControlLogFileFilter:
 ----------------------

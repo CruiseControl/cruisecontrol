@@ -27,7 +27,7 @@
         <action name="details"
             class="net.sourceforge.cruisecontrol.servlet.PluginDetailsServlet">
             <result name="input">details.jsp</result>
-            <result name="success" type="redirect">config.jspa</result>
+            <result name="success" type="chain">config</result>
         </action>
         <action name="plugins"
             class="net.sourceforge.cruisecontrol.servlet.PluginsServlet">

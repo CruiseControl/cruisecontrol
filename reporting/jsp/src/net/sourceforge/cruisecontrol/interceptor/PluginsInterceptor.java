@@ -57,12 +57,10 @@ public class PluginsInterceptor extends AroundInterceptor {
             ActionContext invocationContext = invocation.getInvocationContext();
             Map parameters = invocationContext.getParameters();
 
-            Configuration configuration = (Configuration) invocationContext
-                    .getApplication().get("cc-configuration");
+            Configuration configuration = (Configuration) invocationContext.getApplication().get("cc-configuration");
 
             PluginLocator locator = new PluginLocator(configuration);
-            PluginDetail[] plugins = locator.getPlugins(((String[]) parameters
-                    .get("pluginType"))[0]);
+            PluginDetail[] plugins = locator.getPlugins(((String[]) parameters.get("pluginType"))[0]);
             ((PluginsAware) action).setPlugins(plugins);
         }
     }
