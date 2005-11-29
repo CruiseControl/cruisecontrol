@@ -53,44 +53,44 @@ public class PluginTypeTest extends TestCase {
         PluginType type = PluginType.find(CVSBootstrapper.class);
         assertSame(PluginType.BOOTSTRAPPER, type);
         type = PluginType.find(ProjectConfig.Bootstrappers.class);
-        assertSame(PluginType.BOOTSTRAPPER, type);
+        assertSame(PluginType.BOOTSTRAPPERS, type);
 
         type = PluginType.find(AntBuilder.class);
         assertSame(PluginType.BUILDER, type);
 
         type = PluginType.find(CCDateFormat.class);
         assertSame(PluginType.DATE_FORMAT, type);
-        
+
         type = PluginType.find(DefaultLabelIncrementer.class);
         assertSame(PluginType.LABEL_INCREMENTER, type);
 
         type = PluginType.find(CurrentBuildStatusListener.class);
         assertSame(PluginType.LISTENER, type);
         type = PluginType.find(ProjectConfig.Listeners.class);
-        assertSame(PluginType.LISTENER, type);
+        assertSame(PluginType.LISTENERS, type);
 
         type = PluginType.find(Log.class);
         assertSame(PluginType.LOG, type);
-        
+
         type = PluginType.find(EmailMapping.class);
         assertSame(PluginType.MAP, type);
-        
+
         type = PluginType.find(MergeLogger.class);
         assertSame(PluginType.MERGE_LOGGER, type);
 
         type = PluginType.find(ModificationSet.class);
         assertSame(PluginType.MODIFICATION_SET, type);
-        
+
         type = PluginType.find(ProjectConfig.class);
         assertSame(PluginType.PROJECT, type);
 
         type = PluginType.find(PropertiesMapper.class);
         assertSame(PluginType.PROPERTIES_MAPPER, type);
-        
+
         type = PluginType.find(FTPPublisher.class);
         assertSame(PluginType.PUBLISHER, type);
         type = PluginType.find(ProjectConfig.Publishers.class);
-        assertSame(PluginType.PUBLISHER, type);
+        assertSame(PluginType.PUBLISHERS, type);
 
         type = PluginType.find(Schedule.class);
         assertSame(PluginType.SCHEDULE, type);
@@ -98,7 +98,7 @@ public class PluginTypeTest extends TestCase {
         type = PluginType.find(ConcurrentVersionsSystem.class);
         assertSame(PluginType.SOURCE_CONTROL, type);
     }
-    
+
     public void testExceptions() {
         try {
             PluginType.find(Object.class);
@@ -108,34 +108,48 @@ public class PluginTypeTest extends TestCase {
         }
 
         try {
-            PluginType.find(null);
+            PluginType.find((Class) null);
+            fail("Should not be able to find plugin type for null.");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("null is not a CruiseControl plugin.", expected.getMessage());
+        }
+
+        try {
+            PluginType.find((String) null);
             fail("Should not be able to find plugin type for null.");
         } catch (IllegalArgumentException expected) {
             assertEquals("null is not a CruiseControl plugin.", expected.getMessage());
         }
     }
-    
+
+    public void testGettingTypes() {
+        PluginType[] types = PluginType.getTypes();
+
+        assertNotNull(types);
+        assertTrue(0 < types.length);
+    }
+
     public void testGettingNameForPlugin() {
         PluginType type = PluginType.find(CVSBootstrapper.class);
-        assertEquals("bootstrappers", type.getName());
-        
+        assertEquals("bootstrapper", type.getName());
+
         type = PluginType.find(FTPPublisher.class);
-        assertEquals("publishers", type.getName());
-        
+        assertEquals("publisher", type.getName());
+
         type = PluginType.find(ConcurrentVersionsSystem.class);
-        assertEquals("modificationset", type.getName());
+        assertEquals("sourcecontrol", type.getName());
     }
-    
+
     public void testEquals() {
         assertFalse(PluginType.BOOTSTRAPPER.equals(null));
         assertFalse(PluginType.BOOTSTRAPPER.equals(new Object()));
         assertFalse(PluginType.BOOTSTRAPPER.equals(PluginType.SOURCE_CONTROL));
         assertTrue(PluginType.BOOTSTRAPPER.equals(PluginType.BOOTSTRAPPER));
     }
-    
+
     public void testToString() {
-        assertEquals("bootstrappers", PluginType.BOOTSTRAPPER.toString());
-        assertEquals("publishers", PluginType.PUBLISHER.toString());
-        assertEquals("modificationset", PluginType.SOURCE_CONTROL.toString());
+        assertEquals("bootstrapper", PluginType.BOOTSTRAPPER.toString());
+        assertEquals("publisher", PluginType.PUBLISHER.toString());
+        assertEquals("sourcecontrol", PluginType.SOURCE_CONTROL.toString());
     }
 }

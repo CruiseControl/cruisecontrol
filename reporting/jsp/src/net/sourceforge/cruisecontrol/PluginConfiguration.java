@@ -74,6 +74,10 @@ public class PluginConfiguration {
         return this.type.getName();
     }
 
+    public String getParentElementName() {
+        return this.type.getParentElementName();
+    }
+
     public Map getDetails() {
         return this.details;
     }

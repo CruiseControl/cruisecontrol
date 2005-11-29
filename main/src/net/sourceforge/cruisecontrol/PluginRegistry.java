@@ -276,6 +276,10 @@ public final class PluginRegistry {
         
         return (PluginDetail[]) availablePlugins.toArray(new PluginDetail[availablePlugins.size()]);
     }
+    
+    public PluginType[] getPluginTypes() {
+        return PluginType.getTypes();
+    }
 
     /**
      * @return True if this registry or its parent contains

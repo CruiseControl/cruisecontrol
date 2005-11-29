@@ -34,21 +34,24 @@
 * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************--%>
-<%@page errorPage="/error.jsp"%>
-<%@ taglib uri="webwork" prefix="ww"%>
+<%@ page errorPage="/error.jsp" %>
+<%@ taglib uri="webwork" prefix="ww" %>
 <html>
 <head>
-<title><ww:property value="project" /> <ww:property value="pluginType"/></title>
-<link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
+    <title><ww:property value="project"/> <ww:property value="pluginType"/></title>
+    <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
+    <script type="text/javascript" language="JavaScript" src="prototype.js"></script>
+    <script type="text/javascript" language="JavaScript" src="cc-config.js"></script>
 </head>
+
 <body>
-<p class="config-sectionheader"><ww:property value="pluginType" /> Configuration</p>
-<ul>
-    <ww:iterator value="plugins">
-    <li>
-        <a href="<ww:url value="details!default.jspa?pluginName=%{name}"/>">Configure <ww:property value="name"/></a>
-    </li>
-    </ww:iterator>
-</ul>
+<ww:iterator value="plugins">
+    <a href="<ww:url value="details!default.jspa?pluginName=%{name}"/>"
+       onclick="loadPlugins(this.href, 'plugin-details'); return false;">
+        <ww:property value="name"/></a>
+
+    <div id="<ww:property value="name"/>" style="display: none"></div>
+    <br/>
+</ww:iterator>
 </body>
 </html>

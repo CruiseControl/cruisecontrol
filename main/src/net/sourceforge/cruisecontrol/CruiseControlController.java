@@ -314,6 +314,10 @@ public class CruiseControlController {
             return new PluginDetail[0];
         }
     }
+    
+    public PluginType[] getAvailablePluginTypes() {
+        return ((XMLConfigManager) configManager).getCruiseControlConfig().getRootPlugins().getPluginTypes();
+    }
 
     private static PluginDetail[] getPluginsByType(PluginDetail[] details, PluginType type) {
         List plugins = new ArrayList();

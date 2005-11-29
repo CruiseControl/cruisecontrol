@@ -36,7 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.servlet;
 
-import java.io.IOException;
+import com.opensymphony.xwork.ActionSupport;
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
+import org.jdom.JDOMException;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -44,14 +47,7 @@ import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
-
-import net.sourceforge.cruisecontrol.Configuration;
-import net.sourceforge.cruisecontrol.PluginDetail;
-import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
-
-import org.jdom.JDOMException;
-
-import com.opensymphony.xwork.ActionSupport;
+import java.io.IOException;
 
 /**
  * Understands how to edit the configuration via a web interface.
@@ -91,17 +87,5 @@ public class ConfigurationServlet extends ActionSupport implements
 
     public void setProject(String project) {
         this.project = project;
-    }
-
-    public PluginDetail[] getBootstrappers()
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-        return configuration.getBootstrappers();
-    }
-
-    public PluginDetail[] getSourceControls()
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException {
-        return configuration.getSourceControls();
     }
 }

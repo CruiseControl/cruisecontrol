@@ -320,6 +320,13 @@ public class PluginRegistryTest extends TestCase {
         assertTrue(0 < defaultPlugins.length);
     }
     
+    public void testCanGetPluginTypes() {
+        PluginType[] defaultTypes = defaultRegistry.getPluginTypes();
+        
+        assertNotNull(defaultTypes);
+        assertTrue(0 < defaultTypes.length);
+    }
+    
     static void verifyPluginClass(String pluginName, String expectedName)
             throws Exception {
         PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();

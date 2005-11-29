@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.interceptor;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -45,6 +47,7 @@ import javax.management.ReflectionException;
 
 import net.sourceforge.cruisecontrol.Configuration;
 import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.PluginType;
 
 /**
  * Understands how to find plugins.
@@ -59,16 +62,24 @@ public class PluginLocator {
     public PluginDetail[] getPlugins(String type)
             throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException {
-        PluginDetail[] plugins = null;
-        if ("bootstrappers".equals(type)) {
-            plugins = configuration.getBootstrappers();
-        } else if ("publishers".equals(type)) {
-            plugins = configuration.getPublishers();
-        } else if ("modificationset".equals(type)) {
-            plugins = configuration.getSourceControls();
+
+        return getPlugins(PluginType.find(type));
+    }
+
+    public PluginDetail[] getPlugins(PluginType type)
+            throws ReflectionException, IOException, InstanceNotFoundException,
+            MBeanException, AttributeNotFoundException {
+
+        PluginDetail[] allPlugins = configuration.getAllPlugins();
+        Collection desiredPlugins = new LinkedList();
+        for (int i = 0; i < allPlugins.length; i++) {
+            PluginDetail nextPlugin = allPlugins[i];
+            if (nextPlugin.getType() == type) {
+                desiredPlugins.add(nextPlugin);
+            }
         }
 
-        return plugins;
+        return (PluginDetail[]) desiredPlugins.toArray(new PluginDetail[desiredPlugins.size()]);
     }
 
     public PluginDetail getPluginDetail(String name, String type)

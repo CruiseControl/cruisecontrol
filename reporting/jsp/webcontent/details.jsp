@@ -42,8 +42,7 @@
 <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css" />
 </head>
 <body>
-<p class="config-sectionheader"><ww:property value="name" />
-Configuration</p>
+<p class="config-sectionheader"><ww:property value="name" /> Configuration</p>
 <ww:form action="details" name="%{name}-details" method="post">
     <ww:hidden name="pluginName" value="%{name}" />
     <ww:hidden name="pluginType" value="%{type}" />
