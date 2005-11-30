@@ -41,11 +41,11 @@ import net.sourceforge.jwebunit.WebTestCase;
 public class PluginsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/plugins.jspa?project=commons-math";
 
-    private static final String BOOTSTRAPPERS_URL = BASE + "&pluginType=bootstrappers";
+    private static final String BOOTSTRAPPERS_URL = BASE + "&pluginType=bootstrapper";
     
-    private static final String PUBLISHERS_URL = BASE + "&pluginType=publishers";
+    private static final String PUBLISHERS_URL = BASE + "&pluginType=publisher";
     
-    private static final String SOURCE_CONTROLS_URL = BASE + "&pluginType=modificationset";
+    private static final String SOURCE_CONTROLS_URL = BASE + "&pluginType=sourcecontrol";
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -54,67 +54,67 @@ public class PluginsWebTest extends WebTestCase {
     
     public void testShouldBeAccessibleFromBasicConfigPage() throws Exception {
         beginAt("/cruisecontrol/config.jspa");
-        assertLinkPresentWithText("Configure Bootstrappers");
+        assertLinkPresentWithText("Bootstrappers");
 
         gotoPage("/cruisecontrol/config.jspa");
-        assertLinkPresentWithText("Configure Publishers");
+        assertLinkPresentWithText("Publishers");
         
         gotoPage("/cruisecontrol/config.jspa");
-        assertLinkPresentWithText("Configure Source Control");
+        assertLinkPresentWithText("Source Controls");
     }
 
     public void testShouldListAvailableBootstrappers() {
         beginAt(BOOTSTRAPPERS_URL);
-//        assertLinkPresentWithText("Configure accurevbootstrapper");
-        assertLinkPresentWithText("Configure alienbrainbootstrapper");
-//        assertLinkPresentWithText("Configure antbootstrapper");
-        assertLinkPresentWithText("Configure clearcasebootstrapper");
-        assertLinkPresentWithText("Configure cmsynergybootstrapper");
-        assertLinkPresentWithText("Configure currentbuildstatusbootstrapper");
-        assertLinkPresentWithText("Configure cvsbootstrapper");
-        assertLinkPresentWithText("Configure p4bootstrapper");
-        assertLinkPresentWithText("Configure snapshotcmbootstrapper");
-        assertLinkPresentWithText("Configure svnbootstrapper");
-        assertLinkPresentWithText("Configure vssbootstrapper");
+        assertLinkPresentWithText("accurevbootstrapper");
+        assertLinkPresentWithText("alienbrainbootstrapper");
+        assertLinkPresentWithText("antbootstrapper");
+        assertLinkPresentWithText("clearcasebootstrapper");
+        assertLinkPresentWithText("cmsynergybootstrapper");
+        assertLinkPresentWithText("currentbuildstatusbootstrapper");
+        assertLinkPresentWithText("cvsbootstrapper");
+        assertLinkPresentWithText("p4bootstrapper");
+        assertLinkPresentWithText("snapshotcmbootstrapper");
+        assertLinkPresentWithText("svnbootstrapper");
+        assertLinkPresentWithText("vssbootstrapper");
     }
     
     public void testShouldListAvailablePublishers() {
         beginAt(PUBLISHERS_URL);
-//        assertLinkPresentWithText("Configure antpublisher");
-        assertLinkPresentWithText("Configure cmsynergybaselinepublisher");
-        assertLinkPresentWithText("Configure cmsynergytaskpublisher");
-        assertLinkPresentWithText("Configure currentbuildstatuspublisher");
-        assertLinkPresentWithText("Configure email");
-        assertLinkPresentWithText("Configure execute");
-        assertLinkPresentWithText("Configure ftppublisher");
-        assertLinkPresentWithText("Configure htmlemail");
-        assertLinkPresentWithText("Configure jabber");
-        assertLinkPresentWithText("Configure onfailure");
-        assertLinkPresentWithText("Configure onsuccess");
-        assertLinkPresentWithText("Configure scp");
-        assertLinkPresentWithText("Configure socket");
-        assertLinkPresentWithText("Configure x10");
-        assertLinkPresentWithText("Configure xsltlogpublisher");
+        assertLinkPresentWithText("antpublisher");
+        assertLinkPresentWithText("cmsynergybaselinepublisher");
+        assertLinkPresentWithText("cmsynergytaskpublisher");
+        assertLinkPresentWithText("currentbuildstatuspublisher");
+        assertLinkPresentWithText("email");
+        assertLinkPresentWithText("execute");
+        assertLinkPresentWithText("ftppublisher");
+        assertLinkPresentWithText("htmlemail");
+        assertLinkPresentWithText("jabber");
+        assertLinkPresentWithText("onfailure");
+        assertLinkPresentWithText("onsuccess");
+        assertLinkPresentWithText("scp");
+        assertLinkPresentWithText("socket");
+        assertLinkPresentWithText("x10");
+        assertLinkPresentWithText("xsltlogpublisher");
     }
     
     public void testShouldListAvailableSourceControls() {
         beginAt(SOURCE_CONTROLS_URL);
-        assertLinkPresentWithText("Configure accurev");
-        assertLinkPresentWithText("Configure alienbrain");
-        assertLinkPresentWithText("Configure alwaysbuild");
-        assertLinkPresentWithText("Configure buildstatus");
-        assertLinkPresentWithText("Configure clearcase");
-        assertLinkPresentWithText("Configure cmsynergy");
-        assertLinkPresentWithText("Configure compound");
-        assertLinkPresentWithText("Configure cvs");
-        assertLinkPresentWithText("Configure filesystem");
-        assertLinkPresentWithText("Configure forceonly");
-        assertLinkPresentWithText("Configure mks");
-        assertLinkPresentWithText("Configure p4");
-        assertLinkPresentWithText("Configure pvcs");
-        assertLinkPresentWithText("Configure snapshotcm");
-        assertLinkPresentWithText("Configure svn");
-        assertLinkPresentWithText("Configure vss");
-        assertLinkPresentWithText("Configure vssjournal");
+        assertLinkPresentWithText("accurev");
+        assertLinkPresentWithText("alienbrain");
+        assertLinkPresentWithText("alwaysbuild");
+        assertLinkPresentWithText("buildstatus");
+        assertLinkPresentWithText("clearcase");
+        assertLinkPresentWithText("cmsynergy");
+        assertLinkPresentWithText("compound");
+        assertLinkPresentWithText("cvs");
+        assertLinkPresentWithText("filesystem");
+        assertLinkPresentWithText("forceonly");
+        assertLinkPresentWithText("mks");
+        assertLinkPresentWithText("p4");
+        assertLinkPresentWithText("pvcs");
+        assertLinkPresentWithText("snapshotcm");
+        assertLinkPresentWithText("svn");
+        assertLinkPresentWithText("vss");
+        assertLinkPresentWithText("vssjournal");
     }
 }

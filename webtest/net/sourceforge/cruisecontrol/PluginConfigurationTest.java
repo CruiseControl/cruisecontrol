@@ -64,8 +64,8 @@ public class PluginConfigurationTest extends TestCase {
     }
 
     public void testShouldGetType() {
-        assertEquals("modificationset", cvs.getType());
-        assertEquals("modificationset", svn.getType());
+        assertEquals("sourcecontrol", cvs.getType());
+        assertEquals("sourcecontrol", svn.getType());
     }
 
     public void testShouldGetDetails() {

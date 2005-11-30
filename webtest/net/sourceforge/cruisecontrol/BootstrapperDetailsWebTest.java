@@ -40,7 +40,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 public class BootstrapperDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-            + "project=commons-math&pluginType=bootstrappers";
+            + "project=commons-math&pluginType=bootstrapper";
 
     private static final String CVS_URL = BASE + "&pluginName=cvsbootstrapper";
 
@@ -66,13 +66,13 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromBootstrappersPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?" + "project=commons-math&pluginType=bootstrappers";
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=commons-math&pluginType=bootstrapper";
 
         beginAt(pluginsUrl);
-        assertLinkPresentWithText("Configure cvsbootstrapper");
+        assertLinkPresentWithText("cvsbootstrapper");
 
         gotoPage(pluginsUrl);
-        assertLinkPresentWithText("Configure svnbootstrapper");
+        assertLinkPresentWithText("svnbootstrapper");
     }
 
     public void testShouldLoadCVSBootstrapperConfiguration() {
