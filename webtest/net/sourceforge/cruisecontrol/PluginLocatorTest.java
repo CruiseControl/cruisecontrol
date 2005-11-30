@@ -87,10 +87,10 @@ public class PluginLocatorTest extends TestCase {
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException {
         PluginDetail cvsDetail = locator.getPluginDetail("cvs",
-                "modificationset");
+                "sourcecontrol");
         assertEquals("cvs", cvsDetail.getName());
-        assertEquals("modificationset", cvsDetail.getType().getName());
-//        assertEquals(PluginType.MODIFICATION_SET, cvsDetail.getType());
+        assertEquals("sourcecontrol", cvsDetail.getType().getName());
+        assertEquals(PluginType.SOURCE_CONTROL, cvsDetail.getType());
         assertEquals(6, cvsDetail.getRequiredAttributes().length);
     }
 
@@ -98,10 +98,10 @@ public class PluginLocatorTest extends TestCase {
             InstanceNotFoundException, MBeanException, ReflectionException,
             IOException {
         PluginDetail svnDetail = locator.getPluginDetail("svn",
-                "modificationset");
+                "sourcecontrol");
         assertEquals("svn", svnDetail.getName());
-        assertEquals("modificationset", svnDetail.getType().getName());
-//        assertEquals(PluginType.MODIFICATION_SET, svnDetail.getType());
+        assertEquals("sourcecontrol", svnDetail.getType().getName());
+        assertEquals(PluginType.SOURCE_CONTROL, svnDetail.getType());
         assertEquals(6, svnDetail.getRequiredAttributes().length);
     }
 }

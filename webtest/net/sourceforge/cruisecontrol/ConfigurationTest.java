@@ -51,7 +51,7 @@ import org.jdom.JDOMException;
 
 public class ConfigurationTest extends TestCase {
     private Configuration configuration;
-    
+
     private String contents;
 
     protected void setUp() throws Exception {
@@ -63,13 +63,12 @@ public class ConfigurationTest extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        
+
         configuration.setConfiguration(contents);
     }
 
-    public void testGetConfiguration() throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
-            IOException, JDOMException {
+    public void testGetConfiguration() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,
+            ReflectionException, IOException, JDOMException {
         String contents = getContents();
         String xmlHdr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         assertTrue(contents.indexOf(xmlHdr) == 0);
@@ -77,30 +76,25 @@ public class ConfigurationTest extends TestCase {
         assertTrue(contents.indexOf("</cruisecontrol>") != -1);
     }
 
-    public void testSetConfiguration() throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
-            IOException, JDOMException, InvalidAttributeValueException {
+    public void testSetConfiguration() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,
+            ReflectionException, IOException, JDOMException, InvalidAttributeValueException {
         String addContent = "<!-- Hello, world! -->";
         configuration.setConfiguration(getContents() + addContent);
         assertTrue(getContents().indexOf(addContent) != -1);
     }
 
-    public void testShouldUpdatePluginElement()
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException, JDOMException,
-            InvalidAttributeValueException {
+    public void testCanUpdatePluginElement() throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException, JDOMException, InvalidAttributeValueException {
         String addContent = "projects/foobar";
         PluginDetail cvsDetail = new GenericPluginDetail("cvs", ConcurrentVersionsSystem.class);
-        PluginConfiguration pluginConfiguration = new PluginConfiguration(
-                cvsDetail, configuration);
+        PluginConfiguration pluginConfiguration = new PluginConfiguration(cvsDetail, configuration);
         pluginConfiguration.setDetail("cvsRoot", "projects/foobar");
         configuration.updatePlugin(pluginConfiguration);
         assertTrue(getContents().indexOf(addContent) != -1);
     }
 
-    private String getContents() throws AttributeNotFoundException,
-            InstanceNotFoundException, MBeanException, ReflectionException,
-            IOException, JDOMException {
+    private String getContents() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,
+            ReflectionException, IOException, JDOMException {
         return configuration.getConfiguration();
     }
 }

@@ -40,7 +40,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 public class SourceControlDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-        + "project=commons-math&pluginType=modificationset";
+        + "project=commons-math&pluginType=sourcecontrol";
 
     private static final String CVS_URL = BASE + "&pluginName=cvs";
 
@@ -66,14 +66,13 @@ public class SourceControlDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromSourceControlsPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?"
-            + "project=commons-math&pluginType=modificationset";
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=commons-math&pluginType=sourcecontrol";
         
         beginAt(pluginsUrl);
-        assertLinkPresentWithText("Configure cvs");
+        assertLinkPresentWithText("cvs");
         
         gotoPage(pluginsUrl);
-        assertLinkPresentWithText("Configure svn");
+        assertLinkPresentWithText("svn");
     }
 
     public void testShouldLoadCVSConfiguration() {

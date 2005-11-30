@@ -40,7 +40,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 public class PublisherDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-        + "project=commons-math&pluginType=publishers";
+        + "project=commons-math&pluginType=publisher";
 
     private static final String FTP_URL = BASE + "&pluginName=ftppublisher";
 
@@ -66,14 +66,13 @@ public class PublisherDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromPublishersPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?"
-            + "project=commons-math&pluginType=publishers";
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=commons-math&pluginType=publisher";
         
         beginAt(pluginsUrl);
-        assertLinkPresentWithText("Configure ftppublisher");
+        assertLinkPresentWithText("ftppublisher");
         
         gotoPage(pluginsUrl);
-        assertLinkPresentWithText("Configure xsltlogpublisher");
+        assertLinkPresentWithText("xsltlogpublisher");
     }
     
     public void testShouldLoadFTPPublisherConfiguration() {
