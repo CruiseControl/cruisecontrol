@@ -18,7 +18,8 @@ release.xml:
 ----------------------
 * New targets "deploy-server" and "kill-server" for starting/killing the binary release on a testing port.
 * Added "web" tests for the binary distribution. They are executed by the "webtest" target in release.xml.
-* Exclude pre-built binaries from source distribution and rename zip to include "src" in the name (CC-336). 
+* Exclude pre-built binaries from source distribution and rename zip to include "src" in the name (CC-336).
+* Renamed to build.xml so that it conforms to Ant standards.
 
 build loop
 ======================
