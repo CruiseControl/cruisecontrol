@@ -41,7 +41,7 @@ REM # You may modify the default values below.
 REM #--------------------------------------------
 
 REM # The name of the build file to use
-set BUILDFILE=release.xml
+set BUILDFILE=build.xml
 
 REM # Directory where necessary build Java libraries are found
 set LIBDIR=main\lib
