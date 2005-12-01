@@ -2,8 +2,8 @@ Manifest-Version: 1.2
 Class-Path:  
  ../lib/activation.jar 
  ../lib/comm.jar 
- ../lib/commons-net-1.1.0.jar
- ../lib/fast-md5.jar
+ ../lib/commons-net-1.1.0.jar 
+ ../lib/fast-md5.jar 
  ../lib/jakarta-oro-2.0.3.jar 
  ../lib/jdom.jar 
  ../lib/log4j.jar 
@@ -15,7 +15,7 @@ Class-Path:
  ../lib/starteam-sdk.jar 
  ../lib/STComm.jar 
  ../lib/x10.jar 
- ../lib/xalan-2.6.0.jar
+ ../lib/xalan-2.6.0.jar 
  ../lib/xercesImpl-2.7.0.jar 
  ../lib/xml-apis-2.7.0.jar 
  ../lib/ant/ant.jar 
