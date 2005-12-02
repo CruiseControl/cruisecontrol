@@ -151,6 +151,7 @@
 <a href="#schedule">&lt;schedule&gt;</a>
 <a href="#scp">&lt;scp&gt;</a>
 <a href="#sfeefrs">&lt;sfeefrs&gt;</a>
+<a href="#sfeetracker">&lt;sfeetracker&gt;</a>
 <a href="#snapshotcm">&lt;snapshotcm&gt;</a>
 <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a>
 <a href="#socket">&lt;socket&gt;</a>
@@ -277,6 +278,7 @@
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
          <a href="#sfeefrs">&lt;sfeefrs/&gt;</a>
+         <a href="#sfeetracker">&lt;sfeetracker/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
          <a href="#x10">&lt;x10/&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
@@ -1115,7 +1117,7 @@ password=P@ssW0rd!
          <div class="elementdocumentation">
          <a class="toplink" href="#top">top</a>
          <h2><a name="accurevbootstrapper">&lt;accurevbootstrapper&gt;</a></h2>
- 
+
          <div class="hierarchy">
              <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -1123,7 +1125,7 @@ password=P@ssW0rd!
     <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
       &lt;accurevbootstrapper&gt;</pre>
         </div>
- 
+
         <p>Automatically updates an accurev workspace. The selected workspace must already exist on the local filesystem.</p>
 
         <h3>Attributes</h3>
@@ -1146,12 +1148,12 @@ password=P@ssW0rd!
                 <td>synctime</td>
                 <td>No (defaults to "false")</td>
                 <td>If true, the plugin runs "accurev synctime" before trying to update the workspace, to synchronize the local clock with the Accurev server's.</td>
-            </tr>            
+            </tr>
             <tr>
                 <td>verbose</td>
                 <td>No (defaults to "false")</td>
                 <td>Enables detailed logging.</td>
-            </tr>            
+            </tr>
             <tr>
                 <td>workspace</td>
                 <td>No (defaults to the current dir)</td>
@@ -1160,26 +1162,26 @@ password=P@ssW0rd!
 
             </tbody>
         </table>
-		
+
         <h3>Examples</h3>
 
 	<ol>
-            <li>Updates the workspace locally stored on <code>D:\accurev\workspace_user\MyProject</code>, 
+            <li>Updates the workspace locally stored on <code>D:\accurev\workspace_user\MyProject</code>,
             after synchronizing the local clock with the autokeeping all the modified files.
 
 <pre>
 &lt;bootstrappers&gt;
     &lt;accurevbootstrapper workspace="D:\accurev\workspace_user\MyProject"
         synctime="true"
-        keep="true" 
+        keep="true"
         verbose="true"/&gt;
 &lt;bootstrappers&gt;
 </pre>
 </li>
 </ol>
-		
 
-        </div>	
+
+        </div>
 
 
         <div class="elementdocumentation">
@@ -2058,7 +2060,7 @@ password=P@ssW0rd!
                 <td><a href="#accurev">&lt;accurev&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in an AccuRev stream.</td>
-            </tr>        
+            </tr>
             <tr>
                 <td><a href="#alienbrain">&lt;alienbrain&gt;</a></td>
                 <td>0 .. *</td>
@@ -2200,7 +2202,7 @@ password=P@ssW0rd!
                <td>verbose</td>
                <td>No (defaults to "false")</td>
                <td>Set to "true" to enable a more verbose logging style.</td>
-            </tr>           
+            </tr>
             </tbody>
         </table>
 
@@ -4786,6 +4788,11 @@ endlocal</pre>
                 <td>Uploads a file to a SourceForge Enterprise Edition project's file release system (FRS).</td>
             </tr>
             <tr>
+                <td><a href="#sfeetracker"><code>&lt;sfeetracker&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Creates a Tracker artifact in a SourceForge Enterprise Edition project.</td>
+            </tr>
+            <tr>
                 <td><a href="#socket"><code>&lt;socket&gt;</code></a></td>
                 <td>0 .. *</td>
         <td>Writes "Success" or "Failure" to a socket</td>
@@ -5359,7 +5366,8 @@ endlocal</pre>
 
         <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.
             The publisher is compiled against a stub implementation of that SDK. Remove the stub jar
-            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place.
+            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place and make them available in
+            CruiseControl's classpath.
         </p>
 
         <h3>Attributes</h3>
@@ -5423,6 +5431,235 @@ endlocal</pre>
     password="mypassword"
     releaseid="rel2509"
     uploadname="myapp-current.jar"/&gt;</pre>
+         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="sfeetracker">&lt;sfeetracker&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;sfeetracker&gt;</pre>
+        </div>
+
+        <p>Creates a Tracker artifact in a SourceForge Enterprise Edition project. Artifact fields are defined
+        as subelements, where the always mandatory fields title, description and status are required children. Other
+        fields with arbitary names and values are defined as "field" subelements. All fields may include either
+        hardcoded values, or use an xpath expression to define the value at runtime.</p>
+
+        <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.
+            The publisher is compiled against a stub implementation of that SDK. Remove the stub jar
+            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place and make them available in
+            CruiseControl's classpath.
+        </p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>trackerName</td>
+                <td>Yes</td>
+                <td>The name of the Tracker within the specified SFEE project.</td>
+            </tr>
+            <tr>
+                <td>projectName</td>
+                <td>Yes</td>
+                <td>The name of the SFEE project where the tracker specified exists.</td>
+            </tr>
+            <tr>
+                <td>serverurl</td>
+                <td>Yes</td>
+                <td>URL for the SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Valid username for the specified SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password for the specified username.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><code>&lt;title&gt;</code></td>
+                <td>1</td>
+                <td>The title for the tracker artifact. This child element is required and has the
+                    following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>value</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>The title value for the new tracker artifact.</td>
+                            </tr>
+                            <tr>
+                                <td>xpathExpression</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
+                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
+                                    used as the value for the title.</td>
+                            </tr>
+                            <tr>
+                                <td>xmlFile</td>
+                                <td>No (defaults to the CruiseControl build log). </td>
+                                <td>Path to a file on the local filesystem against which the
+                                    <code>xpathExpression</code> will be evaluated.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;description&gt;</code></td>
+                <td>1</td>
+                <td>The description for the tracker artifact. This child element is required and has the
+                    following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>value</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>The description for the new tracker artifact.</td>
+                            </tr>
+                            <tr>
+                                <td>xpathExpression</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
+                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
+                                    used as the value for the description.</td>
+                            </tr>
+                            <tr>
+                                <td>xmlFile</td>
+                                <td>No (defaults to the CruiseControl build log). </td>
+                                <td>Path to a file on the local filesystem against which the
+                                    <code>xpathExpression</code> will be evaluated.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;status&gt;</code></td>
+                <td>1</td>
+                <td>The status for the tracker artifact. This child element is required and has the
+                    following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>value</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>The status value for the new tracker artifact.</td>
+                            </tr>
+                            <tr>
+                                <td>xpathExpression</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
+                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
+                                    used as the value for the status.</td>
+                            </tr>
+                            <tr>
+                                <td>xmlFile</td>
+                                <td>No (defaults to the CruiseControl build log). </td>
+                                <td>Path to a file on the local filesystem against which the
+                                    <code>xpathExpression</code> will be evaluated.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;field&gt;</code></td>
+                <td>0..*</td>
+                <td>Sets a field that exists in the tracker artifact. This child element is optional and has the
+                    following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>name</td>
+                                <td>Yes </td>
+                                <td>The name of a field in the tracker artifact.</td>
+                            </tr>
+                            <tr>
+                                <td>value</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>The value for the new tracker artifact field.</td>
+                            </tr>
+                            <tr>
+                                <td>xpathExpression</td>
+                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
+                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
+                                    used as the value for the field.</td>
+                            </tr>
+                            <tr>
+                                <td>xmlFile</td>
+                                <td>No (defaults to the CruiseControl build log). </td>
+                                <td>Path to a file on the local filesystem against which the
+                                    <code>xpathExpression</code> will be evaluated.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+         <h3>Examples</h3>
+
          </div>
 
         <div class="elementdocumentation">
@@ -5535,7 +5772,7 @@ endlocal</pre>
             <tr>
                 <td>usessl</td>
                 <td>No</td>
-                <td>"true" to connect to the smtp server using SSL. 
+                <td>"true" to connect to the smtp server using SSL.
                 Do not forget to set the corresponding mailport.</td>
             </tr>
             </tbody>

@@ -14,11 +14,6 @@ public final class ValidationHelper {
 
     /**
      * Handle required plugin attributes.
-     *
-     * @param attribute
-     * @param attributeName
-     * @param plugin
-     * @throws CruiseControlException
      */
     public static void assertIsSet(final Object attribute, final String attributeName, final Class plugin)
             throws CruiseControlException {
@@ -27,11 +22,6 @@ public final class ValidationHelper {
 
     /**
      * Handle required plugin attributes.
-     *
-     * @param attribute
-     * @param attributeName
-     * @param pluginName
-     * @throws CruiseControlException
      */
     public static void assertIsSet(final Object attribute, final String attributeName, final String pluginName)
             throws CruiseControlException {
@@ -42,9 +32,6 @@ public final class ValidationHelper {
 
     /**
      * Handle required plugin attributes.
-     *
-     * @param attribute
-     * @param plugin
      * @throws CruiseControlException if empty (null OK)
      */
     public static void assertNotEmpty(final String attribute, final String attributeName, final Class plugin)
@@ -55,17 +42,22 @@ public final class ValidationHelper {
 
     /**
      * Handle required plugin child elements.
-     *
-     * @param childType
-     * @param usualChildNodeName
-     * @param plugin
-     * @throws CruiseControlException
      */
     public static void assertHasChild(final Object child, final Class childType,
         final String usualChildNodeName, final Class plugin) throws CruiseControlException {
         if (child == null) {
             fail("child <" + usualChildNodeName + "> (or type " + getShortClassName(childType) 
                  + ") is required for plugin " + getShortClassName(plugin));
+        }
+    }
+
+    /**
+     * Handle required plugin child elements.
+     */
+    public static void assertHasChild(final Object child,
+        final String usualChildNodeName, final Class plugin) throws CruiseControlException {
+        if (child == null) {
+            fail("child <" + usualChildNodeName + "> is required for plugin " + getShortClassName(plugin));
         }
     }
 
@@ -91,8 +83,6 @@ public final class ValidationHelper {
 
     /**
      * The short class name of an object.
-     *
-     * @param plugin
      * @return The short class name
      * @throws NullPointerException if object is null
      */
