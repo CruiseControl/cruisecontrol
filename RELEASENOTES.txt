@@ -94,6 +94,10 @@ Project:
 * Remove methods to get/set config file from Project and corresponding jmx interface classes
 * ModificationSet is no longer a required element; when missing builds must be forced.
 
+ProjectConfig:
+----------------------
+* Validates subelements by calling their "validate()" methods.
+
 Schedule:
 ----------------------
 * Fix getTimeToNextBuild to adjust for daylight savings time (CC-104).
@@ -101,6 +105,10 @@ Schedule:
 SfeeFrsPublisher:
 ----------------------
 * A new publisher for uploading files to a SourceForge Enterprise Edition's File Release System.
+
+SfeeTrackerPublisher:
+----------------------
+* A new publisher for creating a tracker artifact in a SourceForge Enterprise Edition project.
 
 VSSJournal:
 ----------------------

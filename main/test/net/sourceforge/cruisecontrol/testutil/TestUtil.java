@@ -139,6 +139,7 @@ public final class TestUtil {
         properties.put("lastgoodbuildtime", "");
         properties.put("lastbuildsuccessful", lastSuccessful + "");
         properties.put("buildfile", "");
+        properties.put("builddate", "11/30/2005 12:07:27");
         properties.put("target", "");
         properties.put("logfile", "log20020313120000.xml");
         properties.put("cctimestamp", "20020313120000");

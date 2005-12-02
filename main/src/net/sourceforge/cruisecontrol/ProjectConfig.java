@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Iterator;
 
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -75,7 +76,30 @@ public class ProjectConfig {
              dateFormat.validate();
         }
         ValidationHelper.assertTrue(schedule != null, "project requires a schedule");
-        // ValidationHelper.assertHasChild(dateFormat, CCDateFormat.class, "dateformat", this.getClass());
+
+        if (bootstrappers != null) {
+            bootstrappers.validate();
+        }
+
+        if (listeners != null) {
+            listeners.validate();
+        }
+
+        if (log != null) {
+            log.validate();
+        }
+
+        if (modificationSet != null) {
+            modificationSet.validate();
+        }
+
+        if (schedule != null) {
+            schedule.validate();
+        }
+
+        if (publishers != null) {
+            publishers.validate();
+        }
     }
 
     public void setName(String name) {
@@ -158,6 +182,13 @@ public class ProjectConfig {
             bootstrappers.add(bootstrapper);
         }
         public List getBootstrappers() { return bootstrappers; }
+
+        public void validate() throws CruiseControlException {
+            for (Iterator iterator = bootstrappers.iterator(); iterator.hasNext();) {
+                Bootstrapper nextBootstrapper = (Bootstrapper) iterator.next();
+                nextBootstrapper.validate();
+            }
+        }
     }
 
     public static class Listeners {
@@ -166,6 +197,13 @@ public class ProjectConfig {
             listeners.add(listener);
         }
         public List getListeners() { return listeners; }
+
+        public void validate() throws CruiseControlException {
+            for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
+                Listener nextListener = (Listener) iterator.next();
+                nextListener.validate();
+            }
+        }
     }
 
     public static class Publishers {
@@ -174,5 +212,13 @@ public class ProjectConfig {
             publishers.add(publisher);
         }
         public List getPublishers() { return publishers; }
+
+        public void validate() throws CruiseControlException {
+            for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
+                Publisher nextPublisher = (Publisher) iterator.next();
+                nextPublisher.validate();
+            }
+
+        }
     }
 }

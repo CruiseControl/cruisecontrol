@@ -236,7 +236,7 @@ public class PluginXMLHelper {
                     method.invoke(object,
                             new Object[]{new Boolean(propValue)});
                 } else {
-                    LOG.error("Couldn't invoke setter " + propName.toLowerCase());
+                    LOG.error("rCouldn't invoke setter " + propName.toLowerCase());
                 }
             } catch (Exception e) {
                 LOG.fatal("Error configuring plugin.", e);

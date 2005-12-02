@@ -44,6 +44,16 @@ import java.util.Map;
 public class MockSchedule extends Schedule {
 
     private Map properties = null;
+    private boolean validateWasCalled = false;
+
+    public MockSchedule() {
+        //a schedule isn't valid without at least one builder.
+        add(new Builder() {            
+            public Element build(Map properties) throws CruiseControlException { return null; }
+
+            protected void overrideTarget(String target) { }
+        });
+    }
 
     public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
         this.properties = properties;
@@ -57,9 +67,18 @@ public class MockSchedule extends Schedule {
     protected Map getBuildProperties() {
         return properties;
     }
-    
-    
+
+
     public long getTimeToNextBuild(Date date, long interval) {
         return interval;
+    }
+
+    public void validate() throws CruiseControlException {
+        super.validate();
+        validateWasCalled = true;
+    }
+
+    public boolean validateWasCalled() {
+        return validateWasCalled;
     }
 }
