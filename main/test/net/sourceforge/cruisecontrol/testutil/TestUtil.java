@@ -49,22 +49,23 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.jdom.Element;
+import org.jdom.Document;
 
 public final class TestUtil {
-    
+
     private TestUtil() {
-        
+
     }
-    
+
     public static Element createElement(boolean success, boolean lastBuildSuccess) {
         return createElement(success, lastBuildSuccess, "2 minutes 20 seconds", 4, null);
     }
-    
+
     public static Element createModsElement(int numMods) {
         Element modificationsElement = new Element("modifications");
         for (int i = 1; i <= numMods; i++) {
             Element modificationElement = new Element("modification");
-            
+
             Element dateElement = new Element("date");
             dateElement.addContent("10/30/2004 13:00:03"); // Put in dynamic value?
             modificationElement.addContent(dateElement);
@@ -72,11 +73,11 @@ public final class TestUtil {
             Element commentElement = new Element("comment");
             commentElement.addContent("The comment");
             modificationElement.addContent(commentElement);
-            
+
             Element revisionElement = new Element("revision");
             revisionElement.addContent("1." + i);
             modificationElement.addContent(revisionElement);
-            
+
             Element fileElement = new Element("file");
             fileElement.setAttribute("action", "modified");
 
@@ -88,13 +89,13 @@ public final class TestUtil {
             fileName.addContent("filename" + i);
             fileElement.addContent(fileName);
             modificationElement.addContent(fileElement);
-            
+
             if (i != 1) {
                 Element projectElement = new Element("project");
                 projectElement.addContent("basedir/subdirectory" + i);
                 fileElement.addContent(projectElement);
             }
-            
+
             Element userElement = new Element("user");
             int userNumber = (i > 2) ? i - 1 : i;
             userElement.addContent("user" + userNumber);
@@ -105,7 +106,7 @@ public final class TestUtil {
         return modificationsElement;
     }
 
-    
+
     public static Element createElement(
         boolean success,
         boolean lastBuildSuccess,
@@ -126,12 +127,14 @@ public final class TestUtil {
         cruisecontrolElement.addContent(buildElement);
         cruisecontrolElement.addContent(
             createInfoElement("somelabel", lastBuildSuccess));
+        Document doc = new Document();
+        doc.setRootElement(cruisecontrolElement);
         return cruisecontrolElement;
     }
 
     public static Element createInfoElement(String label, boolean lastSuccessful) {
         Element infoElement = new Element("info");
-    
+
         Hashtable properties = new Hashtable();
         properties.put("projectname", "someproject");
         properties.put("label", label);
@@ -143,7 +146,7 @@ public final class TestUtil {
         properties.put("target", "");
         properties.put("logfile", "log20020313120000.xml");
         properties.put("cctimestamp", "20020313120000");
-    
+
         Iterator propertyIterator = properties.keySet().iterator();
         while (propertyIterator.hasNext()) {
             String propertyName = (String) propertyIterator.next();
@@ -152,7 +155,7 @@ public final class TestUtil {
             propertyElement.setAttribute("value", (String) properties.get(propertyName));
             infoElement.addContent(propertyElement);
         }
-    
+
         return infoElement;
     }
 
