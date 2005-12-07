@@ -47,17 +47,16 @@ import com.vasoftware.sf.soap42.webservices.tracker.TrackerSoapRow;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -245,14 +244,11 @@ public class SfeeTrackerPublisher implements Publisher {
             if (in == null && xmlFile == null && currentLog == null) {
                 throw new CruiseControlException("current cruisecontrol log not set.");
             } else if (xmlFile != null) {
-                System.out.println("SfeeTrackerPublisher$TrackerChildElement.evaluateXpath with xmlfile");
                 searchContext = new SAXBuilder().build(new FileInputStream(new File(xmlFile)));
             } else if (in != null) {
-                System.out.println("SfeeTrackerPublisher$TrackerChildElement.evaluateXpath with input stream");
                 searchContext = new SAXBuilder().build(in);
             } else {
-                System.out.println("SfeeTrackerPublisher$TrackerChildElement.evaluateXpath with current log");
-                searchContext = new Document(currentLog);
+                searchContext = currentLog.getDocument();
             }
 
             XPath xpath = XPath.newInstance(xpathExpression);
