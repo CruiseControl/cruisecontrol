@@ -248,11 +248,12 @@ public class SfeeTrackerPublisher implements Publisher {
             } else if (in != null) {
                 searchContext = new SAXBuilder().build(in);
             } else {
-                searchContext = currentLog.getDocument();
+                searchContext = currentLog;
             }
 
             XPath xpath = XPath.newInstance(xpathExpression);
-            return xpath.valueOf(searchContext);
+            String result = xpath.valueOf(searchContext);
+            return result;
         }
 
         public void setXPathExpression(String xpathExpression) {
@@ -264,7 +265,6 @@ public class SfeeTrackerPublisher implements Publisher {
         }
 
         public void setXMLFile(String filename) throws FileNotFoundException {
-            System.out.println("SfeeTrackerPublisher$TrackerChildElement.setInputStream");
             xmlFile = filename;
         }
 
