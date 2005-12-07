@@ -22,9 +22,9 @@ import java.rmi.RemoteException;
 public class SfeeTrackerPublisherTest extends TestCase {
 
     private static final String SERVER_URL = "http://tapestry.sourceforge.vasoftware.com";
-    private static final String USERNAME = "PaulJulius";
-    private static final String PASSWORD = "admin1cc";
-    private static final String PROJECT_NAME = "CC Integration";
+    private static final String USERNAME = "foo";
+    private static final String PASSWORD = "bar";
+    private static final String PROJECT_NAME = "baz";
 
     public void setUp() {
         //Instantiate the in-memory stub implementation of SFEE using reflection so that
@@ -38,10 +38,10 @@ public class SfeeTrackerPublisherTest extends TestCase {
 
             Object inMemSfee = createMethod.invoke(null, new Object[]{SERVER_URL, USERNAME, PASSWORD});
             Method addProjectMethod = inMemSfee.getClass().getMethod("addProject", new Class[]{String.class});
-            addProjectMethod.invoke(inMemSfee, new Object[]{"CC Integration"});
+            addProjectMethod.invoke(inMemSfee, new Object[]{PROJECT_NAME});
 
             Method addTracker = inMemSfee.getClass().getMethod("addTracker", new Class[]{String.class, String.class});
-            addTracker.invoke(inMemSfee, new Object[]{"UnitTestStatistics", "CC Integration"});
+            addTracker.invoke(inMemSfee, new Object[]{"UnitTestStatistics", PROJECT_NAME});
         } catch (NoSuchMethodException e) {
             fail("Must be using the wrong version of the sfee soap stubs.");
         } catch (IllegalAccessException e) {
@@ -243,6 +243,8 @@ public class SfeeTrackerPublisherTest extends TestCase {
         Element log = TestUtil.createElement(true, true);
         xpathField.setCurrentLog(log);
 
+        assertNotNull(log.getDocument());
+
         assertEquals("11/30/2005 12:07:27", xpathField.getValue());
     }
 
@@ -314,7 +316,7 @@ public class SfeeTrackerPublisherTest extends TestCase {
         String projectID = null;
         for (int i = 0; i < rows.length; i++) {
             ProjectSoapRow nextProjectRow = rows[i];
-            if (nextProjectRow.getTitle().equals("CC Integration")) {
+            if (nextProjectRow.getTitle().equals(PROJECT_NAME)) {
                 projectID = nextProjectRow.getId();
             }
         }
