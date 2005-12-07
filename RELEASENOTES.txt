@@ -93,6 +93,7 @@ Project:
 ----------------------
 * Remove methods to get/set config file from Project and corresponding jmx interface classes
 * ModificationSet is no longer a required element; when missing builds must be forced.
+* Fix a testcase failure on MacOS X. Reported by Michael Kloss.
 
 ProjectConfig:
 ----------------------
