@@ -240,13 +240,26 @@ public class ProjectTest extends TestCase {
     }
     
     public void testBuildRequiresSchedule() throws CruiseControlException {
-        project.start();
-        project.init();
+        MockProject mockProject = new MockProject() {
+            public void run() {
+                loop();
+            }
+
+            void checkWait() throws InterruptedException {
+                waitIfPaused();
+            }
+        };
+        mockProject.setName("MockProject");
+        mockProject.setProjectConfig(projectConfig);
+        mockProject.start();
+        mockProject.init();
         try {
-            project.build();
+            mockProject.build();
             fail();
         } catch (IllegalStateException expected) {
             assertEquals("project must have a schedule", expected.getMessage());
+        } finally {
+            mockProject.stopLooping();
         }
     }
     
