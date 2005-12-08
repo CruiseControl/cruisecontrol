@@ -82,7 +82,8 @@ public class AntBuilder extends Builder {
     private String loggerClassName = DEFAULT_LOGGER;
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
-    
+    private boolean wasValidated = false;
+
     public void validate() throws CruiseControlException {
         super.validate();
 
@@ -119,14 +120,20 @@ public class AntBuilder extends Builder {
         if (antScript != null && !args.isEmpty()) {
             LOG.warn("jvmargs will be ignored if you specify anthome or your own antscript!");
         }
+
+        wasValidated = true;
     }
 
     /**
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {       
-        
+    public Element build(Map buildProperties) throws CruiseControlException {
+        if (!wasValidated) {
+            throw new IllegalStateException("This builder was never validated."
+                 + " The build method should not be getting called.");
+        }
+
         AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
@@ -142,7 +149,7 @@ public class AntBuilder extends Builder {
         script.setUseDebug(useDebug);
         script.setUseQuiet(useQuiet);
         script.setSystemClassPath(getSystemClassPath());
-       
+
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
         boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
@@ -174,14 +181,14 @@ public class AntBuilder extends Builder {
     /**
      * Set the location to which the ant log will be saved before Cruise
      * Control merges the file into its log.
-     * 
+     *
      * @param dir
      *          the absolute path to the directory where the ant log will be
      *          saved or relative path to where you started CruiseControl
      */
     public void setSaveLogDir(String dir) {
         saveLogDir = null;
-        
+
         if (dir != null && !dir.trim().equals("")) {
             saveLogDir = new File(dir.trim());
         }
@@ -216,7 +223,7 @@ public class AntBuilder extends Builder {
      * Set the working directory where Ant will be invoked. This parameter gets
      * set in the XML file via the antWorkingDir attribute. The directory can
      * be relative (to the cruisecontrol current working directory) or absolute.
-     * 
+     *
      * @param dir
      *          the directory to make the current working directory.
      */
@@ -233,10 +240,10 @@ public class AntBuilder extends Builder {
     public void setAntScript(String antScript) {
         this.antScript = antScript;
     }
-    
+
     /**
      * If set CC will use the platform specific script provided by Ant
-     * 
+     *
      * @param antHome the path to ANT_HOME
      */
     public void setAntHome(String antHome) {
@@ -281,7 +288,7 @@ public class AntBuilder extends Builder {
      * Used to invoke the builder via JMX with a different target.
      */
     protected void overrideTarget(String target) {
-        setTarget(target);    
+        setTarget(target);
     }
 
     /**
@@ -331,7 +338,7 @@ public class AntBuilder extends Builder {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
 
             // old Ant-versions contain a bug in the XmlLogger that outputs
-            // an invalid PI containing the target "xml:stylesheet" 
+            // an invalid PI containing the target "xml:stylesheet"
             // instead of "xml-stylesheet": fix this
             XMLFilter piFilter = new XMLFilterImpl() {
                 public void processingInstruction(String target, String data) throws SAXException {

@@ -256,6 +256,7 @@ public class AntBuilderTest extends TestCase {
         builder.setBuildFile("testbuild.xml");
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
+        builder.validate();
         HashMap buildProperties = new HashMap();
         Element buildElement = builder.build(buildProperties);
         int initCount = getInitCount(buildElement);
@@ -287,6 +288,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTimeout(5);
         builder.setUseDebug(true);
         builder.setUseLogger(true);
+        builder.validate();
 
         HashMap buildProperties = new HashMap();
         long startTime = System.currentTimeMillis();
