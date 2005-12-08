@@ -47,6 +47,8 @@ import com.vasoftware.sf.soap42.webservices.tracker.TrackerSoapRow;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import org.apache.log4j.Logger;
+import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -72,6 +74,8 @@ import java.util.Iterator;
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public class SfeeTrackerPublisher implements Publisher {
+    private static final Logger LOG = Logger.getLogger(SfeeTrackerPublisher.class);
+
     private String trackerName;
     private String serverUrl;
     private String username;
@@ -124,6 +128,7 @@ public class SfeeTrackerPublisher implements Publisher {
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
+
         ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory
                 .getSoapStub(ISourceForgeSoap.class, serverUrl);
 
@@ -244,15 +249,23 @@ public class SfeeTrackerPublisher implements Publisher {
             if (in == null && xmlFile == null && currentLog == null) {
                 throw new CruiseControlException("current cruisecontrol log not set.");
             } else if (xmlFile != null) {
+                LOG.debug("Using file specified [" + xmlFile + "] to evaluate xpath.");
                 searchContext = new SAXBuilder().build(new FileInputStream(new File(xmlFile)));
             } else if (in != null) {
+                LOG.debug("Using the specified input stream to evaluate xpath. This should happen during testing.");
                 searchContext = new SAXBuilder().build(in);
             } else {
-                searchContext = currentLog;
+                LOG.debug("Using CruiseControl's log file to evaluate xpath.");
+                if (currentLog.getParent() != null) {
+                    searchContext = currentLog.getParent();
+                } else {
+                    searchContext = new Document(currentLog);
+                }
             }
 
             XPath xpath = XPath.newInstance(xpathExpression);
             String result = xpath.valueOf(searchContext);
+            LOG.debug("Evaluated xpath [" + xpathExpression + "] with result [" + result + "]");
             return result;
         }
 
