@@ -430,6 +430,12 @@ public class Schedule {
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");
         }
+
+        //Validate the child builders, since no one else seems to be doing it.
+        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
+            Builder next = (Builder) iterator.next();
+            next.validate();
+        }
     }
 
     /**

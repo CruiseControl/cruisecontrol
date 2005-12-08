@@ -36,6 +36,7 @@ public class AntBootstrapperTest extends TestCase {
         bootstrapper.setBuildFile("testbuild.xml");
         bootstrapper.setTempFile("notLog.xml");
         bootstrapper.setTarget("init");
+        bootstrapper.validate();
         bootstrapper.bootstrap();
     }
 }
