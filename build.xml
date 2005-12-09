@@ -129,7 +129,7 @@
                 <exclude name="**/.cvsignore"/>
             </zipfileset>
             <zipfileset file="target/binzip/README.txt" prefix="${cc.bin.zip.prefix}"/>
-            <zipfileset src="binaryrelease/jakarta-commons-math.zip" prefix="${cc.bin.zip.prefix}/projects"/>
+            <zipfileset src="binaryrelease/connectfour.zip" prefix="${cc.bin.zip.prefix}/projects"/>
             <zipfileset src="binaryrelease/apache-ant-1.6.3.zip" prefix="${cc.bin.zip.prefix}"/>
             <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.bin.zip.prefix}/lib" excludes="inmemorysfee*.jar"/>
             <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="${cc.bin.zip.prefix}/lib/licenses"/>
