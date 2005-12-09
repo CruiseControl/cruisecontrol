@@ -34,20 +34,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.cruisecontrol.Configuration;
 
 public class SourceControlDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-        + "project=commons-math&pluginType=sourcecontrol";
-
+        + "project=connectfour&pluginType=sourcecontrol";
     private static final String CVS_URL = BASE + "&pluginName=cvs";
-
     private static final String SVN_URL = BASE + "&pluginName=svn";
 
     private Configuration configuration;
-
     private String contents;
 
     protected void setUp() throws Exception {
@@ -66,11 +64,11 @@ public class SourceControlDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromSourceControlsPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=commons-math&pluginType=sourcecontrol";
-        
+        String pluginsUrl = "/cruisecontrol/available.jspa?project=connectfour&pluginType=sourcecontrol";
+
         beginAt(pluginsUrl);
         assertLinkPresentWithText("cvs");
-        
+
         gotoPage(pluginsUrl);
         assertLinkPresentWithText("svn");
     }
@@ -79,7 +77,7 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         beginAt(CVS_URL);
         assertFormPresent("cvs-details");
         assertFormElementPresent("localWorkingCopy");
-        assertTextPresent("projects/jakarta-commons/math");
+        assertTextPresent("projects/${project.name}");
         assertFormElementPresent("cvsRoot");
         assertFormElementPresent("module");
         assertFormElementPresent("tag");
@@ -104,12 +102,9 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         setFormElement("localWorkingCopy", "foo/bar");
         submit();
         assertTextPresent("Updated configuration.");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("contents");
-        assertTextPresent("&lt;cruisecontrol&gt;");
-        assertTextPresent("&lt;/cruisecontrol&gt;");
-        assertTextPresent("&lt;cvs ");
-        assertTextPresent("localWorkingCopy=&quot;foo/bar&quot; /&gt;");
+        assertFormPresent("cvs-details");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("foo/bar");
     }
 
     public void testShouldSaveSVNConfiguration() {
@@ -118,11 +113,9 @@ public class SourceControlDetailsWebTest extends WebTestCase {
         setFormElement("localWorkingCopy", "repos/trunk/foobar");
         submit();
         assertTextPresent("Updated configuration.");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("contents");
-        assertTextPresent("&lt;cruisecontrol&gt;");
-        assertTextPresent("&lt;/cruisecontrol&gt;");
-        assertTextPresent("&lt;svn localWorkingCopy=&quot;repos/trunk/foobar&quot; /&gt;");
+        assertFormPresent("svn-details");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("repos/trunk/foobar");
     }
 
     public void testShouldAllowUsersToClearCVSAttributes() {

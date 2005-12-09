@@ -34,13 +34,17 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
 import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
+import net.sourceforge.cruisecontrol.PluginConfiguration;
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.GenericPluginDetail;
 
 public class PluginConfigurationTest extends TestCase {
     private PluginConfiguration cvs;
@@ -74,7 +78,7 @@ public class PluginConfigurationTest extends TestCase {
         assertTrue(cvsDetails.containsKey("cvsRoot"));
         assertNull(cvsDetails.get("cvsRoot"));
         assertTrue(cvsDetails.containsKey("localWorkingCopy"));
-        assertEquals("projects/jakarta-commons/math", cvsDetails
+        assertEquals("projects/${project.name}", cvsDetails
                 .get("localWorkingCopy"));
         assertTrue(cvsDetails.containsKey("module"));
         assertNull(cvsDetails.get("module"));
