@@ -45,64 +45,111 @@
 </head>
 
 <body>
-<ww:if test="actionMessages != null">
-    <ul>
-        <ww:iterator value="actionMessages">
-            <li class='config-resultmsg'><ww:property/></li>
-        </ww:iterator>
-    </ul>
-    <hr/>
+<ww:if test="hasActionMessages()">
+    <div id="result-messages">
+        <ul>
+            <ww:iterator value="actionMessages">
+                <li class='config-resultmsg'><ww:property/></li>
+            </ww:iterator>
+        </ul>
+        <hr/>
+    </div>
 </ww:if>
 <table>
     <tr>
-        <td width="50%">
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=listener"
-               onclick="loadPlugins(this.href, 'listenersID'); return false;">
-                <img id="listenersID-icon" src="images/plus_nolines.gif"/>
-                Listeners</a>
-
-            <div id="listenersID" style="display: none; margin-left: 15%"></div>
-            <br/>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=bootstrapper"
-               onclick="loadPlugins(this.href, 'bootstrappersID'); return false;">
-                <img id="bootstrappersID-icon" src="images/plus_nolines.gif"/>
-                Bootstrappers</a>
-
-            <div id="bootstrappersID" style="display: none; margin-left: 15%"></div>
-            <br/>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=sourcecontrol"
-               onclick="loadPlugins(this.href, 'sourceControlID'); return false;">
-                <img id="sourceControlID-icon" src="images/plus_nolines.gif"/>
-                Source Controls</a>
-
-            <div id="sourceControlID" style="display: none; margin-left: 15%"></div>
-            <br/>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=builder"
-               onclick="loadPlugins(this.href, 'builderID'); return false;">
-                <img id="builderID-icon" src="images/plus_nolines.gif"/>
-                Schedule</a>
-
-            <div id="builderID" style="display: none; margin-left: 15%"></div>
-            <br/>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=logger"
-               onclick="loadPlugins(this.href, 'loggerID'); return false;">
-                <img id="loggerID-icon" src="images/plus_nolines.gif"/>
-                Log</a>
-
-            <div id="loggerID" style="display: none; margin-left: 15%"></div>
-            <br/>
-            <a href="plugins.jspa?project=<ww:property value="project"/>&pluginType=publisher"
-               onclick="loadPlugins(this.href, 'publishersID'); return false;">
-                <img id="publishersID-icon" src="images/plus_nolines.gif"/>
-                Publishers</a>
-
-            <div id="publishersID" style="display: none; margin-left: 15%"></div>
+        <td colspan="2">
+            <ww:form action="reload" id="reload-configuration"
+                     name="reload-configuration" method="post">
+                <ww:submit value="Reload"/>
+            </ww:form>
         </td>
-        <td width="50%"><div id="plugin-details"></div></td>
+    </tr>
+    <tr valign="top">
+        <td width="50%">
+            <a href="configured.jspa?pluginType=listener"
+               onclick="loadConfiguredPlugins(this.href, 'listeners'); return false;">
+                <img id="listeners-tree-icon" src="images/plus_nolines.gif"/></a>
+            <a href="<ww:url value="details!default.jspa?pluginType=listeners&pluginName=listeners"/>"
+               onclick="loadPlugin(this.href); return false;">Listeners</a>
+            <a href="available.jspa?pluginType=listener"
+               onclick="loadAvailablePlugins(this.href, 'listeners'); return false;">Add Listener</a>
+            <div id="available-listeners" style="display: none; margin-left: 15%"></div>
+            <hr id="listeners-hr" style="display: none;"/>
+            <div id="listeners" style="display: none; margin-left: 15%"></div>
+
+            <br/>
+
+            <a href="configured.jspa?pluginType=bootstrapper"
+               onclick="loadConfiguredPlugins(this.href, 'bootstrappers'); return false;">
+                <img id="bootstrappers-tree-icon" src="images/plus_nolines.gif"/></a>
+            <a href="<ww:url value="details!default.jspa?pluginType=bootstrappers&pluginName=bootstrappers"/>"
+               onclick="loadPlugin(this.href); return false;">Bootstrappers</a>
+            <a href="available.jspa?pluginType=bootstrapper"
+               onclick="loadAvailablePlugins(this.href, 'bootstrappers'); return false;">Add Bootstrapper</a>
+            <div id="available-bootstrappers" style="display: none; margin-left: 15%"></div>
+            <hr id="bootstrappers-hr" style="display: none;"/>
+            <div id="bootstrappers" style="display: none; margin-left: 15%"></div>
+
+            <br/>
+
+            <a href="configured.jspa?pluginType=sourcecontrol"
+               onclick="loadConfiguredPlugins(this.href, 'sourcecontrols'); return false;">
+                <img id="sourcecontrols-tree-icon" src="images/plus_nolines.gif"/></a>
+            <a href="<ww:url value="details!default.jspa?pluginType=modificationset&pluginName=modificationset"/>"
+               onclick="loadPlugin(this.href); return false;">Source Controls</a>
+            <a href="available.jspa?pluginType=sourcecontrol"
+               onclick="loadAvailablePlugins(this.href, 'sourcecontrols'); return false;">Add Source Control</a>
+            <div id="available-sourcecontrols" style="display: none; margin-left: 15%"></div>
+            <hr id="sourcecontrols-hr" style="display: none;"/>
+            <div id="sourcecontrols" style="display: none; margin-left: 15%"></div>
+
+            <br/>
+
+            <a href="configured.jspa?pluginType=builder"
+               onclick="loadConfiguredPlugins(this.href, 'builders'); return false;">
+                <img id="builders-tree-icon" src="images/plus_nolines.gif"/></a>
+            <a href="<ww:url value="details!default.jspa?pluginType=schedule&pluginName=schedule"/>"
+               onclick="loadPlugin(this.href); return false;">Schedule</a>
+            <a href="available.jspa?pluginType=builder"
+               onclick="loadAvailablePlugins(this.href, 'builders'); return false;">Add Schedule</a>
+            <div id="available-builders" style="display: none; margin-left: 15%"></div>
+            <hr id="listeners-hr" style="display: none;"/>
+            <div id="builders" style="display: none; margin-left: 15%"></div>
+
+            <br/>
+
+            <a href="configured.jspa?pluginType=logger"
+               onclick="loadConfiguredPlugins(this.href, 'loggers'); return false;">
+                <img id="loggers-tree-icon" src="images/plus_nolines.gif"/></a>
+            <a href="<ww:url value="details!default.jspa?pluginType=log&pluginName=log"/>"
+               onclick="loadPlugin(this.href); return false;">Log</a>
+            <a href="available.jspa?pluginType=logger"
+               onclick="loadAvailablePlugins(this.href, 'loggers'); return false;">Add Log</a>
+            <div id="available-loggers" style="display: none; margin-left: 15%"></div>
+            <hr id="loggers-hr" style="display: none;"/>
+            <div id="loggers" style="display: none; margin-left: 15%"></div>
+
+            <br/>
+
+            <a href="configured.jspa?pluginType=publisher"
+               onclick="loadConfiguredPlugins(this.href, 'publishers'); return false;">
+                <img id="publishers-tree-icon" src="images/plus_nolines.gif"/></a>
+            <a href="<ww:url value="details!default.jspa?pluginType=publishers&pluginName=publishers"/>"
+               onclick="loadPlugin(this.href); return false;">Publishers</a>
+            <a href="available.jspa?pluginType=publisher"
+               onclick="loadAvailablePlugins(this.href, 'publishers'); return false;">Add Publishers</a>
+            <div id="available-publishers" style="display: none; margin-left: 15%"></div>
+            <hr id="publishers-hr" style="display: none;"/>
+            <div id="publishers" style="display: none; margin-left: 15%"></div>
+        </td>
+        <td width="50%">
+            <iframe src="details!default.jspa?pluginType=listeners&pluginName=listeners"
+                frameborder="0" height="100%" width="100%" id="plugin-details"></iframe>
+        </td>
     </tr>
     <tr><td colspan="2">
-        <ww:form action="config" id="commons-math-config"
-                 name="commons-math-config" method="post">
+        <ww:form action="config" id="project-config"
+                 name="project-config" method="post">
             <ww:textarea name="contents" rows="24" cols="80"/>
             <ww:submit value="Configure"/>
         </ww:form>

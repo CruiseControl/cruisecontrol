@@ -53,9 +53,7 @@ import com.opensymphony.xwork.ActionSupport;
 public class PluginDetailsServlet extends ActionSupport implements
         ConfigurationAware, DetailsAware, ParameterAware {
     private Configuration configuration;
-
     private Map parameters;
-
     private PluginConfiguration pluginConfiguration;
 
     public String doDefault() {
@@ -64,10 +62,8 @@ public class PluginDetailsServlet extends ActionSupport implements
 
     public String execute() throws Exception {
         setDetails();
-        configuration.updatePlugin(pluginConfiguration);
-
+        configuration.updatePluginConfiguration(pluginConfiguration);
         addActionMessage("Updated configuration.");
-        
         return SUCCESS;
     }
 

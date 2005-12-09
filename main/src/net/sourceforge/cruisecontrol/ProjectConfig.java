@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  * A plugin that represents the project node
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
-public class ProjectConfig {
+public class ProjectConfig implements Serializable {
 
     private String name;
     private boolean buildAfterFailed;

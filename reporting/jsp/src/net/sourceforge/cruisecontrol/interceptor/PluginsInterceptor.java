@@ -36,9 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.interceptor;
 
+import java.io.IOException;
 import java.util.Map;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
+
+import org.jdom.JDOMException;
+
 import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
 
 import com.opensymphony.xwork.Action;
@@ -57,15 +66,40 @@ public class PluginsInterceptor extends AroundInterceptor {
             ActionContext invocationContext = invocation.getInvocationContext();
             Map parameters = invocationContext.getParameters();
 
-            Configuration configuration = (Configuration) invocationContext.getApplication().get("cc-configuration");
+            String pluginType = ((String[]) parameters.get("pluginType"))[0];
+            if (pluginType != null) {
+                PluginsAware pluginsAction = (PluginsAware) action;
+                Configuration configuration = getConfiguration(invocationContext);
+                PluginLocator locator = new PluginLocator(configuration);
 
-            PluginLocator locator = new PluginLocator(configuration);
-            PluginDetail[] plugins = locator.getPlugins(((String[]) parameters.get("pluginType"))[0]);
-            ((PluginsAware) action).setPlugins(plugins);
+                pluginsAction.setAvailablePlugins(getAvailablePlugins(locator, pluginType));
+                Map session = invocation.getInvocationContext().getSession();
+                pluginsAction.setConfiguredPlugins(getConfiguredPlugins(locator, pluginType,
+                        (String) session.get("project")));
+            }
         }
     }
 
-    protected void after(ActionInvocation dispatcher, String result)
-            throws Exception {
+    protected void after(ActionInvocation dispatcher, String result) throws Exception {
+    }
+
+    private PluginDetail[] getAvailablePlugins(PluginLocator locator, String pluginType)
+            throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException {
+        return locator.getAvailablePlugins(pluginType);
+    }
+
+    private PluginDetail[] getConfiguredPlugins(PluginLocator locator, String pluginType, String project)
+            throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException, CruiseControlException, JDOMException {
+        if (project != null) {
+            return locator.getConfiguredPlugins(project, pluginType);
+        }
+
+        return null;
+    }
+
+    private Configuration getConfiguration(ActionContext invocationContext) {
+        return (Configuration) invocationContext.getSession().get("cc-configuration");
     }
 }

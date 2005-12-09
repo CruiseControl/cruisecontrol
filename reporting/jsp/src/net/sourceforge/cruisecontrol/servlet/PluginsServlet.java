@@ -46,22 +46,38 @@ import com.opensymphony.xwork.ActionSupport;
  * web interface.
  */
 public class PluginsServlet extends ActionSupport implements PluginsAware {
+    private PluginDetail[] availablePlugins;
+    private PluginDetail[] configuredPlugins;
     private PluginDetail[] plugins;
-
-    private String project;
-    
+    private String listType;
     private String pluginType;
 
-    public String execute() throws Exception {
+    public String available() throws Exception {
+        listType = "Available";
+        plugins = availablePlugins;
         return SUCCESS;
+    }
+
+    public String configured() throws Exception {
+        listType = "Configured";
+        plugins = configuredPlugins;
+        return SUCCESS;
+    }
+    
+    public String getListType() {
+        return listType;
     }
 
     public PluginDetail[] getPlugins() {
         return plugins;
     }
     
-    public void setPlugins(PluginDetail[] plugins) {
-        this.plugins = plugins;
+    public void setAvailablePlugins(PluginDetail[] plugins) {
+        this.availablePlugins = plugins;
+    }
+    
+    public void setConfiguredPlugins(PluginDetail[] plugins) {
+        this.configuredPlugins = plugins;
     }
 
     public String getPluginType() {
@@ -70,13 +86,5 @@ public class PluginsServlet extends ActionSupport implements PluginsAware {
 
     public void setPluginType(String pluginType) {
         this.pluginType = pluginType;
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
     }
 }

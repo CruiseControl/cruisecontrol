@@ -43,6 +43,17 @@
 </head>
 <body>
 <p class="config-sectionheader"><ww:property value="name" /> Configuration</p>
+<ww:if test="hasActionMessages()">
+    <div id="result-messages">
+        <ul>
+            <ww:iterator value="actionMessages">
+                <li class='config-resultmsg'><ww:property/></li>
+            </ww:iterator>
+        </ul>
+        <hr/>
+    </div>
+</ww:if>
+
 <ww:form action="details" name="%{name}-details" method="post">
     <ww:hidden name="pluginName" value="%{name}" />
     <ww:hidden name="pluginType" value="%{type}" />
@@ -50,7 +61,7 @@
         <ww:textfield name="%{key}" label="%{key}"
             value="%{value}" size="32" />
     </ww:iterator>
-    <ww:submit value="Configure"/>
+    <ww:submit value="Save"/>
 </ww:form>
 </body>
 </html>

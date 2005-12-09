@@ -309,14 +309,18 @@ public class CruiseControlController {
 
     public PluginDetail[] getAvailablePlugins() {
         try {
-            return ((XMLConfigManager) configManager).getCruiseControlConfig().getRootPlugins().getPluginDetails();
+            return getPluginRegistry().getPluginDetails();
         } catch (CruiseControlException e) {
             return new PluginDetail[0];
         }
     }
     
     public PluginType[] getAvailablePluginTypes() {
-        return ((XMLConfigManager) configManager).getCruiseControlConfig().getRootPlugins().getPluginTypes();
+        return getPluginRegistry().getPluginTypes();
+    }
+
+    public PluginRegistry getPluginRegistry() {
+        return ((XMLConfigManager) configManager).getCruiseControlConfig().getRootPlugins();
     }
 
     private static PluginDetail[] getPluginsByType(PluginDetail[] details, PluginType type) {

@@ -45,13 +45,13 @@
 </head>
 
 <body>
+<h3><ww:property value="listType"/>:</h3>
+<ul>
 <ww:iterator value="plugins">
-    <a href="<ww:url value="details!default.jspa?pluginName=%{name}"/>"
-       onclick="loadPlugins(this.href, 'plugin-details'); return false;">
-        <ww:property value="name"/></a>
-
-    <div id="<ww:property value="name"/>" style="display: none"></div>
-    <br/>
+    <li><a href="<ww:url value="details!default.jspa?pluginName=%{name}"/>"
+       onclick="loadPlugin(this.href); return false;">
+        <ww:property value="name"/></a></li>
 </ww:iterator>
+</ul>
 </body>
 </html>

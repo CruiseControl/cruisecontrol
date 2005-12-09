@@ -119,6 +119,10 @@ public class ModificationSet {
     public void add(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
     }
+    
+    public List getSourceControls() {
+        return sourceControls;
+    }
 
     protected boolean isLastModificationInQuietPeriod(Date timeOfCheck, List modificationList) {
         long lastModificationTime = getLastModificationMillis(modificationList);

@@ -42,5 +42,6 @@ import net.sourceforge.cruisecontrol.PluginDetail;
  * Represents types which require lists of available plugins.
  */
 public interface PluginsAware {
-    public void setPlugins(PluginDetail[] plugins);
+    public void setAvailablePlugins(PluginDetail[] plugins);
+    public void setConfiguredPlugins(PluginDetail[] plugins);
 }

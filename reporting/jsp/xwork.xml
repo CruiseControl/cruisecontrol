@@ -24,13 +24,33 @@
             class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet">
             <result name="success">config.jsp</result>
         </action>
+        <action name="save"
+            class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet"
+            method="save">
+            <result name="success" type="chain">config</result>
+        </action>
+        <action name="reload"
+            class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet"
+            method="reload">
+            <result name="success" type="chain">config</result>
+        </action>
         <action name="details"
             class="net.sourceforge.cruisecontrol.servlet.PluginDetailsServlet">
             <result name="input">details.jsp</result>
-            <result name="success" type="chain">config</result>
+            <result name="success">details.jsp</result>
         </action>
         <action name="plugins"
             class="net.sourceforge.cruisecontrol.servlet.PluginsServlet">
+            <result name="success">plugins.jsp</result>
+        </action>
+        <action name="available"
+            class="net.sourceforge.cruisecontrol.servlet.PluginsServlet"
+            method="available">
+            <result name="success">plugins.jsp</result>
+        </action>
+        <action name="configured"
+            class="net.sourceforge.cruisecontrol.servlet.PluginsServlet"
+            method="configured">
             <result name="success">plugins.jsp</result>
         </action>
     </package>

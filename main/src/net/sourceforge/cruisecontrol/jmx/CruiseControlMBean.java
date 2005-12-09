@@ -43,6 +43,7 @@ import javax.management.InvalidAttributeValueException;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginType;
 
 /**
@@ -67,6 +68,7 @@ public interface CruiseControlMBean {
     PluginDetail[] getAvailableSourceControls();
     PluginDetail[] getAvailablePlugins();
     PluginType[] getAvailablePluginTypes();
+    PluginRegistry getPluginRegistry();
     
     void pause();
     void resume();
