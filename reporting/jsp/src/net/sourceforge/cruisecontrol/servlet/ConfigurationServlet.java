@@ -36,10 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.servlet;
 
-import com.opensymphony.xwork.ActionSupport;
-import net.sourceforge.cruisecontrol.Configuration;
-import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
-import org.jdom.JDOMException;
+import java.io.IOException;
+import java.util.Map;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -47,18 +45,37 @@ import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
-import java.io.IOException;
+
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
+
+import org.jdom.JDOMException;
+
+import com.opensymphony.xwork.ActionSupport;
+import com.opensymphony.webwork.interceptor.SessionAware;
 
 /**
  * Understands how to edit the configuration via a web interface.
  */
-public class ConfigurationServlet extends ActionSupport implements
-        ConfigurationAware {
+public class ConfigurationServlet extends ActionSupport implements ConfigurationAware, SessionAware {
     private Configuration configuration;
-
     private String project;
 
     public String execute() {
+        return SUCCESS;
+    }
+
+    public String reload() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,
+            ReflectionException, IOException, JDOMException {
+        configuration.load();
+        addActionMessage("Reloaded configuration.");
+        return SUCCESS;
+    }
+
+    public String save() throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException,
+            MBeanException, ReflectionException, IOException {
+        configuration.save();
+        addActionMessage("Saved configuration.");
         return SUCCESS;
     }
 
@@ -66,26 +83,23 @@ public class ConfigurationServlet extends ActionSupport implements
         this.configuration = configuration;
     }
 
-    public String getContents() throws AttributeNotFoundException,
-            InstanceNotFoundException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException, JDOMException {
+    public String getContents() throws AttributeNotFoundException, InstanceNotFoundException,
+            MalformedObjectNameException, NumberFormatException, MBeanException, ReflectionException, IOException,
+            JDOMException {
         return configuration.getConfiguration();
     }
 
-    public void setContents(String contents)
-            throws InstanceNotFoundException, AttributeNotFoundException,
-            InvalidAttributeValueException, MalformedObjectNameException,
-            NumberFormatException, MBeanException, ReflectionException,
-            IOException {
+    public void setContents(String contents) throws InstanceNotFoundException, AttributeNotFoundException,
+            InvalidAttributeValueException, MalformedObjectNameException, NumberFormatException, MBeanException,
+            ReflectionException, IOException {
         this.configuration.setConfiguration(contents);
+    }
+
+    public void setSession(Map map) {
+        project = (String) map.get("project");
     }
 
     public String getProject() {
         return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
     }
 }

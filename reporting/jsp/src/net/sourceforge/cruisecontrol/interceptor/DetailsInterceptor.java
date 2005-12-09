@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.PluginDetail;
 import org.jdom.JDOMException;
 
 import com.opensymphony.xwork.Action;
+import com.opensymphony.xwork.ActionContext;
 import com.opensymphony.xwork.ActionInvocation;
 import com.opensymphony.xwork.interceptor.AroundInterceptor;
 
@@ -58,16 +59,16 @@ import com.opensymphony.xwork.interceptor.AroundInterceptor;
  * Understands how to load plugin details for DetailsAware actions.
  */
 public class DetailsInterceptor extends AroundInterceptor {
-
     protected void before(ActionInvocation invocation) throws Exception {
         Action action = invocation.getAction();
 
         if (action instanceof DetailsAware) {
-            Configuration configuration = (Configuration) invocation.getInvocationContext().getApplication()
-                    .get("cc-configuration");
-            Map parameters = invocation.getInvocationContext().getParameters();
+            ActionContext invocationContext = invocation.getInvocationContext();
+            Map parameters = invocationContext.getParameters();
             String pluginName = ((String[]) parameters.get("pluginName"))[0];
             String pluginType = ((String[]) parameters.get("pluginType"))[0];
+
+            Configuration configuration = (Configuration) invocationContext.getSession().get("cc-configuration");
 
             PluginConfiguration details = getPluginConfiguration(pluginName, pluginType, configuration);
             ((DetailsAware) action).setDetails(details);
@@ -78,9 +79,8 @@ public class DetailsInterceptor extends AroundInterceptor {
     }
 
     private PluginConfiguration getPluginConfiguration(String name, String type, Configuration configuration)
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException, JDOMException {
-        
+            throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
+            IOException, JDOMException {
         PluginLocator locator = new PluginLocator(configuration);
         PluginDetail pluginDetail = locator.getPluginDetail(name, type);
         return new PluginConfiguration(pluginDetail, configuration);

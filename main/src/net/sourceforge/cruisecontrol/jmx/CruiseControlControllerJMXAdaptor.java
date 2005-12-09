@@ -61,6 +61,7 @@ import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginType;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -191,6 +192,10 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
     
     public PluginType[] getAvailablePluginTypes() {
         return controller.getAvailablePluginTypes();
+    }
+    
+    public PluginRegistry getPluginRegistry() {
+        return controller.getPluginRegistry();
     }
     
     public void resume() {

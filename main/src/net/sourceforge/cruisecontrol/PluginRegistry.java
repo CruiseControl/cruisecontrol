@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ import org.jdom.Element;
  *
  * @see PluginXMLHelper
  */
-public final class PluginRegistry {
+public final class PluginRegistry implements Serializable {
 
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class);
 

@@ -52,9 +52,15 @@ import com.opensymphony.xwork.interceptor.AroundInterceptor;
  * Understands how to load the configuration for ConfigurationAware actions.
  */
 public class ConfigurationInterceptor extends AroundInterceptor {
-
     protected void before(ActionInvocation invocation) throws Exception {
         Action action = invocation.getAction();
+        
+        Map parameters = invocation.getInvocationContext().getParameters();
+        if (parameters.get("project") != null) {
+            Map session = invocation.getInvocationContext().getSession();
+            session.put("project", ((String[]) parameters.get("project"))[0]);
+        }
+        
         Configuration configuration = getConfiguration(invocation);
 
         if (action instanceof ConfigurationAware) {
@@ -66,22 +72,20 @@ public class ConfigurationInterceptor extends AroundInterceptor {
     }
 
     private Configuration createConfiguration() throws IOException, MalformedObjectNameException {
-        String jmxServer = getJMXServer();
         int rmiPort = Integer.parseInt(System.getProperty("cruisecontrol.rmiport"));
-        Configuration configuration = new Configuration(jmxServer, rmiPort);
+        Configuration configuration = new Configuration(getJMXServer(), rmiPort);
         return configuration;
     }
 
     private Configuration getConfiguration(ActionInvocation invocation)
             throws IOException, MalformedObjectNameException {
-
-        Map app = invocation.getInvocationContext().getApplication();
-        Configuration configuration = (Configuration) app.get("cc-configuration");
+        Map session = invocation.getInvocationContext().getSession();
+        Configuration configuration = (Configuration) session.get("cc-configuration");
 
         if (configuration == null) {
             configuration = createConfiguration();
-            app.put("cc-configuration", configuration);
-            invocation.getInvocationContext().setApplication(app);
+            session.put("cc-configuration", configuration);
+            invocation.getInvocationContext().setSession(session);
         }
 
         return configuration;

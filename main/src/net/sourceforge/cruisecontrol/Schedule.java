@@ -462,4 +462,8 @@ public class Schedule {
         }
 
     }
+
+    public List getBuilders() {
+        return builders;
+    }
 }
