@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cruisecontrol>
+  <modifications />
+  <info>
+    <property name="projectname" value="connectfour" />
+    <property name="lastbuild" value="20051209000000" />
+    <property name="lastsuccessfulbuild" value="20051209000000" />
+    <property name="builddate" value="12/09/2005 12:21:03" />
+    <property name="cctimestamp" value="20051209122103" />
+    <property name="label" value="build.0" />
+    <property name="interval" value="300" />
+    <property name="lastbuildsuccessful" value="true" />
+    <property name="logdir" value="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\logs\connectfour" />
+    <property name="logfile" value="log20051209122103Lbuild.0.xml" />
+  </info>
+  <build time="3 seconds">
+    <message priority="debug"><![CDATA[Adding reference: ant.PropertyHelper]]></message>
+    <message priority="debug"><![CDATA[Detected Java version: 1.4 in: C:\pdj\java\j2sdk1.4.2_09\jre]]></message>
+    <message priority="debug"><![CDATA[Detected OS: Windows XP]]></message>
+    <message priority="debug"><![CDATA[Adding reference: ant.ComponentHelper]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: ant.version -> Apache Ant version 1.6.5 compiled on June 2 2005]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: label -> build.0]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: cclastgoodbuildtimestamp -> 20051209000000]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: lastbuildsuccessful -> true]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: cclastbuildtimestamp -> 20051209000000]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: cvstimestamp -> 2005-12-09 18:21:03 GMT]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: cctimestamp -> 20051209122103]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: XmlLogger.file -> log.xml]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: ant.file -> C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml]]></message>
+    <message priority="debug"><![CDATA[Adding reference: ant.projectHelper]]></message>
+    <message priority="debug"><![CDATA[Adding reference: ant.parsing.context]]></message>
+    <message priority="debug"><![CDATA[Adding reference: ant.targets]]></message>
+    <message priority="debug"><![CDATA[parsing buildfile C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml with URI = file:///C:/pdj/src/cruisecontrol/target/webtest/cruisecontrol-bin-2.4.0-dev/projects/connectfour/build.xml]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: ant.project.name -> connectfour]]></message>
+    <message priority="debug"><![CDATA[Adding reference: connectfour]]></message>
+    <message priority="debug"><![CDATA[Setting ro project property: ant.file.connectfour -> C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml]]></message>
+    <message priority="debug"><![CDATA[Project base dir set to: C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour]]></message>
+    <message priority="debug"><![CDATA[+Target:]]></message>
+    <message priority="debug"><![CDATA[+Target: all]]></message>
+    <message priority="debug"><![CDATA[+Target: compile]]></message>
+    <message priority="debug"><![CDATA[+Target: test]]></message>
+    <message priority="debug"><![CDATA[+Target: jar]]></message>
+    <message priority="debug"><![CDATA[Attempting to create object of type org.apache.tools.ant.helper.DefaultExecutor]]></message>
+    <message priority="debug"><![CDATA[Adding reference: ant.executor]]></message>
+    <message priority="debug"><![CDATA[Build sequence for target(s) `all' is [compile, test, jar, all]]]></message>
+    <message priority="debug"><![CDATA[Complete build sequence is [compile, test, jar, all, ]]]></message>
+    <message priority="debug"><![CDATA[Could not load a dependent class (com/sun/media/jai/codec/FileSeekableStream) for type image]]></message>
+    <message priority="debug"><![CDATA[Could not load a dependent class (com/jcraft/jsch/UserInfo) for type sshexec]]></message>
+    <message priority="debug"><![CDATA[Could not load a dependent class (com/jcraft/jsch/UserInfo) for type scp]]></message>
+    <message priority="debug"><![CDATA[Could not load a dependent class (jdepend/xmlui/JDepend) for type jdepend]]></message>
+    <message priority="debug"><![CDATA[fileset: Setup scanner in dir C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src with patternSet{ includes: [] excludes: [] }]]></message>
+    <target name="compile" time="1 second">
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:41: " name="mkdir" time="0 seconds">
+        <message priority="info"><![CDATA[Created dir: C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes]]></message>
+      </task>
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:42: " name="javac" time="1 second">
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\Cell.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/Cell.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\Chip.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/Chip.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\Direction.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/Direction.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\FullColumnException.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/FullColumnException.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\GameNotOverException.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/GameNotOverException.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\GameOverException.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/GameOverException.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\InvalidColumnException.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/InvalidColumnException.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\OutOfTurnException.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/OutOfTurnException.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\PlayingStand.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStand.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\StalemateException.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/StalemateException.class doesn't exist.]]></message>
+        <message priority="info"><![CDATA[Compiling 10 source files to C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes]]></message>
+        <message priority="debug"><![CDATA[Using modern compiler]]></message>
+        <message priority="debug"><![CDATA[Compilation arguments:
+'-d'
+'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes'
+'-classpath'
+'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\Program Files\Java\jre1.5.0_05\lib\ext\QTJava.zip;C:\pdj\java\apache-ant-1.6.5\lib\ant-antlr.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bcel.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bsf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-log4j.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-oro.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-regexp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-resolver.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-logging.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-net.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-icontract.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jai.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-javamail.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jdepend.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jmf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jsch.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-netrexx.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-nodeps.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-starteam.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-stylebook.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-swing.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-trax.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-vaj.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-weblogic.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xalan1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xslp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\xercesImpl.jar;C:\pdj\java\apache-ant-1.6.5\lib\xml-apis.jar;C:\pdj\java\j2sdk1.4.2_09\lib\tools.jar'
+'-sourcepath'
+'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src'
+'-g:none'
+
+The ' characters around the executable and arguments are
+not part of the command.]]></message>
+        <message priority="debug"><![CDATA[Files to be compiled:
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\Cell.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\Chip.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\Direction.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\FullColumnException.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\GameNotOverException.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\GameOverException.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\InvalidColumnException.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\OutOfTurnException.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\PlayingStand.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\src\net\sourceforge\cruisecontrol\sampleproject\connectfour\StalemateException.java]]></message>
+      </task>
+    </target>
+    <message priority="debug"><![CDATA[fileset: Setup scanner in dir C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\test with patternSet{ includes: [] excludes: [] }]]></message>
+    <message priority="debug"><![CDATA[fileset: Setup scanner in dir C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes with patternSet{ includes: [**/*Test.class] excludes: [] }]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.CellTest]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes net/sourceforge/cruisecontrol/sampleproject/connectfour/CellTest.class]]></message>
+    <message priority="debug"><![CDATA[Class junit.framework.TestCase loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.CellTest loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Class java.lang.Object loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[ResourceStream for META-INF/services/javax.xml.parsers.DocumentBuilderFactory loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class org.apache.xerces.jaxp.DocumentBuilderFactoryImpl]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.xerces.jaxp.DocumentBuilderFactoryImpl loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[ResourceStream for META-INF/services/org.apache.xerces.xni.parser.XMLParserConfiguration loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class org.apache.xerces.parsers.XML11Configuration]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.xerces.parsers.XML11Configuration loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.Cell]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/Cell.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.Cell loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStandTest.class]]></message>
+    <message priority="debug"><![CDATA[Class junit.framework.TestCase loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Class java.lang.Object loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Class java.lang.Throwable loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.StalemateException]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/StalemateException.class]]></message>
+    <message priority="debug"><![CDATA[Class java.lang.RuntimeException loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.StalemateException loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.GameNotOverException]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/GameNotOverException.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.GameNotOverException loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.GameOverException]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/GameOverException.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.GameOverException loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.InvalidColumnException]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/InvalidColumnException.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.InvalidColumnException loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.FullColumnException]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/FullColumnException.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.FullColumnException loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.OutOfTurnException]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/OutOfTurnException.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.OutOfTurnException loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStand]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStand.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStand loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[ResourceStream for META-INF/services/javax.xml.parsers.DocumentBuilderFactory loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class org.apache.xerces.jaxp.DocumentBuilderFactoryImpl]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.xerces.jaxp.DocumentBuilderFactoryImpl loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[ResourceStream for META-INF/services/org.apache.xerces.xni.parser.XMLParserConfiguration loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class org.apache.xerces.parsers.XML11Configuration]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.xerces.parsers.XML11Configuration loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Finding class org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl]]></message>
+    <message priority="debug"><![CDATA[Class org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl loaded from parent loader]]></message>
+    <message priority="debug"><![CDATA[Class java.lang.ArrayIndexOutOfBoundsException loaded from parent loader (parentFirst)]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.Chip]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/Chip.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.Chip loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStand$WinningPlacement]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStand$WinningPlacement.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStand$WinningPlacement loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.Direction]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/Direction.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.Direction loaded from ant loader]]></message>
+    <message priority="debug"><![CDATA[Finding class net.sourceforge.cruisecontrol.sampleproject.connectfour.Cell]]></message>
+    <message priority="debug"><![CDATA[Loaded from C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes net/sourceforge/cruisecontrol/sampleproject/connectfour/Cell.class]]></message>
+    <message priority="debug"><![CDATA[Class net.sourceforge.cruisecontrol.sampleproject.connectfour.Cell loaded from ant loader]]></message>
+    <target name="test" time="1 second">
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:46: " name="mkdir" time="0 seconds">
+        <message priority="info"><![CDATA[Created dir: C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes]]></message>
+      </task>
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:47: " name="javac" time="1 second">
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\CellTest.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/CellTest.class doesn't exist.]]></message>
+        <message priority="debug"><![CDATA[net\sourceforge\cruisecontrol\sampleproject\connectfour\PlayingStandTest.java added as net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStandTest.class doesn't exist.]]></message>
+        <message priority="info"><![CDATA[Compiling 2 source files to C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes]]></message>
+        <message priority="debug"><![CDATA[Using modern compiler]]></message>
+        <message priority="debug"><![CDATA[Compilation arguments:
+'-d'
+'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes'
+'-classpath'
+'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes;C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes;C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\lib\junit.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\Program Files\Java\jre1.5.0_05\lib\ext\QTJava.zip;C:\pdj\java\apache-ant-1.6.5\lib\ant-antlr.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bcel.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bsf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-log4j.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-oro.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-regexp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-resolver.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-logging.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-net.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-icontract.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jai.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-javamail.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jdepend.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jmf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jsch.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-netrexx.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-nodeps.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-starteam.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-stylebook.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-swing.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-trax.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-vaj.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-weblogic.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xalan1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xslp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\xercesImpl.jar;C:\pdj\java\apache-ant-1.6.5\lib\xml-apis.jar;C:\pdj\java\j2sdk1.4.2_09\lib\tools.jar'
+'-sourcepath'
+'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\test'
+'-g:none'
+
+The ' characters around the executable and arguments are
+not part of the command.]]></message>
+        <message priority="debug"><![CDATA[Files to be compiled:
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\test\net\sourceforge\cruisecontrol\sampleproject\connectfour\CellTest.java
+    C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\test\net\sourceforge\cruisecontrol\sampleproject\connectfour\PlayingStandTest.java]]></message>
+      </task>
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:54: " name="mkdir" time="0 seconds">
+        <message priority="info"><![CDATA[Created dir: C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-results]]></message>
+      </task>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\ant.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\ant.jar]]></message>
+      <message priority="debug"><![CDATA[Found C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar]]></message>
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:55: " name="junit" time="0 seconds">
+        <message priority="debug"><![CDATA[Using System properties {java.runtime.name=Java(TM) 2 Runtime Environment, Standard Edition, sun.boot.library.path=C:\pdj\java\j2sdk1.4.2_09\jre\bin, java.vm.version=1.4.2_09-b05, ant.library.dir=C:\pdj\java\apache-ant-1.6.5\lib, java.vm.vendor=Sun Microsystems Inc., java.vendor.url=http://java.sun.com/, path.separator=;, java.vm.name=Java HotSpot(TM) Client VM, file.encoding.pkg=sun.io, user.country=US, sun.os.patch.level=Service Pack 2, java.vm.specification.name=Java Virtual Machine Specification, user.dir=C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev, java.runtime.version=1.4.2_09-b05, java.awt.graphicsenv=sun.awt.Win32GraphicsEnvironment, java.endorsed.dirs=C:\pdj\java\j2sdk1.4.2_09\jre\lib\endorsed, os.arch=x86, java.io.tmpdir=C:\DOCUME~1\pdjulius\LOCALS~1\Temp\, line.separator=
+, java.vm.specification.vendor=Sun Microsystems Inc., user.variant=, os.name=Windows XP, ant.home=C:\pdj\java\apache-ant-1.6.5, sun.java2d.fontpath=, java.library.path=C:\pdj\java\j2sdk1.4.2_09\bin;.;C:\WINDOWS\system32;C:\WINDOWS;C:\pdj\java\j2sdk1.4.2_09\bin;C:\pdj\java\apache-ant-1.6.5\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\ATI Technologies\ATI Control Panel;C:\Program Files\WinSCP3\;C:\Program Files\Executive Software\Diskeeper\;C:\pdj\apps\wincvs;C:\Program Files\Subversion\bin;C:\Program Files\Perforce;C:\Program Files\QuickTime\QTSystem\, java.specification.name=Java Platform API Specification, java.class.version=48.0, java.util.prefs.PreferencesFactory=java.util.prefs.WindowsPreferencesFactory, os.version=5.1, user.home=C:\Documents and Settings\pdjulius, user.timezone=America/Chicago, java.awt.printerjob=sun.awt.windows.WPrinterJob, file.encoding=Cp1252, java.specification.version=1.4, java.class.path=C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\Program Files\Java\jre1.5.0_05\lib\ext\QTJava.zip;C:\pdj\java\apache-ant-1.6.5\lib\ant-antlr.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bcel.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bsf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-log4j.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-oro.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-regexp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-resolver.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-logging.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-net.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-icontract.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jai.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-javamail.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jdepend.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jmf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jsch.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-netrexx.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-nodeps.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-starteam.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-stylebook.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-swing.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-trax.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-vaj.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-weblogic.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xalan1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xslp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\xercesImpl.jar;C:\pdj\java\apache-ant-1.6.5\lib\xml-apis.jar;C:\pdj\java\j2sdk1.4.2_09\lib\tools.jar, user.name=pdjulius, java.vm.specification.version=1.0, java.home=C:\pdj\java\j2sdk1.4.2_09\jre, sun.arch.data.model=32, user.language=en, java.specification.vendor=Sun Microsystems Inc., awt.toolkit=sun.awt.windows.WToolkit, java.vm.info=mixed mode, java.version=1.4.2_09, java.ext.dirs=C:\pdj\java\j2sdk1.4.2_09\jre\lib\ext, sun.boot.class.path=C:\pdj\java\j2sdk1.4.2_09\jre\lib\rt.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\i18n.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\sunrsasign.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\jsse.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\jce.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\charsets.jar;C:\pdj\java\j2sdk1.4.2_09\jre\classes, java.vendor=Sun Microsystems Inc., file.separator=\, java.vendor.url.bug=http://java.sun.com/cgi-bin/bugreport.cgi, sun.io.unicode.encoding=UnicodeLittle, sun.cpu.endian=little, sun.cpu.isalist=pentium i486 i386}]]></message>
+        <message priority="debug"><![CDATA[Implicitly adding C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar to CLASSPATH]]></message>
+        <message priority="debug"><![CDATA[Using CLASSPATH C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes;C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\lib\junit.jar;C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes;C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar]]></message>
+        <message priority="info"><![CDATA[Running net.sourceforge.cruisecontrol.sampleproject.connectfour.CellTest]]></message>
+        <message priority="info"><![CDATA[Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.141 sec]]></message>
+        <message priority="info"><![CDATA[Testsuite: net.sourceforge.cruisecontrol.sampleproject.connectfour.CellTest]]></message>
+        <message priority="info"><![CDATA[Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.141 sec]]></message>
+        <message priority="debug"><![CDATA[Using System properties {java.runtime.name=Java(TM) 2 Runtime Environment, Standard Edition, sun.boot.library.path=C:\pdj\java\j2sdk1.4.2_09\jre\bin, java.vm.version=1.4.2_09-b05, ant.library.dir=C:\pdj\java\apache-ant-1.6.5\lib, java.vm.vendor=Sun Microsystems Inc., java.vendor.url=http://java.sun.com/, path.separator=;, java.vm.name=Java HotSpot(TM) Client VM, file.encoding.pkg=sun.io, user.country=US, sun.os.patch.level=Service Pack 2, java.vm.specification.name=Java Virtual Machine Specification, user.dir=C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev, java.runtime.version=1.4.2_09-b05, java.awt.graphicsenv=sun.awt.Win32GraphicsEnvironment, java.endorsed.dirs=C:\pdj\java\j2sdk1.4.2_09\jre\lib\endorsed, os.arch=x86, java.io.tmpdir=C:\DOCUME~1\pdjulius\LOCALS~1\Temp\, line.separator=
+, java.vm.specification.vendor=Sun Microsystems Inc., user.variant=, os.name=Windows XP, ant.home=C:\pdj\java\apache-ant-1.6.5, sun.java2d.fontpath=, java.library.path=C:\pdj\java\j2sdk1.4.2_09\bin;.;C:\WINDOWS\system32;C:\WINDOWS;C:\pdj\java\j2sdk1.4.2_09\bin;C:\pdj\java\apache-ant-1.6.5\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\ATI Technologies\ATI Control Panel;C:\Program Files\WinSCP3\;C:\Program Files\Executive Software\Diskeeper\;C:\pdj\apps\wincvs;C:\Program Files\Subversion\bin;C:\Program Files\Perforce;C:\Program Files\QuickTime\QTSystem\, java.specification.name=Java Platform API Specification, java.class.version=48.0, java.util.prefs.PreferencesFactory=java.util.prefs.WindowsPreferencesFactory, os.version=5.1, user.home=C:\Documents and Settings\pdjulius, user.timezone=America/Chicago, java.awt.printerjob=sun.awt.windows.WPrinterJob, file.encoding=Cp1252, java.specification.version=1.4, java.class.path=C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\Program Files\Java\jre1.5.0_05\lib\ext\QTJava.zip;C:\pdj\java\apache-ant-1.6.5\lib\ant-antlr.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bcel.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-bsf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-log4j.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-oro.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-regexp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-apache-resolver.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-logging.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-commons-net.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-icontract.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jai.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-javamail.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jdepend.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jmf.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-jsch.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-netrexx.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-nodeps.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-starteam.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-stylebook.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-swing.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-trax.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-vaj.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-weblogic.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xalan1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-xslp.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\xercesImpl.jar;C:\pdj\java\apache-ant-1.6.5\lib\xml-apis.jar;C:\pdj\java\j2sdk1.4.2_09\lib\tools.jar, user.name=pdjulius, java.vm.specification.version=1.0, java.home=C:\pdj\java\j2sdk1.4.2_09\jre, sun.arch.data.model=32, user.language=en, java.specification.vendor=Sun Microsystems Inc., awt.toolkit=sun.awt.windows.WToolkit, java.vm.info=mixed mode, java.version=1.4.2_09, java.ext.dirs=C:\pdj\java\j2sdk1.4.2_09\jre\lib\ext, sun.boot.class.path=C:\pdj\java\j2sdk1.4.2_09\jre\lib\rt.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\i18n.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\sunrsasign.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\jsse.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\jce.jar;C:\pdj\java\j2sdk1.4.2_09\jre\lib\charsets.jar;C:\pdj\java\j2sdk1.4.2_09\jre\classes, java.vendor=Sun Microsystems Inc., file.separator=\, java.vendor.url.bug=http://java.sun.com/cgi-bin/bugreport.cgi, sun.io.unicode.encoding=UnicodeLittle, sun.cpu.endian=little, sun.cpu.isalist=pentium i486 i386}]]></message>
+        <message priority="debug"><![CDATA[Implicitly adding C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar to CLASSPATH]]></message>
+        <message priority="debug"><![CDATA[Using CLASSPATH C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes;C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\lib\junit.jar;C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\test-classes;C:\pdj\java\apache-ant-1.6.5\lib\junit-3.8.1.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-launcher.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant.jar;C:\pdj\java\apache-ant-1.6.5\lib\ant-junit.jar]]></message>
+        <message priority="info"><![CDATA[Running net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest]]></message>
+        <message priority="info"><![CDATA[Tests run: 10, Failures: 0, Errors: 0, Time elapsed: 0.109 sec]]></message>
+        <message priority="info"><![CDATA[Testsuite: net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest]]></message>
+        <message priority="info"><![CDATA[Tests run: 10, Failures: 0, Errors: 0, Time elapsed: 0.109 sec]]></message>
+      </task>
+    </target>
+    <message priority="debug"><![CDATA[fileset: Setup scanner in dir C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes with patternSet{ includes: [] excludes: [] }]]></message>
+    <target name="jar" time="0 seconds">
+      <task location="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\build.xml:70: " name="jar" time="0 seconds">
+        <message priority="info"><![CDATA[Building jar: C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\connectfour.jar]]></message>
+        <message priority="debug"><![CDATA[adding directory META-INF/]]></message>
+        <message priority="debug"><![CDATA[adding entry META-INF/MANIFEST.MF]]></message>
+        <message priority="debug"><![CDATA[adding directory net/]]></message>
+        <message priority="debug"><![CDATA[adding directory net/sourceforge/]]></message>
+        <message priority="debug"><![CDATA[adding directory net/sourceforge/cruisecontrol/]]></message>
+        <message priority="debug"><![CDATA[adding directory net/sourceforge/cruisecontrol/sampleproject/]]></message>
+        <message priority="debug"><![CDATA[adding directory net/sourceforge/cruisecontrol/sampleproject/connectfour/]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/Cell.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/Chip.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/Direction.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/FullColumnException.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/GameNotOverException.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/GameOverException.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/InvalidColumnException.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/OutOfTurnException.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStand$WinningPlacement.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/PlayingStand.class]]></message>
+        <message priority="debug"><![CDATA[adding entry net/sourceforge/cruisecontrol/sampleproject/connectfour/StalemateException.class]]></message>
+      </task>
+    </target>
+    <target name="all" time="0 seconds" />
+  </build>
+  <testsuite errors="0" failures="0" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.CellTest" tests="1" time="0.141">
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.CellTest" name="testConstructor" time="0.016" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite errors="0" failures="0" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" tests="10" time="0.109">
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testFourConnected" time="0.016" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testFourConnectedHorizontally" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testFourConnectedDiagonally" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testStandControlsTurns" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testFullColumn" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testNonExistentColumn" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testNoWinner" time="0.016" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testDownwardDiagonalWins" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testWinningPlacement" time="0.0" />
+    <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testNoWinningPlacementBeforeGameOver" time="0.031" />
+    <system-out />
+    <system-err />
+  </testsuite>
+</cruisecontrol>
+
