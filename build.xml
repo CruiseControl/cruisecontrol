@@ -164,7 +164,9 @@
                 </waitfor>
 
                 <mkdir dir="target/webtest-results"/>
-                <junit haltonfailure="no" printsummary="on" failureproperty="junit.failure">
+                <junit haltonfailure="no" printsummary="on"
+                    failureproperty="junit.failure" fork="yes" forkmode="once"
+                    dir="target\webtest\cruisecontrol-bin-2.4.0-dev">
                     <classpath>
                         <pathelement location="reporting/jsp/target/classes"/>
                         <fileset dir="reporting/jsp/lib" includes="*.jar"/>
