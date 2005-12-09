@@ -34,41 +34,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import java.io.IOException;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
-import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
+import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.GenericPluginDetail;
+import net.sourceforge.cruisecontrol.PluginConfiguration;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import org.jdom.JDOMException;
 
 public class ConfigurationTest extends TestCase {
+    private final String contents;
     private Configuration configuration;
 
-    private String contents;
+    public ConfigurationTest() throws MalformedObjectNameException, IOException, AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException, JDOMException {
+        configuration = createConfig();
+        contents = configuration.getConfiguration();
+    }
 
     protected void setUp() throws Exception {
         super.setUp();
-
-        configuration = new Configuration("localhost", 7856);
-        contents = configuration.getConfiguration();
+        configuration = createConfig();
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-
         configuration.setConfiguration(contents);
+        configuration.save();
     }
 
-    public void testGetConfiguration() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,
-            ReflectionException, IOException, JDOMException {
+    public void testGetConfiguration() throws Exception {
         String contents = getContents();
         String xmlHdr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         assertTrue(contents.indexOf(xmlHdr) == 0);
@@ -76,21 +83,65 @@ public class ConfigurationTest extends TestCase {
         assertTrue(contents.indexOf("</cruisecontrol>") != -1);
     }
 
-    public void testSetConfiguration() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,
-            ReflectionException, IOException, JDOMException, InvalidAttributeValueException {
+    public void testSetConfiguration() throws Exception {
         String addContent = "<!-- Hello, world! -->";
         configuration.setConfiguration(getContents() + addContent);
         assertTrue(getContents().indexOf(addContent) != -1);
     }
 
-    public void testCanUpdatePluginElement() throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException, JDOMException, InvalidAttributeValueException {
+    public void testCanUpdatePluginConfiguration() throws Exception {
         String addContent = "projects/foobar";
         PluginDetail cvsDetail = new GenericPluginDetail("cvs", ConcurrentVersionsSystem.class);
         PluginConfiguration pluginConfiguration = new PluginConfiguration(cvsDetail, configuration);
         pluginConfiguration.setDetail("cvsRoot", "projects/foobar");
-        configuration.updatePlugin(pluginConfiguration);
+        configuration.updatePluginConfiguration(pluginConfiguration);
         assertTrue(getContents().indexOf(addContent) != -1);
+    }
+
+    public void testGetPluginDetails() throws Exception {
+        PluginDetail[] pluginDetails = configuration.getPluginDetails();
+        assertNotNull(pluginDetails);
+        assertTrue(0 < pluginDetails.length);
+    }
+
+    public void testLoad() throws Exception {
+        String addContent = "<!-- Hello, world! -->";
+        configuration.setConfiguration(getContents() + addContent);
+        configuration.load();
+        assertTrue(getContents().indexOf(addContent) == -1);
+    }
+
+    public void testSave() throws Exception {
+        String addContent = "<!-- Hello, world! -->";
+        configuration.setConfiguration(getContents() + addContent);
+        configuration.save();
+        configuration.load();
+        assertTrue(getContents().indexOf(addContent) != -1);
+    }
+
+    public void testGetConfiguredBootstrappers() throws CruiseControlException, AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException, IOException, JDOMException {
+        PluginDetail[] bootstrappers = configuration.getConfiguredBootstrappers("connectfour");
+        assertNotNull(bootstrappers);
+        assertTrue(1 == bootstrappers.length);
+    }
+
+    public void testGetConfiguredListeners() throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException, CruiseControlException, JDOMException {
+        PluginDetail[] listeners = configuration.getConfiguredListeners("connectfour");
+        assertNotNull(listeners);
+        assertTrue(1 == listeners.length);
+    }
+    
+    public void testGetConfiguredSourceControls() throws AttributeNotFoundException, InstanceNotFoundException,
+            MBeanException, ReflectionException, IOException, CruiseControlException, JDOMException {
+        PluginDetail[] sourceControls = configuration.getConfiguredSourceControls("connectfour");
+        assertNotNull(sourceControls);
+        assertTrue(1 == sourceControls.length);
+    }
+
+    private static Configuration createConfig() throws IOException, MalformedObjectNameException {
+        return new Configuration("localhost", 7856);
     }
 
     private String getContents() throws AttributeNotFoundException, InstanceNotFoundException, MBeanException,

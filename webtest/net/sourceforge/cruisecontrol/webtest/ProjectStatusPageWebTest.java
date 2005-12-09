@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2005, ThoughtWorks, Inc.
+ * Copyright (c) 2005 ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -34,23 +34,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import net.sourceforge.jwebunit.WebTestCase;
 
-public class MetricsTabWebTest extends WebTestCase {
+public class ProjectStatusPageWebTest extends WebTestCase {
+
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl("http://localhost:7854");
     }
 
-    public void testMetricsTab() {
+    public void testForceBuild() throws InterruptedException {
         beginAt("/cruisecontrol");
         assertTextPresent("CruiseControl Status Page");
-
-
-        clickLinkWithText("commons-math");
-        clickLinkWithText("Metrics");
-        assertTextPresent("Number of Build Attempts");
+        assertFormPresent("force_connectfour");        
     }
 }

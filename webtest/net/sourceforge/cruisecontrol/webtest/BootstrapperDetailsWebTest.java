@@ -34,13 +34,14 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.cruisecontrol.Configuration;
 
 public class BootstrapperDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-            + "project=commons-math&pluginType=bootstrapper";
+            + "project=connectfour&pluginType=bootstrapper";
 
     private static final String CVS_URL = BASE + "&pluginName=cvsbootstrapper";
 
@@ -66,7 +67,7 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromBootstrappersPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=commons-math&pluginType=bootstrapper";
+        String pluginsUrl = "/cruisecontrol/available.jspa?project=connectfour&pluginType=bootstrapper";
 
         beginAt(pluginsUrl);
         assertLinkPresentWithText("cvsbootstrapper");
@@ -100,11 +101,9 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
         setFormElement("localWorkingCopy", "projects/jakarta-commons/cli");
         submit();
         assertTextPresent("Updated configuration.");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("contents");
-        assertTextPresent("&lt;cruisecontrol&gt;");
-        assertTextPresent("&lt;/cruisecontrol&gt;");
-        assertTextPresent("&lt;cvsbootstrapper localWorkingCopy=&quot;projects/jakarta-commons/cli&quot; /&gt;");
+        assertFormPresent("cvsbootstrapper-details");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("projects/jakarta-commons/cli");
     }
 
     public void testShouldSaveSVNBootstrapperConfiguration() {
@@ -113,11 +112,9 @@ public class BootstrapperDetailsWebTest extends WebTestCase {
         setFormElement("localWorkingCopy", "repos/trunk/foobar");
         submit();
         assertTextPresent("Updated configuration.");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("contents");
-        assertTextPresent("&lt;cruisecontrol&gt;");
-        assertTextPresent("&lt;/cruisecontrol&gt;");
-        assertTextPresent("&lt;svnbootstrapper localWorkingCopy=&quot;repos/trunk/foobar&quot; /&gt;");
+        assertFormPresent("svnbootstrapper-details");
+        assertFormElementPresent("localWorkingCopy");
+        assertTextPresent("repos/trunk/foobar");
     }
 
     public void testShouldAllowUsersToClearCVSBootstrapperAttributes() {

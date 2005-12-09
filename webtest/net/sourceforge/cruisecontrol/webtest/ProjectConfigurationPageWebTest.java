@@ -34,34 +34,47 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
+
+import java.io.IOException;
+
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ReflectionException;
 
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.cruisecontrol.Configuration;
+
+import org.jdom.JDOMException;
 
 public class ProjectConfigurationPageWebTest extends WebTestCase {
-    private static final String CONFIG_URL = "/cruisecontrol/config.jspa";
-
+    private static final String CONFIG_URL = "/cruisecontrol/config.jspa?project=connectfour";
+    private final String contents;
     private Configuration configuration;
 
-    private String contents;
+    public ProjectConfigurationPageWebTest() throws MalformedObjectNameException, IOException,
+            AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException, JDOMException {
+        configuration = createConfig();
+        contents = configuration.getConfiguration();
+    }
 
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl("http://localhost:7854");
-
-        configuration = new Configuration("localhost", 7856);
-        contents = configuration.getConfiguration();
+        configuration = createConfig();
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-
         configuration.setConfiguration(contents);
+        configuration.save();
     }
 
     public void testShouldLoadRawXMLConfigurationData() {
         beginAt(CONFIG_URL);
-        assertFormPresent("commons-math-config");
+        assertFormPresent("project-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
         assertTextPresent("&lt;/cruisecontrol&gt;");
@@ -69,14 +82,36 @@ public class ProjectConfigurationPageWebTest extends WebTestCase {
 
     public void testShouldSaveChangesToXMLConfigurationData() throws Exception {
         beginAt(CONFIG_URL);
-        setWorkingForm("commons-math-config");
-
+        setWorkingForm("project-config");
         setFormElement("contents", contents + "<!-- Hello, world! -->");
         submit();
-        assertFormPresent("commons-math-config");
+        assertFormPresent("project-config");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
         assertTextPresent("&lt;/cruisecontrol&gt;");
         assertTextPresent("&lt;!-- Hello, world! --&gt;");
+    }
+
+    public void testLoad() throws Exception {
+        String newContent = "&lt;!-- Hello, world! --&gt;";
+
+        beginAt(CONFIG_URL);
+        assertFormPresent("reload-configuration");
+        setWorkingForm("project-config");
+        setFormElement("contents", contents + "<!-- Hello, world! -->");
+        submit();
+        assertFormPresent("project-config");
+        assertFormElementPresent("contents");
+        assertTextPresent("&lt;cruisecontrol&gt;");
+        assertTextPresent("&lt;/cruisecontrol&gt;");
+        assertTextPresent(newContent);
+        setWorkingForm("reload-configuration");
+        submit();
+        assertTextPresent("Reloaded configuration.");
+        assertTextNotPresent(newContent);
+    }
+
+    private static Configuration createConfig() throws IOException, MalformedObjectNameException {
+        return new Configuration("localhost", 7856);
     }
 }

@@ -34,20 +34,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import net.sourceforge.jwebunit.WebTestCase;
+import net.sourceforge.cruisecontrol.Configuration;
 
 public class PublisherDetailsWebTest extends WebTestCase {
     private static final String BASE = "/cruisecontrol/details!default.jspa?"
-        + "project=commons-math&pluginType=publisher";
-
+        + "project=connectfour&pluginType=publisher";
     private static final String FTP_URL = BASE + "&pluginName=ftppublisher";
-
     private static final String XSLT_URL = BASE + "&pluginName=xsltlogpublisher";
 
     private Configuration configuration;
-
     private String contents;
 
     protected void setUp() throws Exception {
@@ -66,15 +64,15 @@ public class PublisherDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromPublishersPage() {
-        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=commons-math&pluginType=publisher";
-        
+        String pluginsUrl = "/cruisecontrol/available.jspa?project=connectfour&pluginType=publisher";
+
         beginAt(pluginsUrl);
         assertLinkPresentWithText("ftppublisher");
-        
+
         gotoPage(pluginsUrl);
         assertLinkPresentWithText("xsltlogpublisher");
     }
-    
+
     public void testShouldLoadFTPPublisherConfiguration() {
         beginAt(FTP_URL);
         assertFormPresent("ftppublisher-details");
@@ -98,11 +96,9 @@ public class PublisherDetailsWebTest extends WebTestCase {
         setFormElement("destDir", "/tmp");
         submit();
         assertTextPresent("Updated configuration.");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("contents");
-        assertTextPresent("&lt;cruisecontrol&gt;");
-        assertTextPresent("&lt;/cruisecontrol&gt;");
-        assertTextPresent("&lt;ftppublisher destDir=&quot;/tmp&quot; /&gt;");
+        assertFormPresent("ftppublisher-details");
+        assertFormElementPresent("destDir");
+        assertTextPresent("/tmp");
     }
 
     public void testShouldSaveXSLTLogPublisherConfiguration() {
@@ -111,11 +107,9 @@ public class PublisherDetailsWebTest extends WebTestCase {
         setFormElement("xsltFile", "templates/foobar.xslt");
         submit();
         assertTextPresent("Updated configuration.");
-        assertFormPresent("commons-math-config");
-        assertFormElementPresent("contents");
-        assertTextPresent("&lt;cruisecontrol&gt;");
-        assertTextPresent("&lt;/cruisecontrol&gt;");
-        assertTextPresent("&lt;xsltlogpublisher xsltFile=&quot;templates/foobar.xslt&quot; /&gt;");
+        assertFormPresent("xsltlogpublisher-details");
+        assertFormElementPresent("xsltFile");
+        assertTextPresent("templates/foobar.xslt");
     }
 
     public void testShouldAllowUsersToClearFTPPublisherAttributes() {

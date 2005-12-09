@@ -34,18 +34,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.webtest;
 
 import net.sourceforge.jwebunit.WebTestCase;
 
 public class PluginsWebTest extends WebTestCase {
-    private static final String BASE = "/cruisecontrol/plugins.jspa?project=commons-math";
-
-    private static final String BOOTSTRAPPERS_URL = BASE + "&pluginType=bootstrapper";
-    
-    private static final String PUBLISHERS_URL = BASE + "&pluginType=publisher";
-    
-    private static final String SOURCE_CONTROLS_URL = BASE + "&pluginType=sourcecontrol";
+    private static final String BASE = "/cruisecontrol/available.jspa?project=connectfour";
+    private static final String ALL_BOOTSTRAPPERS_URL = BASE + "&pluginType=bootstrapper";
+    private static final String ALL_PUBLISHERS_URL = BASE + "&pluginType=publisher";
+    private static final String ALL_SOURCE_CONTROLS_URL = BASE + "&pluginType=sourcecontrol";
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -55,16 +52,19 @@ public class PluginsWebTest extends WebTestCase {
     public void testShouldBeAccessibleFromBasicConfigPage() throws Exception {
         beginAt("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Bootstrappers");
+        assertLinkPresentWithText("Add Bootstrapper");
 
         gotoPage("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Publishers");
+        assertLinkPresentWithText("Add Publisher");
         
         gotoPage("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Source Controls");
+        assertLinkPresentWithText("Add Source Control");
     }
 
     public void testShouldListAvailableBootstrappers() {
-        beginAt(BOOTSTRAPPERS_URL);
+        beginAt(ALL_BOOTSTRAPPERS_URL);
         assertLinkPresentWithText("accurevbootstrapper");
         assertLinkPresentWithText("alienbrainbootstrapper");
         assertLinkPresentWithText("antbootstrapper");
@@ -79,7 +79,7 @@ public class PluginsWebTest extends WebTestCase {
     }
     
     public void testShouldListAvailablePublishers() {
-        beginAt(PUBLISHERS_URL);
+        beginAt(ALL_PUBLISHERS_URL);
         assertLinkPresentWithText("antpublisher");
         assertLinkPresentWithText("cmsynergybaselinepublisher");
         assertLinkPresentWithText("cmsynergytaskpublisher");
@@ -98,7 +98,7 @@ public class PluginsWebTest extends WebTestCase {
     }
     
     public void testShouldListAvailableSourceControls() {
-        beginAt(SOURCE_CONTROLS_URL);
+        beginAt(ALL_SOURCE_CONTROLS_URL);
         assertLinkPresentWithText("accurev");
         assertLinkPresentWithText("alienbrain");
         assertLinkPresentWithText("alwaysbuild");
