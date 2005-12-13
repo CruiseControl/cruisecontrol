@@ -113,7 +113,7 @@
             <a href="available.jspa?pluginType=builder"
                onclick="loadAvailablePlugins(this.href, 'builders'); return false;">Add Schedule</a>
             <div id="available-builders" style="display: none; margin-left: 15%"></div>
-            <hr id="listeners-hr" style="display: none;"/>
+            <hr id="builders-hr" style="display: none;"/>
             <div id="builders" style="display: none; margin-left: 15%"></div>
 
             <br/>

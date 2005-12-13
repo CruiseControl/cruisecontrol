@@ -39,16 +39,15 @@ package net.sourceforge.cruisecontrol.webtest;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.GenericPluginDetail;
+import net.sourceforge.cruisecontrol.PluginConfiguration;
+import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
 import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
-import net.sourceforge.cruisecontrol.PluginConfiguration;
-import net.sourceforge.cruisecontrol.Configuration;
-import net.sourceforge.cruisecontrol.PluginDetail;
-import net.sourceforge.cruisecontrol.GenericPluginDetail;
 
 public class PluginConfigurationTest extends TestCase {
     private PluginConfiguration cvs;
-
     private PluginConfiguration svn;
 
     protected void setUp() throws Exception {
@@ -58,28 +57,27 @@ public class PluginConfigurationTest extends TestCase {
         PluginDetail cvsDetails = new GenericPluginDetail("cvs", ConcurrentVersionsSystem.class);
         PluginDetail svnDetails = new GenericPluginDetail("svn", SVN.class);
 
-        this.cvs = new PluginConfiguration(cvsDetails, configuration);
-        this.svn = new PluginConfiguration(svnDetails, configuration);
+        cvs = new PluginConfiguration(cvsDetails, configuration);
+        svn = new PluginConfiguration(svnDetails, configuration);
     }
 
-    public void testShouldGetName() {
+    public void testGetName() {
         assertEquals("cvs", cvs.getName());
         assertEquals("svn", svn.getName());
     }
 
-    public void testShouldGetType() {
+    public void testGetType() {
         assertEquals("sourcecontrol", cvs.getType());
         assertEquals("sourcecontrol", svn.getType());
     }
 
-    public void testShouldGetDetails() {
+    public void testGetCVSDetails() {
         Map cvsDetails = cvs.getDetails();
         assertEquals(6, cvsDetails.size());
         assertTrue(cvsDetails.containsKey("cvsRoot"));
         assertNull(cvsDetails.get("cvsRoot"));
         assertTrue(cvsDetails.containsKey("localWorkingCopy"));
-        assertEquals("projects/${project.name}", cvsDetails
-                .get("localWorkingCopy"));
+        assertEquals("projects/${project.name}", cvsDetails.get("localWorkingCopy"));
         assertTrue(cvsDetails.containsKey("module"));
         assertNull(cvsDetails.get("module"));
         assertTrue(cvsDetails.containsKey("property"));
@@ -88,7 +86,9 @@ public class PluginConfigurationTest extends TestCase {
         assertNull(cvsDetails.get("propertyOnDelete"));
         assertTrue(cvsDetails.containsKey("tag"));
         assertNull(cvsDetails.get("tag"));
+    }
 
+    public void testGetSVNDetails() {
         Map svnDetails = svn.getDetails();
         assertEquals(6, svnDetails.size());
         assertTrue(svnDetails.containsKey("localWorkingCopy"));
@@ -103,5 +103,12 @@ public class PluginConfigurationTest extends TestCase {
         assertNull(svnDetails.get("repositoryLocation"));
         assertTrue(svnDetails.containsKey("username"));
         assertNull(svnDetails.get("username"));
+    }
+    
+    public void testSetDetailShouldIgnoreCase() {
+        cvs.setDetail("LOCALWORKINGCOPY", "projects/connectfour");
+        Map cvsDetails = cvs.getDetails();
+        assertTrue(cvsDetails.containsKey("localWorkingCopy"));
+        assertEquals("projects/connectfour", cvsDetails.get("localWorkingCopy"));
     }
 }
