@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.management.AttributeNotFoundException;
@@ -53,7 +54,6 @@ import org.jdom.JDOMException;
  * Understands how to map parameter values to plugin attributes.
  */
 public class PluginConfiguration {
-
     private Map details;
     private String name;
     private PluginType type;
@@ -83,18 +83,17 @@ public class PluginConfiguration {
     }
 
     public void setDetail(String name, String value) {
-
-        if (details.containsKey(name)
-                && (StringUtils.isNotBlank((String) details.get(name)) || StringUtils.isNotBlank(value))) {
-            details.remove(name);
-            details.put(name, value);
+        Map.Entry detail = getEntryCaseInsensitive(name, details);
+        if (detail != null && (StringUtils.isNotBlank((String) detail.getValue()) || StringUtils.isNotBlank(value))) {
+            details.remove(detail.getKey());
+            details.put(detail.getKey(), value);
         }
     }
 
     private Map createDetails(PluginDetail pluginDetail, Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-        Map tmp = new HashMap();
+        Map newDetails = new HashMap();
         Element currentConfiguration = getElement(configuration);
 
         Attribute[] attributes = pluginDetail.getRequiredAttributes();
@@ -102,22 +101,38 @@ public class PluginConfiguration {
             Attribute attribute = attributes[i];
             String key = attribute.getName();
             String realName = key.substring(0, 1).toLowerCase() + key.substring(1);
-            tmp.put(realName, currentConfiguration.getAttributeValue(realName));
+            newDetails.put(realName, findAttributeValue(currentConfiguration, realName));
         }
 
-        return tmp;
+        return newDetails;
     }
 
-    private Element getElement(Configuration configuration)
-            throws AttributeNotFoundException, InstanceNotFoundException,
-            MBeanException, ReflectionException, IOException, JDOMException {
-
-        Element currentConfiguration = configuration.getElement(this.name);
-
-        if (currentConfiguration == null) {
-            currentConfiguration = new Element(this.name);
+    private String findAttributeValue(Element configuration, String attributeName) {
+        for (Iterator i = configuration.getAttributes().iterator(); i.hasNext();) {
+            String nextAttributeName = ((org.jdom.Attribute) i.next()).getName();
+            if (attributeName.equalsIgnoreCase(nextAttributeName)) {
+                return configuration.getAttributeValue(nextAttributeName);
+            }
         }
+        return null;
+    }
 
+    private static Map.Entry getEntryCaseInsensitive(String key, Map map) {
+        for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
+            Map.Entry nextDetail = (Map.Entry) i.next();
+            if (key.equalsIgnoreCase((String) nextDetail.getKey())) {
+                return nextDetail;
+            }
+        }
+        return null;
+    }
+
+    private Element getElement(Configuration configuration) throws AttributeNotFoundException,
+            InstanceNotFoundException, MBeanException, ReflectionException, IOException, JDOMException {
+        Element currentConfiguration = configuration.getElement(name);
+        if (currentConfiguration == null) {
+            currentConfiguration = new Element(name);
+        }
         return currentConfiguration;
     }
 }
