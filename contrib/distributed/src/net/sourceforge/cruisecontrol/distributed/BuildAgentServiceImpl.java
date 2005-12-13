@@ -167,6 +167,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             final Builder nestedBuilder;
             try {
                 nestedBuilder = createBuilder(nestedBuilderElement);
+                nestedBuilder.validate();
             } catch (CruiseControlException e) {
                 String message = "Failed to configure nested Builder on agent";
                 LOG.error(message, e);
