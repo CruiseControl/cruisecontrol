@@ -5509,150 +5509,141 @@ endlocal</pre>
             <tr>
                 <td><code>&lt;title&gt;</code></td>
                 <td>1</td>
-                <td>The title for the tracker artifact. This child element is required and has the
-                    following attributes:
-                    <table class="documentation">
-                        <thead>
-                        <tr>
-                            <th>Attribute</th>
-                            <th>Required</th>
-                            <th>Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>value</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>The title value for the new tracker artifact.</td>
-                            </tr>
-                            <tr>
-                                <td>xpathExpression</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
-                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
-                                    used as the value for the title.</td>
-                            </tr>
-                            <tr>
-                                <td>xmlFile</td>
-                                <td>No (defaults to the CruiseControl build log). </td>
-                                <td>Path to a file on the local filesystem against which the
-                                    <code>xpathExpression</code> will be evaluated.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <td>The title for the tracker artifact. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
                 </td>
             </tr>
             <tr>
                 <td><code>&lt;description&gt;</code></td>
                 <td>1</td>
-                <td>The description for the tracker artifact. This child element is required and has the
-                    following attributes:
-                    <table class="documentation">
-                        <thead>
-                        <tr>
-                            <th>Attribute</th>
-                            <th>Required</th>
-                            <th>Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>value</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>The description for the new tracker artifact.</td>
-                            </tr>
-                            <tr>
-                                <td>xpathExpression</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
-                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
-                                    used as the value for the description.</td>
-                            </tr>
-                            <tr>
-                                <td>xmlFile</td>
-                                <td>No (defaults to the CruiseControl build log). </td>
-                                <td>Path to a file on the local filesystem against which the
-                                    <code>xpathExpression</code> will be evaluated.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <td>The description for the tracker artifact. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
                 </td>
             </tr>
             <tr>
                 <td><code>&lt;status&gt;</code></td>
                 <td>1</td>
-                <td>The status for the tracker artifact. This child element is required and has the
-                    following attributes:
-                    <table class="documentation">
-                        <thead>
-                        <tr>
-                            <th>Attribute</th>
-                            <th>Required</th>
-                            <th>Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>value</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>The status value for the new tracker artifact.</td>
-                            </tr>
-                            <tr>
-                                <td>xpathExpression</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
-                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
-                                    used as the value for the status.</td>
-                            </tr>
-                            <tr>
-                                <td>xmlFile</td>
-                                <td>No (defaults to the CruiseControl build log). </td>
-                                <td>Path to a file on the local filesystem against which the
-                                    <code>xpathExpression</code> will be evaluated.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <td>The status for the tracker artifact. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
                 </td>
             </tr>
             <tr>
                 <td><code>&lt;field&gt;</code></td>
                 <td>0..*</td>
-                <td>Sets a field that exists in the tracker artifact. This child element is optional and has the
-                    following attributes:
-                    <table class="documentation">
-                        <thead>
-                        <tr>
-                            <th>Attribute</th>
-                            <th>Required</th>
-                            <th>Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>name</td>
-                                <td>Yes </td>
-                                <td>The name of a field in the tracker artifact.</td>
-                            </tr>
-                            <tr>
-                                <td>value</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>The value for the new tracker artifact field.</td>
-                            </tr>
-                            <tr>
-                                <td>xpathExpression</td>
-                                <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
-                                <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
-                                    as specified by <code>xmlFile</code> attribute. The result of the expression will be
-                                    used as the value for the field.</td>
-                            </tr>
-                            <tr>
-                                <td>xmlFile</td>
-                                <td>No (defaults to the CruiseControl build log). </td>
-                                <td>Path to a file on the local filesystem against which the
-                                    <code>xpathExpression</code> will be evaluated.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <td>Sets a field that exists in the tracker artifact. This child element is optional and is a
+                    <a href="#namedxpathawarechildattributes">Named XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+         <h3>Examples</h3>
+
+         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="sfeedocman">&lt;sfeedocman&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;sfeedocman&gt;</pre>
+        </div>
+
+        <p>Creates a Document Manager document in a SourceForge Enterprise Edition project. All
+        child elements may include either hardcoded values, or use an xpath expression to define the value at runtime.</p>
+
+        <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.
+            The publisher is compiled against a stub implementation of that SDK. Remove the stub jar
+            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place and make them available in
+            CruiseControl's classpath.
+        </p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>serverurl</td>
+                <td>Yes</td>
+                <td>URL for the SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Valid username for the specified SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password for the specified username.</td>
+            </tr>
+            <tr>
+                <td>document</td>
+                <td>Yes</td>
+                <td>The path to the document to publish.</td>
+            </tr>
+            <tr>
+                <td>folder</td>
+                <td>Yes</td>
+                <td>The Document Manager folder in which to publish.</td>
+            </tr>
+            <tr>
+                <td>projectName</td>
+                <td>Yes</td>
+                <td>The name of the SFEE project where the Document Manager folder specified exists.</td>
+            </tr>                        
+            </tbody>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><code>&lt;description&gt;</code></td>
+                <td>1</td>
+                <td>The description for the Document. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;status&gt;</code></td>
+                <td>1</td>
+                <td>The status for the Document. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;documentname&gt;</code></td>
+                <td>0..1</td>
+                <td>The name for the Document within the Document Manager. If this child is not included, it will default
+                    to the name of the file being published. This child element is optional and is a
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;versioncomment&gt;</code></td>
+                <td>0..1</td>
+                <td>The version comment for the Document. This child element is optional and is a
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
                 </td>
             </tr>
             </tbody>
@@ -6976,6 +6967,71 @@ endlocal</pre>
         </table>
         </div>
 
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="xpathawarechildattributes">XPath Aware Child Attributes</a></h2>
+
+        <p>The following attributes are common to the xpath aware children found in
+        <a href="#sfeetracker"><code>&lt;sfeetracker&gt;</code></a> and
+        <a href="#sfeedocman"><code>&lt;sfeedocman&gt;</code></a>.</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>value</td>
+                    <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                    <td>A fixed value that will not change at runtime.</td>
+                </tr>
+                <tr>
+                    <td>xpathExpression</td>
+                    <td>One of <code>value</code> or <code>xpathExpression</code> must be specified. </td>
+                    <td>An xpath expression to evaluate against the CruiseControl log file, or the xml file
+                        as specified by <code>xmlFile</code> attribute. The result of the expression will be
+                        used as the value.</td>
+                </tr>
+                <tr>
+                    <td>xmlFile</td>
+                    <td>No (defaults to the CruiseControl build log). </td>
+                    <td>Path to a file on the local filesystem against which the
+                        <code>xpathExpression</code> will be evaluated.</td>
+                </tr>
+            </tbody>
+        </table>
+      </div>
+
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+
+        <h2><a name="namedxpathawarechildattributes">Named XPath Aware Child Attributes</a></h2>
+
+        <p>The same attributes as found in the <a href="#xpathawarechildattributes">XPath Aware Child Attributes</a>
+            and one additional attribute to specify a name.
+        </p>
+        <table class="documentation">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>name</td>
+                    <td>Yes </td>
+                    <td>The name of a field in the tracker artifact.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     </div>
 </div>
 </body>
