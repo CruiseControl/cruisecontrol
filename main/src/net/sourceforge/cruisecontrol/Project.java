@@ -585,6 +585,8 @@ public class Project implements Serializable, Runnable {
         if (projectConfig == null) {
             throw new IllegalStateException("projectConfig must be set on project before calling init()");
         }
+
+        buildAfterFailed = projectConfig.isBuildAfterFailed();
         
         if (buildTarget != null) {
             // tell the helper to set the given buildTarget

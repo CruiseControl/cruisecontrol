@@ -95,6 +95,7 @@ Project:
 * Remove methods to get/set config file from Project and corresponding jmx interface classes
 * ModificationSet is no longer a required element; when missing builds must be forced.
 * Fix a testcase failure on MacOS X. Reported by Michael Kloss.
+* Build after failed was not getting set properly. Patch by Brad Clarke.
 
 ProjectConfig:
 ----------------------
@@ -116,7 +117,7 @@ SfeeTrackerPublisher:
 SfeeDocumentManagerPublisher:
 ----------------------
 * A new publisher for creating a Document Manager entry in a SourceForge Enterprise Edition project.
-* If a Document Manager entry already exists in the specified folder with the same name, then the document being published will be added as a new version. 
+* If a Document Manager entry already exists in the specified folder with the same name, then the document being published will be added as a new version.
 
 VSSJournal:
 ----------------------
