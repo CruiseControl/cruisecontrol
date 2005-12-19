@@ -39,10 +39,12 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import com.starbase.starteam.File;
 import com.starbase.starteam.Folder;
 import com.starbase.starteam.Item;
+import com.starbase.starteam.TypeNotFoundException;
 import com.starbase.starteam.PropertyNames;
 import com.starbase.starteam.Server;
 import com.starbase.starteam.ServerException;
 import com.starbase.starteam.StarTeamFinder;
+import com.starbase.starteam.TypeNames;
 import com.starbase.starteam.User;
 import com.starbase.starteam.UserAccount;
 import com.starbase.starteam.View;
@@ -69,6 +71,7 @@ import java.util.Map;
  * @author Christopher Charlier -- ThoughtWorks Inc. 2001
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Neill
+ * @author Ben Burgess
  */
 public class StarTeam implements SourceControl {
 
@@ -80,6 +83,10 @@ public class StarTeam implements SourceControl {
     private String url;
     private List modifications = new ArrayList();
     private OLEDate nowDate;
+    private Folder lastBuildRoot;
+    private PropertyNames stPropertyNames;
+    private Server server;
+    private TypeNames stTypeNames;
 
     private Hashtable properties = new Hashtable();
     private String property;
@@ -87,6 +94,7 @@ public class StarTeam implements SourceControl {
 
     private boolean preloadFileInformation = true;
     private boolean canLookupEmails = true;
+    private boolean canLookupDeletions = true;
 
     /**
      * Set StarTeam user name
@@ -134,6 +142,9 @@ public class StarTeam implements SourceControl {
         ValidationHelper.assertIsSet(url, "url", this.getClass());
         ValidationHelper.assertIsSet(userName, "username", this.getClass());
         ValidationHelper.assertIsSet(password, "password", this.getClass());
+
+        // uncomment below for debugging which properties to populateNow
+        //com.starbase.starteam.vts.comm.NetMonitor.onConsole();
     }
 
     /**
@@ -151,7 +162,7 @@ public class StarTeam implements SourceControl {
         nowDate = new OLEDate(now.getTime());
         OLEDate lastBuildDate = new OLEDate(lastBuild.getTime());
 
-        Server server = null;
+        server = null;
         try {
             // Set up two view snapshots, one at lastbuild time, one now
             View view = StarTeamFinder.openView(userName + ":" + password + "@" + url);
@@ -166,7 +177,8 @@ public class StarTeam implements SourceControl {
 
             Folder nowRoot = StarTeamFinder.findFolder(snapshotAtNow.getRootFolder(), folder);
 
-            PropertyNames stPropertyNames = server.getPropertyNames();
+            stPropertyNames = server.getPropertyNames();
+            stTypeNames = server.getTypeNames();
             // properties to fetch immediately and cache
             final String[] propertiesToCache =
                 new String[] {
@@ -179,41 +191,41 @@ public class StarTeam implements SourceControl {
 
             if (preloadFileInformation) {
                 // cache information for now
-                nowRoot.populateNow(server.getTypeNames().FILE, propertiesToCache, -1);
+                nowRoot.populateNow(stTypeNames.FILE, propertiesToCache, -1);
             }
 
             // Visit all files in the snapshots and add to Maps
             addFolderModsToList(nowFiles, nowRoot);
 
             try {
-                Folder lastBuildRoot =
+                lastBuildRoot =
                     StarTeamFinder.findFolder(snapshotAtLastBuild.getRootFolder(), folder);
 
                 if (preloadFileInformation) {
                     // cache information for last build
-                    lastBuildRoot.populateNow(server.getTypeNames().FILE, propertiesToCache, -1);
+                    lastBuildRoot.populateNow(stTypeNames.FILE, propertiesToCache, -1);
                 }
 
                 addFolderModsToList(lastBuildFiles, lastBuildRoot);
             } catch (ServerException se) {
-                LOG.error("Server Exception occurred visiting last build view: ", se);
+                LOG.error(url + ": Server Exception occurred visiting last build view: ", se);
             }
 
             compareFileLists(nowFiles, lastBuildFiles);
 
             // Discard cached items so memory is not eaten up
-            snapshotAtNow.getRootFolder().discardItems(server.getTypeNames().FILE, -1);
+            snapshotAtNow.getRootFolder().discardItems(stTypeNames.FILE, -1);
 
             try {
-                snapshotAtLastBuild.getRootFolder().discardItems(server.getTypeNames().FILE, -1);
+                snapshotAtLastBuild.getRootFolder().discardItems(stTypeNames.FILE, -1);
             } catch (ServerException se) {
-                LOG.error("Server Exception occurred discarding last build file cache: ", se);
+                LOG.error(url + ": Server Exception occurred discarding last build file cache: ", se);
             }
 
-            LOG.info(modifications.size() + " modifications in " + folder);
+            LOG.info(url + ": " + modifications.size() + " modifications in " + nowRoot.getFolderHierarchy());
             return modifications;
         } catch (Exception e) {
-            LOG.error("Problem looking up modifications in StarTeam.", e);
+            LOG.error(url + ": Problem looking up modifications in StarTeam.", e);
             modifications.clear();
             return modifications;
         } finally {
@@ -256,6 +268,28 @@ public class StarTeam implements SourceControl {
      * are not in the new list from the processing above.
      */
     private void examineOldFiles(Map lastBuildFiles) {
+
+        // START - 1st Comment out if StarTeam 4.2 SP2 or older
+        if (canLookupDeletions && preloadFileInformation && !lastBuildFiles.isEmpty()) {
+            try {
+                // properties to fetch immediately and cache
+                final String[] propertiesToCacheForDeletes =
+                    new String[] {
+                        stPropertyNames.AUDIT_CLASS_ID,
+                        stPropertyNames.AUDIT_OBJECT_ID,
+                        stPropertyNames.AUDIT_EVENT_ID,
+                        stPropertyNames.MODIFIED_TIME,
+                        stPropertyNames.AUDIT_USER_ID };
+
+                lastBuildRoot.populateNow(stTypeNames.AUDIT, propertiesToCacheForDeletes, -1);
+            } catch (TypeNotFoundException tnfx) {
+                LOG.debug(url + ": Error caching Audit information (StarTeam 4.2 SP2 SDK or older in use)."
+                        + "  Deletions will be reported as by Unknown.", tnfx);
+                canLookupDeletions = false;
+            }
+        }
+        // END - 1st Comment out if StarTeam 4.2 SP2 or older
+
         for (Iterator iter = lastBuildFiles.values().iterator(); iter.hasNext();) {
             File currentLastBuildFile = (File) iter.next();
             addRevision((File) currentLastBuildFile.getFromHistoryByDate(nowDate), "deleted");
@@ -276,7 +310,7 @@ public class StarTeam implements SourceControl {
         //    Thread.sleep(100);
         //} catch (InterruptedException ignoredInterruptedException) {}
 
-        Item[] files = folder.getItems("File");
+        Item[] files = folder.getItems(stTypeNames.FILE);
         for (int i = 0; i < files.length; i++) {
             File file = (File) files[i];
             fileList.put(new Integer(file.getItemID()), file);
@@ -294,21 +328,63 @@ public class StarTeam implements SourceControl {
      * @param revision
      */
     private void addRevision(File revision, String status) {
-        User user = revision.getServer().getUser(revision.getModifiedBy());
-
-        if ((user != null) && (user.getName().equals("BuildMaster"))) {
-            return;
-        }
 
         Modification mod = new Modification();
         mod.type = "StarTeam";
         String fileName = revision.getName();
-        String folderName = revision.getParentFolder().getFolderHierarchy();
+        Folder parentFolder = revision.getParentFolder();
+        String folderName = parentFolder.getFolderHierarchy();
+        if (folderName.length() > 0 && (folderName.endsWith("\\") || folderName.endsWith("/"))) {
+            folderName = folderName.substring(0, folderName.length() - 1);
+        }
         Modification.ModifiedFile modFile = mod.createModifiedFile(fileName, folderName);
         modFile.action = status;
-        mod.modifiedTime = revision.getModifiedTime().createDate();
-        mod.userName = user.getName();
-        mod.comment = revision.getComment();
+
+        User user = null;
+        if (property != null) {
+            properties.put(property, "true");
+        }
+        if (status.equals("deleted")) {
+            if (propertyOnDelete != null) {
+                properties.put(propertyOnDelete, "true");
+            }
+
+            boolean foundAudit = false;
+
+            // START - 2nd Comment out if StarTeam 4.2 SP2 or older
+            if (canLookupDeletions) {
+                try {
+                    Item[] audits = parentFolder.getItems(stTypeNames.AUDIT);
+                    for (int i = 0; i < audits.length && !foundAudit; i++) {
+                        com.starbase.starteam.Audit audit = (com.starbase.starteam.Audit) (audits[i]);
+                        if (audit.getItemDescriptor().equals(fileName) && (audit.getEnumDisplayName(
+                                stPropertyNames.AUDIT_EVENT_ID, audit.getInt(stPropertyNames.AUDIT_EVENT_ID)).equals(
+                                "Deleted"))) {
+                            foundAudit = true;
+                            mod.modifiedTime = audit.getModifiedTime().createDate();
+                            user = server.getUser(audit.getInt(stPropertyNames.AUDIT_USER_ID));
+                            mod.userName = user.getName();
+                        }
+                    }
+                } catch (TypeNotFoundException tnfx) {
+                    LOG.debug(url + ": Error looking up Audit information (StarTeam 4.2 SP2 SDK or older in use)."
+                            + "  Deletions will be reported as by Unknown.", tnfx);
+                    canLookupDeletions = false;
+                }
+            }
+            // END - 2nd Comment out if StarTeam 4.2 SP2 or older
+
+            if (!foundAudit) {
+                mod.modifiedTime = revision.getModifiedTime().createDate();
+                mod.userName = "Unknown";
+            }
+        } else {
+            mod.modifiedTime = revision.getModifiedTime().createDate();
+            user = server.getUser(revision.getModifiedBy());
+            mod.userName = user.getName();
+            mod.comment = revision.getComment();
+            mod.revision = "" + revision.getContentVersion();
+        }
 
         //  Only get emails for users still on the system
         if (user != null && canLookupEmails) {
@@ -318,9 +394,9 @@ public class StarTeam implements SourceControl {
             try {
                 // check if user account exists
                 UserAccount useracct =
-                    user.getServer().getAdministration().findUserAccount(user.getID());
+                        server.getAdministration().findUserAccount(user.getID());
                 if (useracct == null) {
-                    LOG.warn("User account " + user.getID() + " not found for email address.");
+                    LOG.warn(url + ": User account for " + user.getName() + " with ID " + user.getID() + " not found.");
                 } else {
                     mod.emailAddress = useracct.getEmailAddress();
                 }
@@ -329,20 +405,12 @@ public class StarTeam implements SourceControl {
                 // Return the modifying user's name instead. Then use the
                 // email.properties file to map the name to an email address
                 // outside of StarTeam
-                LOG.debug("Error looking up user email address.", sx);
+                LOG.debug(url + ": Error looking up user email address.", sx);
                 canLookupEmails = false;
             }
         }
 
         modifications.add(mod);
-        if (status.equals("deleted")) {
-            if (propertyOnDelete != null) {
-                properties.put(propertyOnDelete, "true");
-            }
-        }
-        if (property != null) {
-            properties.put(property, "true");
-        }
     }
 
 }

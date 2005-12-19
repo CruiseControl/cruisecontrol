@@ -119,6 +119,13 @@ SfeeDocumentManagerPublisher:
 * A new publisher for creating a Document Manager entry in a SourceForge Enterprise Edition project.
 * If a Document Manager entry already exists in the specified folder with the same name, then the document being published will be added as a new version.
 
+StarTeam
+----------------------
+* Logging is unclear in a multi-threaded environment, so prepend 'url' string to all log messages. (CC-368) Patch by Benjamin Burgess
+* Modifications reported with extra '/' character between file name and parent folder name (i.e. "AdviceAgent\implementation\build_config\/build.xml"), so if the folder name returned form the server ends with either '/' or '\' then remove it before setting in modification. (CC-368) Patch by Benjamin Burgess
+* Modifications done by any user with name = "BuildMaster" are no longer ignored. (CC-368) Patch by Benjamin Burgess
+* Deletions are reported as the deleter instead of the last editor. (CC-368) Patch by Benjamin Burgess
+
 VSSJournal:
 ----------------------
 * handle dirs with same prefix (CC-307).  Patch by Dan Rollo.
