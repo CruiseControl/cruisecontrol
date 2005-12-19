@@ -150,6 +150,7 @@
 <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
 <a href="#schedule">&lt;schedule&gt;</a>
 <a href="#scp">&lt;scp&gt;</a>
+<a href="#sfeedocman">&lt;sfeedocman&gt;</a>
 <a href="#sfeefrs">&lt;sfeefrs&gt;</a>
 <a href="#sfeetracker">&lt;sfeetracker&gt;</a>
 <a href="#snapshotcm">&lt;snapshotcm&gt;</a>
@@ -277,6 +278,7 @@
          <a href="#rss">&lt;rss/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
+         <a href="#sfeedocman">&lt;sfeedocman/&gt;</a>
          <a href="#sfeefrs">&lt;sfeefrs/&gt;</a>
          <a href="#sfeetracker">&lt;sfeetracker/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
@@ -4783,6 +4785,11 @@ endlocal</pre>
                 <td>Copies a file using SCP</td>
             </tr>
             <tr>
+                <td><a href="#sfeedocman"><code>&lt;sfeedocman&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Uploads a document to a SourceForge Enterprise Edition project's Document Manager.</td>
+            </tr>
+            <tr>
                 <td><a href="#sfeefrs"><code>&lt;sfeefrs&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Uploads a file to a SourceForge Enterprise Edition project's file release system (FRS).</td>
@@ -5352,6 +5359,132 @@ endlocal</pre>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="sfeedocman">&lt;sfeedocman&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;sfeedocman&gt;</pre>
+        </div>
+
+        <p>Creates a Document Manager document in a SourceForge Enterprise Edition project. All
+        child elements may include either hardcoded values, or use an xpath expression to define the value at runtime.</p>
+
+        <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.
+            The publisher is compiled against a stub implementation of that SDK. Remove the stub jar
+            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place and make them available in
+            CruiseControl's classpath.
+        </p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>serverurl</td>
+                <td>Yes</td>
+                <td>URL for the SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Valid username for the specified SFEE instance.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password for the specified username.</td>
+            </tr>
+            <tr>
+                <td>document</td>
+                <td>Yes</td>
+                <td>The path to the document to publish.</td>
+            </tr>
+            <tr>
+                <td>folder</td>
+                <td>Yes</td>
+                <td>The Document Manager folder in which to publish.</td>
+            </tr>
+            <tr>
+                <td>projectName</td>
+                <td>Yes</td>
+                <td>The name of the SFEE project where the Document Manager folder specified exists.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><code>&lt;description&gt;</code></td>
+                <td>1</td>
+                <td>The description for the Document. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;status&gt;</code></td>
+                <td>1</td>
+                <td>The status for the Document. This child element is required and is an
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;documentname&gt;</code></td>
+                <td>0..1</td>
+                <td>The name for the Document within the Document Manager. If a Document Manager entry already exists
+                    in the specified folder with the same name, then the document being published will be added as a new
+                    version. If this child is not included, it will default to the name of the file being published.
+                    This child element is optional and is a
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            <tr>
+                <td><code>&lt;versioncomment&gt;</code></td>
+                <td>0..1</td>
+                <td>The version comment for the Document. This child element is optional and is a
+                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+         <h3>Examples</h3>
+        <pre>
+&lt;!-- Upload Project.xls to SFEE, using XPath to set
+   the description to the date and time of each build. --&gt;
+&lt;sfeedocman file="target/myapp-1.0.0.jar"
+   serverurl="http://mysfeeinstance.com"
+   username="sfeeuser"
+   password="mypassword"
+   projectname="myproject"
+   folder="/Root Folder/"
+   document="projects/myproject/Project.xls"&gt;
+       &lt;description xpathexpression="/cruisecontrol/info/property[@name='builddate']/@value"/&gt;
+       &lt;status value="final"/&gt;
+&lt;/sfeedocman&gt;</pre>
+         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="sfeefrs">&lt;sfeefrs&gt;</a></h2>
 
         <div class="hierarchy">
@@ -5538,120 +5671,18 @@ endlocal</pre>
         </table>
 
          <h3>Examples</h3>
-
-         </div>
-
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="sfeedocman">&lt;sfeedocman&gt;</a></h2>
-
-        <div class="hierarchy">
-            <pre>
-<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-  <a href="#project">&lt;project&gt;</a>
-    <a href="#publishers">&lt;publishers&gt;</a>
-      &lt;sfeedocman&gt;</pre>
-        </div>
-
-        <p>Creates a Document Manager document in a SourceForge Enterprise Edition project. All
-        child elements may include either hardcoded values, or use an xpath expression to define the value at runtime.</p>
-
-        <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.
-            The publisher is compiled against a stub implementation of that SDK. Remove the stub jar
-            (<code>inmemorysfee-x.x.x.jar</code>) and put the SDK jars in its place and make them available in
-            CruiseControl's classpath.
-        </p>
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>serverurl</td>
-                <td>Yes</td>
-                <td>URL for the SFEE instance.</td>
-            </tr>
-            <tr>
-                <td>username</td>
-                <td>Yes</td>
-                <td>Valid username for the specified SFEE instance.</td>
-            </tr>
-            <tr>
-                <td>password</td>
-                <td>Yes</td>
-                <td>Password for the specified username.</td>
-            </tr>
-            <tr>
-                <td>document</td>
-                <td>Yes</td>
-                <td>The path to the document to publish.</td>
-            </tr>
-            <tr>
-                <td>folder</td>
-                <td>Yes</td>
-                <td>The Document Manager folder in which to publish.</td>
-            </tr>
-            <tr>
-                <td>projectName</td>
-                <td>Yes</td>
-                <td>The name of the SFEE project where the Document Manager folder specified exists.</td>
-            </tr>                        
-            </tbody>
-        </table>
-
-        <h3>Child Elements</h3>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Element</th>
-                <th>Cardinality</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td><code>&lt;description&gt;</code></td>
-                <td>1</td>
-                <td>The description for the Document. This child element is required and is an
-                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
-                </td>
-            </tr>
-            <tr>
-                <td><code>&lt;status&gt;</code></td>
-                <td>1</td>
-                <td>The status for the Document. This child element is required and is an
-                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
-                </td>
-            </tr>
-            <tr>
-                <td><code>&lt;documentname&gt;</code></td>
-                <td>0..1</td>
-                <td>The name for the Document within the Document Manager. If a Document Manager entry already exists
-                    in the specified folder with the same name, then the document being published will be added as a new
-                    version. If this child is not included, it will default to the name of the file being published.
-                    This child element is optional and is a
-                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
-                </td>
-            </tr>
-            <tr>
-                <td><code>&lt;versioncomment&gt;</code></td>
-                <td>0..1</td>
-                <td>The version comment for the Document. This child element is optional and is a
-                    <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-         <h3>Examples</h3>
+        <pre>
+&lt;!-- Creates a new SFEE tracker entry for monitoring unit test statistics. --&gt;
+&lt;sfeetracker serverurl="http://my.sourceforge.instance"
+   username="user"
+   password="pass"
+   trackerName="UnitTestStatistics"
+   projectName="mysfeeproject"&gt;
+        &lt;title value="Unit Tests" /&gt;
+        &lt;description value="The test statistics from my SFEE project." /&gt;
+        &lt;status value="Closed" /&gt;
+        &lt;field name="TotalNumberOfUnitTests" xpathExpression="sum(cruisecontrol/testsuite/@tests)" /&gt;
+&lt;/sfeetracker&gt;</pre>
 
          </div>
 
