@@ -40,6 +40,9 @@ import com.vasoftware.sf.soap42.webservices.ClientSoapStubFactory;
 import com.vasoftware.sf.soap42.webservices.docman.DocumentFolderSoapDO;
 import com.vasoftware.sf.soap42.webservices.docman.DocumentFolderSoapList;
 import com.vasoftware.sf.soap42.webservices.docman.DocumentFolderSoapRow;
+import com.vasoftware.sf.soap42.webservices.docman.DocumentSoapDO;
+import com.vasoftware.sf.soap42.webservices.docman.DocumentSoapList;
+import com.vasoftware.sf.soap42.webservices.docman.DocumentSoapRow;
 import com.vasoftware.sf.soap42.webservices.docman.IDocumentAppSoap;
 import com.vasoftware.sf.soap42.webservices.filestorage.IFileStorageAppSoap;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
@@ -133,14 +136,73 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         }
 
         DocumentFolderSoapDO folder = findFolder(path);
+        String intendedDocumentName =
+                (documentName != null ? documentName.lookupValue(cruisecontrolLog) : dataSrc.getName());
+        String intendedVersionComment =
+                (versionComment != null ? versionComment.lookupValue(cruisecontrolLog) : null);
+
+        DocumentSoapDO existingDocument;
+        try {
+            existingDocument = findExistingDocument(sessionID, folder, intendedDocumentName);
+        } catch (RemoteException e) {
+            throw new CruiseControlException(e);
+        }
+
+        if (existingDocument != null) {
+            updateExistingDocument(sessionID, existingDocument, intendedVersionComment, mimeType, fileID,
+                    cruisecontrolLog);
+        } else {
+            createNewDocument(cruisecontrolLog, sessionID, intendedDocumentName, intendedVersionComment, folder,
+                    mimeType, fileID);
+        }
+    }
+
+    private void updateExistingDocument(String sessionID, DocumentSoapDO existingDocument, String versionComment,
+                                        String mimeType,
+                                        String fileID, Element cruiseControlLog) throws CruiseControlException {
+        IDocumentAppSoap docApp = (IDocumentAppSoap) ClientSoapStubFactory
+                .getSoapStub(IDocumentAppSoap.class, getServerURL());
+        existingDocument.setDescription(description.lookupValue(cruiseControlLog));
+        existingDocument.setStatus(status.lookupValue(cruiseControlLog));
+        if (lock) {
+            existingDocument.setLockedBy(getUsername());
+        } else {
+            existingDocument.setLockedBy(null);
+        }
+        existingDocument.setMimeType(mimeType);
+        existingDocument.setVersionComment(versionComment);
+
+        try {
+            docApp.setDocumentData(sessionID, existingDocument, fileID);
+        } catch (RemoteException e) {
+            throw new CruiseControlException(e);
+        }
+    }
+
+    private DocumentSoapDO findExistingDocument(String sessionID, DocumentFolderSoapDO folder,
+                                                String intendedDocumentName)
+            throws RemoteException {
+        IDocumentAppSoap docApp = (IDocumentAppSoap) ClientSoapStubFactory
+                .getSoapStub(IDocumentAppSoap.class, getServerURL());
+        DocumentSoapList documentList = docApp.getDocumentList(sessionID, folder.getId(), null);
+        DocumentSoapRow[] existingDocuments = documentList.getDataRows();
+        for (int i = 0; i < existingDocuments.length; i++) {
+            DocumentSoapRow existingDocument = existingDocuments[i];
+            if (existingDocument.getTitle().equals(intendedDocumentName)) {
+                return docApp
+                        .getDocumentData(sessionID, existingDocument.getId(), existingDocument.getCurrentVersion());
+            }
+        }
+        return null;
+    }
+
+    private void createNewDocument(Element cruisecontrolLog, String sessionID, String intendedDocumentName,
+                                   String intendedVersionComment, DocumentFolderSoapDO folder, String mimeType,
+                                   String fileID) throws
+            CruiseControlException {
         IDocumentAppSoap docApp = (IDocumentAppSoap) ClientSoapStubFactory
                 .getSoapStub(IDocumentAppSoap.class, getServerURL());
         try {
-            String intendedDocumentName =
-                    (documentName != null ? documentName.lookupValue(cruisecontrolLog) : dataSrc.getName());
-            String intendedVersionComment =
-                    (versionComment != null ? versionComment.lookupValue(cruisecontrolLog) : null);
-
             docApp.createDocument(sessionID, folder.getId(), intendedDocumentName,
                     description.lookupValue(cruisecontrolLog), intendedVersionComment,
                     status.lookupValue(cruisecontrolLog), lock, intendedDocumentName, mimeType,
