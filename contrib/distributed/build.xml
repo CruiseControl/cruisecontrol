@@ -74,6 +74,15 @@
         <include name="xalan-*.jar" />
     </patternset>
 
+    <!-- JNLP Service API classes -->
+    <path id="jnlpServiceAPI.classpath">
+         <fileset dir="${java.home}">
+             <!-- location in jre1.5 -->
+             <include name="lib/javaws.jar"/>
+             <!-- location in jre1.4 -->
+             <include name="javaws/javaws.jar"/>
+         </fileset>
+    </path>
 
     <path id="compile.classpath">
         <fileset dir="lib">
@@ -87,7 +96,6 @@
             <include name="outrigger-dl.jar" />
             <include name="phoenix-dl.jar" />
             <include name="holowaa-dl.jar" />
-            <include name="jnlp.jar" />
         </fileset>
         <fileset dir="${dir.main.lib}">
             <include name="log4j.jar" />
@@ -97,6 +105,7 @@
         <fileset dir="${dir.main.dist}">
             <include name="cruisecontrol.jar" />
         </fileset>
+        <path refid="jnlpServiceAPI.classpath"/>
     </path>
 
 
@@ -191,7 +200,6 @@
 				<include name="jsk-platform.jar" />
 				<include name="tools.jar" />
 				<include name="start.jar" />
-                <include name="jnlp.jar" />
 			</fileset>
 			<fileset dir="${dir.main.lib}">
 				<include name="log4j.jar" />
@@ -273,8 +281,8 @@
 					<include name="reggie-dl.jar" />
 					<include name="jini-core.jar" />
 					<include name="jini-ext.jar" />
-                    <include name="jnlp.jar" />
 				</fileset>
+                <path refid="jnlpServiceAPI.classpath"/>
             </classpath>
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />

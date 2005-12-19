@@ -15,13 +15,8 @@
 				<li>
 					<h4>Building the code</h4>
 					<ol type="A">
-                        <li>For jdk's prior to 1.5, go to <a href="http://java.sun.com/products/javawebstart/download-jnlp.html">http://java.sun.com/products/javawebstart/download-jnlp.html</a> and download the JNLP Developer's Pack v1.2. For jdk 1.5, you can find this jar in the "sample/jnlp/servlet" directory. Drop the following webstart library into <i>contrib/distributed/lib</i>:
-                            <ul>
-								<li><code>jnlp.jar</code></li>
-							</ul>
-						</li>
-						<li>Build Cruise Control in the usual way.</li>
-						<li>In the directory in which you found this file, run <code>ant</code>. The default target will build the distributed extensions. <p><b>NOTE: Compilation requires jdk1.4 or greater.</b> If you get a compile error like: <code>"class file has wrong version 48.0, should be 47.0"</code>, check your jdk version.</p> A new directory will be created called <i>dist</i> that contains subdirectories entitled <i>master</i> and <i>agent</i>. Also, a file will be created called <i>cc-agent.zip</i>. The zip file contents are identical to the <i>agent</i> subdirectory. The zip file can easily be transferred to any machine you wish to serve as a build agent while the <i>agent</i> subdirectory can be used for testing by running a build agent locally (more below).</li>
+                        <li>Build Cruise Control in the usual way.</li>
+						<li>In the directory in which you found this file, run <code>ant</code>. The default target will build the distributed extensions. <p><b>NOTE: Requires jdk1.4 or greater.</b> If you get a compile error like: <code>"class file has wrong version 48.0, should be 47.0"</code>, check your jdk version.</p> A new directory will be created called <i>dist</i> that contains subdirectories entitled <i>master</i> and <i>agent</i>. Also, a file will be created called <i>cc-agent.zip</i>. The zip file contents are identical to the <i>agent</i> subdirectory. The zip file can easily be transferred to any machine you wish to serve as a build agent while the <i>agent</i> subdirectory can be used for testing by running a build agent locally (more below).</li>
 					</ol>
 				</li>
 				<li>
