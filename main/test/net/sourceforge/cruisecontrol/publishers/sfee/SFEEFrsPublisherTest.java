@@ -15,38 +15,17 @@ import org.apache.tools.ant.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import javax.activation.DataHandler;
 
 public class SFEEFrsPublisherTest extends TestCase {
     private static final String SERVER_URL = "http://tapestry.sourceforge.vasoftware.com";
-    private static final String USERNAME = "user";
-    private static final String PASSWORD = "pass";
+    private static final String USERNAME = "foo";
+    private static final String PASSWORD = "bar";
     private static final String RELEASE_ID = "rel1509";
 
     public void setUp() {
-        //Instantiate the in-memory stub implementation of SFEE using reflection so that
-        //  this class will still compile and run when the REAL implementation of SFEE is used.
-        try {
-            Class inMemSfeeFactoryClass = Class.forName("com.vasoftware.sf.InMemorySfeeFactory");
-            Method resetMethod = inMemSfeeFactoryClass.getMethod("reset", null);
-            resetMethod.invoke(null, null);
-            Method createMethod = inMemSfeeFactoryClass
-                    .getMethod("create", new Class[]{String.class, String.class, String.class});
-            createMethod.invoke(null, new Object[]{SERVER_URL, USERNAME, PASSWORD});
-        } catch (NoSuchMethodException e) {
-            fail("Must be using the wrong version of the sfee soap stubs.");
-        } catch (IllegalAccessException e) {
-            fail("Must be using the wrong version of the sfee soap stubs.");
-        } catch (InvocationTargetException e) {
-            fail("Must be using the wrong version of the sfee soap stubs.");
-        } catch (ClassNotFoundException e) {
-            //Must be running with the real SFEE implementation, which does NOT contain
-            // the InMemorySfeeFactory class. So, we can ignore this
-            //  exception and go on with the test.
-        }
+        new SfeeTestUtils().loadSfeeInMemory(SERVER_URL, USERNAME, PASSWORD);
     }
 
     public void testIsCorrectType() throws Exception {

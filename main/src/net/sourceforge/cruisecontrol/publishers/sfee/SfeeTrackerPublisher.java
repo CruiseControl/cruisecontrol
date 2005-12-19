@@ -39,26 +39,15 @@ package net.sourceforge.cruisecontrol.publishers.sfee;
 import com.vasoftware.sf.soap42.types.SoapNamedValues;
 import com.vasoftware.sf.soap42.webservices.ClientSoapStubFactory;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
-import com.vasoftware.sf.soap42.webservices.sfmain.ProjectSoapList;
-import com.vasoftware.sf.soap42.webservices.sfmain.ProjectSoapRow;
 import com.vasoftware.sf.soap42.webservices.tracker.ITrackerAppSoap;
 import com.vasoftware.sf.soap42.webservices.tracker.TrackerSoapList;
 import com.vasoftware.sf.soap42.webservices.tracker.TrackerSoapRow;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.apache.log4j.Logger;
-import org.jdom.Document;
+import net.sourceforge.cruisecontrol.util.XPathAwareChild;
+import net.sourceforge.cruisecontrol.util.NamedXPathAwareChild;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,18 +62,14 @@ import java.util.Iterator;
  * @author <a href="mailto:kspillne@thoughtworks.com">Kent Spillner</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
-public class SfeeTrackerPublisher implements Publisher {
-    private static final Logger LOG = Logger.getLogger(SfeeTrackerPublisher.class);
+public class SfeeTrackerPublisher extends SfeePublisher {
 
     private String trackerName;
-    private String serverUrl;
-    private String username;
-    private String password;
     private final Collection fields = new ArrayList();
     private String projectName;
-    private TrackerChildElement title;
-    private TrackerChildElement description;
-    private TrackerChildElement status;
+    private XPathAwareChild title;
+    private XPathAwareChild description;
+    private XPathAwareChild status;
 
     public void setTrackerName(String name) {
         this.trackerName = name;
@@ -94,59 +79,38 @@ public class SfeeTrackerPublisher implements Publisher {
         this.projectName = projectName;
     }
 
-    public void setServerURL(String serverUrl) {
-        this.serverUrl = serverUrl;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Field createField() {
-        Field field = new Field();
+    public NamedXPathAwareChild createField() {
+        NamedXPathAwareChild field = new NamedXPathAwareChild();
         fields.add(field);
         return field;
     }
 
-    public TrackerChildElement createTitle() {
-        title = new TrackerChildElement();
+    public XPathAwareChild createTitle() {
+        title = new XPathAwareChild();
         return title;
     }
 
-    public TrackerChildElement createDescription() {
-        description = new TrackerChildElement();
+    public XPathAwareChild createDescription() {
+        description = new XPathAwareChild();
         return description;
     }
 
-    public TrackerChildElement createStatus() {
-        status = new TrackerChildElement();
+    public XPathAwareChild createStatus() {
+        status = new XPathAwareChild();
         return status;
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
 
-        ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory
-                .getSoapStub(ISourceForgeSoap.class, serverUrl);
+        ISourceForgeSoap soapStub = (ISourceForgeSoap) ClientSoapStubFactory
+                .getSoapStub(ISourceForgeSoap.class, getServerURL());
 
         try {
-            String sessionID = soap.login(username, password);
-            ProjectSoapList projectList = soap.getProjectList(sessionID);
-            ProjectSoapRow[] rows = projectList.getDataRows();
-            String projectID = null;
-            for (int i = 0; i < rows.length; i++) {
-                ProjectSoapRow nextProjectRow = rows[i];
-                if (nextProjectRow.getTitle().equals(projectName)) {
-                    projectID = nextProjectRow.getId();
-                }
-            }
-            assertFoundValue(projectID, "projectName", projectName);
+            String sessionID = soapStub.login(getUsername(), getPassword());
+            String projectID = SfeeUtils.findProjectID(soapStub, sessionID, projectName);
 
             ITrackerAppSoap tracker = (ITrackerAppSoap) ClientSoapStubFactory
-                    .getSoapStub(ITrackerAppSoap.class, serverUrl);
+                    .getSoapStub(ITrackerAppSoap.class, getServerURL());
             TrackerSoapList trackerList = tracker.getTrackerList(sessionID, projectID);
             TrackerSoapRow[] trackerListRows = trackerList.getDataRows();
             String trackerID = null;
@@ -157,25 +121,16 @@ public class SfeeTrackerPublisher implements Publisher {
                     trackerID = trackerListRow.getId();
                 }
             }
-            assertFoundValue(trackerID, "trackerName", trackerName);
+            SfeeUtils.assertFoundValue(trackerID, "trackerName", trackerName);
 
-            title.setCurrentLog(cruisecontrolLog);
-            description.setCurrentLog(cruisecontrolLog);
-            status.setCurrentLog(cruisecontrolLog);
-
-            tracker.createArtifact(sessionID, trackerID, title.getValue(), description.getValue(), null, null,
-                    status.getValue(), null, 0, 0, null, null, buildFlexFields(cruisecontrolLog), null, null, null);
+            tracker.createArtifact(sessionID, trackerID, title.lookupValue(cruisecontrolLog),
+                    description.lookupValue(cruisecontrolLog), null, null, status.lookupValue(cruisecontrolLog), null,
+                    0, 0, null, null, buildFlexFields(cruisecontrolLog),
+                    null, null, null);
         } catch (RemoteException e) {
             throw new CruiseControlException(e);
         }
 
-    }
-
-    private static void assertFoundValue(Object object, String lookupName, String lookupValue)
-            throws CruiseControlException {
-        if (object == null) {
-            throw new CruiseControlException(lookupName + " [" + lookupValue + "] not found");
-        }
     }
 
     private SoapNamedValues buildFlexFields(Element log) throws CruiseControlException {
@@ -184,20 +139,16 @@ public class SfeeTrackerPublisher implements Publisher {
         String[] values = new String[fields.size()];
         int i = 0;
         for (Iterator iterator = fields.iterator(); iterator.hasNext(); i++) {
-            Field nextField = (Field) iterator.next();
-            nextField.setCurrentLog(log);
+            NamedXPathAwareChild nextField = (NamedXPathAwareChild) iterator.next();
             names[i] = nextField.getName();
-            values[i] = nextField.getValue();
+            values[i] = nextField.lookupValue(log);
         }
         namedValues.setNames(names);
         namedValues.setValues(values);
         return namedValues;
     }
 
-    public void validate() throws CruiseControlException {
-        ValidationHelper.assertNotEmpty(serverUrl, "serverurl", this.getClass());
-        ValidationHelper.assertNotEmpty(username, "username", this.getClass());
-        ValidationHelper.assertNotEmpty(password, "password", this.getClass());
+    public void subValidate() throws CruiseControlException {
         ValidationHelper.assertNotEmpty(projectName, "projectName", this.getClass());
         ValidationHelper.assertNotEmpty(trackerName, "trackerName", this.getClass());
         ValidationHelper.assertHasChild(title, "title", this.getClass());
@@ -211,109 +162,10 @@ public class SfeeTrackerPublisher implements Publisher {
 
         //Validate all fields
         for (Iterator iterator = fields.iterator(); iterator.hasNext();) {
-            Field nextField = (Field) iterator.next();
+            NamedXPathAwareChild nextField = (NamedXPathAwareChild) iterator.next();
             nextField.validate();
         }
     }
 
-    /**
-     * TrackerChildElements represent the general subelement within the publisher definition, i.e. title, status and
-     * description. This class includes the logic to handle xpath expressions.
-     */
-    public static class TrackerChildElement {
-        private String value;
-        private String xpathExpression;
-        private InputStream in;
-        private Element currentLog;
-        private String xmlFile;
 
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getValue() throws CruiseControlException {
-            if (value != null) {
-                return value;
-            } else {
-                try {
-                    return evaluateXpath();
-                } catch (Exception e) {
-                    throw new CruiseControlException(e);
-                }
-            }
-        }
-
-        private String evaluateXpath() throws IOException, JDOMException, CruiseControlException {
-
-            Object searchContext;
-            if (in == null && xmlFile == null && currentLog == null) {
-                throw new CruiseControlException("current cruisecontrol log not set.");
-            } else if (xmlFile != null) {
-                LOG.debug("Using file specified [" + xmlFile + "] to evaluate xpath.");
-                searchContext = new SAXBuilder().build(new FileInputStream(new File(xmlFile)));
-            } else if (in != null) {
-                LOG.debug("Using the specified input stream to evaluate xpath. This should happen during testing.");
-                searchContext = new SAXBuilder().build(in);
-            } else {
-                LOG.debug("Using CruiseControl's log file to evaluate xpath.");
-                if (currentLog.getParent() != null) {
-                    searchContext = currentLog.getParent();
-                } else {
-                    searchContext = new Document(currentLog);
-                }
-            }
-
-            XPath xpath = XPath.newInstance(xpathExpression);
-            String result = xpath.valueOf(searchContext);
-            LOG.debug("Evaluated xpath [" + xpathExpression + "] with result [" + result + "]");
-            return result;
-        }
-
-        public void setXPathExpression(String xpathExpression) {
-            this.xpathExpression = xpathExpression;
-        }
-
-        public void setInputStream(InputStream in) {
-            this.in = in;
-        }
-
-        public void setXMLFile(String filename) throws FileNotFoundException {
-            xmlFile = filename;
-        }
-
-        public void validate() throws CruiseControlException {
-            if (value == null && xpathExpression == null) {
-                throw new CruiseControlException("Either value or xpathExpression must be set.");
-            }
-            if (value != null && xpathExpression != null) {
-                throw new CruiseControlException("value and xpathExpression should not both be set.");
-            }
-        }
-
-        public void setCurrentLog(Element log) {
-            currentLog = log;
-        }
-    }
-
-    /**
-     * Extends TrackerChildElement to allow for adding the name of a field.
-     */
-    public static class Field extends TrackerChildElement {
-        private String name;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void validate() throws CruiseControlException {
-            super.validate();
-            if (name == null) {
-                throw new CruiseControlException("name must be set.");
-            }
-        }
-    }
 }

@@ -111,6 +111,11 @@ SfeeFrsPublisher:
 SfeeTrackerPublisher:
 ----------------------
 * A new publisher for creating a tracker artifact in a SourceForge Enterprise Edition project.
+* Extracted XPathAwareChild and NamedXPathAwareChild to make usable by other plugins.
+
+SfeeDocumentManagerPublisher:
+----------------------
+* A new publisher for creating a Document Manager entry in a SourceForge Enterprise Edition project.
 
 VSSJournal:
 ----------------------

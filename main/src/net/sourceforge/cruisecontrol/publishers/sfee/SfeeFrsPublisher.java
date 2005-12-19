@@ -43,16 +43,16 @@ import com.vasoftware.sf.soap42.webservices.frs.FrsFileSoapRow;
 import com.vasoftware.sf.soap42.webservices.frs.IFrsAppSoap;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.jdom.Element;
+
+import javax.activation.DataHandler;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.activation.DataHandler;
 
 /**
  * <p>Publishes to a SourceForge Enterprise Edition File Release System.</p>
@@ -60,25 +60,10 @@ import javax.activation.DataHandler;
  * @author <a href="mailto:kspillne@thoughtworks.com">Kent Spillner</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
-public class SfeeFrsPublisher implements Publisher {
-    private String url;
-    private String username;
-    private String password;
+public class SfeeFrsPublisher extends SfeePublisher {
     private File file;
     private String releaseID;
     private String uploadName;
-
-    public void setServerURL(String url) {
-        this.url = url;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public void setFile(File file) {
         this.file = file;
@@ -105,11 +90,12 @@ public class SfeeFrsPublisher implements Publisher {
             uploadName = file.getName();
         }
 
-        ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory.getSoapStub(ISourceForgeSoap.class, url);
+        ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory
+                .getSoapStub(ISourceForgeSoap.class, getServerURL());
         try {
-            String sessionID = soap.login(username, password);
+            String sessionID = soap.login(getUsername(), getPassword());
 
-            IFrsAppSoap frsApp = (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, url);
+            IFrsAppSoap frsApp = (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, getServerURL());
 
             FrsFileSoapList fileList = frsApp.getFrsFileList(sessionID, releaseID);
             Collection existingFiles = findExistingFiles(fileList, uploadName);
@@ -120,7 +106,7 @@ public class SfeeFrsPublisher implements Publisher {
 
             DataHandler dataHandler = new DataHandler(file.toURL());
             IFileStorageAppSoap fileStorageApp =
-                    (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class, url);
+                    (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class, getServerURL());
             String storedFileId = fileStorageApp.uploadFile(sessionID, dataHandler);
             frsApp.createFrsFile(sessionID, releaseID, uploadName, dataHandler.getContentType(), storedFileId);
         } catch (RemoteException e) {
@@ -136,7 +122,7 @@ public class SfeeFrsPublisher implements Publisher {
         FrsFileSoapRow[] files = fileList.getDataRows();
         ArrayList duplicates = new ArrayList();
         for (int i = 0; i < files.length; i++) {
-            FrsFileSoapRow nextFile = files[ i ];
+            FrsFileSoapRow nextFile = files[i];
             if (nextFile.getFilename().equals(filename)) {
                 duplicates.add(nextFile.getId());
             }
@@ -144,10 +130,7 @@ public class SfeeFrsPublisher implements Publisher {
         return duplicates;
     }
 
-    public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(url, "serverurl", this.getClass());
-        ValidationHelper.assertIsSet(username, "username", this.getClass());
-        ValidationHelper.assertIsSet(password, "password", this.getClass());
+    public void subValidate() throws CruiseControlException {
         ValidationHelper.assertIsSet(releaseID, "releaseid", this.getClass());
         ValidationHelper.assertIsSet(file, "file", this.getClass());
     }
