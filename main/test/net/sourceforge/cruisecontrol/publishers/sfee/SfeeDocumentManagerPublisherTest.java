@@ -95,8 +95,8 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
         publisher.setProjectName(PROJECT_NAME);
         publisher.setFolder("/Root Folder/level1");
 
-        publisher.setData(new StringDataSource(expectedContent));
-        publisher.createUploadName().setValue(title);
+        publisher.setData(new StringDataSource(expectedContent, title));
+        publisher.createDocumentName().setValue(title);
         publisher.createDescription().setValue(description);
         publisher.createStatus().setValue(status.getName());
         publisher.createVersionComment().setValue(versionComment);
@@ -128,10 +128,10 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
         publisher.setFolder("foopath");
         assertInvalid(publisher);
 
-        publisher.setData(new StringDataSource("foobarbaz"));
+        publisher.setData(new StringDataSource("foobarbaz", "footitle"));
         assertInvalid(publisher);
 
-        publisher.createUploadName().setValue("biz");
+        publisher.createDocumentName().setValue("biz");
         assertInvalid(publisher);
 
         publisher.createDescription().setValue("wak");
@@ -209,6 +209,54 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
         }
     }
 
+    public void testDocumentOrDataSourceRequired() throws CruiseControlException {
+        SfeeDocumentManagerPublisher publisher = new SfeeDocumentManagerPublisher();
+        publisher.setServerURL("foo");
+        publisher.setUsername("bar");
+        publisher.setPassword("baz");
+        publisher.setProjectName("foobar");
+        publisher.setFolder("foopath");
+        publisher.createDocumentName().setValue("biz");
+        publisher.createDescription().setValue("wak");
+        publisher.createStatus().setValue("bizwak");
+        publisher.createStatus().setValue("final");
+
+        try {
+            publisher.validate();
+            fail("Expected an exception.");
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().indexOf("Either a document or a datasource must be specified.") >= 0);
+        }
+
+        publisher.setDocument("doesntmatter");
+        publisher.validate();
+    }
+
+    public void testVersionCommentAndDocumentNameMayBeNull() throws Exception {
+        String title = getClass().getName() + System.currentTimeMillis() + "Document.txt";
+        String description = "This document was created by a unit test at " + System.currentTimeMillis();
+        String expectedContent = "testing at " + System.currentTimeMillis();
+        String documentPath = "/Root Folder/level1";
+        DocumentStatus status = DocumentStatus.FINAL;
+
+        SfeeDocumentManagerPublisher publisher = new SfeeDocumentManagerPublisher();
+        publisher.setServerURL(SERVER_URL);
+        publisher.setUsername(USERNAME);
+        publisher.setPassword(PASSWORD);
+        publisher.setProjectName(PROJECT_NAME);
+        publisher.setFolder("/Root Folder/level1");
+
+        publisher.setData(new StringDataSource(expectedContent, title));
+        publisher.createDescription().setValue(description);
+        publisher.createStatus().setValue(status.getName());
+        publisher.setLock(true);
+
+        publisher.validate();
+        publisher.publish(null);
+
+
+        assertDocumentCreated(publisher, documentPath, title, description, expectedContent, status, null);
+    }
 
     private void assertDocumentCreated(SfeeDocumentManagerPublisher publisher, String documentPath, String title,
                                        String description, String expectedContent, DocumentStatus status,
@@ -261,10 +309,12 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
 
     public static class StringDataSource implements DataSource {
         private final String data;
+        private final String name;
 
-        public StringDataSource(String data) {
+        public StringDataSource(String data, String name) {
 
             this.data = data;
+            this.name = name;
         }
 
         public InputStream getInputStream() throws IOException {
@@ -280,7 +330,7 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
         }
 
         public String getName() {
-            return "foo";
+            return name;
         }
     }
 }

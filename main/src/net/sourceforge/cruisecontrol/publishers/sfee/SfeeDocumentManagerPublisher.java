@@ -50,6 +50,7 @@ import org.jdom.Element;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import java.rmi.RemoteException;
 import java.util.StringTokenizer;
 
@@ -67,6 +68,7 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
     private Status status;
     private XPathAwareChild versionComment;
     private boolean lock;
+    private String documentPath;
 
     public Status createStatus() {
         status = new Status();
@@ -86,7 +88,7 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         this.dataSrc = dataSrc;
     }
 
-    public XPathAwareChild createUploadName() {
+    public XPathAwareChild createDocumentName() {
         documentName = new XPathAwareChild();
         return documentName;
     }
@@ -120,6 +122,9 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         String fileID;
         String mimeType;
         try {
+            if (documentPath != null) {
+                dataSrc = new FileDataSource(documentPath);
+            }
             DataHandler dataHandler = new DataHandler(dataSrc);
             fileID = fileStorage.uploadFile(sessionID, dataHandler);
             mimeType = dataHandler.getContentType();
@@ -131,9 +136,14 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         IDocumentAppSoap docApp = (IDocumentAppSoap) ClientSoapStubFactory
                 .getSoapStub(IDocumentAppSoap.class, getServerURL());
         try {
-            docApp.createDocument(sessionID, folder.getId(), documentName.lookupValue(cruisecontrolLog),
-                    description.lookupValue(cruisecontrolLog), versionComment.lookupValue(cruisecontrolLog),
-                    status.lookupValue(cruisecontrolLog), lock, documentName.lookupValue(cruisecontrolLog), mimeType,
+            String intendedDocumentName =
+                    (documentName != null ? documentName.lookupValue(cruisecontrolLog) : dataSrc.getName());
+            String intendedVersionComment =
+                    (versionComment != null ? versionComment.lookupValue(cruisecontrolLog) : null);
+
+            docApp.createDocument(sessionID, folder.getId(), intendedDocumentName,
+                    description.lookupValue(cruisecontrolLog), intendedVersionComment,
+                    status.lookupValue(cruisecontrolLog), lock, intendedDocumentName, mimeType,
                     fileID);
         } catch (RemoteException e) {
             throw new CruiseControlException(e);
@@ -141,9 +151,11 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
     }
 
     public void subValidate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(dataSrc, "file", SfeeDocumentManagerPublisher.class);
         ValidationHelper.assertIsSet(path, "folder", SfeeDocumentManagerPublisher.class);
         ValidationHelper.assertIsSet(projectName, "projectName", SfeeDocumentManagerPublisher.class);
+        if (documentPath == null && dataSrc == null) {
+            throw new CruiseControlException("Either a document or a datasource must be specified.");
+        }
         ValidationHelper.assertHasChild(description, "description", SfeeDocumentManagerPublisher.class);
         description.validate();
         ValidationHelper.assertHasChild(status, "status", SfeeDocumentManagerPublisher.class);
@@ -156,7 +168,7 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         }
     }
 
-    public DocumentFolderSoapDO findFolder(String path) throws CruiseControlException {
+    DocumentFolderSoapDO findFolder(String path) throws CruiseControlException {
         if (path == null) {
             throw new IllegalArgumentException("path can not be null.");
         }
@@ -216,6 +228,10 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         }
 
         return null;
+    }
+
+    public void setDocument(String documentPath) {
+        this.documentPath = documentPath;
     }
 
 
