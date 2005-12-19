@@ -116,6 +116,7 @@ SfeeTrackerPublisher:
 SfeeDocumentManagerPublisher:
 ----------------------
 * A new publisher for creating a Document Manager entry in a SourceForge Enterprise Edition project.
+* If a Document Manager entry already exists in the specified folder with the same name, then the document being published will be added as a new version. 
 
 VSSJournal:
 ----------------------

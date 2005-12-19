@@ -109,6 +109,48 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
         assertDocumentCreated(publisher, documentPath, title, description, expectedContent, status, versionComment);
     }
 
+    public void testPublishingSameDocName() throws CruiseControlException, RemoteException {
+        String title = getClass().getName() + System.currentTimeMillis() + "Document.txt";
+        String description = "This document was created by a unit test at " + System.currentTimeMillis();
+        String expectedContent = "testing at " + System.currentTimeMillis();
+        String documentPath = "/Root Folder/level1";
+        String versionComment = "This is a version created at " + System.currentTimeMillis();
+        DocumentStatus status = DocumentStatus.FINAL;
+
+        SfeeDocumentManagerPublisher publisher = new SfeeDocumentManagerPublisher();
+        publisher.setServerURL(SERVER_URL);
+        publisher.setUsername(USERNAME);
+        publisher.setPassword(PASSWORD);
+        publisher.setProjectName(PROJECT_NAME);
+        publisher.setFolder("/Root Folder/level1");
+
+        publisher.setData(new StringDataSource(expectedContent, title));
+        publisher.createDocumentName().setValue(title);
+        publisher.createDescription().setValue(description);
+        publisher.createStatus().setValue(status.getName());
+        publisher.createVersionComment().setValue(versionComment);
+        publisher.setLock(true);
+
+        publisher.validate();
+        publisher.publish(null);
+
+        assertCurrentDocumentVersion(1, title, documentPath, publisher);
+
+        publisher.publish(null);
+        assertCurrentDocumentVersion(2, title, documentPath, publisher);
+
+        publisher.publish(null);
+        assertCurrentDocumentVersion(3, title, documentPath, publisher);
+    }
+
+    private void assertCurrentDocumentVersion(int versionNumber, String docTitle, String docPath,
+                                              SfeeDocumentManagerPublisher publisher) throws RemoteException,
+            CruiseControlException {
+
+        DocumentSoapDO foundDoc = findCurrentDocument(publisher, docPath, docTitle);
+        assertEquals("Wrong version number found.", versionNumber, foundDoc.getVersion());
+    }
+
     public void testValidation() throws CruiseControlException {
         SfeeDocumentManagerPublisher publisher = new SfeeDocumentManagerPublisher();
         assertInvalid(publisher);
@@ -264,21 +306,11 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
             throws IOException, CruiseControlException {
         assertNotNull(projectId);
         assertNotNull(sessionId);
-
-        DocumentFolderSoapDO documentFolder = publisher.findFolder(documentPath);
         IDocumentAppSoap docApp = (IDocumentAppSoap) ClientSoapStubFactory
                 .getSoapStub(IDocumentAppSoap.class, SERVER_URL);
-        DocumentSoapList documentList = docApp.getDocumentList(sessionId, documentFolder.getId(), null);
-        DocumentSoapRow[] documents = documentList.getDataRows();
-        DocumentSoapDO foundDoc = null;
-        for (int i = 0; i < documents.length; i++) {
-            DocumentSoapRow document = documents[i];
-            if (document.getTitle().equals(title)) {
-                foundDoc = docApp.getDocumentData(sessionId, document.getId(), document.getCurrentVersion());
-            }
-        }
 
-        assertNotNull(foundDoc);
+        DocumentSoapDO foundDoc = findCurrentDocument(publisher, documentPath, title);
+
         assertEquals(USERNAME, foundDoc.getLockedBy());
         assertEquals(title, foundDoc.getTitle());
         assertEquals(description, foundDoc.getDescription());
@@ -292,6 +324,28 @@ public class SfeeDocumentManagerPublisherTest extends TestCase {
         BufferedReader in = new BufferedReader(new InputStreamReader(handler.getInputStream()));
         String foundContent = in.readLine();
         assertEquals(expectedContent, foundContent);
+    }
+
+    private DocumentSoapDO findCurrentDocument(SfeeDocumentManagerPublisher publisher, String documentPath,
+                                               String title) throws CruiseControlException,
+            RemoteException {
+
+        IDocumentAppSoap docApp = (IDocumentAppSoap) ClientSoapStubFactory
+                .getSoapStub(IDocumentAppSoap.class, SERVER_URL);
+
+        DocumentFolderSoapDO documentFolder = publisher.findFolder(documentPath);
+        DocumentSoapList documentList = docApp.getDocumentList(sessionId, documentFolder.getId(), null);
+        DocumentSoapRow[] documents = documentList.getDataRows();
+        DocumentSoapDO foundDoc = null;
+        for (int i = 0; i < documents.length; i++) {
+            DocumentSoapRow document = documents[i];
+            if (document.getTitle().equals(title)) {
+                foundDoc = docApp.getDocumentData(sessionId, document.getId(), document.getCurrentVersion());
+            }
+        }
+
+        assertNotNull(foundDoc);
+        return foundDoc;
     }
 
     private static String getProjectId(ISourceForgeSoap soap, String sessionID) throws RemoteException {

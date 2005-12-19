@@ -5634,8 +5634,10 @@ endlocal</pre>
             <tr>
                 <td><code>&lt;documentname&gt;</code></td>
                 <td>0..1</td>
-                <td>The name for the Document within the Document Manager. If this child is not included, it will default
-                    to the name of the file being published. This child element is optional and is a
+                <td>The name for the Document within the Document Manager. If a Document Manager entry already exists
+                    in the specified folder with the same name, then the document being published will be added as a new
+                    version. If this child is not included, it will default to the name of the file being published.
+                    This child element is optional and is a
                     <a href="#xpathawarechildattributes">XPath Aware Child</a>. Look there for attribute details.
                 </td>
             </tr>
