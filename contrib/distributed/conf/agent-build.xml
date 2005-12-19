@@ -48,8 +48,17 @@
 <project name="cc-agent" default="start-agent">
 	
 	<property file="conf/agent.properties" />
-	
-	<target name="init">
+    <!-- JNLP Service API classes -->
+    <path id="jnlpServiceAPI.classpath">
+        <fileset dir="${java.home}">
+            <!-- location in jre1.5 -->
+            <include name="lib/javaws.jar"/>
+            <!-- location in jre1.4 -->
+            <include name="javaws/javaws.jar"/>
+        </fileset>
+    </path>
+
+    <target name="init">
 		<mkdir dir="${cruise.build.dir}/checkout"/>
 		<mkdir dir="${cruise.build.dir}/logs"/>
 		<mkdir dir="${cruise.build.dir}/output"/>
@@ -64,6 +73,7 @@
     			<fileset dir="lib">
     				<include name="**/*.jar" />
     			</fileset>
+                <path refid="jnlpServiceAPI.classpath"/>
     		</classpath>
     	</java>
     </target>
