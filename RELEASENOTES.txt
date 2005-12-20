@@ -175,6 +175,10 @@ LogFileServlet:
 ----------------------
 * Extract the log file serving specific code from FileServlet into a new subclass
 
+modifications.xsl:
+----------------------
+* Added a date/time field to the data displayed in the reporting application. (CC-338) Patch by ajbanck
+
 Reporting:
 ----------------------
 * Added a "Run Build" button to the project status page.

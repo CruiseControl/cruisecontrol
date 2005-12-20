@@ -171,6 +171,9 @@
                 <xsl:value-of select="file/filename"/>
             </td>
             <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
                 <xsl:value-of select="comment"/>
             </td>
         </tr>
@@ -208,6 +211,9 @@
                 </xsl:for-each>
             </td>
             <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
                 <xsl:value-of select="comment"/>
             </td>
         </tr>
@@ -239,6 +245,9 @@
                     <xsl:value-of select="'/'"/>
                 </xsl:if>
                 <xsl:value-of select="filename"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="comment"/>
