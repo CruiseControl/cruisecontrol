@@ -36,24 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * This class handles all VSS-related aspects of determining the modifications since the last good build.
@@ -69,13 +67,16 @@ import java.util.Locale;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @author Arun Aggarwal
  * @author Jonny Boman
+ * @author <a href="mailto:simon.brandhof@hortis.ch">Simon Brandhof</a>
  */
 public class VssJournal implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(VssJournal.class);
 
-    public static final SimpleDateFormat VSS_OUT_FORMAT = new SimpleDateFormat("'Date: 'MM/dd/yy  'Time: 'hh:mma",
-            Locale.US);
+    private String dateFormat;
+    private String timeFormat;
+    private SimpleDateFormat vssDateTimeFormat;
+    private boolean overridenDateFormat = false;
 
     private String ssDir = "$/";
     private String journalFile;
@@ -87,33 +88,28 @@ public class VssJournal implements SourceControl {
     private Date lastBuild;
 
     private ArrayList modifications = new ArrayList();
-    private List moListVssJournalDateFormat = new ArrayList();
 
     public VssJournal() {
-        // Add the default date format
-        VssJournalDateFormat oVssJournalDateFormat = createVssjournaldateformat();
-        oVssJournalDateFormat.setFormat("MM/dd/yy hh:mma");
+        dateFormat = "MM/dd/yy";
+        timeFormat = "hh:mma";
+        constructVssDateTimeFormat();
     }
-
-    /**
-     * Add a nested element for date format interpretation from the journal file. The date and time parameters are fed
-     * as a "date time" string (a single space separates date from time)
-     * 
-     * @return VssJournalDateFormat
-     */
-    public VssJournalDateFormat createVssjournaldateformat() {
-        VssJournalDateFormat oVssJournalDateFormat = new VssJournalDateFormat();
-        moListVssJournalDateFormat.add(oVssJournalDateFormat);
-        return oVssJournalDateFormat;
-    }
-
     /**
      * Set the project to get history from
      * 
      * @param ssDir
      */
-    public void setSsDir(String ssDir) {
-        this.ssDir = "$" + ssDir;
+    public void setSsDir(String s) {
+        StringBuffer sb = new StringBuffer();
+        if (!s.startsWith("$")) {
+            sb.append("$");
+        }
+        if (s.endsWith("/")) {
+            sb.append(s.subSequence(0, s.length() - 1));
+        } else {
+            sb.append(s);
+        }
+        this.ssDir = sb.toString();
     }
 
     /**
@@ -135,9 +131,46 @@ public class VssJournal implements SourceControl {
         this.property = property;
     }
 
+    /**
+     * Set the name of the property to be set if some files were deleted or renamed from VSS on this project.
+     * 
+     * @param propertyOnDelete the name of the property to set
+     */
     public void setPropertyOnDelete(String propertyOnDelete) {
         this.propertyOnDelete = propertyOnDelete;
     }
+    
+    /**
+     * Sets the date format to use for parsing VSS journal.
+     * 
+     * The default date format is <code>MM/dd/yy</code>. If your VSS server is set to a different region, you may wish
+     * to use a format such as <code>dd/MM/yy</code>.
+     * 
+     * @see java.text.SimpleDateFormat
+     */
+    public void setDateFormat(String format) {
+        dateFormat = format;
+        overridenDateFormat = true;
+        constructVssDateTimeFormat();
+    }
+
+    /**
+     * Sets the time format to use for parsing VSS journal.
+     * 
+     * The default time format is <code>hh:mma</code> . If your VSS server is set to a different region, you may wish to
+     * use a format such as <code>HH:mm</code> .
+     * 
+     * @see java.text.SimpleDateFormat
+     */
+    public void setTimeFormat(String format) {
+        timeFormat = format;
+        constructVssDateTimeFormat();
+    }
+    
+    private void constructVssDateTimeFormat() {
+        vssDateTimeFormat = new SimpleDateFormat(dateFormat + " " + timeFormat, Locale.US);
+    }
+
 
     /**
      * Sets the _lastBuild date. Protected so it can be used by tests.
@@ -211,6 +244,7 @@ public class VssJournal implements SourceControl {
 
         String folderLine = (String) historyEntry.get(0);
         String fileLine = (String) historyEntry.get(3);
+        boolean setPropertyOnDelete = false;
 
         if (!isInSsDir(folderLine)) {
             // We are only interested in modifications to files in the specified ssdir
@@ -222,7 +256,6 @@ public class VssJournal implements SourceControl {
             // We don't add labels.
             return null;
         } else if (fileLine.startsWith("Checked in")) {
-
             String fileName = substringFromLastSlash(folderLine);
             String folderName = substringToLastSlash(folderLine);
             Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
@@ -240,6 +273,7 @@ public class VssJournal implements SourceControl {
 
             Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
             modfile.action = "delete";
+            setPropertyOnDelete = true;
 
         } else if (fileLine.indexOf(" moved to ") > -1) {
             // TODO: This is a special case that is really two modifications: deleted and recovered.
@@ -251,6 +285,7 @@ public class VssJournal implements SourceControl {
 
             Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
             modfile.action = "delete";
+            setPropertyOnDelete = true;
 
         } else {
             String folderName = folderLine;
@@ -263,6 +298,7 @@ public class VssJournal implements SourceControl {
                 modfile.action = "add";
             } else if (fileLine.endsWith("deleted")) {
                 modfile.action = "delete";
+                setPropertyOnDelete = true;
             } else if (fileLine.endsWith("recovered")) {
                 modfile.action = "recover";
             } else if (fileLine.endsWith("shared")) {
@@ -270,14 +306,13 @@ public class VssJournal implements SourceControl {
             }
         }
 
-        if (propertyOnDelete != null && "delete".equals(mod.type)) {
+        if (propertyOnDelete != null && setPropertyOnDelete) {
             properties.put(propertyOnDelete, "true");
         }
 
         if (property != null) {
             properties.put(property, "true");
         }
-
         return mod;
     }
 
@@ -309,40 +344,40 @@ public class VssJournal implements SourceControl {
      */
     public Date parseDate(String nameAndDateLine) {
         // Extract date and time into one string with just one space separating the date from the time
-        String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: ")).trim();
-        // Fixup for weird format
-        int indexOfColon = dateAndTime.indexOf("/:");
-        if (indexOfColon != -1) {
-            dateAndTime = dateAndTime.substring(0, indexOfColon)
-                    + dateAndTime.substring(indexOfColon, indexOfColon + 2).replace(':', '0')
-                    + dateAndTime.substring(indexOfColon + 2);
+        String dateString = nameAndDateLine.substring(
+                nameAndDateLine.indexOf("Date:") + 5,
+                nameAndDateLine.indexOf("Time:")).trim();
+        
+        String timeString = nameAndDateLine.substring(
+                nameAndDateLine.indexOf("Time:") + 5).trim();
+        
+        if (!overridenDateFormat) {
+            // Fixup for weird format
+            int indexOfColon = dateString.indexOf("/:");
+            if (indexOfColon != -1) {
+                dateString = dateString.substring(0, indexOfColon)
+                        + dateString.substring(indexOfColon, indexOfColon + 2).replace(':', '0')
+                        + dateString.substring(indexOfColon + 2);
+            }
+
+        }
+        StringBuffer dateToParse = new StringBuffer();
+        dateToParse.append(dateString);
+        dateToParse.append(" ");
+        dateToParse.append(timeString);
+        if (!overridenDateFormat) {
+            // the am/pm marker of java.text.SimpleDateFormat is 'am' or 'pm'
+            // but we have 'a' or 'p' in default VSS logs with default time format 
+            // (for example '6:08p' instead of '6:08pm')
+            dateToParse.append("m");
         }
         try {
-            Date lastModifiedDate = VSS_OUT_FORMAT.parse(dateAndTime + "m");
-
-            return lastModifiedDate;
+            return vssDateTimeFormat.parse(dateToParse.toString());
+            
         } catch (ParseException pe) {
-            // The standard parsing failed so we see if there are any suggestions
-            // on how to interpret the date, but first we extract date and time into one
-            // string with just one space separating the date from the time
-            dateAndTime = dateAndTime.substring(5);
-            String sDate = dateAndTime.substring(0, dateAndTime.indexOf("Time:")).trim();
-            String sTime = dateAndTime.substring(dateAndTime.indexOf("Time:") + 5).trim();
-            dateAndTime = sDate + " " + sTime;
-            Date oDate = null;
-            for (Iterator oIterator = moListVssJournalDateFormat.iterator(); oIterator.hasNext();) {
-                VssJournalDateFormat oVssJournalDateFormat = (VssJournalDateFormat) oIterator.next();
-                try {
-                    oDate = oVssJournalDateFormat.getDateFormat().parse(dateAndTime);
-                } catch (ParseException e) {
-                    // No luck with this one
-                }
-            }
-            if (oDate == null) {
-                LOG.error("Could not parse date in VssJournal file");
-            }
-            return oDate;
+            LOG.error("Could not parse date in VssJournal file : " + dateToParse.toString(), pe);
         }
+        return null;
     }
 
     /**
@@ -395,7 +430,7 @@ public class VssJournal implements SourceControl {
      * Determines if the given folder is in the ssdir specified for this VssJournalElement.
      */
     protected boolean isInSsDir(String path) {
-        boolean isInDir = (path.toLowerCase().indexOf(ssDir.toLowerCase()) != -1);
+        boolean isInDir = (path.toLowerCase().startsWith(ssDir.toLowerCase()));
         if (isInDir) {
             // exclude similarly prefixed paths
             if (ssDir.equalsIgnoreCase(path) // is exact same as ssDir (this happens)
@@ -417,24 +452,4 @@ public class VssJournal implements SourceControl {
     protected boolean isBeforeLastBuild(Date date) {
         return date.before(lastBuild);
     }
-
-    public static class VssJournalDateFormat {
-        private DateFormat moDateFormat;
-        private String msFormat;
-
-        public void setFormat(String psFormat) {
-            moDateFormat = new SimpleDateFormat(psFormat);
-            msFormat = psFormat;
-        }
-
-        public String getFormat() {
-            return msFormat;
-        }
-
-        public final DateFormat getDateFormat() {
-            return moDateFormat;
-        }
-
-    }
-
 }

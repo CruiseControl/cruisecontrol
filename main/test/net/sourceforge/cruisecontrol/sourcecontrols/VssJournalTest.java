@@ -36,9 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -46,9 +49,12 @@ import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * @author Eli Tucker
+ * @author Simon Brandhof
  */
 public class VssJournalTest extends TestCase {
-
+    private static final String SS_DIR = "/";
+    private static final String PROPERTY_ON_DELETE = "deletedfiles";
+    
     private VssJournal element;
     
     public VssJournalTest(String name) {
@@ -58,8 +64,9 @@ public class VssJournalTest extends TestCase {
     protected void setUp() {
         // Set up so that this element will match all tests.
         element = new VssJournal();
-        element.setSsDir("/");
+        element.setSsDir(SS_DIR);
         element.setLastBuildDate(new Date(0));
+        element.setPropertyOnDelete(PROPERTY_ON_DELETE);
     }
 
     public void testValidate() {
@@ -96,19 +103,29 @@ public class VssJournalTest extends TestCase {
     public void testIsInSsDir() {
         VssJournal element1 = new VssJournal();
         element1.setSsDir("/somedir");
-        assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
-        // Should be case insensitive
-        assertTrue(element1.isInSsDir("$/SomeDir/Another/Directory/page.htm"));
-        // Should handle similarly prefixed folder names
-        assertFalse(element1.isInSsDir("$/somedirsimilar"));
-        assertFalse(element1.isInSsDir("$/somedirsimilar/sameprefix_longer/page.htm"));
-        assertFalse(element1.isInSsDir("$/some"));
-        assertFalse(element1.isInSsDir("$/some/sameprefix_shorter"));
-        // test for StringIndexOutOfBoundsException
         assertTrue(element1.isInSsDir("$/somedir"));
-
+        assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
+        assertFalse(element1.isInSsDir("$/somedir2/Another/Directory/page.htm"));
+        // Should be case insensitive
+        assertTrue(element1.isInSsDir("$/SomeDir/Another/Directory/page.htm"));  
+        
+        element1.setSsDir("/somedir/");
+        assertTrue(element1.isInSsDir("$/somedir"));
+        assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
+        assertFalse(element1.isInSsDir("$/somedir2/Another/Directory/page.htm"));
+        
         element1.setSsDir("/");
         assertTrue(element1.isInSsDir("$/anythingCouldBeHere/Blah/blah"));
+        assertTrue(element1.isInSsDir("$/"));
+        
+        element1.setSsDir("$/");
+        assertTrue(element1.isInSsDir("$/anythingCouldBeHere/Blah/blah"));
+        assertTrue(element1.isInSsDir("$/"));
+        
+        element1.setSsDir("$/somedir/");
+        assertTrue(element1.isInSsDir("$/somedir"));
+        assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
+        assertFalse(element1.isInSsDir("$/somedir2/Another/Directory/page.htm"));
     }
     
     public void testIsBeforeLastBuild() {
@@ -137,6 +154,7 @@ public class VssJournalTest extends TestCase {
 
         Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
         assertEquals(modfile.action, "checkin");
+        assertNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
     
     public void testHandleEntryRename() {
@@ -155,6 +173,7 @@ public class VssJournalTest extends TestCase {
         
         Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
         assertEquals(modfile.action, "delete");
+        assertNotNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
     
     public void testHandleEntryLabel() {
@@ -169,6 +188,18 @@ public class VssJournalTest extends TestCase {
         
         assertEquals("Label entry added. Labels shouldn't be added.",
                      null, mod);
+        assertNull(element.getProperties().get(PROPERTY_ON_DELETE));
+    }
+    
+    public void testParseDate() throws ParseException {
+        Date date = element.parseDate("User: Etucker         Date:  7/25/01  Time:  2:11p");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy hh:mm", Locale.US);
+        assertEquals(sdf.parse("07/25/01 14:11"), date);
+        
+        element.setDateFormat("d.MM.yy");
+        element.setTimeFormat("hh:mm");
+        date = element.parseDate("User: Brandhof        Date: 15.11.05  Time:  16:54");
+        assertEquals(sdf.parse("11/15/05 16:54"), date);
     }
 
 }
