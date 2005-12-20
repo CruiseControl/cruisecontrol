@@ -123,6 +123,7 @@
         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip">
             <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
                 <exclude name="README.txt"/>
+                <exclude name="JETTY-WORKDIR-README.txt"/>
                 <exclude name="*.zip"/>
                 <exclude name="**/CVS"/>
                 <exclude name="**/CVS/**"/>
@@ -137,6 +138,8 @@
             <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset file="main/dist/cruisecontrol.jar" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
+            <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
+            <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
             <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
         </zip>
     </target>
