@@ -173,6 +173,7 @@ Reporting:
 ----------------------
 * Added a "Run Build" button to the project status page.
 * Added script to detect if we are framed/iframed in, as is the case with SFEE integration, to add the cruise stylesheet into those loaded by the parent page.
+* Improved styling for test results. Patch by Jim Garacci
 
 TabSheet:
 ----------------------

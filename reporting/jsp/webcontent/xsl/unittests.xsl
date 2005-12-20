@@ -107,12 +107,7 @@
               <xsl:call-template name="testdetail">
                 <xsl:with-param name="detailnodes" select="//testsuite/testcase[.//failure]"/>
               </xsl:call-template>
-
-
-              <tr><td colspan="2">&#160;</td></tr>
             </xsl:if>
-
-
         </table>
     </xsl:template>
 
@@ -123,13 +118,13 @@
                 <xsl:attribute name="class">unittests-oddrow</xsl:attribute>
             </xsl:if>
 
-            <td class="unittests-data">
+            <td class="unittests-data" width="50">
                 error
             </td>
-            <td class="unittests-data" width="40%">
+            <td class="unittests-data" width="300">
                 <xsl:value-of select="../@name"/>
             </td>
-            <td class="unittests-data" width="40%">
+            <td class="unittests-data" width="400">
                 <xsl:value-of select="..//..//@name"/>
             </td>
         </tr>
@@ -142,13 +137,13 @@
                 <xsl:attribute name="class">unittests-oddrow</xsl:attribute>
             </xsl:if>
 
-            <td class="unittests-data">
+            <td class="unittests-data" width="50">
                 failure
             </td>
-            <td class="unittests-data" width="40%">
+            <td class="unittests-data" width="300">
                 <xsl:value-of select="../@name"/>
             </td>
-            <td class="unittests-data" width="40%">
+            <td class="unittests-data" width="400">
                 <xsl:value-of select="..//..//@name"/>
             </td>
         </tr>
@@ -159,82 +154,125 @@
       <xsl:param name="detailnodes"/>
 
       <xsl:for-each select="$detailnodes">
+    <tr>
+        <td colspan="2">
+        <table width="100%" border="0" cellspacing="0">
 
-        <tr>
-            <td colspan="2" class="unittests-data">
-                Test:&#160;<xsl:value-of select="@name"/>
+        <tr class="unittests-title">
+        <td width="50">Test:&#160;</td>
+            <td>
+                <xsl:value-of select="@name"/>
             </td>
         </tr>
-        <tr>
-            <td colspan="2" class="unittests-data">
-                Class:&#160;<xsl:value-of select="..//@name"/>
+        <tr class="unittests-data">
+        <td>Class:&#160;</td>
+            <td>
+                <xsl:value-of select="..//@name"/>
             </td>
         </tr>
 
         <xsl:if test="error">
-            <tr>
-                <td colspan="2" class="unittests-data">
-                    Type: <xsl:value-of select="error/@type" />
-                </td>
-            </tr>
-        <tr>
-            <td colspan="2" class="unittests-data">
-                Message: <xsl:value-of select="error/@message" />
-            </td>
-        </tr>
-
-        <tr>
-            <td colspan="2" class="unittests-error">
-                <PRE>
-                    <xsl:call-template name="br-replace">
-                        <xsl:with-param name="word" select="error" />
-                    </xsl:call-template>
-                </PRE>
-            </td>
-        </tr>
+        <xsl:call-template name="test-data">
+            <xsl:with-param name="word" select="error"/>
+            <xsl:with-param name="type" select="'error'"/>
+        </xsl:call-template>
         </xsl:if>
 
         <xsl:if test="failure">
-        <tr>
-            <td colspan="2" class="unittests-data">
-                Type: <xsl:value-of select="failure/@type" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" class="unittests-data">
-                Message: <xsl:value-of select="failure/@message" />
-            </td>
-        </tr>
-
-        <tr>
-            <td colspan="2" class="unittests-failure">
-                <pre>
-                    <xsl:call-template name="br-replace">
-                        <xsl:with-param name="word" select="failure"/>
-                    </xsl:call-template>
-                </pre>
-            </td>
-        </tr>
+        <xsl:call-template name="test-data">
+            <xsl:with-param name="word" select="failure"/>
+            <xsl:with-param name="type" select="'failure'"/>
+        </xsl:call-template>
         </xsl:if>
+
+              </table>
+        </td>
+    </tr>
 
       </xsl:for-each>
     </xsl:template>
 
+    <xsl:template name="test-data">
+        <xsl:param name="word"/>
+        <xsl:param name="type"/>
+        <tr>
+        <td/>
+            <td>
+        <xsl:call-template name="stack-trace">
+            <xsl:with-param name="word" select="$word"/>
+            <xsl:with-param name="type" select="$type"/>
+        </xsl:call-template>
+            </td>
+        </tr>
+    </xsl:template>
+
+    <xsl:template name="stack-trace">
+        <xsl:param name="word"/>
+        <xsl:param name="type"/>
+    <table width="100%" border="1" cellspacing="0" cellpadding="2">
+        <tr>
+            <td>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <xsl:call-template name="br-replace">
+                    <xsl:with-param name="word" select="$word"/>
+                    <xsl:with-param name="type" select="$type"/>
+                    <xsl:with-param name="count" select="0"/>
+                    </xsl:call-template>
+                </table>
+            </td>
+        </tr>
+        </table>
+    </xsl:template>
+
     <xsl:template name="br-replace">
         <xsl:param name="word"/>
+        <xsl:param name="type"/>
+        <xsl:param name="count"/>
 <!-- </xsl:text> on next line on purpose to get newline -->
+<xsl:variable name="stackstart"><xsl:text>	at</xsl:text></xsl:variable>
 <xsl:variable name="cr"><xsl:text>
 </xsl:text></xsl:variable>
         <xsl:choose>
             <xsl:when test="contains($word,$cr)">
-                <xsl:value-of select="substring-before($word,$cr)"/>
-                <br/>
+        <tr>
+        <xsl:attribute name="class">unittests-<xsl:value-of select="$type"/></xsl:attribute>
+        <xsl:if test="$count mod 2 != 0">
+            <xsl:attribute name="bgcolor">#EEEEEE</xsl:attribute>
+        </xsl:if>
+        <xsl:if test="$count != 0 and starts-with($word,$stackstart)">
+            <td width="30"/>
+            <td>
+                <xsl:value-of select="substring-before($word,$cr)"/>&#160;
+            </td>
+        </xsl:if>
+        <xsl:if test="$count != 0 and not(starts-with($word,$stackstart))">
+            <td colspan="2">
+                <xsl:value-of select="substring-before($word,$cr)"/>&#160;
+            </td>
+        </xsl:if>
+        <xsl:if test="$count = 0">
+            <td colspan="2">
+                <xsl:value-of select="substring-before($word,$cr)"/>&#160;
+            </td>
+        </xsl:if>
+        </tr>
                 <xsl:call-template name="br-replace">
-                <xsl:with-param name="word" select="substring-after($word,$cr)"/>
+                    <xsl:with-param name="word" select="substring-after($word,$cr)"/>
+            <xsl:with-param name="type" select="$type"/>
+                    <xsl:with-param name="count" select="$count + 1"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
+        <tr>
+        <xsl:attribute name="class">unittests-<xsl:value-of select="$type"/></xsl:attribute>
+        <xsl:if test="$count mod 2 != 0">
+            <xsl:attribute name="bgcolor">#EEEEEE</xsl:attribute>
+        </xsl:if>
+        <td width="30"/>
+        <td>
                 <xsl:value-of select="$word"/>
+        </td>
+        </tr>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>

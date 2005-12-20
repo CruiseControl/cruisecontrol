@@ -141,11 +141,14 @@
         <xsl:attribute name="class">
             <xsl:choose>
                 <xsl:when test="error">unittests-error</xsl:when>
-                <xsl:when test="failure">unittests-error</xsl:when>
+                <xsl:when test="failure">unittests-failure</xsl:when>
                 <xsl:otherwise>unittests-data</xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>
-        <td />
+        <xsl:if test="position() div 2 mod 2 = 0">
+	   <xsl:attribute name="bgcolor">#EEEEEE</xsl:attribute>
+        </xsl:if>
+        <td/>
         <td colspan="2">
             <xsl:value-of select="@name"/>
         </td>
@@ -166,11 +169,14 @@
                 <xsl:otherwise>Success</xsl:otherwise>
             </xsl:choose>
         </td>
-        <xsl:if test="not(failure|error)">
-            <td>
-                <xsl:value-of select="format-number(@time,'0.000')"/>
-            </td>
-        </xsl:if>
+	<xsl:choose>
+            <xsl:when test="not(failure|error)">
+                <td>
+                    <xsl:value-of select="format-number(@time,'0.000')"/>
+                </td>
+            </xsl:when>
+            <xsl:otherwise><td/></xsl:otherwise>
+        </xsl:choose>
     </tr>
 </xsl:template>
 
@@ -214,15 +220,16 @@
             </xsl:if>
         </td>
     </tr>
+    <tr height="10"/>
 </xsl:template>
 
 <xsl:template name="print.class" >
     <tr>
         <xsl:attribute name="class">
             <xsl:choose>
-                <xsl:when test="testcase/error">unittests-error</xsl:when>
-                <xsl:when test="testcase/failure">unittests-error</xsl:when>
-                <xsl:otherwise>unittests-data</xsl:otherwise>
+                <xsl:when test="testcase/error">unittests-error-title</xsl:when>
+                <xsl:when test="testcase/failure">unittests-failure-title</xsl:when>
+                <xsl:otherwise>unittests-title</xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>
         <td colspan="5"><xsl:value-of select="@package"/>.<xsl:value-of select="@name"/></td>

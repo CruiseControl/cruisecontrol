@@ -45,6 +45,9 @@ table.header th.big { font-size:12pt; }
 .unittests-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .unittests-error { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#901090; }
 .unittests-failure { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FF0000; }
+.unittests-title { font-family:arial,helvetica,sans-serif; font-size:9pt; font-weight: bold; color:#000080; background-color:#CCDDDD; }
+.unittests-error-title { font-family:arial,helvetica,sans-serif; font-size:9pt; font-weight: bold; color:#901090; background-color:#CCDDDD; }
+.unittests-failure-title { font-family:arial,helvetica,sans-serif; font-size:9pt; color:#FF0000; font-weight: bold; background-color:#CCDDDD; }
 
 .checkstyle-oddrow { background-color:#CCCCCC }
 .checkstyle-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
