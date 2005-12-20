@@ -6562,6 +6562,46 @@ endlocal</pre>
          build is successful. If you want the opposite, i.e. on when successful
          and off when broken, set the onWhenBroken attribute to false.</p>
 
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>houseCode</td>
+                    <td>Yes</td>
+                    <td>The house code for the device to control, A through P case insensitive</td>
+                </tr>
+                <tr>
+                    <td>deviceCode</td>
+                    <td>Yes</td>
+                    <td>The device code for the device to control, 1 -> 16</td>
+                </tr>
+                <tr>
+                    <td>port</td>
+                    <td>No (defaults to COM2)</td>
+                    <td>Serial port to which the computer interface controller is connected, e.g. COM1</td>
+                </tr>
+                <tr>
+                    <td>onWhenBroken</td>
+                    <td>No (defaults to true)</td>
+                    <td>Set to false if the device should turn on when the build is successful and off when failed</td>
+                </tr>
+                <tr>
+                    <td>interfaceModel</td>
+                    <td>No (defaults to CM11A)</td>
+                    <td>Model number for the computer interface controller being used, either CM11A or CM17A (case
+                        insensitive).</td>
+                </tr>
+            </tbody>
+        </table>
+
          <h3>Examples</h3>
 
          <pre>&lt;!--Turn on X10 device(s) A3 using a CM11A computer interface on COM2
@@ -6590,44 +6630,6 @@ endlocal</pre>
 &lt;x10 houseCode="A" deviceCode="3" port="COM1"
     onWhenBroken="false" interfaceModel="CM17A"/&gt;</pre>
 
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>houseCode</td>
-                <td>Yes</td>
-                <td>The house code for the device to control, A through P case insensitive</td>
-            </tr>
-            <tr>
-                <td>deviceCode</td>
-                <td>Yes</td>
-                <td>The device code for the device to control, 1 -> 16</td>
-            </tr>
-            <tr>
-                <td>port</td>
-                <td>No (defaults to COM2)</td>
-                <td>Serial port to which the computer interface controller is connected, e.g. COM1</td>
-            </tr>
-            <tr>
-                <td>onWhenBroken</td>
-                <td>No (defaults to true)</td>
-                <td>Set to false if the device should turn on when the build is successful and off when failed</td>
-            </tr>
-            <tr>
-                <td>interfaceModel</td>
-                <td>No (defaults to CM11A)</td>
-                <td>Model number for the computer interface controller being used, either CM11A or CM17A (case insensitive).</td>
-            </tr>
-            </tbody>
-        </table>
         </div>
 
 
