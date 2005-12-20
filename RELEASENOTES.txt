@@ -179,6 +179,11 @@ Reporting:
 * Added script to detect if we are framed/iframed in, as is the case with SFEE integration, to add the cruise stylesheet into those loaded by the parent page.
 * Improved styling for test results. Patch by Jim Garacci
 
+RSS:
+----------------------
+* Updated rss.jsp to fix issue introduced by changes to BuildInfo. (CC-372) Patch by Ludovic Maître
+* Added a webtest that ensures functional rss.jsp, based on CC-372.
+
 TabSheet:
 ----------------------
 * Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjørn
