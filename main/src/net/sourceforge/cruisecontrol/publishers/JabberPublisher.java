@@ -40,7 +40,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jivesoftware.smack.Chat;
@@ -53,10 +52,9 @@ import org.jivesoftware.smack.XMPPException;
  * Abstract publisher which establishes this transport to publish
  * build results via Jabber Instant Messaging framework.
  *
- * @see net.sourceforge.cruisecontrol.publishers.LinkJabberPublisher
- *
  * @author <a href="mailto:jonas_edgeworth@cal.berkeley.edu">Jonas Edgeworth</a>
  * @version 1.0
+ * @see LinkJabberPublisher
  */
 
 public abstract class JabberPublisher implements Publisher {
@@ -68,6 +66,8 @@ public abstract class JabberPublisher implements Publisher {
     private String username;
     private String password;
     private String recipient;
+    private String service;
+
     private boolean chatroom = false;
     private boolean ssl = false;
 
@@ -96,6 +96,10 @@ public abstract class JabberPublisher implements Publisher {
         this.recipient = recipient;
     }
 
+    public void setService(String service) {
+        this.service = service;
+    }
+
     public void setChatroom(boolean chatroom) {
         this.chatroom = chatroom;
     }
@@ -114,9 +118,17 @@ public abstract class JabberPublisher implements Publisher {
         if (null == connection || requiresReconnect()) {
             try {
                 if (ssl) {
-                    connection = new SSLXMPPConnection(host, port);
+                    if (service != null) {
+                        connection = new SSLXMPPConnection(host, port, service);
+                    } else {
+                        connection = new SSLXMPPConnection(host, port);
+                    }
                 } else {
-                    connection = new XMPPConnection(host, port);
+                    if (service != null) {
+                        connection = new XMPPConnection(host, port, service);
+                    } else {
+                        connection = new XMPPConnection(host, port);
+                    }
                 }
             } catch (XMPPException e) {
                 LOG.error("Error initializing jabber connection", e);
@@ -127,7 +139,7 @@ public abstract class JabberPublisher implements Publisher {
                 LOG.error("Authentication error on login", e);
             }
         }
-        
+
         try {
             if (chatroom) {
                 groupchat = connection.createGroupChat(recipient);
@@ -142,34 +154,35 @@ public abstract class JabberPublisher implements Publisher {
 
     /**
      * Checks for changes to params or connection failure
+     *
      * @return true if a reconnect is required
      */
     private boolean requiresReconnect() {
-        return (!connection.isConnected() 
-                && !connection.isSecureConnection()) 
+        return (!connection.isConnected()
+                && !connection.isSecureConnection())
                 || !connection.isAuthenticated();
     }
 
     /**
-     *  Validate that all the mandatory parameters were specified in order
+     * Validate that all the mandatory parameters were specified in order
      * to properly initial the Jabber client service. Note that this is called
      * after the configuration file is read.
      *
-     *  @throws CruiseControlException if there was a configuration error.
+     * @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
 
         ValidationHelper.assertIsSet(host, "host", this.getClass());
         ValidationHelper.assertIsSet(username, "username", this.getClass());
         ValidationHelper.assertFalse(isEmail(username),
-            "'username' is not in correct format. "
-            + "'username' should not be of the form user@domain.com");
+                "'username' is not in correct format. "
+                        + "'username' should not be of the form user@domain.com");
 
         ValidationHelper.assertIsSet(password, "password", this.getClass());
         ValidationHelper.assertIsSet(recipient, "recipient", this.getClass());
         ValidationHelper.assertTrue(isEmail(recipient),
-            "'recipient' is not in correct format. "
-            + "'recipient' should be of the form user@domain.com");
+                "'recipient' is not in correct format. "
+                        + "'recipient' should be of the form user@domain.com");
     }
 
     private boolean isEmail(final String username) {
@@ -204,9 +217,9 @@ public abstract class JabberPublisher implements Publisher {
     }
 
     /**
-     *  Creates the IM message body to be sent to the recipient.
+     * Creates the IM message body to be sent to the recipient.
      *
-     *  @return <code>String</code> that makes up the body of the IM message
+     * @return <code>String</code> that makes up the body of the IM message
      * @throws CruiseControlException
      */
     protected abstract String createMessage(XMLLogHelper logHelper) throws CruiseControlException;
