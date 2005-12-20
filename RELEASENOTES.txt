@@ -138,6 +138,8 @@ StarTeam
 VSSJournal:
 ----------------------
 * handle dirs with same prefix (CC-307).  Patch by Dan Rollo.
+* propertyOnDelete now set in VSSJournal. (CC-366) Patch by Simon Brandhof
+* configurable date/time format support for VSSJournal & fix ssDir if it ends with a '/'. (CC-365) Patch by Simon Brandhof
 
 reporting jsp app
 ======================
