@@ -97,7 +97,6 @@ public class VssJournal implements SourceControl {
     /**
      * Set the project to get history from
      * 
-     * @param ssDir
      */
     public void setSsDir(String s) {
         StringBuffer sb = new StringBuffer();
@@ -105,7 +104,7 @@ public class VssJournal implements SourceControl {
             sb.append("$");
         }
         if (s.endsWith("/")) {
-            sb.append(s.subSequence(0, s.length() - 1));
+            sb.append(s.substring(0, s.length() - 1));
         } else {
             sb.append(s);
         }
