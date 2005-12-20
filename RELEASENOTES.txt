@@ -79,6 +79,10 @@ general:
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
 * Missing x10.jar origin in lib/readme.txt. Reported by Adrian Cho.
 
+JabberPublisher:
+----------------------
+* Support setting different "service". (CC-346) Patch by Ahti Kitsik.
+
 JMX interface:
 ----------------------
 * When setting the configuration contents via JMX, the contents are validated (CC-333). Patch by Allan Wick.
