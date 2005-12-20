@@ -52,7 +52,7 @@ import java.util.List;
  * @deprecated Tests deprecated code
  */
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
-    private static final String TEST_DIR = "tmp";
+    private static final String TEST_DIR = System.getProperty("java.io.tmpdir");
     private final List filesToClear = new ArrayList();
 
     public void tearDown() {
@@ -76,7 +76,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         bootstrapper.setFile("somefile");
         bootstrapper.validate();
 
-        bootstrapper.setFile("holycowbatman" + File.separator + "filename");
+        bootstrapper.setFile(TEST_DIR + File.separator + "filename");
         bootstrapper.validate();
     }
 
