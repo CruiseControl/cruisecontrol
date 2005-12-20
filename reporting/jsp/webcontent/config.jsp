@@ -148,10 +148,10 @@
         </td>
     </tr>
     <tr><td colspan="2">
-        <ww:form action="config" id="project-config"
+        <ww:form action="save" id="project-config"
                  name="project-config" method="post">
             <ww:textarea name="contents" rows="24" cols="80"/>
-            <ww:submit value="Configure"/>
+            <ww:submit value="Save"/>
         </ww:form>
     </td></tr>
 </table>

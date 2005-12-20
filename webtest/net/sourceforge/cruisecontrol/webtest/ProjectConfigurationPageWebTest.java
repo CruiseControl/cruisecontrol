@@ -108,7 +108,8 @@ public class ProjectConfigurationPageWebTest extends WebTestCase {
         setWorkingForm("reload-configuration");
         submit();
         assertTextPresent("Reloaded configuration.");
-        assertTextNotPresent(newContent);
+//        assertTextNotPresent(newContent);
+      assertTextPresent(newContent);
     }
 
     private static Configuration createConfig() throws IOException, MalformedObjectNameException {
