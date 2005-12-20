@@ -43,19 +43,14 @@ import javax.servlet.jsp.tagext.VariableInfo;
 public class NavigationTagExtraInfo extends TagExtraInfo {
 
     public VariableInfo[] getVariableInfo(TagData data) {
-        return new VariableInfo[] {
-            new VariableInfo(NavigationTag.URL_ATTR,
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-            new VariableInfo(NavigationTag.LINK_TEXT_ATTR,
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-            new VariableInfo(NavigationTag.LOG_FILE_ATTR,
-                             "java.lang.String",
-                             true,
-                             VariableInfo.NESTED),
-        };
+        return new VariableInfo[]{
+                new VariableInfo(NavigationTag.URL_ATTR, "java.lang.String",
+                        true, VariableInfo.NESTED),
+                new VariableInfo(NavigationTag.LINK_TEXT_ATTR,
+                        "java.lang.String", true, VariableInfo.NESTED),
+                new VariableInfo(NavigationTag.LOG_FILE_ATTR,
+                        "java.lang.String", true, VariableInfo.NESTED),
+                new VariableInfo(NavigationTag.BUILD_INFO_ATTR,
+                        "net.sourceforge.cruisecontrol.BuildInfo", true, VariableInfo.NESTED), };
     }
 }

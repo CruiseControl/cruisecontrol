@@ -54,13 +54,12 @@
 <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="10">
 
 <%
-    BuildInfo buildInfo = new BuildInfo(logfile);
-    String label = buildInfo.getLabel();
-    Date date = buildInfo.getBuildDate();
+    String label = buildinfo.getLabel();
+    Date date = buildinfo.getBuildDate();
 %>
 
 <item>
-<% if (buildInfo.isSuccessful()) { %>
+<% if (buildinfo.isSuccessful()) { %>
 	<title><%= date %>, passed</title>
 	<description>Build passed</description>
 <% } else { %>

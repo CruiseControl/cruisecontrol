@@ -36,27 +36,24 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.util.CCTagException;
+import net.sourceforge.cruisecontrol.util.DateHelper;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.BodyContent;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyContent;
-
-import net.sourceforge.cruisecontrol.BuildInfo;
-import net.sourceforge.cruisecontrol.util.DateHelper;
-import net.sourceforge.cruisecontrol.util.CCTagException;
-
-/**
- *
- */
 public class NavigationTag extends CruiseControlBodyTagSupport {
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String URL_ATTR = "url";
     public static final String LOG_FILE_ATTR = "logfile";
+    public static final String BUILD_INFO_ATTR = "buildinfo";
 
     private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -97,7 +94,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     }
 
     public void doInitBody() throws JspException {
-       setupLinkVariables();
+        setupLinkVariables();
     }
 
     void setupLinkVariables() throws JspTagException {
@@ -106,6 +103,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
         getPageContext().setAttribute(URL_ATTR, createUrl(LOG_PARAMETER, logName));
         getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(info));
         getPageContext().setAttribute(LOG_FILE_ATTR, logName);
+        getPageContext().setAttribute(BUILD_INFO_ATTR, info);
         count++;
     }
 
@@ -145,14 +143,15 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
      * Set the DateFormat to use.
      * The default is based on the client's locale with a 24 hour time. For a
      * client with a US locale that would be MM/dd/yyyy HH:mm:ss.
-     * @param dateFormatString  the date format to use. Any format appropriate for the SimpleDataFormat is
-     *                          okay to use.
+     *
+     * @param dateFormatString the date format to use. Any format appropriate for the SimpleDataFormat is
+     *                         okay to use.
      * @see java.text.SimpleDataFormat
      */
     public void setDateFormat(String dateFormatString) {
         dateFormat = new SimpleDateFormat(dateFormatString);
     }
-    
+
     private DateFormat getDateFormat() {
         if (dateFormat == null) {
             dateFormat = DateHelper.createDateFormat(getLocale());
