@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+Batch Files:
+----------------------
+* Double quotes around %JAVA_HOME% arguments in classpaths, for JAVA_HOME values with spaces in the paths. (CC-371) Fix by Jeff Jensen
+
 Binary release:
 ----------------------
 * cruisecontrol.bat no longer sets ANT_HOME (CC-348).
