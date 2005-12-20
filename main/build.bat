@@ -50,12 +50,12 @@ goto noJavaFound
 
 :useClassic
 set BUILDCOMPILER=classic
-set ANT_CLASSPATH=%ANT_CLASSPATH%;%JAVA_HOME%\lib\classes.zip
+set ANT_CLASSPATH=%ANT_CLASSPATH%;"%JAVA_HOME%\lib\classes.zip"
 goto exec
 
 :useModern
 set BUILDCOMPILER=modern
-set ANT_CLASSPATH=%ANT_CLASSPATH%;%JAVA_HOME%\lib\tools.jar
+set ANT_CLASSPATH=%ANT_CLASSPATH%;"%JAVA_HOME%\lib\tools.jar"
 goto exec
 
 :useJikes
