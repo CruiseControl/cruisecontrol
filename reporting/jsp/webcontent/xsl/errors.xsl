@@ -53,7 +53,7 @@
         <xsl:if test="$total.errorMessage.count > 0">
             <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
                 <tr>
-                    <td class="compile-sectionheader">
+                    <td class="compile-sectionheader" colspan="4">
                         &#160;Errors/Warnings: (<xsl:value-of select="$total.errorMessage.count"/>)
                     </td>
                 </tr>
