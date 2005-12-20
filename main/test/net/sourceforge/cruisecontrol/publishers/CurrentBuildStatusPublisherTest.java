@@ -76,7 +76,7 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
         publisher.setFile("somefile");
         publisher.validate();
 
-        publisher.setFile("holycowbatman" + File.separator + "filename");
+        publisher.setFile(System.getProperty("java.io.tmpdir") + File.separator + "filename");
         publisher.validate();
     }
 

@@ -49,7 +49,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         listener.setFile("somefile");
         listener.validate();
 
-        listener.setFile("holycowbatman" + File.separator + "filename");
+        listener.setFile(System.getProperty("java.io.tmpdir") + File.separator + "filename");
         listener.validate();
     }
 
