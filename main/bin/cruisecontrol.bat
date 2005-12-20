@@ -60,7 +60,7 @@ set CRUISE_PATH=
 
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
-set CRUISE_PATH="%JAVA_HOME%\lib\tools.jar"
+set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
 goto setCruise
 
 :noJavaHome
