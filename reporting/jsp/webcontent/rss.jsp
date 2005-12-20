@@ -41,7 +41,7 @@
 
 <%
     String project = request.getPathInfo().substring(1);
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.US);
 %>
 
 <rss version="2.0">
