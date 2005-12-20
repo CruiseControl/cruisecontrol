@@ -92,7 +92,14 @@
                 <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
         <xsl:if test="count(file) > 0">
@@ -174,7 +181,14 @@
                 <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
     </xsl:template>
@@ -214,7 +228,14 @@
                 <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
     </xsl:template>
@@ -250,7 +271,14 @@
                 <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
     </xsl:template>
@@ -288,7 +316,14 @@
                 <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
         <xsl:if test="count(ccmobject) > 0">
@@ -334,7 +369,16 @@
             <td class="modifications-data"><xsl:value-of select="type"/></td>
             <td class="modifications-data"><xsl:value-of select="instance"/></td>
             <td class="modifications-data"><xsl:value-of select="project"/></td>
-            <td class="modifications-data"><xsl:value-of select="comment"/></td>
+            <td class="modifications-data">
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
+            </td>
         </tr>
     </xsl:template>
     <xsl:template match="ccmcr" mode="modifications">
@@ -346,5 +390,23 @@
 
     <xsl:template match="/">
         <xsl:apply-templates select="." mode="modifications"/>
+    </xsl:template>
+
+    <xsl:template name="newlineToHTML">
+        <xsl:param name="line"/>
+        <xsl:choose>
+            <xsl:when test="contains($line, '&#xA;')">
+                <xsl:value-of select="substring-before($line, '&#xA;')"/>
+                <br/>
+                <xsl:call-template name="newlineToHTML">
+                    <xsl:with-param name="line">
+                        <xsl:value-of select="substring-after($line, '&#xA;')"/>
+                    </xsl:with-param>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$line"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 </xsl:stylesheet>

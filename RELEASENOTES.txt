@@ -179,6 +179,7 @@ LogFileServlet:
 modifications.xsl:
 ----------------------
 * Added a date/time field to the data displayed in the reporting application. (CC-338) Patch by ajbanck
+* Insert <br/> in place of newline characters in checkin comments so that they display properly. (CC-218) Patch by Kent Spillner
 
 Reporting:
 ----------------------
