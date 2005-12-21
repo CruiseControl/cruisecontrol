@@ -133,6 +133,8 @@ public class AntBuilder extends Builder {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
         }
+        
+        ValidationHelper.assertExists(new File(buildFile), "buildfile", this.getClass());
 
         AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
