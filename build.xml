@@ -163,7 +163,10 @@
             </daemons>
             <sequential>
                 <waitfor maxwait="3" maxwaitunit="minute" checkevery="500">
-                    <http url="http://localhost:7854/cruisecontrol"/>
+                    <and>
+                        <http url="http://localhost:7854/cruisecontrol"/>
+                        <available file="target/webtest/cruisecontrol-bin-2.4.0-dev/projects/connectfour/target/connectfour.jar"/>
+                    </and>
                 </waitfor>
 
                 <mkdir dir="target/webtest-results"/>
