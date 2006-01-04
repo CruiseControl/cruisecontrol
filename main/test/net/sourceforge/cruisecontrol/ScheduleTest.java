@@ -54,6 +54,7 @@ public class ScheduleTest extends TestCase {
     private static final long ONE_HOUR = 60 * ONE_MINUTE;
     private static final long TWELVE_HOURS = 12 * ONE_HOUR;
     private static final long ONE_DAY = Schedule.ONE_DAY;
+    private static final TimeZone LOS_ANGELES;
 
     private static final Calendar FRIDAY;
     private static final Calendar THURSDAY;
@@ -70,6 +71,8 @@ public class ScheduleTest extends TestCase {
     private static final MockBuilder MULTIPLE_1;
 
     static {
+        LOS_ANGELES = createLosAngelesTimeZone();
+        
         NOON_BUILDER = new MockBuilder();
         NOON_BUILDER.setTime("1200");
         NOON_BUILDER.setBuildLogXML(new Element("builder1"));
@@ -107,7 +110,7 @@ public class ScheduleTest extends TestCase {
         schedule.add(MULTIPLE_1);
         
         defaultTimeZone = TimeZone.getDefault();
-        TimeZone.setDefault(createLosAngelesTimeZone());
+        TimeZone.setDefault(LOS_ANGELES);
     }
 
     protected void tearDown() throws Exception {
@@ -115,10 +118,9 @@ public class ScheduleTest extends TestCase {
         TimeZone.setDefault(defaultTimeZone);
     }
     
-    /* 
-     * taken from SimpleTimeZone javadoc
-     */
     private static TimeZone createLosAngelesTimeZone() {
+        // taken from SimpleTimeZone javadoc:
+        
         // Base GMT offset: -8:00
         // DST starts:      at 2:00am in standard time
         //                  on the first Sunday in April
@@ -142,7 +144,7 @@ public class ScheduleTest extends TestCase {
      */
     private static Date getDate(Calendar calendar, int hour, int min) {
         Calendar cal = (Calendar) calendar.clone();
-        cal.setTimeZone(createLosAngelesTimeZone());
+        cal.setTimeZone(LOS_ANGELES);
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, min);
         return cal.getTime();
