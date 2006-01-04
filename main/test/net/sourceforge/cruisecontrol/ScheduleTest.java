@@ -142,6 +142,7 @@ public class ScheduleTest extends TestCase {
      */
     private static Date getDate(Calendar calendar, int hour, int min) {
         Calendar cal = (Calendar) calendar.clone();
+        cal.setTimeZone(createLosAngelesTimeZone());
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, min);
         return cal.getTime();
