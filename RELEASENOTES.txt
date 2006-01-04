@@ -96,6 +96,10 @@ MergeLogger:
 ----------------------
 * cleanly skip non existing log files and directories
 
+MKS:
+----------------------
+* Support archive filenames with spaces (CC-376). Patch by Martin Aberle.
+
 NavigationTag:
 ----------------------
 * Remove support for log files timestamped without a second part

@@ -50,8 +50,9 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 import org.apache.log4j.Logger;
 
@@ -243,17 +244,27 @@ public class MKS implements SourceControl {
      */
     private void setUserNameAndComment(Modification modification,
             String folderName, String fileName) {
-        String cmd = "si rlog --format={author};{description} --noHeaderFormat --noTrailerFormat -r "
-                + modification.revision
-                + " "
-                + folderName
-                + File.separator
-                + fileName;
-
+                
         try {
-            LOG.debug(cmd);
-            Process proc = Runtime.getRuntime()
-                    .exec(cmd, null, localWorkingDir);
+            Commandline commandLine = new Commandline();
+            commandLine.setExecutable("si");
+    
+            if (localWorkingDir != null) {
+                commandLine.setWorkingDirectory(localWorkingDir.getAbsolutePath());
+            }
+    
+            commandLine.createArgument().setValue("rlog");
+            commandLine.createArgument().setValue("--format={author};{description}");
+            commandLine.createArgument().setValue("--noHeaderFormat");
+            commandLine.createArgument().setValue("--noTrailerFormat");
+            commandLine.createArgument().setValue("-r");
+            commandLine.createArgument().setValue(modification.revision);
+            commandLine.createArgument().setValue(folderName + File.separator + fileName);
+              
+            LOG.debug(commandLine.toString());
+            
+            Process proc = commandLine.execute();
+            
             logStream(proc.getErrorStream(), System.err);
             InputStream in = proc.getInputStream();
             BufferedReader reader = new BufferedReader(
