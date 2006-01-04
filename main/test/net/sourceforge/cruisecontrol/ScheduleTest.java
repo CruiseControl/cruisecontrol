@@ -38,7 +38,8 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
@@ -47,7 +48,7 @@ import org.jdom.Element;
 
 public class ScheduleTest extends TestCase {
     private Schedule schedule;
-    private Locale defaultLocale;
+    private TimeZone defaultTimeZone;
 
     private static final long ONE_MINUTE = Schedule.ONE_MINUTE;
     private static final long ONE_HOUR = 60 * ONE_MINUTE;
@@ -105,13 +106,32 @@ public class ScheduleTest extends TestCase {
         schedule.add(MULTIPLE_5);
         schedule.add(MULTIPLE_1);
         
-        defaultLocale = Locale.getDefault();
-        Locale.setDefault(Locale.US);
+        defaultTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(createLosAngelesTimeZone());
     }
 
     protected void tearDown() throws Exception {
         schedule = null;
-        Locale.setDefault(defaultLocale);
+        TimeZone.setDefault(defaultTimeZone);
+    }
+    
+    /* 
+     * taken from SimpleTimeZone javadoc
+     */
+    private static TimeZone createLosAngelesTimeZone() {
+        // Base GMT offset: -8:00
+        // DST starts:      at 2:00am in standard time
+        //                  on the first Sunday in April
+        // DST ends:        at 2:00am in daylight time
+        //                  on the last Sunday in October
+        // Save:            1 hour
+        return new SimpleTimeZone(-28800000,
+                       "America/Los_Angeles",
+                       Calendar.APRIL, 1, -Calendar.SUNDAY,
+                       7200000,
+                       Calendar.OCTOBER, -1, Calendar.SUNDAY,
+                       7200000,
+                       3600000);
     }
 
     /**
