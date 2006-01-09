@@ -93,7 +93,7 @@ set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\commons-el.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jaxen-1.1-beta-8.jar
 set CRUISE_PATH=%CRUISE_PATH%;.
 
-set EXEC="%JAVA_HOME%\bin\java" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %*
+set EXEC="%JAVA_HOME%\bin\java" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty -jmxport 8000 %*
 echo %EXEC%
 %EXEC%
 
