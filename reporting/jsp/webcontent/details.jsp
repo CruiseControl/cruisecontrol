@@ -44,24 +44,24 @@
 <body>
 <p class="config-sectionheader"><ww:property value="name" /> Configuration</p>
 <ww:if test="hasActionMessages()">
-    <div id="result-messages">
+    <div id="result-messages" class="config-result-messages">
         <ul>
             <ww:iterator value="actionMessages">
-                <li class='config-resultmsg'><ww:property/></li>
+                <li class="config-result-message"><ww:property/></li>
             </ww:iterator>
         </ul>
         <hr/>
     </div>
 </ww:if>
 
-<ww:form action="details" name="%{name}-details" method="post">
+<ww:form action="details" name="%{name}-details" method="post" cssClass="config-details">
     <ww:hidden name="pluginName" value="%{name}" />
     <ww:hidden name="pluginType" value="%{type}" />
     <ww:iterator value="details">
         <ww:textfield name="%{key}" label="%{key}"
-            value="%{value}" size="32" />
+            value="%{value}" size="32" cssClass="config-detail"/>
     </ww:iterator>
-    <ww:submit value="Save"/>
+    <ww:submit value="Save" cssClass="config-button"/>
 </ww:form>
 </body>
 </html>

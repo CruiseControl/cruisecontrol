@@ -45,10 +45,10 @@
 </head>
 
 <body>
-<h3><ww:property value="listType"/>:</h3>
-<ul>
+<p class="config-sectionheader"><ww:property value="listType"/></p>
+<ul class="config-plugins">
 <ww:iterator value="plugins">
-    <li><a href="<ww:url value="details!default.jspa?pluginName=%{name}"/>"
+    <li class="config-plugin"><a class="config-link" href="<ww:url value="details!default.jspa?pluginName=%{name}"/>"
        onclick="loadPlugin(this.href); return false;">
         <ww:property value="name"/></a></li>
 </ww:iterator>
