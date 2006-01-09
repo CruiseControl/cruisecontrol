@@ -24,14 +24,26 @@ function openIcon(icon) {
     opened[icon.id] = true;
 }
 
+/*
+ * Since we've set the height of the plugin details iframe to a relative value (100% of its parent),
+ * the simplest way to resize it is by just reloading.
+ */
+function resizeDetails() {
+    var details = $('plugin-details');
+    var url = details.src;
+    details.src = url;
+}
+
 function collapseTree(id, treeIcon) {
     toggleTreeElements(id);
     closeIcon(treeIcon);
+    resizeDetails();
 }
 
 function expandTree(id, treeIcon) {
     toggleTreeElements(id);
     openIcon(treeIcon);
+    resizeDetails();
 }
 
 function updateAvailablePlugins(id, treeIcon) {
