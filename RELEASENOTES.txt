@@ -84,6 +84,7 @@ general:
 * Delete temp files created by tests (CC-344). Patch by Mark Doliner.
 * Missing x10.jar origin in lib/readme.txt. Reported by Adrian Cho.
 * Fixed project reloading so that changes to an existing project will be included when Cruise builds the next time. Paul Julius & Kent Spillner, pairing.
+* When reparsing the config file, the new MD5 hash was not being updated, so once changed, the config file always looked new. Paul Julius & Kent Spillner, pairing.
 
 JabberPublisher:
 ----------------------
