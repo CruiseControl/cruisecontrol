@@ -53,10 +53,9 @@
         <p>This Binary Distribution is a trimmed down version of the Source Distribution.
         It is fully functional and intended to work with a sample CVS project "out of the box".</p>
 
-        <p>The sample project is
-        <a class="external" href="http://jakarta.apache.org/commons/math/">Jakarta's commons-math</a>
-        project. Commons-math was chosen because it's build adheres to many of the best practices
-        recommended by the CruiseControl community.</p>
+        <p>The sample project models the game Connect Four. For more information
+        about Connect Four see
+        <a class="external" href="http://en.wikipedia.org/wiki/Connect_Four">http://en.wikipedia.org/wiki/Connect_Four</a></p>
 
         <ul>
             <li><a href="#Quick_Start">Quick Start</a></li>
@@ -108,34 +107,34 @@
         </pre>
 
         <p>Simulataneously, the main CruiseControl daemon starts. It comes pre-configured
-        to run a continuous integration process against jakarta-commons/math. At some
+        to run a continuous integration process against the sample Connect Four project. At some
         point in the logs you should see:</p>
         <pre>
-[cc]Aug-04 07:43:27 Project       - Project commons-math starting
-[cc]Aug-04 07:43:27 Project       - Project commons-math:  idle
-[cc]Aug-04 07:43:27 Project       - Project commons-math started
-[cc]Aug-04 07:43:27 Project       - Project commons-math:  in build queue
+[cc]Aug-04 07:43:27 Project       - Project connectfour starting
+[cc]Aug-04 07:43:27 Project       - Project connectfour:  idle
+[cc]Aug-04 07:43:27 Project       - Project connectfour started
+[cc]Aug-04 07:43:27 Project       - Project connectfour:  in build queue
         </pre>
-        <p>The daemon will execute an initial build of <code>commons-math</code> shortly after starting.
+        <p>The daemon will execute an initial build of <code>connectfour</code> shortly after starting.
         Once the intiial build is complete:</p>
         <pre>
 BUILD SUCCESSFUL
 Total time: 46 seconds
-[cc]Aug-04 07:59:18 Project       - Project commons-math:  merging accumulated
+[cc]Aug-04 07:59:18 Project       - Project connectfour:  merging accumulated
 log files
-[cc]Aug-04 07:59:19 Project       - Project commons-math:  build successful
-[cc]Aug-04 07:59:19 Project       - Project commons-math:  publishing build
+[cc]Aug-04 07:59:19 Project       - Project connectfour:  build successful
+[cc]Aug-04 07:59:19 Project       - Project connectfour:  publishing build
 results
-[cc]Aug-04 07:59:19 Project       - Project commons-math:  idle
-[cc]Aug-04 07:59:19 Project       - Project commons-math:  next build in 5
+[cc]Aug-04 07:59:19 Project       - Project connectfour:  idle
+[cc]Aug-04 07:59:19 Project       - Project connectfour:  next build in 5
 minutes
-[cc]Aug-04 07:59:19 Project       - Project commons-math:  waiting for next
+[cc]Aug-04 07:59:19 Project       - Project connectfour:  waiting for next
 time to build
         </pre>
 
         <p>Navigate a web browser to
-        <a class="external" href="http://localhost:8080/cruisecontrol">
-        <code>http://localhost:8080/cruisecontrol</code></a>
+        <a class="external" href="http://localhost:8080">
+        <code>http://localhost:8080</code></a>
         to view the results in the reporting application.</p>
 
         <h2><a name="Command_Line_Options">Command Line Options</a></h2>
