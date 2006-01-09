@@ -81,7 +81,7 @@ public class XMLConfigManager implements ConfigManager {
     public void setConfigFile(File fileName) throws CruiseControlException {
         LOG.debug("Config file set to [" + fileName + "]");
         configFile = fileName;
-        LOG.info("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
+        LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
         hash = calculateMD5(configFile);
         loadConfig(configFile);
     }
@@ -91,11 +91,12 @@ public class XMLConfigManager implements ConfigManager {
     }
 
     public boolean reloadIfNecessary() throws CruiseControlException {
-        LOG.info("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
+        LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
         String newHash = calculateMD5(configFile);
         final boolean fileChanged = !newHash.equals(hash);
         if (fileChanged) {
             loadConfig(configFile);
+            hash = newHash;
         }
         return fileChanged;
     }
