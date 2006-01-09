@@ -48,11 +48,11 @@
 
         <ant inheritAll="false" dir="main" target="javadoc"/>
         <copy todir="target/website/main">
-            <fileset dir="main/docs"/>
+            <fileset dir="main/target/docs"/>
         </copy>
         <ant inheritAll="false" dir="reporting/jsp" target="javadoc"/>
         <copy todir="target/website/reporting/jsp">
-            <fileset dir="reporting/jsp/docs"/>
+            <fileset dir="reporting/jsp/target/docs"/>
         </copy>
 
         <replace dir="target/website" token="%%VERSION%%" value="${cc.release.label}">

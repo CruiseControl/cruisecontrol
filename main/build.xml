@@ -47,9 +47,9 @@
          Note: the release.xml overrides this property -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <property name="docs" value="${basedir}/docs"/>
-    <property name="apidocs" value="${docs}/api"/>
     <property name="target" value="${basedir}/target"/>
+    <property name="docs" value="${target}/docs"/>
+    <property name="apidocs" value="${docs}/api"/>
 
     <property name="classes" value="${target}/classes"/>
     <property name="dist" value="dist"/>
@@ -322,17 +322,21 @@
     </target>
 
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
-       <mkdir dir="${apidocs}"/>
-
-       <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*"
-           breakiterator="yes" failonerror="true">
-           <classpath>
-               <path refid="project.classpath" />
-               <pathelement location="${lib}/ant/ant.jar"/>
-               <pathelement location="${lib}/ant/ant-launcher.jar"/>
-               <pathelement location="${src}" />
-           </classpath>
-       </javadoc>
+        <mkdir dir="${docs}"/>
+        <copy todir="${docs}">
+            <fileset dir="docs"/>
+        </copy>
+        
+        <mkdir dir="${apidocs}"/>
+        <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*"
+            breakiterator="yes" failonerror="true">
+            <classpath>
+                <path refid="project.classpath"/>
+                <pathelement location="${lib}/ant/ant.jar"/>
+                <pathelement location="${lib}/ant/ant-launcher.jar"/>
+                <pathelement location="${src}"/>
+            </classpath>
+        </javadoc>
     </target>
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar"/>
