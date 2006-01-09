@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -166,7 +165,7 @@ public class Configuration {
 
     public void save() throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException,
             MBeanException, ReflectionException, IOException {
-        server.setAttribute(ccMgr, new Attribute("ConfigFileContents", URLDecoder.decode(configuration)));
+        server.setAttribute(ccMgr, new Attribute("ConfigFileContents", configuration));
     }
 
     public void setConfiguration(String configuration) {
