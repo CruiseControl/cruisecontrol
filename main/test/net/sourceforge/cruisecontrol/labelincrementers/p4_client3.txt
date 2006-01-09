@@ -1,0 +1,46 @@
+info: # A Perforce Client Specification.
+info: #
+info: #  Client:      The client name.
+info: #  Update:      The date this specification was last modified.
+info: #  Access:      The date this client was last used in any way.
+info: #  Owner:       The user who created this client.
+info: #  Host:        If set, restricts access to the named host.
+info: #  Description: A short description of the client (optional).
+info: #  Root:        The base directory of the client workspace.
+info: #  AltRoots:    Up to two alternate client workspace roots.
+info: #  Options:     Client options:
+info: #                      [no]allwrite [no]clobber [no]compress
+info: #                      [un]locked [no]modtime [no]rmdir
+info: #  LineEnd:     Text file line endings on client: local/unix/mac/win/share.
+info: #  View:        Lines to map depot files into the client workspace.
+info: #
+info: # Use 'p4 help client' to see more about client views and options.
+info:
+info: Client:   someones_client
+info:
+info: Update:   2006/01/06 16:47:38
+info:
+info: Access:   2006/01/06 16:47:38
+info:
+info: Owner:    user
+info:
+info: Host:     hostname
+info:
+info: Description:
+info:   Created by user.
+info:
+info: Root:     "c:\p4-test\my root"
+info:
+info: Options:  noallwrite noclobber nocompress unlocked nomodtime rmdir
+info:
+info: LineEnd:  local
+info:
+info: View:
+info:   //depot/proj/main/... //client/main/...
+info:   //depot/proj/main/qa/... "//client/my qa/..."
+info:   "//depot/proj/main/a b/..." "//client/a b/..."
+info:   -//depot/proj/main/core/... //client/main/core/...
+info:   //depot/proj/main/build/* //client/main/build/*
+info:   -//depot/proj/main/build/... //client/proj/main/build/...
+info:   //depot/proj/main/build/build.xml //client/build.xml
+exit: 0

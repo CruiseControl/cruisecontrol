@@ -107,6 +107,10 @@ NavigationTag:
 ----------------------
 * Remove support for log files timestamped without a second part
 
+P4ChangelistLabelIncrementer:
+----------------------
+* New label incrementer for use with a Perforce changelist (CC-379). Patch by Matt Albrecht
+
 Project:
 ----------------------
 * Remove methods to get/set config file from Project and corresponding jmx interface classes
