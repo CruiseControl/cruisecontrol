@@ -1,0 +1,5 @@
+info: Change 14 on 2002/05/01 by non@non:all 'removed junit assert from code '
+info: Change 12 on 2002/04/30 by non@non:all 'moved to SMPP hierarchy. '
+info: Change 11 on 2002/04/30 by non@non:all 'ok, tests running smooth. Check'
+info: Change 10 on 2002/04/28 by non@non:all 'adding new k4j stuff '
+exit: 0

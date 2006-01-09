@@ -6825,9 +6825,8 @@ endlocal</pre>
 
         <p>To override the label incrementer used in a given project all you
         need to do is register a different class as a <a href="#plugin">plugin</a>
-        with the name <code>labelincrementer</code>. CVSLabelIncrementer and
-        EmptyLabelIncrementer are two alternate plugins distributed with
-        CruiseControl.</p>
+        with the name <code>labelincrementer</code>. Alternate label incrementer plugins distributed with
+        CruiseControl include:</p>
 
         <h4>CVSLabelIncrementer</h4>
 
@@ -6845,6 +6844,121 @@ endlocal</pre>
         <pre>
 &lt;plugin&nbsp;name="labelincrementer"
         classname="net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer"/&gt;</pre>
+
+        <h4>P4ChangelistLabelIncrementer</h4>
+
+        <p>Creates a label from either a given Perforce changelist number,
+        or the most recently submitted changelist.  A changelist number can
+        be a good choice for labeling builds from Perforce, because a
+        changelist indicates a particular state of the depot at a moment of
+        time which will never change.  This class also has features
+        for cleaning up and synchronizing the local client.  This incrementer
+        will always run before the build executes.</p>
+        
+        <p>Even though the <a href="#p4bootstrapper">Perforce Bootstrapper</a>
+        handles synchronizing, this will execute before the <a href="#p4">p4
+        modification check</a> runs.  Putting the synchronization after
+        the modification check saves us a bit of time by only requesting
+        the server's files when needed.  This feature can be turned off
+        by setting the attribute <code>noSync</code> to <code>true</code>.</p>
+        
+        <p>By default, the class will use to the most currently submitted
+        changelist as the label.  If you wish to use a specific changelist
+        number (say, for rerunning an old build), you can set the
+        <code>changelist</code> attribute to the desired number.  Whichever
+        of these is chosen, the synchronize step (if enabled) will sync
+        to this changelist number.</p>
+        
+        <p>A good habit of build environments entails ensuring that the local
+        environment comes only from the source control system, meaning that
+        files haven't been modified without the source control system's
+        knowledge, and that other files haven't been added.  To support that,
+        this class can delete the directories under Perforce view by
+        setting the attribute <code>delete</code> to <code>true</code>.
+        This will force the local clients to be removed first (ala
+        <code>sync <em>view</em>#0</code>), and after deleting the files will
+        perform the above synchronize.</p>
+        
+        <p>Removing the local client files (sync #0) can be done without
+        deleting the files by setting the <code>clean</code> attribute
+        to <code>true</code>.</p>
+
+        <h5>Attributes</h5>
+
+        <pre>
+&lt;plugin&nbsp;name="labelincrementer"
+        classname="net.sourceforge.cruisecontrol.labelincrementers.P4ChangelistLabelIncrementer"/&gt;</pre>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>changelist</td>
+                <td>No</td>
+                <td>set the changelist number to sync to.  Not specifying this
+                value will sync to the most recently committed changelist.</td>
+            </tr>
+            <tr>
+                <td>port</td>
+                <td>Yes</td>
+                <td>Perforce Server connection to use (host:port)</td>
+            </tr>
+            <tr>
+                <td>client</td>
+                <td>Yes</td>
+                <td>Perforce Client name to use</td>
+            </tr>
+            <tr>
+                <td>user</td>
+                <td>Yes</td>
+                <td>Perforce User name to use</td>
+            </tr>
+            <tr>
+                <td>passwd</td>
+                <td>No</td>
+                <td>Perforce password to use</td>
+            </tr>
+            <tr>
+                <td>view</td>
+                <td>Yes</td>
+                <td>Valid Perforce view (i.e. a depot path)</td>
+            </tr>
+            <tr>
+                <td>separator</td>
+                <td>No (defaults to period <code>'.'</code>)</td>
+                <td>specifies the separator to use between label and build
+                count.</td>
+            </tr>
+            <tr>
+                <td>noSync</td>
+                <td>No (defaults to <code>false</code>)</td>
+                <td>enable to turn off synchronizing the depot to the
+                label (changelist) number.</td>
+            </tr>
+            <tr>
+                <td>clean</td>
+                <td>No (defaults to <code>false</code>)</td>
+                <td>syncs the view to revision 0, which removes the current
+                files from the local hard drive and also tells the server that
+                the client no longer has those files.  Enabling this will
+                also force the noSync to be false.</td>
+            </tr>
+            <tr>
+                <td>delete</td>
+                <td>No (defaults to <code>false</code>)</td>
+                <td>deletes any remaining files from the view that the clean
+                step missed.  Enabling this will also force the clean to occur,
+                and the noSync to be false.</td>
+            </tr>
+            </tbody>
+        </table>
+
         </div>
 
         <div class="elementdocumentation">
