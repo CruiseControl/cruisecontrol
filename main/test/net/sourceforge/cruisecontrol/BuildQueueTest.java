@@ -50,18 +50,27 @@ public class BuildQueueTest extends TestCase {
         TestListener listener = new TestListener();
         queue.addListener(listener);
         queue.requestBuild(new Project());
-        assertTrue(listener.wasCalled());
+        assertTrue(listener.wasQueued());
     }
 
     class TestListener implements BuildQueue.Listener {
-        private boolean called = false;
-        
-        boolean wasCalled() {
-            return called;
+        private boolean queued = false;
+        private boolean beforeQueued = false;
+
+        boolean wasQueued() {
+            return queued;
         }
-        
+
+        boolean wasBeforeQueued() {
+            return beforeQueued;
+        }
+
+        public void projectBeforeQueued() {
+            beforeQueued = true;
+        }
+
         public void projectQueued() {
-            called = true;
+            queued = true;
         }
     }
 }
