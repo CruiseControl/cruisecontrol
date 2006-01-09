@@ -58,7 +58,7 @@ import org.apache.log4j.Logger;
 public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);
 
-    private LinkedList queue = new LinkedList();
+    private final LinkedList queue = new LinkedList();
     private boolean waiting = false;
     private Thread buildQueueThread;
 
@@ -68,6 +68,9 @@ public class BuildQueue implements Runnable {
      * @param project
      */
     public void requestBuild(Project project) {
+        System.out.println("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
+
+        preNotifyListeners();
         synchronized (queue) {
             queue.add(project);
             queue.notify();
@@ -156,6 +159,14 @@ public class BuildQueue implements Runnable {
         listeners.add(listener);
     }
 
+    private void preNotifyListeners() {
+        Iterator toNotify = listeners.iterator();
+        while (toNotify.hasNext()) {
+            ((Listener) toNotify.next()).projectBeforeQueued();
+        }
+
+    }
+
     private void notifyListeners() {
         Iterator toNotify = listeners.iterator();
         while (toNotify.hasNext()) {
@@ -164,6 +175,7 @@ public class BuildQueue implements Runnable {
     }
 
     public static interface Listener extends EventListener {
+        void projectBeforeQueued();
         void projectQueued();
     }
 }

@@ -90,7 +90,7 @@ public class CruiseControlControllerTest extends TestCase {
             assertEquals("No config file", expected.getMessage());
         }
     }
-    
+
     public void testSetFileFailsIfFileDoesntExist() {
         try {
             ccController.setConfigFile(configFile);
@@ -128,8 +128,8 @@ public class CruiseControlControllerTest extends TestCase {
 
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
-        writeProjectDetails(configOut, "testProject1");
-        writeProjectDetails(configOut, "testProject2");
+        writeProjectDetails(configOut, "testProject1", 30);
+        writeProjectDetails(configOut, "testProject2", 30);
         writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
@@ -142,8 +142,8 @@ public class CruiseControlControllerTest extends TestCase {
 
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
-        writeProjectDetails(configOut, "testProject1");
-        writeProjectDetails(configOut, "testProject1");
+        writeProjectDetails(configOut, "testProject1", 30);
+        writeProjectDetails(configOut, "testProject1", 30);
         writeFooterAndClose(configOut);
 
         try {
@@ -203,8 +203,8 @@ public class CruiseControlControllerTest extends TestCase {
         ccController.addListener(listener);
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
-        writeProjectDetails(configOut, "testProject1");
-        writeProjectDetails(configOut, "testProject2");
+        writeProjectDetails(configOut, "testProject1", 30);
+        writeProjectDetails(configOut, "testProject2", 30);
         writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
@@ -217,7 +217,8 @@ public class CruiseControlControllerTest extends TestCase {
         listener.clear();
 
         // no change - no reload
-        ccController.parseConfigFileIfNecessary();
+        assertFalse(ccController.parseConfigFileIfNecessary());
+
         // nothing happened
         assertEquals(0, listener.added.size());
         assertEquals(0, listener.removed.size());
@@ -229,12 +230,12 @@ public class CruiseControlControllerTest extends TestCase {
         sleep(1200);
         configOut = new FileWriter(configFile);
         writeHeader(configOut);
-        writeProjectDetails(configOut, "testProject1");
-        writeProjectDetails(configOut, "testProject2");
-        writeProjectDetails(configOut, "testProject3");
+        writeProjectDetails(configOut, "testProject1", 30);
+        writeProjectDetails(configOut, "testProject2", 30);
+        writeProjectDetails(configOut, "testProject3", 30);
         writeFooterAndClose(configOut);
 
-        ccController.parseConfigFileIfNecessary();
+        assertTrue(ccController.parseConfigFileIfNecessary());
 
         assertEquals(3, ccController.getProjects().size());
         assertEquals(1, listener.added.size());
@@ -247,10 +248,11 @@ public class CruiseControlControllerTest extends TestCase {
         sleep(1200);
         configOut = new FileWriter(configFile);
         writeHeader(configOut);
-        writeProjectDetails(configOut, "testProject3");
+        writeProjectDetails(configOut, "testProject3", 30);
         writeFooterAndClose(configOut);
 
-        ccController.reloadConfigFile();
+//        ccController.reloadConfigFile();
+        assertTrue(ccController.parseConfigFileIfNecessary());
 
         assertEquals(1, ccController.getProjects().size());
         assertEquals(0, listener.added.size());
@@ -265,8 +267,8 @@ public class CruiseControlControllerTest extends TestCase {
         ccController.addListener(listener);
 
         FileWriter configOut2 = new FileWriter(configFile2);
-        writeProjectDetails(configOut2, "testProject1");
-        writeProjectDetails(configOut2, "testProject2");
+        writeProjectDetails(configOut2, "testProject1", 30);
+        writeProjectDetails(configOut2, "testProject2", 30);
         configOut2.close();
 
         FileWriter wrapperConfigOut = new FileWriter(configFile);
@@ -288,7 +290,8 @@ public class CruiseControlControllerTest extends TestCase {
         listener.clear();
 
         // no change - no reload
-        ccController.parseConfigFileIfNecessary();
+        assertFalse(ccController.parseConfigFileIfNecessary());
+
         // nothing happened
         assertEquals(0, listener.added.size());
         assertEquals(0, listener.removed.size());
@@ -299,12 +302,12 @@ public class CruiseControlControllerTest extends TestCase {
 
         sleep(1200);
         configOut2 = new FileWriter(configFile2);
-        writeProjectDetails(configOut2, "testProject1");
-        writeProjectDetails(configOut2, "testProject2");
-        writeProjectDetails(configOut2, "testProject3");
+        writeProjectDetails(configOut2, "testProject1", 30);
+        writeProjectDetails(configOut2, "testProject2", 30);
+        writeProjectDetails(configOut2, "testProject3", 30);
         configOut2.close();
 
-        ccController.parseConfigFileIfNecessary();
+        assertTrue(ccController.parseConfigFileIfNecessary());
 
         assertEquals(3, ccController.getProjects().size());
         assertEquals(1, listener.added.size());
@@ -316,14 +319,37 @@ public class CruiseControlControllerTest extends TestCase {
 
         sleep(1200);
         configOut2 = new FileWriter(configFile2);
-        writeProjectDetails(configOut2, "testProject3");
+        writeProjectDetails(configOut2, "testProject3", 30);
         configOut2.close();
 
-        ccController.reloadConfigFile();
+//        ccController.reloadConfigFile();
+        assertTrue(ccController.parseConfigFileIfNecessary());
 
         assertEquals(1, ccController.getProjects().size());
         assertEquals(0, listener.added.size());
         assertEquals(2, listener.removed.size());
+    }
+
+    public void testShouldReloadConfigurationWhenPluginAttributesChange() throws Exception {
+        ccController = new CruiseControlController();
+
+        FileWriter configOut = new FileWriter(configFile);
+        writeHeader(configOut);
+        writeProjectDetails(configOut, "testProject1", 30);
+        writeFooterAndClose(configOut);
+
+        ccController.setConfigFile(configFile);
+
+        // no change - no reload
+        assertFalse(ccController.parseConfigFileIfNecessary());
+
+        sleep(1200);
+        configOut = new FileWriter(configFile);
+        writeHeader(configOut);
+        writeProjectDetails(configOut, "testProject1", 60);
+        writeFooterAndClose(configOut);
+
+        assertTrue(ccController.parseConfigFileIfNecessary());
     }
 
     public void testReadProject() {
@@ -371,7 +397,7 @@ public class CruiseControlControllerTest extends TestCase {
                     ccex.getMessage());
         }
     }
-    
+
     private void writeHeader(FileWriter configOut) throws IOException {
         configOut.write("<?xml version=\"1.0\" ?>\n");
         configOut.write("<cruisecontrol>\n");
@@ -390,10 +416,10 @@ public class CruiseControlControllerTest extends TestCase {
         }
     }
 
-    private void writeProjectDetails(FileWriter configOut, final String projectName) throws IOException {
+    private void writeProjectDetails(FileWriter configOut, final String projectName, int interval) throws IOException {
         configOut.write("<project name='" + projectName + "'>\n");
         configOut.write("  <modificationset><alwaysbuild/></modificationset>\n");
-        configOut.write("  <schedule><ant/></schedule>\n");
+        configOut.write("  <schedule interval=\"" + interval + "\"><ant/></schedule>\n");
         configOut.write("</project>\n");
     }
 

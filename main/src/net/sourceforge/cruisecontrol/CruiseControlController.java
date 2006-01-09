@@ -120,7 +120,7 @@ public class CruiseControlController {
         project.setBuildQueue(buildQueue);
         project.start();
     }
-    
+
     private void removeProject(Project project) {
         projects.remove(project);
         for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
@@ -217,8 +217,8 @@ public class CruiseControlController {
                 Project temp = new Project();
                 temp.setName(projectName);
                 if (!projects.contains(temp)) {
-                    LOG.warn("No previously serialized project found [" 
-                            + serializedProjectFile.getAbsolutePath() 
+                    LOG.warn("No previously serialized project found ["
+                            + serializedProjectFile.getAbsolutePath()
                             + ".ser], forcing a build.");
                 }
                 Project newProject = new Project();
@@ -246,34 +246,46 @@ public class CruiseControlController {
         LOG.debug("reload config file called");
         parseConfigFileIfNecessary();
     }
-    
-    public void parseConfigFileIfNecessary() {
+
+    public boolean parseConfigFileIfNecessary() {
         boolean reloaded;
         try {
             reloaded = configManager.reloadIfNecessary();
         } catch (CruiseControlException e) {
             LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
-            return;
+            return false;
         }
 
         if (reloaded) {
             LOG.debug("config file changed");
             try {
                 List projectsFromFile = parseConfigFile();
+
                 List removedProjects = new ArrayList(projects);
                 removedProjects.removeAll(projectsFromFile);
-                projectsFromFile.removeAll(projects);
 
+                List newProjects = new ArrayList(projectsFromFile);
+                newProjects.removeAll(projects);
+
+                List retainedProjects = new ArrayList(projectsFromFile);
+                retainedProjects.removeAll(newProjects);
+
+                //Handled removed projects
                 Iterator removed = removedProjects.iterator();
                 while (removed.hasNext()) {
-                    Project project = (Project) removed.next();
-                    removeProject(project);
+                    removeProject((Project) removed.next());
                 }
 
-                Iterator added = projectsFromFile.iterator();
+                //Handle added projects
+                Iterator added = newProjects.iterator();
                 while (added.hasNext()) {
-                    Project project = (Project) added.next();
-                    addProject(project);
+                    addProject((Project) added.next());
+                }
+
+                //Handle retained projects
+                Iterator retained = retainedProjects.iterator();
+                while (retained.hasNext()) {
+                    updateProject((Project) retained.next());
                 }
 
             } catch (CruiseControlException e) {
@@ -282,6 +294,14 @@ public class CruiseControlController {
         } else {
             LOG.debug("config file didn't change.");
         }
+
+        return reloaded;
+    }
+
+    private void updateProject(Project project) throws CruiseControlException {
+        Project matchingProject = (Project) projects.get(projects.indexOf(project));
+        matchingProject.setProjectConfig(getConfigManager().getConfig(matchingProject.getName()));
+        matchingProject.init();
     }
 
     public static interface Listener extends EventListener {
@@ -290,8 +310,11 @@ public class CruiseControlController {
     }
 
     private class BuildQueueListener implements BuildQueue.Listener {
-        public void projectQueued() {
+        public void projectBeforeQueued() {
             parseConfigFileIfNecessary();
+        }
+
+        public void projectQueued() {            
         }
     }
 
@@ -314,7 +337,7 @@ public class CruiseControlController {
             return new PluginDetail[0];
         }
     }
-    
+
     public PluginType[] getAvailablePluginTypes() {
         return getPluginRegistry().getPluginTypes();
     }
