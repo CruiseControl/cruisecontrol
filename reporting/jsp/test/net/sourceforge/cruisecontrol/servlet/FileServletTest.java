@@ -424,7 +424,7 @@ public class FileServletTest extends TestCase {
         public String encodeRedirectURL(String arg0) {
           return arg0;
         }
-    };
+    }
 
     static class MyMockFileServlet extends FileServlet {
         private File rootDir;

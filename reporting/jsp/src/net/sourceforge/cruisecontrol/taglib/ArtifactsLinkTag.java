@@ -57,8 +57,6 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
     static final String URL_ATTRIBUTE = "artifacts_url";
     static final String ARTIFACTS_SERVLET_CONTEXT = "artifacts";
 
-    private static final String NO_LOG_PARAM = "";
-
     public void doInitBody() throws JspException {
         String url = getArtifactURL();
         info("artifactURL is " + url);
