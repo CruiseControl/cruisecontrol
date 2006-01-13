@@ -55,8 +55,6 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     public static final String LOG_FILE_ATTR = "logfile";
     public static final String BUILD_INFO_ATTR = "buildinfo";
 
-    private static final SimpleDateFormat LOG_TIME_FORMAT_SECONDS = new SimpleDateFormat("yyyyMMddHHmmss");
-
     private BuildInfo[] buildInfo; // the log files in the log directory.
     private int count;  // How many times around the loop have we gone.
 
@@ -144,9 +142,9 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
      * The default is based on the client's locale with a 24 hour time. For a
      * client with a US locale that would be MM/dd/yyyy HH:mm:ss.
      *
-     * @param dateFormatString the date format to use. Any format appropriate for the SimpleDataFormat is
-     *                         okay to use.
-     * @see java.text.SimpleDataFormat
+     * @param dateFormatString The date format to use. Any format appropriate for the 
+     *                         {@link SimpleDateFormat} is okay to use.
+     * @see SimpleDateFormat
      */
     public void setDateFormat(String dateFormatString) {
         dateFormat = new SimpleDateFormat(dateFormatString);

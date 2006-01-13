@@ -105,7 +105,7 @@ public class LogFileTest extends TestCase {
         writeFile(log1, "");
 
         assertTrue("LogFile class must be serializable for Metrics Tab (charting) to work",
-                (new LogFile(log1)) instanceof Serializable);
+                Serializable.class.isAssignableFrom(LogFile.class));
     }
 
     private void writeFile(File file, String body) throws Exception {

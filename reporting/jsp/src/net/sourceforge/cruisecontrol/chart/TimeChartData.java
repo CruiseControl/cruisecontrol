@@ -89,7 +89,7 @@ public class TimeChartData extends AbstractCruiseControlChartData implements Cha
 
     /**
      * @param buildTime
-     * @return
+     * @return Only the time part of the Date
      */
     private double extractTimeOfDay(Date buildTime) {
         Calendar buildCalendar = Calendar.getInstance();
