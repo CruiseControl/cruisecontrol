@@ -77,7 +77,7 @@ public class XmlLoggerWithStatus extends XmlLogger {
         if (out != null) {
             String name = event.getTarget().getName();
             StringBuffer content = new StringBuffer();
-            content.append(System.getProperties("line.separator"));
+            content.append(System.getProperty("line.separator"));
             content.append(FORMATTER.format(new Date()));
             content.append(" [");
             content.append(name);
