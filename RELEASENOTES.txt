@@ -156,6 +156,10 @@ VSSJournal:
 reporting jsp app
 ======================
 
+build.xml:
+----------------------
+* Specify jdk 1.3 source and target. Patch by Brad Clarke
+
 Configuration Editor:
 ----------------------
 * Created a browser based configuration editor, included in the reporting application.
