@@ -92,7 +92,8 @@
         </replace>
 
         <property name="cc.zip.prefix" value="cruisecontrol-${cc.release.label}"/>
-        <zip zipfile="target/cruisecontrol-src-${cc.release.label}.zip">
+        <zip zipfile="target/cruisecontrol-src-${cc.release.label}.zip"
+                duplicate="fail">
             <zipfileset dir="target/zip" prefix="${cc.zip.prefix}"/>
             <zipfileset dir="." prefix="${cc.zip.prefix}">
                 <exclude name="**/*.html"/>
@@ -120,7 +121,8 @@
         </replace>
 
         <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
-        <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip">
+        <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip"
+                duplicate="fail">
             <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
                 <exclude name="README.txt"/>
                 <exclude name="JETTY-WORKDIR-README.txt"/>
