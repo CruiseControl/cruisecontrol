@@ -41,6 +41,7 @@
                  java.util.Calendar,
                 java.net.InetAddress,
                 java.io.IOException"%>
+<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <jsp:useBean id="statusHelper" scope="page" class="net.sourceforge.cruisecontrol.StatusHelper" />
 <%
     String singleProjectMode = application.getInitParameter("singleProject");
@@ -155,6 +156,9 @@
   </tr>
   <tr><td colspan="2"><table class="index" width="100%">
 <%
+   String statusFile = application.getInitParameter("currentBuildStatusFile");
+   String singleProject = application.getInitParameter("singleProject");
+   
    String logDirPath = application.getInitParameter("logDir");
    if (logDirPath == null) {
        %><tr><td>You need to provide a value for the context parameter <code>&quot;logDir&quot;</code></td></tr><%
@@ -176,6 +180,7 @@
 %>  <thead class="index-header">
       <tr>
         <td>Project</td>
+        <td align="center">Current status</td>
         <td align="center">Last build result</td>
         <td align="center">Last build time</td>
         <td align="center">Last successful build time</td>
@@ -194,11 +199,12 @@
                    String project = projectDirs[i];
                    File projectDir = new File(logDir, project);
                    statusHelper.setProjectDirectory(projectDir);
-                 final String result = statusHelper.getLastBuildResult();
+                   final String result = statusHelper.getLastBuildResult();
                    if ("passed".equalsIgnoreCase(result)) { passed++; }
                    if ("failed".equalsIgnoreCase(result)) { failed++; }
          %>    <tr>
                    <td><a href="buildresults/<%=project%>"><%=project%></a></td>
+                   <td align="center"><%=statusHelper.getCurrentStatus(singleProject, logDirPath, project, statusFile)%></td>
                    <td class="index-<%=result%>" align="center"><%=result%></td>
                    <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
                    <td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td>

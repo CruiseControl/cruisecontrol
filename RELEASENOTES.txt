@@ -186,6 +186,10 @@ FileServlet:
 ----------------------
 * Fix a bug with Last-Modified date format. Patch by Torsten Buerger
 
+index.jsp:
+----------------------
+* Show status of projects (idle, publishing, etc.) on index page (CC-275). Patch by Jeff Jensen.
+
 LogFile:
 ----------------------
 * Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn
