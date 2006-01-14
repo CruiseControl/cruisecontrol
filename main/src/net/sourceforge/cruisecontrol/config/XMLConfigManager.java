@@ -72,7 +72,7 @@ public class XMLConfigManager implements ConfigManager {
     }
 
     private void loadConfig(File file) throws CruiseControlException {
-        LOG.info("reading settings from config file [" + hash + "]");
+        LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
         Element element = Util.loadConfigFile(file);
         config = new CruiseControlConfig();
         config.configure(element);
