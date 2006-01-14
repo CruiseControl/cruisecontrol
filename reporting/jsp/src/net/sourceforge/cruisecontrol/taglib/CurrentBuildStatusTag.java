@@ -37,28 +37,46 @@
 
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.File;
 import java.io.Writer;
 import javax.servlet.jsp.JspException;
 
+import net.sourceforge.cruisecontrol.BuildStatus;
 import net.sourceforge.cruisecontrol.util.CCTagException;
 
+/**
+ * JSP tag to display the current build status.
+ * 
+ * @author Unknown
+ * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
+ */
 public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
     private boolean insertBreaks = true;
 
     public int doEndTag() throws JspException {
-        File logDir = findLogDir();
-
+        boolean isSingleProject = isSingleProject();
+        String logDir = getBaseLogDir();
+        String projectName = getProject();
         String currentBuildFileName = getFileName();
-        if (currentBuildFileName != null) {
-            File currentBuildFile = getFile(logDir, currentBuildFileName);
-            if (currentBuildFile != null) {
-                writeStatus(currentBuildFile, getPageContext().getOut());
-            }
+
+        String status = null;
+
+        if (insertBreaks) {
+            status = BuildStatus.getStatusHtml(isSingleProject, logDir, projectName, currentBuildFileName,
+                BuildStatus.READ_ALL_LINES);
+        } else {
+            status = BuildStatus.getStatusPlain(isSingleProject, logDir, projectName, currentBuildFileName,
+                BuildStatus.READ_ALL_LINES);
+        }
+
+        Writer out = getPageContext().getOut();
+
+        try {
+            out.write(status);
+        } catch (IOException e) {
+            err(e);
+            throw new CCTagException("Error writing status to JSP out: " + e.getMessage(), e);
         }
 
         return EVAL_PAGE;
@@ -66,57 +84,6 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
 
     public void setInsertBreaks(boolean insertBreaks) {
         this.insertBreaks = insertBreaks;
-    }
-
-    private void writeStatus(File currentBuildFile, Writer out) throws JspException {
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(currentBuildFile));
-            String line = br.readLine();
-            while (line != null) {
-                out.write(line);
-                out.write('\n');
-                if (this.insertBreaks) {
-                   out.write("<br/>");
-                }
-                line = br.readLine();
-            }
-        } catch (IOException e) {
-            err(e);
-            throw new CCTagException(
-                "Error reading status file: " + currentBuildFile.getName() + " : " + e.getMessage(), e);
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException e) {
-                err(e);
-            }
-            br = null;
-        }
-    }
-
-    private File getFile(File logDir, String currentBuildFileName) {
-        File currentBuildFile = new File(logDir, currentBuildFileName);
-        if (currentBuildFile.isDirectory()) {
-            err(
-                "CruiseControl: currentBuildStatusFile "
-                    + currentBuildFile.getAbsolutePath()
-                    + " is a directory." 
-                    + " Edit the web.xml to provide the path to the correct file.");
-            return null;
-        }
-        if (!currentBuildFile.exists()) {
-            err(
-                "CruiseControl: currentBuildStatusFile "
-                    + currentBuildFile.getAbsolutePath()
-                    + " does not exist."
-                    + " You may need to update the value in the web.xml"
-                    + " or the location specified in your CruiseControl config.xml.");
-            return null;
-        }
-        return currentBuildFile;
     }
 
     private String getFileName() {

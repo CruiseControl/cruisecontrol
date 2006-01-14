@@ -47,11 +47,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * User: jfredrick
- * Date: Jan 31, 2004
- * Time: 5:18:43 PM
+ * User: jfredrick Date: Jan 31, 2004 Time: 5:18:43 PM
+ * 
+ * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
  */
 public class StatusHelperTest extends TestCase {
+    private static final String TEST_STATUS_TEXT = "the test status";
+
+    private static final String TEST_STATUS_TIME = "12/17/2005 20:11:25";
+
+    private static final String TEST_STATUS_PLAIN = TEST_STATUS_TEXT + "\n" + TEST_STATUS_TIME + "\n";
+
+    private static final String TEST_STATUS_HTML = TEST_STATUS_TEXT + "\n<br/>" + TEST_STATUS_TIME + "\n<br/>";
+
+    private static final String LOG_CONTENTS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        + "<cruisecontrol></cruisecontrol>";
+
+    private static final String TEST_PROJECT_NAME = "testProject";
+
+    private static final String TEST_STATUS_FILENAME = "buildStatus.txt";
+
     private StatusHelper helper;
     private File logDir;
 
@@ -60,14 +75,30 @@ public class StatusHelperTest extends TestCase {
     protected void setUp() throws Exception {
         helper = new StatusHelper();
 
+        // make base log dir
         logDir = new File("testresults/");
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
             files.addFile(logDir);
         }
 
+        // make multi project log dir
+        File projectLogDir = new File(logDir, TEST_PROJECT_NAME + "/");
+        if (!projectLogDir.exists()) {
+            assertTrue("Failed to create project log dir", projectLogDir.mkdir());
+            files.addFile(logDir);
+        }
+
         File file = new File(logDir, "log20040102030405.xml");
-        prepareFile(file);
+        prepareFile(file, LOG_CONTENTS);
+
+        // for single project
+        file = new File(logDir, TEST_STATUS_FILENAME);
+        prepareFile(file, TEST_STATUS_PLAIN);
+
+        // for multi project
+        file = new File(projectLogDir, TEST_STATUS_FILENAME);
+        prepareFile(file, TEST_STATUS_PLAIN);
     }
 
     protected void tearDown() throws Exception {
@@ -82,7 +113,7 @@ public class StatusHelperTest extends TestCase {
         assertEquals("failed", helper.getLastBuildResult());
 
         File file = new File(logDir, "log20040203040506Lbuild.2.xml");
-        prepareFile(file);
+        prepareFile(file, LOG_CONTENTS);
         helper.setProjectDirectory(logDir);
         assertEquals("passed", helper.getLastBuildResult());
     }
@@ -94,7 +125,7 @@ public class StatusHelperTest extends TestCase {
         assertEquals("01/02/2004 03:04:05", helper.getLastBuildTimeString(Locale.US));
 
         File file = new File(logDir, "log20040203040506Lbuild.2.xml");
-        prepareFile(file);
+        prepareFile(file, LOG_CONTENTS);
         helper.setProjectDirectory(logDir);
         assertEquals("02/03/2004 04:05:06", helper.getLastBuildTimeString(Locale.US));
     }
@@ -106,7 +137,7 @@ public class StatusHelperTest extends TestCase {
         assertNull(helper.getLastSuccessfulBuildLabel());
 
         File file = new File(logDir, "log20040203040506Lbuild.2.xml");
-        prepareFile(file);
+        prepareFile(file, LOG_CONTENTS);
         helper.setProjectDirectory(logDir);
         assertEquals("build.2", helper.getLastSuccessfulBuildLabel());
     }
@@ -118,13 +149,24 @@ public class StatusHelperTest extends TestCase {
         assertNull(helper.getLastSuccessfulBuildTimeString(Locale.US));
 
         File file = new File(logDir, "log20040203040506Lbuild.2.xml");
-        prepareFile(file);
+        prepareFile(file, LOG_CONTENTS);
         helper.setProjectDirectory(logDir);
         assertEquals("02/03/2004 04:05:06", helper.getLastSuccessfulBuildTimeString(Locale.US));
     }
 
-    private void prepareFile(File file) throws IOException {
-        String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruisecontrol></cruisecontrol>";
+    public void testGetCurrentStatus() {
+        String logDirPath = logDir.getAbsolutePath();
+
+        String actual = helper.getCurrentStatus("true", logDirPath, TEST_PROJECT_NAME, TEST_STATUS_FILENAME);
+
+        assertEquals("testing single project: ", TEST_STATUS_HTML, actual);
+
+        actual = helper.getCurrentStatus("false", logDirPath, TEST_PROJECT_NAME, TEST_STATUS_FILENAME);
+
+        assertEquals("testing multi project: ", TEST_STATUS_HTML, actual);
+    }
+
+    private void prepareFile(File file, String body) throws IOException {
         FileWriter writer = new FileWriter(file);
         writer.write(body);
         writer.close();

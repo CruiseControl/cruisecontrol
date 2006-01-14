@@ -57,6 +57,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * A helper class to consolidate tags that deal with log files.
  * @author <a href="mailto:robertdw@sourceforge.net">Robert Watkins</a>
+ * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
  */
 public class CruiseControlTagSupport extends TagSupport {
     protected static final String LOG_PARAMETER = "log";
@@ -166,6 +167,18 @@ public class CruiseControlTagSupport extends TagSupport {
             return "";
         }
         return pathInfo;
+    }
+
+    /**
+     * Determine if this is a single project config or not.
+     * 
+     * @return true if this is a single project config.
+     */
+    protected boolean isSingleProject() {
+        String singleProjectMode = getContextParam("singleProject");
+        boolean isSingleProject = Boolean.getBoolean(singleProjectMode);
+
+        return isSingleProject;
     }
 
     public void setPageContext(PageContext pageContext) {

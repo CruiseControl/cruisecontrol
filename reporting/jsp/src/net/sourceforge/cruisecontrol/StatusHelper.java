@@ -44,10 +44,10 @@ import java.util.Locale;
 import net.sourceforge.cruisecontrol.util.DateHelper;
 
 /**
- * @author Jared Richardson
- * User: jfredrick
- * Adapted from StatusPage.java, submitted by Jared to the cruisecontrol-devel mailing list.
- * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
+ * @author Jared Richardson User: jfredrick Adapted from StatusPage.java,
+ *         submitted by Jared to the cruisecontrol-devel mailing list.
+ * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn </a>
+ * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
  */
 public class StatusHelper {
     private BuildInfo newestBuild;
@@ -112,6 +112,24 @@ public class StatusHelper {
     private String getBuildTimeString(BuildInfo logInfo, Locale locale) {
         Date date = logInfo.getBuildDate();
         return DateHelper.createDateFormat(locale).format(date);
-    }    
+    }
 
+    public String getCurrentStatus(String singleProject, String logDirPath, String projectName, String statusFile) {
+        boolean isSingleProject = Boolean.getBoolean(singleProject);
+
+        return getCurrentStatus(isSingleProject, logDirPath, projectName, statusFile);
+    }
+
+    public String getCurrentStatus(boolean isSingleProject, String logDirPath, String projectName, String statusFile) {
+        String status = null;
+
+        try {
+            status = BuildStatus.getStatusHtml(isSingleProject, logDirPath, projectName, statusFile,
+                BuildStatus.READ_ONLY_STATUS_LINES);
+        } catch (CruiseControlWebAppException e) {
+            status = "(build status file not found)";
+        }
+
+        return status;
+    }
 }
