@@ -186,6 +186,10 @@ FileServlet:
 ----------------------
 * Fix a bug with Last-Modified date format. Patch by Torsten Buerger
 
+fittests.xsl:
+----------------------
+* show fitnesse tests on the build results page. Submitted by John Woodward
+
 index.jsp:
 ----------------------
 * Show status of projects (idle, publishing, etc.) on index page (CC-275). Patch by Jeff Jensen.

@@ -46,6 +46,7 @@
   <xsl:import href="compile.xsl"/>
   <xsl:import href="javadoc.xsl"/>
   <xsl:import href="unittests.xsl"/>
+  <xsl:import href="fittests.xsl"/>
   <xsl:import href="modifications.xsl"/>
   <xsl:import href="distributables.xsl"/>
 
@@ -67,6 +68,7 @@
     -->
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="javadoc"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="unittests"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="fittests"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="modifications"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="distributables"/></p>
   </xsl:template>
