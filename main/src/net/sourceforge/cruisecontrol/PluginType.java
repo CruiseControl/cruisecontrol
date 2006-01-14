@@ -61,6 +61,7 @@ public final class PluginType implements Serializable {
     public static final PluginType LOG = new PluginType("log", "project");
     public static final PluginType MAP = new PluginType("map", "email");
     public static final PluginType MERGE_LOGGER = new PluginType("logger", "log");
+    public static final PluginType MANIPULATORS = new PluginType("manipulators", "log");
     public static final PluginType MODIFICATION_SET = new PluginType("modificationset", "project");
     public static final PluginType PROJECT = new PluginType("project", "cruisecontrol");
     public static final PluginType PROPERTIES_MAPPER = new PluginType("propertiesmapper", "email");
@@ -81,6 +82,7 @@ public final class PluginType implements Serializable {
             put(Log.class, LOG);
             put(EmailMapping.class, MAP);
             put(MergeLogger.class, MERGE_LOGGER);
+            put(Manipulator.class, MANIPULATORS);
             put(ModificationSet.class, MODIFICATION_SET);
             put(ProjectConfig.class, PROJECT);
             put(PropertiesMapper.class, PROPERTIES_MAPPER);

@@ -56,6 +56,7 @@ import java.util.List;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
+
 /**
  * Handles the Log element, and subelements, of the CruiseControl configuration
  * file. Also represents the Build Log used by the CruiseControl build process.
@@ -64,14 +65,15 @@ public class Log {
     private static final org.apache.log4j.Logger LOG4J =
             org.apache.log4j.Logger.getLogger(Log.class);
 
-    private static final int BEFORE_LENGTH = "logYYYYMMDDhhmmssL".length();
+    public static final int BEFORE_LENGTH = "logYYYYMMDDhhmmssL".length();
     private static final int AFTER_LENGTH  = ".xml".length();
-    
+   
     private transient String logDir;
     private transient String logXmlEncoding;
     private transient File lastLogFile;
     private transient Element buildLog;
     private transient List loggers = new ArrayList();
+    private transient List manipulators = new ArrayList();
     private transient String projectName;
 
     /**
@@ -113,6 +115,11 @@ public class Log {
             BuildLogger logger = (BuildLogger) i.next();
             logger.validate();
         }
+        
+        for (Iterator i = manipulators.iterator(); i.hasNext();) {
+            Manipulator manipulator = (Manipulator) i.next();
+            manipulator.validate();
+        }
     }
 
     /**
@@ -123,6 +130,14 @@ public class Log {
         loggers.add(logger);
     }
 
+    /**
+     * Adds a Manipulator that will handle old log-files
+     * @return
+     */
+    public void add(Manipulator manipulator) {
+        manipulators.add(manipulator);
+    }
+    
     public BuildLogger[] getLoggers() {
         return (BuildLogger[]) loggers.toArray(new BuildLogger[loggers.size()]);
     }
@@ -257,6 +272,18 @@ public class Log {
                 }
             }
         }
+        
+        callManipulators();
+    }
+
+    /**
+     * Calls all Manipulators to already existing logfiles.
+     */
+    protected void callManipulators() {
+        for (Iterator i = manipulators.iterator(); i.hasNext();) {
+            Manipulator manipulator = (Manipulator) i.next();
+            manipulator.execute(getLogDir());
+        }
     }
 
     public static String formatLogFileName(Date date) {
@@ -317,5 +344,6 @@ public class Log {
         }
         return filename.substring(BEFORE_LENGTH, filename.length() - AFTER_LENGTH);
     }
+
 }
 

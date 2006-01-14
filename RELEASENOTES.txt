@@ -74,7 +74,6 @@ CVS.java:
 ----------------------
 * Deprecated CVS.java in favor of ConcurrentVersionsSystem.java to overcome issues with directory/filename conflicts, specifically with Eclipse IDE (CC-164). Note: CVS.java and other deprecated methods/classes are scheduled for deletion in the 3.0 release.
 
-
 general:
 ----------------------
 * Minor changes to make code jdk 1.3 compliant.
@@ -94,6 +93,11 @@ JabberPublisher:
 JMX interface:
 ----------------------
 * When setting the configuration contents via JMX, the contents are validated (CC-333). Patch by Allan Wick.
+
+(Log)Manipulator:
+----------------------
+* Added a new class of plug-ins that can be nested within the log element to handle tasks in the log directory. Initial implementations are the DeleteManipulator (delete old logs) and the GZIPManipulator (gzip old logs). Contributed by Michael Kloss.
+
 
 MergeLogger:
 ----------------------

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
@@ -46,6 +47,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
+import net.sourceforge.cruisecontrol.logmanipulators.GZIPManipulator;
+
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -165,6 +169,118 @@ public class LogTest extends TestCase {
             String actual = outputter.outputString(actualContent);
             assertEquals(expected, actual);
         }
+    }
+
+    public void testManipulateLog() throws Exception {
+        String testProjectName = "testBackupLog";
+        String testLogDir = "target";
+
+        // Test backup of 12 Months
+        Calendar date = Calendar.getInstance();
+        date.set(Calendar.YEAR, date.get(Calendar.YEAR) - 1);
+        date.set(Calendar.MONTH, date.get(Calendar.MONTH) - 13);
+        GZIPManipulator gzip = new GZIPManipulator();
+        gzip.setEvery(12);
+        gzip.setUnit("month");
+        Log log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log = getWrittenTestLog(testProjectName, testLogDir, new Date());
+        log.add(gzip);
+        log.validate();
+        assertBackupsHelper(log, 2, 1, 1);
+
+        // Test Backup of 2 days
+        date = Calendar.getInstance();
+        date.set(Calendar.DAY_OF_MONTH, date.get(Calendar.DAY_OF_MONTH) - 2);
+        gzip = new GZIPManipulator();
+        gzip.setEvery(2);
+        gzip.setUnit("day");
+        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log.add(gzip);
+        log.validate();
+        assertBackupsHelper(log, 3, 1, 2);
+        
+        // Test delete of logfile
+        date = Calendar.getInstance();
+        date.set(Calendar.DAY_OF_MONTH, date.get(Calendar.DAY_OF_MONTH) - 2);
+        DeleteManipulator deleteManipulator = new DeleteManipulator();
+        deleteManipulator.setEvery(2);
+        deleteManipulator.setUnit("day");
+        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log.add(deleteManipulator);
+        log.validate();
+        assertBackupsHelper(log, 3, 1, 2);
+
+        date = Calendar.getInstance();
+        date.set(Calendar.DAY_OF_MONTH, date.get(Calendar.DAY_OF_MONTH) - 2);
+        deleteManipulator = new DeleteManipulator();
+        deleteManipulator.setEvery(2);
+        deleteManipulator.setUnit("day");
+        // This should delete the gz-files too
+        deleteManipulator.setIgnoreSuffix(true);
+        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log.add(deleteManipulator);
+        log.validate();
+        assertBackupsHelper(log, 1, 1, 0);
+        
+        //Validation Error
+        gzip = new GZIPManipulator();
+        gzip.setUnit("day");
+        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log.add(gzip);
+        try {
+            log.validate();
+            fail("Validation should fail!");
+        } catch (CruiseControlException e) {
+            assertTrue(true);
+        }
+        
+        
+    }
+
+    private void assertBackupsHelper(Log log, int expectedLength, int expectedXML, int expectedGZIP) {
+        log.callManipulators();
+        File[] logfiles = new File(log.getLogDir()).listFiles(new FilenameFilter() {
+
+            public boolean accept(File file, String fileName) {
+                return fileName.startsWith("log20")
+                        && (fileName.endsWith(".xml") || fileName
+                                .endsWith(".gz"));
+            }
+
+        });
+        int countGzip = 0;
+        int countXML = 0;
+        for (int i = 0; i < logfiles.length; i++) {
+            File file = logfiles[i];
+            if (file.getName().endsWith(".gz")) {
+                filesToClear.add(file);
+                countGzip++;
+            } else if (file.getName().endsWith(".xml")) {
+                countXML++;
+            } else {
+                fail("Other log files exists");
+            }
+        }
+        assertEquals(expectedLength, logfiles.length);
+        assertEquals(expectedXML, countXML);
+        assertEquals(expectedGZIP, countGzip);
+    }
+
+    private Log getWrittenTestLog(String projectName, String testLogDir,
+            Date date) throws CruiseControlException, JDOMException,
+            IOException {
+        Log log;
+        Element build;
+        log = new Log();
+        log.setProjectName(projectName);
+        log.setDir(testLogDir);
+        log.addContent(getBuildLogInfo());
+        build = new Element("build");
+        log.addContent(build);
+        log.addContent(new Element("modifications"));
+        log.writeLogFile(date);
+        filesToClear.add(log.getLastLogFile());
+        return log;
     }
 
     // Get a minimal info element for the buildLog
