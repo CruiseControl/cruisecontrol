@@ -3,8 +3,10 @@ package net.sourceforge.cruisecontrol.logmanipulators;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Manipulator;
@@ -13,22 +15,22 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 public abstract class BaseManipulator implements Manipulator {
 
-    protected static final Hashtable UNITS = new Hashtable(3);
-    private static final String[] UNIT_KEYS = {"DAY", "WEEK", "MONTH", "YEAR"};
+    private static final Map UNITS;
     
     private transient Integer unit = null;
     private transient int every = -1;
-    
-    public BaseManipulator() {
-        super();
-        init();
+
+    static {
+        Map units = new HashMap(4, 1.0f);
+        units.put("DAY", new Integer(Calendar.DAY_OF_MONTH));
+        units.put("WEEK", new Integer(Calendar.WEEK_OF_YEAR));
+        units.put("MONTH", new Integer(Calendar.MONTH));
+        units.put("YEAR", new Integer(Calendar.YEAR));
+        UNITS = Collections.unmodifiableMap(units);
     }
 
-    private void init() {
-        UNITS.put(UNIT_KEYS[0], new Integer(Calendar.DAY_OF_MONTH));
-        UNITS.put(UNIT_KEYS[1], new Integer(Calendar.MONTH));
-        UNITS.put(UNIT_KEYS[2], new Integer(Calendar.WEEK_OF_YEAR));
-        UNITS.put(UNIT_KEYS[3], new Integer(Calendar.YEAR));        
+    public BaseManipulator() {
+        super();
     }
 
     /**
@@ -73,7 +75,11 @@ public abstract class BaseManipulator implements Manipulator {
     public void setUnit(String unit) throws CruiseControlException {
         this.unit = (Integer) UNITS.get(unit.toUpperCase());
     }
-    
+
+    Integer getUnit() {
+        return this.unit;
+    }
+
     private class LogfileNameFilter implements FilenameFilter {
 
         private Date logdate = null;
