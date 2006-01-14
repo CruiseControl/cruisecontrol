@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
-import net.sourceforge.cruisecontrol.Log;
-
 public class GZIPManipulator extends BaseManipulator {
 
     public void execute(String logDir) {
