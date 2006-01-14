@@ -60,11 +60,18 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     public static final String LABEL_INCREMENTER = "labelincrementer";
 
     public static final boolean FAIL_UPON_MISSING_PROPERTY = false;
+    
+    private static final Set KNOWN_ROOT_CHILD_NAMES = new HashSet();
+    static {
+        KNOWN_ROOT_CHILD_NAMES.add("property");
+        KNOWN_ROOT_CHILD_NAMES.add("plugin");
+        KNOWN_ROOT_CHILD_NAMES.add("system");
+    }
 
     // Unfortunately it seems like the commons-collection CompositeMap doesn't fit that role
     // at least size is not implemented the way I want it.
     // TODO is there a clean way to do without this?
-    public static class MapWithParent implements Map {
+    static class MapWithParent implements Map {
         private Map parent;
         private Map thisMap;
 
@@ -115,19 +122,15 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         }
 
         public Object remove(Object key) {
-            return thisMap.remove(key);
+            throw new UnsupportedOperationException("'remove' not supported on MapWithParent");
         }
 
         public void putAll(Map map) {
             thisMap.putAll(map);
         }
 
-        /**
-         * Doesn't clear the parent. Just loose the relationship.
-         */
         public void clear() {
-            thisMap.clear();
-            parent = null; // is this the correct thing to do? parent may be shared. I don't want to clear it.
+            throw new UnsupportedOperationException("'clear' not supported on MapWithParent");
         }
 
         public Set keySet() {
@@ -181,19 +184,21 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     }
 
     public void configure(Element rootElement) throws CruiseControlException {
-        // note we enforce the order in the config here.
-        // we could parse all properties first, then the plugins, then the rest.
-        // if we don't mind, I like it that way :)
-        for (int i = 0; i < rootElement.getChildren().size(); i++) {
-            Element childElement = (Element) rootElement.getChildren().get(i);
+        // parse properties and plugins first, so their order in the config file doesn't matter
+        for (Iterator i = rootElement.getChildren("property").iterator(); i.hasNext(); ) {
+            handleRootProperty((Element) i.next());
+        } 
+        for (Iterator i = rootElement.getChildren("plugin").iterator(); i.hasNext(); ) {
+            handleRootPlugin((Element) i.next());
+        }
+        
+        // other childNodes must be projects or the <system> node
+        for (Iterator i = rootElement.getChildren().iterator(); i.hasNext(); ) {
+            Element childElement = (Element) i.next();
             final String nodeName = childElement.getName();
-            if ("property".equals(nodeName)) {
-                handleRootProperty(childElement);
-            } else if ("plugin".equals(nodeName)) {
-                handleRootPlugin(childElement);
-            } else if (isProject(nodeName)) {
+            if (isProject(nodeName)) {
                 handleProject(childElement);
-            } else if (!"system".equals(nodeName)) {
+            } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
         }
@@ -201,7 +206,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
 
     private boolean isProject(String nodeName) throws CruiseControlException {
         return rootPlugins.isPluginRegistered(nodeName)
-            && (ProjectConfig.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName)));
+            &&  ProjectConfig.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
     }
 
     private void handleRootPlugin(Element pluginElement) throws CruiseControlException {
@@ -233,7 +238,8 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         // in particular the project.name one
         MapWithParent nonFullyResolvedProjectProperties = new MapWithParent(rootProperties);
         // Register the project's name as a built-in property
-        setProperty(nonFullyResolvedProjectProperties, "project.name", projectName);
+        LOG.debug("Setting property \"project.name\" to \"" + projectName + "\".");
+        nonFullyResolvedProjectProperties.put("project.name", projectName);
         // Register any project specific properties
         for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext(); ) {
             final Element propertyElement = (Element) projProps.next();
@@ -307,12 +313,6 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         }
         String rawName = childElement.getAttribute("name").getValue();
         return ProjectXMLHelper.parsePropertiesInString(rootProperties, rawName, false);
-    }
-
-
-    private static void setProperty(Map props, String name, String parsedValue) {
-        LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
-        props.put(name, parsedValue);
     }
 
     public ProjectConfig getConfig(String name) {
