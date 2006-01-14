@@ -20,8 +20,7 @@ public class GZIPManipulator extends BaseManipulator {
 
     private void gzipFile(File logfile, String logDir) {
         try {
-            String fileName = logfile.getName().substring(0, Log.BEFORE_LENGTH - 1)
-                    + ".gz";
+            String fileName = logfile.getName() + ".gz";
 
             GZIPOutputStream out = new GZIPOutputStream(
                     new FileOutputStream(new File(logDir, fileName)));
