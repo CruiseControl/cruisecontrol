@@ -167,14 +167,14 @@
                 <waitfor maxwait="3" maxwaitunit="minute" checkevery="500">
                     <and>
                         <http url="http://localhost:7854/cruisecontrol"/>
-                        <available file="target/webtest/cruisecontrol-bin-2.4.0-dev/projects/connectfour/target/connectfour.jar"/>
+                        <available file="target/webtest/cruisecontrol-bin-${cc.release.label}/projects/connectfour/target/connectfour.jar"/>
                     </and>
                 </waitfor>
 
                 <mkdir dir="target/webtest-results"/>
                 <junit haltonfailure="no" printsummary="on"
                     failureproperty="junit.failure" fork="yes" forkmode="once"
-                    dir="target\webtest\cruisecontrol-bin-2.4.0-dev">
+                    dir="target\webtest\cruisecontrol-bin-${cc.release.label}">
                     <classpath>
                         <pathelement location="reporting/jsp/target/classes"/>
                         <fileset dir="reporting/jsp/lib" includes="*.jar"/>
