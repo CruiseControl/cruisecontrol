@@ -122,7 +122,7 @@
 
         <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip"
-                duplicate="fail">
+                duplicate="preserve">
             <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
                 <exclude name="README.txt"/>
                 <exclude name="JETTY-WORKDIR-README.txt"/>
