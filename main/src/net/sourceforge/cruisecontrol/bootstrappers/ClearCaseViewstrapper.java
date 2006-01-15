@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -111,7 +113,7 @@ import org.apache.log4j.Logger;
       
         // have we got some VOBs to mount
         if (voblist != null) {
-            String[] vobs = voblist.split(",");
+            String[] vobs = getVobsFromList(voblist);
             for (int i = 0; i < vobs.length; i++) {
                 commandLine = buildMountVOBCommand(vobs[i]);
                 log.debug("Executing: " + commandLine);
@@ -129,6 +131,12 @@ import org.apache.log4j.Logger;
                 }
             }
         }
+    }
+
+    private String[] getVobsFromList(String voblist) {
+        //  replacing voblist.split(","); for jdk 1.3 compatibility
+        ArrayList vobs = simpleSplitReplacement(voblist, ',');
+        return (String[]) vobs.toArray(new String[]{});
     }
 
     /*
@@ -171,11 +179,9 @@ import org.apache.log4j.Logger;
         String viewname = "";
         try {
             if (isWindows()) {
-                String[] details = viewpath.split("\\\\");
-                viewname = details[1];  // first part after M: drive, i.e. M:\viewname
+                viewname = getWindowsViewname(viewpath);
             } else {
-                String[] details = viewpath.split("/");
-                viewname = details[2];  // second part after /view, i.e. /view/viewname
+                viewname = getUnixViewname(viewpath);
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             
@@ -183,6 +189,33 @@ import org.apache.log4j.Logger;
         return viewname;
     }
 
+    //  second part after /view, i.e. /view/viewname
+    private String getUnixViewname(String viewpath) {
+//      replacing the following for jdk 1.3 compatibility  
+//      String[] details = viewpath.split("/");
+//      viewname = details[2];  
+        ArrayList parts = simpleSplitReplacement(viewpath, '/');
+       return (String) parts.get(1);
+    }
+
+    //  first part after M: drive, i.e. M:\viewname
+    private String getWindowsViewname(String viewpath) {
+//      replacing the following for jdk 1.3 compatibility  
+//        String[] details = viewpath.split("\\\\");
+//        viewname = details[1];  
+        ArrayList parts = simpleSplitReplacement(viewpath, '\\');
+        return (String) parts.get(1);
+    }
+    
+    private ArrayList simpleSplitReplacement(String string, char tokenizeOn) {
+        ArrayList parts = new ArrayList();
+        StringTokenizer tokenizer = new StringTokenizer(string, String.valueOf(tokenizeOn));
+        while (tokenizer.hasMoreTokens()) {
+            parts.add(tokenizer.nextToken());
+        }
+        return parts;
+    }
+    
     protected boolean isWindows() {
         return getOsName().indexOf("Windows") >= 0;
     }
