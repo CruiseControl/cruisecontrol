@@ -98,6 +98,10 @@ JMX interface:
 ----------------------
 * When setting the configuration contents via JMX, the contents are validated (CC-333). Patch by Allan Wick.
 
+LockFileBootstrapper/Listener:
+----------------------
+* Added a pair of plug-ins that coordinate such that multiple projects with the same lock file will not build simultaneously.
+
 (Log)Manipulator:
 ----------------------
 * Added a new class of plug-ins that can be nested within the log element to handle tasks in the log directory. Initial implementations are the DeleteManipulator (delete old logs) and the GZIPManipulator (gzip old logs). Contributed by Michael Kloss.
