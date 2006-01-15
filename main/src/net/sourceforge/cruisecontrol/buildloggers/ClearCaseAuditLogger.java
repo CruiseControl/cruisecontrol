@@ -51,9 +51,7 @@ import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 /**
  * This ClearCaseAuditLogger will parse a specified configuration record (created as the
@@ -64,7 +62,7 @@ import org.jdom.output.XMLOutputter;
  */
 public class ClearCaseAuditLogger implements BuildLogger {
 
-    private static final Logger LOG = Logger.getLogger(MergeLogger.class);
+    private static final Logger LOG = Logger.getLogger(ClearCaseAuditLogger.class);
 
     private String doFiles;
 
@@ -178,27 +176,4 @@ public class ClearCaseAuditLogger implements BuildLogger {
         return commandLine;
     }      
     
-    /** for testing */
-    public static void main(String[] args) {
-        ClearCaseAuditLogger auditlogger = new ClearCaseAuditLogger();
-        auditlogger.setDoFiles(
-                "M:\\RatlBankModel_rel\\RatlBankSources\\model\\dist\\RatlBankModel.jar," 
-                + "M:\\RatlBankModel_rel\\RatlBankSources\\model\\CCAudits\\RatlBankModel");
-        Element buildlog = new Element("cruisecontrol");
-        Document doc = new Document(buildlog);
-     
-        try {
-            auditlogger.log(buildlog);
-        } catch (CruiseControlException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
-        }
-        
-        try {
-            new XMLOutputter().output(doc, System.out);
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-    }
 }
