@@ -130,6 +130,8 @@
 <a href="#jabber">&lt;jabber&gt;</a>
 <a href="#labelincrementer">&lt;labelincrementer&gt;</a>
 <a href="#listeners">&lt;listeners&gt;</a>
+<a href="#lockfilebootstrapper">&lt;lockfilebootstrapper&gt;</a>
+<a href="#lockfilelistener">&lt;lockfilelistener&gt;</a>
 <a href="#log">&lt;log&gt;</a>
 <a href="#maven">&lt;maven&gt;</a>
 <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
@@ -210,7 +212,8 @@
          <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor/&gt;</a>
          <a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener/&gt;</a>
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
-      <a href="#listeners">&lt;/listeners&gt;</a>
+         <a href="#lockfilelistener">&lt;lockfilelistener/&gt;</a>
+      &lt;/listeners&gt;
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
          <a href="#accurevbootstrapper">&lt;accurevbootstrapper/&gt;</a>
          <a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper/&gt;</a>
@@ -220,6 +223,7 @@
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
+         <a href="#lockfilebootstrapper">&lt;lockfilebootstrapper/&gt;</a>
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
          <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper/&gt;</a>
          <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
@@ -1017,6 +1021,40 @@ password=P@ssW0rd!
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="lockfilelistener">&lt;lockfilelistener&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#listeners">&lt;listeners&gt;</a>
+      &lt;lockfilelistener&gt;</pre>
+        </div>
+
+        <p>This plugin works in conjunction with a <a href="#lockfilebootstrapper"><code>&lt;lockfilebootstrapper&gt;</code></a> to define a set of projects that will not build simultaneously in a multithreaded build environment. This plugin is responsible for deleting the lock file when a project goes IDLE (but only if the lock was created by the same project.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>lockfile</td>
+                <td>Yes</td>
+                <td>The name (and path) of the file to serve as the lock between multiple projects.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="bootstrappers">&lt;bootstrappers&gt;</a></h2>
 
         <div class="hierarchy">
@@ -1610,6 +1648,40 @@ password=P@ssW0rd!
                 <td>No</td>
                 <td>If set to true the update command will include the -A option
                 which will reset any sticky tags, dates, or -k options.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="lockfilebootstrapper">&lt;lockfilebootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;lockfilebootstrapper&gt;</pre>
+        </div>
+
+        <p>This plugin works in conjunction with a <a href="#lockfilelistener"><code>&lt;lockfilelistener&gt;</code></a> to define a set of projects that will not build simultaneously in a multithreaded build environment. This plugin is responsible for creating the lock file if it doesn't already exist, or if it does, to throw an exception to abort the build attempt.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>lockfile</td>
+                <td>Yes</td>
+                <td>The name (and path) of the file to serve as the lock between multiple projects.</td>
             </tr>
             </tbody>
         </table>
