@@ -42,6 +42,7 @@
     <xsl:variable name="modification.list" select="cruisecontrol/modifications/modification"/>
     <xsl:variable name="urlroot" select='"/cruisecontrol/buildresults/"'/>
 
+
     <xsl:template match="/" mode="modifications">
         <table align="center" cellpadding="2" cellspacing="1" border="0" width="98%">
             <!-- Modifications -->
@@ -58,6 +59,52 @@
 
         </table>
     </xsl:template>
+
+    <!-- user defined variables for logging into ClearQuest -->
+    <xsl:variable name="cqserver">localhost</xsl:variable>
+    <xsl:variable name="cqschema">2003.06.00</xsl:variable>
+    <xsl:variable name="cqdb">RBPRO</xsl:variable>
+    <xsl:variable name="cqlogin">admin</xsl:variable>
+    <xsl:variable name="cqpasswd">password</xsl:variable>
+
+    <xsl:template match="modification[@type='activity']" mode="modifications">
+        <xsl:variable name="cqrecurl">http://<xsl:value-of select="$cqserver"/>/cqweb/main?command=GenerateMainFrame&amp;service=CQ&amp;schema=<xsl:value-of select="$cqschema"/>&amp;contextid=<xsl:value-of select="$cqdb"/>&amp;entityID=<xsl:value-of select="revision"/>&amp;entityDefName=<xsl:value-of select="crmtype"/>&amp;username=<xsl:value-of select="$cqlogin"/>&amp;password=<xsl:value-of select="$cqpasswd"/></xsl:variable>
+        <tr valign="top">
+            <xsl:attribute name="class">changelists-evenrow</xsl:attribute>
+            <td class="modifications-data">
+		<a href="{$cqrecurl}" target="_blank"><xsl:value-of select="revision"/></a>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="crmtype"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
+        </tr>
+    </xsl:template>
+
+    <xsl:template match="modification[@type='contributor']" mode="modifications">
+        <xsl:variable name="cqrecurl">http://<xsl:value-of select="$cqserver"/>/cqweb/main?command=GenerateMainFrame&amp;service=CQ&amp;schema=<xsl:value-of select="$cqschema"/>&amp;contextid=<xsl:value-of select="$cqdb"/>&amp;entityID=<xsl:value-of select="revision"/>&amp;entityDefName=<xsl:value-of select="crmtype"/>&amp;username=<xsl:value-of select="$cqlogin"/>&amp;password=<xsl:value-of select="$cqpasswd"/></xsl:variable>
+        <tr valign="top">
+            <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
+            <td align="right" class="modifications-data">
+		&gt;<a href="{$cqrecurl}" target="_blank"><xsl:value-of select="revision"/></a>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="crmtype"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="user"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="comment"/>
+            </td>
+        </tr>
+    </xsl:template>
+
 
     <!-- P4 changelist template
     <modification type="p4" revision="15">

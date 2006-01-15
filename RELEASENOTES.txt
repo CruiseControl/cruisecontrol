@@ -56,6 +56,11 @@ main/build.xml:
 ClearCase:
 ----------------------
 * New 'all' attribute can be used to increase performance when checking the entire view. Patch by Rick Reimer.
+* New plugins for ClearCase support (CC-326). Submitted by Kevin Lee
+  - UCM: sourcecontrol that monitors and reports in terms of UCM activities
+  - ClearCaseViewstrapper: bootstrapper for use with dynamic views
+  - FormattedLabelIncrementer: label incrementer that creates labels suitable for baselining
+  - ClearCaseAuditLogger: adds information from an audited build into the CC build log
 
 configxml.html:
 ----------------------
@@ -215,6 +220,7 @@ modifications.xsl:
 ----------------------
 * Added a date/time field to the data displayed in the reporting application. (CC-338) Patch by ajbanck
 * Insert <br/> in place of newline characters in checkin comments so that they display properly. (CC-218) Patch by Kent Spillner
+* Add links to ClearQuest when used with new ClearCase plug-ins (part of CC-326). Patch by Kevin Lee
 
 Reporting:
 ----------------------

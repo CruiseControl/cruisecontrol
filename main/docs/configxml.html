@@ -102,6 +102,7 @@
 <a href="#buildstatus">&lt;buildstatus&gt;</a>
 <a href="#clearcase">&lt;clearcase&gt;</a>
 <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
+<a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper&gt;</a>
 <a href="#cmsynergy">&lt;cmsynergy&gt;</a>
 <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher&gt;</a>
 <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
@@ -170,6 +171,7 @@
 <a href="#timebuild">&lt;timebuild&gt;</a>
 <a href="#threads">&lt;threads&gt;</a>
 <a href="#compound">&lt;triggers&gt;</a>
+<a href="#ucm">&lt;ucm&gt;</a>
 <a href="#vss">&lt;vss&gt;</a>
 <a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
 <a href="#vssjournal">&lt;vssjournal&gt;</a>
@@ -219,6 +221,7 @@
          <a href="#alienbrainbootstrapper">&lt;alienbrainbootstrapper/&gt;</a>
          <a href="#antbootstrapper">&lt;antbootstrapper/&gt;</a>
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
+         <a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper/&gt;</a>
          <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
@@ -255,6 +258,7 @@
          <a href="#surround">&lt;surround/&gt;</a>
          <a href="#svn">&lt;svn/&gt;</a>
          <a href="#timebuild">&lt;timebuild&gt;</a>
+         <a href="#ucm">&lt;ucm&gt;</a>
          <a href="#vss">&lt;vss/&gt;</a>
          <a href="#vssjournal">&lt;vssjournal/&gt;</a>
       &lt;/modificationset&gt;
@@ -1105,6 +1109,11 @@ password=P@ssW0rd!
                 <td>Bootstraps resources from ClearCase</td>
             </tr>
             <tr>
+                <td><a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps View and VOB resources from ClearCase</td>
+            </tr>
+            <tr>
                 <td><a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CM Synergy</td>
@@ -1404,6 +1413,62 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="clearcaseviewstrapper">&lt;clearcaseviewstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;clearcaseviewstrapper&gt;</pre>
+        </div>
+
+        <p>Can be used to automate the start-up of ClearCase
+           Views and VOBs prior to building in dynamic views.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>viewpath</td>
+                <td>Yes</td>
+                <td>A path into the dynamic view to start-up, i.e. M:\someview\somevob\somepath (Windows) or
+                /view/someview/vobs/somevob/somepath (Linux/Unix). A path is specified rather than a view tag
+                so that you can re-use a CruiseControl property definition.</td>
+
+            </tr>
+            <tr>
+                <td>voblist</td>
+                <td>No</td>
+                <td>A comma separated list of VOBs to mount, i.e. "\VOB1,\VOB2" (Windows) or
+                "/vobs/VOB1,/vobs/VOB2" (Linux/Unix).</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h3>Examples</h3>
+        <ol>
+            <li>Start the Windows view "j2ee_bld" and mount the VOBs "\J2EE_Sources" and "\J2EE_Binaries":
+            <pre>
+&lt;property name="dir.j2ee" value="M:\j2ee_bld\J2EE_Sources\src"/&gt;            
+&lt;bootstrappers&gt;
+    &lt;clearcaseviewstrapper viewpath="${dir.j2ee}" voblist="\J2EE_Sources,\J2EE_Binaries"/&gt;
+&lt;bootstrappers&gt;</pre>
+            </li>
+        </ol>
+        
         </div>
 
         <div class="elementdocumentation">
@@ -3775,8 +3840,78 @@ password=P@ssW0rd!
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
-        <h2><a name="vss">&lt;vss&gt;</a></h2>
+        <h2><a name="ucm">&lt;ucm&gt;</a></h2>
 
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;ucm&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within a ClearCase UCM repository.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>stream</td>
+                    <td>Yes</td>
+                    <td>The ClearCase UCM stream</td>
+                </tr>
+                <tr>
+                    <td>contributors</td>
+                    <td>No (defaults to false)</td>
+                    <td>Whether to check for and log contributor activities</td>
+                </tr>
+                <tr>
+                    <td>viewpath</td>
+                    <td>Yes</td>
+                    <td>Local working copy to use when making queries</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Properties Passed to the Builders</h3>
+
+        <p>In addition to the standard CruiseControl <a href="#buildproperties">
+        properties passed to builders</a>, &lt;ucm&gt; sets the following
+        properties:</p>
+
+        <table class="documentation">
+            <thead>
+                <tr>
+                    <th>Property Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ucmlastbuild</td>
+                    <td>Timestamp representing the last built time, using the format <code>dd-MMMM-yyyy.HH:mm:ss</code></td>
+                </tr>
+                <tr>
+                    <td>ucmnow</td>
+                    <td>Timestamp representing the time the current build started, using
+                    the format <code>dd-MMMM-yyyy.HH:mm:ss</code></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="vss">&lt;vss&gt;</a></h2>
+        
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -7019,6 +7154,17 @@ endlocal</pre>
 &lt;plugin&nbsp;name="labelincrementer"
         classname="net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer"/&gt;</pre>
 
+        <h4>FormattedLabelIncrementer</h4>
+
+        <p>A label incrementer for creating consistent, formatted upper
+        case labels. This plugin expects the label format to be either "x_y_z" or "y_z"
+        where x is any String, y is an integer and z is one of REL, INT or BLD, i.e.
+        MYPROJ_1_INT or 1_REL.</p>
+
+        <pre>
+&lt;plugin&nbsp;name="labelincrementer"
+        classname="net.sourceforge.cruisecontrol.labelincrementers.FormattedLabelIncrementer"/&gt;</pre>
+  
         <h4>P4ChangelistLabelIncrementer</h4>
 
         <p>Creates a label from either a given Perforce changelist number,
