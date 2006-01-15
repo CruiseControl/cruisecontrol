@@ -247,13 +247,16 @@ public class CruiseControlController {
         parseConfigFileIfNecessary();
     }
 
+    /**
+     * @return true if the config file was parsed.
+     */ 
     public boolean parseConfigFileIfNecessary() {
-        boolean reloaded;
+        boolean reloaded = false;
         try {
             reloaded = configManager.reloadIfNecessary();
         } catch (CruiseControlException e) {
             LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
-            return false;
+            return reloaded;
         }
 
         if (reloaded) {
