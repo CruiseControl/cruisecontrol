@@ -14,7 +14,7 @@ Binary release:
 * cruisecontrol reporting application now started under root context, for example http://localhost:8080 will now show the reporting app. "cruisecontrol" context supported for backwards compatability, for example http://localhost:8080/cruisecontrol. Patch by Kent Spillner.
 * switched from jakarta commons-math to a sample "connectfour" project in the cruisecontrol cvs repository.
 * Added a work directory for Jetty to use (CC-257). Fix suggested by Paul Hammant.
-* Defaulting jmxport to 8000 in the startup scripts (cruisecontrol.bat and cruisecontrol.sh).
+* Defaulting jmxport to 8000 in the startup scripts (cruisecontrol.bat and cruisecontrol.sh), but at the end of the command line so that it can be easily overridden.
 
 contrib:
 ----------------------

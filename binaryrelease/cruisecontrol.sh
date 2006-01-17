@@ -58,6 +58,6 @@ if [ `uname | grep -n CYGWIN` ]; then
   CRUISE_PATH=`cygpath --path --windows "$CRUISE_PATH"`
 fi
 
-EXEC="$JAVA_HOME/bin/java $CC_OPTS -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty -jmxport 8000 $@"
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty $@ -jmxport 8000"
 echo $EXEC
 exec $EXEC
