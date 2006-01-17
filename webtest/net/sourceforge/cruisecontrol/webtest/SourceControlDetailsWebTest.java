@@ -40,7 +40,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.cruisecontrol.Configuration;
 
 public class SourceControlDetailsWebTest extends WebTestCase {
-    private static final String BASE = "/cruisecontrol/details!default.jspa?"
+    private static final String BASE = "/cruisecontrol/load-details.jspa?"
         + "project=connectfour&pluginType=sourcecontrol";
     private static final String CVS_URL = BASE + "&pluginName=cvs";
     private static final String SVN_URL = BASE + "&pluginName=svn";
@@ -64,13 +64,10 @@ public class SourceControlDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromSourceControlsPage() {
-        String pluginsUrl = "/cruisecontrol/available.jspa?project=connectfour&pluginType=sourcecontrol";
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=connectfour&pluginType=sourcecontrol";
 
         beginAt(pluginsUrl);
         assertLinkPresentWithText("cvs");
-
-        gotoPage(pluginsUrl);
-        assertLinkPresentWithText("svn");
     }
 
     public void testShouldLoadCVSConfiguration() {

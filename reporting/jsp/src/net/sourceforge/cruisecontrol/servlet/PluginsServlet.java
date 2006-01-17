@@ -48,36 +48,26 @@ import com.opensymphony.xwork.ActionSupport;
 public class PluginsServlet extends ActionSupport implements PluginsAware {
     private PluginDetail[] availablePlugins;
     private PluginDetail[] configuredPlugins;
-    private PluginDetail[] plugins;
-    private String listType;
     private String pluginType;
 
-    public String available() throws Exception {
-        listType = "Available";
-        plugins = availablePlugins;
+    public String execute() throws Exception {
         return SUCCESS;
     }
 
-    public String configured() throws Exception {
-        listType = "Configured";
-        plugins = configuredPlugins;
-        return SUCCESS;
-    }
-    
-    public String getListType() {
-        return listType;
-    }
-
-    public PluginDetail[] getPlugins() {
-        return plugins;
+    public PluginDetail[] getAvailablePlugins() {
+        return availablePlugins;
     }
     
     public void setAvailablePlugins(PluginDetail[] plugins) {
-        this.availablePlugins = plugins;
+        availablePlugins = plugins;
+    }
+    
+    public PluginDetail[] getConfiguredPlugins() {
+        return configuredPlugins;
     }
     
     public void setConfiguredPlugins(PluginDetail[] plugins) {
-        this.configuredPlugins = plugins;
+        configuredPlugins = plugins;
     }
 
     public String getPluginType() {

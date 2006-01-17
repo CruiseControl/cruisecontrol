@@ -40,7 +40,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.cruisecontrol.Configuration;
 
 public class PublisherDetailsWebTest extends WebTestCase {
-    private static final String BASE = "/cruisecontrol/details!default.jspa?"
+    private static final String BASE = "/cruisecontrol/load-details.jspa?"
         + "project=connectfour&pluginType=publisher";
     private static final String FTP_URL = BASE + "&pluginName=ftppublisher";
     private static final String XSLT_URL = BASE + "&pluginName=xsltlogpublisher";
@@ -64,13 +64,10 @@ public class PublisherDetailsWebTest extends WebTestCase {
     }
 
     public void testShouldBeAccessibleFromPublishersPage() {
-        String pluginsUrl = "/cruisecontrol/available.jspa?project=connectfour&pluginType=publisher";
+        String pluginsUrl = "/cruisecontrol/plugins.jspa?project=connectfour&pluginType=publisher";
 
         beginAt(pluginsUrl);
-        assertLinkPresentWithText("ftppublisher");
-
-        gotoPage(pluginsUrl);
-        assertLinkPresentWithText("xsltlogpublisher");
+        assertLinkPresentWithText("onsuccess");
     }
 
     public void testShouldLoadFTPPublisherConfiguration() {
