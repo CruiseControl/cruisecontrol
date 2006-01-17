@@ -52,38 +52,47 @@ import java.io.IOException;
  * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
  */
 public class StatusHelperTest extends TestCase {
-    private static final String TEST_STATUS_TEXT = "the test status";
+    private static final String LOG_DIR = "target/testresults/";
+    private static final String PROJECT_NAME = "testProject";
+    private static final String STATUS_FILENAME = "buildStatus.txt";
 
-    private static final String TEST_STATUS_TIME = "12/17/2005 20:11:25";
-
-    private static final String TEST_STATUS_PLAIN = TEST_STATUS_TEXT + "\n" + TEST_STATUS_TIME + "\n";
-
-    private static final String TEST_STATUS_HTML = TEST_STATUS_TEXT + "\n<br/>" + TEST_STATUS_TIME + "\n<br/>";
+    private static final String TEXT = "the test status";
+    private static final String TIME = "12/17/2005 20:11:25";
+    private static final String PLAIN_TEXT = TEXT + "\n" + TIME + "\n";
+    private static final String HTML_TEXT = TEXT + "\n<br/>" + TIME + "\n<br/>";
+    private static final String XML_LOGGER_WITH_STATUS_OUTPUT = TEXT + "\n" + TIME
+                + "<br><span class=\"link\">11:47:33&nbsp;[-force-atriuum-stop]&nbsp;</span>"
+                + "<br><span class=\"link\">11:47:34&nbsp;[-clean]&nbsp;</span>"
+                + "<br><span class=\"link\">11:47:34&nbsp;[-checkout]&nbsp;</span>"
+                + "<br><span class=\"link\">11:47:34&nbsp;[-update]&nbsp;</span>"
+                + "<br><span class=\"link\">11:48:29&nbsp;[-clean-old-test-data]&nbsp;</span>"
+                + "<br><span class=\"link\">11:48:29&nbsp;[clean]&nbsp;</span>"
+                + "<br><span class=\"link\">11:48:30&nbsp;[checkstyle]&nbsp;</span>"
+                + "<br><span class=\"link\">11:48:34&nbsp;[-init]&nbsp;</span>"
+                + "<br><span class=\"link\">11:48:34&nbsp;[-build]&nbsp;</span>";
 
     private static final String LOG_CONTENTS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
         + "<cruisecontrol></cruisecontrol>";
 
-    private static final String TEST_PROJECT_NAME = "testProject";
-
-    private static final String TEST_STATUS_FILENAME = "buildStatus.txt";
-
     private StatusHelper helper;
     private File logDir;
-
     private FilesToDelete files = new FilesToDelete();
 
     protected void setUp() throws Exception {
         helper = new StatusHelper();
 
         // make base log dir
-        logDir = new File("testresults/");
-        if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdir());
+        logDir = new File(LOG_DIR);
+        if (logDir.isFile()) {
+            logDir.delete();
+        }
+        if (!logDir.isDirectory()) {
+            assertTrue("Failed to create test result dir " + logDir.getAbsolutePath(), logDir.mkdirs());
             files.addFile(logDir);
         }
 
         // make multi project log dir
-        File projectLogDir = new File(logDir, TEST_PROJECT_NAME + "/");
+        File projectLogDir = new File(logDir, PROJECT_NAME + "/");
         if (!projectLogDir.exists()) {
             assertTrue("Failed to create project log dir", projectLogDir.mkdir());
             files.addFile(logDir);
@@ -93,12 +102,12 @@ public class StatusHelperTest extends TestCase {
         prepareFile(file, LOG_CONTENTS);
 
         // for single project
-        file = new File(logDir, TEST_STATUS_FILENAME);
-        prepareFile(file, TEST_STATUS_PLAIN);
+        file = new File(logDir, STATUS_FILENAME);
+        prepareFile(file, PLAIN_TEXT);
 
         // for multi project
-        file = new File(projectLogDir, TEST_STATUS_FILENAME);
-        prepareFile(file, TEST_STATUS_PLAIN);
+        file = new File(projectLogDir, STATUS_FILENAME);
+        prepareFile(file, PLAIN_TEXT);
     }
 
     protected void tearDown() throws Exception {
@@ -156,14 +165,21 @@ public class StatusHelperTest extends TestCase {
 
     public void testGetCurrentStatus() {
         String logDirPath = logDir.getAbsolutePath();
+        String actual = helper.getCurrentStatus("true", logDirPath, PROJECT_NAME, STATUS_FILENAME);
+        assertEquals("testing single project: ", HTML_TEXT, actual);
+        
+        actual = helper.getCurrentStatus("false", logDirPath, PROJECT_NAME, STATUS_FILENAME);
+        assertEquals("testing multi project: ", HTML_TEXT, actual);
+    }
 
-        String actual = helper.getCurrentStatus("true", logDirPath, TEST_PROJECT_NAME, TEST_STATUS_FILENAME);
+    public void testWithXmlLoggerWithStatusOutput() throws IOException {
+        File projectLogDir = new File(logDir, "xmlusingproject");
+        projectLogDir.mkdir();
+        File file = new File(projectLogDir, "status.txt");
+        prepareFile(file, XML_LOGGER_WITH_STATUS_OUTPUT);
 
-        assertEquals("testing single project: ", TEST_STATUS_HTML, actual);
-
-        actual = helper.getCurrentStatus("false", logDirPath, TEST_PROJECT_NAME, TEST_STATUS_FILENAME);
-
-        assertEquals("testing multi project: ", TEST_STATUS_HTML, actual);
+        String actual = helper.getCurrentStatus("false", logDir.getAbsolutePath(), "xmlusingproject", "status.txt");
+        assertEquals(HTML_TEXT, actual);
     }
 
     private void prepareFile(File file, String body) throws IOException {

@@ -13,30 +13,27 @@ import junit.framework.TestCase;
  * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
  */
 public class BuildStatusTest extends TestCase {
-    private static final String TEST_PROJECT_NAME = "testProject";
+    private static final boolean MULTIPLE_PROJECT_MODE = false;
+    private static final boolean SINGLE_PROJECT_MODE = true;
+    private static final String PROJECT_NAME = "testProject";
+    private static final String STATUS_FILENAME = "buildStatus.txt";
+    private static final String TEXT = "the test status";
+    private static final String TIME = "12/17/2005 20:11:25";
 
-    private static final String TEST_STATUS_FILENAME = "buildStatus.txt";
-
-    private static final String TEST_STATUS_TEXT = "the test status";
-
-    private static final String TEST_STATUS_TIME = "12/17/2005 20:11:25";
-
-    private static final String TEST_XML_LOGGER_TEXT = TEST_STATUS_TIME + " [" + TEST_PROJECT_NAME + "]";
-
-    private static final String TEST_STATUS_PLAIN = TEST_STATUS_TEXT + "\n" + TEST_STATUS_TIME + "\n";
-
-    private static final String TEST_STATUS_PLAIN_WITH_LOGGER = TEST_STATUS_PLAIN + TEST_XML_LOGGER_TEXT + "\n";
-
-    private static final String TEST_STATUS_HTML = TEST_STATUS_TEXT + "\n<br/>" + TEST_STATUS_TIME + "\n<br/>";
-
-    private static final String TEST_STATUS_HTML_WITH_LOGGER = TEST_STATUS_HTML + TEST_XML_LOGGER_TEXT + "\n<br/>";
+    private static final String XML_LOGGER_DATA = TIME + " [" + PROJECT_NAME + "]\n";
+    private static final String XML_LOGGER_TEXT = "<br>" + XML_LOGGER_DATA;
+    
+    private static final String PLAIN_TEXT = TEXT + "\n" + TIME + "\n";
+    private static final String PLAIN_WITH_LOGGER = TEXT + "\n" + TIME + XML_LOGGER_TEXT;
+    
+    private static final String HTML_TEXT = TEXT + "\n<br/>" + TIME + "\n<br/>";
+    private static final String HTML_WITH_LOGGER = HTML_TEXT + XML_LOGGER_DATA + "<br/>";
 
     private File logDir;
 
     private FilesToDelete files = new FilesToDelete();
 
     protected void setUp() throws Exception {
-
         // make base log dir
         logDir = new File("testresults/");
         if (!logDir.exists()) {
@@ -45,71 +42,80 @@ public class BuildStatusTest extends TestCase {
         }
 
         // make multi project log dir
-        File projectLogDir = new File(logDir, TEST_PROJECT_NAME + "/");
+        File projectLogDir = new File(logDir, PROJECT_NAME + "/");
         if (!projectLogDir.exists()) {
             assertTrue("Failed to create project log dir", projectLogDir.mkdir());
             files.addFile(logDir);
         }
 
         // for single project
-        File file = new File(logDir, TEST_STATUS_FILENAME);
-        prepareFile(file, TEST_STATUS_PLAIN_WITH_LOGGER);
+        File file = new File(logDir, STATUS_FILENAME);
+        prepareFile(file, PLAIN_WITH_LOGGER);
 
         // for multi project
-        file = new File(projectLogDir, TEST_STATUS_FILENAME);
-        prepareFile(file, TEST_STATUS_PLAIN_WITH_LOGGER);
+        file = new File(projectLogDir, STATUS_FILENAME);
+        prepareFile(file, PLAIN_WITH_LOGGER);
     }
 
     protected void tearDown() throws Exception {
         files.delete();
     }
-
-    public void testGetCurrentStatusSingleProject() {
-        coreStatusTests(true);
-    }
-
-    public void testGetCurrentStatusMultiProject() {
-        coreStatusTests(false);
-    }
-
-    private void coreStatusTests(boolean isSingleProject) {
-        String logDirPath = logDir.getAbsolutePath();
-        int readLines = BuildStatus.READ_ONLY_STATUS_LINES;
-
-        coreTestPlain("testing getStatusPlain, status only: ", isSingleProject, logDirPath, readLines,
-            TEST_STATUS_PLAIN);
-
-        coreTestHtml("testing getStatusHtml, status only: ", isSingleProject, logDirPath, readLines, TEST_STATUS_HTML);
-
-        // note: resetting line count
-        readLines = BuildStatus.READ_ALL_LINES;
-
-        coreTestPlain("testing getStatusPlain, all lines: ", isSingleProject, logDirPath, readLines,
-            TEST_STATUS_PLAIN_WITH_LOGGER);
-
-        coreTestHtml("testing getStatusHtml, all lines: ", isSingleProject, logDirPath, readLines,
-            TEST_STATUS_HTML_WITH_LOGGER);
-
+    
+    public void testShouldThrowExceptionWithBadFilename() {      
         try {
-            BuildStatus.getStatusHtml(isSingleProject, logDirPath, TEST_PROJECT_NAME, "badfilename.txt", readLines);
+            BuildStatus.getStatusHtml(SINGLE_PROJECT_MODE,
+                logDir.getAbsolutePath(),
+                PROJECT_NAME,
+                "badfilename.txt",
+                BuildStatus.READ_ALL_LINES);
             fail("Expected exception for build status file not found.");
-        } catch (CruiseControlWebAppException e) {
+        } catch (CruiseControlWebAppException expected) {
+            // expected, so test passes
+        }
+      
+        try {
+            BuildStatus.getStatusHtml(MULTIPLE_PROJECT_MODE,
+                logDir.getAbsolutePath(),
+                PROJECT_NAME, "badfilename.txt",
+                BuildStatus.READ_ALL_LINES);
+            fail("Expected exception for build status file not found.");
+        } catch (CruiseControlWebAppException expected) {
             // expected, so test passes
         }
     }
 
-    private void coreTestPlain(String msg, boolean isSingleProject, String logDirPath, int readLines, String expected) {
-        String actual = BuildStatus.getStatusPlain(isSingleProject, logDirPath, TEST_PROJECT_NAME,
-            TEST_STATUS_FILENAME, readLines);
-
-        assertEquals(msg, expected, actual);
+    public void testGetCurrentStatusSingleProject() {
+        coreTestPlain("status only: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, PLAIN_TEXT);
+        coreTestHtml("status only: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, HTML_TEXT);
+        
+        coreTestPlain("all lines: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, PLAIN_TEXT + XML_LOGGER_DATA);
+        coreTestHtml("all lines: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, HTML_WITH_LOGGER);
     }
 
-    private void coreTestHtml(String msg, boolean isSingleProject, String logDirPath, int readLines, String expected) {
-        String actual = BuildStatus.getStatusHtml(isSingleProject, logDirPath, TEST_PROJECT_NAME, TEST_STATUS_FILENAME,
-            readLines);
+    public void testGetCurrentStatusMultiProject() {
+        coreTestPlain("status only: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, PLAIN_TEXT);
+        coreTestHtml("status only: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, HTML_TEXT);
+        
+        coreTestPlain("all lines: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, PLAIN_TEXT + XML_LOGGER_DATA);
+        coreTestHtml("all lines: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, HTML_WITH_LOGGER);
+    }
 
-        assertEquals(msg, expected, actual);
+    private void coreTestPlain(String msg, boolean isSingleProject, int readLines, String expected) {
+        String actual = BuildStatus.getStatusPlain(isSingleProject,
+                                                   logDir.getAbsolutePath(),
+                                                   PROJECT_NAME,
+                                                   STATUS_FILENAME,
+                                                   readLines);
+        assertEquals("plain:" + msg, expected, actual);
+    }
+
+    private void coreTestHtml(String msg, boolean isSingleProject, int readLines, String expected) {
+        String actual = BuildStatus.getStatusHtml(isSingleProject,
+                                                  logDir.getAbsolutePath(),
+                                                  PROJECT_NAME,
+                                                  STATUS_FILENAME,
+                                                  readLines);
+        assertEquals("html:" + msg, expected, actual);
     }
 
     private void prepareFile(File file, String body) throws IOException {
