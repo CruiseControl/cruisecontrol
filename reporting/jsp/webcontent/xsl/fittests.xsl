@@ -57,6 +57,7 @@
 ***********************************************************************************
 -->
     <xsl:template match="/" mode="fittests">
+      <xsl:if test="count($fitresults.list) > 0">
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
             <tr>
                 <td class="unittests-sectionheader" colspan="4">
@@ -94,6 +95,8 @@
             <tr/>
             <tr><td colspan="2">&#160;</td></tr>
         </table>
+      </xsl:if>
+
     </xsl:template>
 <!--
 ***********************************************************************************
