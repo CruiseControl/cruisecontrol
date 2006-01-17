@@ -47,11 +47,24 @@
 <body>
 <p class="config-sectionheader"><ww:property value="listType"/></p>
 <ul class="config-plugins">
-<ww:iterator value="plugins">
-    <li class="config-plugin"><a class="config-link" href="<ww:url value="details!default.jspa?pluginName=%{name}"/>"
-       onclick="loadPlugin(this.href); return false;">
-        <ww:property value="name"/></a></li>
-</ww:iterator>
+    <ww:iterator value="configuredPlugins">
+        <li class="config-plugin"><a class="config-link"
+            href="<ww:url value="load-details.jspa?pluginName=%{name}"/>"
+            onclick="loadPlugin(this.href); return false;"><ww:property value="name" /></a></li>
+    </ww:iterator>
 </ul>
+
+<form name="load-<ww:property value="pluginType"/>" action="load-details.jspa" method="post"
+    onsubmit="loadPlugin(buildUrlForForm(this, '<ww:url value="load-details.jspa"/>')); return false;">
+  <input type="hidden" name="pluginType" value="<ww:property value="pluginType"/>"/>
+  <label for="select-<ww:property value="pluginType"/>" class="label">Add <ww:property value="pluginType"/>:</label>
+  <select id="select-<ww:property value="pluginType"/>" name="pluginName">
+    <ww:iterator value="availablePlugins">
+      <option value="<ww:property value="name"/>"><ww:property value="name"/></option>
+    </ww:iterator>
+  </select>
+  <br/>
+  <input type="submit" name="add-<ww:property value="pluginType"/>" value="Add" class="config-button"/>
+</form>
 </body>
 </html>

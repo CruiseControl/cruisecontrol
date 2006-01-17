@@ -5,8 +5,6 @@
 var opened = new Object();
 
 function toggleTreeElements(id) {
-    Element.toggle('available-' + id);
-    Element.toggle(id + '-hr');
     Element.toggle(id);
 }
 
@@ -22,6 +20,23 @@ function closeIcon(icon) {
 function openIcon(icon) {
     icon.src = 'images/minus_nolines.gif';
     opened[icon.id] = true;
+}
+
+/*
+ * Expects forms named like "load-bootstrapper" and "load-sourcecontrol"
+ */
+function getPluginTypeFromFormName(name) {
+    return /load-(.*)/.exec(name)[1];
+}
+
+function getSelectedValue(select) {
+    return select[select.selectedIndex].value;
+}
+
+function buildUrlForForm(form, urlBase) {
+    var name = form.name;
+    var select = $('select-' + getPluginTypeFromFormName(name));
+    return urlBase + '&pluginName=' + getSelectedValue(select);
 }
 
 /*
@@ -46,16 +61,7 @@ function expandTree(id, treeIcon) {
     resizeDetails();
 }
 
-function updateAvailablePlugins(id, treeIcon) {
-    var isOpened = isOpen(treeIcon);
-    return function(request) {
-        if (isOpened != true) {
-            expandTree(id, treeIcon);
-        }
-    }
-}
-
-function updateConfiguredPlugins(id, treeIcon) {
+function updatePlugins(id, treeIcon) {
     var isOpened = isOpen(treeIcon);
     return function(request) {
         if (isOpened != true) {
@@ -82,29 +88,14 @@ function removePreviousResultMessages() {
 function loadPlugin(url) {
     removePreviousResultMessages();
     $('plugin-details').src = url;
-//    new Ajax.Updater('plugin-details', url, {
-//        asynchronous: true,
-//        method: 'get'
-//    });
 }
 
-function loadPlugins(url, updateId, onSuccess) {
+function loadPlugins(url, id) {
     removePreviousResultMessages();
-    new Ajax.Updater(updateId, url, {
+    var treeIcon = $(id + '-tree-icon');
+    new Ajax.Updater(id, url, {
         asynchronous: true,
         method: 'get',
-        onSuccess: (updateId == 'plugin-details' ? updateDetails : onSuccess)
+        onSuccess: (id == 'plugin-details' ? updateDetails : updatePlugins(id, treeIcon))
     });
-}
-
-function loadAvailablePlugins(url, id) {
-    var treeIcon = $(id + '-tree-icon');
-    var onSuccess = updateAvailablePlugins(id, treeIcon); 
-    loadPlugins(url, 'available-' + id, onSuccess);
-}
-
-function loadConfiguredPlugins(url, id) {
-    var treeIcon = $(id + '-tree-icon');
-    var onSuccess = updateConfiguredPlugins(id, treeIcon); 
-    loadPlugins(url, id, onSuccess);
 }

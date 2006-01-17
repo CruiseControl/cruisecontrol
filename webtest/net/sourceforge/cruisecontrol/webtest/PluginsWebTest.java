@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.webtest;
 import net.sourceforge.jwebunit.WebTestCase;
 
 public class PluginsWebTest extends WebTestCase {
-    private static final String BASE = "/cruisecontrol/available.jspa?project=connectfour";
+    private static final String BASE = "/cruisecontrol/plugins.jspa?project=connectfour";
     private static final String ALL_BOOTSTRAPPERS_URL = BASE + "&pluginType=bootstrapper";
     private static final String ALL_PUBLISHERS_URL = BASE + "&pluginType=publisher";
     private static final String ALL_SOURCE_CONTROLS_URL = BASE + "&pluginType=sourcecontrol";
@@ -52,69 +52,29 @@ public class PluginsWebTest extends WebTestCase {
     public void testShouldBeAccessibleFromBasicConfigPage() throws Exception {
         beginAt("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Bootstrappers");
-        assertLinkPresentWithText("Add Bootstrapper");
 
         gotoPage("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Publishers");
-        assertLinkPresentWithText("Add Publisher");
         
         gotoPage("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Source Controls");
-        assertLinkPresentWithText("Add Source Control");
     }
 
     public void testShouldListAvailableBootstrappers() {
         beginAt(ALL_BOOTSTRAPPERS_URL);
-        assertLinkPresentWithText("accurevbootstrapper");
-        assertLinkPresentWithText("alienbrainbootstrapper");
-        assertLinkPresentWithText("antbootstrapper");
-        assertLinkPresentWithText("clearcasebootstrapper");
-        assertLinkPresentWithText("cmsynergybootstrapper");
-        assertLinkPresentWithText("currentbuildstatusbootstrapper");
-        assertLinkPresentWithText("cvsbootstrapper");
-        assertLinkPresentWithText("p4bootstrapper");
-        assertLinkPresentWithText("snapshotcmbootstrapper");
-        assertLinkPresentWithText("svnbootstrapper");
-        assertLinkPresentWithText("vssbootstrapper");
+        assertFormPresent("load-bootstrapper");
+        assertFormElementPresent("pluginName");
     }
     
     public void testShouldListAvailablePublishers() {
         beginAt(ALL_PUBLISHERS_URL);
-        assertLinkPresentWithText("antpublisher");
-        assertLinkPresentWithText("cmsynergybaselinepublisher");
-        assertLinkPresentWithText("cmsynergytaskpublisher");
-        assertLinkPresentWithText("currentbuildstatuspublisher");
-        assertLinkPresentWithText("email");
-        assertLinkPresentWithText("execute");
-        assertLinkPresentWithText("ftppublisher");
-        assertLinkPresentWithText("htmlemail");
-        assertLinkPresentWithText("jabber");
-        assertLinkPresentWithText("onfailure");
-        assertLinkPresentWithText("onsuccess");
-        assertLinkPresentWithText("scp");
-        assertLinkPresentWithText("socket");
-        assertLinkPresentWithText("x10");
-        assertLinkPresentWithText("xsltlogpublisher");
+        assertFormPresent("load-publisher");
+        assertFormElementPresent("pluginName");
     }
     
     public void testShouldListAvailableSourceControls() {
         beginAt(ALL_SOURCE_CONTROLS_URL);
-        assertLinkPresentWithText("accurev");
-        assertLinkPresentWithText("alienbrain");
-        assertLinkPresentWithText("alwaysbuild");
-        assertLinkPresentWithText("buildstatus");
-        assertLinkPresentWithText("clearcase");
-        assertLinkPresentWithText("cmsynergy");
-        assertLinkPresentWithText("compound");
-        assertLinkPresentWithText("cvs");
-        assertLinkPresentWithText("filesystem");
-        assertLinkPresentWithText("forceonly");
-        assertLinkPresentWithText("mks");
-        assertLinkPresentWithText("p4");
-        assertLinkPresentWithText("pvcs");
-        assertLinkPresentWithText("snapshotcm");
-        assertLinkPresentWithText("svn");
-        assertLinkPresentWithText("vss");
-        assertLinkPresentWithText("vssjournal");
+        assertFormPresent("load-sourcecontrol");
+        assertFormElementPresent("pluginName");
     }
 }

@@ -56,10 +56,6 @@ public class PluginDetailsServlet extends ActionSupport implements
     private Map parameters;
     private PluginConfiguration pluginConfiguration;
 
-    public String doDefault() {
-        return INPUT;
-    }
-
     public String execute() throws Exception {
         setDetails();
         configuration.updatePluginConfiguration(pluginConfiguration);
@@ -67,6 +63,10 @@ public class PluginDetailsServlet extends ActionSupport implements
         return SUCCESS;
     }
 
+    public String load() {
+        return INPUT;
+    }
+    
     public String getName() {
         return this.pluginConfiguration.getName();
     }
