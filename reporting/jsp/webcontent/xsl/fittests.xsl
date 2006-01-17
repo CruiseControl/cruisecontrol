@@ -40,14 +40,14 @@
     xmlns:lxslt="http://xml.apache.org/xslt">
 
     <xsl:output method="html"/>
-    <xsl:variable name="testsuite.list" select="//testResults"/>
-    <xsl:variable name="testsuite.names" select="//testResults/result/relativePageName"/>
-    <xsl:variable name="testsuite.right.count" select="$testsuite.list/finalCounts/right"/>
-    <xsl:variable name="testsuite.wrong.count" select="$testsuite.list/finalCounts/wrong"/>
-    <xsl:variable name="testsuite.ignores.count" select="$testsuite.list/finalCounts/ignores"/>
-    <xsl:variable name="testsuite.exceptions.count" select="$testsuite.list/finalCounts/exceptions"/>
-    <xsl:variable name="testsuite.totalErrors" select="$testsuite.wrong.count + $testsuite.exceptions.count"/>
-    <xsl:variable name="testsuite.totalTests" select="$testsuite.right.count + $testsuite.wrong.count + $testsuite.ignores.count + $testsuite.exceptions.count"/>
+    <xsl:variable name="fitresults.list" select="//testResults"/>
+    <xsl:variable name="fitresults.names" select="//testResults/result/relativePageName"/>
+    <xsl:variable name="fitresults.right.count" select="$fitresults.list/finalCounts/right"/>
+    <xsl:variable name="fitresults.wrong.count" select="$fitresults.list/finalCounts/wrong"/>
+    <xsl:variable name="fitresults.ignores.count" select="$fitresults.list/finalCounts/ignores"/>
+    <xsl:variable name="fitresults.exceptions.count" select="$fitresults.list/finalCounts/exceptions"/>
+    <xsl:variable name="fitresults.totalErrors" select="$fitresults.wrong.count + $fitresults.exceptions.count"/>
+    <xsl:variable name="fitresults.totalTests" select="$fitresults.right.count + $fitresults.wrong.count + $fitresults.ignores.count + $fitresults.exceptions.count"/>
 <!--
 ***********************************************************************************
 *
@@ -60,11 +60,11 @@
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
             <tr>
                 <td class="unittests-sectionheader" colspan="4">
-                    &#160;Fit Tests: (<xsl:value-of select="$testsuite.totalTests"/> tests, <xsl:value-of select="$testsuite.right.count"/> successful, <xsl:value-of select="$testsuite.ignores.count"/> ignored, <xsl:value-of select="$testsuite.totalErrors"/> failured)
+                    &#160;Fit Tests: (<xsl:value-of select="$fitresults.totalTests"/> tests, <xsl:value-of select="$fitresults.right.count"/> successful, <xsl:value-of select="$fitresults.ignores.count"/> ignored, <xsl:value-of select="$fitresults.totalErrors"/> failured)
                 </td>
             </tr>
     <xsl:choose>
-        <xsl:when test="$testsuite.totalTests = 0">
+        <xsl:when test="$fitresults.totalTests = 0">
             <tr>
                 <td colspan="2" class="unittests-data">
                     No Fit Tests Run
@@ -76,7 +76,7 @@
                 </td>
             </tr>
         </xsl:when>
-        <xsl:when test="$testsuite.totalErrors = 0">
+        <xsl:when test="$fitresults.totalErrors = 0">
             <tr>
                 <td colspan="2" class="unittests-data">
                     All Fit Tests Passed
@@ -87,7 +87,7 @@
             <tr>
                 <td>
                     <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
-                        <xsl:apply-templates select="$testsuite.names" mode="fittests"/>
+                        <xsl:apply-templates select="$fitresults.names" mode="fittests"/>
                     </table>
                 </td>
             </tr>
