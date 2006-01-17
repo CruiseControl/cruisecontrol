@@ -38,6 +38,9 @@
 <%@page errorPage="/error.jsp"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <%
+    String rmiPort = System.getProperty("cruisecontrol.rmiport");
+    boolean rmiEnabled = rmiPort != null;
+
     String ccname = System.getProperty("ccname", "");
     String project = request.getPathInfo().substring(1);
 %>
@@ -75,10 +78,12 @@
                 <%@ include file="metrics.jsp" %>
               </cruisecontrol:tab>
 
+              <% if (rmiEnabled) { %>
               <cruisecontrol:tab name="config" label="Config">
                 <iframe src="config.jspa?project=<%= project %>" width="90%"
                     height="600" frameborder="0"></iframe>
               </cruisecontrol:tab>
+              <% } %>
 
               <cruisecontrol:tab name="controlPanel" label="Control Panel" >
                 <%@ include file="controlpanel.jsp" %>

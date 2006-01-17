@@ -186,6 +186,7 @@ Configuration Editor:
 * Added a "tree view" of configuration elements using AJAX for updates from the server. Patch by Kent Spillner, with Paul Julius.
 * Storing config.xml file contents in session to allow "local" editing prior to uploading to daemon. Patch by Kent Spillner.
 * Fixed bug with attributes in configuration editor NOT being treated as case-insensitive, which is what Cruise does. Patch by Kent Spillner.
+* Config tab only visible if "cruisecontrol.rmiport" system property is set, as is the case when running the binary distribution, but necessarily when running the source distribution. Issue reported by Kevin Lee, and fixed by Kent Spillner.
 
 CruiseControlLogFileFilter:
 ----------------------
