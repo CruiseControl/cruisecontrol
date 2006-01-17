@@ -37,9 +37,7 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -49,21 +47,21 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  */
 public class UCMTest extends TestCase {
 
-    private static final String WINDOWS_LOG = "ucm-history.txt";
-    private static final String UNIX_LOG = "ucm-history-alt.txt";
-    private static final String WINDOWS_XML = "ucm-history.xml";
-    private static final String UNIX_XML = "ucm-history-alt.xml";
-
     public static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    private UCM ucm;
-    private List mods;
-
-    private InputStream loadTestLog(String name) {
-        InputStream testStream = getClass().getResourceAsStream(name);
-        assertNotNull("failed to load resource " + name + " in class " + getClass().getName(), testStream);
-        return testStream;
-    }
+//    private static final String WINDOWS_LOG = "ucm-history.txt";
+//    private static final String UNIX_LOG = "ucm-history-alt.txt";
+//    private static final String WINDOWS_XML = "ucm-history.xml";
+//    private static final String UNIX_XML = "ucm-history-alt.xml";
+//
+//    private UCM ucm;
+//    private List mods;
+//
+//    private InputStream loadTestLog(String name) {
+//        InputStream testStream = getClass().getResourceAsStream(name);
+//        assertNotNull("failed to load resource " + name + " in class " + getClass().getName(), testStream);
+//        return testStream;
+//    }
 
     protected void setUp() {
         // TODO
