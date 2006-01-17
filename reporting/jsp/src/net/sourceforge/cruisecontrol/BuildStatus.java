@@ -22,7 +22,7 @@ import java.io.IOException;
  */
 public class BuildStatus {
     /** Constant meaning to read all lines from the build status file. */
-    public static final int READ_ALL_LINES = 0;
+    public static final int READ_ALL_LINES = -2;
 
     /**
      * Constant meaning to read only the project status and time lines from the
@@ -119,7 +119,8 @@ public class BuildStatus {
     }
 
     /**
-     * Get the status from the build status file.
+     * Get the status from the build status file. Need to consider a &lt;br&gt;
+     * a new line to account for XmlLoggerWithStatus output.
      * 
      * @param statusFile
      *            The status file to get the status info from.
@@ -141,16 +142,32 @@ public class BuildStatus {
             String line = br.readLine();
             int linesRead = 1;
 
-            while (line != null
-                && (linesRead++ <= maxReadLines || maxReadLines == READ_ALL_LINES)) {
-                sb.append(line);
-                sb.append('\n');
-
-                if (insertBreaks) {
-                    sb.append("<br/>");
+            while (line != null && readMoreLines(linesRead, maxReadLines)) {
+              
+                if (line.indexOf("<br>") == -1) {
+                    addLine(line, sb, insertBreaks);                  
+                } else {
+                    int startIndex = 0;
+                    for (int endIndex = line.indexOf("<br>");
+                             endIndex != -1 && readMoreLines(linesRead, maxReadLines);
+                             linesRead++) {
+                        String substring = line.substring(startIndex, endIndex);
+                        if (substring.length() > 0) {
+                            addLine(substring, sb, insertBreaks);
+                        } else {
+                            linesRead--;
+                        }
+                        startIndex = endIndex + "<br>".length();
+                        endIndex = line.indexOf("<br>", startIndex);
+                    }                    
+                    String substring = line.substring(startIndex);
+                    if (substring.length() > 0 && readMoreLines(linesRead, maxReadLines)) {
+                        addLine(substring, sb, insertBreaks);
+                    }
                 }
 
                 line = br.readLine();
+                linesRead++;
             }
         } catch (IOException e) {
             throw new CruiseControlWebAppException(
@@ -168,6 +185,18 @@ public class BuildStatus {
         }
 
         return sb.toString();
+    }
+
+    private static boolean readMoreLines(int linesRead, int maxReadLines) {
+        return linesRead <= maxReadLines || maxReadLines == READ_ALL_LINES;
+    }
+
+    private static void addLine(String line, StringBuffer sb, boolean insertBreaks) {
+        sb.append(line);
+        sb.append('\n');
+        if (insertBreaks) {
+            sb.append("<br/>");
+        }
     }
 
     /**
