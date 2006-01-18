@@ -55,15 +55,22 @@
         <hr/>
     </div>
 </ww:if>
-<table width="100%">
+<table>
     <tr>
-        <td colspan="2">
-            <ww:form action="reload" id="reload-configuration"
+        <td>
+            <form action="<ww:url value="reload.jspa"/>" id="reload-configuration"
                      name="reload-configuration" method="post">
-                <ww:submit value="Reload" cssClass="config-button"/>
-            </ww:form>
+                <input type="submit" value="Reload from server" class="config-button"/>
+            </form>
+        </td><td>
+            <form action="<ww:url value="save.jspa"/>" id="save-configuration"
+                     name="save-configuration" method="post">
+                <input type="submit" value="Save to server" class="config-button"/>
+            </form>
         </td>
     </tr>
+</table>
+<table width="100%">
     <tr valign="top">
         <td width="50%">
             <a class="config-link" href="plugins.jspa?pluginType=listener"
@@ -124,11 +131,7 @@
         </td>
     </tr>
     <tr><td colspan="2">
-        <ww:form action="save" id="project-config"
-                 name="project-config" method="post">
-            <ww:textarea name="contents" rows="24" cols="80"/>
-            <ww:submit value="Save" cssClass="config-button"/>
-        </ww:form>
+        <a href="<ww:url value="contents.jspa"/>">Edit raw XML configuration...</a>
     </td></tr>
 </table>
 </body>
