@@ -38,12 +38,17 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:output method="html"/>
 
+    <!-- Any PMD error with a priority below this threshold are considered
+         warnings and not errors
+    -->
+    <xsl:param name="pmd.warning.threshold" select="11"/>
+
     <xsl:template match="/" mode="pmd">
         <xsl:apply-templates select="cruisecontrol/pmd" mode="pmd"/>
     </xsl:template>
 
     <xsl:template match="pmd[file/violation]" mode="pmd">
-        <xsl:variable name="total.error.count" select="count(file/violation[@priority &lt; 3])" />
+        <xsl:variable name="total.error.count" select="count(file/violation[@priority &lt; $pmd.warning.threshold])" />
         <xsl:variable name="total.warning.count" select="count(file/violation)" />
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
           <colgroup>
@@ -64,7 +69,7 @@
              </tr>
            </xsl:when>
            <xsl:otherwise>
-            <xsl:for-each select="file/violation[@priority &lt; 3]" >
+            <xsl:for-each select="file/violation[@priority &lt; $pmd.warning.threshold]" >
               <tr>
                 <xsl:if test="position() mod 2 = 1">
                   <xsl:attribute name="class">checkstyle-oddrow</xsl:attribute>
