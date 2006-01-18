@@ -39,9 +39,7 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -93,11 +91,10 @@ public class XSLTagTest extends TestCase {
                 + "</xsl:stylesheet>";
         writeFile(log1, styleSheetText);
         writeFile(log3, "<test sub=\"1\">3</test>");
-        InputStream style = new FileInputStream(log1);
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
-        tag.transform(new LogFile(log3), style, out);
+        tag.transform(new LogFile(log3), log1.toURI().toURL(), out);
         assertEquals("test=3.1", out.toString());
     }
 
@@ -121,11 +118,10 @@ public class XSLTagTest extends TestCase {
                 + "</xsl:stylesheet>";
         writeFile(log2, outerStyleSheetText);
         writeFile(log3, "<test sub=\"1\">3</test>");
-        InputStream style = new FileInputStream(log2);
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
-        tag.transform(new LogFile(log3), style, out);
+        tag.transform(new LogFile(log3), log2.toURI().toURL(), out);
         assertEquals("test=3.1", out.toString());
     }
     

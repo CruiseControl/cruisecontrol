@@ -90,32 +90,15 @@ public class XSLTag extends CruiseControlTagSupport {
      *  Perform an xsl transform.  This body of this method is based upon the xalan sample code.
      *
      *  @param xmlFile the xml file to be transformed
-     *  @param style stream containing the xsl stylesheet
+     *  @param style resource containing the xsl stylesheet
      *  @param out stream to output the results of the transformation
      */
-    protected void transform(LogFile xmlFile, InputStream style, OutputStream out) throws JspTagException {
+    protected void transform(LogFile xmlFile, URL style, OutputStream out) throws JspTagException {
         InputStream in = null;
 
         try {
             TransformerFactory tFactory = TransformerFactory.newInstance();
-            javax.xml.transform.URIResolver resolver = new javax.xml.transform.URIResolver() {
-                private final ServletContext servletContext = getPageContext().getServletContext();
-                public javax.xml.transform.Source resolve(String href, String base) {
-                    InputStream styleStream = servletContext.getResourceAsStream(xslRootContext + href);
-                    if (styleStream != null) {
-
-                        // XXX Possible stream leak: there is no explicit
-                        //     styleStream.close()
-                        info("Using nested stylesheet for " + href);
-                        return new StreamSource(styleStream);
-                    } else {
-                        info("Nested stylesheet not found for " + href);
-                        return null;
-                    }
-                }
-            };
-            tFactory.setURIResolver(resolver);
-            Transformer transformer = tFactory.newTransformer(new StreamSource(style));
+            Transformer transformer = tFactory.newTransformer(new StreamSource(style.toExternalForm()));
             Map parameters = getXSLTParameters();
             if (!parameters.isEmpty()) {
                 transformer.clearParameters();
@@ -297,13 +280,8 @@ public class XSLTag extends CruiseControlTagSupport {
         OutputStream out = null;
         try {
             out = new FileOutputStream(cacheFile);
-            InputStream style = null;
-            try {
-                style = getPageContext().getServletContext().getResourceAsStream(xslFileName);
-                transform(xmlFile, style, out);
-            } finally {
-                closeQuietly(style);
-            }
+            URL style = getPageContext().getServletContext().getResource(xslFileName);
+            transform(xmlFile, style, out);
         } catch (IOException e) {
             err(e);
             throw new CCTagException("Error saving a cached transformation '"
