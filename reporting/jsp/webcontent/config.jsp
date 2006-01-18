@@ -45,6 +45,8 @@
 </head>
 
 <body>
+<table width="100%"><tr><td align="center">Ready for <em>Alpha</em>-level testing</td></tr></table>
+
 <ww:if test="hasActionMessages()">
     <div id="result-messages" class="config-result-messages">
         <ul>
@@ -55,24 +57,29 @@
         <hr/>
     </div>
 </ww:if>
-<table>
+<table width="100%">
     <tr>
-        <td>
+        <td width="1%">
             <form action="<ww:url value="reload.jspa"/>" id="reload-configuration"
                      name="reload-configuration" method="post">
                 <input type="submit" value="Reload from server" class="config-button"/>
             </form>
-        </td><td>
+        </td><td width="1%">
             <form action="<ww:url value="save.jspa"/>" id="save-configuration"
                      name="save-configuration" method="post">
                 <input type="submit" value="Save to server" class="config-button"/>
             </form>
         </td>
+        <td align="right">
+            <a href="<ww:url value="contents.jspa"/>">
+                <img border="0" src="images/xml.png" alt="Edit raw XML configuration" title="Edit raw XML configuration"/>
+            </a>
+        </td>
     </tr>
 </table>
 <table width="100%">
     <tr valign="top">
-        <td width="50%">
+        <td width="50%" style="border-right:thin solid dimgray;">
             <a class="config-link" href="plugins.jspa?pluginType=listener"
                onclick="loadPlugins(this.href, 'listeners'); return false;">
                 <img id="listeners-tree-icon" src="images/plus_nolines.gif"/></a>
@@ -130,9 +137,6 @@
                 frameborder="0" height="100%" width="100%" id="plugin-details"></iframe>
         </td>
     </tr>
-    <tr><td colspan="2">
-        <a href="<ww:url value="contents.jspa"/>">Edit raw XML configuration...</a>
-    </td></tr>
 </table>
 </body>
 </html>
