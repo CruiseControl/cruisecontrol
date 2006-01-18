@@ -51,6 +51,7 @@ import org.jdom.JDOMException;
 
 public class ProjectConfigurationPageWebTest extends WebTestCase {
     private static final String CONFIG_URL = "/cruisecontrol/config.jspa?project=connectfour";
+    private static final String CONTENTS_URL = "/cruisecontrol/contents.jspa?project=connectfour";
     private final String contents;
     private Configuration configuration;
 
@@ -72,20 +73,41 @@ public class ProjectConfigurationPageWebTest extends WebTestCase {
         configuration.save();
     }
 
-    public void testShouldLoadRawXMLConfigurationData() {
+    public void testShouldLinkToRawXMLConfigurationData() {
         beginAt(CONFIG_URL);
-        assertFormPresent("project-config");
+        assertLinkPresentWithText("Edit raw XML configuration");
+    }
+
+    public void testShouldLinkBackToMainPage() {
+        beginAt(CONTENTS_URL);
+        assertLinkPresentWithText("Return to configuration editor");
+        clickLinkWithText("Return to configuration editor");
+        assertFormPresent("reload-configuration");
+    }
+
+    public void testShouldReloadConfiguration() throws Exception {
+        testLoad();
+        gotoPage(CONFIG_URL);
+        setWorkingForm("reload-configuration");
+        submit();
+        assertTextPresent("Reloaded configuration");
+        assertTextNotPresent("Hello, world!");
+    }
+
+    public void testShouldLoadRawXMLConfigurationData() {
+        beginAt(CONTENTS_URL);
+        assertFormPresent("project-configuration");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
         assertTextPresent("&lt;/cruisecontrol&gt;");
     }
 
     public void testShouldSaveChangesToXMLConfigurationData() throws Exception {
-        beginAt(CONFIG_URL);
-        setWorkingForm("project-config");
+        beginAt(CONTENTS_URL);
+        setWorkingForm("project-configuration");
         setFormElement("contents", contents + "<!-- Hello, world! -->");
         submit();
-        assertFormPresent("project-config");
+        assertFormPresent("project-configuration");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
         assertTextPresent("&lt;/cruisecontrol&gt;");
@@ -95,21 +117,16 @@ public class ProjectConfigurationPageWebTest extends WebTestCase {
     public void testLoad() throws Exception {
         String newContent = "&lt;!-- Hello, world! --&gt;";
 
-        beginAt(CONFIG_URL);
-        assertFormPresent("reload-configuration");
-        setWorkingForm("project-config");
+        beginAt(CONTENTS_URL);
+        assertFormPresent("project-configuration");
+        setWorkingForm("project-configuration");
         setFormElement("contents", contents + "<!-- Hello, world! -->");
         submit();
-        assertFormPresent("project-config");
+        assertFormPresent("project-configuration");
         assertFormElementPresent("contents");
         assertTextPresent("&lt;cruisecontrol&gt;");
         assertTextPresent("&lt;/cruisecontrol&gt;");
         assertTextPresent(newContent);
-        setWorkingForm("reload-configuration");
-        submit();
-        assertTextPresent("Reloaded configuration.");
-//        assertTextNotPresent(newContent);
-      assertTextPresent(newContent);
     }
 
     private static Configuration createConfig() throws IOException, MalformedObjectNameException {

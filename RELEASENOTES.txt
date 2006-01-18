@@ -188,6 +188,7 @@ Configuration Editor:
 * Fixed bug with attributes in configuration editor NOT being treated as case-insensitive, which is what Cruise does. Patch by Kent Spillner.
 * Config tab only visible if "cruisecontrol.rmiport" system property is set, as is the case when running the binary distribution, but necessarily when running the source distribution. Issue reported by Kevin Lee, and fixed by Kent Spillner.
 * List of available plugins converted to a select box. Patch by Kent Spillner.
+* Moved textbox for editting raw xml to a separate page. Kent Spillner and Paul Julius, pairing.
 
 CruiseControlLogFileFilter:
 ----------------------

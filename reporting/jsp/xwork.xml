@@ -34,6 +34,15 @@
             method="reload">
             <result name="success" type="chain">config</result>
         </action>
+        <action name="contents"
+            class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet">
+            <result name="success">raw-xml.jsp</result>
+        </action>
+        <action name="saveContents"
+            class="net.sourceforge.cruisecontrol.servlet.ConfigurationServlet"
+            method="save">
+            <result name="success" type="chain">contents</result>
+        </action>
         <action name="load-details"
             class="net.sourceforge.cruisecontrol.servlet.PluginDetailsServlet" method="load">
             <result name="input">details.jsp</result>

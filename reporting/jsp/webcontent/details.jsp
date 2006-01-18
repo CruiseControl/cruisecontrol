@@ -61,7 +61,7 @@
         <ww:textfield name="%{key}" label="%{key}"
             value="%{value}" size="32" cssClass="config-detail"/>
     </ww:iterator>
-    <ww:submit value="Save" cssClass="config-button"/>
+    <ww:submit value="OK" cssClass="config-button"/>
 </ww:form>
 </body>
 </html>
