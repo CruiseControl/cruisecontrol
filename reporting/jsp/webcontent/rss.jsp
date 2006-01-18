@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="net.sourceforge.cruisecontrol.BuildInfo" %>
+<%@ page import="
+            java.text.SimpleDateFormat,
+            java.util.Date,
+            java.util.Locale,
+            net.sourceforge.cruisecontrol.BuildInfo" %>
 <%--********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * This file copyright (c) 2004, Mark Doliner.
@@ -41,7 +43,10 @@
 
 <%
     String project = request.getPathInfo().substring(1);
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.US);
+
+    // The publication date is in RFC 822 format which is in english
+    // see http://blogs.law.harvard.edu/tech/rss
+    SimpleDateFormat rfc822Format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
 %>
 
 <rss version="2.0">
@@ -66,7 +71,7 @@
 	<title><%= date %>, FAILED!</title>
 	<description>Build FAILED!</description>
 <% } %>
-<pubDate><%= simpleDateFormat.format(date) %></pubDate>
+<pubDate><%= rfc822Format.format(date) %></pubDate>
 <link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %>/buildresults/<%= project %>?log=<%= logfile %></link>
 </item>
 </cruisecontrol:nav>
