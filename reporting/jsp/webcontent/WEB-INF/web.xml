@@ -93,6 +93,16 @@
       </description>
     </context-param>
 
+    <!--
+    <context-param>
+      <param-name>xslt.pmd.warning.threshold</param-name>
+      <param-value>3</param-value>
+      <description>PMD violations with a priority below this threshold are considered warnings and
+            are only reported by the total count on the build results page.
+      </description>
+    </context-param>
+    -->
+
     <servlet>
       <servlet-name>buildresults</servlet-name>
       <display-name>Build Result Reporter</display-name>
