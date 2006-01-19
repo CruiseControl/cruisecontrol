@@ -61,7 +61,7 @@
         <table align="center" cellpadding="2" cellspacing="0" border="0" width="98%">
             <tr>
                 <td class="unittests-sectionheader" colspan="4">
-                    &#160;Fit Tests: (<xsl:value-of select="$fitresults.totalTests"/> tests, <xsl:value-of select="$fitresults.right.count"/> successful, <xsl:value-of select="$fitresults.ignores.count"/> ignored, <xsl:value-of select="$fitresults.totalErrors"/> failured)
+                    &#160;Fit Tests: (<xsl:value-of select="$fitresults.totalTests"/> tests, <xsl:value-of select="$fitresults.right.count"/> successful, <xsl:value-of select="$fitresults.ignores.count"/> ignored, <xsl:value-of select="$fitresults.totalErrors"/> failed)
                 </td>
             </tr>
     <xsl:choose>
