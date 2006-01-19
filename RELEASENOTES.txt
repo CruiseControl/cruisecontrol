@@ -164,6 +164,10 @@ StarTeam
 * Modifications done by any user with name = "BuildMaster" are no longer ignored. (CC-368) Patch by Benjamin Burgess
 * Deletions are reported as the deleter instead of the last editor. (CC-368) Patch by Benjamin Burgess
 
+ThreadQueue
+----------------------
+* Fixes for incorrect methods (CC-389). Provided by Tarik Idris, reviewed by Kent Spillner.
+
 VSSJournal:
 ----------------------
 * handle dirs with same prefix (CC-307).  Patch by Dan Rollo.
