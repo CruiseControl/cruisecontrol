@@ -75,7 +75,9 @@ public class ProjectConfigurationPageWebTest extends WebTestCase {
 
     public void testShouldLinkToRawXMLConfigurationData() {
         beginAt(CONFIG_URL);
-        assertLinkPresentWithText("Edit raw XML configuration");
+        assertLinkPresentWithImage("xml.png");
+        clickLinkWithImage("xml.png");
+        assertTitleEquals("CruiseControl Raw XML Configuration");
     }
 
     public void testShouldLinkBackToMainPage() {
