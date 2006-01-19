@@ -44,12 +44,14 @@ import junit.framework.TestCase;
  *         JUnit test class to work on net.sourceforge.cruisecontrol.util.ThreadQueue
  */
 public class ThreadQueueTest extends TestCase {
+    private static final String TASK_NAME_PREFIX = "SHOULD NOT MATTER - ";
     private static final int TASK_COUNT = 5;
     private static final int TASK_SLEEP_TIME = 1000;
     
     protected void setUp() throws Exception {  
+        long start = System.currentTimeMillis();
         for (int i = 0; i < TASK_COUNT; i++) {
-            final String taskName = i + "";
+            final String taskName = taskNameFor(i);
 
             IdleThreadQueueClient pt = new IdleThreadQueueClient();
             String[] myArgs = {taskName, TASK_SLEEP_TIME + ""};
@@ -59,13 +61,45 @@ public class ThreadQueueTest extends TestCase {
         }
 
         sleep(TASK_SLEEP_TIME / 10);
+
+        System.out.println(" setup down = " + (System.currentTimeMillis() - start));
     }
 
     protected void tearDown() {
+        long start = System.currentTimeMillis();
         ThreadQueue.terminate();
-        sleep(1000);
+        //sleep(1000);
+        System.out.println(" tear down = " + (System.currentTimeMillis() - start));
+    }
+    
+    public void testIsIdle() throws Exception {
+        assertTrue(ThreadQueue.isIdle(taskNameFor(1)));
+        assertTrue(ThreadQueue.isIdle(taskNameFor(2)));
+    }
+    
+    public void testIsNotIdle() throws Exception {
+        assertFalse(ThreadQueue.isIdle(taskNameFor(0)));
+
+        ThreadQueue.waitFor(taskNameFor(1));
+        assertFalse(ThreadQueue.isIdle(taskNameFor(1)));
+    }
+    
+    public void testIsIdleNotCaseSensitive() throws Exception {
+        assertTrue(ThreadQueue.isIdle(taskNameFor(TASK_COUNT - 1).toLowerCase()));
     }
 
+    public void testNonexistentTasksAreNotIdle() throws Exception {
+        assertFalse(ThreadQueue.isIdle(taskNameFor(42)));
+    }
+
+    public void testInterrupt() throws Exception {
+        ThreadQueue.interrupt(taskNameFor(0));
+        assertInterrupted(taskNameFor(0));
+        
+        ThreadQueue.interrupt(taskNameFor(TASK_COUNT - 1));
+        assertInterrupted(taskNameFor(TASK_COUNT - 1));
+    }
+    
     /**
      * testPoolInterruptAll adds tasks to the queue and then, while interrupting
      * each task, checks the state of the pool
@@ -104,13 +138,13 @@ public class ThreadQueueTest extends TestCase {
 
         // ensure the tasks were all created and added
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertTrue(ThreadQueue.taskExists(taskName));
         }
 
         // ensure all the tasks are active
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertTrue(ThreadQueue.isActive(taskName));
         }
 
@@ -118,13 +152,13 @@ public class ThreadQueueTest extends TestCase {
 
         // ensure the tasks are still in the system
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertTrue(ThreadQueue.taskExists(taskName));
         }
 
         // ensure all the tasks aren't active
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertFalse(ThreadQueue.isActive(taskName));
         }
 //        System.out.println("\nExiting testPoolFunctions");
@@ -170,7 +204,7 @@ public class ThreadQueueTest extends TestCase {
 
         // ensure the tasks are still in the system
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertTrue(ThreadQueue.taskExists(taskName));
         }
 
@@ -182,20 +216,22 @@ public class ThreadQueueTest extends TestCase {
 
         // ensure the tasks are still in the system
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertTrue(ThreadQueue.taskExists(taskName));
         }
 
         // ensure all the tasks aren't active anymore
         for (int i = 0; i < TASK_COUNT; i++) {
-            String taskName = i + "";
+            String taskName = taskNameFor(i);
             assertFalse(ThreadQueue.isActive(taskName));
         }
 
         // check the return values of all the worker threads
         for (int i = 0; i < TASK_COUNT; i++) {
-            Object rawResult = ThreadQueue.getResult(i + "");
-            assertEquals((i * 2) + "", rawResult);
+            String taskName = taskNameFor(i);
+            Object rawResult = ThreadQueue.getResult(taskName);
+            assertTrue(rawResult instanceof String);
+            assertEquals("DONE WITH " + taskName, (String) rawResult);
         }
 
 //        System.out.println("\nExiting testExecution");
@@ -235,7 +271,7 @@ public class ThreadQueueTest extends TestCase {
             }
 
 //            System.out.println("waiting for " + (i - 1));
-            ThreadQueue.waitFor((i - 1) + "");
+            ThreadQueue.waitFor(taskNameFor(i - 1));
         }
 
 //        System.out.println("Exiting testCounters ");
@@ -250,5 +286,14 @@ public class ThreadQueueTest extends TestCase {
         } catch (Exception e) {
         }
     }
+    
+    private static void assertInterrupted(String taskName) {
+        assertFalse(ThreadQueue.isActive(taskName));
+        assertFalse(ThreadQueue.isDone(taskName));
+        assertFalse(ThreadQueue.isIdle(taskName));
+    }
 
+    private static String taskNameFor(int i) {
+        return TASK_NAME_PREFIX + i;
+    }
 }

@@ -351,7 +351,7 @@ public class ThreadQueue extends Thread {
      * tells you if a task is waiting now
      */
     public static boolean isIdle(String taskName) {
-        return getThreadQueue().idleTasks.contains(taskName);
+        return getIdleTask(taskName) != null;
     }
 
     /**
@@ -456,19 +456,16 @@ public class ThreadQueue extends Thread {
     public static void interrupt(String taskName) {
         synchronized (getThreadQueue().busyTasks) {
 
-            // check for the taskName in the resultsList
-            // if it's there, it's already finished
-            // *return
-            if (getResult(taskName) != null) {
-                return;
-            }
-
             // check for it in the idleList
             // *remove it (before it starts running)
             // *return
 
             if (ThreadQueue.isIdle(taskName)) {
-                getThreadQueue().idleTasks.remove(taskName);
+                if (getThreadQueue().idleTasks.remove(getIdleTask(taskName))) {
+                    LOG.debug("removed idle project " + taskName);
+                } else {
+                    LOG.warn("could not remove idle project " + taskName);
+                }
                 return;
             } // end of if ( getThreadQueue().isIdle(taksName()) {
 
@@ -478,12 +475,17 @@ public class ThreadQueue extends Thread {
             // *return
             WorkerThread thisWorker = getBusyTask(taskName);
             if (thisWorker != null) {
+                LOG.debug("Attempting to stop a project building at the moment: " + taskName);
                 Thread thisThread =
                         (Thread) getThreadQueue().runningThreads.get(thisWorker);
                 thisThread.interrupt();
                 getThreadQueue().busyTasks.remove(thisWorker);
                 getThreadQueue().runningThreads.remove(thisThread);
+                LOG.debug("Stopped " + taskName + " succesfully");
+                return;
             }
+            
+            LOG.warn("Project is neither idle nor busy: " + taskName + "; taking no action");
         }
     }
 
