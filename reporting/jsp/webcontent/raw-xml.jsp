@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>CruiseControl Raw XML Configuration</title>
-    <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
+    <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>    
 </head>
 
 <body>
