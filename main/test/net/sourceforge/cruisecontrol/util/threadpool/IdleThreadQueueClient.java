@@ -74,9 +74,7 @@ public class IdleThreadQueueClient implements WorkerThread {
             }
         }
 //        System.out.println("exiting from " + name);
-        int numericResult = (new Integer(name)).intValue();
-        numericResult = numericResult * 2;
-        result = numericResult + "";
+        result = "DONE WITH " + name;
     }
 
     public void setParams(String[] args) {
