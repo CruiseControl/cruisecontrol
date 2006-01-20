@@ -37,7 +37,7 @@
  ********************************************************************************-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="html"/>
-  <xsl:param name="viewcvsurl"/>
+  <xsl:param name="viewcvs.url"/>
   <xsl:variable name="project" select="/cruisecontrol/info/property[@name='projectname']/@value"/>
   <xsl:param name="cvsmodule" select="concat($project, '/java/')"/>
   <xsl:key name="rules" match="violation" use="@rule"/>
@@ -154,13 +154,13 @@
       <xsl:param name="file"/>
       <xsl:param name="line"/>
       <xsl:choose>
-        <xsl:when test="not($viewcvsurl)">
+        <xsl:when test="not($viewcvs.url)">
           <xsl:value-of select="$line"/>
         </xsl:when>
         <xsl:otherwise>
           <a>
             <xsl:attribute name="href">
-              <xsl:value-of select="concat($viewcvsurl, $cvsmodule)"/>
+              <xsl:value-of select="concat($viewcvs.url, $cvsmodule)"/>
               <xsl:value-of select="substring-after($file, $cvsmodule)"/>
               <xsl:text>?annotate=HEAD#</xsl:text>
               <xsl:value-of select="$line"/>
