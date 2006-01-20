@@ -183,7 +183,7 @@
     </target>
 
     <target name="-set.status.file" unless="user.build.status.file">
-        <input message="WARNING! Property user.build.status.file not set!  Please enter the absolute path to the current build status file:"
+        <input message="WARNING! Property user.build.status.file not set!  Please enter the name of the current build status file:"
             addproperty="user.build.status.file"/>
     </target>
 
