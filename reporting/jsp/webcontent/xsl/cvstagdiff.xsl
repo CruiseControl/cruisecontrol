@@ -41,15 +41,15 @@
   <xsl:output method="html"/>
 
   <xsl:param name="viewcvs.url"/>
-  <xsl:param name="cvstagdiff.success.show" select="true"/>
+  <xsl:param name="cvstagdiff.success.show" select="false"/>
 
   <xsl:template match="/" mode="cvstagdiff">
     <xsl:apply-templates select="/cruisecontrol/tagdiff" mode="cvstagdiff"/>
   </xsl:template>
 
   <xsl:template match="tagdiff" mode="cvstagdiff">
-    <xsl:variable name="broken" select="cruisecontrol/build/@error"/>
-    <xsl:if test="$cvstagdiff.success.show or $broken">
+    <xsl:variable name="broken" select="/cruisecontrol/build/@error"/>
+    <xsl:if test="$cvstagdiff.success.show!='false' or $broken">
       <xsl:variable name="difference.list" select="entry"/>
 
       <table align="center" cellpadding="2" cellspacing="1" border="0" width="98%">
