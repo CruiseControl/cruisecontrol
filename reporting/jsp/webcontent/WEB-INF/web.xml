@@ -98,10 +98,25 @@
       <param-name>xslt.pmd.warning.threshold</param-name>
       <param-value>3</param-value>
       <description>PMD violations with a priority below this threshold are considered warnings and
-            are only reported by the total count on the build results page.
+          are only reported by the total count on the build results page.
       </description>
     </context-param>
     -->
+
+    <context-param>
+      <param-name>xslt.viewcvs.url</param-name>
+      <param-value>http://cvs.sourceforge.net/viewcvs.py/cruisecontrol</param-value>
+      <description>The URL of the ViewCVS website used by cvstagdiff.xsl
+      </description>
+    </context-param>
+
+    <context-param>
+      <param-name>xslt.cvstagdiff.success.show</param-name>
+      <param-value>true</param-value>
+      <description>Controls whether the ViewCVS differences report should be shown when the build
+          was successful. The default is to only show the modifications report for successful builds
+      </description>
+    </context-param>
 
     <servlet>
       <servlet-name>buildresults</servlet-name>
