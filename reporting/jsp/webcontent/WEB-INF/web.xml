@@ -114,7 +114,7 @@
       <param-name>xslt.cvstagdiff.success.show</param-name>
       <param-value>true</param-value>
       <description>Controls whether the ViewCVS differences report should be shown when the build
-          was successful. The default is to only show the modifications report for successful builds
+          was successful. The default is to only show the modifications report for broken builds
       </description>
     </context-param>
 
