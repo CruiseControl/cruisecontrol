@@ -243,6 +243,7 @@ XSLTag:
 * Empty cache files left over from a failed transformation are not considered current and are regenerated. Patch by Hack Kampbjørn
 * Use XSLT parameters to customize the XSL templates.
 * Changed pmd.xsl to by default report all violations on the build results page. Old behaviour is available by setting xslt.pmd.warning.threshold=3 in web.xml
+* New XSL template for linking ant's cvstagdiff task's output to ViewCVS. (CC-356) Based on patch from Tony Cook via the Wiki
 
 CruiseControl Release Notes - 2.3.1
 

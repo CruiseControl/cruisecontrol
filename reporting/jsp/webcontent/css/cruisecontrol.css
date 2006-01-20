@@ -67,3 +67,8 @@ a img { border: 0 }
 
 .config-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
 .config-result-message { font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FF0000; }
+
+.differences-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
+.differences-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
+.differences-oddrow { background-color:#CCCCCC }
+.differences-evenrow { background-color:#FFFFCC }
