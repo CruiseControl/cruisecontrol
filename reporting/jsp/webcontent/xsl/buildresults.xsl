@@ -48,6 +48,7 @@
   <xsl:import href="unittests.xsl"/>
   <xsl:import href="fittests.xsl"/>
   <xsl:import href="modifications.xsl"/>
+  <xsl:import href="cvstagdiff.xsl"/>
   <xsl:import href="distributables.xsl"/>
 
   <xsl:output method="html"/>
@@ -70,6 +71,7 @@
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="unittests"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="fittests"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="modifications"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="cvstagdiff"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="distributables"/></p>
   </xsl:template>
 </xsl:stylesheet>
