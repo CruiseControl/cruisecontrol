@@ -134,6 +134,7 @@ Project:
 * ModificationSet is no longer a required element; when missing builds must be forced.
 * Fix a testcase failure on MacOS X. Reported by Michael Kloss.
 * Build after failed was not getting set properly. Patch by Brad Clarke.
+* Fix a bug where projects would hang if a build failed with unchecked exceptions or errors.
 
 ProjectConfig:
 ----------------------
