@@ -241,6 +241,8 @@ XSLTag:
 ----------------------
 * Handle absolute path for logdir attribute (CC-341). Patch by Jerome Lacoste.
 * Empty cache files left over from a failed transformation are not considered current and are regenerated. Patch by Hack Kampbjørn
+* Use XSLT parameters to customize the XSL templates.
+* Changed pmd.xsl to by default report all violations on the build results page. Old behaviour is available by setting xslt.pmd.warning.threshold=3 in web.xml
 
 CruiseControl Release Notes - 2.3.1
 
