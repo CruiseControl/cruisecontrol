@@ -133,8 +133,8 @@ public class AntBuilder extends Builder {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
         }
-        
-        ValidationHelper.assertExists(new File(buildFile), "buildfile", this.getClass());
+
+        validateBuildFileExists();
 
         AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
@@ -177,6 +177,14 @@ public class AntBuilder extends Builder {
             logFile.delete();
         }
         return buildLogElement;
+    }
+
+    void validateBuildFileExists() throws CruiseControlException {
+        if (antWorkingDir == null) {
+            ValidationHelper.assertExists(new File(buildFile), "buildfile", this.getClass());
+        } else {
+            ValidationHelper.assertExists(new File(new File(antWorkingDir), buildFile), "buildfile", this.getClass());
+        }
     }
 
 
