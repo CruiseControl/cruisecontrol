@@ -74,15 +74,12 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  *  @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class XSLTag extends CruiseControlTagSupport {
-    private static final String DEFAULT_XSL_ROOT = "/xsl/";
     private static final String XSLT_PARAMETER_PREFIX = "xslt.";
     private String xslFileName;
-    private String xslRootContext = DEFAULT_XSL_ROOT;
     private static final String CACHE_DIR = "_cache";
 
     public void release() {
         xslFileName = null;
-        xslRootContext = DEFAULT_XSL_ROOT;
     }
 
 
@@ -243,19 +240,6 @@ public class XSLTag extends CruiseControlTagSupport {
      */
     public void setXslFile(String xslFile) {
         xslFileName = xslFile;
-    }
-
-    /**
-     * Set the dir to use. It is expected that this can be found by the <code>ServletContext</code> for
-     * this web application.
-     * <p>
-     * This defaults to "/xsl".
-     * <p>
-     * Note that you only need to set this if you've used nested style sheets.
-     * @param dir  the root directory.
-     */
-    public void setXslRootContext(String dir) {
-        xslRootContext = dir;
     }
 
     /**

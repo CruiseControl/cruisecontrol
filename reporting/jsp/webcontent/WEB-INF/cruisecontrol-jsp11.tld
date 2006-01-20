@@ -58,10 +58,6 @@
             <name>xslFile</name>
             <required>true</required>
         </attribute>
-        <attribute>
-            <name>xslRootContext</name>
-            <required>false</required>
-        </attribute>
     </tag>
     <tag>
         <name>currentbuildstatus</name>
