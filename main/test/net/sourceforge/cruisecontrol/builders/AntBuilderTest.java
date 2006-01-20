@@ -155,21 +155,25 @@ public class AntBuilderTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("validate should not throw exceptions when options are set.");
         }
-        
+    }
+     
+    public void testValidateShouldThrowExceptionWhenSaveLogDirDoesntExist() {
         builder.setSaveLogDir("I/hope/this/dir/does/not/exist/");
         try {
             builder.validate();
-            fail("validate should throw exceptions when saveLogDir doesn't exist");
-        } catch (CruiseControlException e) {          
+            fail();
+        } catch (CruiseControlException expected) {          
         }
-
-        builder.setSaveLogDir(null);
+    }
+    
+    public void testValidateShouldThrowExceptionWhenMultipleAndTimeAreBothSet() {        
+        builder.setTime("0100");
         builder.setMultiple(2);
 
         try {
             builder.validate();
-            fail("validate should throw exceptions when multiple and time are both set.");
-        } catch (CruiseControlException e) {
+            fail();
+        } catch (CruiseControlException expected) {
         }
     }
 
@@ -252,7 +256,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-
+        assertTrue("testbuild.xml expected in working dir", new File("testbuild.xml").exists());
         builder.setBuildFile("testbuild.xml");
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
@@ -282,7 +286,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
-
+        assertTrue("testbuild.xml expected in working dir", new File("testbuild.xml").exists());
         builder.setBuildFile("testbuild.xml");
         builder.setTarget("timeout-test-target");
         builder.setTimeout(5);
@@ -304,8 +308,6 @@ public class AntBuilderTest extends TestCase {
         buildElement = builder.build(buildProperties);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
     }
-    
-   
 
     public void testSaveAntLog() throws IOException {
         String originalDirName = "target";
@@ -362,6 +364,23 @@ public class AntBuilderTest extends TestCase {
             fail("expected exception");
         } catch (CruiseControlException expected) {
             //expected...
+        }
+    }
+    
+    public void testValidateBuildFileWorksForNonDefaultDirectory() throws IOException, CruiseControlException {
+        File antworkdir = new File("antworkdir");
+        antworkdir.mkdir();
+        File file = File.createTempFile("build", ".xml", antworkdir);
+        builder.setAntWorkingDir(antworkdir.getAbsolutePath());
+        builder.setBuildFile(file.getName());
+        
+        builder.validateBuildFileExists();
+        
+        file.delete();
+        try {
+            builder.validateBuildFileExists();
+            fail();
+        } catch (CruiseControlException expected) {
         }
     }
 
