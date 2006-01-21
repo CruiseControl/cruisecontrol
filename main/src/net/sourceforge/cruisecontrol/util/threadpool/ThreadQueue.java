@@ -66,33 +66,33 @@ public class ThreadQueue extends Thread {
     /**
      * The list of WorkerThreads that are waiting to run (currently idle)
      */
-    private List idleTasks = Collections.synchronizedList(new LinkedList());
+    private final List idleTasks = Collections.synchronizedList(new LinkedList());
     /**
      * The list of WorkerThreads that are running now (currently busy)
      */
-    private List busyTasks = Collections.synchronizedList(new LinkedList());
+    private final List busyTasks = Collections.synchronizedList(new LinkedList());
 
     /**
      * the resultList from each WorkerThread's run
      */
-    private Map resultList = Collections.synchronizedMap(new HashMap());
+    private final Map resultList = Collections.synchronizedMap(new HashMap());
 
     /**
      * Retains a handle to all the running Threads
      * to handle all sorts of interesting situations
      */
 
-    private Map runningThreads = Collections.synchronizedMap(new HashMap());
+    private final Map runningThreads = Collections.synchronizedMap(new HashMap());
 
     /**
      * The number of java.lang.Threads to be launched by the pool at one time
      */
-    private int threadCount = ThreadQueueProperties.getMaxThreadCount();
+    private final int threadCount = ThreadQueueProperties.getMaxThreadCount();
 
     /**
      * The amount to time to sleep between loops
      */
-    private static int sleepTime = 100;
+    private static final int SLEEP_TIME = 100;
 
     /**
      * A handle to the Thread Pool
@@ -112,7 +112,7 @@ public class ThreadQueue extends Thread {
      * access to the nameCounter above
      */
 
-    private static Long nameCounterSynchObject = new Long("0");
+    private static final Long NAME_COUNTER_SYNCH = new Long("0");
 
     /**
      * tells the main process when to exit
@@ -135,7 +135,7 @@ public class ThreadQueue extends Thread {
             final boolean maxedOut = busyTasks.size() >= threadCount;
 
             if (nothingWaiting || maxedOut) {
-                sleep(sleepTime);
+                sleep(SLEEP_TIME);
             } else {
                 LOG.debug("handling waiting task");
                 handleWaitingTask();
@@ -195,7 +195,7 @@ public class ThreadQueue extends Thread {
      */
     public static void addTask(WorkerThread task) {
         LOG.debug("Preparing to add worker task " + task.getName());
-        if (task.getName() == WorkerThread.BLANK_NAME) {
+        if (task.getName().equals(WorkerThread.BLANK_NAME)) {
             task.setName(nextName());
         }
         //System.out.println("adding worker task "+task.getName());
@@ -229,8 +229,8 @@ public class ThreadQueue extends Thread {
     }
 
     private static String getTaskPosition(WorkerThread task, List queue, String queueName) {
-        int position = -1;
-        int length = 0;
+        int position;
+        int length;
         synchronized (getThreadQueue().busyTasks) {
             position = queue.indexOf(task);
             length = queue.size();
@@ -268,7 +268,7 @@ public class ThreadQueue extends Thread {
      */
     public static void waitForAll() {
         while (!ThreadQueue.isQueueIdle()) {
-            sleep(sleepTime);
+            sleep(SLEEP_TIME);
         }
     }
 
@@ -281,7 +281,7 @@ public class ThreadQueue extends Thread {
     public static boolean waitForAll(int timeout) {
         TdTimer myTimer = new TdTimer();
         while (!ThreadQueue.isQueueIdle()) {
-            sleep(sleepTime);
+            sleep(SLEEP_TIME);
             if (myTimer.time() > timeout) {
                 return false;
             }
@@ -299,7 +299,7 @@ public class ThreadQueue extends Thread {
             return;
         }
         while (!getThreadQueue().resultList.containsKey(taskName)) {
-            sleep(sleepTime);
+            sleep(SLEEP_TIME);
         }
     }
 
@@ -315,7 +315,7 @@ public class ThreadQueue extends Thread {
         }
         TdTimer myTimer = new TdTimer();
         while (!getThreadQueue().resultList.containsKey(taskName)) {
-            sleep(sleepTime);
+            sleep(SLEEP_TIME);
             if (myTimer.split() > timeout) {
                 return false;
             }
@@ -331,12 +331,9 @@ public class ThreadQueue extends Thread {
     public static boolean taskExists(String taskName) {
         synchronized (getThreadQueue().busyTasks) {
             // it's either done, busy or idle
-            if ((getResult(taskName) == null)
+            return !((getResult(taskName) == null)
                     && (getBusyTask(taskName) == null)
-                    && (getIdleTask(taskName) == null)) {
-                return false;
-            }
-            return true;
+                    && (getIdleTask(taskName) == null));
         }
     }
 
@@ -348,11 +345,8 @@ public class ThreadQueue extends Thread {
     public static boolean isActive(String taskName) {
         synchronized (getThreadQueue().busyTasks) {
             // it's either busy or idle
-            if ((getBusyTask(taskName) == null)
-                    && (getIdleTask(taskName) == null)) {
-                return false;
-            }
-            return true;
+            return !((getBusyTask(taskName) == null)
+                    && (getIdleTask(taskName) == null));
         }
     }
 
@@ -431,7 +425,7 @@ public class ThreadQueue extends Thread {
      * @return the names of the tasks in the busy list; may be empty
      */
     public static List getBusyTaskNames() {
-        List names = null;
+        List names;
         synchronized (getThreadQueue().busyTasks) {
             names = getTaskNames(getThreadQueue().busyTasks.iterator());
         }
@@ -442,7 +436,7 @@ public class ThreadQueue extends Thread {
      * @return the names of the tasks in the idle list; may be empty
      */
     public static List getIdleTaskNames() {
-        List names = null;
+        List names;
         synchronized (getThreadQueue().busyTasks) {
             names = getTaskNames(getThreadQueue().idleTasks.iterator());
         }
@@ -477,8 +471,7 @@ public class ThreadQueue extends Thread {
      * worker threads
      */
     public static int numTotalTasks() {
-        int num = numRunningTasks() + numWaitingTasks() + numCompletedTasks();
-        return num;
+        return numRunningTasks() + numWaitingTasks() + numCompletedTasks();
     }
 
     /**
@@ -568,7 +561,7 @@ public class ThreadQueue extends Thread {
      */
 
     private static String nextName() {
-        synchronized (nameCounterSynchObject) {
+        synchronized (NAME_COUNTER_SYNCH) {
             if (nameCounter == Long.MAX_VALUE) {
                 nameCounter = Long.MIN_VALUE;
             }
@@ -592,7 +585,7 @@ public class ThreadQueue extends Thread {
     private static void sleep(int ms) {
         try {
             Thread.sleep(ms);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 }

@@ -83,8 +83,8 @@ public class BuildQueue implements Runnable {
      * @return String representing this project's position in the various queues, e.g. IDLE[ 5 / 24 ]
      */
     public String findPosition(Project project) {
-        int position = -1;
-        int length = 0;
+        int position;
+        int length;
         synchronized (queue) {
             position = queue.indexOf(project);
             length = queue.size();

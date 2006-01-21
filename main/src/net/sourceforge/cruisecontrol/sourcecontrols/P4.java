@@ -319,7 +319,6 @@ public class P4 implements SourceControl {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line;
         while ((line = reader.readLine()) != null) {
-            line.trim();
             if (line.startsWith("error:")) {
                 throw new IOException("Error reading P4 stream: P4 says: " + line);
             } else if (line.startsWith("exit: 1")) {
@@ -520,9 +519,8 @@ public class P4 implements SourceControl {
         LOG.info(command.toString());
         Process p = Runtime.getRuntime().exec(command.getCommandline());
         logErrorStream(p.getErrorStream());
-        long offset = parseServerInfo(p.getInputStream());
 
-        return offset;
+        return parseServerInfo(p.getInputStream());
     }
 
     protected long parseServerInfo(InputStream is) throws IOException {
@@ -530,9 +528,9 @@ public class P4 implements SourceControl {
         BufferedReader p4reader = new BufferedReader(new InputStreamReader(is));
 
         Date ccServerTime = new Date();
-        Date p4ServerTime = new Date();
+        Date p4ServerTime;
 
-        String line = null;
+        String line;
         long offset = 0;
         while ((line = p4reader.readLine()) != null && offset == 0) {
             if (line.startsWith(SERVER_DATE)) {

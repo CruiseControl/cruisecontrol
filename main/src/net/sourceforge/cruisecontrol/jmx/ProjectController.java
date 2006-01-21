@@ -65,9 +65,8 @@ public class ProjectController extends NotificationBroadcasterSupport
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
     private Project project;
-    private MBeanServer server;
     private static int sequence = 0;
-    private static Object sequenceLock = new Object();
+    private static final Object SEQUENCE_LOCK = new Object();
 
     public ProjectController(Project project) {
         this.project = project;
@@ -76,7 +75,7 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     private int nextSequence() {
-        synchronized (sequenceLock) {
+        synchronized (SEQUENCE_LOCK) {
             return ++sequence;
         }
     }
@@ -94,7 +93,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         log("build result event: build " + String.valueOf(event.isBuildSuccessful() ? "successful" : "failed"));
         if (checkSourceProject(event.getProject())) {
             Notification notification = new Notification("cruisecontrol.result.event", this, nextSequence());
-            notification.setUserData(new Boolean(event.isBuildSuccessful()));
+            notification.setUserData((event.isBuildSuccessful()) ? Boolean.TRUE : Boolean.FALSE);
             sendNotification(notification);
         }
     }
@@ -233,7 +232,6 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     public void register(MBeanServer server) throws JMException {
-        this.server = server;
         ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
 
         // Need to attempt to unregister the old mbean with the same name since
@@ -245,7 +243,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         } catch (MBeanRegistrationException noProblem) {
         }
 
-        this.server.registerMBean(this, projectName);
+        server.registerMBean(this, projectName);
     }
 
 }
