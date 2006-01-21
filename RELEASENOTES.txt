@@ -242,6 +242,7 @@ RSS:
 * Updated rss.jsp to fix issue introduced by changes to BuildInfo. (CC-372) Patch by Ludovic Maître
 * Added a webtest that ensures functional rss.jsp, based on CC-372.
 * Set publication date to US locale so that applications can parse the data. (CC-357) Patch by Martin Nyholm Jelle
+* udpated main.jsp to fix RSS links in Safari (CC-385). Based on patch from Michael Kloss
 
 TabSheet:
 ----------------------

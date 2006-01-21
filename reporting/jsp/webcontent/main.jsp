@@ -49,7 +49,7 @@
   <title><%= ccname%> CruiseControl Build Results</title>
   <base href="<%=request.getScheme()%>://<%=request.getServerName()%>:<%=request.getServerPort()%><%=request.getContextPath()%>/" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <link type="application/rss+xml" rel="alternate" href="rss/<%= project %>" title="RSS"/>
+  <link type="application/rss+xml" rel="alternate" href="<% request.getContextPath() %>/rss/<%= project %>" title="RSS"/>
 </head>
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
   <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
