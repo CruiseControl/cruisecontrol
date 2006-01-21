@@ -21,6 +21,7 @@ contrib:
 * fix distributed/build.xml so that tests will pass out of the box. Patch by Dan Rollo
 * updated distributed/README.html to indicate that downloading the JINI jars is no longer required, but jdk1.4+ is. Patch by Dan Rollo.
 * Switch from downloading a separate jnlp.jar to using jre/javaws/javaws.jar. (CC-364) Patch by Dan Rollo.
+* clarified module attribute description in contrib/distributed (CC-390). Patch by Dan Rollo.
 
 release.xml:
 ----------------------
