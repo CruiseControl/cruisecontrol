@@ -150,6 +150,8 @@ ProjectConfig:
 Schedule:
 ----------------------
 * Fix getTimeToNextBuild to adjust for daylight savings time (CC-104).
+* Fix getTimeToNextBuild to prevent StackOverflowError
+* Validate now checks if all builders occur in pauses. Patch by Michael Kloss.
 
 SfeeFrsPublisher:
 ----------------------

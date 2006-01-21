@@ -224,6 +224,10 @@ public class Schedule {
     }
 
     long getTimeToNextBuild(Date now, long sleepInterval) {
+        return getTimeToNextBuild(now, sleepInterval, 0);
+    }
+
+    private long getTimeToNextBuild(Date now, long sleepInterval, long priorPauseAdjustment) {
         long timeToNextBuild = sleepInterval;
         LOG.debug("getTimeToNextBuild: initial timeToNextBuild = " + timeToNextBuild);
         timeToNextBuild = checkMultipleBuilders(now, timeToNextBuild);
@@ -234,11 +238,15 @@ public class Schedule {
         LOG.debug("getTimeToNextBuild: after checkPauseBuilders = " + timeToNextBuild);
         
         if (timeToNextBuild != timeTillNotPaused) {
-            boolean atMaxTime = timeTillNotPaused >= MAX_INTERVAL_MILLISECONDS;
+            boolean atMaxTime = timeTillNotPaused >= MAX_INTERVAL_MILLISECONDS
+                              || priorPauseAdjustment >= MAX_INTERVAL_MILLISECONDS;
             if (hasOnlyTimeBuilders() && !atMaxTime) {
                 Date dateAfterPause = getFutureDate(now, timeTillNotPaused);
-                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause, 0);
+                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause, 
+                                                                                0,
+                                         priorPauseAdjustment + timeTillNotPaused);
                 timeToNextBuild = timeTillNotPaused + adjustmentFromEndOfPause;
+                timeToNextBuild = checkMaximumInterval(timeToNextBuild);
             } else {
                 timeToNextBuild = timeTillNotPaused;                
             }
@@ -395,12 +403,17 @@ public class Schedule {
             timeToEndOfPause += ONE_DAY;
         }
 
+        timeToEndOfPause = checkMaximumInterval(timeToEndOfPause);
+
+        return timeToEndOfPause == MAX_INTERVAL_MILLISECONDS ? timeToEndOfPause : timeToEndOfPause + ONE_MINUTE;
+    }
+
+    private long checkMaximumInterval(long timeToEndOfPause) {
         if (timeToEndOfPause > MAX_INTERVAL_MILLISECONDS) {
-            LOG.error("maximum pause interval exceeded! project perpetually paused?");
+            LOG.error("maximum interval exceeded! project perpetually paused?");
             return MAX_INTERVAL_MILLISECONDS;
         }
-
-        return timeToEndOfPause + ONE_MINUTE;
+        return timeToEndOfPause;
     }
 
     private Date getFutureDate(Date now, long delay) {
@@ -429,6 +442,7 @@ public class Schedule {
         
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");
+            ValidationHelper.assertFalse(checkWithinPause(new ArrayList(builders)), "all build times during pauses.");
         }
 
         //Validate the child builders, since no one else seems to be doing it.
@@ -436,6 +450,65 @@ public class Schedule {
             Builder next = (Builder) iterator.next();
             next.validate();
         }
+    }
+
+    private boolean checkWithinPause(List timeBuilders) {
+        for (int i = 0; i < timeBuilders.size(); i++) {
+            Builder builder = (Builder) timeBuilders.get(i);
+            for (int j = 0; j < pauseBuilders.size(); j++) {
+                PauseBuilder pauseBuilder = (PauseBuilder) pauseBuilders.get(j);
+                if (buildDaySameAsPauseDay(builder, pauseBuilder) && buildTimeWithinPauseTime(builder, pauseBuilder)) {
+                    timeBuilders.remove(builder);
+                    StringBuffer message = new StringBuffer();
+                    message.append("time Builder for time ");
+                    message.append(Integer.toString(builder.getTime()));
+                    if (builder.getDay() != Builder.NOT_SET) {
+                        message.append(" and day of ");
+                        message.append(getDayString(builder.getDay()));
+                    }
+                    message.append(" is always within a pause and will never build");
+                    LOG.error(message.toString());
+                }
+            }
+        }
+        return timeBuilders.isEmpty();
+    }
+
+    /** 
+     * I can't believe this method doesn't already exist in the JDK...
+     * am I just missing it?!? Probably some locale thing I need to use.
+     * @param day int value
+     * @return english string value
+     */
+    private String getDayString(int day) {
+        switch(day) {
+        case Calendar.SUNDAY:
+            return "sunday";
+        case Calendar.MONDAY:
+            return "monday";
+        case Calendar.TUESDAY:
+            return "tuesday";
+        case Calendar.WEDNESDAY:
+            return "wednesday";
+        case Calendar.THURSDAY:
+            return "thursday";
+        case Calendar.FRIDAY:
+            return "friday";
+        case Calendar.SATURDAY:
+            return "saturday";
+        default:
+            return "invalid day " + day;
+        }
+    }
+
+    private boolean buildDaySameAsPauseDay(Builder builder, PauseBuilder pauseBuilder) {
+        return pauseBuilder.getDay() == PauseBuilder.NOT_SET
+                || pauseBuilder.getDay() == builder.getDay();
+    }
+
+    private boolean buildTimeWithinPauseTime(Builder builder, PauseBuilder pauseBuilder) {
+        return pauseBuilder.getStartTime() < builder.getTime() 
+                && builder.getTime() < pauseBuilder.getEndTime();
     }
 
     /**
