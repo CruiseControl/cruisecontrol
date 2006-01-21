@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.ExportException;
@@ -49,8 +50,10 @@ import java.util.Arrays;
 import net.jini.core.entry.Entry;
 import net.jini.core.lookup.ServiceID;
 import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.core.discovery.LookupLocator;
 import net.jini.discovery.DiscoveryEvent;
 import net.jini.discovery.DiscoveryListener;
+import net.jini.discovery.LookupLocatorDiscovery;
 import net.jini.lookup.ServiceIDListener;
 import net.jini.lookup.JoinManager;
 import net.jini.export.Exporter;
@@ -74,6 +77,10 @@ public class BuildAgent implements DiscoveryListener,
 
     public static final String JAVA_SECURITY_POLICY = "java.security.policy";
     public static final String JINI_POLICY_FILE = "jini.policy.file";
+    
+    /** Optional unicast Lookup Registry URL. 
+     * A Unicast Lookup Locater is useful if multicast isn't working. */
+    public static final String REGISTRY_URL = "registry.url";
 
     private final BuildAgentServiceImpl serviceImpl;
     private final Entry[] entries;
@@ -132,8 +139,29 @@ public class BuildAgent implements DiscoveryListener,
             throw new RuntimeException(message, e);
         }
 
+        // use a Unicast Lookup Locater if defined (useful if multicast isn't working)
+        // @todo Improvement: handle multiple comma separated urls in the property file. 
+        // For now it handles only one ip address. It also could have a virtual url called 
+        // "multicast", to make the property file more readable and understandable
+        final String registryURL = configProperties.getProperty(REGISTRY_URL);
+        final LookupLocatorDiscovery lld; 
+        if (registryURL == null) {
+            lld = null;
+        } else {
+            final LookupLocator lookup;
+            try {
+                lookup = new LookupLocator(registryURL);
+            } catch (MalformedURLException e) {
+                final String message = "Error creating unicast lookup locator";
+                LOG.error(message, e);
+                throw new RuntimeException(message, e);
+            }
+            final LookupLocator[] lookups = new LookupLocator[] { lookup };
+            lld = new LookupLocatorDiscovery(lookups);
+        }
+
         try {
-            joinManager = new JoinManager(getProxy(), entries, this, null, null);
+            joinManager = new JoinManager(getProxy(), entries, this, lld, null);
         } catch (IOException e) {
             final String message = "Error starting discovery";
             LOG.error(message, e);
