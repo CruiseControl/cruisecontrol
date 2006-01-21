@@ -33,13 +33,15 @@
 &lt;/schedule&gt;</pre>
 							wrap the ant builder configuration with a <code>&lt;distributed&gt;</code> tag like this:
 							<pre>&lt;schedule interval="30"&gt;
-	&lt;distributed module="BasicJavaProject" &gt;
+	&lt;distributed module="BasicJavaProject" &gt; &lt;!-- NOTE: 'module' is optional, project name is default if omitted. --&gt;
 		&lt;ant antscript="ant.bat"
 			antworkingdir="C:/cruise-control-agent/checkout/BasicJavaProject" &gt;
 		&lt;/ant&gt;
 	&lt;/distributed&gt;
 &lt;/schedule&gt;</pre>
-							The <code>&lt;distributed&gt;</code> tag contains an attribute called <i>module</i> that indicates which source control module should be checked out and built. (Source control tools might require additional information. Currently there's no support for passing additional information to the build agent. See <b>Limitations</b> list.) Note that the <i>antscript</i> and <i>antworkingdir</i> attributes now refer to locations on your agent. As well, all agents will have to conform to these same settings. Again see <b>Limitations</b>.
+							The <code>&lt;distributed&gt;</code> tag contains an attribute called <i>module</i> that indicates which source control module should be checked out and built. (Source control tools might require additional information. Currently there's no support for passing additional information to the build agent. See <b>Limitations</b> list. Therefore, the 'module' attribute is optional, and the Project name is used if the module attribute is omitted. Currently, the module value determines where BuildAgent work directories are created. These defaults can be overridden by setting 'agentlogdir' and 'agentoutputdir' attribs. See <b>Advanced Configuration - Section E</b>) 
+							
+							<p>Note that the <i>antscript</i> and <i>antworkingdir</i> attributes now refer to locations on your agent. As well, all agents will have to conform to these same settings. Again see <b>Limitations</b>.
 							</li>
 					</ol>
 				</li>
@@ -64,13 +66,13 @@
 					<h4>Advanced configuration</h4>
 					<ol type="A">
 						<li>You may have noticed the <i>user-defined.properties</i> file in the <i>conf</i> directory for the agent. These properties are, as you might expect, user-defined. Any unique properties you would like to indicate characteristics of THIS SPECIFIC agent should be added here in canonical property form (i.e. "<code>key=value</code>", without the quotes). In the CC configuration file an attribute can be added to the <![CDATA[<distributed>]]> tag containing semicolon-delimited entries used to match this agent with the projects that should be built on it. For instance, changing the example above to:
-<pre>&lt;distributed entries="agent.name=number2" module="BasicJavaProject" &gt;</pre>
+<pre>&lt;distributed entries="agent.name=number2"&gt;</pre>
 						will ensure that the agent with <code>agent.name=number2</code> in its <i>user-defined.properties</i> file will be the recipient of this project's build requests. Note that if multiple agents match a given set of entries it is indeterminate which will receive the build request. Even if no entries are listed in the <i>user-defined.properties</i> file three entries are programatically registered with every agent. These are <code>os.name</code> and <code>java.vm.version</code>, containing the Java system properties of the same names, and <code>hostname</code> containing the hostname on which the agent is running. A more useful example than the previous one might be:
-<pre>&lt;distributed entries="os.name=Windows XP" module="BasicJavaProject" &gt;</pre>
+<pre>&lt;distributed entries="os.name=Windows XP"&gt;</pre>
 						or
-<pre>&lt;distributed entries="os.name=Linux" module="BasicJavaProject" &gt;</pre>
+<pre>&lt;distributed entries="os.name=Linux"&gt;</pre>
 						By configuring one project twice, with two different <code>os.name</code> properties, you could ensure that your project builds correctly on two different operating systems with only one instance of Cruise Control running. Note that this requires two project configurations on the build master--currently there is no way to have one configuration build on two different agent-types. Here's a more complex example:
-<pre>&lt;distributed entries="os.name=Windows XP;dotnet.version=1.1;fixpack=SP2" module="BasicJavaProject" &gt;</pre>
+<pre>&lt;distributed entries="os.name=Windows XP;dotnet.version=1.1;fixpack=SP2"&gt;</pre>
 						</li>
 						<li>If you plan to rebuild the CC extensions note that any configuration files under the <i>dist</i> directory are liable to be cleaned and replaced. The originals reside in <i>contrib/distributed/conf</i> and you may find it preferable to change them there before your build. Since <i>user-defined.properties</i> and <i>agent.properties</i> are copied into the <i>cc-agent.zip</i> you'll need to unzip and make your changes locally on the agent.</li>
 						<li>Jini as used in these distributed extensions has several configuration options. Beware of the <i>start-jini.config</i>, however--it is not likely you will need to make changes to it.
@@ -88,8 +90,8 @@
 						where 5 would be replaced with your expected number of build agents.</li>
 						<li>By default, the canonical locations for log and output files are used on both the remote agents and the master. These can be overridden using the following attributes on the <i>distributed</i> tag:
 
-<pre>&lt;distributed module="BasicJavaProject"
-        agentlogdir="agent/log" masterlogdir="master/log"&gt;
+<pre>&lt;distributed 
+        agentlogdir="agent/log" masterlogdir="master/log"
         agentoutputdir="agent/output" masteroutputdir="master/log"&gt;
     ...
 &lt;/distributed&gt;</pre>
