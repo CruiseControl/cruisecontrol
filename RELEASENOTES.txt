@@ -22,7 +22,7 @@ contrib:
 * updated distributed/README.html to indicate that downloading the JINI jars is no longer required, but jdk1.4+ is. Patch by Dan Rollo.
 * Switch from downloading a separate jnlp.jar to using jre/javaws/javaws.jar. (CC-364) Patch by Dan Rollo.
 * clarified module attribute description in contrib/distributed (CC-390). Patch by Dan Rollo.
-* Allow configuration of BuildAgents to use a specific URL to find Lookup services (instead of using mulitcast discovery) (CC-392). Patch by Kirill Petrov. 
+* Allow configuration of BuildAgents to use a specific URL to find Lookup services (instead of using mulitcast discovery) (CC-392). Patch by Kirill Petrov.
 
 release.xml:
 ----------------------
@@ -104,6 +104,7 @@ JabberPublisher:
 JMX interface:
 ----------------------
 * When setting the configuration contents via JMX, the contents are validated (CC-333). Patch by Allan Wick.
+* Show build queue position for a Project on its JMX screen (CC-375). Patch by Tim Shadel.
 
 LockFileBootstrapper/Listener:
 ----------------------

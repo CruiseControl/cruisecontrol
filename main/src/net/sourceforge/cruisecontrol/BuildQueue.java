@@ -78,6 +78,24 @@ public class BuildQueue implements Runnable {
         notifyListeners();
     }
 
+    /**
+     * @param project The project to find in the queues
+     * @return String representing this project's position in the various queues, e.g. IDLE[ 5 / 24 ]
+     */
+    public String findPosition(Project project) {
+        int position = -1;
+        int length = 0;
+        synchronized (queue) {
+            position = queue.indexOf(project);
+            length = queue.size();
+        }
+        if (position < 0) {
+            return ThreadQueue.findPosition(project.getName());
+        }
+        // position is 0-based, make it 1-based for human reporting
+        return "BUILD_REQUESTED[ " + (position + 1) + " / " + length + " ]";
+    }
+
     void serviceQueue() {
         while (!queue.isEmpty()) {
             Project nextProject;

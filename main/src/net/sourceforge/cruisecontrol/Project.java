@@ -555,6 +555,14 @@ public class Project implements Serializable, Runnable {
         return getState().getDescription();
     }
 
+    public String getStatusWithQueuePosition() {
+        if (ProjectState.QUEUED.equals(getState())) {
+            return getState().getDescription() + " - " + queue.findPosition(this);
+        } else {
+            return getState().getDescription();
+        }
+    }
+
     public ProjectState getState() {
         return state;
     }

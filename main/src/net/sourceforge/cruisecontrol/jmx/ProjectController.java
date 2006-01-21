@@ -225,7 +225,7 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
     
     public String getStatus() {
-        return project.getStatus();
+        return project.getStatusWithQueuePosition();
     }
 
     private void log(String message) {
