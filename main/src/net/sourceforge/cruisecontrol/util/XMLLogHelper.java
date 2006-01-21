@@ -161,7 +161,11 @@ public class XMLLogHelper {
             Iterator changelistIterator = log.getChild("modifications").getChildren("changelist").iterator();
             while (changelistIterator.hasNext()) {
                 Element changelistElement = (Element) changelistIterator.next();
-                results.add(changelistElement.getAttributeValue("user"));
+                String val = changelistElement.getAttributeValue("email");
+                 if ((val == null) || (val.length() == 0)) {
+                   val = changelistElement.getAttributeValue("user");
+                 }
+                 results.add(val);
             }
         } else {
             Iterator modificationIterator = log.getChild("modifications").getChildren("modification")
