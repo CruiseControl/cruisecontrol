@@ -65,6 +65,7 @@ import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginType;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -173,7 +174,15 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
     public List getProjects() {
         return controller.getProjects();
     }
-    
+
+    public List getBusyTasks() {
+        return ThreadQueue.getBusyTaskNames();
+    }
+
+    public List getIdleTasks() {
+        return ThreadQueue.getIdleTaskNames();
+    }
+   
     public PluginDetail[] getAvailableBootstrappers() {
         return controller.getAvailableBootstrappers();
     }

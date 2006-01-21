@@ -208,6 +208,45 @@ public class ThreadQueue extends Thread {
     }
 
     /**
+     * This may not *always* work -- a task may slip by us between queue checks.
+     * That's OK.  We'd rather have transient results than block the busy queue
+     *    until we're done just to get a position report on a task.
+     */
+    public static String findPosition(String taskName) {
+        WorkerThread task = getIdleTask(taskName);
+        if (task != null) {
+            return getTaskPosition(task, getThreadQueue().idleTasks, "IDLE");
+        }
+        task = getBusyTask(taskName);
+        if (task != null) {
+            return getTaskPosition(task, getThreadQueue().busyTasks, "BUSY");
+        }
+        Object result = getResult(taskName);
+        if (result != null) {
+            return "[ COMPLETE ]";
+        }
+        return "[ not found in queues ]";
+    }
+
+    private static String getTaskPosition(WorkerThread task, List queue, String queueName) {
+        int position = -1;
+        int length = 0;
+        synchronized (getThreadQueue().busyTasks) {
+            position = queue.indexOf(task);
+            length = queue.size();
+        }
+        return formatPosition(position, length, queueName);
+    }
+
+    private static String formatPosition(int position, int length, String queueName) {
+        if (position < 0) {
+            return "[ NONE ]";
+        }
+        // position is 0-based, make it 1-based for human reporting
+        return queueName + "[ " + (position + 1) + " / " + length + " ]";
+    }
+
+    /**
      * Checks to see if all tasks are done
      */
     public static boolean isQueueIdle() {
@@ -386,6 +425,40 @@ public class ThreadQueue extends Thread {
             }
         }
         return null;
+    }
+
+    /**
+     * @return the names of the tasks in the busy list; may be empty
+     */
+    public static List getBusyTaskNames() {
+        List names = null;
+        synchronized (getThreadQueue().busyTasks) {
+            names = getTaskNames(getThreadQueue().busyTasks.iterator());
+        }
+        return names;
+    }
+
+    /**
+     * @return the names of the tasks in the idle list; may be empty
+     */
+    public static List getIdleTaskNames() {
+        List names = null;
+        synchronized (getThreadQueue().busyTasks) {
+            names = getTaskNames(getThreadQueue().idleTasks.iterator());
+        }
+        return names;
+    }
+
+    /**
+     * @return the names of the tasks in the list; may be empty
+     */
+    private static List getTaskNames(Iterator taskIter) {
+        List names = new LinkedList();
+        while (taskIter.hasNext()) {
+            WorkerThread thisWorker = (WorkerThread) taskIter.next();
+            names.add(thisWorker.getName());
+        }
+        return names;
     }
 
     /**
