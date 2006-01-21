@@ -36,6 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,20 +57,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The
@@ -81,6 +84,7 @@ import org.jdom.Element;
  * @author Tim McCune
  * @author J D Glanville
  * @author Patrick Conant Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * @author John Lussmyer
  */
 public class P4 implements SourceControl {
 
@@ -92,6 +96,7 @@ public class P4 implements SourceControl {
     private String p4View;
     private String p4Passwd;
     private boolean correctForServerTime = true;
+    private boolean useP4Email = true;
 
     private static final SimpleDateFormat P4_REVISION_DATE =
             new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
@@ -127,13 +132,22 @@ public class P4 implements SourceControl {
     }
 
     /**
-     *  Indicates whether to correct for time differences between the p4
-     *  server and the CruiseControl server.  Setting the flag to "true"
-     *  will correct for both time zone differences and for non-synchronized
-     *  system clocks.
+     * Indicates whether to correct for time differences between the p4
+     * server and the CruiseControl server.  Setting the flag to "true"
+     * will correct for both time zone differences and for non-synchronized
+     * system clocks.
      */
     public void setCorrectForServerTime(boolean flag) {
         this.correctForServerTime = flag;
+    }
+
+    /**
+     * Sets if the Email address for the user should be retrieved from Perforce.
+     *
+     * @param flag true to retrieve email addresses from perforce.
+     */
+    public void setUseP4Email(boolean flag) {
+        useP4Email = flag;
     }
 
     public Hashtable getProperties() {
@@ -186,12 +200,91 @@ public class P4 implements SourceControl {
         List mods = parseChangeDescriptions(p4Stream);
         getRidOfLeftoverData(p4Stream);
 
+        // Get the Email address of the user for each changelist
+        if ((mods.size() > 0) && useP4Email) {
+            getEmailAddresses(mods);
+        }
+
         p.waitFor();
         p.getInputStream().close();
         p.getOutputStream().close();
         p.getErrorStream().close();
 
         return mods;
+    }
+
+    /**
+     * Get the Email Address of the users who submitted the change lists.
+     *
+     * @param mods List of P4Modification structures
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private void getEmailAddresses(List mods) throws IOException,
+            InterruptedException {
+        Iterator iter = mods.iterator();
+        Map users = new HashMap();
+
+        while (iter.hasNext()) {
+            P4Modification change = (P4Modification) iter.next();
+
+            if ((change.userName != null) && (change.userName.length() > 0)) {
+                change.emailAddress = (String) users.get(change.userName);
+
+                if (change.emailAddress == null) {
+                    change.emailAddress = getUserEmailAddress(change.userName);
+                    users.put(change.userName, change.emailAddress);
+                }
+            }
+
+        }
+
+    }
+
+    /**
+     * Get the Email Address for the given P4 User
+     *
+     * @param username Perforce user name
+     * @return User Email address if available
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private String getUserEmailAddress(String username) throws IOException,
+            InterruptedException {
+        String emailaddr = null;
+
+        Commandline command = buildUserCommand(username);
+        LOG.info(command.toString());
+        Process p = Runtime.getRuntime().exec(command.getCommandline());
+
+        logErrorStream(p.getErrorStream());
+        InputStream p4Stream = p.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                p4Stream));
+
+        // Find first Changelist item if there is one.
+        String line;
+        while ((line = readToNotPast(reader, "info: Email:",
+                "I really don't care")) != null) {
+            StringTokenizer st = new StringTokenizer(line);
+
+            try {
+                st.nextToken(); // skip 'info:' text
+                st.nextToken(); // skip 'Email:' text
+                emailaddr = st.nextToken();
+            } catch (NoSuchElementException ex) {
+                // No email address given
+            }
+        }
+
+        getRidOfLeftoverData(p4Stream);
+
+        p.waitFor();
+        p.getInputStream().close();
+        p.getOutputStream().close();
+        p.getErrorStream().close();
+
+        return (emailaddr);
     }
 
     private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now)
@@ -349,11 +442,11 @@ public class P4 implements SourceControl {
                 Calendar cal = Calendar.getInstance();
 
                 cal.setTime(lastBuildTime);
-                cal.add(Calendar.MILLISECOND , offset);
+                cal.add(Calendar.MILLISECOND, offset);
                 lastBuildTime = cal.getTime();
 
                 cal.setTime(now);
-                cal.add(Calendar.MILLISECOND , offset);
+                cal.add(Calendar.MILLISECOND, offset);
                 now = cal.getTime();
 
             } catch (IOException ioe) {
@@ -392,20 +485,32 @@ public class P4 implements SourceControl {
         commandLine.createArgument().setValue("-s");
 
         for (int i = 0; i < changelistNumbers.length; i++) {
-            commandLine.createArgument().setValue(changelistNumbers[ i ]);
+            commandLine.createArgument().setValue(changelistNumbers[i]);
         }
 
         return commandLine;
     }
 
     /**
-      * Calculate the difference in time between the Perforce server and the
-      * CruiseControl server.  A negative time difference indicates that the
-      * Perforce server time is later than CruiseControl server (e.g. Perforce
-      * in New York, CruiseControl in San Francisco).  A negative offset
-      * indicates that the Perforce server time is before the CruiseControl
-      * server.
-      */
+     * p4 -s [-c client] [-p port] [-u user] user -o [username]
+     */
+    public Commandline buildUserCommand(String username) {
+        Commandline commandLine = buildBaseP4Command();
+        commandLine.createArgument().setValue("user");
+        commandLine.createArgument().setValue("-o");
+        commandLine.createArgument().setValue(username);
+
+        return commandLine;
+    }
+
+    /**
+     * Calculate the difference in time between the Perforce server and the
+     * CruiseControl server.  A negative time difference indicates that the
+     * Perforce server time is later than CruiseControl server (e.g. Perforce
+     * in New York, CruiseControl in San Francisco).  A negative offset
+     * indicates that the Perforce server time is before the CruiseControl
+     * server.
+     */
     protected long calculateServerTimeOffset() throws IOException {
         Commandline command = new Commandline();
         command.setExecutable("p4");
@@ -433,7 +538,7 @@ public class P4 implements SourceControl {
             if (line.startsWith(SERVER_DATE)) {
                 try {
                     String dateString = line.substring(SERVER_DATE.length(),
-                        SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
+                            SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
                     p4ServerTime = P4_SERVER_DATE.parse(dateString);
                     offset = p4ServerTime.getTime() - ccServerTime.getTime();
                 } catch (ParseException pe) {
