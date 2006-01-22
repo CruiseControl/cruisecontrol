@@ -244,15 +244,6 @@ public class BuildStatus {
             throw new CruiseControlWebAppException(msg);
         }
 
-        if (!statusFile.exists()) {
-            final String msg = "CruiseControl: currentBuildStatusFile "
-                + statusFile.getAbsolutePath() + " does not exist."
-                + " You may need to update the value in the web.xml"
-                + " or the location specified in your CruiseControl"
-                + " config.xml.";
-            throw new CruiseControlWebAppException(msg);
-        }
-
         return statusFile;
     }
 }

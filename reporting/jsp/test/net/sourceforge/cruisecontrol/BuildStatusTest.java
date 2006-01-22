@@ -60,27 +60,31 @@ public class BuildStatusTest extends TestCase {
     protected void tearDown() throws Exception {
         files.delete();
     }
-    
-    public void testShouldThrowExceptionWithBadFilename() {      
+
+    public void testStatusFileNotFound() {      
+        String status = BuildStatus.getStatusHtml(SINGLE_PROJECT_MODE,
+            logDir.getAbsolutePath(),
+            PROJECT_NAME,
+            "badfilename.txt",
+            BuildStatus.READ_ALL_LINES);
+        assertEquals("(build status file not found)", status);
+        status = BuildStatus.getStatusHtml(MULTIPLE_PROJECT_MODE,
+            logDir.getAbsolutePath(),
+            PROJECT_NAME, "badfilename.txt",
+            BuildStatus.READ_ALL_LINES);
+        assertEquals("(build status file not found)", status);
+    }
+
+    public void testShouldThrowExceptionWithDirectory() {      
         try {
             BuildStatus.getStatusHtml(SINGLE_PROJECT_MODE,
                 logDir.getAbsolutePath(),
+                null,
                 PROJECT_NAME,
-                "badfilename.txt",
                 BuildStatus.READ_ALL_LINES);
             fail("Expected exception for build status file not found.");
         } catch (CruiseControlWebAppException expected) {
-            // expected, so test passes
-        }
-      
-        try {
-            BuildStatus.getStatusHtml(MULTIPLE_PROJECT_MODE,
-                logDir.getAbsolutePath(),
-                PROJECT_NAME, "badfilename.txt",
-                BuildStatus.READ_ALL_LINES);
-            fail("Expected exception for build status file not found.");
-        } catch (CruiseControlWebAppException expected) {
-            // expected, so test passes
+            assertTrue(expected.getMessage().contains("is a directory"));
         }
     }
 
