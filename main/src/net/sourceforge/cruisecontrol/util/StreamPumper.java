@@ -136,8 +136,10 @@ public class StreamPumper implements Runnable {
             String s = in.readLine();
             while (s != null) {
                 consumeLine(s);
-                out.println(s);
-                out.flush();
+                if (out != null) {
+                    out.println(s);
+                    out.flush();
+                }
 
                 s = in.readLine();
             }

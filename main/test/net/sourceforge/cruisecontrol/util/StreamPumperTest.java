@@ -39,6 +39,9 @@ package net.sourceforge.cruisecontrol.util;
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +65,20 @@ public class StreamPumperTest extends TestCase {
         //Check the consumer to see if it got both lines.
         assertTrue(consumer.wasLineConsumed(line1, 1000));
         assertTrue(consumer.wasLineConsumed(line2, 1000));
+    }
+
+    public void testNoSystemOut() {
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream newOut = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(newOut));
+            InputStream input = new ByteArrayInputStream(
+                    "some input".getBytes());
+            new StreamPumper(input, null, null).run();
+            assertEquals(0, newOut.toByteArray().length);
+        } finally {
+            System.setOut(oldOut);
+        }
     }
 }
 
