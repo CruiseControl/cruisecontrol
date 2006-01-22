@@ -14,7 +14,7 @@
         </modificationset>
 
         <schedule interval="300">
-            <ant anthome="apache-ant-1.6.3" buildfile="projects/${project.name}/build.xml"/>
+            <ant anthome="%%APACHE_ANT%%" buildfile="projects/${project.name}/build.xml"/>
         </schedule>
 
         <log>
