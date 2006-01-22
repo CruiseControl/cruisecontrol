@@ -127,7 +127,7 @@ public class StatusHelper {
             status = BuildStatus.getStatusHtml(isSingleProject, logDirPath, projectName, statusFile,
                 BuildStatus.READ_ONLY_STATUS_LINES);
         } catch (CruiseControlWebAppException e) {
-            status = "(build status file not found)";
+            status = '(' + e.getMessage() + ')';
         }
 
         return status;
