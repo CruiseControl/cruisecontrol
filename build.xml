@@ -144,7 +144,8 @@
             <zipfileset file="binaryrelease/cruisecontrol.sh" filemode="755"
 	                prefix="${cc.bin.zip.prefix}"/>
             <zipfileset dir="target/binzip" prefix="${cc.bin.zip.prefix}"/>
-            <zipfileset src="binaryrelease/connectfour.zip" prefix="${cc.bin.zip.prefix}/projects"/>
+            <!-- Force file and dir mode as ant has problem copying connectfour.zip's file permissions -->
+            <zipfileset src="binaryrelease/connectfour.zip" filemode="644" dirmode="755" prefix="${cc.bin.zip.prefix}/projects"/>
             <zipfileset src="${apache.ant.zip}" prefix="${cc.bin.zip.prefix}"/>
             <zipfileset dir="main/lib" includes="junit*.jar" prefix="${cc.bin.zip.prefix}/${apache.ant}/lib"/>
             <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.bin.zip.prefix}/lib" excludes="inmemorysfee*.jar"/>
