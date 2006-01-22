@@ -15,6 +15,8 @@ Binary release:
 * switched from jakarta commons-math to a sample "connectfour" project in the cruisecontrol cvs repository.
 * Added a work directory for Jetty to use (CC-257). Fix suggested by Paul Hammant.
 * Defaulting jmxport to 8000 in the startup scripts (cruisecontrol.bat and cruisecontrol.sh), but at the end of the command line so that it can be easily overridden.
+* Package the zip file with unix execute permission on the cruisecontrol.sh and apache-ant/bin/ant scripts
+* Updated the bundled apache-ant from version 1.6.3 to 1.6.5
 
 contrib:
 ----------------------
