@@ -39,13 +39,13 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.PrintWriter;
 
 /**
  * Since we rely on our build.xml to handle updating our source code, there has
@@ -97,10 +97,19 @@ public class CVSBootstrapper implements Bootstrapper {
         try {
             Commandline commandLine = buildUpdateCommand();
             Process p = commandLine.execute();
-            final boolean autoFlushOn = true;
+            StreamConsumer infoConsumer = new StreamConsumer() {
+                public void consumeLine(String line) {
+                    LOG.warn(line);
+                }
+            };
+            StreamConsumer warnConsumer = new StreamConsumer() {
+                public void consumeLine(String line) {
+                    LOG.warn(line);
+                }
+            };
             StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, autoFlushOn));
-            StreamPumper outPumper = new StreamPumper(p.getInputStream(), new PrintWriter(System.out, autoFlushOn));
+                new StreamPumper(p.getErrorStream(), null, warnConsumer);
+            StreamPumper outPumper = new StreamPumper(p.getInputStream(), null, infoConsumer);
             Thread errorPumperThread = new Thread(errorPumper);
             Thread outPumperThread = new Thread(outPumper);
             errorPumperThread.start();

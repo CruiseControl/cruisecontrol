@@ -56,6 +56,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -647,9 +648,17 @@ public class ConcurrentVersionsSystem implements SourceControl {
         this.mailAliases = mailAliases;
     }
 
-    private void logErrorStream(Process p) {
+    private static void logErrorStream(Process p) {
+        logErrorStream(p.getErrorStream());
+    }
+    static void logErrorStream(InputStream error) {
+        StreamConsumer warnLogger = new StreamConsumer() {
+            public void consumeLine(String line) {
+                log.warn(line);
+            }
+        };
         StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+                new StreamPumper(error, null, warnLogger);
         new Thread(errorPumper).start();
     }
 
