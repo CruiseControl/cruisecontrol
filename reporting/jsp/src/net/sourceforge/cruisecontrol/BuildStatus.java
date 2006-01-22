@@ -49,7 +49,9 @@ public class BuildStatus {
      *            The maximim number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
-     * @return The build status string formatted for plain text usage.
+     * @return The build status string formatted for plain text usage or the
+     *            text <code>(build status file not found)</code> if the
+     *            status file cannot be not found.
      */
     public static String getStatusPlain(boolean isSingleProject, String dir,
         String projectName, String statusFileName, int maxReadLines) {
@@ -75,7 +77,9 @@ public class BuildStatus {
      *            The maximim number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
-     * @return The build status string formatted for plain text usage.
+     * @return The build status string formatted for plain text usage or the
+     *            text <code>(build status file not found)</code> if the
+     *            status file cannot be not found.
      */
     public static String getStatusHtml(boolean isSingleProject, String dir,
         String projectName, String statusFileName, int maxReadLines) {
@@ -104,7 +108,9 @@ public class BuildStatus {
      *            The maximim number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
-     * @return The build status string formatted as per the insertBreaks param.
+     * @return The build status string formatted as per the insertBreaks param
+     *            or the text <code>(build status file not found)</code> if the
+     *            status file is not found.
      */
     private static String genStatus(boolean isSingleProject, String dir,
         String projectName, String statusFileName, boolean insertBreaks,
@@ -113,7 +119,12 @@ public class BuildStatus {
         File statusFile = getFile(isSingleProject, dir, projectName,
             statusFileName);
 
-        String status = getStatus(statusFile, insertBreaks, maxReadLines);
+        String status;
+        if (statusFile.exists()) {
+            status = getStatus(statusFile, insertBreaks, maxReadLines);
+        } else {
+            status = "(build status file not found)";
+        }
 
         return status;
     }
