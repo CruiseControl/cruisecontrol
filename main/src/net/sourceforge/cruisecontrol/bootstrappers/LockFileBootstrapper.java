@@ -16,6 +16,8 @@ public class LockFileBootstrapper implements Bootstrapper {
         try {
             if (!lock.createNewFile()) {
                 throw new CruiseControlException("lock file already exits, aborting build attempt");
+            } else {
+                lock.deleteOnExit();
             }
         } catch (IOException e) {
             throw new CruiseControlException(e);
