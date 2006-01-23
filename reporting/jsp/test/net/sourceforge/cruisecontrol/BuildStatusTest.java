@@ -84,7 +84,7 @@ public class BuildStatusTest extends TestCase {
                 BuildStatus.READ_ALL_LINES);
             fail("Expected exception for build status file not found.");
         } catch (CruiseControlWebAppException expected) {
-            assertTrue(expected.getMessage().contains("is a directory"));
+            assertTrue(expected.getMessage().indexOf("is a directory") > 0);
         }
     }
 
