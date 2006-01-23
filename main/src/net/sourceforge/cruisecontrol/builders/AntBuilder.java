@@ -180,11 +180,11 @@ public class AntBuilder extends Builder {
     }
 
     void validateBuildFileExists() throws CruiseControlException {
-        if (antWorkingDir == null) {
-            ValidationHelper.assertExists(new File(buildFile), "buildfile", this.getClass());
-        } else {
-            ValidationHelper.assertExists(new File(new File(antWorkingDir), buildFile), "buildfile", this.getClass());
+        File build = new File(buildFile);
+        if (!build.isAbsolute() && antWorkingDir != null) {
+            build = new File(antWorkingDir, buildFile);
         }
+        ValidationHelper.assertExists(build, "buildfile", this.getClass());
     }
 
 

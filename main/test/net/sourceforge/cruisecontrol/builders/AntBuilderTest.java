@@ -376,12 +376,21 @@ public class AntBuilderTest extends TestCase {
         
         builder.validateBuildFileExists();
         
+        builder.setBuildFile(file.getAbsolutePath());
+        builder.validateBuildFileExists();
+
         file.delete();
         try {
             builder.validateBuildFileExists();
             fail();
         } catch (CruiseControlException expected) {
         }
-    }
 
+        builder.setBuildFile(file.getName());
+        try {
+            builder.validateBuildFileExists();
+            fail();
+        } catch (CruiseControlException expected) {
+        }
+    }
 }
