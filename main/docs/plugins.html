@@ -229,12 +229,24 @@
   &lt;plugin/&gt;
 </pre>
 
-        <p>Only plugins can be overriden. As of CruiseControl 2.3.1 some high-level elements, such as
-        such as <code>&lt;listeners&gt;</code>, <code>&lt;schedule&gt;</code> and
-        <code>&lt;publishers&gt;</code> are not plugins, and thus cannot be preconfigured.</p>
-
         <p>Combined with <a href="configxml.html#property">ant style
-        properties</a> this will greatly reduce the size of your config files.</p>
+        properties</a> this can greatly reduce the size of your config files. In the extreme
+        case you can create a template project where all that needs to be supplied is the
+        project name:</p>
+<pre>
+&lt;cruisecontrol&gt;
+  &lt;plugin name="project"&gt;
+    &lt;bootstrappers&gt;
+      &lt;cvsbootstrapper localworkingcopy="projects/${project.name}&gt;
+    &lt;/bootstrappers&gt;
+    ...
+  &lt;/plugin&gt;
+
+  &lt;project name="foo" /&gt;
+  &lt;project name="bar" /&gt;
+  ...
+&lt;/cruisecontrol&gt;
+</pre>
 
         <p>More information and examples can be found on <a class="external"
         href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">the wiki</a>.
