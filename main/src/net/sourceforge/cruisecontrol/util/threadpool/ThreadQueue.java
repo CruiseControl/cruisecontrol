@@ -393,7 +393,9 @@ public class ThreadQueue extends Thread {
      * @return the active task (if present) or null if it cannot be found
      */
     private static WorkerThread getBusyTask(String taskName) {
-        return getTask(taskName, getThreadQueue().busyTasks.iterator());
+        synchronized (getThreadQueue().busyTasks) {
+            return getTask(taskName, getThreadQueue().busyTasks.iterator());
+        }
     }
 
     /**
@@ -402,7 +404,9 @@ public class ThreadQueue extends Thread {
      * @return the idle task (if present) or null if it cannot be found
      */
     private static WorkerThread getIdleTask(String taskName) {
-        return getTask(taskName, getThreadQueue().idleTasks.iterator());
+        synchronized (getThreadQueue().idleTasks) {
+            return getTask(taskName, getThreadQueue().idleTasks.iterator());
+        }
     }
 
     /**

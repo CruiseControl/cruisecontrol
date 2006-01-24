@@ -179,6 +179,7 @@ StarTeam
 ThreadQueue
 ----------------------
 * Fixes for incorrect methods (CC-389). Provided by Tarik Idris, reviewed by Kent Spillner.
+* Fix a ConcurrentModificationException when retrieving busy and idle tasks. Reported by Larry Shatzer
 
 VSSJournal:
 ----------------------
