@@ -4,11 +4,11 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
-Batch Files:
+batch files:
 ----------------------
 * Double quotes around %JAVA_HOME% arguments in classpaths, for JAVA_HOME values with spaces in the paths. (CC-371) Fix by Jeff Jensen
 
-Binary release:
+binary release:
 ----------------------
 * cruisecontrol.bat no longer sets ANT_HOME (CC-348).
 * cruisecontrol reporting application now started under root context, for example http://localhost:8080 will now show the reporting app. "cruisecontrol" context supported for backwards compatability, for example http://localhost:8080/cruisecontrol. Patch by Kent Spillner.
@@ -18,6 +18,10 @@ Binary release:
 * Package the zip file with unix execute permission on the cruisecontrol.sh and apache-ant/bin/ant scripts
 * Updated the bundled apache-ant from version 1.6.3 to 1.6.5
 
+source release:
+----------------------
+* don't exclude the binaryrelease files from the source release. Patch by Larry Shatzer
+
 contrib:
 ----------------------
 * fix distributed/build.xml so that tests will pass out of the box. Patch by Dan Rollo
@@ -26,12 +30,12 @@ contrib:
 * clarified module attribute description in contrib/distributed (CC-390). Patch by Dan Rollo.
 * Allow configuration of BuildAgents to use a specific URL to find Lookup services (instead of using mulitcast discovery) (CC-392). Patch by Kirill Petrov.
 
-release.xml:
+release build.xml:
 ----------------------
 * New targets "deploy-server" and "kill-server" for starting/killing the binary release on a testing port.
 * Added "web" tests for the binary distribution. They are executed by the "webtest" target in release.xml.
 * Exclude pre-built binaries from source distribution and rename zip to include "src" in the name (CC-336).
-* Renamed to build.xml so that it conforms to Ant standards.
+* Renamed from release.xml to build.xml so that it conforms to Ant standards.
 
 build loop
 ======================

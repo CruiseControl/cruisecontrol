@@ -105,7 +105,6 @@
                 <exclude name="reporting/jsp/samplelogs/_cache/**"/>
                 <exclude name="reporting/jsp/testresults.xml"/>
                 <exclude name="release*"/>
-                <exclude name="**/binaryrelease/**"/>
                 <exclude name=".pc/**"/>
                 <exclude name="**/dist/**"/>
             </zipfileset>
