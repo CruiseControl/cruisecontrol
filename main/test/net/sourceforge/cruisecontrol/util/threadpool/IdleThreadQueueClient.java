@@ -100,6 +100,9 @@ public class IdleThreadQueueClient implements WorkerThread {
     public void terminate() {
         //System.out.println("\n-------terminate encountered!!-------\n");
         terminate = true;
+        synchronized (mutex) {
+            mutex.notifyAll();
+        }
         return;
     }
 

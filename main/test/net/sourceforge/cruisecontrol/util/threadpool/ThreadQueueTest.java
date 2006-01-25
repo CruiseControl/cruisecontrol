@@ -109,7 +109,11 @@ public class ThreadQueueTest extends TestCase {
 
         for (int i = 0; i < TASK_COUNT; i++) {
             ThreadQueue.interruptAllRunningTasks();
-            sleep(500);
+
+            // We want to sleep long enough for the running task to wake up
+            // and notice it's terminated but not so long that the next task
+            // is scheduled enough time to actually finish
+            sleep(250);
 
 //            System.out.println("ThreadQueue.numTotalTasks()->" + ThreadQueue.numTotalTasks());
 //            System.out.println("ThreadQueue.numWaitingTasks()->" + ThreadQueue.numWaitingTasks());
