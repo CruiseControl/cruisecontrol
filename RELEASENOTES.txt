@@ -60,6 +60,7 @@ AntPublisher:
 BuildQueue:
 ----------------------
 * Catch and log and exceptions from listeners, such as when reparsing config file (CC-395).
+* Rename Listener method from projectQueued() to buildRequested() and change notification from after queueing to before.
 
 main/build.xml:
 ----------------------

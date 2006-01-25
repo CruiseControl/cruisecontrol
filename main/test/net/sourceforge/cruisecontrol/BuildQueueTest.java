@@ -50,20 +50,15 @@ public class BuildQueueTest extends TestCase {
     public void testListener() {
         TestListener listener = new TestListener();
         queue.addListener(listener);
-        assertFalse(listener.wasQueued());
-        assertFalse(listener.wasBeforeQueued());
+        assertFalse(listener.wasBuildRequested());
         queue.requestBuild(new Project());
-        assertTrue(listener.wasQueued());
-        assertTrue(listener.wasBeforeQueued());
+        assertTrue(listener.wasBuildRequested());
     }
     
     public void testListenerExceptionShouldNotLeakOut() {
         Listener listener = new Listener() {
-            public void projectBeforeQueued() {
+            public void buildRequested() {
                 throw new RuntimeException("project before queued exception");
-            }
-            public void projectQueued() {
-                throw new RuntimeException("project queued exception");
             }
         };
         
@@ -72,23 +67,14 @@ public class BuildQueueTest extends TestCase {
     }
 
     class TestListener implements Listener {
-        private boolean queued = false;
-        private boolean beforeQueued = false;
+        private boolean buildRequested = false;
 
-        boolean wasQueued() {
-            return queued;
+        boolean wasBuildRequested() {
+            return buildRequested;
         }
 
-        boolean wasBeforeQueued() {
-            return beforeQueued;
-        }
-
-        public void projectBeforeQueued() {
-            beforeQueued = true;
-        }
-
-        public void projectQueued() {
-            queued = true;
+        public void buildRequested() {
+            buildRequested = true;
         }
     }
 }

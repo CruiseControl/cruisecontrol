@@ -313,11 +313,8 @@ public class CruiseControlController {
     }
 
     private class BuildQueueListener implements BuildQueue.Listener {
-        public void projectBeforeQueued() {
+        public void buildRequested() {
             parseConfigFileIfNecessary();
-        }
-
-        public void projectQueued() {            
         }
     }
 

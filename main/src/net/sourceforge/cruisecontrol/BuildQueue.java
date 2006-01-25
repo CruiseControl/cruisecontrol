@@ -70,12 +70,11 @@ public class BuildQueue implements Runnable {
     public void requestBuild(Project project) {
         LOG.debug("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
 
-        preNotifyListeners();
+        notifyListeners();
         synchronized (queue) {
             queue.add(project);
             queue.notify();
         }
-        notifyListeners();
     }
 
     /**
@@ -177,11 +176,11 @@ public class BuildQueue implements Runnable {
         listeners.add(listener);
     }
 
-    private void preNotifyListeners() {
+    private void notifyListeners() {
         Iterator toNotify = listeners.iterator();
         while (toNotify.hasNext()) {
             try {
-                ((Listener) toNotify.next()).projectBeforeQueued();
+                ((Listener) toNotify.next()).buildRequested();
             } catch (Exception e) {
                 LOG.error("exception notifying listener before project queued", e);
             }
@@ -189,19 +188,7 @@ public class BuildQueue implements Runnable {
 
     }
 
-    private void notifyListeners() {
-        Iterator toNotify = listeners.iterator();
-        while (toNotify.hasNext()) {
-            try {
-                ((Listener) toNotify.next()).projectQueued();
-            } catch (Exception e) {
-                LOG.error("exception notifying listener after project queued", e);                
-            }
-        }
-    }
-
     public static interface Listener extends EventListener {
-        void projectBeforeQueued();
-        void projectQueued();
+        void buildRequested();
     }
 }
