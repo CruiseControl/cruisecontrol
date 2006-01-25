@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.BuildQueue.Listener;
 import junit.framework.TestCase;
 
 public class BuildQueueTest extends TestCase {
@@ -49,11 +50,28 @@ public class BuildQueueTest extends TestCase {
     public void testListener() {
         TestListener listener = new TestListener();
         queue.addListener(listener);
+        assertFalse(listener.wasQueued());
+        assertFalse(listener.wasBeforeQueued());
         queue.requestBuild(new Project());
         assertTrue(listener.wasQueued());
+        assertTrue(listener.wasBeforeQueued());
+    }
+    
+    public void testListenerExceptionShouldNotLeakOut() {
+        Listener listener = new Listener() {
+            public void projectBeforeQueued() {
+                throw new RuntimeException("project before queued exception");
+            }
+            public void projectQueued() {
+                throw new RuntimeException("project queued exception");
+            }
+        };
+        
+        queue.addListener(listener);
+        queue.requestBuild(new Project());
     }
 
-    class TestListener implements BuildQueue.Listener {
+    class TestListener implements Listener {
         private boolean queued = false;
         private boolean beforeQueued = false;
 

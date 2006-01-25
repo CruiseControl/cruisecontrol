@@ -57,6 +57,10 @@ AntPublisher:
 ----------------------
 * No longer extends AntBuilder, but delegates to an AntBuilder instance. AntPublisher previously could have been used as a builder and a publisher, but this wasn't semantically correct. It also made it more difficult to look at the class signature and understand its responsibilities. Patch by Kent Spillner.
 
+BuildQueue:
+----------------------
+* Catch and log and exceptions from listeners, such as when reparsing config file (CC-395).
+
 main/build.xml:
 ----------------------
 * Allow build for jdk 1.3 no matter which jdk is being used. Patch by Brad Clarke. 
