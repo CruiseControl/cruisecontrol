@@ -68,7 +68,7 @@ public class BuildQueue implements Runnable {
      * @param project
      */
     public void requestBuild(Project project) {
-        System.out.println("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
+        LOG.debug("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
 
         preNotifyListeners();
         synchronized (queue) {
