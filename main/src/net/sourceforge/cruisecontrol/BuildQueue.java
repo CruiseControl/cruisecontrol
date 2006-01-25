@@ -180,7 +180,11 @@ public class BuildQueue implements Runnable {
     private void preNotifyListeners() {
         Iterator toNotify = listeners.iterator();
         while (toNotify.hasNext()) {
-            ((Listener) toNotify.next()).projectBeforeQueued();
+            try {
+                ((Listener) toNotify.next()).projectBeforeQueued();
+            } catch (Exception e) {
+                LOG.error("exception notifying listener before project queued", e);
+            }
         }
 
     }
@@ -188,7 +192,11 @@ public class BuildQueue implements Runnable {
     private void notifyListeners() {
         Iterator toNotify = listeners.iterator();
         while (toNotify.hasNext()) {
-            ((Listener) toNotify.next()).projectQueued();
+            try {
+                ((Listener) toNotify.next()).projectQueued();
+            } catch (Exception e) {
+                LOG.error("exception notifying listener after project queued", e);                
+            }
         }
     }
 
