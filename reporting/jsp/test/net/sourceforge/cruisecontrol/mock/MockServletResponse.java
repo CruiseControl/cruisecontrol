@@ -52,10 +52,15 @@ public class MockServletResponse implements HttpServletResponse {
     private StringWriter stringWriter = new StringWriter();
     private PrintWriter writer = new PrintWriter(stringWriter);
     private String contentType;
+    private int status;
     private ServletOutputStream outputStream = new MockServletOutputStream(stringWriter);
 
     public String getContentType() {
         return contentType;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public String getWritten() {
@@ -161,12 +166,14 @@ public class MockServletResponse implements HttpServletResponse {
      * @see javax.servlet.http.HttpServletResponse#setStatus(int)
      */
     public void setStatus(int arg0) {
+        status = arg0;
     }
 
     /* (non-Javadoc)
      * @see javax.servlet.http.HttpServletResponse#setStatus(int, java.lang.String)
      */
     public void setStatus(int arg0, String arg1) {
+        status = arg0;
     }
 
     /* (non-Javadoc)

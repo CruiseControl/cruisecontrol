@@ -132,6 +132,7 @@ public class FileServletTest extends TestCase {
         assertEquals(expected, actual);
         String actualMimeType = response.getContentType();
         assertEquals("text/html", actualMimeType);
+        assertEquals(response.SC_NOT_FOUND, response.getStatus());
     }
 
     /*
