@@ -57,7 +57,7 @@ public class ThreadQueueTest extends TestCase {
             String[] myArgs = {taskName, TASK_SLEEP_TIME + ""};
             pt.setParams(myArgs);
             ThreadQueue.addTask(pt);
-            assertEquals(i + 1, ThreadQueue.numTotalTasks());
+            assertEquals(ThreadQueue.numTotalTasks(), i + 1);
         }
 
         sleep(TASK_SLEEP_TIME / 10);
@@ -115,17 +115,17 @@ public class ThreadQueueTest extends TestCase {
 //            System.out.println("ThreadQueue.numWaitingTasks()->" + ThreadQueue.numWaitingTasks());
 //            System.out.println("ThreadQueue.numCompletedTasks()->" + ThreadQueue.numCompletedTasks());
 
-            assertEquals("total tasks should be constant", ThreadQueue.numTotalTasks(), TASK_COUNT);
+            assertEquals("total tasks should be constant", TASK_COUNT, ThreadQueue.numTotalTasks());
             int stillWaiting = TASK_COUNT - i - 2;
             if (stillWaiting < 0) {
                 stillWaiting = 0;
             }
-            assertEquals("waiting tasks should drop", ThreadQueue.numWaitingTasks(), stillWaiting);
-            assertEquals("completed tasks should increase", ThreadQueue.numCompletedTasks(), i + 1);
+            assertEquals("waiting tasks should drop", stillWaiting, ThreadQueue.numWaitingTasks());
+            assertEquals("completed tasks should increase", i + 1, ThreadQueue.numCompletedTasks());
         }
-        assertEquals(ThreadQueue.numTotalTasks(), TASK_COUNT);
+        assertEquals(TASK_COUNT, ThreadQueue.numTotalTasks());
         ThreadQueue.terminate();
-        assertEquals(ThreadQueue.numTotalTasks(), 0);
+        assertEquals(0, ThreadQueue.numTotalTasks());
 
 //        System.out.println("\nExiting testPoolInterruptAll");
     }
@@ -185,7 +185,7 @@ public class ThreadQueueTest extends TestCase {
         if (ThreadQueue.getMaxNumWorkerThreads() > TASK_COUNT) {
             numThatShouldBeWaiting = 0;
         }
-        assertEquals(ThreadQueue.numWaitingTasks(), numThatShouldBeWaiting);
+        assertEquals(numThatShouldBeWaiting, ThreadQueue.numWaitingTasks());
 
         // wait for a subset of the time it takes one task to run and
         // make sure the numbers are all still correct
@@ -197,7 +197,7 @@ public class ThreadQueueTest extends TestCase {
         numRunningTasks = ThreadQueue.numRunningTasks();
         numWorkerThreads = ThreadQueue.getMaxNumWorkerThreads();
 
-        assertEquals(numRunningTasks, numWorkerThreads);
+        assertEquals(numWorkerThreads, numRunningTasks);
 
         // make sure the correct number of idle tasks is idle
         assertEquals(numThatShouldBeWaiting, ThreadQueue.numWaitingTasks());
@@ -245,7 +245,7 @@ public class ThreadQueueTest extends TestCase {
 
         // now that all the tasks are loaded and running
         // see if the counts are correct.
-        assertEquals(ThreadQueue.numRunningTasks(), ThreadQueue.getMaxNumWorkerThreads());
+        assertEquals(ThreadQueue.getMaxNumWorkerThreads(), ThreadQueue.numRunningTasks());
         int i = 0;
         while (i < TASK_COUNT) {
             i = i + ThreadQueue.getMaxNumWorkerThreads();
