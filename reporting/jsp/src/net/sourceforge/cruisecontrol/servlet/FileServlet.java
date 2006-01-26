@@ -55,6 +55,7 @@ import java.util.StringTokenizer;
 import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public class FileServlet extends HttpServlet {
@@ -305,7 +306,12 @@ class WebFile {
     }
 
     public String[] list() {
-        String[] files = file.list() == null ? new String[0] : file.list();
+        String[] files = file.list();
+        if (files == null) {
+            files = new String[0];
+        } else {
+            Arrays.sort(files);
+        }
         return files;
     }
 

@@ -220,6 +220,7 @@ FileServlet:
 ----------------------
 * Fix a bug with Last-Modified date format. Patch by Torsten Buerger
 * Set response code of 404 when file/dir not found. Patch by Ralf Wiebicke
+* Sort the artifact listing. Patch by Ralf Wiebicke
 
 fittests.xsl:
 ----------------------
