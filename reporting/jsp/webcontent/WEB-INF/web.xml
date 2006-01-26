@@ -103,12 +103,15 @@
     </context-param>
     -->
 
+    <!--
     <context-param>
       <param-name>xslt.viewcvs.url</param-name>
       <param-value>http://cvs.sourceforge.net/viewcvs.py/cruisecontrol</param-value>
-      <description>The URL of the ViewCVS website used by cvstagdiff.xsl
+      <description>The URL of the ViewCVS website used by cvstagdiff.xsl, checkstyle-details.xsl
+          and pmd-details.xsl
       </description>
     </context-param>
+    -->
 
     <context-param>
       <param-name>xslt.cvstagdiff.success.show</param-name>
@@ -117,6 +120,17 @@
           was successful. The default is to only show the modifications report for broken builds
       </description>
     </context-param>
+
+    <!--
+    <context-param>
+      <param-name>xslt.checkstyle.hide.warnings</param-name>
+      <param-value>true</param-value>
+      <description>Controls whether only CheckStyle errors or all CheckStyle errors and warnings
+          should be listed on the build results page. Set to 'true' for hiding the warnings. The
+          default is to list all errors and warnings
+      </description>
+    </context-param>
+    -->
 
     <servlet>
       <servlet-name>buildresults</servlet-name>
