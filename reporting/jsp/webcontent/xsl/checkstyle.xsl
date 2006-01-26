@@ -38,6 +38,10 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:output method="html"/>
 
+    <!-- Controls whether all CheckStyle errors and warnings should be listed.
+         Set to 'true' for hiding the warnings -->
+    <xsl:param name="checkstyle.hide.warnings"/>
+
     <xsl:template match="/" mode="checkstyle">
         <xsl:apply-templates select="cruisecontrol/checkstyle" mode="checkstyle"/>
     </xsl:template>
@@ -53,27 +57,32 @@
                 </td>
             </tr>
             <xsl:choose>
-                <xsl:when test="$total.error.count = 0">
+                <xsl:when test="$checkstyle.hide.warnings = 'true' and $total.error.count = 0">
                   <tr>
                     <td class="checkstyle-data" colspan="3">
                         <xsl:value-of select="$total.warning.count"/> warnings
                     </td>
-                   </tr>
-                 </xsl:when>
+                  </tr>
+                </xsl:when>
+                <xsl:when test="$checkstyle.hide.warnings = 'true'">
+                  <xsl:apply-templates select="file/error[@severity='error']" mode="checkstyle"/>
+                </xsl:when>
                 <xsl:otherwise>
-                    <xsl:for-each select="file/error[@severity='error']" >
-                        <tr>
-                            <xsl:if test="position() mod 2 = 1">
-                                <xsl:attribute name="class">checkstyle-oddrow</xsl:attribute>
-                            </xsl:if>
-                            <td class="checkstyle-data"><xsl:value-of select="../@name" /></td>
-                            <td class="checkstyle-data"><xsl:value-of select="@line" /></td>
-                            <td class="checkstyle-data"><xsl:value-of select="@message" /></td>
-                        </tr>
-                    </xsl:for-each>
+                  <xsl:apply-templates select="file/error" mode="checkstyle"/>
                 </xsl:otherwise>
             </xsl:choose>
         </table>
+    </xsl:template>
+
+    <xsl:template match="error" mode="checkstyle">
+      <tr>
+        <xsl:if test="position() mod 2 = 1">
+          <xsl:attribute name="class">checkstyle-oddrow</xsl:attribute>
+        </xsl:if>
+        <td class="checkstyle-{@severity}"><xsl:value-of select="../@name" /></td>
+        <td class="checkstyle-{@severity}"><xsl:value-of select="@line" /></td>
+        <td class="checkstyle-{@severity}"><xsl:value-of select="@message" /></td>
+      </tr>
     </xsl:template>
 
     <xsl:template match="/">
