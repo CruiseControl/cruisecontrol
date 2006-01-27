@@ -2,6 +2,10 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - Latest CVS
+
+
+
 CruiseControl Release Notes - 2.4
 
 batch files:
