@@ -76,6 +76,7 @@ set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xml-apis-2.7.0.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xalan-2.6.0.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jakarta-oro-2.0.3.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\mail.jar
+set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\junit.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\activation.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\commons-net-1.1.0.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\starteam-sdk.jar
