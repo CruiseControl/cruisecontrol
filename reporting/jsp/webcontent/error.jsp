@@ -51,7 +51,7 @@
     CharArrayWriter stackTraceWriter = new CharArrayWriter();
     exception.printStackTrace(new PrintWriter(stackTraceWriter, true));
     String stackTrace = stackTraceWriter.toString();
-    log(HttpUtils.getRequestURL(request) + ": " + message, exception);
+    application.log(HttpUtils.getRequestURL(request) + ": " + message, exception);
 %>
 <html>
 <head>
