@@ -83,7 +83,7 @@
                </tr>
 
                <xsl:for-each select="MBean/Attribute/Collection/Element">
-                  <xsl:sort order="ascending" select="@index"/>
+                  <xsl:sort order="ascending" select="@index" data-type="number"/>
                   <xsl:if test="position()&lt;($request.step+$request.start) and position()&gt;$request.start">
                      <xsl:variable name="classtype">
                         <xsl:if test="(position() mod 2)=1">clearline</xsl:if>

@@ -76,7 +76,7 @@
                   </td>
                </tr>
                <xsl:for-each select="MBean/Attribute/Array/Element">
-                  <xsl:sort order="ascending" select="@index"/>
+                  <xsl:sort order="ascending" select="@index" data-type="number"/>
                   <xsl:variable name="classtype">
                      <xsl:if test="(position() mod 2)=1">clearline</xsl:if>
                      <xsl:if test="(position() mod 2)=0">darkline</xsl:if>
