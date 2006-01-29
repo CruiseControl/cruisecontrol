@@ -8,6 +8,13 @@ binary release:
 ----------------------
 * add junit.jar in cruisecontrol.bat/.sh so that using internal ant with AntBuilder will be able to execute junit task.
 
+build loop
+======================
+
+JMX interface:
+----------------------
+* Sort arrays and collections by their index's numeric value (CC-232). Patch by Valdis Rigdon
+
 reporting application
 ======================
 
