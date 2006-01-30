@@ -4,10 +4,6 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
-binary release:
-----------------------
-* add junit.jar in cruisecontrol.bat/.sh so that using internal ant with AntBuilder will be able to execute junit task.
-
 build loop
 ======================
 
