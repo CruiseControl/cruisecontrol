@@ -83,7 +83,7 @@ java.util.Arrays,
   <%
     String name = System.getProperty("ccname", "");
     String hostname = InetAddress.getLocalHost().getHostName();
-    String port = System.getProperty("cruisecontrol.jmxport");
+    String port = System.getProperty("cruisecontrol.jmxport", "8000");
     boolean jmxEnabled = port != null;
     String jmxURLPrefix = "http://" + hostname+ ":"+ port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
 
