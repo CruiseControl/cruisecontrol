@@ -96,7 +96,7 @@ java.util.Arrays,
 
   <base href="<%=baseURL%>" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <META HTTP-EQUIV="Refresh" CONTENT="10" URL="<%=baseURL%>/status.jsp">
+  <META HTTP-EQUIV="Refresh" CONTENT="10">
 
   <style type="text/css">
     thead td {padding: 2 5}
