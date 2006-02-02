@@ -35,233 +35,285 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
 <%@page errorPage="/error.jsp"%>
-<%@page import="java.io.File,
-                 java.text.NumberFormat,
-                 java.util.Arrays,
-                 java.util.Calendar,
-                java.net.InetAddress,
-                java.io.IOException"%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<jsp:useBean id="statusHelper" scope="page" class="net.sourceforge.cruisecontrol.StatusHelper" />
+java.util.Arrays,
+<%@page import="net.sourceforge.cruisecontrol.*"%>
+<%@ page import="java.io.IOException"%>
+<%@ page import="java.util.Calendar"%>
+<%@ page import="java.net.InetAddress"%>
+<%@ page import="java.text.DateFormat"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.io.File"%>
+<%@ page import="java.util.Arrays"%>
+<%@ page import="java.util.Comparator"%>
+<%@ page import="java.text.ParseException"%>
+<%@ page import="java.io.BufferedReader"%>
+<%@ page import="java.io.FileReader"%>
+<%@ page import="java.util.HashMap"%>
+<%@ page import="java.util.Date"%>
+
+
 <%
-    String singleProjectMode = application.getInitParameter("singleProject");
-    if (Boolean.valueOf(singleProjectMode).booleanValue()) {
-       %><jsp:forward page="buildresults" /><%
-        return;
-    }
+  boolean autoRefresh = "true".equals(request.getParameter("auto_refresh"));
 
-    StringBuffer reportTime = new StringBuffer();
-    Calendar now = Calendar.getInstance();
-    reportTime.append(now.get(Calendar.HOUR_OF_DAY));
-    reportTime.append(":");
-    String minutes = String.valueOf(now.get(Calendar.MINUTE));
-    if (minutes.length() == 1) {
-        minutes = 0 + minutes;
-    }
-    reportTime.append(minutes);
+  DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm");
+  final DateFormat dateOnlyFormat = new SimpleDateFormat("MM/dd/yy");
+  final DateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm");
 
-    boolean autoRefresh = "true".equals(request.getParameter("auto_refresh"));
+  final Date now = new Date();
+  String dateNow = dateFormat.format(now);
+%>
 
+
+<%
+  final HashMap projectStatuses = new HashMap();
+  projectStatuses.put(ProjectState.QUEUED.getDescription(), ProjectState.QUEUED);
+  projectStatuses.put(ProjectState.IDLE.getDescription(), ProjectState.IDLE);
+  projectStatuses.put(ProjectState.MODIFICATIONSET.getDescription(), ProjectState.MODIFICATIONSET);
+  projectStatuses.put(ProjectState.BUILDING.getDescription(), ProjectState.BUILDING);
+  projectStatuses.put(ProjectState.MERGING_LOGS.getDescription(), ProjectState.MERGING_LOGS);
+  projectStatuses.put(ProjectState.PUBLISHING.getDescription(), ProjectState.PUBLISHING);
+  projectStatuses.put(ProjectState.PAUSED.getDescription(), ProjectState.PAUSED);
+  projectStatuses.put(ProjectState.STOPPED.getDescription(), ProjectState.STOPPED);
+  projectStatuses.put(ProjectState.WAITING.getDescription(), ProjectState.WAITING);
+%>
+
+<html>
+<head>
+
+  <%
     String name = System.getProperty("ccname", "");
-
-    String hostname = "";
-    try
-    {
-        hostname = InetAddress.getLocalHost().getHostName();
-    }
-    catch(IOException e)
-    {
-        hostname = "localhost";
-    }
-
+    String hostname = InetAddress.getLocalHost().getHostName();
     String port = System.getProperty("cruisecontrol.jmxport");
     boolean jmxEnabled = port != null;
     String jmxURLPrefix = "http://" + hostname+ ":"+ port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
-%>
-<html>
-<head>
-  <title><%= name%> CruiseControl Status Page</title>
-  <%
-      String baseURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
-                + request.getContextPath() + "/";
+
+    String baseURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                     + request.getContextPath() + "/";
   %>
+
+
+  <title><%= name%> CruiseControl Status Page</title>
+
   <base href="<%=baseURL%>" />
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <%
-     if (autoRefresh) { 
-  %>
-  <META HTTP-EQUIV="Refresh" CONTENT="10">
-  <%
-     }
-  %>
+  <META HTTP-EQUIV="Refresh" CONTENT="10" URL="<%=baseURL%>/status.jsp">
+
+  <style type="text/css">
+    thead td {padding: 2 5}
+  </style>
+
   <script language="JavaScript">
     function callServer(url, projectName) {
-       document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
-       alert('Scheduling build for ' + projectName);
+      document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
+      alert('Scheduling build for ' + projectName);
     }
 
     function checkIframe(stylesheetURL) {
-       if (top != self) {//We are being framed!
-
-          //For Internet Explorer
-          if(document.createStyleSheet) {
-            document.createStyleSheet(stylesheetURL);
-
-          } else { //Non-ie browsers
-
-            var styles = "@import url('"+stylesheetURL+"');";
-
-            var newSS=document.createElement('link');
-
-            newSS.rel='stylesheet';
-
-            newSS.href='data:text/css,'+escape(styles);
-
-            document.getElementsByTagName("head")[0].appendChild(newSS);
-
-          }
-       }
+      if (top != self) {//We are being framed!
+        //For Internet Explorer
+        if(document.createStyleSheet) {
+          document.createStyleSheet(stylesheetURL);
+        } else { //Non-ie browsers
+          var styles = "@import url('"+stylesheetURL+"');";
+          var newSS=document.createElement('link');
+          newSS.rel='stylesheet';
+          newSS.href='data:text/css,'+escape(styles);
+          document.getElementsByTagName("head")[0].appendChild(newSS);
+        }
+      }
     }
   </script>
 </head>
+
+
 <body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
 <p>&nbsp;</p>
 
-<h1 class="white" align="center"><%= name%> CruiseControl Status Page</h1>
+<h1 class="white" align="center"><%= name%> CruiseControl at <%= hostname %> <span style="font-size: smaller; font-style: italic">[<%= dateNow %>]</span> </h1>
 
 <div id="serverData" class="hidden" ></div>
 
 <table align="center" border="0" cellpadding="0" cellspacing="0">
-<tfoot>
-  <tr><td class="link" colspan="2">listing generated at <%=reportTime.toString()%></td></tr>
-</tfoot>
 <tbody>
-<tr><td align="right" colspan="2">
-  <%
-     if (autoRefresh) {
-  %>
-    <a class="white" href="?auto_refresh=false">Turn autorefresh off</a>
-  <%
-     } else {
-  %>
-    <a class="white" href="?auto_refresh=true">Turn autorefresh on</a>
-  <%
-     }
-  %>
-  </td></tr>
-  <tr><td colspan="2">&nbsp;</td></tr>
-  <tr>
-    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"/></td>
-    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"/></td>
-  </tr>
-  <tr><td colspan="2"><table class="index" width="100%">
-<%
-   String statusFile = application.getInitParameter("currentBuildStatusFile");
-   String singleProject = application.getInitParameter("singleProject");
-   
-   String logDirPath = application.getInitParameter("logDir");
-   if (logDirPath == null) {
-       %><tr><td>You need to provide a value for the context parameter <code>&quot;logDir&quot;</code></td></tr><%
-   } else {
-       java.io.File logDir = new java.io.File(logDirPath);
-       if (logDir.isDirectory() == false) {
-           %><tr><td>Context parameter logDir needs to be set to a directory. Currently set to &quot;<%=logDirPath%>&quot;</td></tr><%
-       } else {
-           String[] projectDirs = logDir.list(new java.io.FilenameFilter() {
-               public boolean accept(File dir, String name) {
-                   return (new File(dir, name).isDirectory());
-               }
-           });
 
-           if (projectDirs.length == 0) {
-               %><tr><td>no project directories found under <%=logDirPath%></td></tr><%
-           }
-           else {
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr>
+  <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"/></td>
+  <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"/></td>
+</tr>
+
+  <%
+    class Info implements Comparable {
+      public static final int ONE_DAY = 1000 * 60 * 60 * 24;
+
+      private BuildInfo latest;
+      private BuildInfo lastSuccessful;
+      private ProjectState status;
+      private Date statusSince;
+      private String project;
+      private String statusDescription;
+
+      public Info(File logsDir, String project) throws ParseException, IOException {
+        this.project = project;
+
+        File projectLogDir = new File(logsDir, project);
+        LogFile latestLogFile = LogFile.getLatestLogFile(projectLogDir);
+        LogFile latestSuccessfulLogFile = LogFile.getLatestSuccessfulLogFile(projectLogDir);
+
+
+        if (latestLogFile != null) {
+          latest = new BuildInfo(latestLogFile);
+        }
+        if (latestSuccessfulLogFile != null) {
+          lastSuccessful = new BuildInfo(latestSuccessfulLogFile);
+        }
+
+        File statusFile = new File(projectLogDir, "status.txt");
+        BufferedReader reader = new BufferedReader(new FileReader(statusFile));
+        try {
+          statusDescription = reader.readLine().replaceAll(" since", "");
+
+          ProjectState projectState = (ProjectState) projectStatuses.get(statusDescription);
+          status =  projectState != null ? projectState : null;
+          statusSince = new Date(statusFile.lastModified());
+        }
+        catch(Exception e){
+        }
+        finally {
+          reader.close();
+        }
+      }
+
+      public String getLastBuildTime(){
+        return format(latest.getBuildDate());
+      }
+
+      public String getLastSuccessfulBuildTime(){
+        return getTime(lastSuccessful);
+      }
+
+      private String getTime(BuildInfo build) {
+        return build != null ? format(build.getBuildDate()) : "";
+      }
+
+      public String format(Date date) {
+        if(date == null){
+          return "";
+        }
+
+        if ((date.getTime() - now.getTime()) < ONE_DAY) {
+          return timeOnlyFormat.format(date);
+        }
+        return dateOnlyFormat.format(date);
+      }
+
+      public String getStatusSince() {
+        return format(statusSince);
+      }
+
+      public boolean failed() {
+        return latest == null || ! latest.isSuccessful();
+      }
+
+      public String getStatus() {
+        return status == null
+            ? ""
+            : status.getName();
+      }
+
+      public int compareTo(Object other) {
+        Info that = (Info) other;
+
+        if(this.status == null || that.status == null){
+          return -1;
+        }
+
+        return (int) (that.statusSince.getTime() - this.statusSince.getTime());
+      }
+
+      public String getLabel() {
+        return lastSuccessful.getLabel();
+      }
+    }
+
+  %>
+
+
+<tr><td colspan="2"><table class="index" width="100%">
+  <%
+    String statusFile = application.getInitParameter("currentBuildStatusFile");
+    String singleProject = application.getInitParameter("singleProject");
+
+    String logDirPath = application.getInitParameter("logDir");
+    if (logDirPath == null) {
+  %><tr><td>You need to provide a value for the context parameter <code>&quot;logDir&quot;</code></td></tr><%
+} else {
+  java.io.File logDir = new java.io.File(logDirPath);
+  if (logDir.isDirectory() == false) {
+%><tr><td>Context parameter logDir needs to be set to a directory. Currently set to &quot;<%=logDirPath%>&quot;</td></tr><%
+} else {
+  String[] projectDirs = logDir.list(new java.io.FilenameFilter() {
+    public boolean accept(File dir, String name) {
+      return (new File(dir, name).isDirectory());
+    }
+  });
+
+  if (projectDirs.length == 0) {
+%><tr><td>no project directories found under <%=logDirPath%></td></tr><%
+}
+else {
 %>  <thead class="index-header">
-      <tr>
-        <td>Project</td>
-        <td align="center">Current status</td>
-        <td align="center">Last build result</td>
-        <td align="center">Last build time</td>
-        <td align="center">Last successful build time</td>
-        <td align="center">Last label</td>
-        <% if (jmxEnabled) { %>
-        <td align="center">Force build</td>
-        <% } //end if jmxEnabled %>
-      </tr>
-    </thead>
-    <tbody>
- <%
-               Arrays.sort(projectDirs);
-               int passed = 0;
-               int failed = 0;
-             for (int i = 0; i < projectDirs.length; i++) {
-                   String project = projectDirs[i];
-                   File projectDir = new File(logDir, project);
-                   statusHelper.setProjectDirectory(projectDir);
-                   final String result = statusHelper.getLastBuildResult();
-                   if ("passed".equalsIgnoreCase(result)) { passed++; }
-                   if ("failed".equalsIgnoreCase(result)) { failed++; }
-         %>    <tr>
-                   <td><a href="buildresults/<%=project%>"><%=project%></a></td>
-                   <td align="center"><%=statusHelper.getCurrentStatus(singleProject, logDirPath, project, statusFile)%></td>
-                   <td class="index-<%=result%>" align="center"><%=result%></td>
-                   <td align="center"><%=statusHelper.getLastBuildTimeString(request.getLocale())%></td>
-                   <td align="center"><%=statusHelper.getLastSuccessfulBuildTimeString(request.getLocale())%></td>
-                   <td><%=statusHelper.getLastSuccessfulBuildLabel()%></td>
-                   <% if (jmxEnabled) { %>
-                   <td><form id="force_<%=project%>" onsubmit="callServer('<%= jmxURLPrefix + project %>', '<%=project%>'); return false">
-                        <input type="submit" value="Force" alt="Run Build" title="Run Build"/>
-                   </form></td>
-                   <% } //end if jmxEnabled %>
-               </tr>
-         <% } //end for loop over project dirs  %>
-
-  </table></tr>
-  <tr><td colspan="2" class="index"><hr/></td></tr>
-  <tr><td align="left" colspan="2" class="index" width="100%"><table class="index" width="50%">
-               <tr><td class="index-header">Total</td>
-                   <td align="center" class="index-header"><%=projectDirs.length%></td>
-                   <td>&nbsp;</td>
-               </tr>
-
-                   <%
-                      if (passed > 0) {
-                   %>
-                   <tr><td class="index-passed">Passed</td>
-                   <td align="center" class="index-passed"><%=passed%></td>
-                   <td align="center" class="index-passed"><%= NumberFormat.getPercentInstance().format((double) passed / projectDirs.length) %></td>
-                   </tr>
-                   <% } %>
-
-                   <%
-                      if (failed > 0) {
-                    %>
-                   <tr><td class="index-failed">Failed</td>
-                   <td align="center" class="index-failed"><%=failed%></td>
-                   <td align="center" class="index-failed"><%= NumberFormat.getPercentInstance().format((double) failed / projectDirs.length) %></td>
-                   </tr>
-                   <% } %>
-
-                   <% int unknown = projectDirs.length - passed - failed;
-                      if (unknown > 0) {
-                    %>
-                   <tr><td class="index-unknown">Unknown</td>
-                   <td align="center" class="index-unknown"><%=unknown%></td>
-                   <td align="center" class="index-unknown"><%= NumberFormat.getPercentInstance().format((double) unknown / projectDirs.length) %></td>
-                   </tr>
-                   <% } %>
-               </tbody>
-<%
-           }
-       }
-   }
-%></table></td></tr>
   <tr>
-    <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"/></td>
-    <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"/></td>
+    <td>Project</td>
+    <td>Status <em>(since)</em></td>
+    <td>Last Build</td>
+    <td>Failing since</td>
+    <td>Label</td>
+    <% if (jmxEnabled) { %>
+    <td align="center">Force build</td>
+    <% } //end if jmxEnabled %>
   </tr>
-  <tr><td colspan="2">&nbsp;</td></tr>
+</thead>
+
+
+  <tbody>
+    <%
+      Info[] info = new Info[projectDirs.length];
+      for (int i = 0; i < info.length; i++) {
+        info[i] = new Info(logDir, projectDirs[i]);
+      }
+
+      Arrays.sort(info);
+
+      for (int i = 0; i < info.length; i++) {
+      %>
+
+    <tr style="background-color: <%= (i % 2 == 1) ? "white" : "lightblue" %>  ">
+
+      <td><a href="buildresults/<%=info[i].project%>"><%=info[i].project%></a></td>
+      <td><%= info[i].getStatus()%> <em>(<%= info[i].getStatusSince() %>)</em></td>
+      <td><%= info[i].getLastBuildTime()%></td>
+      <td style="color: red; font-weight: bold"><%= (info[i].failed()) ? info[i].getLastSuccessfulBuildTime() : "" %></td>
+      <td><%= info[i].getLabel()%></td>
+
+      <% if (jmxEnabled) { %>
+      <td><a href="javascript: callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')">Force</a></td>
+      <% } %>
+
+    </tr>
+
+</tbody>
+<%
+      }
+    }
+  }
+}
+%></table></td></tr>
+<tr>
+  <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"/></td>
+  <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"/></td>
+</tr>
+<tr><td colspan="2">&nbsp;</td></tr>
 </tbody>
 </table>
 </body>
