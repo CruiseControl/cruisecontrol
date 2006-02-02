@@ -18,6 +18,10 @@ error.jsp:
 ----------------------
 * change call from (GenericServlet.)log(...) to application.log(...) for app servers who implement Servlet without extending GenericServlet, such as WebLogic 8.x. Patch by Carl Lindberg
 
+index.jsp:
+----------------------
+* cleanup display of page, add banding, one line per project. Submitted by Kevin Lawrence
+
 CruiseControl Release Notes - 2.4
 
 batch files:
