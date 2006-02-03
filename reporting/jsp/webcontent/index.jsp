@@ -297,7 +297,10 @@ else {
       <td><%= info[i].getLabel()%></td>
 
       <% if (jmxEnabled) { %>
-      <td><a href="javascript: callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')">Force</a></td>
+      <td><form id="force_<%=info[i].project%>" onsubmit="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>'); return false">
+          <input type="submit" value="build" alt="run build" title="run build"/>
+      </form></td>
+  <!--<td><a href="javascript: callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')">build</a></td>-->
       <% } %>
 
     </tr>
