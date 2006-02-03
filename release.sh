@@ -41,9 +41,6 @@
 # You may modify the default values below.
 #--------------------------------------------
 
-# The name of the build file to use
-BUILDFILE=build.xml
-
 # Directory where necessary build Java libraries are found
 LIBDIR=main/lib
 
