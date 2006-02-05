@@ -143,6 +143,7 @@ java.util.Arrays,
 </tr>
 
   <%
+    final String statusFileName = application.getInitParameter("currentBuildStatusFile");
     class Info implements Comparable {
       public static final int ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -168,19 +169,21 @@ java.util.Arrays,
           lastSuccessful = new BuildInfo(latestSuccessfulLogFile);
         }
 
-        File statusFile = new File(projectLogDir, "status.txt");
-        BufferedReader reader = new BufferedReader(new FileReader(statusFile));
-        try {
-          statusDescription = reader.readLine().replaceAll(" since", "");
+        File statusFile = new File(projectLogDir, statusFileName);
+        if (statusFile.exists()) {
+          BufferedReader reader = new BufferedReader(new FileReader(statusFile));
+          try {
+            statusDescription = reader.readLine().replaceAll(" since", "");
 
-          ProjectState projectState = (ProjectState) projectStatuses.get(statusDescription);
-          status =  projectState != null ? projectState : null;
-          statusSince = new Date(statusFile.lastModified());
-        }
-        catch(Exception e){
-        }
-        finally {
-          reader.close();
+            ProjectState projectState = (ProjectState) projectStatuses.get(statusDescription);
+            status =  projectState != null ? projectState : null;
+            statusSince = new Date(statusFile.lastModified());
+          }
+          catch(Exception e){
+          }
+          finally {
+            reader.close();
+          }
         }
       }
 
