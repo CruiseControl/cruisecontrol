@@ -7,7 +7,7 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip"/>
+    <target name="release" depends="clean, build, website, zip, bin-zip, webtest"/>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined."/>
