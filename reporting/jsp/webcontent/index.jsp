@@ -188,7 +188,7 @@ java.util.Arrays,
       }
 
       public String getLastBuildTime(){
-        return format(latest.getBuildDate());
+        return latest == null ? "" : format(latest.getBuildDate());
       }
 
       public String getLastSuccessfulBuildTime(){
@@ -235,7 +235,7 @@ java.util.Arrays,
       }
 
       public String getLabel() {
-        return lastSuccessful.getLabel();
+        return lastSuccessful == null ? "" : lastSuccessful.getLabel();
       }
     }
 
@@ -300,8 +300,14 @@ else {
       <td><%= info[i].getLabel()%></td>
 
       <% if (jmxEnabled) { %>
-      <td><form id="force_<%=info[i].project%>" onsubmit="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>'); return false">
-          <input type="submit" value="build" alt="run build" title="run build"/>
+      <td style="text-align: center; vertical-align: bottom; padding-top: 10; padding-bottom: 0" >
+        <form id="force_<%=info[i].project%>" 
+              onsubmit="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>'); return false">
+          <input style="background-color: <%= (i % 2 == 1) ? "lightblue" : "white" %> "
+                 type="submit" 
+                 value="build" 
+                 alt="run build" 
+                 title="run build"/>
       </form></td>
   <!--<td><a href="javascript: callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')">build</a></td>-->
       <% } %>
