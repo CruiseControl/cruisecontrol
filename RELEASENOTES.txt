@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Latest CVS
 
+contrib
+======================
+* add option for XmlLoggerWithStatus to ignore certain targets (CC-259). Patch by Brad Clarke
+
 build loop
 ======================
 

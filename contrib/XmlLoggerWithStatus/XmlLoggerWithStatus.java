@@ -21,6 +21,7 @@ public class XmlLoggerWithStatus extends XmlLogger {
 
     private Writer out;
     private boolean inited;
+    private String targetFilter;
 
     private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss");
 
@@ -37,6 +38,7 @@ public class XmlLoggerWithStatus extends XmlLogger {
             if (statusFileName == null) {
                 statusFileName = "buildstatus.txt";
             }
+            this.targetFilter = event.getProject().getProperty("XmlLoggerWithStatus.filter");
 
             //check directory
             File parentDir = new File(statusFileName).getParentFile();
@@ -76,6 +78,9 @@ public class XmlLoggerWithStatus extends XmlLogger {
         init(event);
         if (out != null) {
             String name = event.getTarget().getName();
+            if (this.targetFilter != null && name.matches(this.targetFilter)){
+                return;
+            }
             StringBuffer content = new StringBuffer();
             content.append(System.getProperty("line.separator"));
             content.append(FORMATTER.format(new Date()));

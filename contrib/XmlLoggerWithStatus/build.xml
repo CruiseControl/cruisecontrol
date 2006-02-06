@@ -43,7 +43,7 @@
         </javac>
     </target>
     
-    <target name="jar" depends="compile">
+    <target name="jar" depends="clean, compile">
         <jar destfile="build/cruisecontrol-antlib.jar" basedir="build"/>
     </target>
     <target name="clean">
