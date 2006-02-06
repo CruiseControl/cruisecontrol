@@ -30,6 +30,10 @@ index.jsp:
 ----------------------
 * cleanup display of page, add banding, one line per project. Submitted by Kevin Lawrence
 
+main.jsp:
+----------------------
+* add "charset=utf-8" to contentType (CC-176).
+
 CruiseControl Release Notes - 2.4
 
 batch files:
