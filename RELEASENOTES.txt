@@ -9,11 +9,15 @@ build loop
 
 ExecBuilder:
 ----------------------
-* New plug-in for executing a specified command as the build action (CC-317). Submitted by Kevin Lee.
+* New plug-in for executing a specified command as the build action (CC-317). Submitted by Kevin Lee
 
 JMX interface:
 ----------------------
 * Sort arrays and collections by their index's numeric value (CC-232). Patch by Valdis Rigdon
+
+PropertyFileLabelIncrementer:
+----------------------
+* New plug-in that returns the label from a properties file (CC-242). Submitted by Eugene Kuleshov
 
 reporting application
 ======================
