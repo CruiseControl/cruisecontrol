@@ -121,6 +121,7 @@
 <a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#email">&lt;email&gt;</a>
+<a href="#execbuilder">&lt;execbuilder&gt;</a>
 <a href="#execute">&lt;execute&gt;</a>
 <a href="#filesystem">&lt;filesystem&gt;</a>
 <a href="#forceonly">&lt;forceonly&gt;</a>
@@ -267,6 +268,7 @@
          <a href="#maven">&lt;maven/&gt;</a>
          <a href="#pause">&lt;pause/&gt;</a>
          <a href="#nant">&lt;nant/&gt;</a>
+         <a href="#execbuilder">&lt;execbuilder/&gt;</a>
       &lt;/schedule&gt;
       <a href="#log">&lt;log&gt;</a>
          <a href="#merge">&lt;merge/&gt;</a>
@@ -4787,6 +4789,98 @@ endlocal</pre>
          target="smoketest"
          uselogger="true"/&gt;
 &lt;schedule&gt;</pre>
+
+            </li>
+        </ol>
+        </div>
+        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="execbuilder">&lt;execbuilder&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;execbuilder&gt;</pre>
+        </div>
+
+        <p>Runs a specified command or script as part of the build. Reports build
+           failure if the command cannot be run or returns an error. There is also
+           a capability to search for a user defined string in the command output, for example,
+           "build failed" and if so return an error.
+
+        <p>See below for <a href="#execbuilder-examples">examples</a> of the
+        <code>&lt;execbuilder&gt;</code> element.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>command</td>
+                <td>Yes</td>
+                <td>The command or script to be executed.</td>
+            </tr>
+            <tr>
+                <td>args</td>
+                <td>No</td>
+                <td>Set of arguments (as a single string) to be passed to the command or script.</td>
+            </tr>
+            <tr>
+                <td>workingdir</td>
+                <td>No</td>
+                <td>The directory in which the script or command is to be
+                executed. Defaults to the Java temporary directory.</td>
+            </tr>
+            <tr>
+                <td>errorstr</td>
+                <td>No</td>
+                <td>String which is to be searched for in the output of the
+                command or script. If it is found then the build will return
+                an error.</td>
+            </tr>
+            <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Build will be halted if the script or command continues longer 
+                than the specified timeout. Value in seconds.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a name="execbuilder-examples">Examples</a></h3>
+
+        <ol>
+            <li>Invoke execbuilder, specifying the
+            working directory as <code>/workspace/myproject</code> and 
+            executing the Perl script <code>backup.pl</code>.
+
+            <pre>&lt;schedule&gt;
+    &lt;execbuilder workingdir="/workspace/myproject"
+         command="/usr/local/bin/Perl"
+         args="backup.pl"/&gt;
+&lt;/schedule&gt;</pre>
+            </li>
+
+            <li>Invoke execbuilder, specifying the working directory as <code>D:\Workspace\MyProject</code>,
+            the script file as <code>build.bat</code>, its arguments as <code>smoketest</code>,
+            and the error message to be search for as <code>build failed</code>.
+
+            <pre>&lt;schedule&gt;
+    &lt;execbuilder command="build.bat"
+         workingdir="D:\Workspace\MyProject"
+         args="smoketest"
+         errorstr="build failed"/&gt;
+&lt;/schedule&gt;</pre>
 
             </li>
         </ol>
