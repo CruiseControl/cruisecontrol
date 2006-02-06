@@ -121,7 +121,7 @@
 <a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#email">&lt;email&gt;</a>
-<a href="#execbuilder">&lt;execbuilder&gt;</a>
+<a href="#exec">&lt;exec&gt;</a>
 <a href="#execute">&lt;execute&gt;</a>
 <a href="#filesystem">&lt;filesystem&gt;</a>
 <a href="#forceonly">&lt;forceonly&gt;</a>
@@ -268,7 +268,7 @@
          <a href="#maven">&lt;maven/&gt;</a>
          <a href="#pause">&lt;pause/&gt;</a>
          <a href="#nant">&lt;nant/&gt;</a>
-         <a href="#execbuilder">&lt;execbuilder/&gt;</a>
+         <a href="#exec">&lt;exec/&gt;</a>
       &lt;/schedule&gt;
       <a href="#log">&lt;log&gt;</a>
          <a href="#merge">&lt;merge/&gt;</a>
@@ -4796,14 +4796,14 @@ endlocal</pre>
         
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
-        <h2><a name="execbuilder">&lt;execbuilder&gt;</a></h2>
+        <h2><a name="exec">&lt;exec&gt;</a></h2>
 
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#schedule">&lt;schedule&gt;</a>
-      &lt;execbuilder&gt;</pre>
+      &lt;exec&gt;</pre>
         </div>
 
         <p>Runs a specified command or script as part of the build. Reports build
@@ -4811,8 +4811,8 @@ endlocal</pre>
            a capability to search for a user defined string in the command output, for example,
            "build failed" and if so return an error.
 
-        <p>See below for <a href="#execbuilder-examples">examples</a> of the
-        <code>&lt;execbuilder&gt;</code> element.</p>
+        <p>See below for <a href="#exec-examples">examples</a> of the
+        <code>&lt;exec&gt;</code> element.</p>
 
         <h3>Attributes</h3>
 
@@ -4857,7 +4857,7 @@ endlocal</pre>
             </tbody>
         </table>
 
-        <h3><a name="execbuilder-examples">Examples</a></h3>
+        <h3><a name="exec-examples">Examples</a></h3>
 
         <ol>
             <li>Invoke execbuilder, specifying the
@@ -4865,7 +4865,7 @@ endlocal</pre>
             executing the Perl script <code>backup.pl</code>.
 
             <pre>&lt;schedule&gt;
-    &lt;execbuilder workingdir="/workspace/myproject"
+    &lt;exec workingdir="/workspace/myproject"
          command="/usr/local/bin/Perl"
          args="backup.pl"/&gt;
 &lt;/schedule&gt;</pre>
@@ -4876,7 +4876,7 @@ endlocal</pre>
             and the error message to be search for as <code>build failed</code>.
 
             <pre>&lt;schedule&gt;
-    &lt;execbuilder command="build.bat"
+    &lt;exec command="build.bat"
          workingdir="D:\Workspace\MyProject"
          args="smoketest"
          errorstr="build failed"/&gt;
@@ -7381,6 +7381,38 @@ endlocal</pre>
                 <td>deletes any remaining files from the view that the clean
                 step missed.  Enabling this will also force the clean to occur,
                 and the noSync to be false.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4>PropertyFileLabelIncrementer</h4>
+
+        <p>Returns a value for the label from a property file.</p>
+
+        <h5>Attributes</h5>
+
+        <pre>
+&lt;plugin&nbsp;name="labelincrementer"
+        classname="net.sourceforge.cruisecontrol.labelincrementers.PropertyFileLabelIncrementer"/&gt;</pre>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>propertyfile</td>
+                <td>Yes</td>
+                <td>the property file to read.</td>
+            </tr>
+            <tr>
+                <td>propertyname</td>
+                <td>Yes</td>
+                <td>the name of the property to read for the value of the label.</td>
             </tr>
             </tbody>
         </table>
