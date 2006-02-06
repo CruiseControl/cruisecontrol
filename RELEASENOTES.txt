@@ -7,6 +7,10 @@ CruiseControl Release Notes - Latest CVS
 build loop
 ======================
 
+ExecBuilder:
+----------------------
+* New plug-in for executing a specified command as the build action (CC-317). Submitted by Kevin Lee.
+
 JMX interface:
 ----------------------
 * Sort arrays and collections by their index's numeric value (CC-232). Patch by Valdis Rigdon
