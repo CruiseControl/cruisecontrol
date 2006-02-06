@@ -176,6 +176,7 @@
 <a href="#vss">&lt;vss&gt;</a>
 <a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
 <a href="#vssjournal">&lt;vssjournal&gt;</a>
+<a href="#weblogpublisher">&lt;weblog&gt;</a>
 <a href="#x10">&lt;x10&gt;</a>
 <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
 &nbsp;
@@ -296,6 +297,7 @@
          <a href="#sfeefrs">&lt;sfeefrs/&gt;</a>
          <a href="#sfeetracker">&lt;sfeetracker/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
+         <a href="#weblogpublisher">&lt;weblog&gt;</a>
          <a href="#x10">&lt;x10/&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
       &lt;/publishers&gt;
@@ -6902,6 +6904,178 @@ endlocal</pre>
                 <td>Yes</td>
         <td>Port number for the listening socket</td>
             </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="weblogpublisher">&lt;weblog&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;weblog&gt;</pre>
+        </div>
+
+        <p>Posts the build results to a weblog using the 
+         <a href="http://www.blogger.com/developers/api">Blogger API</a>,
+         the <a href="http://www.xmlrpc.com/metaWeblogApi">MetaWeblog API</a>
+         or the <a href="http://www.livejournal.com/doc/server/ljp.csp.xml-rpc.postevent.html">LiveJournal API</a>.
+        </p>
+        
+        <h3>Examples</h3>
+         
+         <pre>&lt;!-- Post the build results to your project blog
+     under the category 'cruisecontrol' using the Blogger API.
+  --&gt;
+&lt;weblog api="blogger"
+        blogurl="http://blogserver/blog/xmlrpc"
+        blogid="blog"
+        username="lasse"
+        password="secret"
+        category="cruisecontrol"
+        reportsuccess="fixes"
+        subjectprefix="[CC]"
+        buildresultsurl="http://buildserver/cruisecontrol/myproject"
+        logdir="/var/cruisecontrol/logs/myproject"
+        xsldir="/opt/cruisecontrol/reporting/jsp/xsl"
+        css="/opt/cruisecontrol/reporting/css/cruisecontrol.css"/&gt;</pre>
+
+         <pre>&lt;!-- Post the build results to your project blog
+     under the category 'cruisecontrol' using the MetaWeblog API.
+  --&gt;
+&lt;weblog api="metaweblog"
+        blogurl="http://blogserver/blog/xmlrpc"
+        blogid="blog"
+        username="lasse"
+        password="secret"
+        category="cruisecontrol,java"
+        reportsuccess="fixes"
+        subjectprefix="[CC]"
+        buildresultsurl="http://buildserver/cruisecontrol/myproject"
+        logdir="/var/cruisecontrol/logs/myproject"
+        xsldir="/opt/cruisecontrol/reporting/jsp/xsl"
+        css="/opt/cruisecontrol/reporting/css/cruisecontrol.css"/&gt;</pre>
+
+         <pre>&lt;!-- Post the build results to your project blog
+     under the category 'cruisecontrol' using the LiveJournal API.
+  --&gt;
+&lt;weblog api="metaweblog"
+        blogurl="http://www.livejournal.com/interface/xmlrpc"
+        blogid="blog"
+        username="lasse"
+        password="secret"
+        category="cruisecontrol"
+        reportsuccess="fixes"
+        subjectprefix="[CC]"
+        buildresultsurl="http://buildserver/cruisecontrol/myproject"
+        logdir="/var/cruisecontrol/logs/myproject"
+        xsldir="/opt/cruisecontrol/reporting/jsp/xsl"
+        css="/opt/cruisecontrol/reporting/css/cruisecontrol.css"/&gt;</pre>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="oddrow">
+                <td>api</td>
+                <td>No</td>
+                <td>The API to use for posting to the blog. Accepted
+                 values include <i>blogger</i> and <i>metaWeblog</i>. Defaults to
+                 <i>metaWeblog</i>.</td>
+            </tr>
+            <tr>
+                <td>blogurl</td>
+                <td>Yes</td>
+                <td>The URL where your blog receives XML-RPC requests.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>blogid</td>
+                <td>Yes</td>
+                <td>The "identifier" for your blog. See your blog's 
+                 documentation for the correct value.</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>The username for authentication.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>password</td>
+                <td>Yes</td>
+                <td>The password for authentication.</td>
+            </tr>
+            <tr>
+                <td>logdir</td>
+                <td>Yes</td>
+                <td>The CruiseControl log directory.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>xslfile</td>
+                <td>Yes, unless <i>xsldir</i> is used.</td>
+                <td>The XSL stylesheet used for transforming 
+                 the build results into the message being posted to the blog.</td>
+            </tr>
+            <tr>
+                <td>xsldir</td>
+                <td>Yes, unless <i>xslfile</i> is used.</td>
+                <td>The directory containing the XSL stylesheets
+                 used for transforming the build results into the message being
+                 posted to the blog. You can use the CruiseControl distribution's
+                 XSL directory, "${CC_HOME}/reporting/jsp/xsl", or use your
+                 custom stylesheets.
+                </td>
+            </tr>
+            <tr class="oddrow">
+                <td>css</td>
+                <td>Yes, if <i>xsldir</i> is used.</td>
+                <td>The path to cruisecontrol.css to be
+                 used for styling the generated HTML. You can use the CruiseControl
+                 distribution's 'cruisecontrol.css' file from 
+                 "${CC_HOME}/reporting/jsp/css" or use a custom stylesheet.
+                </td>
+            </tr>
+            <tr>
+                <td>buildresultsurl</td>
+                <td>No</td>
+                <td>The base URL for the CruiseControl reporting
+                 web application. Usually of the form 
+                 "http://buildserver/cruisecontrol/&lt;projectname&gt;". If this
+                 URL is provided, the resulting blog entry will include a link
+                 to the build results.</td>
+            </tr>
+            <tr class="oddrow">
+                <td>category</td>
+                <td>No</td>
+                <td>The category to which the blog entries
+                 should be added. For the Blogger API, only one category name
+                 is allowed. For the MetaWeblog API, a comma-separated list of
+                 category names is also possible.</td>
+            </tr>
+            <tr>
+                <td>reportsuccess</td>
+                <td>No</td>
+                <td>The rule for reporting successful builds.
+                 Accepted values are "always", "never", and "fixes" (only post
+                 the results for the first successful build after a failed one).
+                </td>
+            </tr>
+            <tr class="oddrow">
+                <td>subjectprefix</td>
+                <td>No</td>
+                <td>The prefix to use for blog entries' title.</td>
+            </tr>
+
             </tbody>
         </table>
         </div>

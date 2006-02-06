@@ -73,6 +73,7 @@ set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jasper-compiler.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jasper-runtime.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xercesImpl-2.7.0.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xml-apis-2.7.0.jar
+set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xmlrpc-2.0.1.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xalan-2.6.0.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jakarta-oro-2.0.3.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\mail.jar

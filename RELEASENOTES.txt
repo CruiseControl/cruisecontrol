@@ -24,6 +24,10 @@ PropertyFileLabelIncrementer:
 ----------------------
 * New plug-in that returns the label from a properties file (CC-242). Submitted by Eugene Kuleshov
 
+WeblogPublisher:
+----------------------
+* New plug-in for publishing build results to a weblog (CC-102). Submitted by Lasse Koskela
+
 reporting application
 ======================
 
@@ -48,7 +52,7 @@ batch files:
 binary release:
 ----------------------
 * cruisecontrol.bat no longer sets ANT_HOME (CC-348).
-* cruisecontrol reporting application now started under root context, for example http://localhost:8080 will now show the reporting app. "cruisecontrol" context supported for backwards compatability, for example http://localhost:8080/cruisecontrol. Patch by Kent Spillner.
+* cruisecontrol reporting application now started under root context, for example http://localhost:8080 will now show the reporting app. "cruisecontrol" context supported For backwards compatability, for example http://localhost:8080/cruisecontrol. Patch by Kent Spillner.
 * switched from jakarta commons-math to a sample "connectfour" project in the cruisecontrol cvs repository.
 * Added a work directory for Jetty to use (CC-257). Fix suggested by Paul Hammant.
 * Defaulting jmxport to 8000 in the startup scripts (cruisecontrol.bat and cruisecontrol.sh), but at the end of the command line so that it can be easily overridden.

@@ -18,6 +18,7 @@ Class-Path:
  ../lib/xalan-2.6.0.jar 
  ../lib/xercesImpl-2.7.0.jar 
  ../lib/xml-apis-2.7.0.jar 
+ ../lib/xmlrpc-2.0.1.jar 
  ../lib/ant/ant.jar 
  ../lib/ant/ant-launcher.jar 
 Main-Class: CruiseControl
