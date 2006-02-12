@@ -27,6 +27,7 @@
             <li><a class="expandedmenu" href="index.html">results jsp</a>
                 <ul>
                     <li><p id="menuselected">install</p></li>
+                    <li><a href="custom.html">customization</a></li>
                 </ul>
             </li>
             <li><a class="expandmenu" href="../../../docs/gettingstarted.html">getting started</a></li>
@@ -122,12 +123,6 @@ build.bat -Duser.log.dir=C:\Cruise\logs -Duser.build.status.file=status.txt
         with this name exists the properties defined within will be used when building
         the war file.</p>
 
-        <p>An additional property that can be specified is <code>pre1.4</code>. This
-        property should only be set if the war will be deployed in a servlet container
-        that doesn't supply a copy of xalan and xerces. Since these jars are provided
-        with JDK 1.4 any servlet contain run under that version of the JDK or later
-        will not need to use this property.</p>
-
         <h2>Deploying</h2>
 
         <h3>Tomcat</h3>
@@ -140,7 +135,6 @@ build.bat -Duser.log.dir=C:\Cruise\logs -Duser.build.status.file=status.txt
 
 <pre>
 http://localhost:8080/cruisecontrol/buildresults</pre>
-
     </div>
 </div>
 </body>
