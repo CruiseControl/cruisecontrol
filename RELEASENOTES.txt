@@ -31,6 +31,10 @@ WeblogPublisher:
 reporting application
 ======================
 
+documentation:
+----------------------
+* new page documenting the customization options: System properties, Context parameters, servlet init parameters and XSLT parameters.
+
 error.jsp:
 ----------------------
 * change call from (GenericServlet.)log(...) to application.log(...) for app servers who implement Servlet without extending GenericServlet, such as WebLogic 8.x. Patch by Carl Lindberg
