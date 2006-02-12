@@ -6478,6 +6478,48 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
+
+        <h3>Child Elements</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a name="parameter"><code>&lt;parameter&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Parameters passed to the XSL files before transforming them to HTML. Check
+                    the Reporting application's <a href="../../reporting/jsp/docs/custom.html#XSLT_parameters">
+                    documentation</a> for parameters used in the standard XSL files.
+                    <code>&lt;parameter/&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>name</td>
+                            <td>Yes</td>
+                            <td>the name of the XSLT parameter</td>
+                        </tr>
+                        <tr>
+                            <td>value</td>
+                            <td>Yes</td>
+                            <td>the parameter's value</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
         </div>
 
         <div class="elementdocumentation">
