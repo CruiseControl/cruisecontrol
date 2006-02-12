@@ -41,6 +41,12 @@ import java.io.File;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.io.IOException;
+import java.io.StringReader;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+import net.sourceforge.cruisecontrol.builders.Property;
 
 public class HTMLEmailPublisherTest extends TestCase {
 
@@ -234,6 +240,24 @@ public class HTMLEmailPublisherTest extends TestCase {
         publisher.setCharset("ISO-8859-1");
         String withCharset = "text/html; charset=\"ISO-8859-1\"";
         assertEquals(withCharset, publisher.getContentType());
+    }
+
+    public void testTransformWithParameter() throws IOException, TransformerException {
+        String expected = "with.a.value";
+        Property param = publisher.createParameter();
+        param.setName("some.parameter");
+        param.setValue(expected);
+        Source xsl = new StreamSource(new StringReader(
+                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n"
+                + "<xsl:output method='text'/>\n"
+                + "<xsl:param name='some.parameter'/>\n"
+                + "<xsl:template match='/'>\n"
+                + "  <xsl:value-of select='$some.parameter' />\n"
+                + "</xsl:template>"
+                + "</xsl:stylesheet>"));
+        Source xml = new StreamSource(new StringReader("<cruisecontrol/>"));
+        String message = publisher.transformFile(xml, TransformerFactory.newInstance(), xsl);
+        assertEquals(expected, message);
     }
 
     private void setEmailPublisherVariables(HTMLEmailPublisher htmlemailpublisher) {

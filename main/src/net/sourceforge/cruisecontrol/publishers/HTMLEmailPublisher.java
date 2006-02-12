@@ -40,12 +40,16 @@ import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -53,6 +57,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -85,6 +90,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
             "header.xsl",
             "buildresults.xsl"
         };
+
+    private List xsltParameters = new LinkedList();
 
     /*
      *  Called after the configuration is read to make sure that all the mandatory parameters
@@ -128,6 +135,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } else {
             verifyFile("HTMLEmailPublisher.xslFile", xslFile);
         }
+    }
+
+    /**
+     */
+    public Property createParameter() {
+        Property param = new Property();
+        xsltParameters.add(param);
+        return param;
     }
 
     /**
@@ -416,18 +431,28 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return linkLine.toString();
     }
 
-    protected void appendTransform(File inFile, StringBuffer messageBuffer, TransformerFactory tFactory, File xsl)
-        throws IOException, TransformerException {
-
-        Transformer transformer = tFactory.newTransformer(new StreamSource(xsl));
-        CharArrayWriter writer = new CharArrayWriter();
+    protected void appendTransform(File inFile, StringBuffer messageBuffer, TransformerFactory tFactory, File xsl) {
         try {
-            transformer.transform(new StreamSource(inFile), new StreamResult(writer));
+            String result = transformFile(new StreamSource(inFile), tFactory, new StreamSource(xsl));
+            messageBuffer.append(result);
         } catch (Exception e) {
             LOG.error("error transforming with xslFile " + xsl.getName(), e);
             return;
         }
-        messageBuffer.append(writer.toCharArray());
+    }
+    protected String transformFile(Source logFile, TransformerFactory tFactory, Source xsl)
+        throws IOException, TransformerException {
+        Transformer transformer = tFactory.newTransformer(xsl);
+        CharArrayWriter writer = new CharArrayWriter();
+        if (!xsltParameters.isEmpty()) {
+            Iterator i = xsltParameters.iterator();
+            while (i.hasNext()) {
+                Property param = (Property) i.next();
+                transformer.setParameter(param.getName(), param.getValue());
+            }
+        }
+        transformer.transform(logFile, new StreamResult(writer));
+        return writer.toString();
     }
 
     protected void appendHeader(StringBuffer messageBuffer) throws IOException {
@@ -446,5 +471,4 @@ public class HTMLEmailPublisher extends EmailPublisher {
     protected void appendFooter(StringBuffer messageBuffer) {
         messageBuffer.append("\n</body></html>");
     }
-
 }
