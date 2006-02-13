@@ -250,6 +250,7 @@ public class ExecBuilderTest extends TestCase {
               try {
                   Process p = cmdline.execute();
                   p.waitFor();
+                  assertEquals(0, p.exitValue());
               } catch (Exception e) {
                   e.printStackTrace();
                   fail("exception changing permissions on test file " + testFile.getAbsolutePath());
