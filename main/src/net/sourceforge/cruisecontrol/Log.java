@@ -132,7 +132,6 @@ public class Log {
 
     /**
      * Adds a Manipulator that will handle old log-files
-     * @return
      */
     public void add(Manipulator manipulator) {
         manipulators.add(manipulator);

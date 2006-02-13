@@ -107,7 +107,7 @@ public class ExecScript implements Script, StreamConsumer {
     /**
      * Ugly parsing of Exec output into some Elements.
      * Gets called from StreamPumper.
-     * @args line the line of output to parse
+     * @param line the line of output to parse
      */
     public synchronized void consumeLine(String line) {
         if (line == null || line.length() == 0 || buildLogElement == null) {
@@ -208,7 +208,7 @@ public class ExecScript implements Script, StreamConsumer {
     } // setExitCode
     
     /**
-     * @pararm errStr the error string to search for
+     * @param errStr the error string to search for
      */
     public void setErrorStr(String errStr) {
         this.errorStr = errStr;
