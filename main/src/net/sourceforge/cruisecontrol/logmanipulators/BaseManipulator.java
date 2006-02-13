@@ -59,7 +59,7 @@ public abstract class BaseManipulator implements Manipulator {
     /**
      * sets the backup keep amount
      * 
-     * @param backupEvery
+     * @param every
      * @throws CruiseControlException
      */
     public void setEvery(int every) throws CruiseControlException {

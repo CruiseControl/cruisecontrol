@@ -131,7 +131,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
     
     /**
      * Checks whether the label should be incremented pre/post build
-     * @returns true if the label will be incremented before the build, else false
+     * @return true if the label will be incremented before the build, else false
      */
     public boolean isPreBuildIncrementer() {
         return preIncrement;

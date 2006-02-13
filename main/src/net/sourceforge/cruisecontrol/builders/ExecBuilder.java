@@ -210,7 +210,7 @@ public class ExecBuilder extends Builder {
     
     /**
      * Get whether there was n error written to the build log
-     * @returns the error string otherwise null
+     * @return the error string otherwise null
      */
     public String getBuildError() {
         if (this.buildLogElement.getAttribute("error") != null) {
