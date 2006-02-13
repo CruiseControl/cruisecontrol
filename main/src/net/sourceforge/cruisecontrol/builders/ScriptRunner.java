@@ -114,8 +114,10 @@ public class ScriptRunner  {
         }
         
         
-        new Thread(errorPumper).start();
-        new Thread(outPumper).start();
+        Thread stderr = new Thread(errorPumper);
+        stderr.start();
+        Thread stdout = new Thread(outPumper);
+        stdout.start();
         AsyncKiller killer = new AsyncKiller(p, timeout);
         if (timeout > 0) {
             killer.start();
@@ -124,6 +126,8 @@ public class ScriptRunner  {
         try {
             exitCode = p.waitFor();
             killer.interrupt();
+            stderr.join();
+            stdout.join();
             p.getInputStream().close();
             p.getOutputStream().close();
             p.getErrorStream().close();
