@@ -35,16 +35,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
 <%@page errorPage="/error.jsp"%>
-java.util.Arrays,
 <%@page import="net.sourceforge.cruisecontrol.*"%>
 <%@ page import="java.io.IOException"%>
-<%@ page import="java.util.Calendar"%>
 <%@ page import="java.net.InetAddress"%>
 <%@ page import="java.text.DateFormat"%>
 <%@ page import="java.text.SimpleDateFormat"%>
 <%@ page import="java.io.File"%>
 <%@ page import="java.util.Arrays"%>
-<%@ page import="java.util.Comparator"%>
 <%@ page import="java.text.ParseException"%>
 <%@ page import="java.io.BufferedReader"%>
 <%@ page import="java.io.FileReader"%>
@@ -53,32 +50,69 @@ java.util.Arrays,
 
 
 <%
-  boolean autoRefresh = "true".equals(request.getParameter("auto_refresh"));
-
-  DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm");
+  final DateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yy HH:mm");
   final DateFormat dateOnlyFormat = new SimpleDateFormat("MM/dd/yy");
   final DateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm");
 
   final Date now = new Date();
-  String dateNow = dateFormat.format(now);
+  final String dateNow = dateTimeFormat.format(now);
 %>
-
 
 <%
-  final HashMap projectStatuses = new HashMap();
-  projectStatuses.put(ProjectState.QUEUED.getDescription(), ProjectState.QUEUED);
-  projectStatuses.put(ProjectState.IDLE.getDescription(), ProjectState.IDLE);
-  projectStatuses.put(ProjectState.MODIFICATIONSET.getDescription(), ProjectState.MODIFICATIONSET);
-  projectStatuses.put(ProjectState.BUILDING.getDescription(), ProjectState.BUILDING);
-  projectStatuses.put(ProjectState.MERGING_LOGS.getDescription(), ProjectState.MERGING_LOGS);
-  projectStatuses.put(ProjectState.PUBLISHING.getDescription(), ProjectState.PUBLISHING);
-  projectStatuses.put(ProjectState.PAUSED.getDescription(), ProjectState.PAUSED);
-  projectStatuses.put(ProjectState.STOPPED.getDescription(), ProjectState.STOPPED);
-  projectStatuses.put(ProjectState.WAITING.getDescription(), ProjectState.WAITING);
+  class SortableStatus implements Comparable {
+    private ProjectState state;
+    private int sortOrder;
+
+    public SortableStatus(ProjectState state, int sortOrder) {
+      this.state = state;
+      this.sortOrder = sortOrder;
+    }
+
+    public String getLabel() {
+      return state != null ? state.getName() : "?";
+    }
+
+    public int getSortOrder() {
+      return sortOrder;
+    }
+
+    public int compareTo(Object other) {
+      SortableStatus that = (SortableStatus) other;
+      return this.sortOrder - that.sortOrder;
+    }
+  }
+
+  class StatusCollection {
+    HashMap statuses = new HashMap();
+    private SortableStatus unknown = new SortableStatus(null, -1);
+
+    public void add(ProjectState state) {
+      statuses.put(state.getDescription(), new SortableStatus(state, statuses.size()));
+    }
+
+    public SortableStatus get(String statusDescription) {
+      Object status = statuses.get(statusDescription);
+      if(status != null){
+        return (SortableStatus) status;
+      }
+      return unknown;
+    }
+  }
+
 %>
 
-<html>
-<head>
+<%
+  final StatusCollection statuses = new StatusCollection();
+  statuses.add(ProjectState.PUBLISHING);
+  statuses.add(ProjectState.MODIFICATIONSET);
+  statuses.add(ProjectState.BUILDING);
+  statuses.add(ProjectState.MERGING_LOGS);
+  statuses.add(ProjectState.QUEUED);
+  statuses.add(ProjectState.WAITING);
+  statuses.add(ProjectState.IDLE);
+  statuses.add(ProjectState.PAUSED);
+  statuses.add(ProjectState.STOPPED);
+%>
 
   <%
     String name = System.getProperty("ccname", "");
@@ -87,60 +121,11 @@ java.util.Arrays,
     boolean jmxEnabled = port != null;
     String jmxURLPrefix = "http://" + hostname+ ":"+ port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
 
+
     String baseURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
                      + request.getContextPath() + "/";
   %>
 
-
-  <title><%= name%> CruiseControl Status Page</title>
-
-  <base href="<%=baseURL%>" />
-  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <META HTTP-EQUIV="Refresh" CONTENT="10">
-
-  <style type="text/css">
-    thead td {padding: 2 5}
-  </style>
-
-  <script language="JavaScript">
-    function callServer(url, projectName) {
-      document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
-      alert('Scheduling build for ' + projectName);
-    }
-
-    function checkIframe(stylesheetURL) {
-      if (top != self) {//We are being framed!
-        //For Internet Explorer
-        if(document.createStyleSheet) {
-          document.createStyleSheet(stylesheetURL);
-        } else { //Non-ie browsers
-          var styles = "@import url('"+stylesheetURL+"');";
-          var newSS=document.createElement('link');
-          newSS.rel='stylesheet';
-          newSS.href='data:text/css,'+escape(styles);
-          document.getElementsByTagName("head")[0].appendChild(newSS);
-        }
-      }
-    }
-  </script>
-</head>
-
-
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
-<p>&nbsp;</p>
-
-<h1 class="white" align="center"><%= name%> CruiseControl at <%= hostname %> <span style="font-size: smaller; font-style: italic">[<%= dateNow %>]</span> </h1>
-
-<div id="serverData" class="hidden" ></div>
-
-<table align="center" border="0" cellpadding="0" cellspacing="0">
-<tbody>
-
-<tr><td colspan="2">&nbsp;</td></tr>
-<tr>
-  <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"/></td>
-  <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"/></td>
-</tr>
 
   <%
     final String statusFileName = application.getInitParameter("currentBuildStatusFile");
@@ -149,7 +134,7 @@ java.util.Arrays,
 
       private BuildInfo latest;
       private BuildInfo lastSuccessful;
-      private ProjectState status;
+      private SortableStatus status;
       private Date statusSince;
       private String project;
       private String statusDescription;
@@ -170,28 +155,28 @@ java.util.Arrays,
         }
 
         File statusFile = new File(projectLogDir, statusFileName);
-        if (statusFile.exists()) {
-          BufferedReader reader = new BufferedReader(new FileReader(statusFile));
-          try {
-            statusDescription = reader.readLine().replaceAll(" since", "");
+        BufferedReader reader = null;
+        try {
+          reader = new BufferedReader(new FileReader(statusFile));
+          statusDescription = reader.readLine().replaceAll(" since", "");
 
-            ProjectState projectState = (ProjectState) projectStatuses.get(statusDescription);
-            status =  projectState != null ? projectState : null;
-            statusSince = new Date(statusFile.lastModified());
-          }
-          catch(Exception e){
-          }
-          finally {
+          status = statuses.get(statusDescription);
+          statusSince = new Date(statusFile.lastModified());
+        }
+        catch (Exception e) {
+        }
+        finally {
+          if (reader != null) {
             reader.close();
           }
         }
       }
 
-      public String getLastBuildTime(){
-        return latest == null ? "" : format(latest.getBuildDate());
+      public String getLastBuildTime() {
+        return getTime(latest);
       }
 
-      public String getLastSuccessfulBuildTime(){
+      public String getLastSuccessfulBuildTime() {
         return getTime(lastSuccessful);
       }
 
@@ -200,18 +185,23 @@ java.util.Arrays,
       }
 
       public String format(Date date) {
-        if(date == null){
+        if (date == null) {
           return "";
         }
 
-        if ((date.getTime() - now.getTime()) < ONE_DAY) {
+        if ((now.getTime() < date.getTime())) {
+          return dateTimeFormat.format(date);
+        }
+
+        if ((now.getTime() - date.getTime()) < ONE_DAY) {
           return timeOnlyFormat.format(date);
         }
+
         return dateOnlyFormat.format(date);
       }
 
       public String getStatusSince() {
-        return format(statusSince);
+        return statusSince != null ? format(statusSince) : "?";
       }
 
       public boolean failed() {
@@ -219,30 +209,95 @@ java.util.Arrays,
       }
 
       public String getStatus() {
-        return status == null
-            ? ""
-            : status.getName();
+        return status.getLabel();
       }
 
       public int compareTo(Object other) {
         Info that = (Info) other;
 
-        if(this.status == null || that.status == null){
-          return -1;
+        int order = this.status.compareTo(that.status);
+        if (order != 0) {
+          return order;
         }
 
-        return (int) (that.statusSince.getTime() - this.statusSince.getTime());
+        return (int) (this.statusSince.getTime() - that.statusSince.getTime());
       }
 
       public String getLabel() {
-        return lastSuccessful == null ? "" : lastSuccessful.getLabel();
+        return lastSuccessful != null ? lastSuccessful.getLabel() : " ";
       }
     }
 
   %>
 
+<html>
+<head>
 
-<tr><td colspan="2"><table class="index" width="100%">
+
+<title><%= name%> CruiseControl at <%= hostname %> </title>
+
+  <base href="<%=baseURL%>" />
+  <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
+  <META HTTP-EQUIV="Refresh" CONTENT="10" URL="<%=baseURL%>">
+
+  <style type="text/css">
+    thead td {padding: 2 5}
+    .data {padding: 2 5}
+    .failure {color: red; font-weight: bold}
+  </style>
+
+  <script language="JavaScript">
+    function callServer(url, projectName) {
+      document.getElementById('serverData').innerHTML = '<iframe src="' + url + '" width="0" height="0" frameborder="0"></iframe>';
+      alert('Scheduling build for ' + projectName);
+    }
+
+    function checkIframe(stylesheetURL) {
+      if (top != self) {//We are being framed!
+
+        //For Internet Explorer
+        if(document.createStyleSheet) {
+          document.createStyleSheet(stylesheetURL);
+
+        } else { //Non-ie browsers
+
+          var styles = "@import url('"+stylesheetURL+"');";
+
+          var newSS=document.createElement('link');
+
+          newSS.rel='stylesheet';
+
+          newSS.href='data:text/css,'+escape(styles);
+
+          document.getElementsByTagName("head")[0].appendChild(newSS);
+
+        }
+      }
+    }
+  </script>
+</head>
+
+
+<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
+<p>&nbsp;</p>
+
+<h1 class="white" align="center"><%= name%> CruiseControl at <%= hostname %> <span style="font-size: smaller; font-style: italic">[<%= dateNow %>]</span> </h1>
+
+<div id="serverData" class="hidden" ></div>
+
+  <form>
+    <table align="center" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr>
+  <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripestop.gif"/></td>
+  <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripestopright.gif"/></td>
+</tr>
+
+
+<tr><td colspan="2">
+  <table class="index" width="100%">
   <%
     String statusFile = application.getInitParameter("currentBuildStatusFile");
     String singleProject = application.getInitParameter("singleProject");
@@ -269,11 +324,11 @@ else {
   <tr>
     <td>Project</td>
     <td>Status <em>(since)</em></td>
-    <td>Last Build</td>
+    <td>Last build</td>
     <td>Failing since</td>
     <td>Label</td>
     <% if (jmxEnabled) { %>
-    <td align="center">Force build</td>
+    <td></td>
     <% } //end if jmxEnabled %>
   </tr>
 </thead>
@@ -292,26 +347,16 @@ else {
       %>
 
     <tr style="background-color: <%= (i % 2 == 1) ? "white" : "lightblue" %>  ">
-
-      <td><a href="buildresults/<%=info[i].project%>"><%=info[i].project%></a></td>
-      <td><%= info[i].getStatus()%> <em>(<%= info[i].getStatusSince() %>)</em></td>
-      <td><%= info[i].getLastBuildTime()%></td>
-      <td style="color: red; font-weight: bold"><%= (info[i].failed()) ? info[i].getLastSuccessfulBuildTime() : "" %></td>
-      <td><%= info[i].getLabel()%></td>
+      <td class="data"><a href="buildresults/<%=info[i].project%>"><%=info[i].project%></a></td>
+      <td class="data"><%= info[i].getStatus()%> <em>(<%= info[i].getStatusSince() %>)</em></td>
+      <td class="data"><%= info[i].getLastBuildTime()%></td>
+      <td class="data failure"><%= (info[i].failed()) ? info[i].getLastSuccessfulBuildTime() : "" %></td>
+      <td class="data"><%= info[i].getLabel()%></td>
 
       <% if (jmxEnabled) { %>
-      <td style="text-align: center; vertical-align: bottom; padding-top: 10; padding-bottom: 0" >
-        <form id="force_<%=info[i].project%>" 
-              onsubmit="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>'); return false">
-          <input style="background-color: <%= (i % 2 == 1) ? "lightblue" : "white" %> "
-                 type="submit" 
-                 value="build" 
-                 alt="run build" 
-                 title="run build"/>
-      </form></td>
-  <!--<td><a href="javascript: callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')">build</a></td>-->
+      <td class="data"><input type="button"
+                              onclick="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')" value="Build"/></td>
       <% } %>
-
     </tr>
 
 </tbody>
@@ -320,7 +365,10 @@ else {
     }
   }
 }
-%></table></td></tr>
+%></table>
+
+
+</td></tr>
 <tr>
   <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"/></td>
   <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"/></td>
@@ -328,6 +376,7 @@ else {
 <tr><td colspan="2">&nbsp;</td></tr>
 </tbody>
 </table>
+  </form>
 </body>
 </html>
 
