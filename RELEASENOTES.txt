@@ -17,6 +17,10 @@ configxml.html:
 * Fix broken links to the puligin classes' javadoc
 * cvs was renamed ConcurrentVersionsSystem
 
+CruiseControlController:
+----------------------
+* Properly remove projects when appropriate on setConfigFile() (CC-408). Patch by Matt Albrecht
+
 ExecBuilder:
 ----------------------
 * New plug-in for executing a specified command as the build action (CC-317). Submitted by Kevin Lee
