@@ -64,7 +64,7 @@
             <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="9" >
               <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
             </cruisecontrol:nav>
-            <cruisecontrol:nav startingBuildNumber="10" finalBuildNumber="10">
+            <cruisecontrol:navCount startingBuildNumber="10">
               <tr><td>
                 <form method="GET" action="<%=baseUrl%>" >
                   <select name="log" onchange="form.submit()">
@@ -74,7 +74,7 @@
                   </select>
                 </form>
               </td></tr>
-            </cruisecontrol:nav>
+            </cruisecontrol:navCount>
             <tr><td>&nbsp;</td></tr>
 
             <tr><td><a href="rss/<%= request.getPathInfo().substring(1) %>"><img border="0" src="images/rss.png"/></a></td></tr>

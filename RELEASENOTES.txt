@@ -60,6 +60,10 @@ main.jsp:
 ----------------------
 * add "charset=utf-8" to contentType (CC-176).
 
+navigation.jsp:
+----------------------
+* use new NavigationCountTag to fix problem some J2EE systems had with the multiple instances of NavigationTag. Patch by Chris Erskine
+
 CruiseControl Release Notes - 2.4
 
 batch files:

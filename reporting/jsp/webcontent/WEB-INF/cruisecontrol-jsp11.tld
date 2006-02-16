@@ -101,6 +101,22 @@
         </attribute>
     </tag>
     <tag>
+        <name>navCount</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.NavigationCountTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <info>
+            Includes the body of the tag if there are atleast the given number of builds
+        </info>
+        <attribute>
+            <name>project</name>
+            <required>false</required>
+        </attribute>
+        <attribute>
+            <name>startingBuildNumber</name>
+            <required>true</required>
+        </attribute>
+    </tag>
+    <tag>
         <name>projectnav</name>
         <tagclass>net.sourceforge.cruisecontrol.taglib.ProjectNavigationTag</tagclass>
         <teiclass>net.sourceforge.cruisecontrol.taglib.ProjectNavigationTagExtraInfo</teiclass>
