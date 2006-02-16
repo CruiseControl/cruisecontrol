@@ -81,5 +81,4 @@ if [ `uname | grep -n CYGWIN` ]; then
 fi
 
 # Call Ant
-exec ${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.launch.Launcher \
-           -buildfile "${BUILDFILE}" "$@"
+exec ${JAVABIN} -cp "${CLASSPATH}" org.apache.tools.ant.launch.Launcher "$@"

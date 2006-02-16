@@ -75,7 +75,7 @@ echo Using Jikes!
 goto exec
 
 :exec
-java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.launch.Launcher -buildfile %BUILDFILE% %1 %2 %3 %4 %5 %6 %7 %8 %9
+java -classpath %ANT_CLASSPATH% -Dbuild.compiler="%BUILDCOMPILER%" org.apache.tools.ant.launch.Launcher %1 %2 %3 %4 %5 %6 %7 %8 %9
 goto end
 
 :noJavaFound
