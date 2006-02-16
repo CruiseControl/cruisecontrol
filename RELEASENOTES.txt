@@ -41,6 +41,10 @@ Maven2Builder:
 ----------------------
 * Add new builder for Maven2 (CC-363). Submitted by De Moor Yves. Tested, documented and patched by Dan Rollo.
 
+Project:
+----------------------
+* Fix problem where we could have two events being pushed to the same listeners on different threads when the project is started. Patch by Frits Wallin
+
 PropertyFileLabelIncrementer:
 ----------------------
 * New plug-in that returns the label from a properties file (CC-242). Submitted by Eugene Kuleshov
