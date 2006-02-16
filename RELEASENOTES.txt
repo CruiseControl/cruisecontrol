@@ -21,6 +21,10 @@ CruiseControlController:
 ----------------------
 * Properly remove projects when appropriate on setConfigFile() (CC-408). Patch by Matt Albrecht
 
+CruiseControlControllerJMXAdaptor:
+----------------------
+* Notify listeners on projects added/removed (CC-409). Patch by Matt Albrecht
+
 ExecBuilder:
 ----------------------
 * New plug-in for executing a specified command as the build action (CC-317). Submitted by Kevin Lee

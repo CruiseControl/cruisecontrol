@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -55,6 +55,8 @@ import javax.management.JMException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.Notification;
+import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
@@ -74,10 +76,13 @@ import org.jdom.Element;
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class CruiseControlControllerJMXAdaptor implements CruiseControlControllerJMXAdaptorMBean,
-        CruiseControlController.Listener {
+public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSupport
+        implements CruiseControlControllerJMXAdaptorMBean, CruiseControlController.Listener {
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerJMXAdaptor.class);
+    private static final Object SEQUENCE_LOCK = new Object();
+    private static int sequence = 0;
     private final CruiseControlController controller;
+    private ObjectName registeredName;
     private MBeanServer server;
 
     public CruiseControlControllerJMXAdaptor(CruiseControlController controlController) {
@@ -229,8 +234,8 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
 
     public void register(MBeanServer server) throws JMException {
         this.server = server;
-        ObjectName controllerName = new ObjectName("CruiseControl Manager:id=unique");
-        server.registerMBean(this, controllerName);
+        this.registeredName = new ObjectName("CruiseControl Manager:id=unique");
+        server.registerMBean(this, this.registeredName);
         updateProjectMBeans();
     }
 
@@ -252,16 +257,47 @@ public class CruiseControlControllerJMXAdaptor implements CruiseControlControlle
         } catch (JMException e) {
             LOG.error("Could not register project " + project.getName(), e);
         }
+        String name = "CruiseControl Project:name=" + project.getName();
+        System.out.println("Adding project " + project.getName());
+        notifyChanged("projectAdded", name);
     }
 
     public void projectRemoved(Project project) {
+        String name = "CruiseControl Project:name=" + project.getName();
+        System.out.println("Removing project " + name);
         try {
-            ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
+            ObjectName projectName = new ObjectName(name);
             server.unregisterMBean(projectName);
         } catch (InstanceNotFoundException noProblem) {
         } catch (MBeanRegistrationException noProblem) {
         } catch (MalformedObjectNameException e) {
             LOG.error("Could not unregister project " + project.getName(), e);
+        }
+        notifyChanged("projectRemoved", name);
+    }
+    
+    
+    /**
+     * Send a JMX notification that the list of projects has changed.
+     * This only needs to be done when the project list changes, not
+     * when a JMX server is registered.
+     * <p/>
+     * At the moment, we only absolutely know when a project is added or
+     * removed, but not when the configuration file is reloaded or changed.
+     */
+    private void notifyChanged(String event, String data) {
+        Notification notification = new Notification(
+                "cruisecontrol." + event + ".event", this.registeredName,
+                nextSequence());
+        notification.setUserData(data);
+        sendNotification(notification);
+        System.out.println("Sent " + event + " event.");
+    }
+    
+    
+    private int nextSequence() {
+        synchronized (SEQUENCE_LOCK) {
+            return ++sequence;
         }
     }
 }
