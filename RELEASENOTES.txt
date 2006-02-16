@@ -29,6 +29,10 @@ JMX interface:
 ----------------------
 * Sort arrays and collections by their index's numeric value (CC-232). Patch by Valdis Rigdon
 
+Maven2Builder:
+----------------------
+* Add new builder for Maven2 (CC-363). Submitted by De Moor Yves. Tested, documented and patched by Dan Rollo.
+
 PropertyFileLabelIncrementer:
 ----------------------
 * New plug-in that returns the label from a properties file (CC-242). Submitted by Eugene Kuleshov
