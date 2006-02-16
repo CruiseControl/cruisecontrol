@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
@@ -88,18 +88,16 @@ public class CruiseControlController {
         if (!configFile.exists()) {
             throw new CruiseControlException("Config file not found: " + configFile.getAbsolutePath());
         }
-
-        // TODO: we could optimize here
-        // only reparse if, configFile != old or file has changed.
-        this.configFile = configFile;
-
-        configManager = new XMLConfigManager(configFile);
-
-        List projectList = parseConfigFile();
-        for (Iterator iterator = projectList.iterator(); iterator.hasNext();) {
-            Project project = (Project) iterator.next();
-            addProject(project);
+        
+        if (!configFile.equals(this.configFile)) {
+            this.configFile = configFile;
+        
+            configManager = new XMLConfigManager(configFile);
         }
+
+        // If we're setting the config file to the one
+        // that's already being used, then force a reload.
+        loadConfigFromConfigManager();
     }
 
     private List parseConfigFile() throws CruiseControlException {
@@ -261,44 +259,48 @@ public class CruiseControlController {
 
         if (reloaded) {
             LOG.debug("config file changed");
-            try {
-                List projectsFromFile = parseConfigFile();
-
-                List removedProjects = new ArrayList(projects);
-                removedProjects.removeAll(projectsFromFile);
-
-                List newProjects = new ArrayList(projectsFromFile);
-                newProjects.removeAll(projects);
-
-                List retainedProjects = new ArrayList(projectsFromFile);
-                retainedProjects.removeAll(newProjects);
-
-                //Handled removed projects
-                Iterator removed = removedProjects.iterator();
-                while (removed.hasNext()) {
-                    removeProject((Project) removed.next());
-                }
-
-                //Handle added projects
-                Iterator added = newProjects.iterator();
-                while (added.hasNext()) {
-                    addProject((Project) added.next());
-                }
-
-                //Handle retained projects
-                Iterator retained = retainedProjects.iterator();
-                while (retained.hasNext()) {
-                    updateProject((Project) retained.next());
-                }
-
-            } catch (CruiseControlException e) {
-                LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
-            }
+            loadConfigFromConfigManager();
         } else {
             LOG.debug("config file didn't change.");
         }
 
         return reloaded;
+    }
+    
+    private void loadConfigFromConfigManager() {
+        try {
+            List projectsFromFile = parseConfigFile();
+
+            List removedProjects = new ArrayList(projects);
+            removedProjects.removeAll(projectsFromFile);
+
+            List newProjects = new ArrayList(projectsFromFile);
+            newProjects.removeAll(projects);
+
+            List retainedProjects = new ArrayList(projectsFromFile);
+            retainedProjects.removeAll(newProjects);
+
+            //Handled removed projects
+            Iterator removed = removedProjects.iterator();
+            while (removed.hasNext()) {
+                removeProject((Project) removed.next());
+            }
+
+            //Handle added projects
+            Iterator added = newProjects.iterator();
+            while (added.hasNext()) {
+                addProject((Project) added.next());
+            }
+
+            //Handle retained projects
+            Iterator retained = retainedProjects.iterator();
+            while (retained.hasNext()) {
+                updateProject((Project) retained.next());
+            }
+
+        } catch (CruiseControlException e) {
+            LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
+        }
     }
 
     private void updateProject(Project project) throws CruiseControlException {
