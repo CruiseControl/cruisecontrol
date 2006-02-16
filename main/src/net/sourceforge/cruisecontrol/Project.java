@@ -747,9 +747,9 @@ public class Project implements Serializable, Runnable {
     public void start() {
         if (stopped || getState() == ProjectState.STOPPED) {
             stopped = false;
-            createNewSchedulingThread();
             LOG.info("Project " + name + " starting");
             setState(ProjectState.IDLE);
+            createNewSchedulingThread();
         }
     }
 
