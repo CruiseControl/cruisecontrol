@@ -258,13 +258,13 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
             LOG.error("Could not register project " + project.getName(), e);
         }
         String name = "CruiseControl Project:name=" + project.getName();
-        System.out.println("Adding project " + project.getName());
+        LOG.debug("Adding project " + project.getName());
         notifyChanged("projectAdded", name);
     }
 
     public void projectRemoved(Project project) {
         String name = "CruiseControl Project:name=" + project.getName();
-        System.out.println("Removing project " + name);
+        LOG.debug("Removing project " + name);
         try {
             ObjectName projectName = new ObjectName(name);
             server.unregisterMBean(projectName);
@@ -291,7 +291,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
                 nextSequence());
         notification.setUserData(data);
         sendNotification(notification);
-        System.out.println("Sent " + event + " event.");
+        LOG.debug("Sent " + event + " event.");
     }
     
     
