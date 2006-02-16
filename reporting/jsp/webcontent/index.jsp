@@ -50,9 +50,9 @@
 
 
 <%
-  final DateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yy HH:mm");
-  final DateFormat dateOnlyFormat = new SimpleDateFormat("MM/dd/yy");
-  final DateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm");
+  final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+  final DateFormat dateOnlyFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+  final DateFormat timeOnlyFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
 
   final Date now = new Date();
   final String dateNow = dateTimeFormat.format(now);
