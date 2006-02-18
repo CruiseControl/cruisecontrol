@@ -271,16 +271,21 @@
     }
   });
 
-  sortOrders.put("last build", new Comparator() {
+  sortOrders.put("last failure", new Comparator() {
     public int compare(Object a, Object b) {
       Info infoA = (Info) a;
       Info infoB = (Info) b;
 
-      if (infoA.latest == null || infoA.failed()) {
+      if (infoA.latest == null) {
+        return 1;
+      }
+
+      if (infoB.latest == null) {
         return -1;
       }
-      if (infoB.latest == null || infoB.failed()) {
-        return 1;
+
+      if (infoA.failed() != infoB.failed()) {
+        return infoA.failed() ? -1 : 1;
       }
 
       return infoB.latest.compareTo(infoA.latest);
@@ -293,10 +298,10 @@
       Info infoB = (Info) b;
 
       if (infoA.lastSuccessful == null) {
-        return -1;
+        return 1;
       }
       if (infoB.lastSuccessful == null) {
-        return 1;
+        return -1;
       }
 
       return infoB.lastSuccessful.compareTo(infoA.lastSuccessful);
@@ -458,7 +463,7 @@
           <tr class="header-row">
             <td><a class='<%= "project".equals(sort) ? "sort" : "sorted" %>' href="<%=baseURL%>?sort=project">Project</a></td>
             <td><a class="<%= "status".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=status">Status <em>(since)</em></a></td>
-            <td><a class="<%= "last build".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=last build">Last failure</a></td>
+            <td><a class="<%= "last failure".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=last failure">Last failure</a></td>
             <td><a class="<%= "last successful".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=last successful">Last successful</a></td>
             <td>Label</td>
             <% if (jmxEnabled) { %>
