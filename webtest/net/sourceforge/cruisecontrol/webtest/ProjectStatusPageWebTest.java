@@ -47,7 +47,7 @@ public class ProjectStatusPageWebTest extends WebTestCase {
 
     public void testForceBuild() throws InterruptedException {
         beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
-        assertFormPresent("force_connectfour");        
+        assertTextPresent("CruiseControl");
+        assertElementPresent("force_connectfour");        
     }
 }

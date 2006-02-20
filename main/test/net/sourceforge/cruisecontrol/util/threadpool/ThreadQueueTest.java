@@ -61,15 +61,11 @@ public class ThreadQueueTest extends TestCase {
         }
 
         sleep(TASK_SLEEP_TIME / 10);
-
-        System.out.println(" setup down = " + (System.currentTimeMillis() - start));
     }
 
     protected void tearDown() {
         long start = System.currentTimeMillis();
         ThreadQueue.terminate();
-        //sleep(1000);
-        System.out.println(" tear down = " + (System.currentTimeMillis() - start));
     }
     
     public void testIsIdle() throws Exception {
