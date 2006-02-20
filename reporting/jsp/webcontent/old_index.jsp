@@ -180,8 +180,8 @@
 %>  <thead class="index-header">
       <tr>
         <td>Project</td>
-        <td align="center">Current status</td>
         <td align="center">Last build result</td>
+        <td align="center">Current status</td>
         <td align="center">Last build time</td>
         <td align="center">Last successful build time</td>
         <td align="center">Last label</td>
