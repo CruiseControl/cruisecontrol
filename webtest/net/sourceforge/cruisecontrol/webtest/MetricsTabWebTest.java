@@ -46,7 +46,7 @@ public class MetricsTabWebTest extends WebTestCase {
 
     public void testMetricsTab() {
         beginAt("/cruisecontrol");
-        assertTextPresent("CruiseControl Status Page");
+        assertTextPresent("CruiseControl");
 
 
         clickLinkWithText("connectfour");

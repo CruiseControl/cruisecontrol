@@ -498,7 +498,7 @@
               <td class="data"><%= info[i].getLabel()%></td>
 
               <% if (jmxEnabled) { %>
-              <td class="data"><input type="button"
+              <td class="data"><input id="<%= "force_" + info[i].project %>" type="button"
                                       onclick="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')"
                                       value="Build"/></td>
               <% } %>
