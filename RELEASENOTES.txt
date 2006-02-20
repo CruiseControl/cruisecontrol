@@ -67,6 +67,7 @@ error.jsp:
 index.jsp:
 ----------------------
 * cleanup display of page, add banding, one line per project. Submitted by Kevin Lawrence. Previous index.jsp renamed to old_index.jsp.
+* added rss feed for overall cruisecontrol project statuses (CC-331). Submitted by Arent-Jan Banck.
 
 main.jsp:
 ----------------------
