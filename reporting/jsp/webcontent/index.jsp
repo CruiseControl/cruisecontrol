@@ -314,6 +314,7 @@
   <title><%= name%> CruiseControl at <%= hostname %></title>
 
   <base href="<%=baseURL%>"/>
+  <link type="application/rss+xml" rel="alternate" href="rss" title="RSS"/>
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
   <META HTTP-EQUIV="Refresh" CONTENT="10" URL="<%=baseURL%>?sort=<%=sort%>">
 
@@ -519,7 +520,13 @@
         <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"/></td>
       </tr>
       <tr><td colspan="2">&nbsp;</td></tr>
+
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2" align="right"><a href="rss"><img border="0" src="images/rss.png"/></a></td>
+        </tr>
+    </tfoot>
   </table>
 </form>
 </body>

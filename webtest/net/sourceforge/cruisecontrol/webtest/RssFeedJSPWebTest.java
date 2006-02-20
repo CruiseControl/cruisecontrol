@@ -10,10 +10,16 @@ public class RssFeedJSPWebTest extends WebTestCase {
         getTestContext().setBaseUrl("http://localhost:7854");
     }
 
-    public void testNavigatingToRssFeed() {
+    public void testNavigatingToProjectRssFeed() {
         beginAt("/");
         clickLinkWithText("connectfour");
         clickLinkWithImage("rss.png");
         assertTextPresent("<title>CruiseControl Results - connectfour</title>");
+    }
+
+    public void testNavigatingToOveralltRssFeed() {
+        beginAt("/");
+        clickLinkWithImage("rss.png");
+        assertTextPresent("<title>CruiseControl Results</title>");
     }
 }

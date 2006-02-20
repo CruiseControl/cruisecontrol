@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <%@ page import="
+            java.io.File,
             java.text.SimpleDateFormat,
+            java.util.Arrays,
             java.util.Date,
             java.util.Locale,
             net.sourceforge.cruisecontrol.BuildInfo" %>
@@ -39,10 +41,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************--%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
+<jsp:useBean id="statusHelper" scope="page" class="net.sourceforge.cruisecontrol.StatusHelper" />
 <%@ page contentType="text/xml" %>
 
 <%
-    String project = request.getPathInfo().substring(1);
+    String project = null;
+
+    // pathinfo is null when getting rss from project-status page.
+    String pathinfo = request.getPathInfo();
+    if(pathinfo != null) {
+        project = pathinfo.substring(1);
+    }
 
     // The publication date is in RFC 822 format which is in english
     // see http://blogs.law.harvard.edu/tech/rss
@@ -51,6 +60,11 @@
 
 <rss version="2.0">
 <channel>
+<%
+    // Check if a project is selected
+    if(project != null && project.length() > 0)
+    {
+%>
 <title>CruiseControl Results - <%= project %></title>
 <link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %>/buildresults/<%= project %></link>
 <description>Summary of the 10 most recent builds for this project.</description>
@@ -75,6 +89,43 @@
 <link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %>/buildresults/<%= project %>?log=<%= logfile %></link>
 </item>
 </cruisecontrol:nav>
+<%
+    } else {
+        // Do RSS for all CruiseControl projects, one item for every project with the last build results.
+        String logDirPath = application.getInitParameter("logDir");
+        java.io.File logDir = new java.io.File(logDirPath);
+%>
+<title>CruiseControl Results</title>
+<link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %></link>
+<description>Summary of the project build results.</description>
+<language>en-us</language>
+<%
+        String[] projectDirs = logDir.list(new java.io.FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return (new File(dir, name).isDirectory());
+            }
+        });
 
+        Arrays.sort(projectDirs);
+        for (int i = 0; i < projectDirs.length; i++) {
+            project = projectDirs[i];
+            File projectDir = new File(logDir, project);
+            statusHelper.setProjectDirectory(projectDir);
+            String date   = statusHelper.getLastBuildTimeString(request.getLocale());
+            String result = statusHelper.getLastBuildResult();
+            if ("failed".equalsIgnoreCase(result)) {
+                result = result.toUpperCase();
+            }
+%>
+<item>
+<title><%= project %> <%= result %> <%= date %></title>
+<description>Build <%= result %></description>
+<pubDate><%= date %></pubDate>
+<link><%= request.getScheme() %>://<%= request.getServerName() %>:<%= request.getServerPort() %><%= request.getContextPath() %>/buildresults/<%= project %></link>
+</item>
+<%
+}
+    }
+%>
 </channel>
 </rss>
