@@ -68,6 +68,7 @@
               <tr><td>
                 <form method="GET" action="<%=baseUrl%>" >
                   <select name="log" onchange="form.submit()">
+                    <option>More builds</option>
                     <cruisecontrol:nav startingBuildNumber="10">
                       <option value="<%=logfile%>"><%= linktext %></option>
                     </cruisecontrol:nav>
