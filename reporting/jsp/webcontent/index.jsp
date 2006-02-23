@@ -51,9 +51,9 @@
 
 
 <%
-  final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-  final DateFormat dateOnlyFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-  final DateFormat timeOnlyFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+  final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, request.getLocale());
+  final DateFormat dateOnlyFormat = DateFormat.getDateInstance(DateFormat.SHORT, request.getLocale());
+  final DateFormat timeOnlyFormat = DateFormat.getTimeInstance(DateFormat.SHORT, request.getLocale());
 
   final Date now = new Date();
   final String dateNow = dateTimeFormat.format(now);
@@ -132,6 +132,7 @@
 
   String baseURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
                    + request.getContextPath() + "/";
+  String thisURL = request.getRequestURI();
 
   String sort = request.getParameter("sort");
   if(sort == null){
@@ -316,7 +317,7 @@
   <base href="<%=baseURL%>"/>
   <link type="application/rss+xml" rel="alternate" href="rss" title="RSS"/>
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
-  <META HTTP-EQUIV="Refresh" CONTENT="10" URL="<%=baseURL%>?sort=<%=sort%>">
+  <META HTTP-EQUIV="Refresh" CONTENT="10" URL="<%=thisURL%>?sort=<%=sort%>">
 
   <style type="text/css">
     thead td {
@@ -462,10 +463,10 @@
         else {
         %> <thead class="index-header">
           <tr class="header-row">
-            <td><a class='<%= "project".equals(sort) ? "sort" : "sorted" %>' href="<%=baseURL%>?sort=project">Project</a></td>
-            <td><a class="<%= "status".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=status">Status <em>(since)</em></a></td>
-            <td><a class="<%= "last failure".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=last failure">Last failure</a></td>
-            <td><a class="<%= "last successful".equals(sort) ? "sort" : "sorted" %>" href="<%=baseURL%>?sort=last successful">Last successful</a></td>
+            <td><a class='<%= "project".equals(sort) ? "sort" : "sorted" %>' href="<%=thisURL%>?sort=project">Project</a></td>
+            <td><a class="<%= "status".equals(sort) ? "sort" : "sorted" %>" href="<%=thisURL%>?sort=status">Status <em>(since)</em></a></td>
+            <td><a class="<%= "last failure".equals(sort) ? "sort" : "sorted" %>" href="<%=thisURL%>?sort=last failure">Last failure</a></td>
+            <td><a class="<%= "last successful".equals(sort) ? "sort" : "sorted" %>" href="<%=thisURL%>?sort=last successful">Last successful</a></td>
             <td>Label</td>
             <% if (jmxEnabled) { %>
             <td></td>
