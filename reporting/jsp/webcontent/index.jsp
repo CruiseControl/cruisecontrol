@@ -371,11 +371,11 @@
     }
 
     .odd-row {
-      background-color: white;
+      background-color: #CCCCCC;
     }
 
     .even-row {
-      background-color: lightblue
+      //background-color: #FFFFCC;
     }
 
     .header-row {
@@ -492,7 +492,7 @@
 
               for (int i = 0; i < info.length; i++) {
             %>
-            <tr class="<%= (i % 2 == 1) ? "odd-row" : "even-row" %> ">
+            <tr class="<%= (i % 2 == 1) ? "even-row" : "odd-row" %> ">
               <td class="data"><a href="buildresults/<%=info[i].project%>"><%=info[i].project%></a></td>
               <td class="data date status-<%= info[i].getStatus().getImportance() %>"><%= info[i].getStatus()%> <em>(<%= info[i].getStatusSince() %>)</em></td>
               <td class="data date failure"><%= (info[i].failed()) ? info[i].getLastBuildTime() : "" %></td>
