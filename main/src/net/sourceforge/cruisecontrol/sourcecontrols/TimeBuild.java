@@ -60,6 +60,7 @@ import org.apache.log4j.Logger;
  * changes to source control.
  * 
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh </a>
+ * @version $Id$
  */
 public class TimeBuild extends FakeUserSourceControl {
     private static final Logger LOG = Logger.getLogger(TimeBuild.class);
@@ -83,8 +84,7 @@ public class TimeBuild extends FakeUserSourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertFalse(time == Builder.NOT_SET,
-            "the 'time' attribute is manditory");
+        ValidationHelper.assertFalse(time == Builder.NOT_SET, "the 'time' attribute is mandatory");
     }
 
     /**
@@ -100,18 +100,18 @@ public class TimeBuild extends FakeUserSourceControl {
         LOG.debug("LastBuild:" + lastBuild + ", now:" + now);
         List modifications = new ArrayList();
 
-       /*
-        * 
-        * if now and lastbuild occur on the same day, only trigger a build
-        * when lastbuildtime is before 'time' and 'time' is before nowtime
-        * 
-        * if now and lastbuild do not occur on the same day, only trigger a
-        * build when nowtime is after 'time'
-        * 
-        * 
-        */
-
-        int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);        
+        /*
+         * 
+         * if now and lastbuild occur on the same day, only trigger a build when
+         * lastbuildtime is before 'time' and 'time' is before nowtime
+         * 
+         * if now and lastbuild do not occur on the same day, only trigger a
+         * build when nowtime is after 'time'
+         * 
+         * 
+         */
+        // TODO trigger at time, not just after it
+        int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);
         int nowTime = DateUtil.getTimeFromDate(now);
         if (onSameDay(lastBuild, now)) {
             if (lastBuildTime < time && time < nowTime) {
@@ -147,10 +147,13 @@ public class TimeBuild extends FakeUserSourceControl {
         nowTimeBuild.set(Calendar.HOUR_OF_DAY, modifHour);
         nowTimeBuild.set(Calendar.MINUTE, modifMinute);
         nowTimeBuild.set(Calendar.MILLISECOND, 0);
-        nowTimeBuild.set(Calendar.DST_OFFSET, 0);
         mod.modifiedTime = nowTimeBuild.getTime();
         mod.comment = "";
         return mod;
-    }    
-    
+    }
+
+    public String toString() {
+        return getUserName() + ", " + time;
+    }
+
 }

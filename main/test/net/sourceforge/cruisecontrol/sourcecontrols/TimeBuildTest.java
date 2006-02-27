@@ -35,6 +35,9 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 
+/**
+ * @version $Id$
+ */
 public class TimeBuildTest extends TestCase {
 
     public void testValidate() {
@@ -43,7 +46,7 @@ public class TimeBuildTest extends TestCase {
             timeBuild.validate();
             fail("TimeBuild should throw exceptions when required attributes are not set.");
         } catch (CruiseControlException e) {
-            assertEquals("the 'time' attribute is manditory", e.getMessage());
+            assertEquals("the 'time' attribute is mandatory", e.getMessage());
         }
     }
 
@@ -58,32 +61,37 @@ public class TimeBuildTest extends TestCase {
         calender1601.set(2002, Calendar.DECEMBER, 23, 16, 01, 00);
         calender1601.set(Calendar.MILLISECOND, 0);
 
+        Calendar calender1602 = Calendar.getInstance();
+        calender1602.set(2002, Calendar.DECEMBER, 23, 16, 02, 00);
+
         Calendar calender1603 = Calendar.getInstance();
         calender1603.set(2002, Calendar.DECEMBER, 23, 16, 03, 00);
 
-        Calendar calender2000 = Calendar.getInstance();
-        calender2000.set(2002, Calendar.DECEMBER, 23, 20, 00, 00);
+        String modifierUserName = "epugh";
+        TimeBuild timeBuild = createTimeBuildForTime(modifierUserName, "1601");
 
-        TimeBuild timeBuild = new TimeBuild();
-        timeBuild.setTime("1601");
-        timeBuild.setUserName("epugh");
-        List modifications = timeBuild.getModifications(calender1400.getTime(),
-                calender1600.getTime());
-        assertEquals(0, modifications.size());
-        modifications = timeBuild.getModifications(calender1400.getTime(),
-                calender1601.getTime());
-        assertEquals(0, modifications.size());
-        modifications = timeBuild.getModifications(calender1400.getTime(),
-                calender2000.getTime());
-        assertEquals(1, modifications.size());
-        checkSingleModif(modifications, "epugh", calender1601.getTime());
-        modifications = timeBuild.getModifications(calender1603.getTime(),
-                calender2000.getTime());
+        assertSinceLastBuildNoModificationsAtTime(calender1400, calender1600, timeBuild);
+        assertSinceLastBuildNoModificationsAtTime(calender1400, calender1601, timeBuild);
+
+        List modifications = timeBuild.getModifications(calender1400.getTime(), calender1602.getTime());
+        assertHasSingleModificationThatMatchesNameAndTime(modifications, modifierUserName, calender1601.getTime());
+
+        assertSinceLastBuildNoModificationsAtTime(calender1602, calender1603, timeBuild);
+    }
+
+    private void assertSinceLastBuildNoModificationsAtTime(Calendar lastBuild, Calendar now, TimeBuild timeBuild) {
+        List modifications = timeBuild.getModifications(lastBuild.getTime(), now.getTime());
         assertEquals(0, modifications.size());
     }
 
-    public void testTimesDifferentDays() {
+    private TimeBuild createTimeBuildForTime(String userName, String buildTime) {
+        TimeBuild timeBuild = new TimeBuild();
+        timeBuild.setTime(buildTime);
+        timeBuild.setUserName(userName);
+        return timeBuild;
+    }
 
+    public void testTimeBuildWorksAcrossDays() {
         Calendar calender2000Previousday = Calendar.getInstance();
         calender2000Previousday.set(2002, Calendar.DECEMBER, 22, 20, 00, 00);
 
@@ -100,30 +108,37 @@ public class TimeBuildTest extends TestCase {
         Calendar calender1603 = Calendar.getInstance();
         calender1603.set(2002, Calendar.DECEMBER, 23, 16, 03, 00);
 
+        // Schedule a timed build for 16:00
         TimeBuild timeBuild = new TimeBuild();
         timeBuild.setTime("1600");
         timeBuild.setUserName("epugh");
-        List modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
-                calender1400.getTime());
+
+        Date lastBuildEightPMYesterday = calender2000Previousday.getTime();
+
+        // No "modifications" at 14:00
+        List modifications = timeBuild.getModifications(lastBuildEightPMYesterday, calender1400.getTime());
         assertEquals(0, modifications.size());
-        modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
-                calender1600.getTime());
+
+        // No "modifications" at 16:00
+        modifications = timeBuild.getModifications(lastBuildEightPMYesterday, calender1600.getTime());
         assertEquals(0, modifications.size());
-        modifications = timeBuild.getModifications(calender2000Previousday.getTime(),
-                calender1601.getTime());
+
+        // Should have one "modification" at 16:01 which is the TimedBuild
+        // modification for 16:00
+        modifications = timeBuild.getModifications(lastBuildEightPMYesterday, calender1601.getTime());
         assertEquals(1, modifications.size());
-        checkSingleModif(modifications, "epugh", calender1600.getTime());
-        modifications = timeBuild.getModifications(calender1601.getTime(),
-                calender1603.getTime());
+        assertHasSingleModificationThatMatchesNameAndTime(modifications, "epugh", calender1600.getTime());
+
+        // No "modifications" from 16:01 to 16:03
+        modifications = timeBuild.getModifications(calender1601.getTime(), calender1603.getTime());
         assertEquals(0, modifications.size());
     }
 
-    private void checkSingleModif(List modifications, String userName, Date expectedModifiedTime) {
+    private void assertHasSingleModificationThatMatchesNameAndTime(List modifications, String userName,
+            Date expectedModifiedTime) {
         assertEquals(1, modifications.size());
         Modification modification = (Modification) modifications.get(0);
         assertEquals(userName, modification.userName);
-        // assertEquals(expectedModifiedTime, modification.modifiedTime);
-        // this one is redundant but it helps when debugging.
-        assertEquals(expectedModifiedTime.getTime(), modification.modifiedTime.getTime());
+        assertEquals(expectedModifiedTime, modification.modifiedTime);
     }
 }
