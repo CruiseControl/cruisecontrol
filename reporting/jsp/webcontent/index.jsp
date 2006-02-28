@@ -374,9 +374,9 @@
       background-color: #CCCCCC;
     }
 
-    .even-row {
+    //.even-row {
       //background-color: #FFFFCC;
-    }
+    //}
 
     .header-row {
       background-color: white;
