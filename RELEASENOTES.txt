@@ -16,7 +16,9 @@ reporting application
 * Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.
 * Added web.xml parameter for cruisecontrol.jmxport, which can be overridden by the environment variable as documented in web.xml.
 
-
+fittests.xsl
+----------------------
+* Display all fit results, not just the first one (CC-415). Patch by Randy Coulman. 
 
 CruiseControl Release Notes - 2.4.1
 

@@ -42,10 +42,10 @@
     <xsl:output method="html"/>
     <xsl:variable name="fitresults.list" select="//testResults"/>
     <xsl:variable name="fitresults.names" select="//testResults/result/relativePageName"/>
-    <xsl:variable name="fitresults.right.count" select="$fitresults.list/finalCounts/right"/>
-    <xsl:variable name="fitresults.wrong.count" select="$fitresults.list/finalCounts/wrong"/>
-    <xsl:variable name="fitresults.ignores.count" select="$fitresults.list/finalCounts/ignores"/>
-    <xsl:variable name="fitresults.exceptions.count" select="$fitresults.list/finalCounts/exceptions"/>
+    <xsl:variable name="fitresults.right.count" select="sum($fitresults.list/finalCounts/right)"/>
+    <xsl:variable name="fitresults.wrong.count" select="sum($fitresults.list/finalCounts/wrong)"/>
+    <xsl:variable name="fitresults.ignores.count" select="sum($fitresults.list/finalCounts/ignores)"/>
+    <xsl:variable name="fitresults.exceptions.count" select="sum($fitresults.list/finalCounts/exceptions)"/>
     <xsl:variable name="fitresults.totalErrors" select="$fitresults.wrong.count + $fitresults.exceptions.count"/>
     <xsl:variable name="fitresults.totalTests" select="$fitresults.right.count + $fitresults.wrong.count + $fitresults.ignores.count + $fitresults.exceptions.count"/>
 <!--
