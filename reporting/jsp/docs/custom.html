@@ -112,6 +112,12 @@
                 Let empty or comment out to disable indexes.</dd>
             <dd class="default-value">The default values are: <code>index.htm index.html</code></dd>
 
+            <dt>cruisecontrol.jmxport</dt>
+            <dd>The port for the JMX HttpAdaptor to which CruiseControl will connect for forcing builds and
+                viewing the control panel. The parameter may be overridden using the environment variable with
+                the same name.</dd>
+            <dd class="default-value">The default value is: <code>8000</code></dd>
+
             <dt>xslt.*</dt>
             <dd>any context parameter that starts with <code>xslt.</code> will be pass to the XSL stylesheets as a XSLT
                 paramater withou the <code>xslt.</code> prefix. See <a href="#XSLT_parameters">XSLT parameters</a></dd>
