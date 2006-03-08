@@ -124,8 +124,14 @@
 <%
   String name = System.getProperty("ccname", "");
   String hostname = InetAddress.getLocalHost().getHostName();
-  String port = System.getProperty("cruisecontrol.jmxport", "8000");
-  boolean jmxEnabled = port != null;
+  String port = System.getProperty("cruisecontrol.jmxport");
+  String webXmlPort = application.getInitParameter("cruisecontrol.jmxport");
+  if (port == null && webXmlPort != null) {
+      port = webXmlPort;
+  } else if (port == null) {
+      port = "8000";
+  }
+  boolean jmxEnabled = true;//port != null;
   String jmxURLPrefix = "http://" + hostname + ":" + port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
 
   final String statusFileName = application.getInitParameter("currentBuildStatusFile");

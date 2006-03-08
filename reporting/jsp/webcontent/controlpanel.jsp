@@ -46,7 +46,15 @@
     {
         hostname = "localhost";
     }
-    String port = System.getProperty("cruisecontrol.jmxport", "8000");
+    String port = System.getProperty("cruisecontrol.jmxport");
+    String webXmlPort = application.getInitParameter("cruisecontrol.jmxport");
+    if (port == null && webXmlPort != null) {
+        port = webXmlPort;
+    } else if (port == null) {
+        port = "8000";
+    }
+
+
     String jmxURL = "http://" + hostname+ ":"+ port + "/mbean?objectname=CruiseControl+Project%3Aname%3D" +
             request.getPathInfo().substring(1);
 %>
