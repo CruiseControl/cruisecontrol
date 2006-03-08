@@ -85,7 +85,7 @@ public class PluginTypeTest extends TestCase {
         assertSame(PluginType.PROJECT, type);
 
         type = PluginType.find(PropertiesMapper.class);
-        assertSame(PluginType.PROPERTIES_MAPPER, type);
+        assertSame(PluginType.EMAIL_MAPPER, type);
 
         type = PluginType.find(FTPPublisher.class);
         assertSame(PluginType.PUBLISHER, type);

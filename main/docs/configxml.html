@@ -6567,6 +6567,52 @@ endlocal</pre>
                     </table>
                 </td>
             </tr>
+            <tr>
+                <td><a name="ldapmapper"><code>&lt;ldapmapper&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>map source control user names to either valid email names
+                or complete email addresses. <code>&lt;ldapmapper&gt;</code>
+                has the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>url</td>
+                            <td>Yes</td>
+                            <td>URL used to connect to an ldap server</td>
+                        </tr>
+                        <tr>
+                            <td>rootdn</td>
+                            <td>Yes</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>searchtmpl</td>
+                            <td>No</td>
+                            <td>Default: (cn=?). The ? character in the template is
+                            replaced by the user id to be mapped into an email address</td>
+                        </tr>
+                        <tr>
+                            <td>searchattr</td>
+                            <td>No</td>
+                            <td>Default: mail. The LDAP attribute that is searched
+                            to retreive the email address of the user id used in the search.</td>
+                        </tr>
+                        <tr>
+                            <td>ctxfactory</td>
+                            <td>No</td>
+                            <td>Default: com.sun.jndi.ldap.LdapCtxFactory. LDAP Context Factory to be used.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
             </tbody>
         </table>
         </div>
