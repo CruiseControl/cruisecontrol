@@ -15,6 +15,10 @@ CruiseControlControllerAgent:
 ----------------------
 * Look for an existing MBeanServer before creating a new one. This will make it possible to manage CC through Java 5's JConsole (CC-417). Patch by Gavin Kinghall Were.
 
+LDAPMapper:
+----------------------
+* Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
+
 reporting application
 ======================
 * Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.

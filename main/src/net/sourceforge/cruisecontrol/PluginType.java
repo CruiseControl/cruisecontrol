@@ -36,16 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
+import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
+import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
-import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
-import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
 
 /**
  * Type-safe, enumeration of CruiseControl plugin types. 
@@ -64,7 +64,7 @@ public final class PluginType implements Serializable {
     public static final PluginType MANIPULATORS = new PluginType("manipulators", "log");
     public static final PluginType MODIFICATION_SET = new PluginType("modificationset", "project");
     public static final PluginType PROJECT = new PluginType("project", "cruisecontrol");
-    public static final PluginType PROPERTIES_MAPPER = new PluginType("propertiesmapper", "email");
+    public static final PluginType EMAIL_MAPPER = new PluginType("propertiesmapper", "email");
     public static final PluginType PUBLISHER = new PluginType("publisher", "publishers");
     public static final PluginType PUBLISHERS = new PluginType("publishers", "project");
     public static final PluginType SCHEDULE = new PluginType("schedule", "project");
@@ -85,7 +85,7 @@ public final class PluginType implements Serializable {
             put(Manipulator.class, MANIPULATORS);
             put(ModificationSet.class, MODIFICATION_SET);
             put(ProjectConfig.class, PROJECT);
-            put(PropertiesMapper.class, PROPERTIES_MAPPER);
+            put(EmailMapper.class, EMAIL_MAPPER);
             put(ProjectConfig.Publishers.class, PUBLISHERS);
             put(Publisher.class, PUBLISHER);
             put(Schedule.class, SCHEDULE);
@@ -114,7 +114,7 @@ public final class PluginType implements Serializable {
 
         throw new IllegalArgumentException(pluginClass + " is not a CruiseControl plugin.");
     }
-    
+
     public static PluginType[] getTypes() {
         Set uniqueValues = new HashSet(PLUGIN_TYPES.values());
         return (PluginType[]) uniqueValues.toArray(new PluginType[uniqueValues.size()]);
