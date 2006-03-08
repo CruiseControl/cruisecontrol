@@ -83,7 +83,7 @@
                </tr>
 
                <xsl:for-each select="MBean/Attribute/Collection/Element">
-                  <xsl:sort order="ascending" select="@index" data-type="number"/>
+                  <xsl:sort order="ascending" select="format-number(@index,'0000000')"/>
                   <xsl:if test="position()&lt;($request.step+$request.start) and position()&gt;$request.start">
                      <xsl:variable name="classtype">
                         <xsl:if test="(position() mod 2)=1">clearline</xsl:if>
@@ -106,14 +106,11 @@
                   </xsl:if>
                </xsl:for-each>
 
-               <xsl:variable name="url">getattribute?objectname=
-                  <xsl:call-template name="uri-encode">
+               <xsl:variable name="url">getattribute?objectname=<xsl:call-template name="uri-encode">
                      <xsl:with-param name="uri">
                         <xsl:value-of select="$request.objectname"/>
                      </xsl:with-param>
-                  </xsl:call-template>&amp;attribute=
-                  <xsl:value-of select="$request.attribute"/>&amp;format=collection&amp;template=viewcollection&amp;locale=
-                  <xsl:value-of select="$request.locale"/>
+                  </xsl:call-template>&amp;attribute=<xsl:value-of select="$request.attribute"/>&amp;format=collection&amp;template=viewcollection&amp;locale=<xsl:value-of select="$request.locale"/>
                </xsl:variable>
                <xsl:call-template name="aggregation-navigation">
                   <xsl:with-param name="url" select="$url"/>
