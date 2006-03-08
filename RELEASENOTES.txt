@@ -4,6 +4,14 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Current
 
+general
+======================
+* Included build.xml target to create executable windows installer, from contrib definition (CC-314). Submitted by Julian Simpson. Should make CruiseControl-VER.exe available as a distribution.
+
+contrib
+======================
+* WindowsInstaller definition using nsis (CC-314). Submitted by Julian Simpson.
+
 build loop
 ======================
 
@@ -17,7 +25,7 @@ CruiseControlControllerAgent:
 
 LDAPMapper:
 ----------------------
-* Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
+* Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
 
 reporting application
 ======================

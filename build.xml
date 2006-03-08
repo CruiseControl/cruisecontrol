@@ -7,7 +7,7 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip"/>
+    <target name="release" depends="clean, build, website, zip, bin-zip, win-installer"/>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined."/>
@@ -127,7 +127,7 @@
             <include name="config.xml"/>
         </replace>
 
-        <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
+	    <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip"
                 duplicate="preserve">
             <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
@@ -157,6 +157,31 @@
             <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
         </zip>
     </target>
+
+    <target name="check-win-installer">
+        <condition property="should-create-win-installer">
+            <and>
+                <os family="windows"/>
+                <available file="c:/Program Files/NSIS/makensis.exe"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="win-installer" depends="check-win-installer, bin-zip" if="should-create-win-installer">
+		<property name="win-installer-stage" location="target/windows-install"/>
+		<mkdir dir="${win-installer-stage}"/>
+		<unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="${win-installer-stage}"/>
+		<move todir="${win-installer-stage}/cruisecontrol">
+			<fileset dir="${win-installer-stage}/${cc.bin.zip.prefix}"/>
+		</move>
+
+		<exec os="Windows XP" executable="c:/Program Files/NSIS/makensis.exe">
+			<arg value="contrib/windowsInstaller/cruise.nsi" />
+		</exec>
+
+		<move file="target/CruiseControl.exe" tofile="target/CruiseControl-${cc.release.label}.exe"/>
+
+	</target>
 
     <target name="compile-webtest">
         <mkdir dir="target/webtest-classes"/>
