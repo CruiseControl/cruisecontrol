@@ -7,6 +7,8 @@ CruiseControl Release Notes - Current
 reporting application
 ======================
 * Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.
+* Added web.xml parameter for cruisecontrol.jmxport, which can be overridden by the environment variable as documented in web.xml.
+
 
 
 CruiseControl Release Notes - 2.4.1
