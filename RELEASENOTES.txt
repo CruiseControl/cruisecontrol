@@ -4,6 +4,13 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - Current
 
+build loop
+======================
+
+CruiseControlControllerAgent:
+----------------------
+* Look for an existing MBeanServer before creating a new one. This will make it possible to manage CC through Java 5's JConsole (CC-417). Patch by Gavin Kinghall Were.
+
 reporting application
 ======================
 * Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.

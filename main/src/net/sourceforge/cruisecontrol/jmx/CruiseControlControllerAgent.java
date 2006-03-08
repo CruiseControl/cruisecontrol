@@ -41,6 +41,7 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Iterator;
 
 import javax.management.Attribute;
 import javax.management.MBeanServer;
@@ -78,7 +79,7 @@ public class CruiseControlControllerAgent {
     private String user;
     private String password;
 
-    public CruiseControlControllerAgent(CruiseControlController controller, int httpPort, 
+    public CruiseControlControllerAgent(CruiseControlController controller, int httpPort,
         int connectorServerPort, String user, String password, String xslPath) {
         this.httpPort = httpPort;
         this.connectorServerPort = connectorServerPort;
@@ -86,9 +87,9 @@ public class CruiseControlControllerAgent {
         this.controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
         this.user = user;
         this.password = password;
-        
-    
-        MBeanServer server = MBeanServerFactory.createMBeanServer();
+
+        Iterator i = MBeanServerFactory.findMBeanServer(null).iterator();
+        MBeanServer server = i.hasNext() ? (MBeanServer) i.next() : MBeanServerFactory.createMBeanServer();
         try {
             controllerAdaptor.register(server);
         } catch (Exception e) {
@@ -110,7 +111,7 @@ public class CruiseControlControllerAgent {
         } catch (Exception e) {
             LOG.error("Problem registering LoggerController for root-Logger", e);
         }
-        
+
     }
 
     public void start() {
@@ -138,7 +139,7 @@ public class CruiseControlControllerAgent {
                 connectorServer.start();
             } catch (Exception e) {
                 if (e.getMessage().startsWith("javax.naming.NameAlreadyBoundException")) {
-                    LOG.warn("Couldn't start connectorServer since its name (" + JNDI_NAME 
+                    LOG.warn("Couldn't start connectorServer since its name (" + JNDI_NAME
                             + ") is already bound; you might need to restart your rmi registry");
                 } else {
                     LOG.error("Exception starting connectorServer", e);
@@ -215,7 +216,7 @@ public class CruiseControlControllerAgent {
             final String registryContextFactory = "com.sun.jndi.rmi.registry.RegistryContextFactory";
             environment.put(Context.INITIAL_CONTEXT_FACTORY, registryContextFactory);
             environment.put(Context.PROVIDER_URL, "rmi://localhost:" + connectorServerPort);
-            
+
             connectorServer = JMXConnectorServerFactory.newJMXConnectorServer(address, environment, server);
             ObjectName connServerName = new ObjectName("ConnectorServer:name=" + JNDI_NAME);
             server.registerMBean(connectorServer, connServerName);
