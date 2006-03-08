@@ -2,6 +2,13 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - Current
+
+reporting application
+======================
+* Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.
+
+
 CruiseControl Release Notes - 2.4.1
 
 contrib
