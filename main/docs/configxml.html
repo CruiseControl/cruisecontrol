@@ -101,6 +101,7 @@
 <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
 <a href="#buildstatus">&lt;buildstatus&gt;</a>
 <a href="#clearcase">&lt;clearcase&gt;</a>
+<a href="#clearcasebaselinepublisher">&lt;clearcasebaselinepublisher&gt;</a>
 <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
 <a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper&gt;</a>
 <a href="#cmsynergy">&lt;cmsynergy&gt;</a>
@@ -281,6 +282,7 @@
       <a href="#publishers">&lt;publishers&gt;</a>
          <a href="#antpublisher">&lt;antpublisher/&gt;</a>
          <a href="#artifactspublisher">&lt;artifactspublisher/&gt;</a>
+         <a href="#clearcasebaselinepublisher">&lt;clearcasebaselinepublisher/&gt;</a>
          <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher/&gt;</a>
          <a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher/&gt;</a>
          <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
@@ -5231,6 +5233,11 @@ endlocal</pre>
                 <td>Copies build products to a directory</td>
             </tr>
             <tr>
+                <td><a href="#clearcasebaselinepublisher"><code>&lt;clearcasebaselinepublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Creates a ClearCase UCM baseline.</td>
+            </tr>
+            <tr>
                 <td><a href="#cmsynergybaselinepublisher"><code>&lt;cmsynergybaselinepublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Creates an intermediate baseline in a CM Synergy database.</td>
@@ -5503,7 +5510,86 @@ endlocal</pre>
         </div>
 
         <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
+            <a class="toplink" href="#top">top</a>
+
+            <h2><a name="clearcasebaselinepublisher">&lt;clearcasebaselinepublisher&gt;</a></h2>
+
+            <div class="hierarchy">
+                <pre>
+ <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+   <a href="#project">&lt;project&gt;</a>
+     <a href="#publishers">&lt;publishers&gt;</a>
+       &lt;clearcasebaselinepublisher&gt;
+                </pre>
+            </div>
+
+            <p>Creates a ClearCase UCM baseline for the specified view's integration stream.
+                Uses the value of the CruiseControl generated <code>${label}</code> property
+                as well as the value of the <code>baselineprefix</code> attribute (if specified)
+                to name the baseline. A baseline is only created if UCM modifications are recorded
+                in the build log. By default an incremental baseline is created although a full
+                baseline can be created too (incremental baselines are recommended for
+                Continuous Integration).</p>
+
+            <h3>Attributes</h3>
+
+            <table class="documentation">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>viewtag</td>
+                        <td>Yes</td>
+                        <td>The view tag of the UCM view that you wish to create the baseline in.
+                            The baseline is created in the stream that the view is attached to.</td>
+                    </tr>
+                    <tr>
+                        <td>full</td>
+                        <td>No</td>
+                        <td>Boolean value indicating whether a "Fully Labelled" or "Incremental"
+                            baseline should be created. Default is false, i.e. "Incremental".</td>
+                    </tr>
+                    <tr>
+                        <td>baselineprefix</td>
+                        <td>No</td>
+                        <td>A prefix which should be applied together with the CruiseControl
+                            <code>${label}</code> property, for example specifying "EXAMPLE_"
+                            with a CruiseControl generated label of "1_INT" would create a
+                            baseline called "EXAMPLE_1_INT".</td>
+                    </tr>
+                    <tr>
+                        <td>component</td>
+                        <td>No</td>
+                        <td>The component to restrict the baseline creation to. By default the baseline
+                            is applied to all of the stream's changed components.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Examples</h3>
+
+            <ol>
+                <li>Create a baseline with the name "J2EE_" followed by the CruiseControl generated
+                    build label using the view tag "j2ee_int" and restricting the baseline to the
+                    "J2EE_SRC" component.
+                    <pre>
+ &lt;publishers&gt;
+     &lt;clearcasebaselinepublisher viewtag        = "j2ee_int"
+                                 baselineprefix = "J2EE_"
+                                 component      = "J2EE_SRC"/&gt;
+ &lt;/publishers&gt;
+                    </pre>
+                </li>
+            </ol>
+        </div>
+
+         <div class="elementdocumentation">
+         <a class="toplink" href="#top">top</a>
         <h2><a name="cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher&gt;</a></h2>
 
         <div class="hierarchy">
@@ -7673,6 +7759,7 @@ endlocal</pre>
                 <td>separator</td>
                 <td>No (defaults to period <code>'.'</code>)</td>
                 <td>specifies the separator to use between label and build
+
                 count.</td>
             </tr>
             <tr>

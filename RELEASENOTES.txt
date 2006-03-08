@@ -7,6 +7,10 @@ CruiseControl Release Notes - Current
 build loop
 ======================
 
+ClearCaseBaselinePublisher:
+----------------------
+* New publisher for use with ClearCase UCM (CC-414). Submitted by Kevin Lee.
+
 CruiseControlControllerAgent:
 ----------------------
 * Look for an existing MBeanServer before creating a new one. This will make it possible to manage CC through Java 5's JConsole (CC-417). Patch by Gavin Kinghall Were.
@@ -18,7 +22,7 @@ reporting application
 
 fittests.xsl
 ----------------------
-* Display all fit results, not just the first one (CC-415). Patch by Randy Coulman. 
+* Display all fit results, not just the first one (CC-415). Patch by Randy Coulman.
 
 CruiseControl Release Notes - 2.4.1
 
