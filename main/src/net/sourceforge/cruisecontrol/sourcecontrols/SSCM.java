@@ -72,7 +72,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
    public void setRecursive(String str)            { if (str.equals("1")) { fparamRecursive.setData(null); } }
 
    private static final Logger LOG = Logger.getLogger(SSCM.class);
-   private static final SimpleDateFormat DTFM = new SimpleDateFormat("yyyyMMddHHmmss");
+   private final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
    private SSCMCLIStringParam strparamBranch = new SSCMCLIStringParam("branch", "-b", false);
    private SSCMCLIStringParam strparamRepository = new SSCMCLIStringParam("repository", "-p", false);
@@ -254,15 +254,15 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
    }
 
    protected String buildDateTimeRangeCLIParam(Date lastBuild, Date now) {
-      String strLast = DTFM.format(lastBuild);
-      String strNow = DTFM.format(now);
+      String strLast = formatter.format(lastBuild);
+      String strNow = formatter.format(now);
       return "-d" + strLast + ":" + strNow;
    }
 
    protected Date buildDateTimeFromCLIOutput(String str) {
       Date dt;
       try {
-         dt = DTFM.parse(str);
+         dt = formatter.parse(str);
       } catch (ParseException e) {
          dt = null;
          LOG.error("Unable to parse DateTime from Surround", e);

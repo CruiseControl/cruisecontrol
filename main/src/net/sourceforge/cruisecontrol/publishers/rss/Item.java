@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.publishers.rss;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import java.util.Date;
 
@@ -55,6 +56,7 @@ public class Item implements Comparable {
     private String link;
     private String description;
     private Date publishDate;
+    private final SimpleDateFormat rssDateFormatter = new SimpleDateFormat(RSS.DATE_FORMAT);
 
     public Item() {
     }
@@ -74,7 +76,7 @@ public class Item implements Comparable {
         }
         if (itemNode.getChild(RSS.NODE_ITEM_PUBLISH_DATE) != null) {
            try {
-                this.publishDate = RSS.DATE_FORMAT.parse(itemNode.getChild(RSS.NODE_ITEM_PUBLISH_DATE).getText());
+                this.publishDate = rssDateFormatter.parse(itemNode.getChild(RSS.NODE_ITEM_PUBLISH_DATE).getText());
             } catch (ParseException pex) {
                 // LOG?
                 this.publishDate = new Date(0);
@@ -158,7 +160,7 @@ public class Item implements Comparable {
             output.append("        <");
             output.append(RSS.NODE_ITEM_PUBLISH_DATE);
             output.append(">");
-            output.append(RSS.DATE_FORMAT.format(this.getPublishDate()));
+            output.append(rssDateFormatter.format(this.getPublishDate()));
             output.append("</");
             output.append(RSS.NODE_ITEM_PUBLISH_DATE);
             output.append(">\n");

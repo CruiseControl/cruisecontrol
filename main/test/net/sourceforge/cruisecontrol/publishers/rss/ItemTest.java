@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.publishers.rss;
 
 import java.util.Date;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+
 import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
@@ -67,7 +69,7 @@ public class ItemTest extends TestCase {
         itemElement.addContent(descriptionElement);
 
         Element dateElement = new Element(RSS.NODE_ITEM_PUBLISH_DATE);
-        dateElement.addContent(RSS.DATE_FORMAT.format(new Date()));
+        dateElement.addContent(new SimpleDateFormat(RSS.DATE_FORMAT).format(new Date()));
         itemElement.addContent(dateElement);
     }
 
@@ -84,7 +86,7 @@ public class ItemTest extends TestCase {
         assertEquals("link", item.getLink());
         assertEquals("description", item.getDescription());
         assertEquals(
-            RSS.DATE_FORMAT.parse(itemElement.getChild(RSS.NODE_ITEM_PUBLISH_DATE).getText()),
+            new SimpleDateFormat(RSS.DATE_FORMAT).parse(itemElement.getChild(RSS.NODE_ITEM_PUBLISH_DATE).getText()),
             item.getPublishDate());
     }
 

@@ -98,14 +98,14 @@ public class P4 implements SourceControl {
     private boolean correctForServerTime = true;
     private boolean useP4Email = true;
 
-    private static final SimpleDateFormat P4_REVISION_DATE =
+    private final SimpleDateFormat p4RevisionDateFormatter =
             new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
 
 
     private static final String SERVER_DATE = "Server date: ";
     private static final String P4_SERVER_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
-    private static final SimpleDateFormat P4_SERVER_DATE =
+    private final SimpleDateFormat p4ServerDateFormatter =
             new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
 
 
@@ -372,7 +372,7 @@ public class P4 implements SourceControl {
                 st.nextToken(); // skip 'on' text
                 String date = st.nextToken() + ":" + st.nextToken();
                 try {
-                    changelist.modifiedTime = P4_REVISION_DATE.parse(date);
+                    changelist.modifiedTime = p4RevisionDateFormatter.parse(date);
                 } catch (ParseException xcp) {
                     changelist.modifiedTime = new Date();
                 }
@@ -465,9 +465,9 @@ public class P4 implements SourceControl {
         commandLine.createArgument().setValue("submitted");
         commandLine.createArgument().setValue(p4View
                 + "@"
-                + P4_REVISION_DATE.format(lastBuildTime)
+                + p4RevisionDateFormatter.format(lastBuildTime)
                 + ",@"
-                + P4_REVISION_DATE.format(now));
+                + p4RevisionDateFormatter.format(now));
 
         return commandLine;
     }
@@ -537,7 +537,7 @@ public class P4 implements SourceControl {
                 try {
                     String dateString = line.substring(SERVER_DATE.length(),
                             SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
-                    p4ServerTime = P4_SERVER_DATE.parse(dateString);
+                    p4ServerTime = p4ServerDateFormatter.parse(dateString);
                     offset = p4ServerTime.getTime() - ccServerTime.getTime();
                 } catch (ParseException pe) {
                     LOG.error("Unable to parse p4 server time from line \'"
