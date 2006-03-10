@@ -79,11 +79,11 @@ public class UCM implements SourceControl {
     private boolean contributors = true;
 
     /*  Date format required by commands passed to ClearCase */
-    static final SimpleDateFormat IN_DATE_FORMAT =
+    private final SimpleDateFormat inDateFormatter =
             new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
     /*  Date format returned in the output of ClearCase commands. */
-    static final SimpleDateFormat OUT_DATE_FORMAT =
+    private final SimpleDateFormat outDateFormatter =
             new SimpleDateFormat("yyyyMMdd.HHmmss");
     
     private Hashtable properties = new Hashtable();
@@ -183,8 +183,8 @@ public class UCM implements SourceControl {
      *         that took place. If no changes, this method returns an empty list.
      */
     public List getModifications(Date lastBuild, Date now) {
-        String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
-        String nowDate = IN_DATE_FORMAT.format(now);
+        String lastBuildDate = inDateFormatter.format(lastBuild);
+        String nowDate = inDateFormatter.format(now);
         properties.put("ucmlastbuild", lastBuildDate);
         properties.put("ucmnow", nowDate);
         List mods = new ArrayList();
@@ -351,7 +351,7 @@ public class UCM implements SourceControl {
             while (((line = br.readLine()) != null) && (!br.equals(""))) {   
                 String[] details = getDetails(line);
                 try {
-                    mod.modifiedTime = OUT_DATE_FORMAT.parse(activityDate);
+                    mod.modifiedTime = outDateFormatter.parse(activityDate);
                 } catch (ParseException e) {
                     LOG.error("Error parsing modification date");
                 }
@@ -510,7 +510,8 @@ public class UCM implements SourceControl {
         List changes = new ArrayList();
        
         try {
-            changes = ucmtest.getModifications(OUT_DATE_FORMAT.parse("20050822.095914"), new Date());
+            changes = ucmtest.getModifications(new SimpleDateFormat("yyyyMMdd.HHmmss").parse("20050822.095914"),
+                    new Date());
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

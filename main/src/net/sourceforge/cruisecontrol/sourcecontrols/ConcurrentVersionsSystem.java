@@ -89,6 +89,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
      */
     static final String OFFICIAL_CVS_NAME = "CVS";
     static final Version DEFAULT_CVS_SERVER_VERSION = new Version(OFFICIAL_CVS_NAME, "1.11");
+    public static final String LOG_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss z";
 
     /**
      * Represents the version of a CVS client or server
@@ -247,7 +248,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     /**
      * This is the date format returned in the log information from CVS.
      */
-    static final SimpleDateFormat LOGDATE = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+    private final SimpleDateFormat logDateFormatter = new SimpleDateFormat(LOG_DATE_FORMAT);
 
     /**
      * Sets the CVSROOT for all calls to CVS.
@@ -783,7 +784,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                     nextModification.modifiedTime = DateUtil.parseCVSDate(
                             dateStamp + " " + timeStamp + " GMT");
                 } else {
-                    nextModification.modifiedTime = LOGDATE.parse(dateStamp + " " + timeStamp + " GMT");
+                    nextModification.modifiedTime = logDateFormatter.parse(dateStamp + " " + timeStamp + " GMT");
                 }
             } catch (ParseException pe) {
                 log.error("Error parsing cvs log for date and time", pe);

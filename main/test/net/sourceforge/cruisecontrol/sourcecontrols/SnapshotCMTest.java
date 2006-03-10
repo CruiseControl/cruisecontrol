@@ -44,6 +44,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -59,7 +60,7 @@ import java.util.List;
 public class SnapshotCMTest extends TestCase {
 
     private Date parseSnaphotOutDateFormat(String dateString) throws ParseException {
-        return SnapshotCM.OUT_DATE_FORMAT.parse(dateString);
+        return new SimpleDateFormat(SnapshotCM.OUT_DATE_FORMAT).parse(dateString);
     }
 
     public void testValidate() throws CruiseControlException, IOException {

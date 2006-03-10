@@ -36,13 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.rss;
 
-import java.text.SimpleDateFormat;
-
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  */
+
 class RSS {
-    static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+    static final String DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss z";
 
     static final String NODE_ROOT = "rss";
     static final String NODE_CHANNEL = "channel";

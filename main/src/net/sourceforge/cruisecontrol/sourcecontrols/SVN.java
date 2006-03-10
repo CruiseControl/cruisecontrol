@@ -58,6 +58,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -83,18 +84,10 @@ public class SVN implements SourceControl {
     private static final Logger LOG = Logger.getLogger(SVN.class);
 
     /** Date format expected by Subversion */
-    static final SimpleDateFormat SVN_DATE_FORMAT_IN =
-        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static final String SVN_DATE_FORMAT_IN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     /** Date format returned by Subversion in XML output */
-    static final SimpleDateFormat SVN_DATE_FORMAT_OUT =
-        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-
-    /** Set the time zone of the formatters to GMT. */
-    static {
-        SVN_DATE_FORMAT_IN.setTimeZone(TimeZone.getTimeZone("GMT"));
-        SVN_DATE_FORMAT_OUT.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    private static final String SVN_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     private Hashtable properties = new Hashtable();
     private String property;
@@ -240,7 +233,9 @@ public class SVN implements SourceControl {
 
 
     static String formatSVNDate(Date lastBuild) {
-        return SVN_DATE_FORMAT_IN.format(lastBuild);
+        DateFormat f = new SimpleDateFormat(SVN_DATE_FORMAT_IN);
+        f.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return f.format(lastBuild);
     }
 
 
@@ -291,6 +286,12 @@ public class SVN implements SourceControl {
                 }
             }
         }
+    }
+
+    public static DateFormat getOutDateFormatter() {
+        DateFormat f = new SimpleDateFormat(SVN_DATE_FORMAT_OUT);
+        f.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return f;
     }
 
     static final class SVNLogXMLParser {
@@ -368,7 +369,8 @@ public class SVN implements SourceControl {
                         + " doesn't match the expected subversion date format", date.length());
             }
             String withoutMicroSeconds = date.substring(0, zIndex - 3);
-            return SVN_DATE_FORMAT_OUT.parse(withoutMicroSeconds);
+
+            return getOutDateFormatter().parse(withoutMicroSeconds);
         }
 
         static String convertAction(String action) {

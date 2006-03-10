@@ -14,6 +14,7 @@ contrib
 
 build loop
 ======================
+* Cleaned up incorrect usages of static SimpleDateFormats (CC-422). Proposed by Scott Coplin.
 
 ClearCaseBaselinePublisher:
 ----------------------

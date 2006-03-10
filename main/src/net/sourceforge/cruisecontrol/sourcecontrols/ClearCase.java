@@ -93,13 +93,13 @@ public class ClearCase implements SourceControl {
     /**
      * Date format required by commands passed to Clear Case
      */
-    static final SimpleDateFormat IN_DATE_FORMAT =
+    private final SimpleDateFormat inDateFormatter =
             new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
     /**
      * Date format returned in the output of Clear Case commands.
      */
-    static final SimpleDateFormat OUT_DATE_FORMAT =
+    private final SimpleDateFormat outDateFormatter =
             new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     /**
@@ -187,8 +187,8 @@ public class ClearCase implements SourceControl {
      *         modifications.
      */
     public List getModifications(Date lastBuild, Date now) {
-        String lastBuildDate = IN_DATE_FORMAT.format(lastBuild);
-        String nowDate = IN_DATE_FORMAT.format(now);
+        String lastBuildDate = inDateFormatter.format(lastBuild);
+        String nowDate = inDateFormatter.format(now);
         properties.put("clearcaselastbuild", lastBuildDate);
         properties.put("clearcasenow", nowDate);
 
@@ -353,7 +353,7 @@ public class ClearCase implements SourceControl {
         ClearCaseModification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
 
         try {
-            mod.modifiedTime = OUT_DATE_FORMAT.parse(timeStamp);
+            mod.modifiedTime = outDateFormatter.parse(timeStamp);
         } catch (ParseException e) {
             mod.modifiedTime = null;
         }

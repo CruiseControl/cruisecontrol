@@ -45,28 +45,28 @@
  */
 package net.sourceforge.cruisecontrol.sourcecontrols.accurev;
 
-import java.text.DateFormat;
+import org.apache.log4j.Logger;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import org.apache.log4j.Logger;
 
 /**
  * Full date timespec, format is either yyyy/MM/dd HH:mm:ss or yyyy/MM/dd HH:mm:ss.count
- * 
+ *
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public class DateTimespec extends Timespec {
   private static final Logger         LOG             = Logger.getLogger(DateTimespec.class);
-  private static final DateFormat     DATETIME_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+  private static final String     DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
   /** Convenience constant containing the KewordTimespec "now" */
   public static final KeywordTimespec NOW             = new KeywordTimespec("now");
   private Date                        date;
   /**
    * Creates a new DateTimespec given the date and count (yyyy/MM/dd HH:mm:ss.count form)
-   * 
+   *
    * @param date
    *          the date of the timespec
    * @param count
@@ -77,7 +77,7 @@ public class DateTimespec extends Timespec {
   }
   /**
    * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form)
-   * 
+   *
    * @param date
    *          the timespec date
    */
@@ -87,7 +87,7 @@ public class DateTimespec extends Timespec {
   /**
    * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form) containing the current time
    * "shifted" by the given amount of seconds
-   * 
+   *
    * @param secondsFromNow
    *          distance in seconds from "now" (e.g. 3600 means "one hour from now", -60 means "one
    *          minute ago").
@@ -99,36 +99,26 @@ public class DateTimespec extends Timespec {
   }
   /**
    * Returns the formatted date
-   * 
+   *
    * @return the formatted date if date is not null or a blank string ig the date is null
    */
   public String format() {
     if (date == null) { return ""; }
-    return formatDate(date);
+      return new SimpleDateFormat(DATETIME_FORMAT).format(date);
   }
-  /**
-   * Formats a date for Accurev in the format <code>YYYY/MM/DD hh:mm:ss</code>
-   * 
-   * @param date
-   *          Date to format.
-   * @return String of date in format that Accurev requires.
-   */
-  public static final String formatDate(Date date) {
-    return DATETIME_FORMAT.format(date);
-  }
-  /**
-   * Parses a date from Accurev in the format <code>YYYY/MM/DD hh:mm:ss</code>
-   * 
-   * @param date
-   *          String containing the date to parse
-   * @return a new Date whose value reflects the date string
-   */
-  public static final Date parse(String date) {
-    try {
-      return DATETIME_FORMAT.parse(date);
-    } catch (ParseException e) {
-      LOG.error("Error parsing date " + date + " using format" + DATETIME_FORMAT);
-      return null;
+    /**
+     * Parses a date from Accurev in the format <code>YYYY/MM/DD hh:mm:ss</code>
+     *
+     * @param date
+     *          String containing the date to parse
+     * @return a new Date whose value reflects the date string
+     */
+    public static final Date parse(String date) {
+      try {
+        return new SimpleDateFormat(DATETIME_FORMAT).parse(date);
+      } catch (ParseException e) {
+        LOG.error("Error parsing date " + date + " using format" + DATETIME_FORMAT);
+        return null;
+      }
     }
-  }
 }

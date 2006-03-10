@@ -51,6 +51,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -83,7 +84,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     }
 
     private Date parseLogDateFormat(String dateString) throws ParseException {
-        return ConcurrentVersionsSystem.LOGDATE.parse(dateString);
+        return new SimpleDateFormat(ConcurrentVersionsSystem.LOG_DATE_FORMAT).parse(dateString);
     }
 
     /**
@@ -736,8 +737,9 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     public void testParseLogDate() throws ParseException {
         TimeZone tz = TimeZone.getDefault();
         Date may18SixPM2001 = new GregorianCalendar(2001, 4, 18, 18, 0, 0).getTime();
-        assertEquals(may18SixPM2001, ConcurrentVersionsSystem.LOGDATE.parse("2001/05/18 18:00:00 "
-                + tz.getDisplayName(tz.inDaylightTime(may18SixPM2001), TimeZone.SHORT)));
+        assertEquals(may18SixPM2001,
+                new SimpleDateFormat(ConcurrentVersionsSystem.LOG_DATE_FORMAT).parse("2001/05/18 18:00:00 "
+                        + tz.getDisplayName(tz.inDaylightTime(may18SixPM2001), TimeZone.SHORT)));
     }
 
     public void testFormatCVSDateGMTPlusZero() {

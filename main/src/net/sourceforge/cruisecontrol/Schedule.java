@@ -73,7 +73,7 @@ public class Schedule {
     private long interval = 300 * ONE_SECOND;
 
     /** date formatting for time statements */
-    private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
+    private final DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
 
     /** @deprecated */
     public void addBuilder(Builder builder) {
@@ -126,7 +126,7 @@ public class Schedule {
         cal.set(Calendar.HOUR_OF_DAY, builder.getEndTime() / 100);
         cal.set(Calendar.MINUTE, builder.getEndTime() % 100);
         cal.add(Calendar.MINUTE, 1);
-        return TIME_FORMAT.format(cal.getTime());
+        return timeFormatter.format(cal.getTime());
     }
 
     PauseBuilder findPause(Date date) {

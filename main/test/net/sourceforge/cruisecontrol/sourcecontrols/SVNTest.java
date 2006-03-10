@@ -45,12 +45,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.ArrayList;
 
 /**
  * @see    <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
@@ -212,7 +212,7 @@ public class SVNTest extends TestCase {
 
         Modification modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-04-30T10:01:42.349"),
+                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
                 "lee",
                 "bli",
                 "663",
@@ -223,7 +223,7 @@ public class SVNTest extends TestCase {
 
         modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-04-30T10:01:42.349"),
+                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
                 "lee",
                 "bli",
                 "663",
@@ -234,7 +234,7 @@ public class SVNTest extends TestCase {
 
         modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-04-30T10:01:42.349"),
+                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
                 "lee",
                 "bli",
                 "663",
@@ -245,7 +245,7 @@ public class SVNTest extends TestCase {
 
         modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-04-30T10:03:14.100"),
+                SVN.getOutDateFormatter().parse("2003-04-30T10:03:14.100"),
                 "etienne",
                 "bla",
                 "664",
@@ -256,7 +256,7 @@ public class SVNTest extends TestCase {
 
         modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-04-30T10:04:48.050"),
+                SVN.getOutDateFormatter().parse("2003-04-30T10:04:48.050"),
                 "martin",
                 "blo",
                 "665",
@@ -322,7 +322,7 @@ public class SVNTest extends TestCase {
 
         Modification modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
                 "lee",
                 "bli",
                 "663",
@@ -333,7 +333,7 @@ public class SVNTest extends TestCase {
 
         modification =
             createModification(
-                SVN.SVN_DATE_FORMAT_OUT.parse("2003-07-29T18:15:11.100"),
+                SVN.getOutDateFormatter().parse("2003-07-29T18:15:11.100"),
                 "martin",
                 "blo",
                 "665",
@@ -356,13 +356,13 @@ public class SVNTest extends TestCase {
             new GregorianCalendar(2001, Calendar.MAY, 17, 18, 0, 0).getTime();
         assertEquals(
             "2001-05-17T08:00:00Z",
-            SVN.SVN_DATE_FORMAT_IN.format(maySeventeenSixPM2001));
+            SVN.formatSVNDate(maySeventeenSixPM2001));
 
         Date maySeventeenEightAM2001 =
             new GregorianCalendar(2001, Calendar.MAY, 17, 8, 0, 0).getTime();
         assertEquals(
             "2001-05-16T22:00:00Z",
-            SVN.SVN_DATE_FORMAT_IN.format(maySeventeenEightAM2001));
+            SVN.formatSVNDate(maySeventeenEightAM2001));
 
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
 
@@ -370,11 +370,11 @@ public class SVNTest extends TestCase {
             new GregorianCalendar(2003, Calendar.MARCH, 12, 16, 0, 0).getTime();
         assertEquals(
             "2003-03-13T02:00:00Z",
-            SVN.SVN_DATE_FORMAT_IN.format(marchTwelfFourPM2003));
+            SVN.formatSVNDate(marchTwelfFourPM2003));
 
         Date marchTwelfTenAM2003 =
             new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
-        assertEquals("2003-03-12T20:00:00Z", SVN.SVN_DATE_FORMAT_IN.format(marchTwelfTenAM2003));
+        assertEquals("2003-03-12T20:00:00Z", SVN.formatSVNDate(marchTwelfTenAM2003));
     }
 
     public void testSetProperty() throws ParseException {
@@ -385,7 +385,8 @@ public class SVNTest extends TestCase {
         assertEquals(null, svn.getProperties().get("hasChanges?"));
 
         List hasModifications = new ArrayList();
-        hasModifications.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+        hasModifications.add(createModification(
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
                 "lee",
                 "bli",
                 "663",
@@ -404,7 +405,8 @@ public class SVNTest extends TestCase {
         assertEquals(null, svn.getProperties().get("hasDeletions?"));
 
         List noDeletions = new ArrayList();
-        noDeletions.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+        noDeletions.add(createModification(
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
                 "lee",
                 "bli",
                 "663",
@@ -415,14 +417,16 @@ public class SVNTest extends TestCase {
         assertEquals(null, svn.getProperties().get("hasDeletions?"));
 
         List hasDeletions = new ArrayList();
-        hasDeletions.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+        hasDeletions.add(createModification(
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
                 "lee",
                 "bli",
                 "663",
                 "",
                 "/trunk/playground/aaa",
                 "added"));
-        hasDeletions.add(createModification(SVN.SVN_DATE_FORMAT_OUT.parse("2003-08-02T10:01:13.349"),
+        hasDeletions.add(createModification(
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
                 "lee",
                 "bli",
                 "663",

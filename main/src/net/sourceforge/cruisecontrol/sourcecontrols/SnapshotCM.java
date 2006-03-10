@@ -66,10 +66,11 @@ import org.apache.log4j.Logger;
 
 public class SnapshotCM implements SourceControl {
     /**  Date format required by commands passed to SnapshotCM */
-    static final SimpleDateFormat IN_DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+    private final SimpleDateFormat inDateFormatter = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
+    public static final String OUT_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     /**  Date format returned in the output of SnapshotCM commands. */
-    static final SimpleDateFormat OUT_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private final SimpleDateFormat outDateFormatter = new SimpleDateFormat(OUT_DATE_FORMAT);
 
     private static final MessageFormat EXECUTABLE = new MessageFormat("whist -RA -c{0} \"{1}\"");
 
@@ -102,7 +103,7 @@ public class SnapshotCM implements SourceControl {
     }
 
     /**
-     *  From SourceControl interface.
+     *  From SourceControl interface.  n
      */
     public void setPropertyOnDelete(String propertyOnDelete) {
         this.propertyOnDelete = propertyOnDelete;
@@ -153,7 +154,7 @@ public class SnapshotCM implements SourceControl {
 
         //Command parameters
         String[] parameters = new String[2];
-        parameters[0] = IN_DATE_FORMAT.format(lastBuild);
+        parameters[0] = inDateFormatter.format(lastBuild);
 
         for (Iterator i = this.sourcePaths.iterator(); i.hasNext(); ) {
             parameters[1] = ((SourcePath) i.next()).getPath();
@@ -312,7 +313,7 @@ public class SnapshotCM implements SourceControl {
                 mod.revision = line.substring(10, endIndex);
             } else if (line.startsWith("Date: ")) {  //e.g. Date: 2004/01/06 17:00:38 -0700;  Size:    39459 bytes
                 try {
-                    mod.modifiedTime = OUT_DATE_FORMAT.parse(line.substring(6, line.indexOf("-") - 1));
+                    mod.modifiedTime = outDateFormatter.parse(line.substring(6, line.indexOf("-") - 1));
                 } catch (ParseException pe) {
                     LOG.warn("Unable to parse date " + line.substring(6, line.indexOf("-") - 1));
                     mod.modifiedTime = new Date(0);

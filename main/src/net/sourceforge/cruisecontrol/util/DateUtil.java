@@ -57,7 +57,7 @@ public final class DateUtil {
 
     static final long ONE_HOUR = 60 * ONE_MINUTE;
 
-    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    public static final String SIMPLE_DATE_FORMAT = "yyyyMMddHHmmss";
 
     /**
      * This is the date format required by commands passed to CVS.
@@ -165,7 +165,7 @@ public final class DateUtil {
         if (date == null) {
             return null;
         }
-        return SIMPLE_DATE_FORMAT.format(date);
+        return new SimpleDateFormat(SIMPLE_DATE_FORMAT).format(date);
     }
 
     public static Date parseFormattedTime(String timeString, String description) throws CruiseControlException {
@@ -175,7 +175,7 @@ public final class DateUtil {
             throw new IllegalArgumentException("Null date string for " + description);
         }
         try {
-            date = SIMPLE_DATE_FORMAT.parse(timeString);
+            date = new SimpleDateFormat(SIMPLE_DATE_FORMAT).parse(timeString);
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + description + "]", e);
             throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
