@@ -73,7 +73,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      * The CM Synergy project spec (2 part name) of the project we will
      * be referencing.
      */
-    private String project;
+    private String projectSpec;
 
     /**
      * The CM Synergy executable used for executing commands. If not set,
@@ -133,11 +133,11 @@ public abstract class CMSynergyPublisher implements Publisher {
     /**
      * Sets the CM Synergy project to be used with this publisher.
      * 
-     * @param project
+     * @param projectSpec
      *            The project spec (in 2 part name format).
      */
-    public void setProject(String project) {
-        this.project = project;
+    public void setProject(String projectSpec) {
+        this.projectSpec = projectSpec;
     }    
     
     /**
@@ -147,7 +147,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      *         <code>null</code> if it was not set.
      */
     public String getProject() {
-        return this.project;
+        return this.projectSpec;
     }
     
     /**
