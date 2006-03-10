@@ -27,6 +27,10 @@ LDAPMapper:
 ----------------------
 * Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
 
+UCM:
+----------------------
+* Add property attribute that gets set if modifications are found (CC-421). Patch by Scott Coplin.
+
 reporting application
 ======================
 * Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.
