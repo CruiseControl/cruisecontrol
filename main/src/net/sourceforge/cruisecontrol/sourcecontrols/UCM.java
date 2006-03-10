@@ -75,6 +75,7 @@ public class UCM implements SourceControl {
 
     private String stream;
     private String viewPath;
+    private String property;
     private boolean contributors = true;
 
     /*  Date format required by commands passed to ClearCase */
@@ -153,6 +154,24 @@ public class UCM implements SourceControl {
     }
 
     /**
+     * set the name of the property that will be set if modifications are found
+     *
+     * @param property The name of the property to set
+     */
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
+    /**
+     * get the name of the property that will be set if modifications are found
+     *
+     * @return the property name
+     */
+    public String getProperty() {
+        return this.property;
+    }
+
+    /**
      * Get a List of modifications detailing all the changes between now and
      * the last build. Return this as an element. It is not neccessary for
      * sourcecontrols to acctually do anything other than returning a chunch
@@ -177,6 +196,11 @@ public class UCM implements SourceControl {
             mods = describeAllActivities(activityNames);
         } catch (Exception e) {
             LOG.error("Command failed to execute succesfully", e);
+        }
+
+        // If modifications were found, set the property
+        if (!mods.isEmpty() && getProperty() != null) {
+            properties.put(getProperty(), "true");
         }
 
         return mods;
