@@ -298,6 +298,9 @@ public class AntBuilder extends Builder {
      * Used to invoke the builder via JMX with a different target.
      */
     protected void overrideTarget(String target) {
+        if (target == null) {
+            target = "";
+        }
         setTarget(target);
     }
 

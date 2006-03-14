@@ -59,6 +59,11 @@ public abstract class Builder implements Comparable {
     //should return log from build
     public abstract Element build(Map properties) throws CruiseControlException;
     
+    /**
+     * Sets the given String as the target, goal, or whatever is appropiate for the Builder
+     * to override the default. Call with null to reset the overriden target.
+     * @param target
+     */
     protected abstract void overrideTarget(String target);
 
     public void validate() throws CruiseControlException {
