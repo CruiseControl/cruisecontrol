@@ -152,10 +152,13 @@ public class Schedule {
      *
      *  @return JDOM Element representation of build log.
      */
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties)
-        throws CruiseControlException {
-        Builder builder = selectBuilder(buildNumber, lastBuild, now);
-        return builder.build(properties);
+    public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
+        try {
+            Builder builder = selectBuilder(buildNumber, lastBuild, now);
+            return builder.build(properties);
+        } finally {
+            overrideTargets(null);
+        }
     }
 
     /**
@@ -523,17 +526,14 @@ public class Schedule {
     }
 
     public void overrideTargets(String buildTarget) {
-        if (buildTarget != null) {
-            for (int i = 0; i < builders.size(); i++) {
-                Builder builder = (Builder) builders.get(i);
-                builder.overrideTarget(buildTarget);
-            }
-            for (int i = 0; i < pauseBuilders.size(); i++) {
-                PauseBuilder builder = (PauseBuilder) pauseBuilders.get(i);
-                builder.overrideTarget(buildTarget);
-            }
+        for (int i = 0; i < builders.size(); i++) {
+            Builder builder = (Builder) builders.get(i);
+            builder.overrideTarget(buildTarget);
         }
-
+        for (int i = 0; i < pauseBuilders.size(); i++) {
+            PauseBuilder builder = (PauseBuilder) pauseBuilders.get(i);
+            builder.overrideTarget(buildTarget);
+        }
     }
 
     public List getBuilders() {

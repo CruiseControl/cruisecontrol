@@ -32,6 +32,10 @@ UCM:
 ----------------------
 * Add property attribute that gets set if modifications are found (CC-421). Patch by Scott Coplin.
 
+Schedule:
+----------------------
+* Fixed recently introduced bug where project would keep on building with its overriden target when invoked once from the JMX interface using buildWithTarget.
+
 reporting application
 ======================
 * Fix for JMX collection view and paging (CC-394). Patch by Tim Shadel.
