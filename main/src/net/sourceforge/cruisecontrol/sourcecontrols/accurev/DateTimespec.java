@@ -64,17 +64,7 @@ public class DateTimespec extends Timespec {
   /** Convenience constant containing the KewordTimespec "now" */
   public static final KeywordTimespec NOW             = new KeywordTimespec("now");
   private Date                        date;
-  /**
-   * Creates a new DateTimespec given the date and count (yyyy/MM/dd HH:mm:ss.count form)
-   *
-   * @param date
-   *          the date of the timespec
-   * @param count
-   *          the count
-   */
-  public DateTimespec(Date date, int count) {
-    super(count);
-  }
+
   /**
    * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form)
    *
@@ -113,7 +103,7 @@ public class DateTimespec extends Timespec {
      *          String containing the date to parse
      * @return a new Date whose value reflects the date string
      */
-    public static final Date parse(String date) {
+    public static Date parse(String date) {
       try {
         return new SimpleDateFormat(DATETIME_FORMAT).parse(date);
       } catch (ParseException e) {
