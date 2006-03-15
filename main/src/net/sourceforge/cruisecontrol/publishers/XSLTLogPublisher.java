@@ -127,7 +127,7 @@ public class XSLTLogPublisher implements Publisher {
       XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
       Boolean buildSuccess = null;
       try {
-         buildSuccess = new Boolean(helper.isBuildSuccessful());
+         buildSuccess = (helper.isBuildSuccessful()) ? Boolean.TRUE : Boolean.FALSE;
       } catch (NullPointerException ne) {
          //Do Nothing - leave buildSuccess = null
       }
@@ -215,12 +215,16 @@ public class XSLTLogPublisher implements Publisher {
          throw new CruiseControlException("An unexpected exception occurred, unable to publish the log file.", ioe);
       } finally {
          try {
-            xslFileStream.close();
+             if (xslFileStream != null) {
+                xslFileStream.close();
+             }
          } catch (IOException e) {
             //Do nothing
          }
          try {
-            out.close();
+             if (out != null) {
+                out.close();
+             }
          } catch (IOException e) {
             //Do Nothing
          }

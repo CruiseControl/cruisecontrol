@@ -60,7 +60,7 @@ import org.apache.log4j.Logger;
 /**
  * This class handles all Accurev aspects of determining the modifications since the last good
  * build.
- * 
+ *
  * @author <a href="mailto:jason_chown@scee.net">Jason Chown </a>
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
@@ -69,13 +69,12 @@ public class Accurev implements SourceControl, AccurevInputParser {
   private String              stream;
   private boolean             verbose;
   private Hashtable           properties = new Hashtable();
-  private String              property;
-  private String              propertyOnDelete;
+    private String              propertyOnDelete;
   private ArrayList           modifications;
   private Runner              runner;
   /**
    * Sets the Accurev stream to search for changes
-   * 
+   *
    * @param stream
    *          the name of the stream
    */
@@ -84,7 +83,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
   }
   /**
    * Enables/disables verbose logging
-   * 
+   *
    * @param verbose
    *          set to true to enable verbose logging
    */
@@ -94,19 +93,18 @@ public class Accurev implements SourceControl, AccurevInputParser {
   /**
    * Choose a property to be set if the project has modifications if we have a change that only
    * requires repackaging, i.e. jsp, we don't need to recompile everything, just rejar.
-   * 
+   *
    * @param propertyName
    *          the name of the property
    */
   public void setProperty(String propertyName) {
-    property = propertyName;
-    if (property != null) {
-      properties.put(property, "true");
-    }
+      if (propertyName != null) {
+        properties.put(propertyName, "true");
+      }
   }
   /**
    * Choose a property to be set if the project has deletions
-   * 
+   *
    * @param propertyName
    *          the name of the property
    */
@@ -122,7 +120,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
   }
   /**
    * Calls "accurev hist -s [stream] -t "[now] - [lastBuild]" or something like that ; )
-   * 
+   *
    * @param lastBuild
    *          the date and time of the last successful build
    * @param now
@@ -148,10 +146,10 @@ public class Accurev implements SourceControl, AccurevInputParser {
    *  # &lt;comment&gt;
    * \.\PathTo\FileChanged.cpp &lt;version&gt;
    *</code>
-   * 
+   *
    * Where <verb>can be promote, chstream or purge. There can be multiple lines of comments and
    * files.
-   * 
+   *
    * @param input
    *          the output of the "accurev hist" command run
    * @return true at the end
@@ -202,7 +200,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
     }
     return true;
   }
-  
+
   private String[] getParts(String line) {
     List partsList = new ArrayList();
     StringTokenizer tokenizer = new StringTokenizer(line, ";");

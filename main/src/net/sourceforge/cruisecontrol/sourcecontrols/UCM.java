@@ -189,7 +189,7 @@ public class UCM implements SourceControl {
         properties.put("ucmnow", nowDate);
         List mods = new ArrayList();
         try {
-            HashMap activityNames = collectActivitiesSinceLastBuild(lastBuildDate, nowDate);
+            HashMap activityNames = collectActivitiesSinceLastBuild(lastBuildDate);
             if (activityNames.size() == 0) {
                   return mods;
             }
@@ -209,7 +209,7 @@ public class UCM implements SourceControl {
     /*
      * get all the activities on the stream since the last build date
      */
-    private HashMap collectActivitiesSinceLastBuild(String lastBuildDate, String nowDate) {
+    private HashMap collectActivitiesSinceLastBuild(String lastBuildDate) {
 
         LOG.debug("Last build time was: " + lastBuildDate);
 
@@ -225,12 +225,12 @@ public class UCM implements SourceControl {
             new Thread(errorPumper).start();
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
-            String line = null;
+            String line;
             
             while (((line = br.readLine()) != null) && (!br.equals(""))) {                   
                 String[] details = getDetails(line);     
                     if (details[0].equals("mkbranch")) { 
-                        ; // if type is create branch then skip
+                        // if type is create branch then skip
                  } else {
                      String activityName = details[1];
                      String activityDate = details[2];
@@ -312,7 +312,7 @@ public class UCM implements SourceControl {
             
             // check for contributor activities
             if (activityMod.comment.startsWith("deliver ") && isContributors()) {
-                List contribList = new ArrayList();
+                List contribList;
                 contribList = describeContributors(activityID);
                 Iterator contribIter = contribList.iterator();
                 while (contribIter.hasNext()) {
@@ -346,7 +346,7 @@ public class UCM implements SourceControl {
             new Thread(errorPumper).start();
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
-            String line = null;
+            String line;
             
             while (((line = br.readLine()) != null) && (!br.equals(""))) {   
                 String[] details = getDetails(line);
@@ -411,7 +411,7 @@ public class UCM implements SourceControl {
 
              InputStreamReader isr = new InputStreamReader(p.getInputStream());
              BufferedReader br = new BufferedReader(isr);
-             String line = null;
+             String line;
              
              while ((line = br.readLine()) != null) {
                  String[] contribs = splitOnSpace(line);

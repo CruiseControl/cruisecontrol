@@ -230,7 +230,7 @@ public class AccurevCommandline extends EnvCommandline implements AccurevInputPa
    * @return true if there are no parsing errors.
    */
   public boolean execute(AccurevInputParser inputParser) {
-    Process proc = null;
+    Process proc;
     boolean error = false;
     try {
       proc = super.execute();
