@@ -47,31 +47,35 @@ package net.sourceforge.cruisecontrol.sourcecontrols.accurev;
 
 /**
  * Enumerates the commands used in the plugins.
- * 
+ *
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public class AccurevCommand {
-  public static final AccurevCommand UPDATE   = new AccurevCommand("update");
-  public static final AccurevCommand KEEP     = new AccurevCommand("keep");
-  public static final AccurevCommand SYNCTIME = new AccurevCommand("synctime");
-  public static final AccurevCommand HELP     = new AccurevCommand("help");
-  public static final AccurevCommand SHOW     = new AccurevCommand("show");
-  public static final AccurevCommand HIST     = new AccurevCommand("hist");
-  private String                     commandName;
-  public AccurevCommand(String commandName) {
-    this.commandName = commandName;
-  }
-  public String toString() {
-    return commandName;
-  }
-  public AccurevCommandline create() {
-    return new AccurevCommandline(this);
-  }
-  public AccurevCommandline create(Runner runner) {
-    AccurevCommandline cmd = new AccurevCommandline(this);
-    if (runner != null) {
-      cmd.setRunner(runner);
+    public static final AccurevCommand UPDATE = new AccurevCommand("update");
+    public static final AccurevCommand KEEP = new AccurevCommand("keep");
+    public static final AccurevCommand SYNCTIME = new AccurevCommand("synctime");
+    public static final AccurevCommand HELP = new AccurevCommand("help");
+    public static final AccurevCommand SHOW = new AccurevCommand("show");
+    public static final AccurevCommand HIST = new AccurevCommand("hist");
+    private String commandName;
+
+    public AccurevCommand(String commandName) {
+        this.commandName = commandName;
     }
-    return cmd;
-  }
+
+    public String toString() {
+        return commandName;
+    }
+
+    public AccurevCommandline create() {
+        return new AccurevCommandline(this);
+    }
+
+    public AccurevCommandline create(Runner runner) {
+        AccurevCommandline cmd = new AccurevCommandline(this);
+        if (runner != null) {
+            cmd.setRunner(runner);
+        }
+        return cmd;
+    }
 }

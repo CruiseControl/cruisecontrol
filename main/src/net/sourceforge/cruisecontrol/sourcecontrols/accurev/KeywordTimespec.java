@@ -47,27 +47,30 @@ package net.sourceforge.cruisecontrol.sourcecontrols.accurev;
 
 /**
  * Implements a keyword timespec. It can be either "now" or "highest".
- * 
+ *
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public final class KeywordTimespec extends Timespec {
-  private String keyword;
-  /**
-   * Creates a new KeywordTimespec given the keyword and the count
-   * 
-   * @param keyword
-   */
-  public KeywordTimespec(String keyword, int count) {
-    super(count);
-    this.keyword = keyword;
-  }
-  public KeywordTimespec(String keyword) {
-    this.keyword = keyword;
-  }
-  /**
-   * Returns the representation of the keyword as a string
-   */
-  public String format() {
-    return keyword;
-  }
+    private String keyword;
+
+    /**
+     * Creates a new KeywordTimespec given the keyword and the count
+     *
+     * @param keyword
+     */
+    public KeywordTimespec(String keyword, int count) {
+        super(count);
+        this.keyword = keyword;
+    }
+
+    public KeywordTimespec(String keyword) {
+        this.keyword = keyword;
+    }
+
+    /**
+     * Returns the representation of the keyword as a string
+     */
+    public String format() {
+        return keyword;
+    }
 }

@@ -47,21 +47,22 @@ package net.sourceforge.cruisecontrol.sourcecontrols.accurev;
 
 /**
  * Executes (or emulates execution) of an external program, and parses the output.
- * 
+ *
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public interface Runner {
-  /**
-   * Executes the program or the script
-   * 
-   * @param inputParser
-   * @return true if the output has no errors
-   */
-  public boolean execute(AccurevInputParser inputParser);
-  /**
-   * Returns the last return code from the last process
-   * 
-   * @return the process return code
-   */
-  public int getReturnCode();
+    /**
+     * Executes the program or the script
+     *
+     * @param inputParser
+     * @return true if the output has no errors
+     */
+    public boolean execute(AccurevInputParser inputParser);
+
+    /**
+     * Returns the last return code from the last process
+     *
+     * @return the process return code
+     */
+    public int getReturnCode();
 }
