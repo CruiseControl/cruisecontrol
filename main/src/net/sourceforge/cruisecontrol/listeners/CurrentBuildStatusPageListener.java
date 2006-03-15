@@ -84,7 +84,6 @@ public class CurrentBuildStatusPageListener
      */
     public CurrentBuildStatusPageListener() {
         sourceText.add(DEFAULT_TEXT);
-        return;
     }
 
 
@@ -104,8 +103,6 @@ public class CurrentBuildStatusPageListener
         String result = substituteText(hist, stateChanged.getProjectName());
         history.add(0, hist);
         writeFile(result);
-
-        return;
     }
 
 
@@ -165,7 +162,7 @@ public class CurrentBuildStatusPageListener
 
             src = src.substring(idx); // Trim off preceding text
 
-            int skiplen = 0;
+            int skiplen;
 
             if (src.toLowerCase().startsWith(KEY_PROJECT)) {
                 result.append(projectName);
@@ -261,8 +258,6 @@ public class CurrentBuildStatusPageListener
 
             sourceText = readSource();
         }
-
-        return;
     }
 
 
@@ -307,7 +302,7 @@ public class CurrentBuildStatusPageListener
 
         try {
             reader = new BufferedReader(new FileReader(sourceFile));
-            String line = null;
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 result.add(line);
@@ -337,6 +332,5 @@ public class CurrentBuildStatusPageListener
     public void setSourceFile(String fileName) {
         sourceFile = new File(fileName);
         LOG.debug("set sourceFile = " + fileName);
-        return;
     }
 }

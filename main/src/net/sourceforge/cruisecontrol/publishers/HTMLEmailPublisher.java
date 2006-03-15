@@ -437,7 +437,6 @@ public class HTMLEmailPublisher extends EmailPublisher {
             messageBuffer.append(result);
         } catch (Exception e) {
             LOG.error("error transforming with xslFile " + xsl.getName(), e);
-            return;
         }
     }
     protected String transformFile(Source logFile, TransformerFactory tFactory, Source xsl)
@@ -459,7 +458,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         messageBuffer.append("<html><head>\n");
         String baseUrl = getBuildResultsURL();
         if (baseUrl != null) {
-            messageBuffer.append("<base href=\"" + baseUrl + "\">\n");
+            messageBuffer.append("<base href=\"").append(baseUrl).append("\">\n");
         }
         messageBuffer.append("<style>\n");
 

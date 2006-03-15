@@ -438,7 +438,9 @@ public class Commandline implements Cloneable {
         return getCommandline().length;
     }
 
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
+        super.clone();
+        
         Commandline c = new Commandline();
         c.setExecutable(executable);
         c.addArguments(getArguments());

@@ -75,26 +75,26 @@ public class Schedule {
     /** date formatting for time statements */
     private final DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
 
-    /** @deprecated */
+    /** @deprecated Use add(Builder) instead */
     public void addBuilder(Builder builder) {
-        checkParamNotNull("builder", builder);
-        builders.add(builder);
+        add(builder);
     }
 
     public void add(Builder builder) {
         // FIXME see if we can improve this
         if (builder instanceof PauseBuilder) {
-            this.addPauseBuilder((PauseBuilder) builder);
+            checkParamNotNull("pauseBuilder", builder);
+            pauseBuilders.add(builder);
         } else {
-            this.addBuilder(builder);
+            checkParamNotNull("builder", builder);
+            builders.add(builder);
         }
         //builders.add(builder);
     }
 
-    /** @deprecated */
+    /** @deprecated Use add(Builder) instead*/
     public void addPauseBuilder(PauseBuilder pauseBuilder) {
-        checkParamNotNull("pauseBuilder", pauseBuilder);
-        pauseBuilders.add(pauseBuilder);
+        add(pauseBuilder);
     }
 
     /**
@@ -222,8 +222,7 @@ public class Schedule {
         long startOfToday = now.getTime() - timeMillis;
         boolean lastBuildYesterday = lastBuild.getTime() < startOfToday;
         boolean lastBuildTimeBeforeBuildTime = DateUtil.getTimeFromDate(lastBuild) < buildTime;
-        boolean didntBuildToday = lastBuildYesterday || lastBuildTimeBeforeBuildTime;
-        return didntBuildToday;
+        return lastBuildYesterday || lastBuildTimeBeforeBuildTime;
     }
 
     long getTimeToNextBuild(Date now, long sleepInterval) {
@@ -421,8 +420,7 @@ public class Schedule {
 
     private Date getFutureDate(Date now, long delay) {
         long futureMillis = now.getTime() + delay;
-        Date futureDate = new Date(futureMillis);
-        return futureDate;
+        return new Date(futureMillis);
     }
 
     public void setInterval(long intervalBetweenModificationChecks) {

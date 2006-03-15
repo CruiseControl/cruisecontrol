@@ -169,9 +169,8 @@ public class PVCS implements SourceControl {
             LOG.error("Error in executing the PVCS command : ", e);
             return new ArrayList();
         }
-        List modifications = makeModificationsList();
 
-        return modifications;
+        return makeModificationsList();
     }
 
     String getExecutable(String exe) {
@@ -308,7 +307,7 @@ public class PVCS implements SourceControl {
                 // we're in this state after we've got the last useful line
                 // from the previous item, but haven't yet started a new one
                 // -- we should just skip these lines till we start a new one
-                return;
+                //return
             } else if (line.startsWith("Workfile:")) {
                 modification.createModifiedFile(line.substring(18), null);
             } else if (line.startsWith("Archive created:")) {
@@ -357,8 +356,7 @@ public class PVCS implements SourceControl {
                 if (firstUserName) {
                     String sub = line.substring(11);
                     StringTokenizer st = new StringTokenizer(sub, " ");
-                    String username = st.nextToken().trim();
-                    modification.userName = username;
+                    modification.userName = st.nextToken().trim();
                     firstUserName = false;
                     nextLineIsComment = true;
                 }

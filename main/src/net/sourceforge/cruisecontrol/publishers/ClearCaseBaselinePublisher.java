@@ -200,7 +200,6 @@ public class ClearCaseBaselinePublisher implements Publisher {
     */
     public void publish(Element log) throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(log);
-        String baselinename = null;
 
         // only publish if the build includes UCM activities
         if (!shouldPublish(log)) {
@@ -208,6 +207,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
         }
 
         // should the baselinename include the prefix?
+        String baselinename;
         if (getBaselineprefix() != null) {
             baselinename = getBaselineprefix() + helper.getLabel();
         } else {

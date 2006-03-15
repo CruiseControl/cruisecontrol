@@ -141,10 +141,7 @@ public class BuildStatus implements SourceControl {
         try {
             File[] newLogs = logDirectory.listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
-                    if (name.compareTo(filename) > 0 && Log.wasSuccessfulBuild(name)) {
-                        return true;
-                    }
-                    return false;
+                    return name.compareTo(filename) > 0 && Log.wasSuccessfulBuild(name);
                 }
             });
 

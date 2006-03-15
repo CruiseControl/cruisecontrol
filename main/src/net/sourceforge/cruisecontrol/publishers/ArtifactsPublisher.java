@@ -101,8 +101,7 @@ public class ArtifactsPublisher implements Publisher {
         if (subdirectory != null) {
             targetDir = timestamp + File.separatorChar + subdirectory;
         }
-        File destinationDirectory = new File(destDir, targetDir);
-        return destinationDirectory;
+        return new File(destDir, targetDir);
     }
 
     void publishFile(File uniqueDest) throws CruiseControlException {

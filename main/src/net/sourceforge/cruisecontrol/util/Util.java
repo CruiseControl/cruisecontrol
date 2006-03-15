@@ -99,13 +99,11 @@ public final class Util {
 
     public static boolean isWindows() {
         String osName = Util.getOsName();
-        boolean isWindows = osName.indexOf("Windows") > -1;
-        return isWindows;
+        return osName.indexOf("Windows") > -1;
     }
 
     public static String getOsName() {
-        String osName = System.getProperty("os.name");
-        return osName;
+        return System.getProperty("os.name");
     }
 
     /**

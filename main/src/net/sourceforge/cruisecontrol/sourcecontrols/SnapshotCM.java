@@ -284,7 +284,7 @@ public class SnapshotCM implements SourceControl {
         }
 
         // ignore next 5 lines.
-        String nextToken = null;
+        String nextToken;
         do {
             nextToken = st.nextToken();
         } while (!(nextToken).equals(REVISION_HEADER));

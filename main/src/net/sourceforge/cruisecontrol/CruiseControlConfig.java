@@ -95,18 +95,18 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         }
 
         public boolean isEmpty() {
-            boolean parentIsEmpty = parent == null ? true : parent.isEmpty();
+            boolean parentIsEmpty = parent == null || parent.isEmpty();
             return parentIsEmpty && thisMap.isEmpty();
         }
 
         public boolean containsKey(Object key) {
             return thisMap.containsKey(key)
-                || (parent == null ? false : parent.containsKey(key));
+                || (parent != null && parent.containsKey(key));
         }
 
         public boolean containsValue(Object value) {
             return thisMap.containsValue(value)
-                || (parent == null ? false : parent.containsValue(value));
+                || (parent != null && parent.containsValue(value));
         }
 
         public Object get(Object key) {

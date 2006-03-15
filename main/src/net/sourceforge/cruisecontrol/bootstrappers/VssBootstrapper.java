@@ -114,13 +114,13 @@ public class VssBootstrapper implements Bootstrapper {
         // check for leading "$", to be argument-compatible with other tasks
         if (vssPath != null) {
             String pathPrefix = vssPath.startsWith("$") ? "" : "$";
-            commandLine.append(quote + pathPrefix + vssPath + quote);
+            commandLine.append(quote).append(pathPrefix).append(vssPath).append(quote);
         }
         commandLine.append(" -GL");
-        commandLine.append(quote + localDirectory + quote);
+        commandLine.append(quote).append(localDirectory).append(quote);
         commandLine.append(" -I-N");
         if (login != null) {
-            commandLine.append(" -Y" + login);
+            commandLine.append(" -Y").append(login);
         }
 
         return commandLine.toString();

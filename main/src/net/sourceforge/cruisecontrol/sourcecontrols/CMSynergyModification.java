@@ -232,28 +232,28 @@ public class CMSynergyModification extends Modification {
         SimpleDateFormat formatter =
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
-        
-        sb.append("Task Number: " + taskNumber + "\n");
-        sb.append("Owner: " + userName + "\n");
-        sb.append("Release: " + revision + "\n");
-        sb.append("Completion Date: " + formatter.format(modifiedTime) + "\n");
-        sb.append("Synopsis: " + comment + "\n");
+
+        sb.append("Task Number: ").append(taskNumber).append("\n");
+        sb.append("Owner: ").append(userName).append("\n");
+        sb.append("Release: ").append(revision).append("\n");
+        sb.append("Completion Date: ").append(formatter.format(modifiedTime)).append("\n");
+        sb.append("Synopsis: ").append(comment).append("\n");
 
         Iterator i = changeRequests.iterator();
         while (i.hasNext()) {
             ChangeRequest cr = (ChangeRequest) i.next();
-            sb.append("\tChange Request: " + cr.number + "\n");
+            sb.append("\tChange Request: ").append(cr.number).append("\n");
         }
 
         i = files.iterator();
         while (i.hasNext()) {
             ModifiedObject obj = (ModifiedObject) i.next();
-            sb.append("\tAssociated Object: " + obj.name + "\n");
-            sb.append("\tVersion: " + obj.version + "\n");
-            sb.append("\tType: " + obj.type + "\n");
-            sb.append("\tInstance: " + obj.instance + "\n");
-            sb.append("\tProject: " + obj.project + "\n");
-            sb.append("\tComment: " + obj.comment + "\n");
+            sb.append("\tAssociated Object: ").append(obj.name).append("\n");
+            sb.append("\tVersion: ").append(obj.version).append("\n");
+            sb.append("\tType: ").append(obj.type).append("\n");
+            sb.append("\tInstance: ").append(obj.instance).append("\n");
+            sb.append("\tProject: ").append(obj.project).append("\n");
+            sb.append("\tComment: ").append(obj.comment).append("\n");
         }
         
         sb.append("\n");

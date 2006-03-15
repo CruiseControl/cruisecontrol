@@ -67,10 +67,6 @@ public class MavenBuilder extends Builder {
     private String goal;
     private String mavenScript;
     private long timeout = ScriptRunner.NO_TIMEOUT;
-    // We must produce an Ant-like log, but it's a little difficult.
-    // Therefore we'll produce <mavengoal> tags containing <message> tags
-    // and adapt accordingly the reporting side.
-    private Element buildLogElement = null; // Global log to produce
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -102,7 +98,7 @@ public class MavenBuilder extends Builder {
 
         long startTime = System.currentTimeMillis();
 
-        buildLogElement = new Element("build");
+        Element buildLogElement = new Element("build");
 
         List runs = getGoalSets();
         for (int runidx = 0; runidx < runs.size(); runidx++) {

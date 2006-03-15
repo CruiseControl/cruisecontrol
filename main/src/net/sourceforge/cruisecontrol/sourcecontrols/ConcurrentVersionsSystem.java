@@ -702,7 +702,6 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 break;
             }
 
-            nextLine.length();
             StringTokenizer tokens = new StringTokenizer(nextLine, " ");
             tokens.nextToken();
             String revision = tokens.nextToken();

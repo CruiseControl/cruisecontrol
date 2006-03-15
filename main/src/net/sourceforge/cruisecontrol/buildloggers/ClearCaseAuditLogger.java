@@ -106,12 +106,12 @@ public class ClearCaseAuditLogger implements BuildLogger {
                  try {
                      InputStreamReader isr = new InputStreamReader(p.getInputStream());
                      BufferedReader br = new BufferedReader(isr);
-                     String line = null;
+                     String line;
                      while ((line = br.readLine()) != null) {
                          if (line.startsWith("---")) { 
-                             ; // ignore  
+                             // ignore
                          } else if (line.startsWith("MVFS")) { 
-                             ; // ignore  
+                             // ignore  
                          } else {
                              Element doElement = new Element("do");
                              // removing leading characters

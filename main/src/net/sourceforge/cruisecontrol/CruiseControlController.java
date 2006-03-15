@@ -227,8 +227,7 @@ public class CruiseControlController {
 
         try {
             ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
-            Project project = (Project) s.readObject();
-            return project;
+            return (Project) s.readObject();
         } catch (Exception e) {
             LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
             return new Project();

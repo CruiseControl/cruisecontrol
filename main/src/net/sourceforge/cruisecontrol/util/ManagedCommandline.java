@@ -420,7 +420,7 @@ public class ManagedCommandline extends EnvCommandline {
         StringBuffer buff = new StringBuffer();
         while ((line = stdoutStream.readLine()) != null) {
             stdoutLines.add(line);
-            buff.append(line + "\n");
+            buff.append(line).append("\n");
         }
         stdout = buff.toString();
 
@@ -428,7 +428,7 @@ public class ManagedCommandline extends EnvCommandline {
         buff.setLength(0);
         while ((line = stderrStream.readLine()) != null) {
             stderrLines.add(line);
-            buff.append(line + "\n");
+            buff.append(line).append("\n");
         }
         stderr = buff.toString();
 

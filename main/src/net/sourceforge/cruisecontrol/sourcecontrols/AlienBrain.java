@@ -169,10 +169,8 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
         ManagedCommandline cmdLine = buildGetModificationsCommand(lastBuild, now);
         LOG.debug("Executing: " + cmdLine.toString());
         cmdLine.execute();
-        
-        List mods = parseModifications(cmdLine.getStdoutAsList());
-        
-        return mods;
+
+        return parseModifications(cmdLine.getStdoutAsList());
     }
    
     /**

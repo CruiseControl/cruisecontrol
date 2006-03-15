@@ -50,10 +50,7 @@ public class OnFailurePublisher extends ConditionalPublisher {
      */
     public boolean shouldPublish(Element log) {
         XMLLogHelper helper = new XMLLogHelper(log);
-        if (helper.isBuildSuccessful()) {
-            return false;
-        }
-        return true;
+        return !helper.isBuildSuccessful();
     }
 
 }

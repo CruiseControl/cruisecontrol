@@ -120,8 +120,7 @@ public final class DateUtil {
     public static long convertToMillis(int hhmm) {
         int minutes = hhmm % 100;
         int hours = (hhmm - minutes) / 100;
-        long milliseconds = hours * ONE_HOUR + minutes * ONE_MINUTE;
-        return milliseconds;
+        return hours * ONE_HOUR + minutes * ONE_MINUTE;
     }
 
     /**
@@ -137,13 +136,13 @@ public final class DateUtil {
 
         StringBuffer sb = new StringBuffer();
         if (hours != 0) {
-            sb.append(hours + " hours ");
+            sb.append(hours).append(" hours ");
         }
         if (minutes != 0) {
-            sb.append(minutes + " minutes ");
+            sb.append(minutes).append(" minutes ");
         }
         if (seconds != 0) {
-            sb.append(seconds + " seconds");
+            sb.append(seconds).append(" seconds");
         }
 
         return sb.toString();

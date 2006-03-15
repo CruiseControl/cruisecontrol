@@ -536,9 +536,8 @@ public class Vss implements SourceControl {
      */
     public String parseUser(String userLine) {
         final int userIndex = "User: ".length();
-        String userName = userLine.substring(userIndex, userLine.indexOf("Date: ") - 1).trim();
 
-        return userName;
+        return userLine.substring(userIndex, userLine.indexOf("Date: ") - 1).trim();
     }
 
     /**
