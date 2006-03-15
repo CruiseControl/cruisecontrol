@@ -103,7 +103,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  * Extends <cod>EnvCommandline</code> by adding stdout and stderr
  * stream handling as well as some assertions to check for proper
  * execution of the command.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
 public class ManagedCommandline extends EnvCommandline {
@@ -134,11 +134,11 @@ public class ManagedCommandline extends EnvCommandline {
      * The stderr from the command as a List of output lines
      */
     private List stderrLines  = new ArrayList();
-    
+
     /**
      * Constructor which takes a command line string and attempts
      * to parse it into it's various components.
-     * 
+     *
      * @param command The command
      */
     public ManagedCommandline(String command) {
@@ -151,19 +151,19 @@ public class ManagedCommandline extends EnvCommandline {
     public ManagedCommandline() {
         super();
     }
-    
+
     /**
      * Returns the exit code of the command as reported by the OS.
-     * 
+     *
      * @return The exit code of the command
      */
     public int getExitCode() {
         return exitCode;
     }
-    
+
     /**
      * Returns the stdout from the command as a String
-     * 
+     *
      * @return The standard output of the command as a <code>String</code>
      */
     public String getStdoutAsString() {
@@ -173,7 +173,7 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * Returns the stdout from the command as a List of Strings where each
      * String is one line of the output.
-     * 
+     *
      * @return The standard output of the command as a <code>List</code> of
      *         output lines.
      */
@@ -183,7 +183,7 @@ public class ManagedCommandline extends EnvCommandline {
 
     /**
      * Returns the stderr from the command as a String
-     * 
+     *
      * @return The standard error of the command as a <code>String</code>
      */
     public String getStderrAsString() {
@@ -193,7 +193,7 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * Returns the stderr from the command as a List of Strings where each
      * String is one line of the error.
-     * 
+     *
      * @return The standard error of the command as a <code>List</code> of
      *         output lines.
      */
@@ -202,7 +202,7 @@ public class ManagedCommandline extends EnvCommandline {
     }
 
     /**
-     * Clear out the whole command line.  
+     * Clear out the whole command line.
      */
     public void clear() {
         super.clear();
@@ -221,15 +221,15 @@ public class ManagedCommandline extends EnvCommandline {
         stderrLines.clear();
         super.clearArgs();
     }
-    
+
     /**
      * Asserts that the stdout of the command does not contain a
-     * given <code>String</code>. Throws a 
+     * given <code>String</code>. Throws a
      * <code>CruiseControlException</code> if it does.
-     * 
+     *
      * @param string
      *            The forbidden <code>String</code>
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertStdoutDoesNotContain(String string) throws CruiseControlException {
@@ -246,15 +246,15 @@ public class ManagedCommandline extends EnvCommandline {
                     + stderr);
         }
     }
-    
+
     /**
      * Asserts that the stdout of the command contains a
-     * given <code>String</code>. Throws a 
+     * given <code>String</code>. Throws a
      * <code>CruiseControlException</code> if it does not.
-     * 
+     *
      * @param string
      *            The required <code>String</code>
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertStdoutContains(String string) throws CruiseControlException {
@@ -274,12 +274,12 @@ public class ManagedCommandline extends EnvCommandline {
 
     /**
      * Asserts that the stderr of the command does not contain a
-     * given <code>String</code>. Throws a 
+     * given <code>String</code>. Throws a
      * <code>CruiseControlException</code> if it does.
-     * 
+     *
      * @param string
      *            The forbidden <code>String</code>
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertStderrDoesNotContain(String string) throws CruiseControlException {
@@ -296,14 +296,14 @@ public class ManagedCommandline extends EnvCommandline {
                     + stderr);
         }
     }
-    
+
     /**
      * Asserts that the exit code of the command matches an expected value.
      * Throws a <code>CruiseControlException</code> if it does not.
-     * 
+     *
      * @param code
      *            The expected exit code of the command
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertExitCode(int code) throws CruiseControlException {
@@ -326,10 +326,10 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * Asserts that the exit code of the command is not a given value. Throws a
      * <code>CruiseControlException</code> if it is.
-     * 
+     *
      * @param code
      *            The expected exit code of the command
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertExitCodeNot(int code) throws CruiseControlException {
@@ -350,10 +350,10 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * Asserts that the exit code of the command is greater than a given value.
      * Throws a <code>CruiseControlException</code> if it is not.
-     * 
+     *
      * @param code
      *            The expected exit code of the command
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertExitCodeGreaterThan(int code)
@@ -377,10 +377,10 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * Asserts that the exit code of the command is less than a given value.
      * Throws a <code>CruiseControlException</code> if it is not.
-     * 
+     *
      * @param code
      *            The expected exit code of the command
-     * 
+     *
      * @throws CruiseControlException
      */
     public void assertExitCodeLessThan(int code)
@@ -400,7 +400,7 @@ public class ManagedCommandline extends EnvCommandline {
                     + stderr);
         }
     }
-    
+
     /**
      * Executes the command.
      */
@@ -408,7 +408,7 @@ public class ManagedCommandline extends EnvCommandline {
 
         // Execute the command using the specified environment
         Process proc = super.execute();
-        
+
         // Capture the output of the command
         BufferedReader stdoutStream = new BufferedReader(new InputStreamReader(
                 proc.getInputStream()));
@@ -420,7 +420,7 @@ public class ManagedCommandline extends EnvCommandline {
         StringBuffer buff = new StringBuffer();
         while ((line = stdoutStream.readLine()) != null) {
             stdoutLines.add(line);
-            buff.append(line).append("\n");
+            buff.append(line).append('\n');
         }
         stdout = buff.toString();
 
@@ -428,7 +428,7 @@ public class ManagedCommandline extends EnvCommandline {
         buff.setLength(0);
         while ((line = stderrStream.readLine()) != null) {
             stderrLines.add(line);
-            buff.append(line).append("\n");
+            buff.append(line).append('\n');
         }
         stderr = buff.toString();
 
@@ -443,7 +443,7 @@ public class ManagedCommandline extends EnvCommandline {
         // Close down our streams
         stdoutStream.close();
         stderrStream.close();
-        
+
         // Set the exit code
         exitCode = proc.exitValue();
 

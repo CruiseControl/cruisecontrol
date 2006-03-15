@@ -244,12 +244,12 @@ public class Modification implements Comparable {
         SimpleDateFormat formatter =
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
-        sb.append("Type: ").append(type).append("\n");
-        sb.append("Last Modified: ").append(formatter.format(modifiedTime)).append("\n");
-        sb.append("Revision: ").append(revision).append("\n");
-        sb.append("UserName: ").append(userName).append("\n");
-        sb.append("EmailAddress: ").append(emailAddress).append("\n");
-        sb.append("Comment: ").append(comment).append("\n");
+        sb.append("Type: ").append(type).append('\n');
+        sb.append("Last Modified: ").append(formatter.format(modifiedTime)).append('\n');
+        sb.append("Revision: ").append(revision).append('\n');
+        sb.append("UserName: ").append(userName).append('\n');
+        sb.append("EmailAddress: ").append(emailAddress).append('\n');
+        sb.append("Comment: ").append(comment).append('\n');
         return sb.toString();
     }
 
@@ -346,7 +346,7 @@ public class Modification implements Comparable {
         }
         return code;
     }
-    
+
     private int fileHashComponent() {
         int code = 1;
         for (int i = 0; i < files.size(); i++) {
@@ -390,26 +390,26 @@ public class Modification implements Comparable {
             }
         }
     }
-    
+
     /**
-     * Concatenates the folderName and fileName of the Modification into a 
-     * <code>String</code>. If the folderName is null then it is not included. 
-     * All backward slashes ("\") are converted to forward slashes 
+     * Concatenates the folderName and fileName of the Modification into a
+     * <code>String</code>. If the folderName is null then it is not included.
+     * All backward slashes ("\") are converted to forward slashes
      * ("/").
-     *  
-     * @return A <code>String</code> containing the full path 
+     *
+     * @return A <code>String</code> containing the full path
      *         of the modification
      */
     public String getFullPath() {
         StringBuffer result = new StringBuffer();
         String folderName = getFolderName();
-        
+
         if (folderName != null) {
             result.append(folderName).append("/");
         }
-        
+
         result.append(getFileName());
         return result.toString().replace('\\', '/');
     }
-    
+
 }

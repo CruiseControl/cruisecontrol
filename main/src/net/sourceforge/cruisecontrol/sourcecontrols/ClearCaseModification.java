@@ -79,7 +79,7 @@ public class ClearCaseModification extends Modification {
                 modificationElement.addContent(labelElement);
             }
         }
-    
+
         if (attributes != null) {
             for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
                 String attName = (String) it.next();
@@ -98,13 +98,13 @@ public class ClearCaseModification extends Modification {
         StringBuffer sb = new StringBuffer(super.toString());
 
         for (Iterator it = labels.iterator(); it.hasNext(); ) {
-            sb.append("Tag: ").append(it.next()).append("\n");
+            sb.append("Tag: ").append(it.next()).append('\n');
         }
 
         for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
             String attName = (String) it.next();
             String attValue = (String) attributes.get(attName);
-            sb.append("Attribute: ").append(attName).append(" = ").append(attValue).append("\n");
+            sb.append("Attribute: ").append(attName).append(" = ").append(attValue).append('\n');
         }
 
         return sb.toString();
@@ -113,13 +113,13 @@ public class ClearCaseModification extends Modification {
     public void log(DateFormat formatter) {
         if (LOG.isDebugEnabled()) {
             super.log(formatter);
-    
+
             if (labels != null) {
                 for (Iterator it = labels.iterator(); it.hasNext(); ) {
                     LOG.debug("Tag: " + it.next());
                 }
             }
-    
+
             if (attributes != null) {
                 for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
                     String attName = (String) it.next();
@@ -127,7 +127,7 @@ public class ClearCaseModification extends Modification {
                     LOG.debug("Attribute: " + attName + " = " + attValue);
                 }
             }
-    
+
             LOG.debug("");
             LOG.debug("");
         }
@@ -135,7 +135,7 @@ public class ClearCaseModification extends Modification {
 
     public void fromElement(Element modification, DateFormat formatter) {
         super.fromElement(modification, formatter);
-        
+
         List modLabels = modification.getChildren(TAGNAME_LABEL);
         if (modLabels != null && modLabels.size() > 0) {
             labels = new Vector();
