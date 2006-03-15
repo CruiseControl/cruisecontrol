@@ -54,23 +54,23 @@ import net.sourceforge.cruisecontrol.Modification;
 /**
  * Data structure which holds data specific to a single modification
  * within a CM Synergy repository.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
 public class CMSynergyModification extends Modification {
-    
+
     private static final Logger LOG = Logger.getLogger(CMSynergyModification.class);
-    
+
     private static final String MODIFICATION_TYPE = "ccmtask";
     private static final String TAGNAME_MODIFICATION = "modification";
-    private static final String TAGNAME_OBJECT = "ccmobject";   
-    private static final String TAGNAME_CHANGEREQUEST = "ccmcr";    
-    private static final String TAGNAME_NAME = "name";  
-    private static final String TAGNAME_TASKNUMBER = "task";    
-    private static final String TAGNAME_VERSION = "version";    
-    private static final String TAGNAME_TYPE = "type";  
-    private static final String TAGNAME_INSTANCE = "instance";  
-    private static final String TAGNAME_PROJECT = "project";    
+    private static final String TAGNAME_OBJECT = "ccmobject";
+    private static final String TAGNAME_CHANGEREQUEST = "ccmcr";
+    private static final String TAGNAME_NAME = "name";
+    private static final String TAGNAME_TASKNUMBER = "task";
+    private static final String TAGNAME_VERSION = "version";
+    private static final String TAGNAME_TYPE = "type";
+    private static final String TAGNAME_INSTANCE = "instance";
+    private static final String TAGNAME_PROJECT = "project";
     private static final String TAGNAME_COMMENT = "comment";
     private static final String TAGNAME_DATE = "date";
     private static final String TAGNAME_USER = "user";
@@ -79,12 +79,12 @@ public class CMSynergyModification extends Modification {
     private static final String TAGNAME_HTML_LINK = "a";
     private static final String TAGNAME_HTML_LINK_HREF = "href";
     private static final String TAGNAME_HTML_INS = "ins";
-    
+
     /**
      * The CM Synergy task number represented by this modification
      */
     public String taskNumber;
-    
+
     /**
      * A list of change requests associated with this modification
      */
@@ -101,7 +101,7 @@ public class CMSynergyModification extends Modification {
     /**
      * Creates a new <code>ModifiedObject</code>, and adds it to the list of
      * CM Synergy objects associated with the task.
-     * 
+     *
      * @return A new <code>ModifiedObject</code>
      */
     public final ModifiedObject createModifiedObject() {
@@ -109,11 +109,11 @@ public class CMSynergyModification extends Modification {
         files.add(obj);
         return obj;
     }
-    
+
     /**
      * Creates a new <code>ModifiedObject</code>, populates the fields, and
      * adds it to the list of CM Synergy objects associated with the task.
-     * 
+     *
      * @param name
      *            The object's name
      * @param version
@@ -126,7 +126,7 @@ public class CMSynergyModification extends Modification {
      *            The project with which the object is associated
      * @param comment
      *            The comment provided when checking in the object
-     * 
+     *
      * @return A new <code>ModifiedObject</code>
      */
     public final ModifiedObject createModifiedObject(String name,
@@ -141,13 +141,13 @@ public class CMSynergyModification extends Modification {
         obj.comment = comment;
         return obj;
     }
-    
+
     /**
      * Creates a new <code>ChangeRequest</code>, and adds it to the list of
      * change requests associated with the task.
-     * 
+     *
      * @param number The CR number
-     * 
+     *
      * @return A new <code>ChangeRequest</code>
      */
     public final ChangeRequest createChangeRequest(String number) {
@@ -155,11 +155,11 @@ public class CMSynergyModification extends Modification {
         cr.number = number;
         changeRequests.add(cr);
         return cr;
-    }    
+    }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.sourceforge.cruisecontrol.Modification#toElement(java.text.DateFormat)
      */
     public Element toElement(DateFormat formatter) {
@@ -224,7 +224,7 @@ public class CMSynergyModification extends Modification {
 
         return modificationElement;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
@@ -233,30 +233,30 @@ public class CMSynergyModification extends Modification {
             new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
 
-        sb.append("Task Number: ").append(taskNumber).append("\n");
-        sb.append("Owner: ").append(userName).append("\n");
-        sb.append("Release: ").append(revision).append("\n");
-        sb.append("Completion Date: ").append(formatter.format(modifiedTime)).append("\n");
-        sb.append("Synopsis: ").append(comment).append("\n");
+        sb.append("Task Number: ").append(taskNumber).append('\n');
+        sb.append("Owner: ").append(userName).append('\n');
+        sb.append("Release: ").append(revision).append('\n');
+        sb.append("Completion Date: ").append(formatter.format(modifiedTime)).append('\n');
+        sb.append("Synopsis: ").append(comment).append('\n');
 
         Iterator i = changeRequests.iterator();
         while (i.hasNext()) {
             ChangeRequest cr = (ChangeRequest) i.next();
-            sb.append("\tChange Request: ").append(cr.number).append("\n");
+            sb.append("\tChange Request: ").append(cr.number).append('\n');
         }
 
         i = files.iterator();
         while (i.hasNext()) {
             ModifiedObject obj = (ModifiedObject) i.next();
-            sb.append("\tAssociated Object: ").append(obj.name).append("\n");
-            sb.append("\tVersion: ").append(obj.version).append("\n");
-            sb.append("\tType: ").append(obj.type).append("\n");
-            sb.append("\tInstance: ").append(obj.instance).append("\n");
-            sb.append("\tProject: ").append(obj.project).append("\n");
-            sb.append("\tComment: ").append(obj.comment).append("\n");
+            sb.append("\tAssociated Object: ").append(obj.name).append('\n');
+            sb.append("\tVersion: ").append(obj.version).append('\n');
+            sb.append("\tType: ").append(obj.type).append('\n');
+            sb.append("\tInstance: ").append(obj.instance).append('\n');
+            sb.append("\tProject: ").append(obj.project).append('\n');
+            sb.append("\tComment: ").append(obj.comment).append('\n');
         }
-        
-        sb.append("\n");
+
+        sb.append('\n');
         return sb.toString();
     }
 
@@ -270,13 +270,13 @@ public class CMSynergyModification extends Modification {
             LOG.debug("Release: " + revision);
             LOG.debug("Completion Date: " + formatter.format(modifiedTime));
             LOG.debug("Synopsis: " + comment);
-            
+
             Iterator i = changeRequests.iterator();
             while (i.hasNext()) {
                 ChangeRequest cr = (ChangeRequest) i.next();
                 LOG.debug("\tChange Request: " + cr.number + "\n");
             }
-            
+
             i = files.iterator();
             while (i.hasNext()) {
                 ModifiedObject obj = (ModifiedObject) i.next();
@@ -287,11 +287,11 @@ public class CMSynergyModification extends Modification {
                 LOG.debug("\tProject: " + obj.project);
                 LOG.debug("\tComment: " + obj.comment);
             }
-            
+
             LOG.debug("");
         }
     }
-    
+
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
      */
@@ -327,7 +327,7 @@ public class CMSynergyModification extends Modification {
                 files.add(modfile);
             }
         }
-        
+
         changeRequests.clear();
         List crs = modification.getChildren(TAGNAME_CHANGEREQUEST);
         if (crs != null) {
@@ -355,7 +355,7 @@ public class CMSynergyModification extends Modification {
     /**
      * Data structure which holds data specific to a single object included in a
      * modification within a CM Synergy repository.
-     * 
+     *
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
      */
     public class ModifiedObject {
@@ -412,7 +412,7 @@ public class CMSynergyModification extends Modification {
 
             return element;
         }
-        
+
         /* (non-Javadoc)
          * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
          */
@@ -425,18 +425,18 @@ public class CMSynergyModification extends Modification {
              comment = modification.getChildText(TAGNAME_COMMENT);
         }
     }
-    
+
     /**
      * Data structure which holds data specific to a Change Request associated
      * with a modification within a CM Synergy repository.
-     * 
+     *
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
      */
     public class ChangeRequest {
-        
+
         public String href = null;
         public String number = "";
-        
+
         // Only the parent class should call the constructor
         protected ChangeRequest() {
         }
@@ -457,10 +457,10 @@ public class CMSynergyModification extends Modification {
                 insElement.addContent(number);
                 element.addContent(insElement);
             }
-            
+
             return element;
         }
-        
+
         /* (non-Javadoc)
          * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
          */

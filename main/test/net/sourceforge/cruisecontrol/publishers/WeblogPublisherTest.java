@@ -422,14 +422,14 @@ public class WeblogPublisherTest extends TestCase {
     private File createTempXslFile() throws IOException {
         File f = createTempFile();
         StringBuffer buf = new StringBuffer();
-        buf.append("<?xml version='1.0'?>").append("\n");
+        buf.append("<?xml version='1.0'?>").append('\n');
         buf.append("<xsl:stylesheet");
         buf.append(" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"");
-        buf.append(" version=\"1.0\">").append("\n");
-        buf.append("<xsl:output method=\"text\"/>").append("\n");
+        buf.append(" version=\"1.0\">").append('\n');
+        buf.append("<xsl:output method=\"text\"/>").append('\n');
         buf.append("<xsl:template match=\"/\">");
         buf.append("<xsl:value-of select=\"just\"/>");
-        buf.append("</xsl:template>").append("\n");
+        buf.append("</xsl:template>").append('\n');
         buf.append("</xsl:stylesheet>");
 
         Writer out = new FileWriter(f);
