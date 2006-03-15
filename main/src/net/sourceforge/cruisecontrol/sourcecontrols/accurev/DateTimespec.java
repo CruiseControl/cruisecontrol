@@ -59,43 +59,48 @@ import java.util.GregorianCalendar;
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public class DateTimespec extends Timespec {
-  private static final Logger         LOG             = Logger.getLogger(DateTimespec.class);
-  private static final String     DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
-  /** Convenience constant containing the KewordTimespec "now" */
-  public static final KeywordTimespec NOW             = new KeywordTimespec("now");
-  private Date                        date;
+    private static final Logger LOG = Logger.getLogger(DateTimespec.class);
+    private static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    /**
+     * Convenience constant containing the KewordTimespec "now"
+     */
+    public static final KeywordTimespec NOW = new KeywordTimespec("now");
+    private Date date;
 
-  /**
-   * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form)
-   *
-   * @param date
-   *          the timespec date
-   */
-  public DateTimespec(Date date) {
-    this.date = date;
-  }
-  /**
-   * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form) containing the current time
-   * "shifted" by the given amount of seconds
-   *
-   * @param secondsFromNow
-   *          distance in seconds from "now" (e.g. 3600 means "one hour from now", -60 means "one
-   *          minute ago").
-   */
-  public DateTimespec(int secondsFromNow) {
-    Calendar calendar = new GregorianCalendar();
-    calendar.add(Calendar.SECOND, secondsFromNow);
-    this.date = calendar.getTime();
-  }
-  /**
-   * Returns the formatted date
-   *
-   * @return the formatted date if date is not null or a blank string ig the date is null
-   */
-  public String format() {
-    if (date == null) { return ""; }
-      return new SimpleDateFormat(DATETIME_FORMAT).format(date);
-  }
+    /**
+     * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form)
+     *
+     * @param date the timespec date
+     */
+    public DateTimespec(Date date) {
+        this.date = date;
+    }
+
+    /**
+     * Creates a new DateTimespec without count (yyyy/MM/dd HH:mm:ss form) containing the current time
+     * "shifted" by the given amount of seconds
+     *
+     * @param secondsFromNow distance in seconds from "now" (e.g. 3600 means "one hour from now", -60 means "one
+     *                       minute ago").
+     */
+    public DateTimespec(int secondsFromNow) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.add(Calendar.SECOND, secondsFromNow);
+        this.date = calendar.getTime();
+    }
+
+    /**
+     * Returns the formatted date
+     *
+     * @return the formatted date if date is not null or a blank string ig the date is null
+     */
+    public String format() {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat(DATETIME_FORMAT).format(date);
+    }
+
     /**
      * Parses a date from Accurev in the format <code>YYYY/MM/DD hh:mm:ss</code>
      *
@@ -104,11 +109,11 @@ public class DateTimespec extends Timespec {
      * @return a new Date whose value reflects the date string
      */
     public static Date parse(String date) {
-      try {
-        return new SimpleDateFormat(DATETIME_FORMAT).parse(date);
-      } catch (ParseException e) {
-        LOG.error("Error parsing date " + date + " using format" + DATETIME_FORMAT);
-        return null;
-      }
+        try {
+            return new SimpleDateFormat(DATETIME_FORMAT).parse(date);
+        } catch (ParseException e) {
+            LOG.error("Error parsing date " + date + " using format" + DATETIME_FORMAT);
+            return null;
+        }
     }
 }

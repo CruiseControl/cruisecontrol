@@ -36,13 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import org.apache.log4j.Logger;
-import java.io.IOException;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -60,278 +60,341 @@ import java.util.List;
  */
 public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
-   public void validate() throws CruiseControlException { /* nothing is required */ }
+    private static final Logger LOG = Logger.getLogger(SSCM.class);
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
-   public void setBranch(String str)               { strparamBranch.setData(str); }
-   public void setRepository(String str)           { strparamRepository.setData(str); }
-   public void setFile(String str)                 { strparamFile.setData(str); }
-   public void setServerConnect(String str)        { strparamServerConnect.setData(str); }
-   public void setServerLogin(String str)          { strparamServerLogin.setData(str); }
+    private SSCMCLIStringParam strparamBranch = new SSCMCLIStringParam("branch", "-b", false);
+    private SSCMCLIStringParam strparamRepository = new SSCMCLIStringParam("repository", "-p", false);
+    private SSCMCLIStringParam strparamFile = new SSCMCLIStringParam("file", "", false);
+    private SSCMCLIStringParam strparamServerConnect = new SSCMCLIStringParam("serverconnect", "-z", false);
+    private SSCMCLIStringParam strparamServerLogin = new SSCMCLIStringParam("serverlogin", "-y", false);
+    private SSCMCLIBoolParam fparamSearchRegExp = new SSCMCLIBoolParam("searchregexp", "-x", false);
+    private SSCMCLIBoolParam fparamRecursive = new SSCMCLIBoolParam("recursive", "-r", false);
 
-   public void setSearchRegExp(String str)         { if (str.equals("1")) { fparamSearchRegExp.setData(null); } }
-   public void setRecursive(String str)            { if (str.equals("1")) { fparamRecursive.setData(null); } }
+    private Hashtable hashProperties = new Hashtable();
+    private String strProperty = null;
+    
+    public void validate() throws CruiseControlException { /* nothing is required */ }
 
-   private static final Logger LOG = Logger.getLogger(SSCM.class);
-   private final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+    public void setBranch(String str) {
+        strparamBranch.setData(str);
+    }
 
-   private SSCMCLIStringParam strparamBranch = new SSCMCLIStringParam("branch", "-b", false);
-   private SSCMCLIStringParam strparamRepository = new SSCMCLIStringParam("repository", "-p", false);
-   private SSCMCLIStringParam strparamFile = new SSCMCLIStringParam("file", "", false);
-   private SSCMCLIStringParam strparamServerConnect = new SSCMCLIStringParam("serverconnect", "-z", false);
-   private SSCMCLIStringParam strparamServerLogin = new SSCMCLIStringParam("serverlogin", "-y", false);
-   private SSCMCLIBoolParam   fparamSearchRegExp = new SSCMCLIBoolParam("searchregexp", "-x", false);
-   private SSCMCLIBoolParam   fparamRecursive = new SSCMCLIBoolParam("recursive", "-r", false);
+    public void setRepository(String str) {
+        strparamRepository.setData(str);
+    }
 
-   private Hashtable hashProperties = new Hashtable();
-   private String strProperty = null;
+    public void setFile(String str) {
+        strparamFile.setData(str);
+    }
 
-   public List getModifications(Date lastBuild, Date now) {
-      java.util.List paramList = new java.util.ArrayList();
-      if (!strparamFile.isSet()) { strparamFile.setData("/");  }
-      paramList.add(strparamFile);
-      paramList.add(strparamBranch);
-      paramList.add(strparamRepository);
-      paramList.add(fparamRecursive);
-      paramList.add(fparamSearchRegExp);
-      paramList.add(strparamServerLogin);
-      paramList.add(strparamServerConnect);
+    public void setServerConnect(String str) {
+        strparamServerConnect.setData(str);
+    }
 
-      List listMods = executeCLICommand(paramList, buildDateTimeRangeCLIParam(lastBuild,  now));
+    public void setServerLogin(String str) {
+        strparamServerLogin.setData(str);
+    }
 
-      if (listMods == null) { listMods = Collections.EMPTY_LIST; }
-      if (listMods.size() > 0 && strProperty != null) { hashProperties.put(strProperty, "true"); }
+    public void setSearchRegExp(String str) {
+        if (str.equals("1")) {
+            fparamSearchRegExp.setData(null);
+        }
+    }
 
-      return listMods;
-   }
+    public void setRecursive(String str) {
+        if (str.equals("1")) {
+            fparamRecursive.setData(null);
+        }
+    }
 
-   public Hashtable getProperties() {
-      return (hashProperties);
-   }
+    public List getModifications(Date lastBuild, Date now) {
+        java.util.List paramList = new java.util.ArrayList();
+        if (!strparamFile.isSet()) {
+            strparamFile.setData("/");
+        }
+        paramList.add(strparamFile);
+        paramList.add(strparamBranch);
+        paramList.add(strparamRepository);
+        paramList.add(fparamRecursive);
+        paramList.add(fparamSearchRegExp);
+        paramList.add(strparamServerLogin);
+        paramList.add(strparamServerConnect);
 
-   public void setProperty(String property) {
-      strProperty = property;
-   }
+        List listMods = executeCLICommand(paramList, buildDateTimeRangeCLIParam(lastBuild, now));
 
-   protected List executeCLICommand(java.util.List paramList, String strDTRangeParam) {
-      List listMods = null;
-      StringBuffer strbufferCmdLine = new StringBuffer("sscm cc ");
+        if (listMods == null) {
+            listMods = Collections.EMPTY_LIST;
+        }
+        if (listMods.size() > 0 && strProperty != null) {
+            hashProperties.put(strProperty, "true");
+        }
 
-      // Next, we just iterate through the list, adding entries.
-      boolean fAllRequirementsMet = true;
-      for (int i = 0; i < paramList.size() && fAllRequirementsMet; ++i) {
-         SSCMCLIParam param = (SSCMCLIParam) paramList.get(i);
-         if (param != null) {
-            if (param.checkRequired()) {
-               String str = param.getFormatted();
-               if (str != null) {
-                  strbufferCmdLine.append(str);
-                  strbufferCmdLine.append(' ');
-            }  } else {
-               fAllRequirementsMet = false;
-               LOG.error("Required parameter '" + param.getParamName() + "' is missing!");
-      }  }  }
+        return listMods;
+    }
 
-      if (fAllRequirementsMet) {
-         strbufferCmdLine.append(' ');
-         strbufferCmdLine.append(strDTRangeParam);
-         strbufferCmdLine.append(' ');
+    public Hashtable getProperties() {
+        return (hashProperties);
+    }
 
-         LOG.debug("\n" + strbufferCmdLine + "\n");
+    public void setProperty(String property) {
+        strProperty = property;
+    }
 
-         try {
-            Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
-            new Thread(new StreamPumper(process.getErrorStream())).start();
+    protected List executeCLICommand(java.util.List paramList, String strDTRangeParam) {
+        List listMods = null;
+        StringBuffer strbufferCmdLine = new StringBuffer("sscm cc ");
 
-            InputStream input = process.getInputStream();
-            listMods = parseCLIOutput(input);
+        // Next, we just iterate through the list, adding entries.
+        boolean fAllRequirementsMet = true;
+        for (int i = 0; i < paramList.size() && fAllRequirementsMet; ++i) {
+            SSCMCLIParam param = (SSCMCLIParam) paramList.get(i);
+            if (param != null) {
+                if (param.checkRequired()) {
+                    String str = param.getFormatted();
+                    if (str != null) {
+                        strbufferCmdLine.append(str);
+                        strbufferCmdLine.append(' ');
+                    }
+                } else {
+                    fAllRequirementsMet = false;
+                    LOG.error("Required parameter '" + param.getParamName() + "' is missing!");
+                }
+            }
+        }
 
-            process.waitFor();
+        if (fAllRequirementsMet) {
+            strbufferCmdLine.append(' ');
+            strbufferCmdLine.append(strDTRangeParam);
+            strbufferCmdLine.append(' ');
 
-            process.getInputStream().close();
-            process.getOutputStream().close();
-            process.getErrorStream().close();
-         } catch (IOException e) {
-            LOG.error("Problem trying to execute command line process", e);
-         } catch (InterruptedException e) {
-            LOG.error("Problem trying to execute command line process", e);
-         }
-      }
+            LOG.debug("\n" + strbufferCmdLine + "\n");
 
-      return listMods;
-   }
+            try {
+                Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
+                new Thread(new StreamPumper(process.getErrorStream())).start();
 
-   protected List parseCLIOutput(InputStream input) throws IOException {
-      List listMods = new ArrayList();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                InputStream input = process.getInputStream();
+                listMods = parseCLIOutput(input);
 
-      String line = reader.readLine();
+                process.waitFor();
 
-      // -meh. Kind of lame, but total-0 will work.
-      if (!"total-0".equals(line)) {
-         while ((line = reader.readLine()) != null) {
-             Modification mod = parseOutputLine(line);
-             if (mod != null) { listMods.add(mod); }
-         }
-      }
+                process.getInputStream().close();
+                process.getOutputStream().close();
+                process.getErrorStream().close();
+            } catch (IOException e) {
+                LOG.error("Problem trying to execute command line process", e);
+            } catch (InterruptedException e) {
+                LOG.error("Problem trying to execute command line process", e);
+            }
+        }
 
-      return listMods;
-   }
+        return listMods;
+    }
 
-   protected Modification parseOutputLine(String str) {
-      LOG.debug("Output-" + str + "-\n");
+    protected List parseCLIOutput(InputStream input) throws IOException {
+        List listMods = new ArrayList();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-      if (str == null || str.length() == 0) { return null; }
-      Modification mod = new Modification("sscm");
-      Modification.ModifiedFile modfile = mod.createModifiedFile(null, null);
+        String line = reader.readLine();
 
-      boolean fValid = false;
-      String strToken = "><";
-      int iLeft = 1;
+        // -meh. Kind of lame, but total-0 will work.
+        if (!"total-0".equals(line)) {
+            while ((line = reader.readLine()) != null) {
+                Modification mod = parseOutputLine(line);
+                if (mod != null) {
+                    listMods.add(mod);
+                }
+            }
+        }
 
-      // Repository
-      int iRight = str.indexOf(strToken, iLeft);
-      if (iRight > iLeft) {
-         modfile.folderName = str.substring(iLeft, iRight);
-         iLeft = iRight + strToken.length();
+        return listMods;
+    }
 
-         // Filename
-         iRight = str.indexOf(strToken, iLeft);
-         if (iRight > iLeft) {
-            modfile.fileName = str.substring(iLeft, iRight);
+    protected Modification parseOutputLine(String str) {
+        LOG.debug("Output-" + str + "-\n");
+
+        if (str == null || str.length() == 0) {
+            return null;
+        }
+        Modification mod = new Modification("sscm");
+        Modification.ModifiedFile modfile = mod.createModifiedFile(null, null);
+
+        boolean fValid = false;
+        String strToken = "><";
+        int iLeft = 1;
+
+        // Repository
+        int iRight = str.indexOf(strToken, iLeft);
+        if (iRight > iLeft) {
+            modfile.folderName = str.substring(iLeft, iRight);
             iLeft = iRight + strToken.length();
 
-            // Revision
+            // Filename
             iRight = str.indexOf(strToken, iLeft);
             if (iRight > iLeft) {
-               mod.revision = str.substring(iLeft, iRight);
-               iLeft = iRight + strToken.length();
+                modfile.fileName = str.substring(iLeft, iRight);
+                iLeft = iRight + strToken.length();
 
-               // Event
-               iRight = str.indexOf(strToken, iLeft);
-               if (iRight > iLeft) {
-                  modfile.action = str.substring(iLeft, iRight);
-                  iLeft = iRight + strToken.length();
+                // Revision
+                iRight = str.indexOf(strToken, iLeft);
+                if (iRight > iLeft) {
+                    mod.revision = str.substring(iLeft, iRight);
+                    iLeft = iRight + strToken.length();
 
-                  // Date
-                  iRight = str.indexOf(strToken, iLeft);
-                  if (iRight > iLeft) {
-                     mod.modifiedTime = buildDateTimeFromCLIOutput(str.substring(iLeft, iRight));
-                     iLeft = iRight + strToken.length();
-
-                     // Comment
-                     iRight = str.indexOf(strToken, iLeft);
-                     if (iRight >= iLeft) {
-                        mod.comment = str.substring(iLeft, iRight);
+                    // Event
+                    iRight = str.indexOf(strToken, iLeft);
+                    if (iRight > iLeft) {
+                        modfile.action = str.substring(iLeft, iRight);
                         iLeft = iRight + strToken.length();
 
-                        // User
+                        // Date
                         iRight = str.indexOf(strToken, iLeft);
                         if (iRight > iLeft) {
-                           mod.userName = str.substring(iLeft, iRight);
-                           iLeft = iRight + strToken.length();
+                            mod.modifiedTime = buildDateTimeFromCLIOutput(str.substring(iLeft, iRight));
+                            iLeft = iRight + strToken.length();
 
-                           // Email
-                           iRight = str.indexOf(">", iLeft);
-                           if (iRight > iLeft) {
-                              mod.emailAddress = str.substring(iLeft, iRight);
-                              fValid = true;
+                            // Comment
+                            iRight = str.indexOf(strToken, iLeft);
+                            if (iRight >= iLeft) {
+                                mod.comment = str.substring(iLeft, iRight);
+                                iLeft = iRight + strToken.length();
 
-                              if (strProperty != null) { hashProperties.put(strProperty, "true"); }
-                           }
+                                // User
+                                iRight = str.indexOf(strToken, iLeft);
+                                if (iRight > iLeft) {
+                                    mod.userName = str.substring(iLeft, iRight);
+                                    iLeft = iRight + strToken.length();
+
+                                    // Email
+                                    iRight = str.indexOf(">", iLeft);
+                                    if (iRight > iLeft) {
+                                        mod.emailAddress = str.substring(iLeft, iRight);
+                                        fValid = true;
+
+                                        if (strProperty != null) {
+                                            hashProperties.put(strProperty, "true");
+                                        }
+                                    }
+                                }
+                            }
                         }
-                     }
-                  }
-               }
+                    }
+                }
             }
-         }
-      }
+        }
 
-      if (!fValid) { 
-          mod = null; 
-          LOG.debug("Invalid output; skipping this entry");
-      }
-      return (mod);
-   }
+        if (!fValid) {
+            mod = null;
+            LOG.debug("Invalid output; skipping this entry");
+        }
+        return (mod);
+    }
 
-   protected String buildDateTimeRangeCLIParam(Date lastBuild, Date now) {
-      String strLast = formatter.format(lastBuild);
-      String strNow = formatter.format(now);
-      return "-d" + strLast + ":" + strNow;
-   }
+    protected String buildDateTimeRangeCLIParam(Date lastBuild, Date now) {
+        String strLast = formatter.format(lastBuild);
+        String strNow = formatter.format(now);
+        return "-d" + strLast + ":" + strNow;
+    }
 
-   protected Date buildDateTimeFromCLIOutput(String str) {
-      Date dt;
-      try {
-         dt = formatter.parse(str);
-      } catch (ParseException e) {
-         dt = null;
-         LOG.error("Unable to parse DateTime from Surround", e);
-      }
-      return dt;
-   }
+    protected Date buildDateTimeFromCLIOutput(String str) {
+        Date dt;
+        try {
+            dt = formatter.parse(str);
+        } catch (ParseException e) {
+            dt = null;
+            LOG.error("Unable to parse DateTime from Surround", e);
+        }
+        return dt;
+    }
 
-   public abstract static class SSCMCLIParam {
-      public SSCMCLIParam(String strParamNameIN, String strParamIN, boolean fIsRequiredIN) {
-         strParamName = strParamNameIN;
-         strParam = strParamIN;
-         fIsRequired = fIsRequiredIN;
-         fIsSet = false;
-      }
+    public abstract static class SSCMCLIParam {
+        public SSCMCLIParam(String strParamNameIN, String strParamIN, boolean fIsRequiredIN) {
+            strParamName = strParamNameIN;
+            strParam = strParamIN;
+            fIsRequired = fIsRequiredIN;
+            fIsSet = false;
+        }
 
-      public String getParamName() { return (strParamName); }
-      public String getParam() { return (strParam); }
+        public String getParamName() {
+            return (strParamName);
+        }
 
-      public void setRequired(boolean f) { fIsRequired = f; }
-      public boolean isRequired() { return fIsRequired; }
-      public boolean isSet() { return fIsSet; }
-      
-      public boolean checkRequired() {
-          return !(isRequired() && !isSet()); 
-      }
-      
-      public abstract String getFormatted();
-      public abstract void setData(Object obj);
+        public String getParam() {
+            return (strParam);
+        }
 
-      protected void setSet(boolean f) { fIsSet = f; }
+        public void setRequired(boolean f) {
+            fIsRequired = f;
+        }
 
-      private String strParamName;
-      private String strParam;
-      private boolean fIsRequired;
-      private boolean fIsSet;
-   }
+        public boolean isRequired() {
+            return fIsRequired;
+        }
 
-   public static class SSCMCLIBoolParam extends SSCMCLIParam {
-      public SSCMCLIBoolParam(String strParamNameIN, String strParamIN, boolean fIsRequiredIN) {
-         super(strParamNameIN, strParamIN, fIsRequiredIN); }
+        public boolean isSet() {
+            return fIsSet;
+        }
 
-      public void setData(Object obj) { 
-          fData = true;
-          setSet(true);
-      }
+        public boolean checkRequired() {
+            return !(isRequired() && !isSet());
+        }
 
-      public String getFormatted() {
-         String str = null;
-         if (isSet() && fData) { str = getParam(); }
-         return str;
-      }
+        public abstract String getFormatted();
 
-      private boolean fData;
-   }
+        public abstract void setData(Object obj);
 
-   public static class SSCMCLIStringParam extends SSCMCLIParam {
-      public SSCMCLIStringParam(String strParamNameIN, String strParamIN, boolean fIsRequiredIN) {
-         super(strParamNameIN, strParamIN, fIsRequiredIN); }
+        protected void setSet(boolean f) {
+            fIsSet = f;
+        }
 
-      public void setData(Object obj) { strData = (String) obj; setSet(true); }
+        private String strParamName;
+        private String strParam;
+        private boolean fIsRequired;
+        private boolean fIsSet;
+    }
 
-      public String getFormatted() {
-         String str = null;
-         if (isSet()) { str = getParam() + strData; }
-         return str;
-      }
+    public static class SSCMCLIBoolParam extends SSCMCLIParam {
+        public SSCMCLIBoolParam(String strParamNameIN, String strParamIN, boolean fIsRequiredIN) {
+            super(strParamNameIN, strParamIN, fIsRequiredIN);
+        }
 
-      private String strData;
-   }
+        public void setData(Object obj) {
+            fData = true;
+            setSet(true);
+        }
+
+        public String getFormatted() {
+            String str = null;
+            if (isSet() && fData) {
+                str = getParam();
+            }
+            return str;
+        }
+
+        private boolean fData;
+    }
+
+    public static class SSCMCLIStringParam extends SSCMCLIParam {
+        public SSCMCLIStringParam(String strParamNameIN, String strParamIN, boolean fIsRequiredIN) {
+            super(strParamNameIN, strParamIN, fIsRequiredIN);
+        }
+
+        public void setData(Object obj) {
+            strData = (String) obj;
+            setSet(true);
+        }
+
+        public String getFormatted() {
+            String str = null;
+            if (isSet()) {
+                str = getParam() + strData;
+            }
+            return str;
+        }
+
+        private String strData;
+    }
 
 }
 
