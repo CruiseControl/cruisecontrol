@@ -64,7 +64,9 @@ public class PropertyFileLabelIncrementer implements LabelIncrementer {
             throw new RuntimeException(msg);
         } finally {
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception ex) {
             }
         }

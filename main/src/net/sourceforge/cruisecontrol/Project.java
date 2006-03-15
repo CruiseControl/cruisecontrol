@@ -97,7 +97,6 @@ public class Project implements Serializable, Runnable {
     private String buildTarget = null;
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
-    private transient Thread projectSchedulingThread;
     private boolean stopped = true;
 
     public Project() {
@@ -397,9 +396,7 @@ public class Project implements Serializable, Runnable {
         long timeDifference = lastBuildLong - lastSuccessfulBuild.getTime();
         boolean moreThanASecond = timeDifference > DateUtil.ONE_SECOND;
 
-        boolean checkNewMods = !buildAfterFailed && moreThanASecond;
-
-        return checkNewMods;
+        return !buildAfterFailed && moreThanASecond;
     }
 
     /**
@@ -650,7 +647,7 @@ public class Project implements Serializable, Runnable {
         }
         addProperty(infoElement, "label", label);
         addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));
-        addProperty(infoElement, "lastbuildsuccessful", new Boolean(wasLastBuildSuccessful).toString());
+        addProperty(infoElement, "lastbuildsuccessful", Boolean.toString(wasLastBuildSuccessful));
         
         return infoElement;
     }
@@ -689,8 +686,8 @@ public class Project implements Serializable, Runnable {
                 publisher.publish(projectConfig.getLog().getContent());
             } catch (Throwable t) {
                 StringBuffer message = new StringBuffer("exception publishing results");
-                message.append(" with " + publisher.getClass().getName());
-                message.append(" for project " + name);
+                message.append(" with ").append(publisher.getClass().getName());
+                message.append(" for project ").append(name);
                 LOG.error(message.toString(), t);
             }
         }
@@ -754,7 +751,7 @@ public class Project implements Serializable, Runnable {
     }
 
     protected void createNewSchedulingThread() {
-        projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
+        Thread projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
         projectSchedulingThread.start();
     }
 
@@ -829,7 +826,7 @@ public class Project implements Serializable, Runnable {
             } catch (CruiseControlException e) {
                 StringBuffer message = new StringBuffer("exception notifying listener ");
                 message.append(listener.getClass().getName());
-                message.append(" for project " + name);
+                message.append(" for project ").append(name);
                 LOG.error(message.toString(), e);
             }
         }

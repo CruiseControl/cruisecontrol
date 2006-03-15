@@ -74,7 +74,6 @@ public class CruiseControlControllerAgent {
     private NamingServiceMBean rmiRegistry;
     private JMXConnectorServer connectorServer;
     private int connectorServerPort;
-    private CruiseControlControllerJMXAdaptor controllerAdaptor;
     private String path;
     private String user;
     private String password;
@@ -84,7 +83,7 @@ public class CruiseControlControllerAgent {
         this.httpPort = httpPort;
         this.connectorServerPort = connectorServerPort;
         path = xslPath;
-        this.controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
+        CruiseControlControllerJMXAdaptor controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
         this.user = user;
         this.password = password;
 

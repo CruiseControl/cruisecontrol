@@ -45,26 +45,24 @@
  */
 package net.sourceforge.cruisecontrol.sourcecontrols.accurev;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import java.io.IOException;
 import java.io.InputStream;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * Interface for Accurev stdout parsers.
- * 
+ *
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public interface AccurevInputParser {
-  /**
-   * Reads and validates Accurev's stdout as its input stream.
-   * 
-   * @param accurevOutput
-   *          accurev's STDOUT
-   * @return true if the inputstream (Accurev output) does not contain errors.
-   * @throws IOException
-   *           if the iStream is not readable
-   * @throws CruiseControlException
-   *           if fatal errors are found
-   */
-  public boolean parseStream(InputStream accurevOutput) throws IOException, CruiseControlException;
+    /**
+     * Reads and validates Accurev's stdout as its input stream.
+     *
+     * @param accurevOutput accurev's STDOUT
+     * @return true if the inputstream (Accurev output) does not contain errors.
+     * @throws IOException            if the iStream is not readable
+     * @throws CruiseControlException if fatal errors are found
+     */
+    public boolean parseStream(InputStream accurevOutput) throws IOException, CruiseControlException;
 }

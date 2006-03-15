@@ -601,7 +601,7 @@ public class WeblogPublisher implements Publisher {
     private void validateURL(String fieldName, String url)
             throws CruiseControlException {
         try {
-            URL validUrl = new URL(url);
+            new URL(url);
         } catch (MalformedURLException e) {
             throw new CruiseControlException(fieldName
                     + " must be a valid URL: " + url);
@@ -729,8 +729,6 @@ public class WeblogPublisher implements Publisher {
     /**
      * Creates the subject for the blog entry.
      * 
-     * @param logHelper
-     *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return <code>String</code> containing the subject line.
      */
     String createSubject(String projectName, String label,
@@ -755,12 +753,10 @@ public class WeblogPublisher implements Publisher {
     /**
      * Create the text to be blogged.
      * 
-     * @param logHelper
-     *            utility object that has parsed the log files
      * @return created message; empty string if logDir not set
      */
     String createMessage(String projectName, String logFileName) {
-        String message = "";
+        String message;
         File inFile = null;
         try {
             if (logDir == null) {
@@ -769,7 +765,7 @@ public class WeblogPublisher implements Publisher {
             inFile = new File(logDir, logFileName);
             message = transform(inFile);
         } catch (Exception ex) {
-            LOG.error("error transforming " + inFile.getAbsolutePath(), ex);
+            LOG.error("error transforming " + (inFile != null ? inFile.getAbsolutePath() : ""), ex);
             message = createLinkLine(logFileName);
         }
         return message;

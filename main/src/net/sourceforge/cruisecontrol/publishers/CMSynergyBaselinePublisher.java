@@ -176,7 +176,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         // Log the success
         StringBuffer message = new StringBuffer("Created baseline");
         if (baselineName != null) {
-            message.append(" " + baselineName);
+            message.append(" ").append(baselineName);
         }
         message.append(".");
         LOG.info(message.toString());        

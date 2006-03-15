@@ -129,7 +129,7 @@ public class OSEnvironment {
      * Parses the OS environment and makes the environment
      * variables available through the getter methods
      */
-    private final void parse() {
+    private void parse() {
 
         String command;
 

@@ -106,11 +106,7 @@ public abstract class Builder implements Comparable {
      * @param multiple
      */
     public void setMultiple(int multiple) {
-        if (multiple == NOT_SET) {
-            multipleSet = false;
-        } else {
-            multipleSet = true;
-        }
+        multipleSet = multiple != NOT_SET;
         this.multiple = multiple;
     }
 

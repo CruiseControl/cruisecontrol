@@ -348,7 +348,6 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             int pos = 0;
             for (int j = 0; j < 3; ++j) {
                 StringBuffer sb = new StringBuffer();
-                int quoteCount = 0;
                 boolean neot = true;
                 while (neot) {
                     if (pos >= s.length()) {
@@ -360,12 +359,10 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
                     if (q1 >= 0 && (q1 < q2 || q2 < 0) && (q1 < sp || sp < 0)) {
                         sb.append(s.substring(pos, q1));
                         pos = q1 + 1;
-                        ++quoteCount;
                     } else
                     if (q2 >= 0 && (q2 < q1 || q1 < 0) && (q2 < sp || sp < 0)) {
                         sb.append(s.substring(pos, q2));
                         pos = q2 + 1;
-                        ++quoteCount;
                     } else
                     if (sp >= 0) {
                         // check if we're at the end of the token
@@ -508,7 +505,6 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(stream));
         while ((line = reader.readLine()) != null) {
-            line.trim();
             if (line.startsWith("error:")) {
                 throw new IOException(
                         "Error reading P4 stream: P4 says: " + line);

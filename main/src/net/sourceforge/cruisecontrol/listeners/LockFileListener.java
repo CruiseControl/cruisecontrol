@@ -38,10 +38,7 @@ public class LockFileListener implements Listener {
     }
 
     private boolean projectGotPastBootstrapping(ProjectState newState) {
-        if (newState.equals(ProjectState.MODIFICATIONSET)) {
-            return true;
-        }
-        return false;
+        return newState.equals(ProjectState.MODIFICATIONSET);
     }
 
     public void validate() throws CruiseControlException {

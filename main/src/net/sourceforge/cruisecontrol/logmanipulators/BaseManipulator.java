@@ -92,15 +92,14 @@ public abstract class BaseManipulator implements Manipulator {
         }
 
         public boolean accept(File dir, String name) {
-            boolean result = true;
-            result &= name.startsWith("log");
+            boolean result = name.startsWith("log");
             if (!ignoreSuffix) {
                 result &= name.endsWith(".xml");
             }
             if (result) {
                 try {
                     Date logfileDate = Log.parseDateFromLogFileName(name);
-                    result &= logfileDate.before(logdate);
+                    result = logfileDate.before(logdate);
                 } catch (Exception e) {
                     result = false;
                 }

@@ -126,7 +126,7 @@ public class CruiseControlFeed extends Feed {
         }
     }
 
-    private static final boolean isNotEmpty(String string) {
+    private static boolean isNotEmpty(String string) {
         return string != null && string.trim().length() > 0;
     }
 }

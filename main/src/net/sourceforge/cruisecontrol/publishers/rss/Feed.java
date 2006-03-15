@@ -69,7 +69,7 @@ public class Feed {
     private String channelLanguage = "en-US";
 
     private int maxLength = 20;
-    private List items = new ArrayList();
+    private final List items = new ArrayList();
 
     /**
      *  Constructor

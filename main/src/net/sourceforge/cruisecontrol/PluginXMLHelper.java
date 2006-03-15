@@ -98,7 +98,7 @@ public class PluginXMLHelper {
     private Object instantiatePlugin(Class pluginClass) throws CruiseControlException {
         Object pluginInstance;
         try {
-            pluginInstance = pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
+            pluginInstance = pluginClass.getConstructor(null).newInstance(null);
         } catch (Exception e) {
             LOG.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: "
@@ -175,7 +175,7 @@ public class PluginXMLHelper {
                     LOG.debug("treating child with creator " + childElement.getName());
                     try {
                         Method method = (Method) creators.get(childElement.getName().toLowerCase());
-                        Object childObject = method.invoke(object, (Object[]) null);
+                        Object childObject = method.invoke(object, null);
                         configureObject(childElement, childObject, false);
                     } catch (Exception e) {
                         throw new CruiseControlException(e.getMessage());
@@ -234,7 +234,7 @@ public class PluginXMLHelper {
                     method.invoke(object, new Object[]{Long.valueOf(propValue)});
                 } else if (boolean.class.isAssignableFrom(parameters[0])) {
                     method.invoke(object,
-                            new Object[]{new Boolean(propValue)});
+                            new Object[]{Boolean.valueOf(propValue)});
                 } else {
                     LOG.error("rCouldn't invoke setter " + propName.toLowerCase());
                 }

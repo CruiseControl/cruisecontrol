@@ -33,7 +33,6 @@ public class Maven2Script implements Script, StreamConsumer {
     private String settingsFile;    
     private String flags;
     private Element buildLogElement; //Log to store result of the execution for CC 
-    private Map buildProperties;
     private String activateProfiles;
 
     private int exitCode;
@@ -229,7 +228,6 @@ public class Maven2Script implements Script, StreamConsumer {
      * @param buildProperties The buildProperties to set.
      */
     public void setBuildProperties(Map buildProperties) {
-        this.buildProperties = buildProperties;
     }
     /**
      * @param goalset The goalset to set.

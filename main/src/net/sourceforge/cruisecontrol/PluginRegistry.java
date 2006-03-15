@@ -84,14 +84,14 @@ public final class PluginRegistry implements Serializable {
     /**
      * @return PluginRegistry with the ROOTREGISTRY as its parent.
      */
-    public static final PluginRegistry createRegistry() {
+    public static PluginRegistry createRegistry() {
         return createRegistry(ROOTREGISTRY);
     }
 
     /**
      * @return PluginRegistry with the specified registry as its parent.
      */
-    public static final PluginRegistry createRegistry(PluginRegistry parent) {
+    public static PluginRegistry createRegistry(PluginRegistry parent) {
         return new PluginRegistry(parent);
     }
 
@@ -152,9 +152,7 @@ public final class PluginRegistry implements Serializable {
                         + pluginName + "'; maybe you forgot to specify a classname?");
             }
         }
-        if (pluginClassName == null) {
-            pluginClassName = getPluginClassname(pluginName);
-        }
+        
         Element clonedPluginElement = (Element) pluginElement.clone();
         clonedPluginElement.removeAttribute("name");
         clonedPluginElement.removeAttribute("classname");

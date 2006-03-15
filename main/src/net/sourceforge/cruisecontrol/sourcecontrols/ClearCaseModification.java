@@ -98,13 +98,13 @@ public class ClearCaseModification extends Modification {
         StringBuffer sb = new StringBuffer(super.toString());
 
         for (Iterator it = labels.iterator(); it.hasNext(); ) {
-            sb.append("Tag: " + it.next() + "\n");
+            sb.append("Tag: ").append(it.next()).append("\n");
         }
 
         for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
             String attName = (String) it.next();
             String attValue = (String) attributes.get(attName);
-            sb.append("Attribute: " + attName + " = " + attValue + "\n");
+            sb.append("Attribute: ").append(attName).append(" = ").append(attValue).append("\n");
         }
 
         return sb.toString();

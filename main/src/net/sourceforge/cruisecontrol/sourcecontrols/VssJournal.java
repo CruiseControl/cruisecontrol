@@ -268,9 +268,8 @@ public class VssJournal implements SourceControl {
             mod.comment = parseComment(historyEntry);
 
             String fileName = fileLine.substring(0, fileLine.indexOf(" "));
-            String folderName = folderLine;
 
-            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
             modfile.action = "delete";
             setPropertyOnDelete = true;
 
@@ -280,16 +279,14 @@ public class VssJournal implements SourceControl {
             // I should really make this two modifications.
             mod.comment = parseComment(historyEntry);
             String fileName = fileLine.substring(0, fileLine.indexOf(" "));
-            String folderName = folderLine;
 
-            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
             modfile.action = "delete";
             setPropertyOnDelete = true;
 
         } else {
-            String folderName = folderLine;
             String fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
-            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
 
             mod.comment = parseComment(historyEntry);
 
@@ -324,7 +321,7 @@ public class VssJournal implements SourceControl {
     private String parseComment(List a) {
         StringBuffer comment = new StringBuffer();
         for (int i = 4; i < a.size(); i++) {
-            comment.append(a.get(i) + " ");
+            comment.append(a.get(i)).append(" ");
         }
         return comment.toString().trim();
     }
@@ -389,9 +386,7 @@ public class VssJournal implements SourceControl {
         final int startOfUserName = 6;
 
         try {
-            String userName = userLine.substring(startOfUserName, userLine.indexOf("Date: ") - 1).trim();
-
-            return userName;
+            return userLine.substring(startOfUserName, userLine.indexOf("Date: ") - 1).trim();
         } catch (StringIndexOutOfBoundsException e) {
             LOG.error("Unparsable string was: " + userLine);
             throw e;

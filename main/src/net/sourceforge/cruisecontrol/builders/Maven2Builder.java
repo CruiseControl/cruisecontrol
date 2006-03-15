@@ -33,7 +33,6 @@ public class Maven2Builder extends Builder {
     private String mvnScript;
     private String pomFile;
     private String goal;
-    private Element buildLogElement;
     private String settingsFile;
     private String activateProfiles;
     private long timeout = ScriptRunner.NO_TIMEOUT;
@@ -147,7 +146,7 @@ public class Maven2Builder extends Builder {
 
         long startTime = System.currentTimeMillis();
 
-        buildLogElement = new Element("build");
+        Element buildLogElement = new Element("build");
 
         List goalSets = getGoalSets();
         for (int i = 0; i < goalSets.size(); i++) {
