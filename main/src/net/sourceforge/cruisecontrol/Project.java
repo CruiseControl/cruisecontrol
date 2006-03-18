@@ -647,7 +647,7 @@ public class Project implements Serializable, Runnable {
         }
         addProperty(infoElement, "label", label);
         addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));
-        addProperty(infoElement, "lastbuildsuccessful", Boolean.valueOf(wasLastBuildSuccessful).toString());
+        addProperty(infoElement, "lastbuildsuccessful", String.valueOf(wasLastBuildSuccessful));
         
         return infoElement;
     }
