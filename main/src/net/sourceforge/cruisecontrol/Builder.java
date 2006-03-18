@@ -37,15 +37,17 @@
 
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.jdom.Element;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 public abstract class Builder implements Comparable {
+    private static final Logger LOG = Logger.getLogger(Builder.class);
 
     public static final int NOT_SET = -1;
     protected static final int INVALID_NAME_OF_DAY = -2;
@@ -90,6 +92,7 @@ public abstract class Builder implements Comparable {
             day = Calendar.SATURDAY;
         } else {
             day = INVALID_NAME_OF_DAY;
+            LOG.warn("invalid value for day attribute \"" + dayString + "\"; must be English name for day of week");
         }
     }
 
