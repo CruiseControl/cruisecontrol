@@ -17,6 +17,10 @@ build loop
 ======================
 * Cleaned up incorrect usages of static SimpleDateFormats (CC-422). Proposed by Scott Coplin.
 
+Builder
+----------------------
+* Warn when given invalid value for day attribute.
+
 ClearCaseBaselinePublisher:
 ----------------------
 * New publisher for use with ClearCase UCM (CC-414). Submitted by Kevin Lee.
