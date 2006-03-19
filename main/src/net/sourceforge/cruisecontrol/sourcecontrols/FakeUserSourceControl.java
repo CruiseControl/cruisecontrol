@@ -37,8 +37,8 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -74,5 +74,5 @@ public abstract class FakeUserSourceControl implements SourceControl {
     /**
      * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
      */
-    public abstract Hashtable getProperties();
+    public abstract Map getProperties();
 }

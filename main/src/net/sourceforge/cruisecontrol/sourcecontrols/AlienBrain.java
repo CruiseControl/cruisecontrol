@@ -48,6 +48,7 @@ import java.util.Hashtable;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.io.IOException;
@@ -82,7 +83,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      * Any properties that have been set in this sourcecontrol. 
      * Currently, this would be none.
      */
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
    

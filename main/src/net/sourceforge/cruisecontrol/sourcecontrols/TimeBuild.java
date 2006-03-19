@@ -41,6 +41,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -79,7 +80,7 @@ public class TimeBuild extends FakeUserSourceControl {
         time = Integer.parseInt(timeString);
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

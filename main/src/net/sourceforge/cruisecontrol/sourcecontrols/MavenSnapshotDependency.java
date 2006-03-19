@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -97,7 +98,7 @@ public class MavenSnapshotDependency implements SourceControl {
         this.property = property;
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -67,7 +68,7 @@ public class ForceOnly implements SourceControl {
         // nothing to validate
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return EMPTY_HASHTABLE;
     }
 }

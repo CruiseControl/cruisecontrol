@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This defines a child element for the ModificationSet element.
@@ -133,7 +134,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         return listMods;
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return (hashProperties);
     }
 

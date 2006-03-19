@@ -41,6 +41,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -90,7 +92,7 @@ public class Compound implements SourceControl {
     private Targets targets = null;
     private boolean includeTriggerChanges = false;
     
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return this.properties;
     }
     
@@ -207,7 +209,7 @@ public class Compound implements SourceControl {
             this.parent = parent;
         }
         
-        public Hashtable getProperties() {
+        public Map getProperties() {
             return this.properties;
         }
 

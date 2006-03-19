@@ -510,7 +510,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         cvs.parseStream(input);
         input.close();
 
-        Hashtable table = cvs.getProperties();
+        Map table = cvs.getProperties();
         assertNotNull("Table of properties shouldn't be null.", table);
 
         assertEquals("Should be two properties.", 2, table.size());
@@ -544,7 +544,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         cvs.parseStream(input);
         input.close();
 
-        Hashtable table = cvs.getProperties();
+        Map table = cvs.getProperties();
         assertNotNull("Table of properties shouldn't be null.", table);
 
         assertEquals("Shouldn't be any properties.", 0, table.size());
@@ -562,7 +562,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         cvs.parseStream(input);
         input.close();
 
-        Hashtable table = cvs.getProperties();
+        Map table = cvs.getProperties();
         assertNotNull("Table of properties shouldn't be null.", table);
 
         assertEquals("Should be one property.", 1, table.size());
@@ -594,7 +594,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         cvs.parseStream(input);
         input.close();
 
-        Hashtable table = cvs.getProperties();
+        Map table = cvs.getProperties();
         assertNotNull("Table of properties shouldn't be null.", table);
 
         assertEquals("Should be one property.", 1, table.size());

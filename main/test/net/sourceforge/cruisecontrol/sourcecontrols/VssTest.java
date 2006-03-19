@@ -41,8 +41,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -297,7 +297,7 @@ public class VssTest extends TestCase {
             Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
             assertEquals("rename", modfile.action);
 
-            Hashtable properties = vss.getProperties();
+            Map properties = vss.getProperties();
             String setThisValue = (String) properties.get("setThis");
             assertEquals("true", setThisValue);
         }
@@ -317,7 +317,7 @@ public class VssTest extends TestCase {
         Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
         assertEquals("destroy", modfile.action);
 
-        Hashtable properties = vss.getProperties();
+        Map properties = vss.getProperties();
         String setThisValue = (String) properties.get("setThis");
         assertEquals("true", setThisValue);
     }

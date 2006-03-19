@@ -47,6 +47,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -393,7 +394,7 @@ public class CMSynergy implements SourceControl {
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
      */
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class name is deprecated because of conflicts with specially named cvs folders, specifically within eclipse.
@@ -42,7 +43,7 @@ public class CVS implements SourceControl {
      * @see ConcurrentVersionsSystem
      * @deprecated Use ConcurrentVersionsSystem instead.
      */
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return delegate.getProperties();
     }
 
