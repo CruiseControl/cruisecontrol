@@ -44,30 +44,31 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
 /**
- *  This class implements the SourceControlElement methods for a PVCS
- *  repository.
+ *  This class implements the SourceControlElement methods for a PVCS repository.
  *
  *  @author <a href="mailto:Richard.Wagner@alltel.com">Richard Wagner</a>
+ *  @version $Id$
  */
 public class PVCS implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(PVCS.class);
     private static final String DOUBLE_QUOTE = "\"";
 
-    private Hashtable properties = new Hashtable();
+    private Map properties = new HashMap();
     private Date lastBuild;
 
     private String pvcsbin;
@@ -136,7 +137,7 @@ public class PVCS implements SourceControl {
         this.outDateFormat = new SimpleDateFormat(outDateFormat);
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 
@@ -146,8 +147,8 @@ public class PVCS implements SourceControl {
     }
 
     /**
-     *  Returns an {@link java.util.List List} of {@link Modification}
-     *  detailing all the changes between now and the last build.
+     *  Returns an {@link java.util.List List} of {@link Modification}s detailing all the changes between now
+     *  and the last build.
      *
      *@param  lastBuild the last build time
      *@param  now time now, or time to check

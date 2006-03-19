@@ -133,7 +133,7 @@ public class StarTeam implements SourceControl {
         this.propertyOnDelete = propertyOnDelete;
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

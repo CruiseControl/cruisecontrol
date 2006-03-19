@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -64,7 +65,7 @@ public class HttpFile extends FakeUserSourceControl {
         this.urlString = urlString;
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return new Hashtable();
     }
 

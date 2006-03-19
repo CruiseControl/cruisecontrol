@@ -45,6 +45,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -178,7 +179,7 @@ public class VssJournal implements SourceControl {
         this.lastBuild = lastBuild;
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

@@ -57,6 +57,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * This class handles all VSS-related aspects of determining the modifications since the last good build.
@@ -168,7 +169,7 @@ public class Vss implements SourceControl {
         constructVssDateTimeFormat();
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

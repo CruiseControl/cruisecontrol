@@ -38,8 +38,8 @@
 package net.sourceforge.cruisecontrol;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface defines behavior required by ModificationSet.java when
@@ -62,6 +62,7 @@ import java.util.List;
  *
  * @author <a href="mailto:alden@thoughtworks.com">Alden Almagro</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
+ * @version $Id$
  */
 public interface SourceControl {
 
@@ -84,5 +85,5 @@ public interface SourceControl {
      * build implementation. For example, the Ant builder will define these properties so that
      * the underlying Ant script can use them.
      */
-    public Hashtable getProperties();
+    public Map getProperties();
 }

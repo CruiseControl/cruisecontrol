@@ -91,7 +91,7 @@ public class UCM implements SourceControl {
      *
      * @return Hastable containing properties
      */
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

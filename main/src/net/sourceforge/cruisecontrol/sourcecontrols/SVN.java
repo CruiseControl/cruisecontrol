@@ -65,6 +65,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -99,7 +100,7 @@ public class SVN implements SourceControl {
     private String userName;
     private String password;
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

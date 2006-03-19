@@ -150,7 +150,7 @@ public class P4 implements SourceControl {
         useP4Email = flag;
     }
 
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

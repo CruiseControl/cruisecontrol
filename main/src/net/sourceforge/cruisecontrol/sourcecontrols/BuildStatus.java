@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -96,7 +98,7 @@ public class BuildStatus implements SourceControl {
      *         were no modifications) or four properties (keys are
      *         provided as constants on this class). Never returns null.
      */
-    public Hashtable getProperties() {
+    public Map getProperties() {
         return properties;
     }
 

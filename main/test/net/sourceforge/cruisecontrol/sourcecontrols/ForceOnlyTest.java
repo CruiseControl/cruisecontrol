@@ -36,12 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-
-import java.util.List;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class ForceOnlyTest extends TestCase {
@@ -73,7 +72,7 @@ public class ForceOnlyTest extends TestCase {
     public void testSettingProperties() {
         ForceOnly forceOnly = new ForceOnly();
 
-        Hashtable props = forceOnly.getProperties();
+        Map props = forceOnly.getProperties();
         assertNotNull(props);
         assertEquals("Expected the properties to be empty", 0, props.size());
     }
