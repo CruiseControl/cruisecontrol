@@ -33,9 +33,9 @@ LDAPMapper:
 ----------------------
 * Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
 
-UCM:
+ProjectWrapper:
 ----------------------
-* Add property attribute that gets set if modifications are found (CC-421). Patch by Scott Coplin.
+* Fix problem where forcing a build while build is running will effectively kill the worker thread leading to all projects queued but not building (CC-431). Patch by John Lewis.
 
 Schedule:
 ----------------------
@@ -44,6 +44,10 @@ Schedule:
 SourceControl (Plugin API):
 ----------------------
 * getProperties() now returns a Map instead of a Hashtable
+
+UCM:
+----------------------
+* Add property attribute that gets set if modifications are found (CC-421). Patch by Scott Coplin.
 
 reporting application
 ======================

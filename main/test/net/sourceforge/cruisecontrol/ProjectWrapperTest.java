@@ -14,34 +14,10 @@ public class ProjectWrapperTest extends TestCase {
         MockProject project = new MockProject();
         ProjectWrapper wrapper = new ProjectWrapper(project);
 
-        project.setMockState(ProjectState.QUEUED);
         assertNull(wrapper.getResult());
 
-        project.setMockState(ProjectState.BOOTSTRAPPING);
-        assertNull(wrapper.getResult());
+        wrapper.run();
 
-        project.setMockState(ProjectState.MODIFICATIONSET);
-        assertNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.BUILDING);
-        assertNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.MERGING_LOGS);
-        assertNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.PUBLISHING);
-        assertNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.IDLE);
-        assertNotNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.WAITING);
-        assertNotNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.PAUSED);
-        assertNotNull(wrapper.getResult());
-
-        project.setMockState(ProjectState.STOPPED);
         assertNotNull(wrapper.getResult());
     }
 }
