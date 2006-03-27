@@ -52,6 +52,8 @@ public class ProjectWrapper implements WorkerThread {
 
   private Project myProject = null;
   private static final Logger LOG = Logger.getLogger(ProjectWrapper.class);
+  private boolean doneBuilding;
+  private Object doneBuildingMutex = new Object();
 
   public ProjectWrapper(Project thisProject) {
     if (thisProject == null) {
@@ -63,7 +65,11 @@ public class ProjectWrapper implements WorkerThread {
 
   public void run() {
     LOG.debug("executing project " + myProject.getName());
-    myProject.execute();
+    try {
+        myProject.execute();
+    } finally {
+        setDoneBuilding(true);
+    }
   }
 
   public Object getResult() {
@@ -74,10 +80,16 @@ public class ProjectWrapper implements WorkerThread {
     }
   }
 
+  private void setDoneBuilding(boolean done) {
+    synchronized (doneBuildingMutex) {
+      doneBuilding = done;
+    }
+  }
+
   private boolean doneBuilding() {
-    final ProjectState state = myProject.getState();
-    return state == ProjectState.IDLE || state == ProjectState.WAITING 
-           || state == ProjectState.PAUSED || state == ProjectState.STOPPED;
+    synchronized (doneBuildingMutex) {
+      return doneBuilding;
+    }
   }
 
   public void terminate() {
