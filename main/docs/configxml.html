@@ -2612,13 +2612,15 @@ password=P@ssW0rd!
                <td>all</td>
                <td>No (defaults to false)</td>
                <td>Set when checking the entire view path.
-                   <p>When checking the entire view path this option invokes 'lshistory -all'
-                   instead of 'lshistory -recursive', which is much faster.<p/>
-                   <p>This option is mutually exclusive with the recursive property.<p/>
-                   <p>Note that 'all' does not use your view's config-spec rules. It behaves
+                   When checking the entire view path this option invokes 'lshistory -all'
+                   instead of 'lshistory -recursive', which is much faster.<br/><br/>
+
+                   This option is mutually exclusive with the recursive property.<br/><br/>
+
+                   Note that 'all' does not use your view's config-spec rules. It behaves
                    like having a single line config-spec that selects just ELEMENT * /&lt;branch&gt;/LATEST
                    (i.e. 'lshistory -all' results that contain @@ are discarded). This differs from
-                   'recurse', which only shows items selected by your current view.</p>
+                   'recurse', which only shows items selected by your current view.<br/><br/>
                </td>
             </tr>
             <tr>
@@ -4982,7 +4984,7 @@ endlocal</pre>
         <p>Runs a specified command or script as part of the build. Reports build
            failure if the command cannot be run or returns an error. There is also
            a capability to search for a user defined string in the command output, for example,
-           "build failed" and if so return an error.
+           "build failed" and if so return an error.</p>
 
         <p>See below for <a href="#exec-examples">examples</a> of the
         <code>&lt;exec&gt;</code> element.</p>
@@ -6790,36 +6792,37 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td><a name="parameter"><code>&lt;parameter&gt;</code></a></td>
-                <td>0 .. *</td>
-                <td>Parameters passed to the XSL files before transforming them to HTML. Check
-                    the Reporting application's <a href="../../reporting/jsp/docs/custom.html#XSLT_parameters">
-                    documentation</a> for parameters used in the standard XSL files.
-                    <code>&lt;parameter/&gt;</code> has the following attributes:
-                    <table class="documentation">
-                        <thead>
-                        <tr>
-                            <th>Attribute</th>
-                            <th>Required</th>
-                            <th>Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>name</td>
-                            <td>Yes</td>
-                            <td>the name of the XSLT parameter</td>
-                        </tr>
-                        <tr>
-                            <td>value</td>
-                            <td>Yes</td>
-                            <td>the parameter's value</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
+                <tr>
+                    <td><a name="parameter"><code>&lt;parameter&gt;</code></a></td>
+                    <td>0 .. *</td>
+                    <td>Parameters passed to the XSL files before transforming them to HTML. Check
+                        the Reporting application's <a href="../../reporting/jsp/docs/custom.html#XSLT_parameters">
+                        documentation</a> for parameters used in the standard XSL files.
+                        <code>&lt;parameter/&gt;</code> has the following attributes:
+                        <table class="documentation">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>name</td>
+                                    <td>Yes</td>
+                                    <td>the name of the XSLT parameter</td>
+                                </tr>
+                                <tr>
+                                    <td>value</td>
+                                    <td>Yes</td>
+                                    <td>the parameter's value</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
         </table>
         </div>
 
