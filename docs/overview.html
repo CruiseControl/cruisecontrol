@@ -39,13 +39,12 @@
     <div class="content">
         <h1>Overview</h1>
 
-        <p>CruiseControl is composed of 2 main modules:
+        <p>CruiseControl is composed of 2 main modules:</p>
         <ul>
           <li><a href="../main/docs/index.html">the build loop</a>: core of the system, it triggers build cycles then notifies various listeners (users) using various publishing techniques. The trigger can be internal (scheduled or upon changes in a <acronym title="Source Control Management">SCM</acronym>) or external. It is <a href="../main/docs/configxml.html">configured in a xml file</a> which maps the build cycles to certain tasks, thanks to a system of <a href="../main/docs/plugins.html">plugins</a>. Depending on configuration, it may produce build artifacts.</li>
           <li><a href="../reporting/jsp/docs/index.html">the reporting</a> allows the users to browse the results of the builds and access the artifacts</li>
         </ul>
-        This modularity allows users to install CruiseControl where it will best fit their needs and environment.
-        </p>
+        <p>This modularity allows users to install CruiseControl where it will best fit their needs and environment.</p>
 
         <p>Using remoting technologies (HTTP, RMI), it is possible to control and monitor the CruiseControl build loop. Those are turned off by default for obvious security reasons.</p>
 

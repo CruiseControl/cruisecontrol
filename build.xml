@@ -79,6 +79,12 @@
         </replace>
     </target>
 
+    <target name="validate-website" depends="website">
+        <xmlvalidate failonerror="no">
+            <fileset dir="target/website" includes="**/*.html" excludes="**/api/**"/>
+        </xmlvalidate>
+    </target>
+
     <target name="zip" depends="checklabel,build">
         <mkdir dir="target/zip"/>
         <copy todir="target/zip" overwrite="true">
