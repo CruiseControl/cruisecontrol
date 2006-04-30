@@ -50,6 +50,7 @@ import java.util.Properties;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -67,6 +68,9 @@ import javax.jnlp.ServiceManager;
 import javax.jnlp.BasicService;
 import javax.jnlp.UnavailableServiceException;
 
+/**
+ * Build Agent implementation.
+ */ 
 public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentServiceImpl.class);
@@ -78,6 +82,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     static final String DEFAULT_USER_DEFINED_PROPERTIES_FILE = "user-defined.properties";
 
+    /** Cache host name. */
+    private final String machineName;
+    
     private final Date dateStarted;
     private boolean isBusy;
     private Date dateClaimed;
@@ -86,9 +93,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private boolean isPendingRestart;
     private Date pendingRestartSince;
 
-    private Properties configProperties;
-    private Properties projectProperties = new Properties();
-    private String logDir = "";
+    private Properties configProperties;    
+    private final Map distributedAgentProps = new HashMap();
+    private String logDir;
     private String outputDir;
     private String buildRootDir;
     private String logsFilePath;
@@ -96,16 +103,68 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     private final List agentStatusListeners = new ArrayList();
 
+    private final String logMsgPrefix;
+    /**
+     * Prepends Agent machine name to error message. This is especially
+     * useful when combined with an "email logger" config for Log4j using a modified 
+     * log4j.properties on build agents. For example:
+     * <pre>                                          
+     * log4j.rootCategory=INFO,A1,FILE,Mail
+     * 
+     * ...
+     * 
+     * # Mail is set to be a SMTPAppender
+     * log4j.appender.Mail=org.apache.log4j.net.SMTPAppender
+     * log4j.appender.Mail.BufferSize=100
+     * log4j.appender.Mail.From=ccbuild@yourdomain.com
+     * log4j.appender.Mail.SMTPHost=yoursmtp.mailhost.com
+     * log4j.appender.Mail.Subject=CC has had an error!!!
+     * log4j.appender.Mail.To=youremail@yourdomain.com
+     * log4j.appender.Mail.layout=org.apache.log4j.PatternLayout
+     * log4j.appender.Mail.layout.ConversionPattern=%d{dd.MM.yyyy HH:mm:ss} %-5p [%x] [%c{3}] %m%n
+     *
+     * </pre>
+     * 
+     * @param message  the message to log (will be prefixed with machineName).
+     */ 
+    private final void logPrefixDebug(final Object message) {
+        LOG.debug(logMsgPrefix + message);
+    }
+    private final void logPrefixInfo(final Object message) {
+        LOG.info(logMsgPrefix + message);
+    }
+    private final void logPrefixError(final Object message) {
+        LOG.error(logMsgPrefix + message);
+    }
+    private final void logPrefixError(final Object message, final Throwable throwable) {
+        LOG.error(logMsgPrefix + message, throwable);
+    }
+    
+    
+    /** Constructor. */
     public BuildAgentServiceImpl() {
         dateStarted = new Date();
+        
+        try {
+            machineName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            final String message = "Failed to get hostname";
+            // Don't call Log helper method here since hostname is not yet set
+            LOG.error(message, e);
+            System.err.println(message + " - " + e.getMessage());
+            throw new RuntimeException(message, e);
+        }        
+        logMsgPrefix = "Agent Host: " + machineName + "; ";
     }
 
+    /** @return the date this Build Agent started running (not when a specific build started). */
     public Date getDateStarted() {
         return dateStarted;
     }
 
+    /** @return the module being built now, or null if no module is being built. */
     public synchronized String getModule() {
-        return projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_MODULE);
+        return (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_MODULE);
     }
 
     void setAgentPropertiesFilename(final String filename) {
@@ -126,9 +185,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 doKill();
             }
 
-            // clear out projectProperties from last build
-            projectProperties.clear();
-
+            // clear out distributed build agent props
+            distributedAgentProps.clear();
+            
             dateClaimed = null;
         } else {
             dateClaimed = new Date();
@@ -140,25 +199,32 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
         fireAgentStatusChanged();
 
-        LOG.info("agent busy status changed to: " + newIsBusy);
+        logPrefixInfo("agent busy status changed to: " + newIsBusy);
     }
 
-    public Element doBuild(Element nestedBuilderElement, Map projectPropertiesMap) throws RemoteException {
+    public Element doBuild(final Element nestedBuilderElement, final Map projectPropertiesMap, 
+                           final Map distributedAgentProperties) throws RemoteException {
         synchronized (busyLock) {
             if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
-        setBusy(true); // we could remove this, since claim() is called during lookup...
+                setBusy(true); // we could remove this, since claim() is called during lookup...
             }
         }
         try {
-            projectProperties.putAll(projectPropertiesMap);
-            String infoMessage = "Building module: " + getModule()
-                    + "\n\tAgentLogDir: " + projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
-                    + "\n\tAgentOutputDir: " + projectProperties.getProperty(
+            logPrefixDebug("Build Agent Props: " + distributedAgentProperties.toString());
+            distributedAgentProps.putAll(distributedAgentProperties);
+            
+            final String infoMessage = "Building module: " + getModule()
+                    + "\n\tAgentLogDir: " + distributedAgentProps.get(
+                            PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
+                    + "\n\tAgentOutputDir: " + distributedAgentProps.get(
                             PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
 
             System.out.println();
             System.out.println(infoMessage);
-            LOG.info(infoMessage);
+            logPrefixInfo(infoMessage);
+
+            logPrefixDebug("Build Agent Project Props: " + projectPropertiesMap.toString());                      
+            
             // this is done only to update agent UI info regarding Module - which isn't available
             // until projectPropertiesMap has been set.
             fireAgentStatusChanged();
@@ -169,8 +235,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 nestedBuilder = createBuilder(nestedBuilderElement);
                 nestedBuilder.validate();
             } catch (CruiseControlException e) {
-                String message = "Failed to configure nested Builder on agent";
-                LOG.error(message, e);
+                final String message = "Failed to configure nested Builder on agent";
+                logPrefixError(message, e);
                 System.err.println(message + " - " + e.getMessage());
                 throw new RemoteException(message, e);
             }
@@ -178,45 +244,46 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             try {
                 buildResults = nestedBuilder.build(projectPropertiesMap);
             } catch (CruiseControlException e) {
-                String message = "Failed to complete build on agent";
-                LOG.error(message, e);
+                final String message = "Failed to complete build on agent";
+                logPrefixError(message, e);
                 System.err.println(message + " - " + e.getMessage());
                 throw new RemoteException(message, e);
             }
             prepareLogsAndArtifacts();
             return buildResults;
         } catch (RemoteException e) {
-            LOG.error("doBuild threw exception, setting busy to false.");
+            logPrefixError("doBuild threw exception, setting busy to false.");
             setBusy(false);
             throw e; // rethrow original exception
         }
     }
 
-    private Builder createBuilder(Element builderElement) throws CruiseControlException {
+    private Builder createBuilder(final Element builderElement) throws CruiseControlException {
 
         configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
                 getAgentPropertiesFilename());
 
-        final String overrideTarget = projectProperties.getProperty(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
-        PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
+        final String overrideTarget 
+                = (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
+        final PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
 
-        PluginRegistry plugins = PluginRegistry.createRegistry();
-        Class pluginClass = plugins.getPluginClass(builderElement.getName());
+        final PluginRegistry plugins = PluginRegistry.createRegistry();
+        final Class pluginClass = plugins.getPluginClass(builderElement.getName());
         final Builder builder = (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
 
         return builder;
     }
 
     /**
-     *  
+     * Zip any build artifacts found in the logDir and/or outputDir. 
      */
     private void prepareLogsAndArtifacts() {
-        String buildDirProperty = configProperties.getProperty(CRUISE_BUILD_DIR);
+        final String buildDirProperty = configProperties.getProperty(CRUISE_BUILD_DIR);
         try {
             buildRootDir = new File(buildDirProperty).getCanonicalPath();
         } catch (IOException e) {
-            String message = "Couldn't create " + buildDirProperty;
-            LOG.error(message, e);
+            final String message = "Couldn't create " + buildDirProperty;
+            logPrefixError(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message);
         }
@@ -236,8 +303,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     private String getAgentResultDir(final String resultType, final String resultProperty) {
         String resultDir;
-        resultDir = projectProperties.getProperty(resultProperty);
-        LOG.debug("Result: " + resultType + "Prop value: " + resultDir);
+        resultDir = (String) distributedAgentProps.get(resultProperty);
+        logPrefixDebug("Result: " + resultType + "Prop value: " + resultDir);
 
         if (resultDir == null || "".equals(resultDir)) {
             // use canonical behavior if attribute is not set
@@ -248,14 +315,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     public String getMachineName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            String message = "Failed to get hostname";
-            LOG.error(message, e);
-            System.err.println(message + " - " + e.getMessage());
-            throw new RuntimeException(message, e);
-        }
+        return machineName;
     }
 
     public void claim() {
@@ -263,9 +323,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         // when multiple master threads find the same agent, before any build thread has started.
         synchronized (busyLock) {
             if (isBusy()) {
-                String machineName = "unknown";
-                machineName = getMachineName();
-                throw new IllegalStateException("Cannot claim agent on " + machineName
+                throw new IllegalStateException("Cannot claim agent on " + getMachineName()
                         + " that is busy building module: "
                         + getModule());
             }
@@ -275,7 +333,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     public boolean isBusy() {
         synchronized (busyLock) {
-            LOG.debug("Is busy called. value: " + isBusy);
+            logPrefixDebug("Is busy called. value: " + isBusy);
             return isBusy;
         }
     }
@@ -316,7 +374,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
 
-    public boolean resultsExist(String resultsType) throws RemoteException {
+    public boolean resultsExist(final String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
             return !(new File(logDir).list().length == 0);
         } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
@@ -326,7 +384,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         }
     }
 
-    public byte[] retrieveResultsAsZip(String resultsType) throws RemoteException {
+    public byte[] retrieveResultsAsZip(final String resultsType) throws RemoteException {
 
         final String zipFilePath = buildRootDir + File.separator + resultsType + ".zip";
 
@@ -334,8 +392,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         try {
             response = FileUtil.getFileAsBytes(new File(zipFilePath));
         } catch (IOException e) {
-            String message = "Unable to get file " + zipFilePath;
-            LOG.error(message, e);
+            final String message = "Unable to get file " + zipFilePath;
+            logPrefixError(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
@@ -344,33 +402,43 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     public void clearOutputFiles() {
         try {
-            LOG.debug("Deleting contents of " + logDir);
-            Util.deleteFile(new File(logDir));
+            if (logDir != null) {
+                logPrefixDebug("Deleting contents of " + logDir);
+                Util.deleteFile(new File(logDir));
+            } else {
+                logPrefixDebug("Skip delete agent logDir: " + logDir);                
+            }
             if (logsFilePath != null) {
-                LOG.debug("Deleting log zip " + logsFilePath);
+                logPrefixDebug("Deleting log zip " + logsFilePath);
                 Util.deleteFile(new File(logsFilePath));
             } else {
-                LOG.error("Skipping delete of log zip, file path is null.");
+                logPrefixError("Skipping delete of log zip, file path is null.");
             }
 
-            LOG.debug("Deleting contents of " + outputDir);
-            Util.deleteFile(new File(outputDir));
+            if (outputDir != null) {
+                logPrefixDebug("Deleting contents of " + outputDir);
+                Util.deleteFile(new File(outputDir));
+            } else {
+                logPrefixDebug("Skip delete agent outputDir: " + outputDir);                
+            }
             if (outputFilePath != null) {
-                LOG.debug("Deleting output zip " + outputFilePath);
+                logPrefixDebug("Deleting output zip " + outputFilePath);
                 Util.deleteFile(new File(outputFilePath));
             } else {
-                LOG.error("Skipping delete of output zip, file path is null.");
+                logPrefixError("Skipping delete of output zip, file path is null.");
             }
+            
             setBusy(false);
+            
         } catch (RuntimeException e) {
-            LOG.error("Error cleaning agent build files.", e);
+            logPrefixError("Error cleaning agent build files.", e);
             throw e;
         }
     }
 
 
     private void doRestart() {
-        LOG.info("Attempting agent restart.");
+        logPrefixInfo("Attempting agent restart.");
 
         synchronized (busyLock) {
             if (!isBusy()) {
@@ -384,11 +452,11 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             basicService = (BasicService) ServiceManager.lookup(BasicService.class.getName());
         } catch (UnavailableServiceException e) {
             final String errMsg = "Couldn't find webstart Basic Service. Is Agent running outside of webstart?";
-            LOG.error(errMsg, e);
+            logPrefixError(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
         final URL codeBaseURL = basicService.getCodeBase();
-        LOG.info("basicService.getCodeBase()=" + codeBaseURL.toString());
+        logPrefixInfo("basicService.getCodeBase()=" + codeBaseURL.toString());
 
         // relaunch via new browser session
         // @todo How to close the browser after jnlp is relaunched?
@@ -397,21 +465,21 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             relaunchURL = new URL(codeBaseURL, "agent.jnlp");
         } catch (MalformedURLException e) {
             final String errMsg = "Error building webstart relaunch URL from " + codeBaseURL.toString();
-            LOG.error(errMsg, e);
+            logPrefixError(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
         if (basicService.showDocument(relaunchURL)) {
-            LOG.info("Relaunched agent via URL: " + relaunchURL.toString() + ". Will kill current agent now.");
+            logPrefixInfo("Relaunched agent via URL: " + relaunchURL.toString() + ". Will kill current agent now.");
             doKill(); // don't wait for build finish, since we've already relaunched at this point.
         } else {
             final String errMsg = "Failed to relaunch agent via URL: " + relaunchURL.toString();
-            LOG.error(errMsg);
+            logPrefixError(errMsg);
             throw new RuntimeException(errMsg);
         }
     }
 
     private void doKill() {
-        LOG.info("Attempting agent kill.");
+        logPrefixInfo("Attempting agent kill.");
         synchronized (busyLock) {
             if (!isBusy()) {
                 // claim agent so no new build can start

@@ -46,10 +46,12 @@ import org.jdom.Element;
 
 public interface BuildAgentService extends Remote {
 
-    public Element doBuild(Element nestedBuilderElement, Map projectProperties) throws RemoteException;
+    public Element doBuild(Element nestedBuilderElement, Map projectProperties, 
+                           Map distributedAgentProperties) throws RemoteException;
 
     public String getMachineName() throws RemoteException;
 
+    /** @return the date this Build Agent started running (not when a specific build started). */
     public Date getDateStarted() throws RemoteException;
 
     public void claim() throws RemoteException;
@@ -58,6 +60,7 @@ public interface BuildAgentService extends Remote {
 
     public boolean isBusy() throws RemoteException;
 
+    /** @return the module being built now, or null if no module is being built. */
     public String getModule() throws RemoteException;
 
     public boolean resultsExist(String resultsType) throws RemoteException;

@@ -85,6 +85,7 @@
             <include name="velocity-dep*.jar"/>
             <include name="webwork*.jar"/>
             <include name="xalan*.jar"/>
+            <include name="serializer*.jar"/>
             <include name="xerces*.jar"/>
             <include name="xml*.jar"/>
             <include name="xwork*.jar"/>

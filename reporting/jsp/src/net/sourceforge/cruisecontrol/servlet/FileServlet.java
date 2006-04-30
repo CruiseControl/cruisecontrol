@@ -170,7 +170,7 @@ public class FileServlet extends HttpServlet {
         if (file.isDir()) {
             printDirs(request, file, writer);
         } else {
-            response.setStatus(response.SC_NOT_FOUND);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             writer.write("<h1>Invalid File or Directory</h1>");
         }
         writer.write("</body>");

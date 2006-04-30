@@ -54,7 +54,6 @@ public class NavigationCountTag extends CruiseControlBodyTagSupport {
 
     private int startingBuildNumber = 0;
     private int count;
-    private BuildInfo[] buildInfo; // the log files in the log directory.
 
     public int doStartTag() throws JspException {
         BuildInfo [] logFileNames = findLogFiles();

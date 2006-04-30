@@ -95,7 +95,8 @@
         agentoutputdir="agent/output" masteroutputdir="master/log"&gt;
     ...
 &lt;/distributed&gt;</pre>
-						After a remote build, any files on the agent machine in dir "agent/log" will be copied back to the master machine into dir "master/log". The "logs" and "output" dirs will be deleted on the Agent after the build finishes.</li>
+						After a remote build, any files on the agent machine in dir "agent/log" will be copied back to the master machine into dir "master/log". The "logs" and "output" dirs will be deleted on the Agent after the build finishes.
+						<p/>NOTE: You may have problems when running a BuildAgent on the same machine as the main CC server due to the removal of the log/output dirs by the BuildAgent (if the main CC server needs the deleted directories). In such cases, you should override the cannonical artifact dirs using these tags.</li>
 
 						<li>Java Web Start deployment of build agents: <code>ant war-agent</code> will use the file <code>build-sign.properties</code> to sign agent jars and bundle them into a deployable <code>.war</code> file (<code>dist/cc-agnet.war</code>).
 						Be sure you update the <code>build-sign.properties</code> appropriately to use your signing information/certificate.</li>

@@ -46,6 +46,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
@@ -132,7 +133,7 @@ public class FileServletTest extends TestCase {
         assertEquals(expected, actual);
         String actualMimeType = response.getContentType();
         assertEquals("text/html", actualMimeType);
-        assertEquals(response.SC_NOT_FOUND, response.getStatus());
+        assertEquals(HttpServletResponse.SC_NOT_FOUND, response.getStatus());
     }
 
     /*
