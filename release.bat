@@ -47,7 +47,7 @@ REM #--------------------------------------------
 REM # No need to edit anything past here
 REM #--------------------------------------------
 
-set ANT_CLASSPATH=%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\junit.jar;%LIBDIR%\xercesImpl-2.7.0.jar;%LIBDIR%\xml-apis-2.7.0.jar
+set ANT_CLASSPATH=%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\junit.jar;%LIBDIR%\xercesImpl-2.8.0.jar;%LIBDIR%\xml-apis-2.8.0.jar
 echo %ANT_CLASSPATH%
 
 if "%JAVA_HOME%" == "" goto noJavaFound

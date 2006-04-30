@@ -2,20 +2,22 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - Current
+CruiseControl Release Notes - 2.5
 
 general
 ======================
 * Included build.xml target to create executable windows installer, from contrib definition (CC-314). Submitted by Julian Simpson. Should make CruiseControl-VER.exe available as a distribution.
-* Some general code cleanup and formatting changes.
+* Updated Xerces (2.8) and Xalan (2.7) jars to fix memory leak (CC-426)
 
 contrib
 ======================
 * WindowsInstaller definition using nsis (CC-314). Submitted by Julian Simpson.
+* Update DistributedBuildMaster to support instance reuse (CC-434). Submitted by Dan Rollo
 
 build loop
 ======================
 * Cleaned up incorrect usages of static SimpleDateFormats (CC-422). Proposed by Scott Coplin.
+* Fixed recently introduced bug where project would keep on building with its overriden target when invoked once from the JMX interface using buildWithTarget.
 
 Builder
 ----------------------
@@ -25,25 +27,66 @@ ClearCaseBaselinePublisher:
 ----------------------
 * New publisher for use with ClearCase UCM (CC-414). Submitted by Kevin Lee.
 
+CruiseControlConfig:
+----------------------
+* On first load attempt to run projects in the same order they appear in config file. Patch by Olek
+
 CruiseControlControllerAgent:
 ----------------------
 * Look for an existing MBeanServer before creating a new one. This will make it possible to manage CC through Java 5's JConsole (CC-417). Patch by Gavin Kinghall Were.
 
+ExecutePublisher:
+----------------------
+* No longer asynchronous (CC-280). Patch by Michael Kloss
+
 LDAPMapper:
 ----------------------
-* Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
+* Email mapper that uses an LDAP lookup to determine user email addresses (CC-413). Submitted by Esa Laine.
+
+Maven2Builder:
+----------------------
+* Fix problem where Maven2 reports were not showing build details (CC-429). Contributions by Jean-Laurent de Morlhon and Roger Butenuth. Final patch from Dan Rollo.
+
+Maven2SnapshotDependency:
+----------------------
+* New sourcecontrol (CC-438). Contributed by Dan Rollo with fixes by Jerome Lacoste.
+
+PauseBuilder:
+----------------------
+* PauseBuilder is no longer a Builder.
+
+ProjectConfig:
+----------------------
+* buildAfterFailed should default to true.
 
 ProjectWrapper:
 ----------------------
 * Fix problem where forcing a build while build is running will effectively kill the worker thread leading to all projects queued but not building (CC-431). Patch by John Lewis.
 
+PVCS:
+----------------------
+* Handle archive file names that don't end in "-arc". Added property archiveFileSuffix. (CC-425)
+
 Schedule:
 ----------------------
-* Fixed recently introduced bug where project would keep on building with its overriden target when invoked once from the JMX interface using buildWithTarget.
+* Removed deprecated methods addBuilder and addPauseBuilder.
+
+SCPPublisher:
+----------------------
+* Fixed bug where publisher always published the same log file.
+* No longer asynchronous (CC-280). Patch by Michael Kloss
 
 SourceControl (Plugin API):
 ----------------------
 * getProperties() now returns a Map instead of a Hashtable
+
+SfeeFrsPublisher:
+----------------------
+* remove setFile(File file) to avoid couldn't invoke setter problem (CC-433).
+
+SVN:
+----------------------
+* Fix NPE when client has no read permissions to the changed file. Patch by Britt Piehler
 
 UCM:
 ----------------------

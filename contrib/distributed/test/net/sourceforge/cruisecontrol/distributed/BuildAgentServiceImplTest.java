@@ -2,9 +2,10 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import junit.framework.TestCase;
 
-import java.util.Properties;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.File;
 import java.rmi.RemoteException;
 
@@ -52,6 +53,82 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
 
+    private static class MyAgentStatusListener implements BuildAgent.AgentStatusListener
+    {
+        private int agentStatusChangeCount;
+
+        public void statusChanged(BuildAgentService buildAgentServiceImpl) {
+            agentStatusChangeCount++;
+        }
+
+        int getAgentStatusChangeCount() {
+            return agentStatusChangeCount;
+        }
+
+        void setAgentStatusChangeCount(int agentStatusChangeCount) {
+            this.agentStatusChangeCount = agentStatusChangeCount;
+        }
+    }
+
+    /** 
+     * Re-use of builder caused problems with null value in overrideTarget.
+     * This test verifies null values in the Map are allowed.
+     */
+     public void testGetPropertiesMap() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        MyAgentStatusListener agentListener = new MyAgentStatusListener();  
+        agentImpl.addAgentStatusListener(agentListener);
+        
+        String agentAsString = agentImpl.asString();
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.startsWith("Machine Name: "));
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.endsWith("Busy: false;\tSince: null;\tModule: null\n\t"
+                + "Pending Restart: false;\tPending Restart Since: null\n\t"
+                + "Pending Kill: false;\tPending Kill Since: null"));
+
+        
+        final Map distributedAgentProps = new HashMap();
+        final String testModuleName = "testModuleName";
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
+
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);        
+        try {
+            // fails at old props.putAll() and now at projectPropertiesMap.toString(), 
+            // doesn't fire 2nd agent status event
+            agentImpl.doBuild(null, null, distributedAgentProps); 
+            fail("should fail w/ NPE");
+        } catch (NullPointerException e) {
+            assertEquals(null, e.getMessage());
+        }
+        assertEquals("Wrong agent status", 1, agentListener.getAgentStatusChangeCount());
+
+        
+        distributedAgentProps.remove(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
+        agentImpl.setBusy(false);
+        agentListener.setAgentStatusChangeCount(0);
+        try {
+            // gets far enough to fire 2nd agent status change
+            agentImpl.doBuild(null, new HashMap(), distributedAgentProps); 
+            fail("should fail w/ NPE");
+        } catch (NullPointerException e) {
+            assertEquals(null, e.getMessage());
+        }
+        assertEquals("Wrong agent status", 2, agentListener.getAgentStatusChangeCount());
+
+        agentAsString = agentImpl.asString();
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.startsWith("Machine Name: "));
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.indexOf("Busy: true;\tSince: ") > -1);
+        assertTrue("Wrong value: " + agentAsString,
+                agentAsString.endsWith(";\tModule: " + testModuleName
+                + "\n\tPending Restart: false;\tPending Restart Since: null\n\t"
+                + "Pending Kill: false;\tPending Kill Since: null"));
+    }
+    
     public void testAsString() throws Exception {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
@@ -64,12 +141,14 @@ public class BuildAgentServiceImplTest extends TestCase {
                 + "Pending Restart: false;\tPending Restart Since: null\n\t"
                 + "Pending Kill: false;\tPending Kill Since: null"));
 
+        final Map projectProps = null;
+        
+        final Map distributedAgentProps = new HashMap();
         final String testModuleName = "testModuleName";
-        final Properties projectProps = new Properties();
-        projectProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
 
         try {
-            agentImpl.doBuild(null, projectProps); // gets far enough to set Module name...
+            agentImpl.doBuild(null, projectProps, distributedAgentProps); // gets far enough to set Module name...
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -110,12 +189,14 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         assertNull(agentImpl.getModule());
 
+        final Map projectProps = null;
+
+        final Map distributedAgentProps = new HashMap();
         final String testModuleName = "testModuleName";
-        final Properties projectProps = new Properties();
-        projectProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
 
         try {
-            agentImpl.doBuild(null, projectProps); // gets far enough to set Module name...
+            agentImpl.doBuild(null, projectProps, distributedAgentProps); // gets far enough to set Module name...
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -237,8 +318,43 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
     }
 
+    public void testRetrieveResultsWithAgentLogDir() throws Exception {
+        final File testLogDir = new File(DIR_LOGS, "myTestLogDir");
+        testLogDir.deleteOnExit();
+        testLogDir.mkdirs();
+        final File testLog = new File(testLogDir, "myTestLog");
+        testLog.createNewFile();
+        testLog.deleteOnExit();
+        
+        final Map distributedAgentProps = new HashMap();
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, 
+                testLogDir.getAbsolutePath());
+        
+        final BuildAgentServiceImpl agentImpl = createTestAgent(false, distributedAgentProps);
+
+        // clear out default log dir
+        final File tmSuccessDir = new File(DIR_LOGS, "testmodule-success");
+        new File(tmSuccessDir, "TEST-bogustestclassSuccess.xml").delete();
+        deleteDirConfirm(tmSuccessDir);            
+        
+        try {
+            // make sure agent looks in myTestLog dir for files 
+            assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
+            
+            assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
+            assertTrue("Agent should be busy until build results are retrived and cleared.",
+                    agentImpl.isBusy());
+        } finally {
+            // cleanup left over files
+            agentImpl.clearOutputFiles();
+            testLog.delete();
+            testLogDir.delete();
+        }
+        assertFalse(agentImpl.isBusy());
+    }
+
     public void testRetrieveResultsAsZipBuildSuccess() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgent(false);
+        final BuildAgentServiceImpl agentImpl = createTestAgent(false, new HashMap());
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
@@ -252,7 +368,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRetrieveResultsAsZipBuildFail() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgent(true);
+        final BuildAgentServiceImpl agentImpl = createTestAgent(true, new HashMap());
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
@@ -265,21 +381,34 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertFalse(agentImpl.isBusy());
     }
 
-    private static BuildAgentServiceImpl createTestAgent(boolean isBuildFailure)
+    private static BuildAgentServiceImpl createTestAgent(boolean isBuildFailure, 
+                                                         final Map distributedAgentProps)
             throws CruiseControlException, RemoteException {
 
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         // @todo Fix issues where AntBuilder fails if java is not on os path
-        callTestDoBuild(isBuildFailure, agentImpl);
+        callTestDoBuild(isBuildFailure, agentImpl, distributedAgentProps);
 
         return agentImpl;
     }
 
+    
     /** Call doBuild() on the given agent using test settings */
     public static Element callTestDoBuild(boolean isBuildFailure,
-                                       final BuildAgentService agent) throws CruiseControlException, RemoteException {
+                                       final BuildAgentService agent) 
+            throws CruiseControlException, RemoteException {
+        
+        return callTestDoBuild(isBuildFailure, agent, new HashMap());
+    }
+    
+    /** Call doBuild() on the given agent using test settings */
+    public static Element callTestDoBuild(boolean isBuildFailure,
+                                       final BuildAgentService agent,
+                                       final Map distributedAgentProps) 
+            throws CruiseControlException, RemoteException {
+        
         final Element rootElement = Util.loadConfigFile(TEST_CONFIG_FILE);
 
         final Element project = (Element) rootElement.getChildren("project").get(0);
@@ -303,8 +432,11 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
         final String moduleName = distributed.getAttributeValue("module");
         assertEquals(expectedModuleName, moduleName);
-        final Properties projectProps = new Properties();
-        projectProps.put(PropertiesHelper.DISTRIBUTED_MODULE, moduleName);
+        
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, moduleName);
+        
+        // handle re-use case of DMB when overrideTarget is null
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
         final Element antBuilderElement = (Element) distributed.getChildren().get(0);
         DistributedMasterBuilderTest.addMissingPluginDefaults(antBuilderElement);
@@ -317,7 +449,9 @@ public class BuildAgentServiceImplTest extends TestCase {
             LOG.warn("Unit Test couldn't find ANT_HOME env var. Might work if java/bin is in the path. Here goes...");
         }
 
-        final Element buildResult = agent.doBuild(antBuilderElement, projectProps);
+        final Map projectProps = new HashMap();
+        
+        final Element buildResult = agent.doBuild(antBuilderElement, projectProps, distributedAgentProps);
         return buildResult;
     }
 
@@ -349,7 +483,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         // @todo should agent expose a release() method to clear busy flag?
         try {
-            agentImpl.doBuild(null, null);
+            agentImpl.doBuild(null, null, null);
             fail("Should have failed to build");
         } catch (NullPointerException e) {
             assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());
@@ -360,16 +494,9 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
         assertEquals(firstClaimDate, agentImpl.getDateClaimed());
 
-        try {
-            agentImpl.clearOutputFiles();
-            fail("Expected agent cleanup to fail");
-        } catch (NullPointerException e) {
-            assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());
-        }
-        assertTrue("Expected agent busy flag to be true after cleanup failed.", agentImpl.isBusy());
-        assertEquals(firstClaimDate, agentImpl.getDateClaimed());
-
-        agentImpl.setBusy(false);
+        // we now avoid NPE error during cleanup since logDir and outputDir can be null
+        agentImpl.clearOutputFiles();
+        assertFalse("Expected agent busy flag to be false after cleanup call.", agentImpl.isBusy());
         assertNull(agentImpl.getDateClaimed());
     }
 }

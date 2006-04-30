@@ -54,7 +54,7 @@
 
         <ol>
             <li><a href="#Before_you_Start">Before you Start</a></li>
-            <li><a href="#Install_CruiseControl">Install CruiseControl</a></li>
+            <li><a href="#Install_CruiseControl">Install And Build CruiseControl</a></li>
             <li><a href="#Running_the_Build_Loop">Running the Build Loop</a>
                 <ul>
                     <li><a href="#Setup_a_Working_Area">Setup a Working Area</a></li>
@@ -112,7 +112,7 @@
         documentation, and so on). Once you've got the simple things working,
         you'll be able to customize your build to suit your needs.</p>
 
-        <h2><a name="Install_CruiseControl">Install CruiseControl</a></h2>
+        <h2><a name="Install_CruiseControl">Install And Build CruiseControl</a></h2>
 
         <p>First, <a href="download.html">download CruiseControl</a>. Unzip
         this file to your applications directory. The top-level directory
@@ -150,9 +150,12 @@
             </tr>
         </table>
 
-        <p>The remainder of this guide covers getting the build loop (in the
-        <code>main</code> directory) and the reporting application (in the
-        <code>reporting</code> directory) configured and running.</p>
+        <p>To build the CruiseControl jars you will need to execute the Ant
+        build scripts in <code>INSTALL_DIR/main</code> and
+        <code>INSTALL_DIR/reporting</code>. The remainder of this guide covers
+        getting the build loop (in the <code>main</code> directory) and the
+        reporting application (in the <code>reporting</code> directory)
+        configured and running.</p>
 
         <p>To confirm that the installation is consistent, start a command
         shell and run the following command (make sure you replace

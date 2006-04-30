@@ -91,12 +91,12 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
     private Element thisElement;
     private Element childBuilderElement;
-    private String overrideTarget = "";
+    private String overrideTarget;
     private MulticastDiscovery discovery;
     private Properties cruiseProperties;
     private File rootDir;
 
-    protected void overrideTarget(String target) {
+    protected void overrideTarget(final String target) {
         overrideTarget = target;
     }
 
@@ -106,7 +106,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
     /** If true, available agent lookup will not block until an agent is found,
      * but will return null immediately. */
-    public synchronized void setFailFast(boolean isFailFast) {
+    public synchronized void setFailFast(final boolean isFailFast) {
         this.isFailFast = isFailFast;
     }
     private synchronized  boolean isFailFast() {
@@ -114,7 +114,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     }
 
     /** Intended only for use by unit tests. **/
-    void setDiscovery(MulticastDiscovery multicastDiscovery) {
+    void setDiscovery(final MulticastDiscovery multicastDiscovery) {
         discovery = multicastDiscovery;
     }
     MulticastDiscovery getDiscovery() {
@@ -131,16 +131,16 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
      * @param element
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      */
-    public void configure(Element element) throws CruiseControlException {
+    public void configure(final Element element) throws CruiseControlException {
         thisElement = element;
-        List children = element.getChildren();
+        final List children = element.getChildren();
         if (children.size() > 1) {
-            String message = "DistributedMasterBuilder can only have one nested builder";
+            final String message = "DistributedMasterBuilder can only have one nested builder";
             LOG.error(message);
             throw new CruiseControlException(message);
         } else if (children.size() == 0) {
             // @todo Clarify when configure() can be called...
-            String message = "Nested Builder required by DistributedMasterBuilder, "
+            final String message = "Nested Builder required by DistributedMasterBuilder, "
                     + "ignoring and assuming this call is during plugin-preconfig";
             LOG.warn(message);
             return;
@@ -170,16 +170,16 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
         // optional attributes
         tempAttribute = thisElement.getAttribute("agentlogdir");
-        setAgentLogDir(tempAttribute != null ? tempAttribute.getValue() : "");
+        setAgentLogDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
         tempAttribute = thisElement.getAttribute("agentoutputdir");
-        setAgentOutputDir(tempAttribute != null ? tempAttribute.getValue() : "");
+        setAgentOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
         tempAttribute = thisElement.getAttribute("masterlogdir");
-        setMasterLogDir(tempAttribute != null ? tempAttribute.getValue() : "");
+        setMasterLogDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
         tempAttribute = thisElement.getAttribute("masteroutputdir");
-        setMasterOutputDir(tempAttribute != null ? tempAttribute.getValue() : "");
+        setMasterOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
         try {
             cruiseProperties = (Properties) PropertiesHelper.loadRequiredProperties(CRUISE_PROPERTIES);
@@ -195,7 +195,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                 && (getAgentLogDir() == null && getMasterLogDir() == null)
                 && (getAgentOutputDir() == null && getMasterOutputDir() == null)
         ) {
-            String message = "Could not get property " + CRUISE_RUN_DIR + " from " + CRUISE_PROPERTIES
+            final String message = "Could not get property " + CRUISE_RUN_DIR + " from " + CRUISE_PROPERTIES
                     + ", or run dir does not exist: " + rootDir;
             LOG.error(message);
             System.err.println(message);
@@ -215,7 +215,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     private static void applyPluginDefaults(final Map pluginDefaults, final Element elementToAlter) {
         final String pluginName = elementToAlter.getName();
         // to preserve precedence, only add default attribute if it is not also defined in the tag directly
-        Set defaultAttribMapKeys = pluginDefaults.keySet();
+        final Set defaultAttribMapKeys = pluginDefaults.keySet();
         for (Iterator itrKeys = defaultAttribMapKeys.iterator(); itrKeys.hasNext();) {
             final String attribName = (String) itrKeys.next();
             final String attribValueExisting = elementToAlter.getAttributeValue(attribName);
@@ -305,7 +305,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         super.validate();
         final Element elmChildBuilder = getChildBuilderElement();
         if (elmChildBuilder == null) {
-            String message = "A nested Builder is required for DistributedMasterBuilder";
+            final String message = "A nested Builder is required for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
         }
@@ -325,7 +325,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         //*/
 
         if (module == null) {
-            String message = "The 'module' attribute is required for DistributedMasterBuilder";
+            final String message = "The 'module' attribute is required for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
         }
@@ -373,21 +373,41 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return retVal;
     }
 
+    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        String oldOverideTarget = overrideTarget;
+        overrideTarget(target);
+        try {
+            return build(properties);
+        } finally {
+            overrideTarget(oldOverideTarget);
+        }
+    }
 
-    public Element build(Map projectProperties) throws CruiseControlException {
+    public Element build(final Map projectProperties) throws CruiseControlException {
         try {
             final BuildAgentService agent = pickAgent();
             // agent is now marked as claimed
 
+            String agentMachine = "unknown";
+            try {
+                agentMachine = agent.getMachineName();
+            } catch (RemoteException e1) {
+                ; // ignored
+            }
+            
             final Element buildResults;
             try {
-                projectProperties.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, overrideTarget);
-                projectProperties.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
-                projectProperties.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, getAgentLogDir());
-                projectProperties.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, getAgentOutputDir());
-
+                final Map distributedAgentProps = new HashMap();
+                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, overrideTarget);
+                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
+                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, getAgentLogDir());
+                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, getAgentOutputDir());
+                LOG.debug("Distributed Agent Props: " + distributedAgentProps.toString());
+                
+                LOG.debug("Project Props: " + projectProperties.toString());
+                
                 LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of module: " + module);
-                buildResults = agent.doBuild(getChildBuilderElement(), projectProperties);
+                buildResults = agent.doBuild(getChildBuilderElement(), projectProperties, distributedAgentProps);
 
                 final String rootDirPath;
                 try {
@@ -395,7 +415,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                     LOG.debug("rootDir: " + rootDir + "; rootDir.cp: " + rootDir.getCanonicalPath());
                     rootDirPath = rootDir.getCanonicalPath();
                 } catch (IOException e) {
-                    String message = "Error getting canonical path for: " + rootDir;
+                    final String message = "Error getting canonical path for: " + rootDir;
                     LOG.error(message);
                     System.err.println(message);
                     throw new CruiseControlException(message, e);
@@ -420,13 +440,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
                 agent.clearOutputFiles();
             } catch (RemoteException e) {
-                String agentMachine = "unknown";
-                try {
-                    agentMachine = agent.getMachineName();
-                } catch (RemoteException e1) {
-                    ; // ignored
-                }
-                String message = "RemoteException from"
+                final String message = "RemoteException from"
                         + "\nagent on: " + agentMachine
                         + "\nwhile building module: " + module;
                 LOG.error(message, e);
@@ -441,7 +455,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             }
             return buildResults;
         } catch (RuntimeException e) {
-            String message = "Distributed build runtime exception";
+            final String message = "Distributed build runtime exception";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new CruiseControlException(message, e);
@@ -453,7 +467,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             throws RemoteException {
 
         if (agent.resultsExist(resultsType)) {
-            String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath,
+            final String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath,
                     resultsType + ".zip");
             try {
                 LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDir);
@@ -464,7 +478,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                 LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
             }
         } else {
-            String message = "No results returned for " + resultsType;
+            final String message = "No results returned for " + resultsType;
             LOG.info(message);
         }
     }
@@ -508,7 +522,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return agentLogDir;
     }
 
-    public void setAgentLogDir(String agentLogDir) {
+    public void setAgentLogDir(final String agentLogDir) {
         this.agentLogDir = agentLogDir;
     }
 
@@ -516,7 +530,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return agentOutputDir;
     }
 
-    public void setAgentOutputDir(String agentOutputDir) {
+    public void setAgentOutputDir(final String agentOutputDir) {
         this.agentOutputDir = agentOutputDir;
     }
 
@@ -524,7 +538,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return masterLogDir;
     }
 
-    public void setMasterLogDir(String masterLogDir) {
+    public void setMasterLogDir(final String masterLogDir) {
         this.masterLogDir = masterLogDir;
     }
 
@@ -532,7 +546,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return masterOutputDir;
     }
 
-    public void setMasterOutputDir(String masterOutputDir) {
+    public void setMasterOutputDir(final String masterOutputDir) {
         this.masterOutputDir = masterOutputDir;
     }
 }
