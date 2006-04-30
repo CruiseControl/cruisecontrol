@@ -343,9 +343,4 @@
     
     <target name="all" depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar" description="Performs a build, runs tests, and builds jar" />
 
-    <target name="cvs-update" depends="init" if="localCopy">
-        <cvs command="update -d -P" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol"
-             package="cruisecontrol" dest="${localCopy}" />
-    </target>
-
 </project>
