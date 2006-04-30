@@ -71,6 +71,7 @@ public class PVCS implements SourceControl {
     private Map properties = new HashMap();
     private Date lastBuild;
 
+    private String archiveFileSuffix = "-arc";
     private String pvcsbin;
     private String pvcsExecCommand;
     private String pvcsProject;
@@ -171,7 +172,7 @@ public class PVCS implements SourceControl {
             return new ArrayList();
         }
 
-        return makeModificationsList();
+        return makeModificationsList(new File(PVCS_RESULTS_FILE));
     }
 
     String getExecutable(String exe) {
@@ -186,7 +187,7 @@ public class PVCS implements SourceControl {
         return correctedExe.append(exe).toString();
     }
 
-    private void exec(String command) throws IOException, InterruptedException {
+    protected void exec(String command) throws IOException, InterruptedException {
         LOG.debug("Command to execute: " + command);
         Process p = Runtime.getRuntime().exec(command);
         StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
@@ -201,10 +202,10 @@ public class PVCS implements SourceControl {
     /**
      * Read the file produced by PCLI listing all changes to the source repository
      * Once we've read the file, produce a list of changes.
+     * @param inputFile TODO
      */
-    private List makeModificationsList() {
+    List makeModificationsList(File inputFile) {
         List theList;
-        File inputFile = new File(PVCS_RESULTS_FILE);
         BufferedReader brIn;
         ModificationBuilder modificationBuilder = new ModificationBuilder(pvcsProject);
         try {
@@ -293,7 +294,12 @@ public class PVCS implements SourceControl {
                 initializeModification();
                 String fileName;
 
-                fileName = line.substring((line.indexOf(proj) + proj.length()),  line.indexOf("-arc"));
+                int startIndex = (line.indexOf(proj) + proj.length());
+                int endIndex = line.indexOf(archiveFileSuffix);
+                if (endIndex == -1) {
+                    endIndex = line.length();
+                }
+                fileName = line.substring(startIndex, endIndex);
                 if (fileName.startsWith("/") || fileName.startsWith("\\")) {
                      fileName = fileName.substring(1);
                 }
@@ -380,5 +386,13 @@ public class PVCS implements SourceControl {
    public void setLoginid(String loginId) {
       this.loginId = loginId;
    }
+
+    void setLastBuild(Date date) {
+        this.lastBuild = date;
+    }
+
+    public void setArchiveFileSuffix(String archiveSuffix) {
+        this.archiveFileSuffix = archiveSuffix;
+    }
 
 } // end class PVCSElement

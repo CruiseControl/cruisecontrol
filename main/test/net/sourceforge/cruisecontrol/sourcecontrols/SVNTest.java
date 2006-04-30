@@ -282,6 +282,18 @@ public class SVNTest extends TestCase {
         Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(0, modifications.length);
     }
+    
+    public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported()
+          throws ParseException, JDOMException, IOException {
+        String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                           + "<log>\n"
+                           + "    <logentry revision=\"1234\">\n"
+                           + "        <msg></msg>\n"
+                           + "    </logentry>\n"
+                           + "</log>";
+        Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
+        assertEquals(0, modifications.length);
+    }
 
     public void testParseAndFilter() throws ParseException, JDOMException, IOException {
         String svnLog =

@@ -75,26 +75,14 @@ public class Schedule {
     /** date formatting for time statements */
     private final DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
 
-    /** @deprecated Use add(Builder) instead */
-    public void addBuilder(Builder builder) {
-        add(builder);
-    }
-
     public void add(Builder builder) {
-        // FIXME see if we can improve this
-        if (builder instanceof PauseBuilder) {
-            checkParamNotNull("pauseBuilder", builder);
-            pauseBuilders.add(builder);
-        } else {
-            checkParamNotNull("builder", builder);
-            builders.add(builder);
-        }
-        //builders.add(builder);
+        checkParamNotNull("builder", builder);
+        builders.add(builder);
     }
-
-    /** @deprecated Use add(Builder) instead*/
-    public void addPauseBuilder(PauseBuilder pauseBuilder) {
-        add(pauseBuilder);
+    
+    public void add(PauseBuilder pause) {
+        checkParamNotNull("pauseBuilder", pause);
+        pauseBuilders.add(pause);        
     }
 
     /**
@@ -133,9 +121,9 @@ public class Schedule {
         checkParamNotNull("date", date);
         Iterator pauseBuilderIterator = pauseBuilders.iterator();
         while (pauseBuilderIterator.hasNext()) {
-            PauseBuilder builder = (PauseBuilder) pauseBuilderIterator.next();
-            if (builder.isPaused(date)) {
-                return builder;
+            PauseBuilder pause = (PauseBuilder) pauseBuilderIterator.next();
+            if (pause.isPaused(date)) {
+                return pause;
             }
         }
         return null;
@@ -147,18 +135,19 @@ public class Schedule {
      * @param buildNumber The sequential build number.
      * @param lastBuild The date of the last build.
      * @param now The current time.
-     * @param properties Properties that would need to be passed in to the
-     * actual build tool.
+     * @param properties Properties that would need to be passed in to the actual build tool.
+     * @param buildTarget the build target to use instead of the configured one (pass in null if no override is needed)
      *
      *  @return JDOM Element representation of build log.
      */
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties) throws CruiseControlException {
-        try {
-            Builder builder = selectBuilder(buildNumber, lastBuild, now);
-            return builder.build(properties);
-        } finally {
-            overrideTargets(null);
-        }
+    public Element build(int buildNumber, Date lastBuild, Date now, Map properties, String buildTarget)
+      throws CruiseControlException {
+        Builder builder = selectBuilder(buildNumber, lastBuild, now);
+        if (buildTarget != null) {
+            LOG.info("Overriding build target with \"" + buildTarget + "\"");
+            return builder.buildWithTarget(properties, buildTarget);
+        } 
+        return builder.build(properties);
     }
 
     /**
@@ -520,17 +509,6 @@ public class Schedule {
     private void checkParamNotNull(String paramName, Object param) {
         if (param == null) {
             throw new IllegalArgumentException(paramName + " can't be null");
-        }
-    }
-
-    public void overrideTargets(String buildTarget) {
-        for (int i = 0; i < builders.size(); i++) {
-            Builder builder = (Builder) builders.get(i);
-            builder.overrideTarget(buildTarget);
-        }
-        for (int i = 0; i < pauseBuilders.size(); i++) {
-            PauseBuilder builder = (PauseBuilder) pauseBuilders.get(i);
-            builder.overrideTarget(buildTarget);
         }
     }
 

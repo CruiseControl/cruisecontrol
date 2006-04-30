@@ -65,12 +65,8 @@ public class SfeeFrsPublisher extends SfeePublisher {
     private String releaseID;
     private String uploadName;
 
-    public void setFile(File file) {
-        this.file = file;
-    }
-
     public void setFile(String filename) {
-        setFile(new File(filename));
+        this.file = new File(filename);
     }
 
     public void setReleaseID(String releaseID) {
@@ -82,12 +78,12 @@ public class SfeeFrsPublisher extends SfeePublisher {
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        ValidationHelper.assertExists(file, "file", this.getClass());
-        ValidationHelper.assertIsNotDirectory(file, "file", this.getClass());
-        ValidationHelper.assertIsReadable(file, "file", this.getClass());
+        ValidationHelper.assertExists(getFile(), "file", this.getClass());
+        ValidationHelper.assertIsNotDirectory(getFile(), "file", this.getClass());
+        ValidationHelper.assertIsReadable(getFile(), "file", this.getClass());
 
         if (uploadName == null) {
-            uploadName = file.getName();
+            uploadName = getFile().getName();
         }
 
         ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory
@@ -104,7 +100,7 @@ public class SfeeFrsPublisher extends SfeePublisher {
                 frsApp.deleteFrsFile(sessionID, id);
             }
 
-            DataHandler dataHandler = new DataHandler(file.toURL());
+            DataHandler dataHandler = new DataHandler(getFile().toURL());
             IFileStorageAppSoap fileStorageApp =
                     (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class, getServerURL());
             String storedFileId = fileStorageApp.uploadFile(sessionID, dataHandler);
@@ -116,6 +112,10 @@ public class SfeeFrsPublisher extends SfeePublisher {
         }
 
 
+    }
+
+    protected File getFile() {
+        return file;
     }
 
     private static Collection findExistingFiles(FrsFileSoapList fileList, String filename) {
@@ -132,6 +132,6 @@ public class SfeeFrsPublisher extends SfeePublisher {
 
     public void subValidate() throws CruiseControlException {
         ValidationHelper.assertIsSet(releaseID, "releaseid", this.getClass());
-        ValidationHelper.assertIsSet(file, "file", this.getClass());
+        ValidationHelper.assertIsSet(getFile(), "file", this.getClass());
     }
 }

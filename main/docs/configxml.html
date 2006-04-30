@@ -138,6 +138,7 @@
 <a href="#log">&lt;log&gt;</a>
 <a href="#maven2">&lt;maven2&gt;</a>
 <a href="#maven">&lt;maven&gt;</a>
+<a href="#maven2snapshotdependency">&lt;maven2snapshotdependency&gt;</a>
 <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
 <a href="#merge">&lt;merge&gt;</a>
 <a href="#mks">&lt;mks&gt;</a>
@@ -253,6 +254,7 @@
          <a href="#filesystem">&lt;filesystem/&gt;</a>
          <a href="#forceonly">&lt;forceonly/&gt;</a>
          <a href="#httpfile">&lt;httpfile/&gt;</a>
+         <a href="#maven2snapshotdependency">&lt;maven2snapshotdependency/&gt;</a>
          <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency/&gt;</a>
          <a href="#mks">&lt;mks/&gt;</a>
          <a href="#p4">&lt;p4/&gt;</a>
@@ -3292,7 +3294,7 @@ password=P@ssW0rd!
       &lt;mavensnapshotdependency&gt;</pre>
         </div>
 
-        <p>Triggers a build if a Maven snapshop detects a change.</p>
+        <p>Triggers a build if a Maven snapshot detects a change.</p>
 
         <h3>Attributes</h3>
 
@@ -3319,6 +3321,63 @@ password=P@ssW0rd!
                <td>localRepository</td>
                <td>No</td>
                <td>Local Maven JAR repository. Defaults to <code>{user.home}/.maven/repository</code>.</td>
+            </tr>
+            <tr>
+               <td>property</td>
+               <td>No</td>
+               <td>
+                  Set this property if a modification has occurred.  For use in conditionally
+                  controlling the build later.
+               </td>
+            </tr>
+            <tr>
+               <td>propertyOnDelete</td>
+               <td>No</td>
+               <td>Unsupported!</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="maven2snapshotdependency">&lt;maven2snapshotdependency&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;maven2snapshotdependency&gt;</pre>
+        </div>
+
+        <p>Triggers a build if a Maven2 snapshot detects a change.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+               <td>pomfile</td>
+               <td>Yes</td>
+               <td>maven2 POM file.</td>
+            </tr>
+            <tr>
+               <td>user</td>
+               <td>Yes</td>
+               <td>The username to use when reporting modifications.</td>
+            </tr>
+            <tr>
+               <td>localRepository</td>
+               <td>No (Not available until after maven v2.0.4+)</td>
+               <td>Local Maven2 JAR repository. Defaults to <code>{user.home}/.m2/repository</code>.</td>
             </tr>
             <tr>
                <td>property</td>
@@ -3498,6 +3557,11 @@ password=P@ssW0rd!
             </thead>
             <tbody>
             <tr>
+                <td>archivefilesuffix</td>
+                <td>no</td>
+                <td>Standard suffix for archive set when the repository is created. Default value is "-arc".</td>
+            </tr>
+            <tr>
                 <td>loginid</td>
                 <td>no</td>
                 <td>Used to supply a user and password. Example: loginid="sampleuser:samplepassword" or loginid="sampleuser"</td>
@@ -3505,12 +3569,12 @@ password=P@ssW0rd!
             <tr>
                 <td>pvcsproject</td>
                 <td>Yes</td>
-                <td></td>
+                <td>Project name.</td>
             </tr>
             <tr>
                 <td>pvcssubproject</td>
                 <td>Yes</td>
-                <td></td>
+                <td>Subproject name.</td>
             </tr>
             <tr>
                 <td>pvcsbin</td>
@@ -4214,6 +4278,7 @@ password=P@ssW0rd!
             <a href="#cvs">&lt;cvs&gt;</a>,
             <a href="#filesystem">&lt;filesystem&gt;</a>,
             <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>,
+            <a href="#maven2snapshotdependency">&lt;maven2snapshotdependency&gt;</a>,
             <a href="#mks">&lt;mks&gt;</a>,
             <a href="#snapshotcm">&lt;snapshotcm&gt;</a>,
             <a href="#starteam">&lt;starteam&gt;</a>,

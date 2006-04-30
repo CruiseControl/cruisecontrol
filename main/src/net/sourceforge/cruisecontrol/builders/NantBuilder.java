@@ -123,6 +123,16 @@ public class NantBuilder extends Builder {
         return element;
     }
 
+    public Element buildWithTarget(Map properties, String buildTarget) throws CruiseControlException {
+        String origTarget = target;
+        try {
+            target = buildTarget;
+            return build(properties);
+        } finally {
+            target = origTarget;
+        }
+    }
+
     // factory method for mock...
     protected NantScript getNantScript() {
         return new NantScript();
@@ -173,16 +183,6 @@ public class NantBuilder extends Builder {
      */
     public void setTarget(String target) {
         this.target = target;
-    }
-
-    /**
-     * Used to invoke the builder via JMX with a different target.
-     */
-    protected void overrideTarget(String target) {
-        if (target == null) {
-            target = "";
-        }
-        setTarget(target);
     }
 
     /**

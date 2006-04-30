@@ -118,9 +118,6 @@ public class Project implements Serializable, Runnable {
         initializeTransientFields();
     }
 
-    /**
-     * <b>Note:</b> This means that the config file is re-parsed on every cycle.
-     */
     public void execute() {
         if (stopped) {
             LOG.warn("not building project " + name + " because project has been stopped.");
@@ -173,9 +170,12 @@ public class Project implements Serializable, Runnable {
 
             bootstrap();
 
+            boolean buildWasForced = buildForced;
+            String target = useAndResetBuildTargetIfBuildWasForced(buildWasForced);
+            resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
+
             // getModifications will only return null if we don't need to build
-            Element modifications = getModifications();
-            buildForced = false;
+            Element modifications = getModifications(buildWasForced);
 
             if (modifications == null) {
                 return;
@@ -196,7 +196,7 @@ public class Project implements Serializable, Runnable {
             projectConfig.getLog().addContent(getProjectPropertiesElement(now));
 
             setState(ProjectState.BUILDING);
-            Element buildLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now));
+            Element buildLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target);
             projectConfig.getLog().addContent(buildLog.detach());
 
             boolean buildSuccessful = projectConfig.getLog().wasBuildSuccessful();
@@ -233,6 +233,21 @@ public class Project implements Serializable, Runnable {
             projectConfig.getLog().reset();
         } finally {
             setState(ProjectState.IDLE);
+        }
+    }
+
+    private String useAndResetBuildTargetIfBuildWasForced(boolean buildWasForced) {
+        String target = null;
+        if (buildWasForced) {
+            target = buildTarget;
+            buildTarget = null;
+        }
+        return target;
+    }
+
+    private void resetBuildForcedOnlyIfBuildWasForced(boolean buildWasForced) {
+        if (buildWasForced) {
+            buildForced = false;
         }
     }
 
@@ -336,14 +351,14 @@ public class Project implements Serializable, Runnable {
     /**
      * @return Element
      */
-    Element getModifications() {
+    Element getModifications(boolean buildWasForced) {
         setState(ProjectState.MODIFICATIONSET);
         Element modifications;
 
         ModificationSet modificationSet = projectConfig.getModificationSet();
         if (modificationSet == null) {
             debug("no modification set, nothing to detect.");
-            if (buildForced) {
+            if (buildWasForced) {
                 info("no modification set but build was forced");
                 return new Element("modifications");
             }
@@ -368,7 +383,7 @@ public class Project implements Serializable, Runnable {
             if (buildAfterFailed && !wasLastBuildSuccessful) {
                 info("Building anyway, since buildAfterFailed is true and last build failed.");
             } else {
-                if (buildForced) {
+                if (buildWasForced) {
                     info("Building anyway, since build was explicitly forced.");
                 } else {
                     return null;
@@ -591,16 +606,8 @@ public class Project implements Serializable, Runnable {
             throw new IllegalStateException("projectConfig must be set on project before calling init()");
         }
 
-        buildAfterFailed = projectConfig.isBuildAfterFailed();
+        buildAfterFailed = projectConfig.shouldBuildAfterFailed();
         
-        if (buildTarget != null) {
-            // tell the helper to set the given buildTarget
-            // on all Builders, just for this run (so we need to reset it)
-            info("Overriding build target with \"" + buildTarget + "\"");
-            projectConfig.getSchedule().overrideTargets(buildTarget);
-            buildTarget = null;
-        }
-
         if (lastBuild == null) {
             lastBuild = DateUtil.getMidnight();
         }
@@ -753,6 +760,13 @@ public class Project implements Serializable, Runnable {
     protected void createNewSchedulingThread() {
         Thread projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
         projectSchedulingThread.start();
+
+        // brief nap to allow thread to start
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ie) {
+            LOG.warn("interrupted while waiting for scheduling thread to start", ie);
+        }
     }
 
     public void stop() {

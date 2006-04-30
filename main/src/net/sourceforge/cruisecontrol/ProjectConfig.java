@@ -53,7 +53,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 public class ProjectConfig implements Serializable {
 
     private String name;
-    private boolean buildAfterFailed;
+    private boolean buildAfterFailed = true;
     private CCDateFormat dateFormat;
 
     private Bootstrappers bootstrappers;
@@ -150,7 +150,7 @@ public class ProjectConfig implements Serializable {
 
     public CCDateFormat getDateFormat() { return dateFormat; }
     
-    public boolean isBuildAfterFailed() { return buildAfterFailed; }
+    public boolean shouldBuildAfterFailed() { return buildAfterFailed; }
 
     public Log getLog() { return log; }
 

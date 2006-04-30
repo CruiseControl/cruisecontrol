@@ -38,12 +38,37 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
+
 import java.io.File;
+
+import org.jdom.Element;
 
 public class SCPPublisherTest extends TestCase {
 
+    private SCPPublisher publisher;
+
+    protected void setUp() throws Exception {
+        publisher = new SCPPublisher();
+    }
+
+    protected void tearDown() throws Exception {
+        publisher = null;
+    }
+
+    public void testIfFileNotSetShouldGetLatestLogNameEachTime() throws CruiseControlException {
+        TestSCPPublisher testpublisher = new TestSCPPublisher();
+        assertFalse(testpublisher.getLogFileNameWasCalled);
+        testpublisher.publish(null);
+        assertTrue(testpublisher.getLogFileNameWasCalled);
+
+        testpublisher.getLogFileNameWasCalled = false;
+        assertFalse(testpublisher.getLogFileNameWasCalled);
+        testpublisher.publish(null);
+        assertTrue(testpublisher.getLogFileNameWasCalled);        
+    }
+    
     public void testValidate() {
-        SCPPublisher publisher = new SCPPublisher();
         publisher.setSourceUser("user1");
         try {
             publisher.validate();
@@ -70,7 +95,6 @@ public class SCPPublisherTest extends TestCase {
     }
 
     public void testCreateCommandline() {
-        SCPPublisher publisher = new SCPPublisher();
         publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
         publisher.setTargetUser("user2");
@@ -111,4 +135,16 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator,
             publisher.createCommandline("filename").toString());
     }
+    
+    private class TestSCPPublisher extends SCPPublisher {
+        private boolean getLogFileNameWasCalled = false;
+
+        protected String getLogFileName(Element cruisecontrolLog) throws CruiseControlException {
+            getLogFileNameWasCalled = true;
+            return "fileName";
+        }
+        
+        protected void executeCommand(Commandline command) throws CruiseControlException {
+        }
+    };
 }

@@ -160,14 +160,16 @@ public class ExecBuilder extends Builder {
     } // build
 
 
-    /**
-     * Used to invoke the builder via JMX with different arguments
-     * @param args arguments for the command to execute
-     */
-    protected void overrideTarget(String args) {
-       setArgs(args);    
-    } // overrideTarget
-
+    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        String origArgs = args;
+        try {
+            args = target;
+            return build(properties);
+        } finally {
+            args = origArgs;
+        }
+    }
+    
     /**
      * Sets build timeout in seconds.
      * @param timeout long build timeout

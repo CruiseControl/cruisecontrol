@@ -76,5 +76,5 @@ mx4j-remote.jar		3.0.1		MX4J v1.0	mx4j-license.txt
 mx4j-tools.jar		3.0.1		MX4J v1.0	mx4j-license.txt
 smack.jar		1.3.0		ASL v1.1	apache-license-1.1.txt
 x10.jar			1.0.1		LGPL v2.1	lgpl-license.txt
-xalan.jar		2.6.0		ASL v2.0	apache-license-2.0.txt
-xerces.jar		2.7.0		ASL v2.0	apache-license-2.0.txt
+xalan.jar		2.7.0		ASL v2.0	apache-license-2.0.txt
+xerces.jar		2.8.0		ASL v2.0	apache-license-2.0.txt

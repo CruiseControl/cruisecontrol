@@ -41,18 +41,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 
-public abstract class Builder implements Comparable {
-    private static final Logger LOG = Logger.getLogger(Builder.class);
+public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
-    public static final int NOT_SET = -1;
-    protected static final int INVALID_NAME_OF_DAY = -2;
-
-    private int day = NOT_SET;
     private int time = NOT_SET;
     private int multiple = 1;
     private boolean multipleSet = false;
@@ -61,13 +56,8 @@ public abstract class Builder implements Comparable {
     //should return log from build
     public abstract Element build(Map properties) throws CruiseControlException;
     
-    /**
-     * Sets the given String as the target, goal, or whatever is appropiate for the Builder
-     * to override the default. Call with null to reset the overriden target.
-     * @param target
-     */
-    protected abstract void overrideTarget(String target);
-
+    public abstract Element buildWithTarget(Map properties, String target) throws CruiseControlException;
+    
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
 
@@ -75,29 +65,12 @@ public abstract class Builder implements Comparable {
             "Only one of 'time' or 'multiple' are allowed on builders.");
     }
 
-    public void setDay(String dayString) {
-        if (dayString.equalsIgnoreCase("sunday")) {
-            day = Calendar.SUNDAY;
-        } else if (dayString.equalsIgnoreCase("monday")) {
-            day = Calendar.MONDAY;
-        } else if (dayString.equalsIgnoreCase("tuesday")) {
-            day = Calendar.TUESDAY;
-        } else if (dayString.equalsIgnoreCase("wednesday")) {
-            day = Calendar.WEDNESDAY;
-        } else if (dayString.equalsIgnoreCase("thursday")) {
-            day = Calendar.THURSDAY;
-        } else if (dayString.equalsIgnoreCase("friday")) {
-            day = Calendar.FRIDAY;
-        } else if (dayString.equalsIgnoreCase("saturday")) {
-            day = Calendar.SATURDAY;
-        } else {
-            day = INVALID_NAME_OF_DAY;
-            LOG.warn("invalid value for day attribute \"" + dayString + "\"; must be English name for day of week");
-        }
+    public int getTime() {
+        return time;
     }
 
     /**
-     * can use Builder.NOT_SET to reset.
+     * can use ScheduleItem.NOT_SET to reset.
      * @param timeString
      */
     public void setTime(String timeString) {
@@ -121,14 +94,6 @@ public abstract class Builder implements Comparable {
         return multiple;
     }
 
-    public int getTime() {
-        return time;
-    }
-
-    public int getDay() {
-        return day;
-    }
-
     public String getGroup() {
         return group;
     }
@@ -141,13 +106,13 @@ public abstract class Builder implements Comparable {
      *  is this the correct day to be running this builder?
      */
     public boolean isValidDay(Date now) {
-        if (day < 0) {
+        if (getDay() < 0) {
             return true;
         }
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
-        return cal.get(Calendar.DAY_OF_WEEK) == day;
+        return cal.get(Calendar.DAY_OF_WEEK) == getDay();
     }
 
     /**

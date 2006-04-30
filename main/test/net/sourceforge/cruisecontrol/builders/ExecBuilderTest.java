@@ -58,7 +58,7 @@ public class ExecBuilderTest extends TestCase {
     private static final String MOCK_SUCCESS = "good exec";
     private static final String MOCK_EXIT_FAILURE = "exit failure";
     private static final String MOCK_OUTPUT_FAILURE = "output failure";
-    private static final String MOCK_TIMEOUT_FAILURE = "timeout failure";
+    // private static final String MOCK_TIMEOUT_FAILURE = "timeout failure";
     private File goodTestScript = null;
     private File exitTestScript = null;
     private File outputTestScript = null;

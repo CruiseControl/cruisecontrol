@@ -78,8 +78,12 @@ public class ExecutePublisher implements Publisher {
         LOG.info("executing command: " + command);
 
         try {
-            Runtime.getRuntime().exec(command.getCommandline());
+            Process p = command.execute();
+            p.waitFor();
+            LOG.debug("waitfor() ended with exit code " + p.exitValue());
         } catch (IOException e) {
+            throw new CruiseControlException(e);
+        } catch (InterruptedException e) {
             throw new CruiseControlException(e);
         }
     }
