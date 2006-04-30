@@ -37,7 +37,7 @@
             <li><h2>contributing</h2></li>
             <li><a class="expandmenu" href="../../../docs/developers.html">developers</a></li>
             <li><a href="../../../docs/contact.html">mailing lists</a></li>
-            <li><a href="../../../docs/cvs.html">cvs repository</a></li>
+            <li><a href="../../../docs/svn.html">source repository</a></li>
             <li><p id="menubottom">Release: %%VERSION%%</p></li>
         </ul>
     </div>
@@ -45,12 +45,12 @@
         <h1><span class="printonly">CruiseControl</span> Build Results JSP Installation Guide</h1>
 
         <h2>Getting The Source</h2>
-   If you have CVS installed, you can get the entire CruiseControl source by running:
+   If you have Subversion installed, you can get the entire CruiseControl source by running:
 
 <pre>
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol co cruisecontrol
+svn checkout https://svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol
 </pre>
-Just press the ENTER key when prompted for a password.
+
    <p>
    Once you have obtained the source, you should have a reporting/jsp directory that contains the following:<br/>
    <span class="small">src</span> - The source for the JSP custom tags<br/>
@@ -103,7 +103,7 @@ Just press the ENTER key when prompted for a password.
         <p>CruiseControl uses <a class="external" href="http://jakarta.apache.org/ant">Ant</a> to
         build and package the build results web application.  Everything you
         need to build has been included with the source that you obtained from
-        CVS.  There is a batch file and a shell script (<code>build.bat</code> and
+        Subversion.  There is a batch file and a shell script (<code>build.bat</code> and
         <code>build.sh</code> respectively) provided to make building the CruiseControl web
         application as easy as possible.  The configured <code>cruisecontrol.war</code> file
         has been created in the dist directory.</p>
