@@ -74,7 +74,7 @@ public class MavenBuilder extends Builder {
         ValidationHelper.assertIsSet(mavenScript, "mavenScript", this.getClass());
 
         ValidationHelper.assertIsSet(goal, "goal", this.getClass());
-        if (goal != null && getGoalSets().size() == 0) {
+        if (getGoalSets().isEmpty()) {
             ValidationHelper.assertIsSet(null, "goal", this.getClass());
         }
     }
@@ -137,6 +137,16 @@ public class MavenBuilder extends Builder {
         return buildLogElement;
     }
 
+    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        String origGoal = goal;
+        try {
+            goal = target;
+            return build(properties);
+        } finally {
+            goal = origGoal;
+        }
+    }
+    
     //***************************** Param setters ****************************
 
     /**
@@ -160,14 +170,7 @@ public class MavenBuilder extends Builder {
         this.goal = goal;
     }
 
-    /**
-     * Used to invoke the builder via JMX with a different goal.
-     */
-    protected void overrideTarget(String target) {
-        setGoal(target);    
-    }
-
-    /**
+   /**
      * project.xml to use
      */
     public void setProjectFile(String projectFile) {

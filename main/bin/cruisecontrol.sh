@@ -73,7 +73,7 @@ fi
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
 
-CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant/ant.jar:$LIBDIR/ant/ant-launcher.jar:$LIBDIR/xercesImpl-2.7.0.jar:$LIBDIR/xml-apis-2.7.0.jar:$LIBDIR/xmlrpc-2.0.1.jar:$LIBDIR/xalan-2.6.0.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$LIBDIR/comm.jar:$LIBDIR/x10.jar:$LIBDIR/fast-md5.jar:.
+CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant/ant.jar:$LIBDIR/ant/ant-launcher.jar:$LIBDIR/xercesImpl-2.8.0.jar:$LIBDIR/xml-apis-2.8.0.jar:$LIBDIR/xmlrpc-2.0.1.jar:$LIBDIR/xalan-2.7.0.jar:$LIBDIR/serializer-2.7.0.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$LIBDIR/comm.jar:$LIBDIR/x10.jar:$LIBDIR/fast-md5.jar:$LIBDIR/maven-embedder-2.0.3-dep.jar:.
 
 # convert the existing path to unix
 if [ `uname | grep -n CYGWIN` ]; then

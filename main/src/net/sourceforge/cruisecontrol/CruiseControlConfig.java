@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -171,7 +172,8 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
 
     private Map rootProperties = new HashMap();
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
-    private Map projectConfigs = new TreeMap();
+    private Map projectConfigs = new TreeMap();  // TODO: replace with LinkedHashMap when we drop 1.3 support
+    private ProjectNameSet projectNames = new ProjectNameSet();  // TODO: remove when we can use LinkedHashMap
     // for test purposes only
     private Map projectPluginRegistries = new TreeMap();
 
@@ -304,6 +306,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         LOG.debug("**************** end configuring project" + projectName + " *******************");
 
         this.projectConfigs.put(projectName, projectConfig);
+        projectNames.add(projectName);
         this.projectPluginRegistries.put(projectName, projectPlugins);
     }
 
@@ -320,7 +323,9 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     }
 
     public Set getProjectNames() {
-        return this.projectConfigs.keySet();
+// TODO: can go to old implmentation when we drop 1.3 and can use LinkedHashMap
+//        return this.projectConfigs.keySet();
+        return projectNames;
     }
 
     PluginRegistry getRootPlugins() {
@@ -330,4 +335,78 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     PluginRegistry getProjectPlugins(String name) {
         return (PluginRegistry) this.projectPluginRegistries.get(name);
     }
+
+    /*
+     * Allows CC to build projects in the order they are added, which is the
+     * order they appear in the config file.
+     * 
+     * TODO: remove when we can drop 1.3 and use LinkedHashMap for projectConfigs
+     */
+    private class ProjectNameSet implements Set {
+        private ArrayList list = new ArrayList();
+
+        public int size() {
+            return list.size();
+        }
+
+        public void clear() {
+            list.clear();
+        }
+
+        public boolean isEmpty() {
+            return list.isEmpty();
+        }
+
+        public Object[] toArray() {
+            return list.toArray();
+        }
+
+        public boolean add(Object o) {
+            if (o == null) {
+                throw new IllegalArgumentException("null not a valid project name");
+            }
+            if (!(o instanceof String)) {
+                throw new IllegalArgumentException("project names must be strings");
+            }
+            if (list.contains(o)) {
+                return false;
+            }
+            list.add(o);
+            return true;
+        }
+
+        public boolean contains(Object o) {
+            return list.contains(o);
+        }
+
+        public boolean remove(Object o) {
+            return list.remove(o);
+        }
+
+        public boolean addAll(Collection c) {
+            return list.addAll(c);
+        }
+
+        public boolean containsAll(Collection c) {
+            return list.containsAll(c);
+        }
+
+        public boolean removeAll(Collection c) {
+            return list.removeAll(c);
+        }
+
+        public boolean retainAll(Collection c) {
+            return list.retainAll(c);
+        }
+
+        public Iterator iterator() {
+            return list.iterator();
+        }
+
+        public Object[] toArray(Object[] a) {
+            return list.toArray(a);
+        }
+
+    }
+
 }

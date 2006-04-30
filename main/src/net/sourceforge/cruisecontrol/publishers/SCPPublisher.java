@@ -137,16 +137,31 @@ public class SCPPublisher implements Publisher {
     }
 
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        if (file == null) {
-            XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-            file = helper.getLogFileName();
+        boolean publishCurrentLogFile = file == null;
+        if (publishCurrentLogFile) {
+            file = getLogFileName(cruisecontrolLog);
             LOG.debug(file);
         }
 
-        Commandline command = createCommandline(file);
+        try {
+            Commandline command = createCommandline(file);
+            executeCommand(command);
+        } finally {
+            if (publishCurrentLogFile) {
+                file = null;
+            }
+        }
+    }
+
+    protected String getLogFileName(Element cruisecontrolLog) throws CruiseControlException {
+        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+        return helper.getLogFileName();
+    }
+
+    protected void executeCommand(Commandline command) throws CruiseControlException {
         LOG.info("executing command: " + command);
         try {
-            Process p = Runtime.getRuntime().exec(command.getCommandline());
+            Process p = command.execute();;
             LOG.debug("Runtime after.");
             p.waitFor();
             LOG.debug("waitfor() ended with exit code " + p.exitValue());
@@ -167,10 +182,9 @@ public class SCPPublisher implements Publisher {
             LOG.warn("Runtime.exec exception.");
             throw new CruiseControlException(e);
         }
-
     }
 
-    public Commandline createCommandline(String file) {
+    protected Commandline createCommandline(String file) {
         String sourcefile = sourceSeparator + file;
         String targetfile = targetSeparator;
 
@@ -198,7 +212,7 @@ public class SCPPublisher implements Publisher {
 
     }
 
-    public void createFileArgument(
+    private void createFileArgument(
         Argument arg,
         String user,
         String host,

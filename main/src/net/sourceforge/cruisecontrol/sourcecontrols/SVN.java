@@ -336,22 +336,24 @@ public class SVN implements SourceControl {
             List modifications = new ArrayList();
 
             Element logEntryPaths = logEntry.getChild("paths");
-            List paths = logEntryPaths.getChildren("path");
-            for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
-                Element path = (Element) iterator.next();
+            if (logEntryPaths != null) {
+                List paths = logEntryPaths.getChildren("path");
+                for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
+                    Element path = (Element) iterator.next();
 
-                Modification modification = new Modification("svn");
+                    Modification modification = new Modification("svn");
 
-                modification.modifiedTime = convertDate(logEntry.getChildText("date"));
-                modification.userName = logEntry.getChildText("author");
-                modification.comment = logEntry.getChildText("msg");
-                modification.revision = logEntry.getAttributeValue("revision");
+                    modification.modifiedTime = convertDate(logEntry.getChildText("date"));
+                    modification.userName = logEntry.getChildText("author");
+                    modification.comment = logEntry.getChildText("msg");
+                    modification.revision = logEntry.getAttributeValue("revision");
 
-                Modification.ModifiedFile modfile = modification.createModifiedFile(path.getText(), null);
-                modfile.action = convertAction(path.getAttributeValue("action"));
-                modfile.revision = modification.revision;
+                    Modification.ModifiedFile modfile = modification.createModifiedFile(path.getText(), null);
+                    modfile.action = convertAction(path.getAttributeValue("action"));
+                    modfile.revision = modification.revision;
 
-                modifications.add(modification);
+                    modifications.add(modification);
+                }
             }
 
             return (Modification[]) modifications.toArray(new Modification[modifications.size()]);

@@ -36,14 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.jdom.Element;
-
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
+
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  *  Used by <code>Schedule</code> to define periods of time when CruiseControl
@@ -52,10 +50,10 @@ import java.util.Map;
  *
  *  @author Alden Almagro
  */
-public class PauseBuilder extends Builder {
+public class PauseBuilder extends PerDayScheduleItem {
 
-    private int startTime = -1;
-    private int endTime = -1;
+    private int startTime = PerDayScheduleItem.NOT_SET;
+    private int endTime = PerDayScheduleItem.NOT_SET;
 
     public void validate() throws CruiseControlException {
         ValidationHelper.assertFalse(startTime < 0,
@@ -112,20 +110,5 @@ public class PauseBuilder extends Builder {
                 || (currentTime <= endTime
                     && (builderDay < 0 || builderDay == (currentDay - 1))));
     }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.Builder#build(java.util.Map)
-     */
-    public Element build(Map properties) throws CruiseControlException {
-        throw new UnsupportedOperationException("Should not call build on a PauseBuilder");
-    }
-
-    /**
-     * Used to invoke builders via JMX with a different target; we don't need this.
-     */
-    protected void overrideTarget(String target) {
-        // Do nothing    
-    }
-
 
 }

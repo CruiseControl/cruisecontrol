@@ -37,16 +37,15 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class PVCSTest extends TestCase {
 
     private PVCS pvcs;
-
-    public PVCSTest(String name) {
-        super(name);
-    }
 
     public void setUp() {
         pvcs = new PVCS();
@@ -177,5 +176,14 @@ public class PVCSTest extends TestCase {
                 + "-z /TestProject";
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
+    }
+    
+    public void testMakeModifications() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(2004, 11, 23);
+        Date date = cal.getTime();
+        pvcs.setLastBuild(date);
+        pvcs.setPvcsproject("Services");
+        pvcs.makeModificationsList(new File("test/net/sourceforge/cruisecontrol/sourcecontrols/vlog.txt"));
     }
 }

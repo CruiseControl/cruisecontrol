@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import org.jdom.Element;
 
 import java.util.Map;
@@ -56,6 +58,7 @@ public class MockBuilder extends Builder {
         this.buildLog = buildLog;
     }
     
-    protected void overrideTarget(String target) {
+    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        return build(properties);
     }
 }

@@ -38,9 +38,12 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
@@ -64,11 +67,11 @@ public class CruiseControlConfigTest extends TestCase {
     protected void setUp() throws Exception {
         URL url;
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
-        propertiesFile = new File(url.getPath());
+        propertiesFile = new File(URLDecoder.decode(url.getPath()));
 
         // Set up a CruiseControl config file for testing
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
-        configFile = new File(url.getPath());
+        configFile = new File(URLDecoder.decode(url.getPath()));
         tempDirectory = configFile.getParentFile();
 
         Element rootElement = Util.loadConfigFile(configFile);
@@ -85,6 +88,16 @@ public class CruiseControlConfigTest extends TestCase {
         //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
         File fooDirectory = new File(tempDirectory, "foo");
         fooDirectory.delete();
+    }
+    
+    public void testProjectNamesShouldMatchOrderInFile() {
+        Set names = config.getProjectNames();
+        Iterator iter = names.iterator();
+        assertEquals("project1", (String) iter.next());
+        assertEquals("project2", (String) iter.next());
+        assertEquals("project3", (String) iter.next());
+        assertEquals("project3bis", (String) iter.next());
+        assertEquals("project4", (String) iter.next());
     }
 
     public void testGetProjectNames() {

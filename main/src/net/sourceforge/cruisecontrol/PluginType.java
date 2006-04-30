@@ -65,6 +65,7 @@ public final class PluginType implements Serializable {
     public static final PluginType MODIFICATION_SET = new PluginType("modificationset", "project");
     public static final PluginType PROJECT = new PluginType("project", "cruisecontrol");
     public static final PluginType EMAIL_MAPPER = new PluginType("propertiesmapper", "email");
+    public static final PluginType PAUSE = new PluginType("pause", "schedule");
     public static final PluginType PUBLISHER = new PluginType("publisher", "publishers");
     public static final PluginType PUBLISHERS = new PluginType("publishers", "project");
     public static final PluginType SCHEDULE = new PluginType("schedule", "project");
@@ -87,6 +88,7 @@ public final class PluginType implements Serializable {
             put(ProjectConfig.class, PROJECT);
             put(EmailMapper.class, EMAIL_MAPPER);
             put(ProjectConfig.Publishers.class, PUBLISHERS);
+            put(PauseBuilder.class, PAUSE);
             put(Publisher.class, PUBLISHER);
             put(Schedule.class, SCHEDULE);
             put(SourceControl.class, SOURCE_CONTROL);

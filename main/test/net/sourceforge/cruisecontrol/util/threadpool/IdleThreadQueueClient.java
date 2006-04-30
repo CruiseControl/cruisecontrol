@@ -44,52 +44,34 @@ package net.sourceforge.cruisecontrol.util.threadpool;
  */
 
 public class IdleThreadQueueClient implements WorkerThread {
-
-    private String name = WorkerThread.BLANK_NAME;
-    private int timeToSleep = 0;
+    private static final int ONE_SECOND = 1000;
+    private static final int TENTH_OF_SECOND = 100;
+    
+    private final String name;
     private Object result = null;
     private boolean terminate = false;
-    private int timeForLoopSleep = 100;
     private Object mutex = new Object();
+    
+    public IdleThreadQueueClient(String name) {
+        this.name = name;
+    }
 
     public void run() {
-//        System.out.println("Starting in client tester " + name);
-
         int time = 0;
 
-        // sleep but popup and see if you should exit
-        while (time < timeToSleep) {
-//            System.out.print(".");
+        while (time < ONE_SECOND) {
             synchronized (mutex) {
                 try {
-                    mutex.wait(timeForLoopSleep);
+                    mutex.wait(TENTH_OF_SECOND);
                 } catch (InterruptedException e) {
-//                    System.out.println(name + "interrupted while waiting");
                 }
             }
-            time += timeForLoopSleep;
+            time += TENTH_OF_SECOND;
             if (terminate) {
-//                System.out.println("Terminate encountered in " + name);
                 break;
             }
         }
-//        System.out.println("exiting from " + name);
         result = "DONE WITH " + name;
-    }
-
-    public void setParams(String[] args) {
-
-        if (args.length > 0) {
-            name = args[0];
-
-            if (args.length > 1) {
-                timeToSleep = new Integer(args[1]).intValue();
-            } else {
-                timeToSleep = 1000;
-            }
-        }
-
-
     }
 
     public Object getResult() {
@@ -98,7 +80,6 @@ public class IdleThreadQueueClient implements WorkerThread {
     }
 
     public void terminate() {
-        //System.out.println("\n-------terminate encountered!!-------\n");
         terminate = true;
         synchronized (mutex) {
             mutex.notifyAll();
@@ -111,7 +92,7 @@ public class IdleThreadQueueClient implements WorkerThread {
     }
 
     public void setName(String newName) {
-        name = newName;
+        throw new IllegalStateException("should not be called during tests");
     }
 
 }

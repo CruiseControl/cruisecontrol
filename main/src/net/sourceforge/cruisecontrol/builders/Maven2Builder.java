@@ -120,7 +120,7 @@ public class Maven2Builder extends Builder {
         
         ValidationHelper.assertIsSet(pomFile, "pomfile", getClass());
         ValidationHelper.assertIsSet(goal, "goal", this.getClass());
-        if (goal != null && getGoalSets().size() == 0) {
+        if (getGoalSets().isEmpty()) {
             ValidationHelper.assertIsSet(null, "goal", this.getClass());
         }
 
@@ -191,13 +191,14 @@ public class Maven2Builder extends Builder {
         return buildLogElement;
     }
 
-    /**
-     * Used to invoke the builder via JMX with a different goal.
-     * @param target 
-     */
-    protected void overrideTarget(String target) {
-
-        setGoal(target);
+    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        String origGoal = goal;
+        try {
+            goal = target;
+            return build(properties);
+        } finally {
+            goal = origGoal;
+        }
     }
     
     /**

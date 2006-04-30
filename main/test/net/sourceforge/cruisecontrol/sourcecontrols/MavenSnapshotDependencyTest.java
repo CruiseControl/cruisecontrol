@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public class MavenSnapshotDependencyTest extends TestCase {
 
     static {
         URL projectUrl = ClassLoader.getSystemResource(PROJECT_XML_RELATIVE_PATH);
-        TEST_PROJECT_XML = projectUrl.getPath();
+        TEST_PROJECT_XML = URLDecoder.decode(projectUrl.getPath());
         // Use the parent folder of the project xml as repository folder
         TEST_REPOSITORY = new File(TEST_PROJECT_XML).getParentFile().getAbsolutePath();
     }

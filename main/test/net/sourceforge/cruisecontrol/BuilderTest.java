@@ -109,7 +109,8 @@ public class BuilderTest extends TestCase {
             return null;
         }
         
-        protected void overrideTarget(String target) {
+        public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+            return null;
         }
     }
 }

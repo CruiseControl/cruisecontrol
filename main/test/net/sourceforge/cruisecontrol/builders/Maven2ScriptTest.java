@@ -45,8 +45,53 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggerRepository;
+import org.jdom.Element;
 
 public class Maven2ScriptTest extends TestCase {
+
+
+    public void testConsumeLine() throws Exception {
+        final Element buildLogElement = new Element("testBuild");
+        final Maven2Script script = new Maven2Script(buildLogElement, null, null, null, null, null, null);
+
+
+        int contentIdx = 0;
+        Element currElement;
+
+        script.consumeLine("[ERROR] BUILD ERROR");
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertEquals("BUILD ERROR detected", buildLogElement.getAttribute("error").getValue());
+        assertNull("BUILD ERROR detected", buildLogElement.getAttribute("success"));
+        assertEquals("message", currElement.getName());
+        assertEquals("error", currElement.getAttribute("priority").getValue());
+
+        script.consumeLine("BUILD SUCCESSFUL asdfasdf");
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertEquals("message", currElement.getName());
+        assertEquals("info", currElement.getAttribute("priority").getValue());
+        assertEquals("BUILD SUCCESSFUL detected", buildLogElement.getAttribute("success").getValue());
+
+        script.consumeLine("[surefire] Tests run: 17, Failures: 1, Errors: 0");
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertEquals("message", currElement.getName());
+        assertEquals("info", currElement.getAttribute("priority").getValue());
+
+        script.consumeLine("[test info like //loading]");
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertEquals("message", currElement.getName());
+        assertEquals("info", currElement.getAttribute("priority").getValue());
+
+        script.consumeLine("[testmavengoal:pattern]");
+        script.flushCurrentElement();
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertEquals("mavengoal", currElement.getName());
+        assertEquals("testmavengoal:pattern", currElement.getAttribute("name").getValue());
+
+        script.consumeLine("[INFO] Copying artifact[jar:saxon:saxon:6.5.3] to[saxon-6.5.3.jar]");
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertEquals("message", currElement.getName());
+        assertEquals("info", currElement.getAttribute("priority").getValue());
+    }
 
     /**
      * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
@@ -58,10 +103,11 @@ public class Maven2ScriptTest extends TestCase {
         TestUtil.assertArray(
             "NoDebug:",
             new String[] {
-            "testmaven.sh",
+            CMD_MVN,
             "-B",
             "-f",
-            "testproject.xml" },
+            CMD_POM,
+            "-Dlabel=" + CMD_LABEL },
             script.buildCommandline().getCommandline());
 
         script.setMvnScript("myscript.bat");
@@ -71,33 +117,57 @@ public class Maven2ScriptTest extends TestCase {
                 "myscript.bat",
                 "-B",
                 "-f",
-                "testproject.xml" },
+                CMD_POM,
+                "-Dlabel=" + CMD_LABEL },
             script.buildCommandline().getCommandline());
-        script.setMvnScript("testmaven.sh");
-        
-        script.setGoalset(" clean jar");
 
+        script.setMvnScript(CMD_MVN);
+        script.setGoalset(" clean jar");
         TestUtil.assertArray(
             "WithTarget:",
             new String[] {
-                "testmaven.sh",
+                CMD_MVN,
                 "-B",
                 "-f",
-                "testproject.xml",
+                CMD_POM,
                 "clean",
-                "jar" },
-        // notice the spaces in goalSet
+                "jar",
+                "-Dlabel=" + CMD_LABEL },
+            // notice the spaces in goalSet
             script.buildCommandline().getCommandline());
     }
+
+    public void testPropsWithSpace() throws CruiseControlException {
+        Maven2Script script = getScript();
+
+        Hashtable propWithSpace = new Hashtable();
+        propWithSpace.put("propertyWithSpace", "I have a space");
+        script.setBuildProperties(propWithSpace);
+        TestUtil.assertArray(
+            "NoDebug:",
+            new String[] {
+            CMD_MVN,
+            "-B",
+            "-f",
+            CMD_POM //,
+            // @todo Fix Maven2Scipt to handle props w/ spaces
+            //"-DpropertyWithSpace=I have a space"
+            },
+            script.buildCommandline().getCommandline());
+    }
+
+    private static final String CMD_MVN = "testmaven.sh";
+    private static final String CMD_POM = "testproject.xml";
+    private static final String CMD_LABEL = "200.1.23";
 
     private Maven2Script getScript() {
       Maven2Script script = new Maven2Script(null, null, null, null, null, null, null);
       // none should exist for this test
-      script.setMvnScript("testmaven.sh");
-      script.setPomFile("testproject.xml");
+      script.setMvnScript(CMD_MVN);
+      script.setPomFile(CMD_POM);
 
       Hashtable properties = new Hashtable();
-      properties.put("label", "200.1.23");
+      properties.put("label", CMD_LABEL);
       script.setBuildProperties(properties);
       return script;
     }
@@ -107,20 +177,21 @@ public class Maven2ScriptTest extends TestCase {
       LoggerRepository loggerRepository = logger.getLoggerRepository();
       Level threshold = loggerRepository.getThreshold();
       Level level = logger.getLevel();
-      
+
       loggerRepository.setThreshold(Level.ALL);
       logger.setLevel(Level.DEBUG);
       Maven2Script script = getScript();
       TestUtil.assertArray(
           "WithDebug:",
           new String[] {
-              "testmaven.sh",
+              CMD_MVN,
               "-B",
               "-X",
               "-f",
-              "testproject.xml" },
+              CMD_POM,
+              "-Dlabel=" + CMD_LABEL },
           script.buildCommandline().getCommandline());
-      
+
       loggerRepository.setThreshold(threshold);
       logger.setLevel(level);
     }

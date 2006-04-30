@@ -42,7 +42,7 @@ public class SFEEFrsPublisherTest extends TestCase {
 
         final File tempFile = File.createTempFile(SFEEFrsPublisherTest.class.getName(), "temp");
         tempFile.deleteOnExit();
-        publisher.setFile(tempFile);
+        publisher.setFile(tempFile.getAbsolutePath());
 
         publisher.validate();
         //The cruise log information isn't used by this task.
@@ -88,7 +88,7 @@ public class SFEEFrsPublisherTest extends TestCase {
         } catch (CruiseControlException expected) {
         }
 
-        publisher.setFile(new File("foo"));
+        publisher.setFile("foo");
         publisher.validate();
     }
 
@@ -99,7 +99,7 @@ public class SFEEFrsPublisherTest extends TestCase {
         publisher.setUsername(USERNAME);
         publisher.setPassword(PASSWORD);
         publisher.setReleaseID(RELEASE_ID);
-        publisher.setFile(new File("THISFILEDOESNTEXIST" + System.currentTimeMillis()));
+        publisher.setFile("THISFILEDOESNTEXIST" + System.currentTimeMillis());
 
         publisher.validate();
 
@@ -111,16 +111,21 @@ public class SFEEFrsPublisherTest extends TestCase {
     }
 
     public void testPublishUnreadableFile() throws CruiseControlException {
-        SfeeFrsPublisher publisher = new SfeeFrsPublisher();
+        //A file that exists, but isn't readable
+        final UnreadableMockFile unreadableFile = new UnreadableMockFile();
+
+        SfeeFrsPublisher publisher = new SfeeFrsPublisher() {
+            protected File getFile() {
+                return unreadableFile;
+            }
+        };
+        
+        publisher.setFile("mocked out");
 
         publisher.setServerURL(SERVER_URL);
         publisher.setUsername(USERNAME);
         publisher.setPassword(PASSWORD);
         publisher.setReleaseID(RELEASE_ID);
-
-        //A file that exists, but isn't readable
-        UnreadableMockFile unreadableFile = new UnreadableMockFile();
-        publisher.setFile(unreadableFile);
 
         publisher.validate();
 
@@ -140,7 +145,7 @@ public class SFEEFrsPublisherTest extends TestCase {
         publisher.setUsername(USERNAME);
         publisher.setPassword(PASSWORD);
         publisher.setReleaseID(RELEASE_ID);
-        publisher.setFile(new File(System.getProperty("java.io.tmpdir")));
+        publisher.setFile(System.getProperty("java.io.tmpdir"));
 
         publisher.validate();
 
@@ -163,7 +168,7 @@ public class SFEEFrsPublisherTest extends TestCase {
 
         final File tempFile = File.createTempFile(SFEEFrsPublisherTest.class.getName(), "temp");
         tempFile.deleteOnExit();
-        publisher.setFile(tempFile);
+        publisher.setFile(tempFile.getAbsolutePath());
 
         publisher.validate();
         publisher.publish(null);
@@ -202,7 +207,7 @@ public class SFEEFrsPublisherTest extends TestCase {
         final File tempFile = File.createTempFile(SFEEFrsPublisherTest.class.getName(), "temp");
         tempFile.deleteOnExit();
         TestUtil.write("run 1", tempFile);
-        publisher.setFile(tempFile);
+        publisher.setFile(tempFile.getAbsolutePath());
 
         publisher.validate();
         publisher.publish(null);

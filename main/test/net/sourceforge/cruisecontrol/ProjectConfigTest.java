@@ -49,6 +49,12 @@ public class ProjectConfigTest extends TestCase {
     protected void tearDown() {
         config = null;
     }
+    
+    public void testBuildAfterFailedShouldDefaultToTrue() {
+        assertTrue(config.shouldBuildAfterFailed());
+        config.setBuildAfterFailed(false);
+        assertFalse(config.shouldBuildAfterFailed());
+    }
 
     public void testValidate_ScheduleRequired() throws CruiseControlException {
         try {

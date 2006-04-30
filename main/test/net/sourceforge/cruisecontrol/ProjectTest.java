@@ -346,30 +346,20 @@ public class ProjectTest extends TestCase {
         project.init();
 
         modSet.setModified(true);
-        assertEquals(modifications, project.getModifications());
-        modSet.setModified(false);
-        assertEquals(null, project.getModifications());
-
-        project.setBuildForced(true);
-        assertEquals(modifications, project.getModifications());
-        project.setBuildForced(false);
-        assertEquals(null, project.getModifications());
-
-        project.setBuildForced(true);
-        modSet.setModified(true);
-        assertEquals(modifications, project.getModifications());
+        assertEquals(modifications, project.getModifications(false));
+        assertEquals(modifications, project.getModifications(true));
 
         modSet.setModified(false);
-        project.setBuildForced(false);
-        assertEquals(null, project.getModifications());
+        assertEquals(null, project.getModifications(false));
+        assertEquals(modifications, project.getModifications(true));
 
         // TODO: need tests for when lastBuildSuccessful = false
     }
     
     public void testGetModifications_NoModificationElementRequired() {
-        assertNull(project.getModifications());
+        assertNull(project.getModifications(false));
         project.setBuildForced(true);
-        assertNotNull(project.getModifications());
+        assertNotNull(project.getModifications(true));
     }
 
     public void testCheckOnlySinceLastBuild() throws CruiseControlException {
