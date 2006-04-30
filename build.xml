@@ -80,7 +80,7 @@
     </target>
 
     <target name="validate-website" depends="website">
-        <xmlvalidate failonerror="no">
+        <xmlvalidate>
             <fileset dir="target/website" includes="**/*.html" excludes="**/api/**"/>
         </xmlvalidate>
     </target>
