@@ -1,9 +1,0 @@
-target
-dist
-testresults.xml
-override.properties
-.classpath
-.project
-scrap.jpage
-bin
-*.iml
