@@ -59,15 +59,15 @@ import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
 
 /**
- * Checks for modifications made to a Telelogic CM Synergy repository.
- * It does this by examining a provided reference project, getting
- * the tasks from all folders in that project, and checking the 
- * completion time of those tasks against the last build.
+ * Checks for modifications made to a Telelogic CM Synergy repository. It does
+ * this by examining a provided reference project, getting the tasks from all
+ * folders in that project, and checking the completion time of those tasks
+ * against the last build.
  * 
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class CMSynergy implements SourceControl {
-    
+
     /**
      * A delimiter used for data values returned from a CM Synergy query
      */
@@ -77,24 +77,22 @@ public class CMSynergy implements SourceControl {
      * A delimiter used to mark the end of a multi-lined result from a query
      */
     public static final String CCM_END_OBJECT = "<<<#@#@#>>>";
-    
+
     /**
      * The default CM Synergy command line client executable
      */
     public static final String CCM_EXE = "ccm";
-    
+
     /**
-     * The environment variable used by CM Synergy to determine
-     * which backend ccmSession to use when issuing commands.
+     * The environment variable used by CM Synergy to determine which backend
+     * ccmSession to use when issuing commands.
      */
     public static final String CCM_SESSION_VAR = "CCM_ADDR";
-        
+
     /**
      * The default CM Synergy session map file
      */
-    public static final String CCM_SESSION_FILE = System
-            .getProperty("user.home")
-            + File.separator + ".ccmsessionmap";
+    public static final String CCM_SESSION_FILE = System.getProperty("user.home") + File.separator + ".ccmsessionmap";
 
     /**
      * An instance of the logging class
@@ -102,132 +100,139 @@ public class CMSynergy implements SourceControl {
     private static final Logger LOG = Logger.getLogger(CMSynergy.class);
 
     /**
-     * A collection of properties which will be passed to and set
-     * within the builder.
+     * A collection of properties which will be passed to and set within the
+     * builder.
      */
     private Hashtable properties = new Hashtable();
 
     /**
-     * The name of the property which will be set and passed to the
-     * builder if any object has changed since the last build.
+     * The name of the property which will be set and passed to the builder if
+     * any object has changed since the last build.
      */
     private String property = "cc.ccm.haschanged";
 
     /**
-     * The version number delimeter used by the database with which
-     * this CM Synergy session is connected.
+     * The version number delimeter used by the database with which this CM
+     * Synergy session is connected.
      */
     private String ccmDelimiter = "-";
-    
+
     /**
      * The URL for your installation of Change Synergy
      */
     private String changeSynergyURL;
-    
+
     /**
      * The CCM database with which we wish to connect
      */
     private String ccmDb;
-    
+
     /**
-     * The CM Synergy executable used for executing commands. If not set,
-     * we will use the default value "ccm".
+     * The CM Synergy executable used for executing commands. If not set, we
+     * will use the default value "ccm".
      */
     private String ccmExe;
-    
+
     /**
-     * The CM Synergy project spec (2 part name) of the project we will
-     * use as a template to determine if any new tasks have been completed.
+     * The CM Synergy project spec (2 part name).
      */
     private String projectSpec;
-    
+
     /**
      * The instance number of the project. This is almost always "1", but might
      * need to be overridden if you are using DCM?
      */
     private String projectInstance = "1";
-    
+
+    /**
+     * The CM Synergy project four part name we will use as a template to
+     * determine if any new tasks have been completed.
+     */
+    private String projectFourPartName;
+
     /**
      * If set to true, the contents of the folders contained within the
-     * project's reconfigure properties will be updated before we query
-     * to find new tasks.
+     * project's reconfigure properties will be updated before we query to find
+     * new tasks.
      */
     private boolean updateFolders = true;
-    
+
     /**
-     * The file which contains the mapping between CM Synergy session names
-     * and IDs.
+     * The file which contains the mapping between CM Synergy session names and
+     * IDs.
      */
     private File sessionFile;
-    
+
     /**
      * The name of the CM Synergy session to use.
      */
     private String sessionName;
-    
+
     /**
      * The date format as returned by your installation of CM Synergy.
      */
-    private String ccmDateFormat = "EEE MMM dd HH:mm:ss yyyy"; // Fri Dec  3 17:51:56 2004
-    
+    private String ccmDateFormat = "EEE MMM dd HH:mm:ss yyyy"; // Fri Dec 3
+
+    // 17:51:56 2004
+
     /**
      * If set to true, the project will be reconfigured when changes are
      * detected.
      */
     private boolean reconfigure = false;
-    
+
     /**
      * Used in conjunction with reconfigure. If set to true, all subprojects
      * will be reconfigured when changes are detected.
      */
     private boolean recurse = true;
-    
+
     /**
-     * If set to true, the work area location will not be queried and passed
-     * to the builder.
+     * If set to true, the work area location will not be queried and passed to
+     * the builder.
      */
     private boolean ignoreWorkarea = false;
-    
+
     /**
      * The locale used for parsing dates.
      */
     private Locale locale;
-    
+
     /**
-     * The language used to set the locale for parsing CM Synergy dates. 
+     * The language used to set the locale for parsing CM Synergy dates.
      */
     private String language = "en";
-    
+
     /**
      * A reusable commandline for issuing CM Synergy commands
      */
     private ManagedCommandline cmd;
-    
+
     /**
      * The country used to set the locale for parsing CM Synergy dates.
      */
     private String country = "US";
-    
+
     /**
      * The number of modified tasks found
      */
     private int numTasks;
-    
+
     /**
      * The number of modified objects found
      */
     private int numObjects;
-    
+
     /**
-     * Sets the name of the CM Synergy executable to use when issuing
-     * commands.
+     * Sets the name of the CM Synergy executable to use when issuing commands.
      * 
-     * @param ccmExe the name of the CM Synergy executable
+     * @param ccmExe
+     *            the name of the CM Synergy executable
      */
     public void setCcmExe(String ccmExe) {
         this.ccmExe = ccmExe;
     }
-    
+
     /**
      * Sets the CM Synergy project spec to be used as a template for calculating
      * changes. The value set here can be accessed from within the build as the
@@ -239,19 +244,20 @@ public class CMSynergy implements SourceControl {
     public void setProject(String projectSpec) {
         this.projectSpec = projectSpec;
     }
-    
+
     /**
      * Sets the project's instance value. This value will be used in any query
      * which involves the project. Defaults to "1". This default should work for
      * most people. You might, however, need to override this value when using
      * DCM?
      * 
-     * @param projectInstance The instance number of the project.
+     * @param projectInstance
+     *            The instance number of the project.
      */
     public void setInstance(String projectInstance) {
         this.projectInstance = projectInstance;
     }
-    
+
     /**
      * Sets the URL for your installation of Change Synergy. This is used to
      * create active links from the modification report to the Change Requests
@@ -279,7 +285,7 @@ public class CMSynergy implements SourceControl {
     public void setCcmDb(String db) {
         this.ccmDb = db;
     }
-    
+
     /**
      * Sets the value of the updateFolders attribute. If set to true, the
      * contents of the folders contained within the project's reconfigure
@@ -290,15 +296,15 @@ public class CMSynergy implements SourceControl {
     public void setUpdateFolders(boolean updateFolders) {
         this.updateFolders = updateFolders;
     }
-    
+
     /**
      * Sets the file which contains the mapping between CM Synergy session names
      * and IDs. This file should be in the standard properties file format. Each
      * line should map one name to a CM Synergy session ID (as returned by the
      * "ccm status" command).
      * <p>
-     * example:
-     * <br><br>
+     * example: <br>
+     * <br>
      * session1=localhost:65024:192.168.1.17
      * 
      * @param sessionFile
@@ -307,7 +313,7 @@ public class CMSynergy implements SourceControl {
     public void setSessionFile(String sessionFile) {
         this.sessionFile = new File(sessionFile);
     }
-    
+
     /**
      * Sets the name of the CM Synergy session to use with this plugin. This
      * name should appear in the specified session file.
@@ -320,8 +326,7 @@ public class CMSynergy implements SourceControl {
     public void setSessionName(String sessionName) {
         this.sessionName = sessionName;
     }
- 
-    
+
     /**
      * Sets the date format used by your installation of CM Synergy. The format
      * string should use the syntax described in <code>SimpleDateFormat</code>.
@@ -334,37 +339,36 @@ public class CMSynergy implements SourceControl {
     public void setCcmDateFormat(String format) {
         this.ccmDateFormat = format;
     }
-    
+
     /**
      * Sets the value of the reconfigure attribute. If set to true, the project
      * will be reconfigured when changes are detected. Default value is false.
      * 
      * @param reconfigure
      */
-    public void setReconfigure (boolean reconfigure) {
+    public void setReconfigure(boolean reconfigure) {
         this.reconfigure = reconfigure;
     }
-    
+
     /**
-     * Sets the value of the recurse attribute. Used in conjuction with the 
+     * Sets the value of the recurse attribute. Used in conjuction with the
      * reconfigure attribute. If set to true, all subprojects will also be
      * reconfigured when changes are detected. Default is true.
      * 
      * @param recurse
      */
-    public void setRecurse (boolean recurse) {
+    public void setRecurse(boolean recurse) {
         this.recurse = recurse;
     }
-    
+
     /**
      * Sets the value of the ignoreWorkarea attribute. If set to true, we will
-     * not attempt to determine the location of the project's workarea, nor
-     * will we pass the cc.ccm.workarea attribute to the builders. Default
-     * is false.
+     * not attempt to determine the location of the project's workarea, nor will
+     * we pass the cc.ccm.workarea attribute to the builders. Default is false.
      * 
      * @param ignoreWorkarea
      */
-    public void setIgnoreWorkarea (boolean ignoreWorkarea) {
+    public void setIgnoreWorkarea(boolean ignoreWorkarea) {
         this.ignoreWorkarea = ignoreWorkarea;
     }
 
@@ -379,44 +383,32 @@ public class CMSynergy implements SourceControl {
     public void setLanguage(String language) {
         this.language = language;
     }
-    
+
     /**
      * Sets the country used to create the locale for parsing CM Synergy dates.
      * The format should follow the ISO standard as specified by
      * <code>java.util.Locale</code>. The default is "US" (United States).
      * 
-     * @param country The ISO country code to use
+     * @param country
+     *            The ISO country code to use
      */
-    public void setCountry (String country) {
+    public void setCountry(String country) {
         this.country = country;
     }
-    
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
-     */
+
     public Map getProperties() {
         return properties;
     }
 
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.SourceControl#setProperty(java.lang.String)
-     */
     public void setProperty(String property) {
         this.property = property;
     }
 
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.SourceControl#validate()
-     */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(projectSpec, "project", this.getClass());
     }
-    
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.SourceControl#getModifications(java.util.Date, java.util.Date)
-     */
+
     public List getModifications(Date lastBuild, Date now) {
-                
         // Create a Locale appropriate for this installation
         locale = new Locale(language, country);
         if (!locale.equals(Locale.US)) {
@@ -424,23 +416,24 @@ public class CMSynergy implements SourceControl {
         }
 
         // Attempt to get the database delimiter
-        cmd = createCcmCommand(ccmExe, sessionName,
-                sessionFile);
+        cmd = createCcmCommand(ccmExe, sessionName, sessionFile);
         cmd.createArgument().setValue("delimiter");
         try {
             cmd.execute();
             cmd.assertExitCode(0);
             this.ccmDelimiter = cmd.getStdoutAsString().trim();
         } catch (Exception e) {
-            StringBuffer buff = new StringBuffer(
-                    "Could not connect to provided CM Synergy session");
+            StringBuffer buff = new StringBuffer("Could not connect to provided CM Synergy session");
             LOG.error(buff.toString(), e);
             return null;
         }
-        
-        LOG.info("Checking for modifications between " + lastBuild.toString()
-                + " and " + now.toString());
-                
+
+        // Create the projectFourPartName needed for projects with instance
+        // other than 1 to reconfigure properly
+        projectFourPartName = projectSpec + ":project:" + projectInstance;
+
+        LOG.info("Checking for modifications between " + lastBuild.toString() + " and " + now.toString());
+
         // If we were asked to update the folders, do so
         if (updateFolders) {
             refreshReconfigureProperties();
@@ -451,17 +444,16 @@ public class CMSynergy implements SourceControl {
         numObjects = 0;
         numTasks = 0;
         List modifications = getModifiedTasks(lastBuild);
-        
-        LOG.info("Found " + numObjects + " modified object(s) in " + numTasks
-                + " new task(s).");
-               
+
+        LOG.info("Found " + numObjects + " modified object(s) in " + numTasks + " new task(s).");
+
         // If we were asked to reconfigure the project, do so
         if (reconfigure && (numObjects > 0)) {
             reconfigureProject();
         }
 
         // Pass to the build any relevent properties
-        properties.put("cc.ccm.project", projectSpec);
+        properties.put("cc.ccm.project", projectFourPartName);
         properties.put("cc.ccm.dateformat", ccmDateFormat);
         String sessionID = cmd.getVariable(CCM_SESSION_VAR);
         if (sessionID != null) {
@@ -473,29 +465,27 @@ public class CMSynergy implements SourceControl {
         if (!ignoreWorkarea) {
             properties.put("cc.ccm.workarea", getWorkarea());
         }
-        
-        return modifications; 
+
+        return modifications;
     }
 
     /**
-     * Update the folders within the given project's reconfigure
-     * properties.
+     * Update the folders within the given project's reconfigure properties.
      */
     private void refreshReconfigureProperties() {
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument().setValue("reconfigure_properties");
         cmd.createArgument().setValue("-refresh");
-        cmd.createArgument().setValue(projectSpec);
+        cmd.createArgument().setValue(projectFourPartName);
         try {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.warn("Could not refresh reconfigure properties for project \""
-                    + projectSpec + "\".", e);
+            LOG.warn("Could not refresh reconfigure properties for project \"" + projectFourPartName + "\".", e);
         }
     }
-    
+
     /**
      * Get a list of all tasks which are contained in all folders in the
      * reconfigure properties of the specified project and were completed after
@@ -505,46 +495,38 @@ public class CMSynergy implements SourceControl {
      *         the new tasks
      */
     private List getModifiedTasks(Date lastBuild) {
-                
+
         // The format used for converting Java dates into CM Synergy dates
-        // Note that the format used to submit commands differs from the 
+        // Note that the format used to submit commands differs from the
         // format used in the results of that command!?!
-        SimpleDateFormat toCcmDate = new SimpleDateFormat(
-                "yyyy/MM/dd HH:mm:ss", locale); 
+        SimpleDateFormat toCcmDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale);
 
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument().setValue("query");
         cmd.createArgument().setValue("-u");
-        
+
         // Set up the output format
         cmd.createArgument().setValue("-f");
-        cmd.createArgument().setValue(
-                "%displayname" + CCM_ATTR_DELIMITER +      // 0
-                "%release" + CCM_ATTR_DELIMITER +          // 1
-                "%owner" + CCM_ATTR_DELIMITER +            // 2
-                "%completion_date" + CCM_ATTR_DELIMITER +  // 3
-                "%task_synopsis" + CCM_END_OBJECT);        // 4
-        
+        cmd.createArgument().setValue("%displayname" + CCM_ATTR_DELIMITER + // 0
+                "%release" + CCM_ATTR_DELIMITER + // 1
+                "%owner" + CCM_ATTR_DELIMITER + // 2
+                "%completion_date" + CCM_ATTR_DELIMITER + // 3
+                "%task_synopsis" + CCM_END_OBJECT); // 4
+
         // Construct the query string
         cmd.createArgument().setValue(
-                "is_task_in_folder_of(is_folder_in_rp_of('" 
-                + projectSpec 
-                + ":project:"
-                + projectInstance
-                + "')) and completion_date>time('"
-                + toCcmDate.format(lastBuild)
-                + "')");
-        
+                "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName + "')) and completion_date>time('"
+                        + toCcmDate.format(lastBuild) + "')");
+
         // Execute the command
         try {
             cmd.execute();
         } catch (Exception e) {
-            LOG.error("Could not query for new tasks. The modification list "
-                    + "will be empty!", e);
+            LOG.error("Could not query for new tasks. The modification list " + "will be empty!", e);
         }
 
-        //create a modification list with discovered tasks
+        // create a modification list with discovered tasks
         List modificationList = new ArrayList();
         Iterator tasks = format(cmd.getStdoutAsList()).iterator();
         while (tasks.hasNext()) {
@@ -561,17 +543,17 @@ public class CMSynergy implements SourceControl {
             mod.userName = attributes[2];
             mod.modifiedTime = getDateFromSynergy(attributes[3]);
             mod.comment = attributes[4];
-            
+
             // Populate the included files by quering for objects in the task
             getModifiedObjects(mod);
-            
+
             // Find any Change Requests with which the task is associated
             getAssociatedCRs(mod);
 
             // Add the modification to the list
             modificationList.add(mod);
         }
-        
+
         return modificationList;
     }
 
@@ -592,8 +574,7 @@ public class CMSynergy implements SourceControl {
         Arrays.fill(tokens, "");
         int tokenIndex = 0;
         for (int oldIndex = 0, index = line.indexOf(CCM_ATTR_DELIMITER, 0); true; oldIndex = index
-                + CCM_ATTR_DELIMITER.length(), index = line.indexOf(
-                CCM_ATTR_DELIMITER, oldIndex), tokenIndex++) {
+                + CCM_ATTR_DELIMITER.length(), index = line.indexOf(CCM_ATTR_DELIMITER, oldIndex), tokenIndex++) {
             if (tokenIndex > maxTokens) {
                 LOG.debug("Too many tokens; skipping entry");
                 return null;
@@ -601,9 +582,9 @@ public class CMSynergy implements SourceControl {
             if (index == -1) {
                 tokens[tokenIndex] = line.substring(oldIndex);
                 break;
-            } else {
-                tokens[tokenIndex] = line.substring(oldIndex, index);
             }
+            
+            tokens[tokenIndex] = line.substring(oldIndex, index);
         }
         if (tokenIndex < minTokens) {
             LOG.debug("Not enough tokens; skipping entry");
@@ -611,40 +592,38 @@ public class CMSynergy implements SourceControl {
         }
         return tokens;
     }
-    
-    
+
     /**
      * Populate the object list of a Modification by quering for objects
      * associated with the task.
      */
-    private void getModifiedObjects(CMSynergyModification mod) {    
+    private void getModifiedObjects(CMSynergyModification mod) {
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument().setValue("task");
         cmd.createArgument().setValue("-show");
         cmd.createArgument().setValue("objects");
-            
+
         // Set up the output format
         cmd.createArgument().setValue("-f");
-        cmd.createArgument().setValue(
-                "%name" + CCM_ATTR_DELIMITER +      // 0
-                "%version" + CCM_ATTR_DELIMITER +   // 1
-                "%type" + CCM_ATTR_DELIMITER +      // 2
-                "%instance" + CCM_ATTR_DELIMITER +  // 3
-                "%project" + CCM_ATTR_DELIMITER +   // 4
-                "%comment" + CCM_END_OBJECT);       // 5
-            
+        cmd.createArgument().setValue("%name" + CCM_ATTR_DELIMITER + // 0
+                "%version" + CCM_ATTR_DELIMITER + // 1
+                "%type" + CCM_ATTR_DELIMITER + // 2
+                "%instance" + CCM_ATTR_DELIMITER + // 3
+                "%project" + CCM_ATTR_DELIMITER + // 4
+                "%comment" + CCM_END_OBJECT); // 5
+
         // Construct the query string
-        cmd.createArgument().setValue(mod.taskNumber); 
-        
+        cmd.createArgument().setValue(mod.taskNumber);
+
         // Execute the command
         try {
             cmd.execute();
         } catch (Exception e) {
-            LOG.warn("Could not query for objects in task \"" + mod.taskNumber 
+            LOG.warn("Could not query for objects in task \"" + mod.taskNumber
                     + "\". The modification list will be incomplete!", e);
         }
-        
+
         // Populate the modification with the object data from the task
         Iterator objects = format(cmd.getStdoutAsList()).iterator();
         while (objects.hasNext()) {
@@ -652,46 +631,43 @@ public class CMSynergy implements SourceControl {
             String object = (String) objects.next();
             String[] attributes = tokeniseEntry(object, 6);
             if (attributes == null) {
-                LOG.warn("Could not determine attributes for object associated "
-                        + "with task \"" + mod.revision + "\".");
+                LOG.warn("Could not determine attributes for object associated " + "with task \"" + mod.revision
+                        + "\".");
                 continue;
             }
             // Add each object to the CMSynergyModification
-            mod.createModifiedObject(attributes[0], attributes[1],
-                    attributes[2], attributes[3], attributes[4], attributes[5]);
-        }   
+            mod.createModifiedObject(attributes[0], attributes[1], attributes[2], attributes[3], attributes[4],
+                    attributes[5]);
+        }
     }
 
     /**
      * Queries the CM Synergy repository to find any Change Requests with which
-     * a task is associated. If the Change Synergy URL and database were provided,
-     * we will add HTML based links to those CRs.
+     * a task is associated. If the Change Synergy URL and database were
+     * provided, we will add HTML based links to those CRs.
      * 
-     * @param mod The modification object
+     * @param mod
+     *            The modification object
      */
     private void getAssociatedCRs(CMSynergyModification mod) {
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument().setValue("query");
         cmd.createArgument().setValue("-u");
-        
+
         // Set up the output format
         cmd.createArgument().setValue("-f");
         cmd.createArgument().setValue("%displayname");
-        
+
         // Construct the query string
         cmd.createArgument().setValue(
-                "cvtype='problem' and has_associated_task('task"
-                + mod.taskNumber
-                + ccmDelimiter
-                + "1:task:probtrac')");
-        
+                "cvtype='problem' and has_associated_task('task" + mod.taskNumber + ccmDelimiter + "1:task:probtrac')");
+
         // Execute the command
         try {
             cmd.execute();
         } catch (Exception e) {
-            LOG.warn("Could not query for associated CRs. The modification list "
-                    + "may be incomplete!", e);
+            LOG.warn("Could not query for associated CRs. The modification list " + "may be incomplete!", e);
         }
 
         // Add the Change Request(s) to the modification
@@ -711,9 +687,9 @@ public class CMSynergy implements SourceControl {
                     cr.href = href.toString();
                 }
             }
-        }               
+        }
     }
-    
+
     /**
      * Determine the work area location for the specified project.
      * 
@@ -721,50 +697,48 @@ public class CMSynergy implements SourceControl {
      */
     private String getWorkarea() {
         String defaultWorkarea = ".";
-        
+
         // Get the literal workarea from Synergy
         cmd.clearArgs();
         cmd.createArgument().setValue("attribute");
         cmd.createArgument().setValue("-show");
         cmd.createArgument().setValue("wa_path");
         cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(projectSpec);
-        
+        cmd.createArgument().setValue(projectFourPartName);
+
         try {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.warn("Could not determine the workarea location for project \""
-                    + projectSpec + "\".", e);
+            LOG.warn("Could not determine the workarea location for project \"" + projectFourPartName + "\".", e);
             return defaultWorkarea;
         }
-        
-        // The command will return the literal work area, but what we are 
-        // really interested in is the top level directory within that work area.
-        File workareaPath = new File(cmd.getStdoutAsString()
-                .trim());
+
+        // The command will return the literal work area, but what we are
+        // really interested in is the top level directory within that work
+        // area.
+        File workareaPath = new File(cmd.getStdoutAsString().trim());
         if (!workareaPath.isDirectory()) {
             LOG.warn("The workarea reported by Synergy does not exist or is not accessible by this session - \""
-                            + workareaPath.toString() + "\".");
+                    + workareaPath.toString() + "\".");
             return defaultWorkarea;
         }
         String[] dirs = workareaPath.list();
         if (dirs.length != 1) {
-            LOG.warn("The workarea reported by Synergy is invalid - \""
-                            + workareaPath.toString() + "\".");
+            LOG.warn("The workarea reported by Synergy is invalid - \"" + workareaPath.toString() + "\".");
             return defaultWorkarea;
         }
-        
+
         // Found it!
         return workareaPath.getAbsolutePath() + File.separator + dirs[0];
     }
-    
+
     /**
      * Reconfigure the project
      */
     private void reconfigureProject() {
-        LOG.info("Reconfiguring project " + projectSpec + ".");
-        
+        LOG.info("Reconfiguring project " + projectFourPartName + ".");
+
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument().setValue("reconfigure");
@@ -772,22 +746,22 @@ public class CMSynergy implements SourceControl {
             cmd.createArgument().setValue("-recurse");
         }
         cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(projectSpec);
-        
+        cmd.createArgument().setValue(projectFourPartName);
+
         try {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.warn("Could not reconfigure project \""
-                    + projectSpec + "\".", e);
+            LOG.warn("Could not reconfigure project \"" + projectFourPartName + "\".", e);
         }
     }
-    
+
     /**
-     * Format the output of a CM Synergy query by removing
-     * newlines introduced by comments.
+     * Format the output of a CM Synergy query by removing newlines introduced
+     * by comments.
      * 
-     * @param in The <code>List</code> to be formated
+     * @param in
+     *            The <code>List</code> to be formated
      * @return The formated <code>List</code>
      */
     private List format(List in) {
@@ -803,7 +777,7 @@ public class CMSynergy implements SourceControl {
                 out.add(buff.toString());
                 buff = new StringBuffer();
             }
-        }   
+        }
         return out;
     }
 
@@ -819,20 +793,18 @@ public class CMSynergy implements SourceControl {
      * @see #setCcmDateFormat(String)
      */
     private Date getDateFromSynergy(String dateString) {
-        SimpleDateFormat fromCcmDate = new SimpleDateFormat(ccmDateFormat,
-                locale);
+        SimpleDateFormat fromCcmDate = new SimpleDateFormat(ccmDateFormat, locale);
         Date date;
         try {
             date = fromCcmDate.parse(dateString);
         } catch (ParseException e) {
-            LOG.warn("Could not parse CM Synergy date \"" + dateString
-                    + "\" into Java Date using format \"" + ccmDateFormat
-                    + "\".", e);
+            LOG.warn("Could not parse CM Synergy date \"" + dateString + "\" into Java Date using format \""
+                    + ccmDateFormat + "\".", e);
             date = new Date();
         }
         return date;
     }
-    
+
     /**
      * Given a CM Synergy session name, looks up the corresponding session ID.
      * 
@@ -844,26 +816,25 @@ public class CMSynergy implements SourceControl {
      * 
      * @throws CruiseControlException
      */
-    public static String getSessionID(String sessionName, File sessionFile)
-            throws CruiseControlException {
+    public static String getSessionID(String sessionName, File sessionFile) throws CruiseControlException {
 
         // If no session file was provided, try to use the default
         if (sessionFile == null) {
             sessionFile = new File(CCM_SESSION_FILE);
         }
-        
+
         // Load the persisted session information from file
         Properties sessionProperties = null;
         try {
             sessionProperties = Util.loadPropertiesFromFile(sessionFile);
         } catch (IOException e) {
-            throw new CruiseControlException (e);
+            throw new CruiseControlException(e);
         }
 
         // Look up and return the full session ID
         return sessionProperties.getProperty(sessionName);
     }
-    
+
     /**
      * Creates a <code>ManagedCommandline</code> configured to run CM Synergy
      * commands.
@@ -879,29 +850,25 @@ public class CMSynergy implements SourceControl {
      *            the default).
      * @return A configured <code>ManagedCommandline</code>
      */
-    public static ManagedCommandline createCcmCommand(String ccmExe,
-            String sessionName, File sessionFile) {
-        
+    public static ManagedCommandline createCcmCommand(String ccmExe, String sessionName, File sessionFile) {
+
         // If no executable name was provided, use the default
         if (ccmExe == null) {
             ccmExe = CCM_EXE;
         }
-        
+
         // Attempt to get the appropriate CM Synergy session
         String sessionID = null;
         if (sessionName != null) {
             try {
                 sessionID = getSessionID(sessionName, sessionFile);
                 if (sessionID == null) {
-                    LOG.error("Could not find a session ID for CM Synergy session named \""
-                            + sessionName
+                    LOG.error("Could not find a session ID for CM Synergy session named \"" + sessionName
                             + "\". Attempting to use the default (current) session.");
                 }
             } catch (CruiseControlException e) {
-                LOG.error("Failed to look up CM Synergy session named \""
-                        + sessionName
-                        + "\". Attempting to use the default (current) session.",
-                        e);
+                LOG.error("Failed to look up CM Synergy session named \"" + sessionName
+                        + "\". Attempting to use the default (current) session.", e);
             }
         }
 
@@ -914,5 +881,5 @@ public class CMSynergy implements SourceControl {
         }
 
         return command;
-    }          
+    }
 }
