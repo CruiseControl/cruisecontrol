@@ -2,6 +2,10 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CMSynergy
+=========
+* Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
+
 CruiseControl Release Notes - 2.5
 
 general
