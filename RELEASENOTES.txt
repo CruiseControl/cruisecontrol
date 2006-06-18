@@ -15,6 +15,10 @@ CMSynergy
 ----------------------
 * Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
 
+SVN
+----------------------
+* Reset modified property to null if no modifications. Patch by Paul Hammant.
+
 CruiseControl Release Notes - 2.5
 
 general

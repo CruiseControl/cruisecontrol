@@ -282,7 +282,7 @@ public class SVNTest extends TestCase {
         Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(0, modifications.length);
     }
-    
+
     public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported()
           throws ParseException, JDOMException, IOException {
         String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -407,6 +407,13 @@ public class SVNTest extends TestCase {
                 "added"));
         svn.fillPropertiesIfNeeded(hasModifications);
         assertEquals("true", svn.getProperties().get("hasChanges?"));
+    }
+
+    public void testSetPropertyIgnoresPriorState() throws ParseException {
+        testSetProperty();
+        svn.fillPropertiesIfNeeded(new ArrayList());
+        assertFalse(svn.getProperties().containsKey("hasChanges?"));
+
     }
 
     public void testSetPropertyOnDelete() throws ParseException {

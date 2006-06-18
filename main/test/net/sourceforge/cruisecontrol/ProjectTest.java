@@ -680,6 +680,6 @@ public class ProjectTest extends TestCase {
 
         public void writeLogFile(Date now) throws CruiseControlException {
         }
-        
+
     }
 }

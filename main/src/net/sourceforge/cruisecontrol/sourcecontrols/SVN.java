@@ -274,6 +274,8 @@ public class SVN implements SourceControl {
         if (property != null) {
             if (modifications.size() > 0) {
                 properties.put(property, "true");
+            } else {
+                properties.remove(property);
             }
         }
 

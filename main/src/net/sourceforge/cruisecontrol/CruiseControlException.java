@@ -55,9 +55,13 @@ public class CruiseControlException extends Exception {
         super(message, cause);
     }
 
-    public static CruiseControlException throwIf(boolean truthTest, String message) throws CruiseControlException {
+    public static void throwIf(boolean truthTest, String message) throws CruiseControlException {
+        new CruiseControlException(message).throwIf(truthTest);
+    }
+
+    public void throwIf(boolean truthTest) throws CruiseControlException {
         if (truthTest) {
-            throw new CruiseControlException(message);
+            throw this;
         }
     }
 }
