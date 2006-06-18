@@ -78,24 +78,6 @@ public final class Util {
             throw new CruiseControlException("failed to parse configuration", e);
         }
     }
-    
-    /**
-     * Deletes a File instance. If the file represents a directory, all
-     * the subdirectories and files within.
-     */
-    public static void deleteFile(File file) {
-        if (file == null || !file.exists()) {
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            for (int i = 0; i < children.length; i++) {
-                File child = children[i];
-                deleteFile(child);
-            }
-        }
-        file.delete();
-    }
 
     public static boolean isWindows() {
         String osName = Util.getOsName();

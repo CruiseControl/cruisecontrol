@@ -48,14 +48,7 @@ public final class DateFormatFactory {
     }
 
     /**
-     * Note use {@link #getDateFormat()} when possible.
-     */
-    public static String getFormat() {
-        return format;
-    }
-
-    /**
-     * @return a DateFormat initialized given the {@link #getFormat()} return value.
+     * @return an initialized DateFormat.
      * @see SimpleDateFormat the concrete DateFormat class used
      */
     public static DateFormat getDateFormat() {

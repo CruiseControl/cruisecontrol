@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.buildloggers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.output.XMLOutputter;
@@ -68,7 +68,7 @@ public class MergeLoggerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         logger = null;
-        Util.deleteFile(tempSubdir);
+        IO.deleteFile(tempSubdir);
         tempSubdir = null;
         log = null;
     }

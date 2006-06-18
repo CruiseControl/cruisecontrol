@@ -157,8 +157,7 @@ public class LogTest extends TestCase {
             build.setText("Something with special characters: \u00c6\u00d8\u00c5");
 
             // Write and read the file
-            log.writeLogFile(new Date());
-            File logFile = log.getLastLogFile();
+            File logFile = log.writeLogFile(new Date());
             filesToClear.add(logFile);
             Element actualContent = builder.build(logFile).getRootElement();
 
@@ -182,8 +181,7 @@ public class LogTest extends TestCase {
         GZIPManipulator gzip = new GZIPManipulator();
         gzip.setEvery(12);
         gzip.setUnit("month");
-        Log log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
-        log = getWrittenTestLog(testProjectName, testLogDir, new Date());
+        Log log = getWrittenTestLog(testProjectName, testLogDir, new Date());
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 2, 1, 1);
@@ -278,8 +276,8 @@ public class LogTest extends TestCase {
         build = new Element("build");
         log.addContent(build);
         log.addContent(new Element("modifications"));
-        log.writeLogFile(date);
-        filesToClear.add(log.getLastLogFile());
+        File logFile = log.writeLogFile(date);
+        filesToClear.add(logFile);
         return log;
     }
 

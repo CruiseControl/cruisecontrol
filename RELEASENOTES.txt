@@ -2,8 +2,17 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - Current
+
+general
+======================
+* End of support for compiling/running Cruise with JDK 1.3. New earliest supported JDK is 1.4.x.
+
+build loop
+======================
+
 CMSynergy
-=========
+----------------------
 * Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
 
 CruiseControl Release Notes - 2.5

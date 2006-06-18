@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Iterator;
+import java.util.Date;
 
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -152,6 +153,7 @@ public class ProjectConfig implements Serializable {
     
     public boolean shouldBuildAfterFailed() { return buildAfterFailed; }
 
+    //TODO: This method seems useless. I suspect that callers aren't asking ProjectConfig the "right" questions.
     public Log getLog() { return log; }
 
     public List getBootstrappers() { 
@@ -176,7 +178,15 @@ public class ProjectConfig implements Serializable {
         props.putAll(properties);
         return props;
     }
-    
+
+    public void writeLogFile(Date now) throws CruiseControlException {
+        log.writeLogFile(now);
+    }
+
+    public boolean wasBuildSuccessful() {
+        return log.wasBuildSuccessful();
+    }
+
     public static class Bootstrappers {
         private List bootstrappers = new ArrayList();
         public void add(Bootstrapper bootstrapper) {

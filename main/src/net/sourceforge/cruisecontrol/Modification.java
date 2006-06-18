@@ -195,10 +195,8 @@ public class Modification implements Comparable {
         Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
 
-        Iterator i = files.iterator();
-        while (i.hasNext()) {
-            ModifiedFile f = (ModifiedFile) i.next();
-            modificationElement.addContent(f.toElement(formatter));
+        for (Iterator i = files.iterator(); i.hasNext(); ) {
+            modificationElement.addContent(((ModifiedFile) i.next()).toElement(formatter));
         }
 
         Element dateElement = new Element(TAGNAME_DATE);

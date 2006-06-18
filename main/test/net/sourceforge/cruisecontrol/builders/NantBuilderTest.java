@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.MockProcess;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.jdom.Attribute;
 import org.jdom.CDATA;
@@ -124,7 +124,7 @@ public class NantBuilderTest extends TestCase {
         builder = null;
         properties = null;
 
-        Util.deleteFile(rootTempDir);
+        IO.deleteFile(rootTempDir);
     }
 
     public void testValidate() {
