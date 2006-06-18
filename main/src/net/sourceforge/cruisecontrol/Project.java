@@ -199,7 +199,7 @@ public class Project implements Serializable, Runnable {
             Element buildLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target);
             projectConfig.getLog().addContent(buildLog.detach());
 
-            boolean buildSuccessful = projectConfig.getLog().wasBuildSuccessful();
+            boolean buildSuccessful = projectConfig.wasBuildSuccessful();
             fireResultEvent(new BuildResultEvent(this, buildSuccessful));
 
             if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
@@ -207,7 +207,7 @@ public class Project implements Serializable, Runnable {
             }
 
             setState(ProjectState.MERGING_LOGS);
-            projectConfig.getLog().writeLogFile(now);
+            projectConfig.writeLogFile(now);
 
             // If we only want to build after a check in, even when broken, set the last build to now,
             // regardless of success or failure (buildAfterFailed = false in config.xml)

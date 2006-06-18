@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -64,6 +63,7 @@ import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Level;
 import org.jdom.Element;
@@ -92,10 +92,7 @@ public class ProjectTest extends TestCase {
         projectConfig = null;
 
         LOG4J.getLoggerRepository().setThreshold(Level.ALL);
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            Util.deleteFile(file);
-        }
+        IO.delete(filesToClear);
     }
 
     public void testNotifyListeners() throws CruiseControlException {

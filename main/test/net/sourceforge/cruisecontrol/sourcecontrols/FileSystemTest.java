@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -85,7 +85,7 @@ public class FileSystemTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("FileSystem should not throw exceptions when required attributes are set.");
         } finally {
-            Util.deleteFile(tempDirectory);
+            IO.deleteFile(tempDirectory);
         }
     }
 
@@ -162,7 +162,7 @@ public class FileSystemTest extends TestCase {
             assertEquals(tempFile.getParent(), modification.getFolderName());
             assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
         } finally {
-            Util.deleteFile(tempDirectory);
+            IO.deleteFile(tempDirectory);
         }
     }
 

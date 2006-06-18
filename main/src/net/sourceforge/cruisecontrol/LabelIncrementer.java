@@ -62,7 +62,7 @@ public interface LabelIncrementer {
      * @param oldLabel Label from previous successful build.
      * @return Label to use for most recent successful build.
      */
-    public String incrementLabel(String oldLabel, Element buildLog);
+    String incrementLabel(String oldLabel, Element buildLog);
 
     /**
      *  Some implementations of <code>LabelIncrementer</code>, such as those involving
@@ -70,7 +70,7 @@ public interface LabelIncrementer {
      *  than after building.  This method determines whether to increment before
      *  building or after building.
      */
-    public boolean isPreBuildIncrementer();
+    boolean isPreBuildIncrementer();
 
     /**
      *  Check the validity of a user-supplied label, making sure that it can be incremented successfully by
@@ -79,11 +79,11 @@ public interface LabelIncrementer {
      *  @param label user-supplied label
      *  @return true if it is a valid label.
      */
-    public boolean isValidLabel(String label);
+    boolean isValidLabel(String label);
 
     /**
      * Called by Project when there is no previously serialized label.
      * @return defaultLabel
      */
-    public String getDefaultLabel();
+    String getDefaultLabel();
 }

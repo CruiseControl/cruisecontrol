@@ -62,9 +62,7 @@ public class HttpFileTest extends TestCase {
             httpFile.validate();
             fail("HttpFile should throw when an invalid URL is provided");
         } catch (CruiseControlException e) {
-            assertEquals(
-                "'url' is not a valid connection string : no protocol: Invalid URL",
-                e.getMessage());
+            assertEquals("'url' is not a valid connection string", e.getMessage());
         }
     }
 

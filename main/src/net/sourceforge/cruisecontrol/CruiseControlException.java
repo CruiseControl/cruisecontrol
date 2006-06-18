@@ -37,11 +37,7 @@
 
 package net.sourceforge.cruisecontrol;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
-
 public class CruiseControlException extends Exception {
-    private Throwable cause;
 
     public CruiseControlException() {
         super();
@@ -52,39 +48,16 @@ public class CruiseControlException extends Exception {
     }
 
     public CruiseControlException(Throwable cause) {
-        super(cause.getMessage());
-        this.cause = cause;
+        super(cause);
     }
 
     public CruiseControlException(String message, Throwable cause) {
-        super(message + " : " + cause.getMessage());
+        super(message, cause);
     }
 
-    public void printStackTrace() {
-        super.printStackTrace();
-
-        if (cause != null) {
-            System.err.println("Caused by:");
-            cause.printStackTrace();
+    public static CruiseControlException throwIf(boolean truthTest, String message) throws CruiseControlException {
+        if (truthTest) {
+            throw new CruiseControlException(message);
         }
     }
-
-    public void printStackTrace(PrintStream printStream) {
-        super.printStackTrace(printStream);
-
-        if (cause != null) {
-            printStream.println("Caused by:");
-            cause.printStackTrace(printStream);
-        }
-    }
-
-    public void printStackTrace(PrintWriter printWriter) {
-        super.printStackTrace(printWriter);
-
-        if (cause != null) {
-            printWriter.println("Caused by:");
-            cause.printStackTrace(printWriter);
-        }
-    }
-
 }
