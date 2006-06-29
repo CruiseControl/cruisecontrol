@@ -8,6 +8,10 @@ general
 ======================
 * End of support for compiling/running Cruise with JDK 1.3. New earliest supported JDK is 1.4.x.
 
+contrib
+======================
+* Update distributed CC code for refactoring in core (CC-485). Patch by Dan Rollo
+
 build loop
 ======================
 

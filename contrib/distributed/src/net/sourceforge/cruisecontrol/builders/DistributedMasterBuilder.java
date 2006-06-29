@@ -60,7 +60,7 @@ import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.util.ZipUtil;
 import net.sourceforge.cruisecontrol.util.FileUtil;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
@@ -89,11 +89,9 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     private String masterLogDir;
     private String masterOutputDir;
 
-    private Element thisElement;
     private Element childBuilderElement;
     private String overrideTarget;
     private MulticastDiscovery discovery;
-    private Properties cruiseProperties;
     private File rootDir;
 
     protected void overrideTarget(final String target) {
@@ -132,7 +130,6 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      */
     public void configure(final Element element) throws CruiseControlException {
-        thisElement = element;
         final List children = element.getChildren();
         if (children.size() > 1) {
             final String message = "DistributedMasterBuilder can only have one nested builder";
@@ -152,15 +149,15 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         // Add default/preconfigured props to distributed element
         addMissingPluginDefaults(element);
 
-        Attribute tempAttribute = thisElement.getAttribute("entries");
+        Attribute tempAttribute = element.getAttribute("entries");
         entries = tempAttribute != null ? tempAttribute.getValue() : "";
 
-        tempAttribute = thisElement.getAttribute("module");
+        tempAttribute = element.getAttribute("module");
         if (tempAttribute != null) {
             module = tempAttribute.getValue();
         } else {
             // try to use project name as default value
-            final Element elmProj = getElementProject(thisElement);
+            final Element elmProj = getElementProject(element);
             if (elmProj != null) {
                 module = elmProj.getAttributeValue("name");
             } else {
@@ -169,18 +166,19 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         }
 
         // optional attributes
-        tempAttribute = thisElement.getAttribute("agentlogdir");
+        tempAttribute = element.getAttribute("agentlogdir");
         setAgentLogDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
-        tempAttribute = thisElement.getAttribute("agentoutputdir");
+        tempAttribute = element.getAttribute("agentoutputdir");
         setAgentOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
-        tempAttribute = thisElement.getAttribute("masterlogdir");
+        tempAttribute = element.getAttribute("masterlogdir");
         setMasterLogDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
-        tempAttribute = thisElement.getAttribute("masteroutputdir");
+        tempAttribute = element.getAttribute("masteroutputdir");
         setMasterOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
+        final Properties cruiseProperties;
         try {
             cruiseProperties = (Properties) PropertiesHelper.loadRequiredProperties(CRUISE_PROPERTIES);
         } catch (RuntimeException e) {
@@ -392,7 +390,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             try {
                 agentMachine = agent.getMachineName();
             } catch (RemoteException e1) {
-                ; // ignored
+                // ignored
             }
             
             final Element buildResults;
@@ -472,7 +470,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             try {
                 LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDir);
                 ZipUtil.unzipFileToLocation(zipFilePath, masterDir);
-                Util.deleteFile(new File(zipFilePath));
+                IO.deleteFile(new File(zipFilePath));
             } catch (IOException e) {
                 // Empty zip for log results--ignore
                 LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
