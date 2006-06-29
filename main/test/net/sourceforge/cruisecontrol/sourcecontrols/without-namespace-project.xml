@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<project>
+
+    <dependencies>
+        <dependency>
+            <groupId>maven</groupId>
+            <artifactId>cc-maven-test</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <jar.manifest.classpath>true</jar.manifest.classpath>
+                <ejb.manifest.classpath>true</ejb.manifest.classpath>
+            </properties>
+        </dependency>
+
+        <!-- ControlData artifacts -->
+        <dependency>
+            <groupId>maven</groupId>
+            <artifactId>maven</artifactId>
+            <type>jar</type>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <jar.manifest.classpath>true</jar.manifest.classpath>
+                <ejb.manifest.classpath>true</ejb.manifest.classpath>
+            </properties>
+        </dependency>
+        
+        <dependency>
+            <groupId>maven</groupId>
+            <artifactId>foobar-${env}</artifactId>
+            <type>ejb-client</type>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <jar.manifest.classpath>true</jar.manifest.classpath>
+                <ejb.manifest.classpath>true</ejb.manifest.classpath>
+            </properties>
+        </dependency>
+        
+
+        <!-- JUnit for unit testing (don't delete) -->
+        <dependency>
+            <id>junit</id>
+            <version>3.8.1</version>
+            <type>jar</type>
+        </dependency>
+
+        <!-- DBUnit for preparing test data in DB -->
+        <dependency>
+            <groupId>dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <version>2.1</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
