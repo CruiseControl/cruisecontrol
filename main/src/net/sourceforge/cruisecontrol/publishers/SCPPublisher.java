@@ -161,7 +161,7 @@ public class SCPPublisher implements Publisher {
     protected void executeCommand(Commandline command) throws CruiseControlException {
         LOG.info("executing command: " + command);
         try {
-            Process p = command.execute();;
+            Process p = command.execute();
             LOG.debug("Runtime after.");
             p.waitFor();
             LOG.debug("waitfor() ended with exit code " + p.exitValue());
