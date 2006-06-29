@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -53,7 +54,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     protected void setUp() throws Exception {
         // Set up a CruiseControl config file for testing
         URL url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig-preconf.xml");
-        configFile = new File(url.toURI());
+        configFile = new File(URLDecoder.decode(url.getPath()));
         tempDirectory = configFile.getParentFile();
 
         Element rootElement = Util.loadConfigFile(configFile);
