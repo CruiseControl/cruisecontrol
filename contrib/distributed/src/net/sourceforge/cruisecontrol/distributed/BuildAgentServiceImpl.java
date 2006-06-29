@@ -59,7 +59,7 @@ import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.util.ZipUtil;
 import net.sourceforge.cruisecontrol.util.FileUtil;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -127,16 +127,16 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
      * 
      * @param message  the message to log (will be prefixed with machineName).
      */ 
-    private final void logPrefixDebug(final Object message) {
+    private void logPrefixDebug(final Object message) {
         LOG.debug(logMsgPrefix + message);
     }
-    private final void logPrefixInfo(final Object message) {
+    private void logPrefixInfo(final Object message) {
         LOG.info(logMsgPrefix + message);
     }
-    private final void logPrefixError(final Object message) {
+    private void logPrefixError(final Object message) {
         LOG.error(logMsgPrefix + message);
     }
-    private final void logPrefixError(final Object message, final Throwable throwable) {
+    private void logPrefixError(final Object message, final Throwable throwable) {
         LOG.error(logMsgPrefix + message, throwable);
     }
     
@@ -174,7 +174,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return agentPropertiesFilename;
     }
 
-    private final String busyLock = new String("busyLock");
+    private final String busyLock = "busyLock";
     void setBusy(final boolean newIsBusy) {
         if (!newIsBusy) { // means the claim is being released
             if (isPendingRestart()) {
@@ -269,9 +269,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
         final PluginRegistry plugins = PluginRegistry.createRegistry();
         final Class pluginClass = plugins.getPluginClass(builderElement.getName());
-        final Builder builder = (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
 
-        return builder;
+        return (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
     }
 
     /**
@@ -404,26 +403,26 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         try {
             if (logDir != null) {
                 logPrefixDebug("Deleting contents of " + logDir);
-                Util.deleteFile(new File(logDir));
+                IO.deleteFile(new File(logDir));
             } else {
                 logPrefixDebug("Skip delete agent logDir: " + logDir);                
             }
             if (logsFilePath != null) {
                 logPrefixDebug("Deleting log zip " + logsFilePath);
-                Util.deleteFile(new File(logsFilePath));
+                IO.deleteFile(new File(logsFilePath));
             } else {
                 logPrefixError("Skipping delete of log zip, file path is null.");
             }
 
             if (outputDir != null) {
                 logPrefixDebug("Deleting contents of " + outputDir);
-                Util.deleteFile(new File(outputDir));
+                IO.deleteFile(new File(outputDir));
             } else {
                 logPrefixDebug("Skip delete agent outputDir: " + outputDir);                
             }
             if (outputFilePath != null) {
                 logPrefixDebug("Deleting output zip " + outputFilePath);
-                Util.deleteFile(new File(outputFilePath));
+                IO.deleteFile(new File(outputFilePath));
             } else {
                 logPrefixError("Skipping delete of output zip, file path is null.");
             }
@@ -497,7 +496,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
             doKill(); // calls back to this agent to terminate lookup stuff
         } else if (isBusy()) {
-            ; // do nothing. When claim is released, setBusy(false) will perform the kill
+            // do nothing. When claim is released, setBusy(false) will perform the kill
         }
         fireAgentStatusChanged();
     }
@@ -510,7 +509,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             
             doRestart();
         } else if (isBusy()) {
-            ; // do nothing. When claim is released, setBusy(false) will perform the Restart
+            // do nothing. When claim is released, setBusy(false) will perform the Restart
         }
         fireAgentStatusChanged();        
     }

@@ -47,7 +47,7 @@ import java.util.Properties;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -83,8 +83,8 @@ public class ZipUtilTest extends TestCase {
             System.err.println(message);
         }
 
-        String tempFile = TEMP_FILE;
-        Writer writer = null;
+        final String tempFile = TEMP_FILE;
+        final Writer writer;
         try {
             filledDirPath = rootTempDirPath + File.separator + filledDirName;
             writer = new FileWriter(new File(filledDirPath, tempFile));
@@ -98,7 +98,7 @@ public class ZipUtilTest extends TestCase {
     }
 
     public void tearDown() {
-        Util.deleteFile(rootTempDir);
+        IO.deleteFile(rootTempDir);
         if (rootTempDir.exists()) {
             final String msg = "Delete file failed: rootTempDir: " + rootTempDir.getAbsolutePath()
                     + "\n\tContents:\n"
@@ -122,7 +122,7 @@ public class ZipUtilTest extends TestCase {
         assertTrue(tempFile.exists());
         assertTrue(tempFile.isFile());
 
-        Util.deleteFile(rootTempDir);
+        IO.deleteFile(rootTempDir);
         File tempDir = new File(rootTempDirPath);
         assertFalse(tempDir.exists());
     }
@@ -161,13 +161,13 @@ public class ZipUtilTest extends TestCase {
             fail(ioe.getMessage());
         }
         ZipUtil.zipFolderContents(zipFilePath, dirToZip);
-        File zipFile = new File(zipFilePath);
+        final File zipFile = new File(zipFilePath);
         assertTrue(zipFile.exists());
         assertTrue(zipFile.isFile());
         assertTrue(zipFile.length() > 0);
-        zipFile = null;
 
-        File unzipDir = new File(rootTempDirPath, "unzip");
+
+        final File unzipDir = new File(rootTempDirPath, "unzip");
         unzipDir.mkdir();
         assertTrue(unzipDir.exists());
         File unzippedFile = null;
@@ -189,7 +189,6 @@ public class ZipUtilTest extends TestCase {
         }
         String expectedLine = "The quick brown fox, yadda, yadda, yadda...";
         assertEquals(expectedLine, line);
-        unzippedFile = null;
     }
 
     /**
