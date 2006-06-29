@@ -146,5 +146,5 @@ public class SCPPublisherTest extends TestCase {
         
         protected void executeCommand(Commandline command) throws CruiseControlException {
         }
-    };
+    }
 }
