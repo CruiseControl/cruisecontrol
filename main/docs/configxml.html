@@ -1740,7 +1740,7 @@ password=P@ssW0rd!
       &lt;lockfilebootstrapper&gt;</pre>
         </div>
 
-        <p>This plugin works in conjunction with a <a href="#lockfilelistener"><code>&lt;lockfilelistener&gt;</code></a> to define a set of projects that will not build simultaneously in a multithreaded build environment. This plugin is responsible for creating the lock file if it doesn't already exist, or if it does, to throw an exception to abort the build attempt.</p>
+        <p>This plugin works in conjunction with a <a href="#lockfilelistener"><code>&lt;lockfilelistener&gt;</code></a> to define a set of projects that will not build simultaneously in a multithreaded build environment. This plugin is responsible for creating the lock file if it doesn't already exist, or if it does, to throw an exception to abort the build attempt. When a build attempt is aborted the project will not be retried until the next build time as determined by the schedule interval or the schedule build time.</p>
 
         <h3>Attributes</h3>
 
