@@ -19,6 +19,10 @@ SVN
 ----------------------
 * Reset modified property to null if no modifications. Patch by Paul Hammant.
 
+reporting application
+======================
+* Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
+
 CruiseControl Release Notes - 2.5
 
 general

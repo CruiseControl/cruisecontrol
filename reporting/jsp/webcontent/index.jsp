@@ -380,9 +380,9 @@
       background-color: #CCCCCC;
     }
 
-    //.even-row {
-      //background-color: #FFFFCC;
-    //}
+    /*.even-row {
+      background-color: #FFFFCC;
+    }*/
 
     .header-row {
       background-color: white;
