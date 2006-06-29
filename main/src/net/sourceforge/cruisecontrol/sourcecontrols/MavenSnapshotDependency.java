@@ -38,12 +38,15 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.BufferedInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -52,12 +55,25 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.Namespace;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 /**
  * Checks binary dependencies listed in a Maven project rather than in a
  * repository.
+ * 
+ * <pre>
+ * Modifications 20060626 (jarkko.viinamaki at removethis.tietoenator.com):
+ * - made POM scanning namespace aware. Dependencies were not detected if project.xml
+ *   had schema definition in the project element
+ * - added support for "ejb-client" dependency type  
+ * - added echo for detected snapshot dependencies
+ * - added support for build.properties or other similiar properties file which contains
+ *   key=value tags to replace ${key} type strings in project.xml 
+ * Modifications 20060627
+ * - fixed a bug in replaceVariables method
+ * </pre>
  * 
  *  <at> author Tim Shadel
  */
@@ -67,6 +83,7 @@ public class MavenSnapshotDependency implements SourceControl {
     private String property;
     private List modifications;
     private File projectFile;
+    private File propertiesFile;
     private File localRepository = new File(System.getProperty("user.home") + "/.maven/repository/");
     private String user;
 
@@ -80,6 +97,16 @@ public class MavenSnapshotDependency implements SourceControl {
         projectFile = new File(s);
     }
 
+    /**
+     * Sets the .properties file which contains overriding tags for POM.
+     * 
+     * Default is build.properties
+     */
+    public void setPropertiesFile(String s) {
+        propertiesFile = new File(s);
+    }
+    
+    
     /**
      * Set the path for the local Maven repository
      */
@@ -166,11 +193,56 @@ public class MavenSnapshotDependency implements SourceControl {
             checkFile(dependency, lastBuild);
         }
     }
+    
+    /**
+     * Replaces variables in a string defined as ${key}.
+     * 
+     * Values for variables are taken from given properties or System properties.
+     * Replacement is recursive. If ${key} maps to a string which has other ${keyN} values,
+     * those ${keyN} values are replaced also if there is a matching value for them.
+     */
+    String replaceVariables(Properties p, String value) {
+        if (value == null || p == null) {
+            return value;
+        }
+        
+        int i = value.indexOf("${");
+        if (i == -1) {
+            return value;
+        }
+        int pos = 0;
+        while (i != -1) {
+            int j = value.indexOf("}", i);
+            if (j == -1) {
+                break;
+            }
+            String key = value.substring(i + 2, j);
+            // log.info("Tag: " + key);
+    
+            if (p.containsKey(key)) {
+               value = value.substring(0, i) + p.getProperty(key) + value.substring(j + 1);
+               // step one forward from ${ position, otherwise we can get an infinite loop
+               pos = i + 1;
+            } else if (System.getProperty(key) != null) {
+               value = value.substring(0, i) + System.getProperty(key) + value.substring(j + 1);
+               pos = i + 1;
+            } else {
+               // could not replace the value, leave it there
+               pos = j + 1;
+            }
+            // log.info("New value: " + value);
+    
+            i = value.indexOf("${", pos);
+        }
+        return value;
+    }
 
     /**
      * Parse the Maven project file, and file names
      */
     List getSnapshotFilenames(File mavenFile) {
+        log.info("Getting a list of dependencies for " + mavenFile);
+
         List filenames = new ArrayList();
         Element mavenElement;
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
@@ -187,26 +259,78 @@ public class MavenSnapshotDependency implements SourceControl {
                 + "]", e);
             return filenames;
         }
-        Element depsRoot = mavenElement.getChild("dependencies");
+        
+        // load the project properties file if it exists
+        Properties projectProperties = new Properties();
+        
+        if (propertiesFile == null) {
+            propertiesFile = new File(mavenFile.getParent() + "/build.properties"); 
+        }
+        
+        if (propertiesFile.exists()) {
+        
+            BufferedInputStream in = null;
+            try {
+                FileInputStream fin = new FileInputStream(propertiesFile);
+                in = new BufferedInputStream(fin);
+                projectProperties.load(in);
+            } catch (IOException ex) {
+                log.error("failed to load project properties file ["
+                           + propertiesFile.getAbsolutePath() + "]", ex);
+            } finally {
+                try {
+                   in.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+        
+        // set some default properties
+        projectProperties.put("basedir", mavenFile.getParent());
+        
+        // JAR overrides are currently not implemented. Some guidelines how to do it:
+        //   http://jira.public.thoughtworks.org/browse/CC-141
+        /*
+        boolean mavenJarOverride = false;
+        
+        String tmp = projectProperties.getProperty("maven.jar.override");
+        if (tmp != null && (tmp.equalsIgnoreCase("on") || tmp.equalsIgnoreCase("true"))) {
+            mavenJarOverride = true;
+        }
+        */
+        
+        Namespace ns = mavenElement.getNamespace();
+        
+        Element depsRoot = mavenElement.getChild("dependencies", ns);
 
         // No dependencies listed at all
         if (depsRoot == null) {
+            log.warn("No dependencies detected.");
             return filenames;
         }
+        
         List dependencies = depsRoot.getChildren();
         Iterator itr = dependencies.iterator();
         while (itr.hasNext()) {
             Element dependency = (Element) itr.next();
-            String versionText = dependency.getChildText("version");
+            String versionText = dependency.getChildText("version", ns);
+            
             if (versionText != null && versionText.endsWith("SNAPSHOT")) {
-                String groupId = dependency.getChildText("groupId");
-                String artifactId = dependency.getChildText("artifactId");
-                String id = dependency.getChildText("id");
-                String type = dependency.getChildText("type");
+                String groupId = dependency.getChildText("groupId", ns);
+                String artifactId = dependency.getChildText("artifactId", ns);
+                String id = dependency.getChildText("id", ns);
+                String type = dependency.getChildText("type", ns);
+               
+                // replace variables
+                artifactId = replaceVariables(projectProperties, artifactId);
+                groupId = replaceVariables(projectProperties, groupId);
+                id = replaceVariables(projectProperties, id);
+                versionText = replaceVariables(projectProperties, versionText);
+                
                 if (type == null) {
                     type = "jar";
                 }
-
+                
                 // Format:
                 // ${repo}/${groupId}/${type}s/${artifactId}-${version}.${type}
                 StringBuffer fileName = new StringBuffer();
@@ -218,7 +342,12 @@ public class MavenSnapshotDependency implements SourceControl {
                     fileName.append(id);
                 }
                 fileName.append('/');
-                fileName.append(type);
+                
+                if ("ejb-client".equals(type)) {
+                    fileName.append("ejb");
+                } else {
+                    fileName.append(type);
+                }
                 fileName.append('s');
                 fileName.append('/');
                 if (artifactId != null) {
@@ -228,14 +357,24 @@ public class MavenSnapshotDependency implements SourceControl {
                 }
                 fileName.append('-');
                 fileName.append(versionText);
+
+                if ("ejb-client".equals(type)) {
+                    fileName.append("-client");
+                }
+
                 fileName.append('.');
                 if ("uberjar".equals(type) || "ejb".equals(type)
-                        || "plugin".equals(type)) {
+                        || "plugin".equals(type) || "ejb-client".equals(type)) {
                     fileName.append("jar");
                 } else {
                     fileName.append(type);
                 }
+
+                
                 File file = new File(fileName.toString());
+
+                log.info("Snapshot detected: " + fileName);
+                
                 filenames.add(file.getAbsolutePath());
             }
         }
