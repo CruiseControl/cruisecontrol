@@ -37,12 +37,11 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -59,11 +58,7 @@ public class MavenSnapshotDependencyTest extends TestCase {
 
     static {
         URL projectUrl = ClassLoader.getSystemResource(PROJECT_XML_RELATIVE_PATH);
-        try {
-            TEST_PROJECT_XML = URLDecoder.decode(projectUrl.getPath(), Charset.defaultCharset().name());
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException("This should not be possible", e);
-        }
+        TEST_PROJECT_XML = URLDecoder.decode(projectUrl.getPath());
         // Use the parent folder of the project xml as repository folder
         TEST_REPOSITORY = new File(TEST_PROJECT_XML).getParentFile().getAbsolutePath();
     }
@@ -190,4 +185,67 @@ public class MavenSnapshotDependencyTest extends TestCase {
         List modifications = dep.getModifications(epoch, now);
         assertEquals("Modification list is not the correct size", 2, modifications.size());
     }
+
+    public void testGettingModificationsFromPOMWithoutNamespace() throws Exception {
+        MavenSnapshotDependency dep = new MavenSnapshotDependency();
+
+        dep.setProjectFile(getPOMPath("without-namespace-project.xml"));
+        dep.setLocalRepository(TEST_REPOSITORY);
+        Date epoch = new Date(0);
+        Date now = new Date();
+        List modifications = dep.getModifications(epoch, now);
+        assertEquals("Modification list is not the correct size", 3, modifications.size());
+    }
+
+    public void testGettingModificationsFromNamespacedPOM() throws Exception {
+        MavenSnapshotDependency dep = new MavenSnapshotDependency();
+
+        dep.setProjectFile(getPOMPath("with-namespace-project.xml"));
+        dep.setLocalRepository(TEST_REPOSITORY);
+        Date epoch = new Date(0);
+        Date now = new Date();
+        List modifications = dep.getModifications(epoch, now);
+        assertEquals("Modification list is not the correct size", 3, modifications.size());
+    }
+    
+    private String getPOMPath(String file) {
+        URL url = 
+           ClassLoader.getSystemResource("net/sourceforge/cruisecontrol/sourcecontrols/" + file);
+        return url.getPath();
+    }
+    
+    public void testReplaceVariables() throws Exception {
+        MavenSnapshotDependency dep = new MavenSnapshotDependency();
+    
+        Properties p = new Properties();
+        p.put("env", "dev");
+        p.put("a", "alphabetagamma");
+        p.put("b", "b");
+        p.put("c", "cecilia");
+        p.put("foobarsnafu", "x");
+        p.put("cvs.user", "donmike");
+        p.put("cvsroot", ":ext:${cvs.user}@host:/cvs");
+        p.put("foo", "${bar}");
+        p.put("bar", "${foo}");
+        assertEquals("01. Variable replacement failed", 
+               "foo-dev-1.0.jar", dep.replaceVariables(p, "foo-${env}-1.0.jar"));
+        assertEquals("02. Variable replacement failed for variable-only-string", 
+               "dev", dep.replaceVariables(p, "${env}"));
+        assertEquals("03. Variable replacement failed for an empty string", 
+               "", dep.replaceVariables(p, ""));
+        assertEquals("04. Variable replacement failed for partial variable", 
+               "${ffffffff", dep.replaceVariables(p, "${ffffffff"));
+        assertEquals("05. Multivariable replacement failed", 
+               "alphabetagammabxcecilia", dep.replaceVariables(p, "${a}${b}${foobarsnafu}${c}"));
+        assertEquals("06. Multireplacement failed", 
+               "CVSROOT=:ext:donmike@host:/cvs!alphabetagamma", dep.replaceVariables(p, "CVSROOT=${cvsroot}!${a}"));
+        assertEquals("07. Infinite loop", 
+               "${bar}${foo}", dep.replaceVariables(p, "${foo}${bar}"));
+        assertTrue("08. System environment variable replacement failed", 
+               dep.replaceVariables(p, "${user.home}")
+               .equals(System.getProperty("user.home")));
+        assertEquals("09. Null replacement failed", 
+               null, dep.replaceVariables(p, null));
+    }
+    
 }

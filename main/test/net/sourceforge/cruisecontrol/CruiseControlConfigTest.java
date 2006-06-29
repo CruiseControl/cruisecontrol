@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -66,11 +67,11 @@ public class CruiseControlConfigTest extends TestCase {
     protected void setUp() throws Exception {
         URL url;
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
-        propertiesFile = new File(url.toURI());
+        propertiesFile = new File(URLDecoder.decode(url.getPath()));
 
         // Set up a CruiseControl config file for testing
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
-        configFile = new File(url.toURI());
+        configFile = new File(URLDecoder.decode(url.getPath()));
         tempDirectory = configFile.getParentFile();
 
         Element rootElement = Util.loadConfigFile(configFile);
