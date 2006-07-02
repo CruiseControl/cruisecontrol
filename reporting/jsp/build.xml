@@ -84,7 +84,7 @@
             <include name="oscore*.jar"/>
             <include name="velocity-dep*.jar"/>
             <include name="webwork*.jar"/>
-            <include name="xalan*.jar"/>
+            <include name="saxon*.jar"/>
             <include name="serializer*.jar"/>
             <include name="xerces*.jar"/>
             <include name="xml*.jar"/>
