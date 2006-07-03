@@ -72,3 +72,5 @@ a img { border: 0 }
 .differences-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .differences-oddrow { background-color:#CCCCCC }
 .differences-evenrow { background-color:#FFFFCC }
+
+.testresults-output-div { border:solid 1px; font-size: 9pt; font-family:monospace }
