@@ -63,6 +63,7 @@ public class AntScript implements Script {
     private boolean useLogger;
     private boolean useQuiet;
     private boolean useDebug;
+    private boolean keepGoing;
     private String buildFile = "build.xml";
     private List properties;
     private String target = "";
@@ -119,6 +120,10 @@ public class AntScript implements Script {
             cmdLine.createArgument().setValue("-debug");
         } else if (useQuiet) {
             cmdLine.createArgument().setValue("-quiet");
+        }
+
+        if (keepGoing) {
+            cmdLine.createArgument().setValue("-keep-going");
         }
 
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
@@ -226,6 +231,9 @@ public class AntScript implements Script {
      */
     public void setUseQuiet(boolean useQuiet) {
         this.useQuiet = useQuiet;
+    }
+    public void setKeepGoing(boolean keepGoing) {
+        this.keepGoing = keepGoing;
     }
     /**
      * @param useScript The useScript to set.

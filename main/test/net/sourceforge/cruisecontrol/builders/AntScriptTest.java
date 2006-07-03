@@ -339,6 +339,39 @@ public class AntScriptTest extends TestCase {
        
     }
 
+    public void testGetCommandLineArgs_KeepGoingDebug() throws CruiseControlException {
+        String[] resultDebug =
+            {
+                "java",
+                "-classpath",
+                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                UNIX_PATH,
+                "-logger",
+                "org.apache.tools.ant.XmlLogger",
+                "-logfile",
+                "log.xml",
+                "-keep-going",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setUseLogger(USE_LOGGER);
+        script.setWindows(!IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setKeepGoing(true);
+        script.setSystemClassPath(UNIX_PATH);
+        TestUtil.assertArray(
+                "resultDebug",
+                resultDebug,
+            script.buildCommandline().getCommandline());
+
+    }
+
     public void testGetCommandLineArgs_MaxMemory() throws CruiseControlException {
         String[] resultWithMaxMemory =
             {
