@@ -16,6 +16,14 @@ contrib
 build loop
 ======================
 
+CMSynergy
+----------------------
+* Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
+
+default-plugins.properties
+----------------------
+* Add ClearCaseViewstrapper (CC-482). Reported by Andy Stevens
+
 MavenSnapshotDependency:
 ----------------------
 * Modifications to MavenSnapshotDependency (CC-484). Submitted by Jarkko Viinamäki
@@ -23,10 +31,6 @@ MavenSnapshotDependency:
   - added support for "ejb-client" dependency type
   - added echo for detected snapshot dependencies
   - added support for build.properties or other similiar properties file which contains key=value tags to replace ${key} type strings in project.xml 
-
-CMSynergy
-----------------------
-* Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
 
 SVN
 ----------------------
