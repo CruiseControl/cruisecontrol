@@ -67,11 +67,11 @@ public class CruiseControlConfigTest extends TestCase {
     protected void setUp() throws Exception {
         URL url;
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
-        propertiesFile = new File(URLDecoder.decode(url.getPath()));
+        propertiesFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
 
         // Set up a CruiseControl config file for testing
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
-        configFile = new File(URLDecoder.decode(url.getPath()));
+        configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
         tempDirectory = configFile.getParentFile();
 
         Element rootElement = Util.loadConfigFile(configFile);
