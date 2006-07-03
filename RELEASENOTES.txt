@@ -38,7 +38,11 @@ MavenSnapshotDependency:
 
 SVN
 ----------------------
-* Reset modified property to null if no modifications. Patch by Paul Hammant.
+* Reset modified property to null if no modifications. Patch by Paul Hammant
+
+UCM
+----------------------
+* Skip rmbranch and rmver events (CC-430). Patch by Olga Bondarchuk
 
 reporting application
 ======================

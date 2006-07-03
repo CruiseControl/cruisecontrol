@@ -36,15 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -60,6 +51,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for ClearCase UCM.
@@ -232,8 +233,8 @@ public class UCM implements SourceControl {
 
             while (((line = br.readLine()) != null) && (!br.equals(""))) {
                 String[] details = getDetails(line);
-                if (details[0].equals("mkbranch")) {
-                    // if type is create branch then skip
+                if (details[0].equals("mkbranch") || details[0].equals("rmbranch") || details[0].equals("rmver")) {
+                    // if type is create/remove branch then skip
                 } else {
                     String activityName = details[1];
                     String activityDate = details[2];
