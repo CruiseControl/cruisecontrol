@@ -34,7 +34,14 @@ SVN
 
 reporting application
 ======================
+
+index.jsp
+----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
+
+testdetails.xsl
+----------------------
+* Rewrite xsl to be more efficient. Submitted by Ivan Latysh
 
 CruiseControl Release Notes - 2.5
 
