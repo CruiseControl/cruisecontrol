@@ -77,12 +77,10 @@ public class UCM implements SourceControl {
     private boolean contributors = true;
 
     /*  Date format required by commands passed to ClearCase */
-    private final SimpleDateFormat inDateFormatter =
-            new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+    private final SimpleDateFormat inDateFormatter = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
 
     /*  Date format returned in the output of ClearCase commands. */
-    private final SimpleDateFormat outDateFormatter =
-            new SimpleDateFormat("yyyyMMdd.HHmmss");
+    private final SimpleDateFormat outDateFormatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     private Hashtable properties = new Hashtable();
 
@@ -226,8 +224,7 @@ public class UCM implements SourceControl {
 
         try {
             Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper =
-                    new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
@@ -279,7 +276,7 @@ public class UCM implements SourceControl {
             startIndex = index + delimiter.length();
         }
 
-        return (String[]) details.toArray(new String[]{});
+        return (String[]) details.toArray(new String[] {});
     }
 
     /*
@@ -347,8 +344,7 @@ public class UCM implements SourceControl {
 
         try {
             Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper =
-                    new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
@@ -386,10 +382,9 @@ public class UCM implements SourceControl {
         return mod;
     }
 
-
     /*
-    * construct a command to get all the activities on the specified stream
-    */
+     * construct a command to get all the activities on the specified stream
+     */
     public Commandline buildDescribeActivityCommand(String activityID) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
@@ -401,8 +396,8 @@ public class UCM implements SourceControl {
     }
 
     /*
-    * get all the activities on the stream since the last build date
-    */
+     * get all the activities on the stream since the last build date
+     */
     private List describeContributors(String activityName) {
 
         ArrayList contribList = new ArrayList();
@@ -411,8 +406,7 @@ public class UCM implements SourceControl {
 
         try {
             Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper =
-                    new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
 
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
@@ -446,12 +440,12 @@ public class UCM implements SourceControl {
         while (tokenizer.hasMoreTokens()) {
             parts.add(tokenizer.nextToken());
         }
-        return (String[]) parts.toArray(new String[]{});
+        return (String[]) parts.toArray(new String[] {});
     }
 
     /*
-      * construct a command to get all the activities on the specified stream
-      */
+     * construct a command to get all the activities on the specified stream
+     */
     public Commandline buildListContributorsCommand(String activityID) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
@@ -463,8 +457,8 @@ public class UCM implements SourceControl {
     }
 
     /*
-    * class to hold UCMModifications
-    */
+     * class to hold UCMModifications
+     */
     private static class UCMModification extends Modification {
         private static final String TAGNAME_CRMTYPE = "crmtype";
 
