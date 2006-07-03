@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 
@@ -54,7 +55,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 public class Maven2SnapshotDependencyTest extends TestCase {
 
     private static final String BAD_REPOSITORY = "folder";
-
     private static final String PROJECT_XML_RELATIVE_PATH =
         "net/sourceforge/cruisecontrol/sourcecontrols/maven2-pom.xml";
 
@@ -63,7 +63,11 @@ public class Maven2SnapshotDependencyTest extends TestCase {
 
     static {
         URL projectUrl = ClassLoader.getSystemResource(PROJECT_XML_RELATIVE_PATH);
-        TEST_PROJECT_XML = URLDecoder.decode(projectUrl.getPath());
+        try {
+            TEST_PROJECT_XML = URLDecoder.decode(projectUrl.getPath(), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
         // Use the parent folder of the project xml as repository folder
         TEST_REPOSITORY = new File(TEST_PROJECT_XML).getParentFile().getAbsolutePath() + "/maven2repo";
     }

@@ -54,7 +54,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     protected void setUp() throws Exception {
         // Set up a CruiseControl config file for testing
         URL url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig-preconf.xml");
-        configFile = new File(URLDecoder.decode(url.getPath()));
+        configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
         tempDirectory = configFile.getParentFile();
 
         Element rootElement = Util.loadConfigFile(configFile);
