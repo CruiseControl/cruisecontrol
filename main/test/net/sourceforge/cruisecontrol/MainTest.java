@@ -52,8 +52,8 @@ public class MainTest extends TestCase {
         String[] missingValue = new String[]{"-password"};
         String[] missingParam = new String[]{""};
         assertEquals("password", Main.parsePassword(correctArgs));
-        assertEquals(null, Main.parseUser(missingValue));
-        assertEquals(null, Main.parseUser(missingParam));
+        assertEquals(null, Main.parsePassword(missingValue));
+        assertEquals(null, Main.parsePassword(missingParam));
     }
 
     public void testParseUser() {
