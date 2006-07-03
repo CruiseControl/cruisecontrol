@@ -79,6 +79,7 @@ public class AntBuilder extends Builder {
     private List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
+    private boolean keepGoing = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
@@ -150,6 +151,7 @@ public class AntBuilder extends Builder {
         script.setTempFileName(tempFileName);
         script.setUseDebug(useDebug);
         script.setUseQuiet(useQuiet);
+        script.setKeepGoing(keepGoing);
         script.setSystemClassPath(getSystemClassPath());
 
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
@@ -384,6 +386,10 @@ public class AntBuilder extends Builder {
 
     public void setUseQuiet(boolean quiet) {
         useQuiet = quiet;
+    }
+
+    public void setKeepGoing(boolean keepGoing) {
+        this.keepGoing = keepGoing;
     }
 
     public String getLoggerClassName() {
