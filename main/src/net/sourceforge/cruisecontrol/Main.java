@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
+import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 
@@ -49,21 +50,28 @@ import org.apache.log4j.Logger;
 
 /**
  * Command line entry point.
- *
+ * 
  * @author alden almagro, ThoughtWorks, Inc. 2002
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
-public final class Main {
-    
+public final class Main implements CruiseControlMain {
+
     private static final Logger LOG = Logger.getLogger(Main.class);
 
-    private Main() { }
-    
     /**
-      * Print the version, configure the project with serialized build info
-      * and/or arguments and start the project build process.
-      */
+     * Commandline entry point into the application.
+     * 
+     * @deprecated Use the Launcher class instead
+     */
     public static void main(String[] args) {
+        new Main().start(args);
+    }
+
+    /**
+     * Print the version, configure the project with serialized build info
+     * and/or arguments and start the project build process.
+     */
+    public void start(String[] args) {
         Properties versionProperties = getBuildVersionProperties();
         printVersion(versionProperties);
         if (shouldPrintUsage(args)) {
@@ -77,22 +85,13 @@ public final class Main {
             }
             CruiseControlController controller = new CruiseControlController();
             controller.setVersionProperties(versionProperties);
-            File configFile =
-                new File(
-                   parseConfigFileName(
-                       args,
-                       CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
+            File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
             controller.setConfigFile(configFile);
             ServerXMLHelper helper = new ServerXMLHelper(configFile);
             ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
             if (shouldStartController(args)) {
-                CruiseControlControllerAgent agent =
-                    new CruiseControlControllerAgent(
-                        controller,
-                        parseJMXHttpPort(args),
-                        parseRmiPort(args),
-                        parseUser(args),
-                        parsePassword(args),
+                CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller,
+                        parseJMXHttpPort(args), parseRmiPort(args), parseUser(args), parsePassword(args),
                         parseXslPath(args));
                 agent.start();
             }
@@ -141,16 +140,16 @@ public final class Main {
     }
 
     /**
-     * Parse configfile from arguments and override any existing configfile value
-     * from reading serialized Project info.
-     *
-     * @param configFileName existing configfile value read from serialized Project
-     * info
+     * Parse configfile from arguments and override any existing configfile
+     * value from reading serialized Project info.
+     * 
+     * @param configFileName
+     *            existing configfile value read from serialized Project info
      * @return final value of configFileName; never null
-     * @throws CruiseControlException if final configfile value is null
+     * @throws CruiseControlException
+     *             if final configfile value is null
      */
-    static String parseConfigFileName(String[] args, String configFileName)
-        throws CruiseControlException {
+    static String parseConfigFileName(String[] args, String configFileName) throws CruiseControlException {
         configFileName = MainArgs.parseArgument(args, "configfile", configFileName, null);
         if (configFileName == null) {
             throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
@@ -165,9 +164,10 @@ public final class Main {
 
     /**
      * Parse port number from arguments.
-     *
+     * 
      * @return port number
-     * @throws IllegalArgumentException if port argument is invalid
+     * @throws IllegalArgumentException
+     *             if port argument is invalid
      */
     static int parseJMXHttpPort(String[] args) {
         if (MainArgs.argumentPresent(args, "jmxport") && MainArgs.argumentPresent(args, "port")) {
@@ -189,8 +189,8 @@ public final class Main {
         if (xslpath != null) {
             File directory = new File(xslpath);
             if (!directory.isDirectory()) {
-                throw new IllegalArgumentException(
-                        "'xslpath' argument must specify an existing directory but was " + xslpath);
+                throw new IllegalArgumentException("'xslpath' argument must specify an existing directory but was "
+                        + xslpath);
             }
         }
         return xslpath;
@@ -199,17 +199,17 @@ public final class Main {
     /**
      * Parse password from arguments and override any existing password value
      * from reading serialized Project info.
-     *
-     * @return final value of password.         
+     * 
+     * @return final value of password.
      */
     static String parsePassword(String[] args) {
         return MainArgs.parseArgument(args, "password", null, null);
     }
 
     /**
-     * Parse user from arguments and override any existing user value
-     * from reading serialized Project info.
-     *
+     * Parse user from arguments and override any existing user value from
+     * reading serialized Project info.
+     * 
      * @return final value of user.
      */
     static String parseUser(String[] args) {
@@ -228,14 +228,13 @@ public final class Main {
             LOG.error("Error reading version properties", e);
         }
         return props;
-     }
+    }
 
     /**
      * Writes the current version information to the logging information stream.
      */
     private static void printVersion(Properties props) {
-        LOG.info("CruiseControl Version " + props.getProperty("version") 
-                 + " " + props.getProperty("version.info"));
+        LOG.info("CruiseControl Version " + props.getProperty("version") + " " + props.getProperty("version.info"));
     }
 
     static boolean shouldPrintUsage(String[] args) {
