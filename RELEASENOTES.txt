@@ -51,6 +51,10 @@ index.jsp
 ----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
 
+rss.jsp
+----------------------
+* Use RFC-822 format for dates (CC-473). Patch by Brian Egge
+
 testdetails.xsl
 ----------------------
 * Rewrite xsl to be more efficient. Submitted by Ivan Latysh
