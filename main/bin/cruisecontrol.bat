@@ -55,25 +55,18 @@ set DEFAULT_CCDIR=%DEFAULT_CCDIR%\..
 if not defined CCDIR set CCDIR=%DEFAULT_CCDIR%
 set DEFAULT_CCDIR=
 
-:setClassPath
-set CRUISE_PATH=
-
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
-set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
 goto setCruise
 
 :noJavaHome
 echo Warning: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as <javac>) will not work properly.
 
 :setCruise
-
 set LIBDIR=%CCDIR%\lib
 set DISTDIR=%CCDIR%\dist
 
-set CRUISE_PATH=%CRUISE_PATH%;%DISTDIR%\cruisecontrol.jar;%LIBDIR%\log4j.jar;%LIBDIR%\jdom.jar;%LIBDIR%\ant\ant.jar;%LIBDIR%\ant\ant-launcher.jar;%LIBDIR%\xercesImpl-2.8.0.jar;%LIBDIR%\xml-apis-2.8.0.jar;%LIBDIR%\xmlrpc-2.0.1.jar;%LIBDIR%\saxon8.jar;%LIBDIR%\saxon8-dom.jar;%LIBDIR%\serializer-2.7.0.jar;%LIBDIR%\jakarta-oro-2.0.3.jar;%LIBDIR%\mail.jar;%LIBDIR%\junit.jar;%LIBDIR%\activation.jar;%LIBDIR%\commons-net-1.1.0.jar;%LIBDIR%\starteam-sdk.jar;%LIBDIR%\mx4j.jar;%LIBDIR%\mx4j-tools.jar;%LIBDIR%\mx4j-remote.jar;%LIBDIR%\smack.jar;%LIBDIR%\comm.jar;%LIBDIR%\x10.jar;%LIBDIR%\fast-md5.jar;%LIBDIR%\maven-embedder-2.0.3-dep.jar;.
-
-set EXEC="%JAVA_HOME%\bin\java" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControl %*
+set EXEC="%JAVA_HOME%\bin\java" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar %*echo %EXEC%
 echo %EXEC%
 %EXEC%
 

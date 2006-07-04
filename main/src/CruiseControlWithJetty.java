@@ -40,6 +40,7 @@ import org.mortbay.jetty.Server;
 import org.apache.log4j.Logger;
 import java.io.IOException;
 
+import net.sourceforge.cruisecontrol.launch.Launcher;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 
 /**
@@ -95,7 +96,7 @@ public final class CruiseControlWithJetty {
         //A Thread for CruiseControl
         new Thread(new Runnable() {
             public void run() {
-                CruiseControl.main(args);
+                Launcher.main(args);
             }
         }).start();
     }

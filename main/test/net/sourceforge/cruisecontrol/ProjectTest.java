@@ -62,14 +62,15 @@ import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
-    private static final org.apache.log4j.Logger LOG4J = org.apache.log4j.Logger.getLogger(ProjectTest.class);
+    private static final Logger LOG = Logger.getLogger(ProjectTest.class);
 
     private static final String TEST_DIR = "tmp";
 
@@ -91,7 +92,7 @@ public class ProjectTest extends TestCase {
         project = null;
         projectConfig = null;
 
-        LOG4J.getLoggerRepository().setThreshold(Level.ALL);
+        LOG.getLoggerRepository().setThreshold(Level.ALL);
         IO.delete(filesToClear);
     }
 
