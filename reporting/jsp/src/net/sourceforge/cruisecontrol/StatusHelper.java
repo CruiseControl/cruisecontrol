@@ -94,6 +94,13 @@ public class StatusHelper {
         return getBuildTimeString(newestBuild, locale);
     }
 
+public Date getLastBuildTime() {
+if (newestBuild == null) {
+return null;
+}
+return newestBuild.getBuildDate();
+}
+
     public String getLastSuccessfulBuildLabel() {
         if (newestSuccessfulBuild == null) {
             return null;

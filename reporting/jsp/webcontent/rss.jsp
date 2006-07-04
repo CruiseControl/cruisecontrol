@@ -111,7 +111,7 @@
             project = projectDirs[i];
             File projectDir = new File(logDir, project);
             statusHelper.setProjectDirectory(projectDir);
-            String date   = statusHelper.getLastBuildTimeString(request.getLocale());
+            String date   = rfc822Format.format(statusHelper.getLastBuildTime());
             String result = statusHelper.getLastBuildResult();
             if ("failed".equalsIgnoreCase(result)) {
                 result = result.toUpperCase();
