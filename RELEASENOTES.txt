@@ -40,6 +40,10 @@ P4
 ----------------------
 * Command to correct for server time wasn't using the optional values such as the port (CC-469). Reported by Terri Paik
 
+PropertyLabelIncrementer
+----------------------
+* Add attribute "defaultlabel" which is returned when property file doesn't exist (CC-470).
+
 SVN
 ----------------------
 * Reset modified property to null if no modifications. Patch by Paul Hammant

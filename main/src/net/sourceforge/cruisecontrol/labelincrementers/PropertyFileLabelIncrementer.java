@@ -1,5 +1,6 @@
 package net.sourceforge.cruisecontrol.labelincrementers;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,8 @@ public class PropertyFileLabelIncrementer implements LabelIncrementer {
     private String propertyName;
 
     private boolean preBuildIncrementer;
+
+    private String defaultLabel;
 
     public String incrementLabel(String oldLabel, Element buildLog) {
         return getLabel();
@@ -48,6 +51,20 @@ public class PropertyFileLabelIncrementer implements LabelIncrementer {
     }
 
     private String getLabel() {
+        if (propertyFile == null) {
+            throw new IllegalStateException("property file not specified");
+        }
+        if (!new File(propertyFile).isFile()) {
+            String message = "property file does not exist: " + propertyFile;
+            if (defaultLabel == null) {
+                throw new IllegalStateException(message);
+            } else {
+                LOG.info(message);
+                LOG.info("using specified default label");
+                return defaultLabel;
+            }
+        }
+        
         InputStream is = null;
         try {
             is = new FileInputStream(propertyFile);
@@ -70,6 +87,16 @@ public class PropertyFileLabelIncrementer implements LabelIncrementer {
             } catch (Exception ex) {
             }
         }
+    }
+
+    public void setDefaultLabel(String defaultLabel) {
+        if (defaultLabel == null) {
+            throw new IllegalArgumentException("null is not valid as the default label");
+        }
+        if ("".equals(defaultLabel)) {
+            throw new IllegalArgumentException("empty string is not valid as the default label");
+        }
+        this.defaultLabel = defaultLabel;
     }
 
 }
