@@ -511,16 +511,19 @@ public class P4 implements SourceControl {
      * server.
      */
     protected long calculateServerTimeOffset() throws IOException {
-        Commandline command = new Commandline();
-        command.setExecutable("p4");
-        command.createArgument().setValue("info");
+        Commandline command = buildInfoCommand();
 
-        LOG.debug("Executing: " + command.toString());
-        LOG.info(command.toString());
+        LOG.info("Executing: " + command.toString());
         Process p = Runtime.getRuntime().exec(command.getCommandline());
         logErrorStream(p.getErrorStream());
 
         return parseServerInfo(p.getInputStream());
+    }
+
+    Commandline buildInfoCommand() {
+        Commandline command = buildBaseP4Command(false);
+        command.createArgument().setValue("info");
+        return command;
     }
 
     protected long parseServerInfo(InputStream is) throws IOException {
@@ -554,9 +557,16 @@ public class P4 implements SourceControl {
 
 
     private Commandline buildBaseP4Command() {
+        boolean prependField = true;
+        return buildBaseP4Command(prependField);
+    }
+
+    private Commandline buildBaseP4Command(boolean prependField) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
-        commandLine.createArgument().setValue("-s");
+        if (prependField) {
+            commandLine.createArgument().setValue("-s");
+        }
 
         if (p4Client != null) {
             commandLine.createArgument().setValue("-c");
