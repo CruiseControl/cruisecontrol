@@ -60,6 +60,10 @@ index.jsp
 ----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
 
+FileServlet
+----------------------
+* Fix problem where urls in directory might have double slashes. Fix by Edward Kuns
+
 rss.jsp
 ----------------------
 * Use RFC-822 format for dates (CC-473). Patch by Brian Egge
