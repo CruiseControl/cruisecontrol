@@ -290,7 +290,7 @@ public class FileServletTest extends TestCase {
 
         final MockServletRequest request1 = new MockServletRequest() {
             public String getRequestURI() {
-                return "/artifacts/abc";
+                return "/artifacts/abc/";
             }
         };
         fileServlet.printDirs(request1, new MockWebFile(new File("notimportant"), "notimportant", files), writer1);

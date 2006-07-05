@@ -237,7 +237,7 @@ public class FileServlet extends HttpServlet {
             writer.write(
                 "<li><a href=\""
                     + shortRequestURI
-                    + "/"
+                    + (shortRequestURI.endsWith("/") ? "" : "/")
                     + files[i]
                     + jsessionid
                     + "\">"
