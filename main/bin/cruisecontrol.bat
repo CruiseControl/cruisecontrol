@@ -66,7 +66,7 @@ echo Warning: You have not set the JAVA_HOME environment variable. Any tasks rel
 set LIBDIR=%CCDIR%\lib
 set DISTDIR=%CCDIR%\dist
 
-set EXEC="%JAVA_HOME%\bin\java" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar %*echo %EXEC%
+set EXEC="%JAVA_HOME%\bin\java" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar %*
 echo %EXEC%
 %EXEC%
 
