@@ -179,6 +179,8 @@ public class InteractiveBuildUtility {
         LOG.debug("Searching for serviceItems matching entries: " + searchEntries);
         Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
         final MulticastDiscovery discovery = new MulticastDiscovery(entries);
+        System.out.println("Waiting 5 seconds for registrars to report in...");
+        try { Thread.sleep(5 * 1000); } catch (InterruptedException e) { } 
         ServiceItem[] serviceItems = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
         if (serviceItems.length == 0) {
             String message = "No matches for your search - quitting...";
