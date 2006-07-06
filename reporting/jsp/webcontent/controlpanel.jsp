@@ -48,7 +48,7 @@
     	{
         	hostname = InetAddress.getLocalHost().getHostName();
     	}
-    	catch(IOException e)
+    	catch(IOException e2)
     	{
         	hostname = "localhost";
     	}
