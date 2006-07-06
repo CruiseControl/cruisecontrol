@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 import org.jdom.Element;
@@ -318,30 +319,171 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
     }
 
+    public void testRecursiveFilesExist() throws Exception {
+        final File testDir = new File(DIR_LOGS, "testDir");
+        testDir.deleteOnExit();
+        assertFalse("Non-existant base dir should show empty", 
+                BuildAgentServiceImpl.recursiveFilesExist(testDir));    
+
+        final File testDirSub = new File(testDir, "testSubDir");
+        testDirSub.deleteOnExit();
+
+        final File testDirSubSub = new File(testDirSub, "testSubSubDir");
+        testDirSubSub.deleteOnExit();
+
+        final File testFileSub = new File(testDirSub, "testFileSub");
+        testFileSub.deleteOnExit();
+        
+        try {
+            testDir.mkdirs();
+            assertFalse("Existant, empty base dir should show empty", 
+                    BuildAgentServiceImpl.recursiveFilesExist(testDir));
+            
+            testDirSub.mkdirs();
+            assertFalse("Existant, empty base dir, empty sub dir should show empty", 
+                    BuildAgentServiceImpl.recursiveFilesExist(testDir));            
+            
+            testDirSubSub.mkdirs();
+            assertFalse("Existant, empty base dir, empty sub, empty sub 2 should show empty", 
+                    BuildAgentServiceImpl.recursiveFilesExist(testDir));            
+            
+            testFileSub.createNewFile();
+            assertTrue("Existant, empty base dir, non-empty sub dir should show files exist", 
+                    BuildAgentServiceImpl.recursiveFilesExist(testDir));            
+            
+        } finally {
+            testDirSubSub.delete();
+            testFileSub.delete();
+            testDirSub.delete();
+            testDir.delete();            
+        }
+    }
+    
+    public void testResultsExistAfterBuild() throws Exception {
+        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_LOGS);
+        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_OUTPUT);
+    }
+
+    private static void checkResultsExistByType(String resultType)
+            throws CruiseControlException, IOException {
+        
+        final File resultTypeBaseDir
+                = (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
+                        ? DIR_LOGS : DIR_OUTPUT);
+
+        final File testDirResult = new File(resultTypeBaseDir, 
+                (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
+                        ? "myTest" + PropertiesHelper.RESULT_TYPE_LOGS + "Dir"
+                        : "testmodule-success")); // used default dir since no property is set
+        
+        testDirResult.deleteOnExit();
+        testDirResult.mkdirs();
+
+        final Map distributedAgentProps = new HashMap();
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
+                testDirResult.getAbsolutePath());
+        final BuildAgentServiceImpl agentImpl = createTestAgent(false, distributedAgentProps);        
+        // clear out default result dirs
+        clearDefaultSuccessResultDirs();
+
+        final File testFileResult = new File(testDirResult, "myTestFile");
+        final File testDirResultSub = new File(testDirResult, "myTestResultSubDir");
+        testDirResultSub.deleteOnExit();
+        final File testDirResultSubSub = new File(testDirResultSub, "myTestSubSubDir");
+        testDirResultSubSub.deleteOnExit();
+        final File testFileSub = new File(testDirResultSub, "myTestFileSub");
+
+        // test behavior if log dir exists, and is empty except for sub dirs.
+        // use case: subdirs hold test report files, and a compile error occurs 
+        // before unit tests are run, and hence no test log files have been created yet 
+        // in sub dirs.
+        try {
+            assertFalse(agentImpl.resultsExist(resultType));
+            testDirResultSubSub.mkdirs();
+            assertFalse("Result dir with no files, only subdirs, should be considered empty",
+                    agentImpl.resultsExist(resultType));
+
+            testFileSub.createNewFile();
+            assertTrue("Any file in tree should produce results",
+                    agentImpl.resultsExist(resultType));
+
+            testFileResult.createNewFile();
+            testFileResult.deleteOnExit();
+            assertTrue("Multiple files in tree should produce results", 
+                    agentImpl.resultsExist(resultType));
+
+        } finally {
+            // cleanup left over files
+            agentImpl.clearOutputFiles();
+            testFileSub.delete();
+            testFileResult.delete();
+            testDirResultSubSub.delete();
+            testDirResultSub.delete();
+            testDirResult.delete();
+        }
+    }
+
+    private static void clearDefaultSuccessResultDirs() {
+        
+        final File tmpLogSuccessDir = new File(DIR_LOGS, "testmodule-success");
+        new File(tmpLogSuccessDir, "TEST-bogustestclassSuccess.xml").delete();
+        deleteDirConfirm(tmpLogSuccessDir);
+
+        final File tmpOutputSuccessDir = new File(DIR_OUTPUT, "testmodule-success");
+        new File(tmpOutputSuccessDir, "testoutputSuccess").delete();
+        deleteDirConfirm(tmpOutputSuccessDir);
+    }
+
     public void testRetrieveResultsWithAgentLogDir() throws Exception {
         final File testLogDir = new File(DIR_LOGS, "myTestLogDir");
         testLogDir.deleteOnExit();
         testLogDir.mkdirs();
-        final File testLog = new File(testLogDir, "myTestLog");
-        testLog.createNewFile();
-        testLog.deleteOnExit();
-        
+
         final Map distributedAgentProps = new HashMap();
-        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, 
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testLogDir.getAbsolutePath());
-        
+
         final BuildAgentServiceImpl agentImpl = createTestAgent(false, distributedAgentProps);
 
         // clear out default log dir
-        final File tmSuccessDir = new File(DIR_LOGS, "testmodule-success");
-        new File(tmSuccessDir, "TEST-bogustestclassSuccess.xml").delete();
-        deleteDirConfirm(tmSuccessDir);            
-        
+        clearDefaultSuccessResultDirs();
+
+        final File testLog = new File(testLogDir, "myTestLog");
+        final File testLogSubDir = new File(testLogDir, "myTestLogSubDir");
+        testLogSubDir.deleteOnExit();
+        final File testLogSubSubDir = new File(testLogSubDir, "myTestLogSubSubDir");
+        testLogSubSubDir.deleteOnExit();
+        final File testLogSub = new File(testLogSubDir, "myTestLogSubSubFile");
         try {
+            // test behavior if log dir exists, and is empty except for sub dirs.
+            // use case: subdirs hold test report files, and a compile error occurs 
+            // before unit tests are run, and hence no test log files have been created yet 
+            // in sub dirs.
+            assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
+            testLogSubSubDir.mkdirs();
+            assertFalse("Result dir with no files, only subdirs, should be considered empty",
+                    agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
+            agentImpl.prepareLogsAndArtifacts();
+            try {
+                agentImpl.retrieveResultsAsZip(PropertiesHelper.RESULT_TYPE_LOGS);
+                fail("Attempt to retrieve empty zip file should fail");
+            } catch (RuntimeException e) {
+                assertTrue(e.getMessage().startsWith("Unable to get file "
+                        + new File(testLogDir.getParentFile().getCanonicalPath())
+                                .getParentFile().getCanonicalPath()));
+            }
+            testLogSub.createNewFile();
+            assertTrue("Any file in tree should produce results",
+                    agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
+
             // make sure agent looks in myTestLog dir for files 
+            testLog.createNewFile();
+            testLog.deleteOnExit();
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
+
+            assertFalse("Default output files should have been deleted during unit test",
+                    agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
             
-            assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
             assertTrue("Agent should be busy until build results are retrived and cleared.",
                     agentImpl.isBusy());
         } finally {
@@ -451,8 +593,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         final Map projectProps = new HashMap();
         
-        final Element buildResult = agent.doBuild(antBuilderElement, projectProps, distributedAgentProps);
-        return buildResult;
+        return agent.doBuild(antBuilderElement, projectProps, distributedAgentProps);
     }
 
     public static String getANT_HOME() {

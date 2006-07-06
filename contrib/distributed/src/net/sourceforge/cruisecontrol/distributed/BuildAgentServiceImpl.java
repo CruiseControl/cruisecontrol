@@ -276,7 +276,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     /**
      * Zip any build artifacts found in the logDir and/or outputDir. 
      */
-    private void prepareLogsAndArtifacts() {
+    void prepareLogsAndArtifacts() {
         final String buildDirProperty = configProperties.getProperty(CRUISE_BUILD_DIR);
         try {
             buildRootDir = new File(buildDirProperty).getCanonicalPath();
@@ -375,14 +375,31 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     public boolean resultsExist(final String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
-            return !(new File(logDir).list().length == 0);
+            return recursiveFilesExist(new File(logDir));
         } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
-            return !(new File(outputDir).list().length == 0);
+            return recursiveFilesExist(new File(outputDir));
         } else {
             return false;
         }
     }
 
+    static boolean recursiveFilesExist(final File fileToCheck) {
+        
+        if (!fileToCheck.exists()) { // save time, if it's doesn't exist at all
+            return false;            
+        } else if (fileToCheck.isFile()) { // save time, if it's a file
+            return true;
+        }
+        
+        final File[] dirs = fileToCheck.listFiles();
+        for (int i = 0; i < dirs.length; i++) {
+            if (recursiveFilesExist(dirs[i])) {
+                return true; // we found a file so return now, no need to keep looking.
+            }
+        }
+        return false;
+    }
+    
     public byte[] retrieveResultsAsZip(final String resultsType) throws RemoteException {
 
         final String zipFilePath = buildRootDir + File.separator + resultsType + ".zip";
