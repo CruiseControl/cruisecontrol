@@ -140,6 +140,16 @@ public class BuildStatus implements SourceControl {
         File logDirectory = new File(logDir);
         final String filename = Log.formatLogFileName(lastBuild);
 
+        if (!logDirectory.exists()) {
+            LOG.error("log directory doesn't exist: " + logDir);
+            return modifications;
+        }
+        
+        if (!logDirectory.isDirectory()) {
+            LOG.error("path for log directory exists but isn't a directory: " + logDir);
+            return modifications;
+        }
+        
         try {
             File[] newLogs = logDirectory.listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {

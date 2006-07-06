@@ -23,6 +23,10 @@ AntBuilder
 ----------------------
 * Add optional attribute "keepgoing" to invoke ant with -keep-going flag. Submitted by Stephen George
 
+BuildStatus
+----------------------
+* Better error message when log directory doesn't exist (CC-487). Submitted by Sven Strohschein
+
 CMSynergy
 ----------------------
 * Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
