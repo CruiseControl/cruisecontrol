@@ -39,7 +39,11 @@ default-plugins.properties
 ----------------------
 * Add ClearCaseViewstrapper (CC-482). Reported by Andy Stevens
 
-MavenSnapshotDependency:
+LdapMapper
+----------------------
+* Support authentication (CC-453). Submitted by Lars Gehrken
+
+MavenSnapshotDependency
 ----------------------
 * Modifications to MavenSnapshotDependency (CC-484). Submitted by Jarkko Viinamäki
   - made POM scanning namespace aware. Dependencies were not detected if project.xml had schema definition in the project element

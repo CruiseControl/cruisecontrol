@@ -31,8 +31,29 @@ public final class ValidationHelper {
     }
 
     /**
+     * 
+     * @param masterAttribute
+     * @param masterName
+     * @param childAttribute
+     * @param chiledName
+     * @param plugin
+     * @throws CruiseControlException
+     */
+    public static void assertIsDependentSet(String masterAttribute, String masterAttributeName, String childAttribute,
+            String childAttributeName, Class plugin) throws CruiseControlException {
+        if (masterAttribute != null) {
+            if (childAttribute == null) {
+                fail("'" + childAttributeName + "' is required for " + getShortClassName(plugin) + " if '"
+                        + masterAttributeName + "' is set");
+            }
+        }
+    }
+
+    /**
      * Handle required plugin attributes.
-     * @throws CruiseControlException if empty (null OK)
+     * 
+     * @throws CruiseControlException
+     *             if empty (null OK)
      */
     public static void assertNotEmpty(final String attribute, final String attributeName, final Class plugin)
             throws CruiseControlException {
