@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.publishers.email;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
 
 import javax.naming.Context;
@@ -58,6 +60,8 @@ public class LDAPMapper extends EmailAddressMapper {
 
     private String url = null;
     private String ctxFactory = "com.sun.jndi.ldap.LdapCtxFactory"; // commonly used default value
+    private String bindDN = null;
+    private String bindPassword = null;
     private String rootDN = null;
     private String searchTmpl = "(cn=?)";                           // commonly used default value
     private String searchAttr = "mail";                              // commonly used default value
@@ -110,13 +114,29 @@ public class LDAPMapper extends EmailAddressMapper {
         return ctxFactory;
     }
 
+    public String getBindDN() {
+       return bindDN;
+    }
+
+    public void setBindDN(String bindDN) {
+        this.bindDN = bindDN;
+    }
+
+    public String getBindPassword() {
+        return bindPassword;
+    }
+
+    public void setBindPassword(String bindPassword) {
+        this.bindPassword = bindPassword;
+    }
+    
     public void validate() throws CruiseControlException {
-        if (getUrl() == null) {
-            throw new CruiseControlException("'url' not specified in configuration file.");
-        }
-        if (getRootDN() == null) {
-            throw new CruiseControlException("'rootDN' not specified in configuration file.");
-        }
+        ValidationHelper.assertIsSet(getUrl(), "url", this.getClass());
+
+        ValidationHelper.assertIsSet(getRootDN(), "rootDN", this.getClass());
+
+        ValidationHelper.assertIsDependentSet(getBindDN(), "bindDN", getBindPassword(), "bindPassword",
+                this.getClass());
     }
 
     /*
@@ -128,7 +148,11 @@ public class LDAPMapper extends EmailAddressMapper {
 
         env.put(Context.INITIAL_CONTEXT_FACTORY, ctxFactory);  // use jndi provider
         env.put(Context.PROVIDER_URL, url);                    // the ldap url to connect to; e.g. "ldap://ca.com:389"
-
+        if (bindDN != null & bindPassword != null) {           // user allowed to read ldap
+            env.put(Context.SECURITY_PRINCIPAL, bindDN);       // password for ldapuser
+            env.put(Context.SECURITY_CREDENTIALS, bindPassword);
+        }
+        
         try {
             ctx = new InitialDirContext(env);
             LOG.debug("LDAPMapper: InitialContext created.");
