@@ -40,11 +40,18 @@
     String hostname = "";
     try
     {
-        hostname = InetAddress.getLocalHost().getHostName();
+    	hostname = InetAddress.getLocalHost().getCanonicalHostName(); 
     }
     catch(IOException e)
     {
-        hostname = "localhost";
+	    try
+    	{
+        	hostname = InetAddress.getLocalHost().getHostName();
+    	}
+    	catch(IOException e)
+    	{
+        	hostname = "localhost";
+    	}
     }
     String port = System.getProperty("cruisecontrol.jmxport");
     String webXmlPort = application.getInitParameter("cruisecontrol.jmxport");

@@ -73,6 +73,11 @@ reporting application
 index.jsp
 ----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
+* Use fully qualified hostname for JMX server (CC-362). Index fix by Sven Strohschein
+
+controlpanel.jsp
+----------------------
+* Use fully qualified hostname for JMX server (CC-362). Control Panel fix by Rajesh Patel
 
 FileServlet
 ----------------------
