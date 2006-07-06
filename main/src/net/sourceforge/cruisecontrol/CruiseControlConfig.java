@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.List;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
@@ -171,6 +172,8 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     }
 
     private Map rootProperties = new HashMap();
+    /** Properties of a particular node. Mapped by the node name. Doesn't handle rootProperties yet */
+    private Map templatePluginProperties = new HashMap();
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
     private Map projectConfigs = new TreeMap();  // TODO: replace with LinkedHashMap when we drop 1.3 support
     private ProjectNameSet projectNames = new ProjectNameSet();  // TODO: remove when we can use LinkedHashMap
@@ -211,13 +214,46 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
             &&  ProjectConfig.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
     }
 
+    private boolean isProjectTemplate(Element pluginElement) {
+        String pluginName = pluginElement.getAttributeValue("name");
+        String pluginClassName = pluginElement.getAttributeValue("classname");
+        // pretty ugly... we should reuse more of the PluginRegistry
+        if (pluginClassName == null) {
+            pluginClassName = "net.sourceforge.cruisecontrol.ProjectConfig";
+        }
+        try {
+            Class pluginClass = rootPlugins.instanciatePluginClass(pluginClassName, pluginName);
+            return ProjectConfig.class.isAssignableFrom(pluginClass);
+        } catch (CruiseControlException e) {
+            // this is only triggered by tests today, when a class is not loadable.
+            // I didn't want to propagate the exception
+            // in case something like Distributed CC requires a class to not be loadable locally at this point...
+            LOG.warn("Couldn't check if the plugin is a project template...", e);
+            return false;
+        }
+    }
+
     private void handleRootPlugin(Element pluginElement) throws CruiseControlException {
         String pluginName = pluginElement.getAttributeValue("name");
         if (pluginName == null) {
             LOG.warn("Config contains plugin without a name-attribute, ignoring it");
             return;
         }
+        if (isProjectTemplate(pluginElement)) {
+            handleNodeProperties(pluginElement, pluginName);
+        }
         rootPlugins.register(pluginElement);
+    }
+
+    private void handleNodeProperties(Element pluginElement, String pluginName) {
+        List properties = new ArrayList();
+        for (Iterator i = pluginElement.getChildren("property").iterator(); i.hasNext();) {
+            properties.add((Element) i.next());
+        }
+        if (properties.size() > 0) {
+            templatePluginProperties.put(pluginName, properties);
+        }
+        pluginElement.removeChildren("property");
     }
 
     private void handleRootProperty(Element childElement) throws CruiseControlException {
@@ -242,12 +278,24 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         // Register the project's name as a built-in property
         LOG.debug("Setting property \"project.name\" to \"" + projectName + "\".");
         nonFullyResolvedProjectProperties.put("project.name", projectName);
+
+        // handle project templates properties
+        List projectTemplateProperties = (List) templatePluginProperties.get(projectElement.getName());
+        if (projectTemplateProperties != null) {
+            for (int i = 0; i < projectTemplateProperties.size(); i++) {
+                Element element = (Element) projectTemplateProperties.get(i);
+                ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties,
+                    element, FAIL_UPON_MISSING_PROPERTY);
+            }
+        }
+
         // Register any project specific properties
         for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext(); ) {
             final Element propertyElement = (Element) projProps.next();
             ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties,
                 propertyElement, FAIL_UPON_MISSING_PROPERTY);
         }
+
         // add the resolved rootProperties to the project's properties
         Map thisProperties = nonFullyResolvedProjectProperties.thisMap;
         for (Iterator iterator = rootProperties.keySet().iterator(); iterator.hasNext();) {
