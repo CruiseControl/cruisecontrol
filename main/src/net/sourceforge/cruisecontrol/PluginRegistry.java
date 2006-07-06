@@ -209,7 +209,7 @@ public final class PluginRegistry implements Serializable {
 
     /**
      * @return Returns null if no plugin has been registered with the specified
-     * name, otherwise the Class representing the the plugin class. Note that
+     * name, otherwise the Class representing the plugin class. Note that
      * plugin names are always treated as case insensitive, so Ant, ant,
      * and AnT are all treated as the same plugin.
      *
@@ -220,18 +220,27 @@ public final class PluginRegistry implements Serializable {
             return null;
         }
         String pluginClassname = getPluginClassname(pluginName);
+        return instanciatePluginClass(pluginClassname, pluginName);
+    }
 
+    /**
+     * @param pluginClassname
+     * @param pluginName
+     * @return instanciate the Class representing the plugin class name.
+     * @throws CruiseControlException If the class provided cannot be loaded.
+     */
+    Class instanciatePluginClass(String pluginClassname, String pluginName) throws CruiseControlException {
         try {
             return Class.forName(pluginClassname);
         } catch (ClassNotFoundException e) {
             String msg = "Attemping to load plugin named [" + pluginName
                     + "], but couldn't load corresponding class ["
                     + pluginClassname + "].";
-//            LOG.error(msg, e);
+        //            LOG.error(msg, e);
             throw new CruiseControlException(msg);
         }
     }
-    
+
     public String getPluginName(Class pluginClass) {
         String pluginName = null;
 

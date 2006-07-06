@@ -101,27 +101,27 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(16, config.getProjectNames().size());
+        assertEquals(17, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("simpleprops");
         Properties props = projConfig.getProperties();
-        assertEquals(5, props.size()); // 4 in file, one global passed to consutructor
+        assertEquals(6, props.size()); // 4 in file, 1 global passed to constructor +
         assertEquals("works!", props.getProperty("global"));
     }
 
     public void testProjectNameProperty() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("project1");
         Properties props = projConfig.getProperties();
-        assertEquals(4, props.size());
+        assertEquals(5, props.size());
         assertEquals("project1", props.getProperty("project.name"));
     }    
 
     public void testProjectNameInGlobalProperty() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("project1");
         Properties props = projConfig.getProperties();
-        assertEquals(4, props.size());
+        assertEquals(5, props.size());
         assertEquals("works!", props.getProperty("global"));
         assertEquals("project1", props.getProperty("project.name"));
         assertEquals("project=project1", props.getProperty("project.global"));
@@ -130,14 +130,14 @@ public class CruiseControlConfigTest extends TestCase {
     public void testSimpleProperty() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("simpleprops");
         Properties props = projConfig.getProperties();
-        assertEquals(5, props.size());
+        assertEquals(6, props.size());
         assertEquals("success!", props.getProperty("simple"));
     }
 
     public void testMultipleProperties() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("multiprops");
         Properties props = projConfig.getProperties();
-        assertEquals(8, props.size());
+        assertEquals(9, props.size());
         assertEquals("one", props.getProperty("first"));
         assertEquals("two", props.getProperty("second"));
         assertEquals("three", props.getProperty("third"));
@@ -147,7 +147,7 @@ public class CruiseControlConfigTest extends TestCase {
     public void testNestedProperties() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("nestedprops");
         Properties props = projConfig.getProperties();
-        assertEquals(10, props.size());
+        assertEquals(11, props.size());
         assertEquals("one", props.getProperty("first"));
         assertEquals("two", props.getProperty("second"));
         assertEquals("three", props.getProperty("third"));
@@ -159,14 +159,14 @@ public class CruiseControlConfigTest extends TestCase {
     public void testPropertyEclipsing() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("eclipseprop");
         Properties props = projConfig.getProperties();
-        assertEquals(4, props.size());
+        assertEquals(5, props.size());
         assertEquals("eclipsed", props.getProperty("global"));
     }
     
     public void testLoadPropertiesFromFile() throws CruiseControlException {
         ProjectConfig projConfig = config.getConfig("propsfromfile");
         Properties props = projConfig.getProperties();
-        assertEquals(9, props.size());
+        assertEquals(10, props.size());
         assertEquals("/home/cruise", props.getProperty("dir1"));
         assertEquals("/home/cruise/logs", props.getProperty("dir2"));
         assertEquals("temp", props.getProperty("tempdir"));
@@ -331,6 +331,20 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(null, ((ListenerTestOtherNestedPlugin) nested).getOtherString());
         assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
     }
+
+    public void testPropertiesInFullProjectTemplate() throws Exception {
+        ProjectConfig projConfig = config.getConfig("project6");
+        PluginRegistry plugins = config.getProjectPlugins("project6");
+
+        Schedule schedule = projConfig.getSchedule();
+        assertEquals(20 * ONE_SECOND, schedule.getInterval());
+
+        Properties props = projConfig.getProperties();
+        assertEquals(6, props.size());
+        assertEquals("one", props.getProperty("first"));
+        assertEquals("two", props.getProperty("second"));
+    }
+
 
     // TODO DateFormat management was moved to Project.init()
     /*
