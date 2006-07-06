@@ -13,6 +13,7 @@ general
 contrib
 ======================
 * Update distributed CC code for refactoring in core (CC-485). Patch by Dan Rollo
+* Fix bug in distributed where empty results subdirectories cause exception (CC-458). Patch by Dan Rollo
 
 build loop
 ======================
