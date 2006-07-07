@@ -345,7 +345,9 @@ public abstract class EmailPublisher implements Publisher {
         if (userName != null && password != null) {
             props.put("mail.smtp.auth", "true");
             if (useSSL) {
-                props.put("mail.smtp.socketFactory.port", mailPort);
+                if (mailPort != null) {
+                    props.put("mail.smtp.socketFactory.port", mailPort);
+                }
                 props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
                 props.put("mail.smtp.socketFactory.fallback", "false");
             }
