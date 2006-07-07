@@ -25,9 +25,10 @@
         <jar href="lib/jdom.jar"/>
         <jar href="lib/log4j.jar"/>
 
-        <jar href="lib/xml-apis-2.7.0.jar"/>
-        <jar href="lib/xercesImpl-2.7.0.jar"/>
-        <jar href="lib/xalan-2.6.0.jar"/>
+        <jar href="lib/xml-apis-2.8.0.jar"/>
+        <jar href="lib/xercesImpl-2.8.0.jar"/>
+        <jar href="lib/saxon8.jar"/>
+        <jar href="lib/saxon8-dom.jar"/>
 
         <jar href="lib/jini-core.jar"/>
         <jar href="lib/jini-ext.jar"/>
