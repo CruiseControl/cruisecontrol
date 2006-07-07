@@ -98,7 +98,6 @@ public final class PropertiesHelper {
             //LOG.info("Setting Override Target on projectXMLHelper to: " + overrideTarget);
             //projectXMLHelper.setOverrideTarget(overrideTarget);
         }
-        final PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
-        return pluginXMLHelper;
+        return new PluginXMLHelper(projectXMLHelper);
     }
 }

@@ -146,7 +146,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
                                             txaConsole.getLineCount() - CONSOLE_LINE_BUFFER_SIZE
                                     ));
                         } catch (BadLocationException e) {
-                            ; //ignore
+                            //ignore
                         }
                     }
                     // Make sure the last line is always visible

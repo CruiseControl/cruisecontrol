@@ -61,7 +61,6 @@ public final class ReggieUtil {
      * @return entriesList
      */
     public static Entry[] convertStringEntries(final String searchString) {
-        searchString.replace(',', ';');
         final StringTokenizer tokenizer = new StringTokenizer(searchString.trim(), ";");
         final List entriesList = new ArrayList();
         while (tokenizer.hasMoreElements()) {

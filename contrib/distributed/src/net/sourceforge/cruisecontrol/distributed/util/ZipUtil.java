@@ -92,8 +92,6 @@ public final class ZipUtil {
                     } catch (IOException e) {
                         LOG.error(e);
                     }
-                    // @todo Should empty zips be created, or should we delete them here?
-                    //*
                     // delete the empty zip file
                     if (!file.delete()) {
                         throw new RuntimeException("Error deleting empty zip file: "
@@ -101,7 +99,6 @@ public final class ZipUtil {
                     }
                     final String message2 = "Deleted empty zip file: " + outFilename;
                     LOG.debug(message2);
-                    ///*/
                 }
             } catch (IOException ioe) {
                 final String message = "Error occured while closing zip file: " + outFilename;

@@ -66,6 +66,7 @@ public final class JiniLookUpUtility {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e1) {
+                // ignore
             }
             ServiceRegistrar[] registrars = discovery.getRegistrars();
             for (int x = 0; x < registrars.length; x++) {
