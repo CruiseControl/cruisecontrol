@@ -96,7 +96,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
   
     /**
      * Get the default label
-     * @return string containing the defailt label
+     * @return string containing the default label
      */
     public String getDefaultLabel() {
         if (includePrefix) {

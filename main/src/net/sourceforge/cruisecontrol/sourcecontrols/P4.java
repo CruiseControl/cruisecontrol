@@ -164,8 +164,8 @@ public class P4 implements SourceControl {
 
     /**
      * Get a List of modifications detailing all the changes between now and
-     * the last build. Return this as an element. It is not neccessary for
-     * sourcecontrols to acctually do anything other than returning a chunch
+     * the last build. Return this as an element. It is not necessary for
+     * sourcecontrols to actually do anything other than returning a chunk
      * of XML data back.
      *
      * @param lastBuild time of last build
@@ -592,9 +592,9 @@ public class P4 implements SourceControl {
 
     /**
      * This is a modified version of the one in the CVS element. I found it far
-     * more useful if you acctually return either or, because otherwise it would
-     * be darn hard to use in places where I acctually need the notPast line.
-     * Or did I missunderatnd something?
+     * more useful if you actually return either or, because otherwise it would
+     * be darn hard to use in places where I actually need the notPast line.
+     * Or did I misunderstand something?
      */
     private String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
             throws IOException {

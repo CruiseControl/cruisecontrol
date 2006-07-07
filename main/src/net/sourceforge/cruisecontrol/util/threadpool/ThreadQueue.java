@@ -561,7 +561,7 @@ public class ThreadQueue extends Thread {
 
     /**
      * This call wraps the next unique name for a task
-     * that is inerted with no name
+     * that is inserted with no name
      */
 
     private static String nextName() {

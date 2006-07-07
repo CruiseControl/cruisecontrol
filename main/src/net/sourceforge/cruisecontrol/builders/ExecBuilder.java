@@ -52,7 +52,7 @@ import org.jdom.Element;
  * Exec builder class.
  *
  * Executes a command line as a builder and determines whether the command
- * was succesful or not. A string can be supplied to additionally check for
+ * was successful or not. A string can be supplied to additionally check for
  * certain error messages in the output
  *
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>

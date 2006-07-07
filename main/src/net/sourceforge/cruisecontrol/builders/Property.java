@@ -37,7 +37,7 @@
 package net.sourceforge.cruisecontrol.builders;
 
 /**
- * Decribes a name value pair of values that are passeds as properties
+ * Describes a name value pair of values that are passed as properties
  * to scripts to be run.
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */

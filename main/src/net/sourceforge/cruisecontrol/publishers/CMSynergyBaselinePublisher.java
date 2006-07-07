@@ -54,7 +54,7 @@ import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
- * Creates an intermediate baseline encompasing the given project and all
+ * Creates an intermediate baseline encompassing the given project and all
  * subprojects. <br>
  * <b>Note: This publisher requires CM Synergy version 6.3 or later. </b>
  * 
@@ -220,7 +220,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
     }
     
     /**
-     * Parses a string by replacing all occurences of a property macro with
+     * Parses a string by replacing all occurrences of a property macro with
      * the resolved value of the property (from the info section of the log
      * file). Nested macros are allowed - the 
      * inner most macro will be resolved first, moving out from there.

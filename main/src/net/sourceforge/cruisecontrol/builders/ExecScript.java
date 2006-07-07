@@ -222,7 +222,7 @@ public class ExecScript implements Script, StreamConsumer {
     } // setBuildLogElement
     
     /**
-     * @return true if error occured, else false
+     * @return true if error occurred, else false
      */
     public boolean wasError() {
         return this.foundError;

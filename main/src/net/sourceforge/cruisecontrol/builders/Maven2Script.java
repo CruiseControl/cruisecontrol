@@ -138,7 +138,7 @@ public class Maven2Script implements Script, StreamConsumer {
 
     /**
      * Analyze the output of the mvn command. This is used to detect errors
-     * or succesfull build.
+     * or successful build.
      */
     public void consumeLine(String line) {
         String level = "";

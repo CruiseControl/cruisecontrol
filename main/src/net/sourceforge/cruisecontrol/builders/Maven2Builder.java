@@ -59,7 +59,7 @@ public class Maven2Builder extends Builder {
     /**
      * Set mvnHome. This will be used to find the mvn script which is mvnHome/bin/
      * @param mvnHome the mvn home
-     * @throws CruiseControlException When the mvn script could not be found this excpetion is thrown.
+     * @throws CruiseControlException When the mvn script could not be found this exception is thrown.
      */
     public void setMvnHome(String mvnHome) throws CruiseControlException {
 
@@ -72,7 +72,7 @@ public class Maven2Builder extends Builder {
     }
 
     /**
-     * Full path to maven script, which overrides the default ".../bin/mvn".
+     * Full path to Maven script, which overrides the default ".../bin/mvn".
      * @param mvnScipt
      */ 
     public void setMvnScript(final String mvnScipt) {

@@ -123,7 +123,7 @@ public class AlienBrainCore {
      * Sets the path to the project within the AlienBrain repository.
      *
      * @param path The path within the project database to check for 
-     * modificiations.  Typically something like alienbrain://path/to/project
+     * modifications.  Typically something like alienbrain://path/to/project
      */    
     public void setPath(String path) {
         this.path = path;
