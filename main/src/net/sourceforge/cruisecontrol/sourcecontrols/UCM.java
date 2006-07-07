@@ -178,8 +178,8 @@ public class UCM implements SourceControl {
 
     /**
      * Get a List of modifications detailing all the changes between now and
-     * the last build. Return this as an element. It is not neccessary for
-     * sourcecontrols to acctually do anything other than returning a chunch
+     * the last build. Return this as an element. It is not necessary for
+     * sourcecontrols to actually do anything other than returning a chunk
      * of XML data back.
      *
      * @param lastBuild time of last build

@@ -82,7 +82,7 @@ public class XSLTLogPublisher implements Publisher {
      * Name of the output file where the transformed
      * log contents is to be written.
      * <br>
-     * If ommitted, a default will be provided matching the
+     * If omitted, a default will be provided matching the
      * build label name
      *
      * @param name

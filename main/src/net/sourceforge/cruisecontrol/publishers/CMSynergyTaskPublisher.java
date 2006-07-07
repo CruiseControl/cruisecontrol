@@ -71,7 +71,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
     }
     
     /**
-     * The number of the folder which will recieve the new tasks.
+     * The number of the folder which will receive the new tasks.
      * 
      * @param folderNumber The folder number
      */

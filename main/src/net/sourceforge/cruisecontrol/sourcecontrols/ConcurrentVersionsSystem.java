@@ -193,7 +193,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     private static Logger log = Logger.getLogger(ConcurrentVersionsSystem.class);
 
     /**
-     * This line delimits seperate files in the CVS log information.
+     * This line delimits separate files in the CVS log information.
      */
     private static final String CVS_FILE_DELIM =
             "=============================================================================";
@@ -229,7 +229,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     private static final String CVS_HEAD_TAG = "HEAD";
 
     /**
-     * This is the keyword that tells us when we have reaced the ned of the
+     * This is the keyword that tells us when we have reached the end of the
      * header as found in the CVS log information.
      */
     private static final String CVS_DESCRIPTION = "description:";
@@ -242,7 +242,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     private static final String CVS_REVISION_DEAD = "dead";
 
     /**
-     * System dependent new line seperator.
+     * System dependent new line separator.
      */
     private static final String NEW_LINE = System.getProperty("line.separator");
 
@@ -455,7 +455,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
         } catch (Exception e) {
-            log.error("Log command failed to execute succesfully", e);
+            log.error("Log command failed to execute successfully", e);
         }
 
         if (mods == null) {
@@ -746,7 +746,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             boolean isAdded = !tokens.hasMoreTokens();
 
             // All the text from now to the next revision delimiter or working
-            // file delimiter constitutes the messsage.
+            // file delimiter constitutes the message.
             String message = "";
             nextLine = reader.readLine();
             boolean multiLine = false;

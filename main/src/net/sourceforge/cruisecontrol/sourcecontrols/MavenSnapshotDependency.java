@@ -148,9 +148,9 @@ public class MavenSnapshotDependency implements SourceControl {
      * The quiet period is ignored. All dependencies changed since the last
      * build trigger a modification.
      * 
-     *  <at> param lastBuild
+     *  @param lastBuild
      *            date of last build
-     *  <at> param now
+     *  @param now
      *            IGNORED
      */
     public List getModifications(Date lastBuild, Date now) {

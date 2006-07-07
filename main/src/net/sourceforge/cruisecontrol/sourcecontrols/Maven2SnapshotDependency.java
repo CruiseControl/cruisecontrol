@@ -155,9 +155,9 @@ public class Maven2SnapshotDependency  implements SourceControl {
      * The quiet period is ignored. All dependencies changed since the last
      * build trigger a modification.
      *
-     *  <at> param lastBuild
+     * @param lastBuild
      *            date of last build
-     *  <at> param now
+     *  @param now
      *            IGNORED
      */
     public List getModifications(Date lastBuild, Date now) {
@@ -231,10 +231,10 @@ public class Maven2SnapshotDependency  implements SourceControl {
 
 
     /**
-     * Return a file referring to the given artifact in the local reprository.
-     * @param localRepoBaseDir the actual base dir of the active local reprository
-     * @param artifact a artifact to be checked in the local reprository
-     * @return a file referring to the given artifact in the local reprository
+     * Return a file referring to the given artifact in the local repository.
+     * @param localRepoBaseDir the actual base dir of the active local repository
+     * @param artifact a artifact to be checked in the local repository
+     * @return a file referring to the given artifact in the local repository
      */
     //@todo Maybe we can delete this whole method after a while.
     private static File getArtifactFilename(final File localRepoBaseDir, final Artifact artifact) {

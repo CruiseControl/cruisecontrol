@@ -491,7 +491,7 @@ public class Schedule {
 
     /**
      * utility method to check method parameters and ensure they're not null
-     * @param paramName name of the paramter to check
+     * @param paramName name of the parameter to check
      * @param param parameter to check
      */
     private void checkParamNotNull(String paramName, Object param) {

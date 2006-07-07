@@ -63,7 +63,7 @@ import org.jdom.Element;
  *
  * The root-registry contains the default list of plugins, i.e. those
  * that are already registered like AntBuilder that don't have to be registered
- * seperately in the configuration file.
+ * separately in the configuration file.
  *
  * The registry keeps track of the {@link #getPluginConfig(String) plugin configurations}
  * in order to allow full plugin preconfigurations (default properties + nested elements).
@@ -188,7 +188,7 @@ public final class PluginRegistry implements Serializable {
      * for the plugin class. Note that plugin
      * names are always treated as case insensitive, so Ant, ant, and AnT are
      * all treated as the same plugin.
-     * Note: a parent name->class mapping can be overriden by children registries.
+     * Note: a parent name->class mapping can be overridden by children registries.
      */
     public String getPluginClassname(String pluginName) {
         pluginName = pluginName.toLowerCase();
@@ -226,7 +226,7 @@ public final class PluginRegistry implements Serializable {
     /**
      * @param pluginClassname
      * @param pluginName
-     * @return instanciate the Class representing the plugin class name.
+     * @return instantiate the Class representing the plugin class name.
      * @throws CruiseControlException If the class provided cannot be loaded.
      */
     Class instanciatePluginClass(String pluginClassname, String pluginName) throws CruiseControlException {
@@ -357,7 +357,7 @@ public final class PluginRegistry implements Serializable {
      * @param pluginClass the mapped class name for the plugin
      * @param pluginConfig the current config, passed up for completion
      * @return an Element representing the combination of the various plugin configurations for
-     * the same plugin, following the hierachy.
+     * the same plugin, following the hierarchy.
      */
     private Element overridePluginConfig(final String pluginName, final String pluginClass, Element pluginConfig) {
         Element pluginElement = (Element) this.pluginConfigs.get(pluginName);

@@ -73,7 +73,7 @@ public class Project implements Serializable, Runnable {
     private transient LabelIncrementer labelIncrementer;
 
     /**
-     * If this attribute is set, then it means that the user has overriden
+     * If this attribute is set, then it means that the user has overridden
      * the build interval specified in the Schedule element, probably
      * using the JMX interface.
      */
@@ -527,7 +527,7 @@ public class Project implements Serializable, Runnable {
      * Returns the build interval. This value is initially specified on the
      * schedule, but the user may override that value using the JMX interface.
      * If the user hasn't override the Schedule, then this method will
-     * return the Schedule's interval, otherwise the overriden value will
+     * return the Schedule's interval, otherwise the overridden value will
      * be returned.
      */
     public long getBuildInterval() {

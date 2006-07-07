@@ -48,7 +48,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Helps mapping the XML to object by instanciating and initializing beans.
+ * Helps mapping the XML to object by instantiating and initializing beans.
  *
  * Some plugins can be {@link SelfConfiguringPlugin self-configuring}. For the others, the
  * the {@link #configureObject(org.jdom.Element, Object, boolean)} defines the operations
@@ -72,7 +72,7 @@ public class PluginXMLHelper {
      * <p>{@link #configure(org.jdom.Element, Object, boolean)} to use when one already has an instance.
      * 
      * @param objectElement the JDOM Element defining the plugin configuration
-     * @param pluginClass the class to instanciate
+     * @param pluginClass the class to instantiate
      * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      * @return fully configured Object
      * @see #configure(org.jdom.Element, Object, boolean)
@@ -139,7 +139,7 @@ public class PluginXMLHelper {
      * </ul>
      *
      * @param objectElement the JDOM Element defining the plugin configuration
-     * @param object the instance to configure to instanciate
+     * @param object the instance to configure to instantiate
      * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      */
     protected void configureObject(Element objectElement, Object object, boolean skipChildElements)

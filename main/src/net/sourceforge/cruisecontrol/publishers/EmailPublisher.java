@@ -211,7 +211,7 @@ public abstract class EmailPublisher implements Publisher {
     /**
      * Creates the list of email addresses to receive the email message.
      * Uses configured emailmappers to map user names to email addresses.
-     * After all mappings are done, mapped users are checked for existance of
+     * After all mappings are done, mapped users are checked for existence of
      * the domain part (i.e @mydomain.com) in the mapped email address. If it
      * doesn't exist, default (if configured) is appended
      *
@@ -237,7 +237,7 @@ public abstract class EmailPublisher implements Publisher {
      * the email message.
      * <p>
      * Uses configured emailmappers to map user names to email addresses.
-     * After all mappings are done, mapped users are checked for existance of
+     * After all mappings are done, mapped users are checked for existence of
      * the domain part (i.e @mydomain.com) in the mapped email address. If it
      * doesn't exist, default (if configured) is appended
      *
@@ -297,8 +297,8 @@ public abstract class EmailPublisher implements Publisher {
      *  Implementing the <code>Publisher</code> interface.
      * 
      * Sends modification alert and regular build emails. If a user is 
-     * supposed to recieve a modification alert and a regular build email, 
-     * they will only recieve the modiciation alert. This prevents 
+     * supposed to receive a modification alert and a regular build email, 
+     * they will only receive the modification alert. This prevents 
      * duplicate emails (currently only the subject is different).
      */
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
@@ -697,7 +697,7 @@ public abstract class EmailPublisher implements Publisher {
      * email address is included in the returned <code>String</code>.  
      * <p>
      * Uses configured emailmappers to map user names to email addresses. After
-     * all mappings are done, mapped users are checked for existance of the
+     * all mappings are done, mapped users are checked for existence of the
      * domain part (i.e @mydomain.com) in the mapped email address. If it 
      * doesn't exist, default (if configured) is appended.
      * 
@@ -712,7 +712,7 @@ public abstract class EmailPublisher implements Publisher {
 
 
     /**
-     * Creates a <code>Set</code> of email addresses to recieve an alert email 
+     * Creates a <code>Set</code> of email addresses to receive an alert email 
      * message based on the logHelper.
      * 
      * @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
@@ -762,7 +762,7 @@ public abstract class EmailPublisher implements Publisher {
      * <code>String</code>s.
      * 
      * @param emails A <code>Set</code> containing <code>String</code>s of emails addresses
-     * @return A comma delmited <code>String</code> of email addresses
+     * @return A comma delimited <code>String</code> of email addresses
      */
     protected String createEmailString(Set emails) {
         StringBuffer commaDelimitedString = new StringBuffer();

@@ -240,7 +240,7 @@ public class ProjectXMLHelper implements ProjectHelper {
 
     // FIXME Helper extract ?
     /**
-     * Parses a string by replacing all occurences of a property macro with
+     * Parses a string by replacing all occurrences of a property macro with
      * the resolved value of the property. Nested macros are allowed - the
      * inner most macro will be resolved first, moving out from there.
      *

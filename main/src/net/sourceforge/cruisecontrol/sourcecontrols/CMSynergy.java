@@ -594,7 +594,7 @@ public class CMSynergy implements SourceControl {
     }
 
     /**
-     * Populate the object list of a Modification by quering for objects
+     * Populate the object list of a Modification by querying for objects
      * associated with the task.
      */
     private void getModifiedObjects(CMSynergyModification mod) {

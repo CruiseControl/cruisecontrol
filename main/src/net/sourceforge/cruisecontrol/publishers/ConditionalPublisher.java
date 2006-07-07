@@ -84,7 +84,7 @@ public abstract class ConditionalPublisher implements Publisher {
 
     /**
      * Determines if the nested publishers should be executed. This method must
-     * be implemented by all derrived classes.
+     * be implemented by all derived classes.
      * 
      * @param log
      *            The build log
