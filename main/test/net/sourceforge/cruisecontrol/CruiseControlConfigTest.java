@@ -334,7 +334,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     public void testPropertiesInFullProjectTemplate() throws Exception {
         ProjectConfig projConfig = config.getConfig("project6");
-        PluginRegistry plugins = config.getProjectPlugins("project6");
+        assertNotNull(config.getProjectPlugins("project6"));
 
         Schedule schedule = projConfig.getSchedule();
         assertEquals(20 * ONE_SECOND, schedule.getInterval());
