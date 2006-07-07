@@ -37,12 +37,14 @@
 package net.sourceforge.cruisecontrol;
 
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
@@ -470,25 +472,13 @@ public class Schedule {
      * @param day int value
      * @return english string value
      */
-    private String getDayString(int day) {
-        switch(day) {
-        case Calendar.SUNDAY:
-            return "sunday";
-        case Calendar.MONDAY:
-            return "monday";
-        case Calendar.TUESDAY:
-            return "tuesday";
-        case Calendar.WEDNESDAY:
-            return "wednesday";
-        case Calendar.THURSDAY:
-            return "thursday";
-        case Calendar.FRIDAY:
-            return "friday";
-        case Calendar.SATURDAY:
-            return "saturday";
-        default:
-            return "invalid day " + day;
+    String getDayString(int day) {
+        if (day < 1 || day > 7) {
+            throw new IllegalArgumentException("valid values of days are between 1 and 7, was " + day);
         }
+        DateFormatSymbols symbols = new DateFormatSymbols(Locale.ENGLISH);
+        String[] weekdays = symbols.getWeekdays();
+        return weekdays[day];
     }
 
     private boolean buildDaySameAsPauseDay(Builder builder, PauseBuilder pauseBuilder) {

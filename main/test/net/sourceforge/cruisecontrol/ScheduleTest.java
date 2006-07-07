@@ -453,5 +453,16 @@ public class ScheduleTest extends TestCase {
         schedule.add(MIDNIGHT_BUILDER);
         schedule.validate();
     }
+    
+    public void testGetDayString() {
+        assertEquals("sunday", schedule.getDayString(Calendar.SUNDAY).toLowerCase());
+        assertEquals("friday", schedule.getDayString(Calendar.FRIDAY).toLowerCase());
+        try {
+            schedule.getDayString(0);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("valid values of days are between 1 and 7, was 0", e.getMessage());
+        }
+    }
 
 }
