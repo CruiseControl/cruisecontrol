@@ -71,7 +71,8 @@ public class EmailPublisherTest extends TestCase {
     private File tmpFile;
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
-        Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess);
+        Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess, 
+             "2 minutes 20 seconds", 5, null);
 
         return new XMLLogHelper(cruisecontrolElement);
     }
@@ -137,6 +138,7 @@ public class EmailPublisherTest extends TestCase {
         xml.append("<success address='success1' />");
         xml.append("<success address='success2@host.com' />");
         xml.append("<map alias='user3' address='user3@host2.com'/>");
+        xml.append("<ignore user='user4'/>");
         if (includeAlerts) {
             //xml.append("<alert file='.*' address='anyFileMod@host.com' />");
             xml.append("<alert fileRegExpr='filename1' address='filename1@host.com' />");

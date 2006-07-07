@@ -595,6 +595,7 @@
             &lt;htmlemail&gt;
                 &lt;always  address="${buildmaster.email}"&gt;
                 &lt;failure address="proj1dev@example.com"&gt;
+                &lt;ignore address="buildmaster"&gt;
             &lt;/htmlemail&gt;
         &lt;/publishers&gt;
     &lt;/project&gt;
@@ -6547,6 +6548,30 @@ endlocal</pre>
                             <td>reportWhenFixed</td>
                             <td>No</td>
                             <td>either true or false; defaults to false</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td><a name="ignore"><code>&lt;ignore&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>User name to be removed from the user list, thus not sent any email.
+                    Useful for removing the fake user names created by some sourcecontrols.
+                    <code>&lt;ignore&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>user</td>
+                            <td>Yes</td>
+                            <td>user name from modification to be ignored</td>
                         </tr>
                         </tbody>
                     </table>

@@ -80,7 +80,7 @@ import org.jdom.Element;
  * <code>LinkEmailPublisher</code>, but the ability to create
  * <code>EmailPublisher</code>s that handle sending a text summary or an html
  * summary is there.
- *
+ * 
  *  @author alden almagro, ThoughtWorks, Inc. 2002
  */
 public abstract class EmailPublisher implements Publisher {
@@ -96,6 +96,7 @@ public abstract class EmailPublisher implements Publisher {
     private Failure[] failureAddresses = new Failure[0];
     private Success[] successAddresses = new Success[0];
     private Alert[] alertAddresses = new Alert[0];
+    private Ignore[] ignoreUsers = new Ignore[0];
     private EmailMapper[] emailMapper = new EmailMapper[0];
     private EmailMapperHelper mapperHelper = new EmailMapperHelper();
     private String returnAddress;
@@ -252,6 +253,11 @@ public abstract class EmailPublisher implements Publisher {
     protected Set createUserSet(XMLLogHelper logHelper) throws CruiseControlException {
         
         Set users = skipUsers ? new HashSet() : logHelper.getBuildParticipants();
+        
+        // remove users we want to exclude from the mail spam
+        for (int i = 0; i < ignoreUsers.length; i++) {
+            users.remove(ignoreUsers[i].getUser());
+        }
         
         //add always addresses
         for (int i = 0; i < alwaysAddresses.length; i++) {
@@ -520,6 +526,18 @@ public abstract class EmailPublisher implements Publisher {
         failAsImportant = important;
     }
 
+    public Ignore createIgnore() {
+        List ignoreList = new ArrayList();
+        ignoreList.addAll(Arrays.asList(ignoreUsers));
+
+        Ignore ignore = new Ignore();
+        ignoreList.add(ignore);
+
+        ignoreUsers = (Ignore[]) ignoreList.toArray(new Ignore[0]);
+
+        return ignore;
+    }
+    
     public Always createAlways() {
         List alwaysList = new ArrayList();
         alwaysList.addAll(Arrays.asList(alwaysAddresses));
@@ -585,6 +603,18 @@ public abstract class EmailPublisher implements Publisher {
         emailMapper = (EmailMapper[]) mapperList.toArray(new EmailMapper[0]);
     }
 
+    public static class Ignore {
+        private String user;
+
+        public String getUser() {
+            return user;
+        }
+
+        public void setUser(String theUser) {
+            user = theUser;
+        }
+    }
+    
     public static class Address {
         private String address;
 
