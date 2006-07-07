@@ -46,7 +46,7 @@ public class BuildStatus {
      * @param statusFileName
      *            The name of the status file.
      * @param maxReadLines
-     *            The maximim number of lines to read from the file. Use the
+     *            The maximum number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
      * @return The build status string formatted for plain text usage or the
@@ -74,7 +74,7 @@ public class BuildStatus {
      * @param statusFileName
      *            The name of the status file.
      * @param maxReadLines
-     *            The maximim number of lines to read from the file. Use the
+     *            The maximum number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
      * @return The build status string formatted for plain text usage or the
@@ -105,7 +105,7 @@ public class BuildStatus {
      *            If true, inserts XHTML br tag between content lines from the
      *            status file.
      * @param maxReadLines
-     *            The maximim number of lines to read from the file. Use the
+     *            The maximum number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
      * @return The build status string formatted as per the insertBreaks param
@@ -138,7 +138,7 @@ public class BuildStatus {
      * @param insertBreaks
      *            true to insert HTML break elements at newlines.
      * @param maxReadLines
-     *            The maximim number of lines to read from the file. Use the
+     *            The maximum number of lines to read from the file. Use the
      *            READ_ALL_LINES (value of zero) and READ_ONLY_STATUS_LINES
      *            (value of 2) constants when applicable.
      * @return The status string from the specified status file.

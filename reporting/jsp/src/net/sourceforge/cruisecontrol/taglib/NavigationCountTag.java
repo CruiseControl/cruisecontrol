@@ -44,8 +44,8 @@ import net.sourceforge.cruisecontrol.BuildInfo;
 
 
 /**
- * Check to see if ther are at least the number of builds as defined in startingBuildNumber.  If it does not, then
- * do not evauluate the body of the tag.
+ * Check to see if their are at least the number of builds as defined in startingBuildNumber.  If it does not, then
+ * do not evaluate the body of the tag.
  */
 public class NavigationCountTag extends CruiseControlBodyTagSupport {
     public static final String LINK_TEXT_ATTR = "linktext";

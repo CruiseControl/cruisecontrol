@@ -42,7 +42,7 @@ import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 
 /**
- * Compatable with JSP 1.1 & Servlet 2.2 (Tomcat 3.3)
+ * Compatible with JSP 1.1 & Servlet 2.2 (Tomcat 3.3)
  * @author jfredrick
  */
 public class CruiseControlBodyTagSupport extends CruiseControlTagSupport implements BodyTag {

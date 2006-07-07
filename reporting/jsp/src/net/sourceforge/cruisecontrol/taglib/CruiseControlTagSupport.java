@@ -107,7 +107,7 @@ public class CruiseControlTagSupport extends TagSupport {
      *  Gets the correct log file, based on the project and log file requested
      *  in the query string.
      *
-     *  @return The specifed log file or the latest log, if no log file is
+     *  @return The specified log file or the latest log, if no log file is
      *          specified in the request.
      */
     protected LogFile findLogFile() throws JspException {
