@@ -71,7 +71,7 @@
     <patternset id="jarnames.xml">
         <include name="xml-apis-*.jar" />
         <include name="xercesImpl-*.jar" />
-        <include name="xalan-*.jar" />
+        <include name="saxon*.jar" />
     </patternset>
 
     <!-- JNLP Service API classes -->
