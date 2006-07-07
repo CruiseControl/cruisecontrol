@@ -66,7 +66,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
         txaConsole.setEditable(false);
         // need to register with BuildAgent Logger (not UI Logger).
-        buildAgent.LOG.addAppender(new Log4JJTextAreaAppender(txaConsole));
+        BuildAgent.LOG.addAppender(new Log4JJTextAreaAppender(txaConsole));
 
         final JPanel pnlN = new JPanel(new BorderLayout());
         txaAgentInfo = new JTextArea("Registering with Lookup Services...");

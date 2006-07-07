@@ -101,9 +101,6 @@ public class BuildAgent implements DiscoveryListener,
     private synchronized void decrementRegCount() {
         registrarCount--;
     }
-    private synchronized int getRegCount() {
-        return registrarCount;
-    }
 
     public BuildAgent(final boolean isSkipUI) {
         this(BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,

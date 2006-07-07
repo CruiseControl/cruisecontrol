@@ -283,7 +283,6 @@ public class InteractiveBuildUtility {
     }
     
     private void retrieveResults(final BuildAgentService agent) {
-        String resultsType = PropertiesHelper.RESULT_TYPE_LOGS;
         try {
             DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS,
                     ".", "resultsInteractive");
