@@ -467,8 +467,6 @@ public class Schedule {
     }
 
     /** 
-     * I can't believe this method doesn't already exist in the JDK...
-     * am I just missing it?!? Probably some locale thing I need to use.
      * @param day int value
      * @return english string value
      */
