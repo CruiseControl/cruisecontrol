@@ -165,7 +165,7 @@ public class BuildInfo implements Comparable, Serializable {
     }
 
     /**
-     * Return a comparision based on the build time.
+     * Return a comparison based on the build time.
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     public int compareTo(Object arg0) {

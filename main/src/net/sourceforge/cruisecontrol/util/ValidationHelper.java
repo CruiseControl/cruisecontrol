@@ -33,9 +33,7 @@ public final class ValidationHelper {
     /**
      * 
      * @param masterAttribute
-     * @param masterName
      * @param childAttribute
-     * @param chiledName
      * @param plugin
      * @throws CruiseControlException
      */

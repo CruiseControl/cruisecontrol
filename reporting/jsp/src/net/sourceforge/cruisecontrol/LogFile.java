@@ -111,7 +111,7 @@ public class LogFile implements Serializable {
      *  is actually getting the log file that comes last alphabetically.
      *
      *  @return The latest log file or <code>null</code> if there are no
-     *          sucessful log files in the given directory
+     *          successful log files in the given directory
      */
     public static LogFile getLatestSuccessfulLogFile(File logDir) {
         File[] logs = logDir.listFiles(SUCCESSFUL_FILTER);
@@ -140,7 +140,7 @@ public class LogFile implements Serializable {
     }
 
     /**
-     * Wether the log file is compressed or not.
+     * Whether the log file is compressed or not.
      * @return <code>true</code> if the file is compressed
      */
     public boolean isCompressed() {
