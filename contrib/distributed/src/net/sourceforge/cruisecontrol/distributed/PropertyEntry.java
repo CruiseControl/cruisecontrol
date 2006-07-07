@@ -39,11 +39,7 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import net.jini.entry.AbstractEntry;
 
-import org.apache.log4j.Logger;
-
 public class PropertyEntry extends AbstractEntry {
-
-    private static final Logger LOG = Logger.getLogger(PropertyEntry.class);
 
     private static final long serialVersionUID = -3021011110362115574L;
     public String name = null;
