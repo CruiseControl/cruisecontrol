@@ -123,7 +123,7 @@ public class BuildAgentTest extends TestCase {
                 BuildAgent.main(new String[] {
                     BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                     BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE,
-                    BuildAgent.MAIN_ARG_SKIP_UI
+                    "-" + BuildAgent.MAIN_ARG_SKIP_UI
                 });
             }
         };

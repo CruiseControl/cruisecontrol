@@ -62,6 +62,7 @@ import net.jini.jeri.BasicJeriExporter;
 import net.jini.jeri.tcp.TcpServerEndpoint;
 import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
+import net.sourceforge.cruisecontrol.util.MainArgs;
 
 import org.apache.log4j.Logger;
 
@@ -70,7 +71,7 @@ import org.apache.log4j.Logger;
 public class BuildAgent implements DiscoveryListener,
             ServiceIDListener {
 
-    static final String MAIN_ARG_SKIP_UI = "-skipUI";
+    static final String MAIN_ARG_SKIP_UI = "skipUI";
 
     // package visible to allow BuildAgentUI console logger access to this Logger
     static final Logger LOG = Logger.getLogger(BuildAgent.class);
@@ -117,7 +118,7 @@ public class BuildAgent implements DiscoveryListener,
 
         entries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
         if (!isSkipUI) {
-            LOG.info("Loading Build Agent UI (use param " + MAIN_ARG_SKIP_UI + " to bypass).");
+            LOG.info("Loading Build Agent UI (use param -" + MAIN_ARG_SKIP_UI + " to bypass).");
             ui = new BuildAgentUI(this);
             //ui.updateAgentInfoUI(getService());
         } else {
@@ -307,14 +308,7 @@ public class BuildAgent implements DiscoveryListener,
 
         LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
 
-        // @todo cmd line arg processing cleanup
-
-        final boolean isSkipUI;
-        if (args.length < 3 || !args[2].equalsIgnoreCase(MAIN_ARG_SKIP_UI)) {
-            isSkipUI = false;
-        } else {
-            isSkipUI = true;
-    }
+        final boolean isSkipUI = MainArgs.argumentPresent(args, MAIN_ARG_SKIP_UI);
 
         final BuildAgent buildAgent;
         if (args.length > 0) {

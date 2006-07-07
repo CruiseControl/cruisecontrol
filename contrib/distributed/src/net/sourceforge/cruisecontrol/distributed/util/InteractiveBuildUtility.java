@@ -66,7 +66,6 @@ public class InteractiveBuildUtility {
     private static final Logger LOG = Logger.getLogger(InteractiveBuildUtility.class);
 
     private static Console console = new Console(System.in);
-    private String searchEntries;
     private Element distributedBuilderElement;
 
     public InteractiveBuildUtility() {
@@ -168,6 +167,7 @@ public class InteractiveBuildUtility {
     }
 
     private ServiceItem[] findAgents(Attribute configEntries) {
+        final String searchEntries;
         if (configEntries == null) {
             System.out.println("Enter search entries as comma-separated name/value pairs "
                     + "(e.g. \"os.name=WinNT, fixpack=4.1\")");
@@ -218,7 +218,7 @@ public class InteractiveBuildUtility {
             System.out.println();
         } else {
             System.out.println("Found serviceItems:");
-            String machineName = null;
+            String machineName;
             for (int i = 0; i < serviceItems.length; i++) {
                 try {
                     machineName = ((BuildAgentService) serviceItems[i].service).getMachineName();

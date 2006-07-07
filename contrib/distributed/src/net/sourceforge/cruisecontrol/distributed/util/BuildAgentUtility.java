@@ -41,7 +41,6 @@ public final class BuildAgentUtility {
         private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
         private final BuildAgentUtility buildAgentUtility;
-        private final JPanel northPanel;
         private final JButton btnRefresh = new JButton("Refresh");
         private final JComboBox cmbAgents = new JComboBox();
         private final JButton btnInvoke = new JButton("Invoke");
@@ -129,7 +128,7 @@ public final class BuildAgentUtility {
             pnlEdit.add(chkAfterBuildFinished, BorderLayout.CENTER);
             pnlEdit.add(btnInvokeOnAll, BorderLayout.EAST);
 
-            northPanel = new JPanel(new BorderLayout());
+            final JPanel northPanel = new JPanel(new BorderLayout());
             northPanel.add(pnlNN, BorderLayout.NORTH);
             northPanel.add(pnlEdit, BorderLayout.CENTER);
             northPanel.add(pnlNS, BorderLayout.SOUTH);
@@ -229,7 +228,7 @@ public final class BuildAgentUtility {
                                             txaConsole.getLineCount() - CONSOLE_LINE_BUFFER_SIZE
                                     ));
                         } catch (BadLocationException e) {
-                            ; //ignore
+                            //ignore
                         }
                     }
                     // Make sure the last line is always visible
@@ -280,7 +279,7 @@ public final class BuildAgentUtility {
                 lstServiceItems.add(serviceItems[i]);
             }
 
-            result.append("Found: " + serviceItems.length + " agents.\n");
+            result.append("Found: ").append(serviceItems.length).append(" agents.\n");
             ServiceItem serviceItem;
             BuildAgentService agent;
             String agentInfo;
