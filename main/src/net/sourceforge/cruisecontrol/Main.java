@@ -114,8 +114,7 @@ public final class Main implements CruiseControlMain {
         System.out.println("");
         System.out.println("Starts a continuous integration loop");
         System.out.println("");
-        System.out.println("java CruiseControl [options]");
-        System.out.println("java CruiseControlWithJetty [options]");
+        System.out.println("cruisecontrol [options]");
         System.out.println("");
         System.out.println("Build loop options are:");
         System.out.println("");
