@@ -72,6 +72,10 @@ UCM
 ----------------------
 * Skip rmbranch and rmver events (CC-430). Patch by Olga Bondarchuk
 
+VSS
+----------------------
+* Asterisks in comments no longer cause StringIndexOutOfBoundsException (CC-461).  Reported by Omair-Inam Abdul-Matin
+
 reporting application
 ======================
 
