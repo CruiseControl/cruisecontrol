@@ -1,39 +1,30 @@
-/********************************************************************************
+/***********************************************************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
  * Chicago, IL 60661 USA
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+ * following conditions are met:
  *
- *     + Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the 
+ *      following disclaimer.
  *
- *     + Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the 
+ *      following disclaimer in the documentation and/or other materials provided with the distribution.
  *
- *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
- *       names of its contributors may be used to endorse or promote
- *       products derived from this software without specific prior
- *       written permission.
+ *      Neither the name of ThoughtWorks, Inc., CruiseControl, nor the names of its contributors may be used to endorse 
+ *      or promote products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************/
+ **********************************************************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -144,10 +135,9 @@ public class Vss implements SourceControl {
     }
 
     /**
-     * Sets the date format to use for querying VSS and processing reports.
-     * 
-     * The default date format is <code>MM/dd/yy</code> . If your computer is set to a different region, you may wish
-     * to use a format such as <code>dd/MM/yy</code> .
+     * Sets the date format to use for querying VSS and processing reports. The default date format is
+     * <code>MM/dd/yy</code> . If your computer is set to a different region, you may wish to use a format such as
+     * <code>dd/MM/yy</code> .
      * 
      * @see java.text.SimpleDateFormat
      */
@@ -157,10 +147,9 @@ public class Vss implements SourceControl {
     }
 
     /**
-     * Sets the time format to use for querying VSS and processing reports.
-     * 
-     * The default time format is <code>hh:mma</code> . If your computer is set to a different region, you may wish to
-     * use a format such as <code>HH:mm</code> .
+     * Sets the time format to use for querying VSS and processing reports. The default time format is
+     * <code>hh:mma</code> . If your computer is set to a different region, you may wish to use a format such as
+     * <code>HH:mm</code> .
      * 
      * @see java.text.SimpleDateFormat
      */
@@ -258,15 +247,15 @@ public class Vss implements SourceControl {
         return filename;
     }
 
-    void parseHistoryEntries(ArrayList modifications, BufferedReader reader) throws IOException {
+    void parseHistoryEntries(List modifications, BufferedReader reader) throws IOException {
         String currLine = reader.readLine();
 
         while (currLine != null) {
-            if (currLine.startsWith("*****")) {
+            if (isVssEntryHeader(currLine)) {
                 ArrayList vssEntry = new ArrayList();
                 vssEntry.add(currLine);
                 currLine = reader.readLine();
-                while (currLine != null && !currLine.startsWith("*****")) {
+                while (currLine != null && !isVssEntryHeader(currLine)) {
                     vssEntry.add(currLine);
                     currLine = reader.readLine();
                 }
@@ -278,6 +267,18 @@ public class Vss implements SourceControl {
                 currLine = reader.readLine();
             }
         }
+    }
+
+    /**
+     * @param line
+     * @return true if line matches 5 asterisks, 2 spaces, any text, 2 spaces, 5 asterisks
+     */
+    private boolean isVssEntryHeader(String line) {
+        // This can still fail if the entry has a comment containing something of the form '***** some text *****' but
+        // is probably not worth handling at this point. If it does come up, we'll need to look at implementing some
+        // form of state machine.
+
+        return line.matches("\\*{5} {2}.+ {2}\\*{5}");
     }
 
     protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
@@ -492,9 +493,7 @@ public class Vss implements SourceControl {
     }
 
     /**
-     * Parse date/time from VSS file history
-     * 
-     * The nameAndDateLine will look like <br>
+     * Parse date/time from VSS file history The nameAndDateLine will look like <br>
      * <code>User: Etucker      Date:  6/26/01   Time: 11:53a</code><br>
      * Sometimes also this<br>
      * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
