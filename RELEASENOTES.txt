@@ -31,6 +31,10 @@ CMSynergy
 ----------------------
 * Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
 
+cruisecontrol.bat
+----------------------
+* Was failing to execute java when JAVA_HOME wasn't set (CC-492).
+
 CruiseControlConfig
 ----------------------
 * Allow properties inside of preconfigured template projects. Patch by Jerome Lacoste

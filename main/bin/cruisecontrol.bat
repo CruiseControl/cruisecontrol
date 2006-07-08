@@ -57,16 +57,18 @@ set DEFAULT_CCDIR=
 
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
+set JAVA_PATH="%JAVA_HOME%\bin\java"
 goto setCruise
 
 :noJavaHome
-echo Warning: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as <javac>) will not work properly.
+echo WARNING: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as javac) will not work properly.
+set JAVA_PATH=java
 
 :setCruise
 set LIBDIR=%CCDIR%\lib
 set DISTDIR=%CCDIR%\dist
 
-set EXEC="%JAVA_HOME%\bin\java" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar %*
+set EXEC="%JAVA_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar %*
 echo %EXEC%
 %EXEC%
 

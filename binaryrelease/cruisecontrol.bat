@@ -55,11 +55,13 @@ set CRUISE_PATH=
 
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
+set JAVA_PATH="%JAVA_HOME%\bin\java"
 set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
 goto setCruise
 
 :noJavaHome
-echo Warning: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as <javac>) will not work properly.
+echo WARNING: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as <javac>) will not work properly.
+set JAVA_PATH=java
 
 :setCruise
 set LIBDIR=%CCDIR%lib
@@ -99,7 +101,7 @@ set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\commons-el.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jaxen-1.1-beta-8.jar
 set CRUISE_PATH=%CRUISE_PATH%;.
 
-set EXEC="%JAVA_HOME%\bin\java" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %* -jmxport 8000
+set EXEC="%JAVA_PATH%" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %* -jmxport 8000
 echo %EXEC%
 %EXEC%
 
