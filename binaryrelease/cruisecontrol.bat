@@ -65,6 +65,7 @@ echo Warning: You have not set the JAVA_HOME environment variable. Any tasks rel
 set LIBDIR=%CCDIR%lib
 
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol.jar
+set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol-launcher.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\log4j.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jdom.jar
 set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\ant.jar
