@@ -241,9 +241,9 @@ public class VssTest extends TestCase {
     }
 
     public void testHandleEntryAddedInRoot() {
-        /***************************************************************************************************************
-         * ***************** Version 9 User: Jfredrick Date: 7/09/02 Time: 12:55p branch.file.2 added
-         */
+        //*****************  Version 9   *****************
+        //User: Jfredrick     Date:  7/09/02   Time: 12:55p
+        //branch.file.2 added
 
         List entry = new ArrayList();
         vss.setVsspath("\\vsspath");
