@@ -229,7 +229,7 @@ public class Launcher {
         System.arraycopy(supportJars, 0, jars, userJars.length + libJars.length
                 + distJars.length, supportJars.length);
         if (toolsJar != null) {
-            jars[jars.length - 1] = toolsJar.toURL();
+            jars[jars.length - 1] = toolsJar.toURI().toURL();
         }
 
         // Update the JVM java.class.path property
@@ -287,7 +287,7 @@ public class Launcher {
                }
            }
 
-           libPathURLs.add(element.toURL());
+           libPathURLs.add(element.toURI().toURL());
        }
    }
 }
