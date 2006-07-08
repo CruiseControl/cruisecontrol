@@ -27,28 +27,31 @@
  **********************************************************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class handles all VSS-related aspects of determining the modifications since the last good build.
@@ -67,15 +70,13 @@ public class Vss implements SourceControl {
     private String vssPath;
     private String serverPath;
     private String login;
-    private String dateFormat;
-    private String timeFormat;
-    private Hashtable properties = new Hashtable();
+    private String dateFormat = "MM/dd/yy";
+    private String timeFormat = "hh:mma";
+    private Map properties = new HashMap();
     private String property;
     private String propertyOnDelete;
 
     public Vss() {
-        dateFormat = "MM/dd/yy";
-        timeFormat = "hh:mma";
         constructVssDateTimeFormat();
     }
 
@@ -176,28 +177,35 @@ public class Vss implements SourceControl {
      * @return List of modifications
      */
     public List getModifications(Date lastBuild, Date now) {
-        ArrayList modifications = new ArrayList();
+        List modifications = new ArrayList();
 
-        String[] env = VSSHelper.loadVSSEnvironment(serverPath);
-        LOG.info("Vss: getting modifications for " + vssPath);
-
+        Process p = null;
         try {
-            Process p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), env);
+            LOG.info("Getting modifications for " + vssPath);
+            p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), VSSHelper.loadVSSEnvironment(serverPath));
+            logErrorStream(p.getErrorStream());
+
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
 
             parseTempFile(modifications);
-        } catch (IOException e) {
-            LOG.equals(e);
-            throw new RuntimeException(e.getMessage());
-        } catch (CruiseControlException e) {
-            LOG.equals(e);
-            throw new RuntimeException(e.getMessage());
-        } catch (InterruptedException e) {
-            LOG.equals(e);
-            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            // TODO: Revisit this when ThreadQueue is more stable.  Would prefer throwing a RuntimeException.
+            LOG.error("Problem occurred while attempting to get VSS modifications.  Returning empty modifications.", e);
+            return Collections.EMPTY_LIST;
+        } finally {
+            if (p != null) {
+                try {
+                    p.getInputStream().close();
+                    p.getOutputStream().close();
+                    p.getErrorStream().close();
+                } catch (IOException e) {
+                    LOG.error("Could not close process streams.  Destroying anyway...", e);
+                } finally {
+                    if (p != null) {
+                        p.destroy();
+                    }
+                }
+            }
         }
 
         if (property != null && modifications.size() > 0) {
@@ -207,19 +215,27 @@ public class Vss implements SourceControl {
         return modifications;
     }
 
-    private void parseTempFile(ArrayList modifications) throws IOException {
-        Level loggingLevel = LOG.getEffectiveLevel();
-        if (Level.DEBUG.equals(loggingLevel)) {
+    private void logErrorStream(InputStream is) {
+        StreamPumper errorPumper = new StreamPumper(is, new PrintWriter(System.err, true));
+        new Thread(errorPumper).start();
+    }
+
+    private void parseTempFile(List modifications) throws IOException {
+        if (LOG.isDebugEnabled()) {
             logVSSTempFile();
         }
 
         File tempFile = getTempFile();
-        BufferedReader reader = new BufferedReader(new FileReader(tempFile));
+        BufferedReader reader = null;
 
-        parseHistoryEntries(modifications, reader);
+        try {
+            reader = new BufferedReader(new FileReader(tempFile));
 
-        reader.close();
-        tempFile.delete();
+            parseHistoryEntries(modifications, reader);
+            tempFile.delete();
+        } finally {
+            reader.close();
+        }
     }
 
     private void logVSSTempFile() throws IOException {
@@ -251,11 +267,11 @@ public class Vss implements SourceControl {
         String currLine = reader.readLine();
 
         while (currLine != null) {
-            if (isVssEntryHeader(currLine)) {
-                ArrayList vssEntry = new ArrayList();
+            if (isRelevantVssEntryHeader(currLine)) {
+                List vssEntry = new ArrayList();
                 vssEntry.add(currLine);
                 currLine = reader.readLine();
-                while (currLine != null && !isVssEntryHeader(currLine)) {
+                while (currLine != null && !isRelevantVssEntryHeader(currLine)) {
                     vssEntry.add(currLine);
                     currLine = reader.readLine();
                 }
@@ -270,25 +286,20 @@ public class Vss implements SourceControl {
     }
 
     /**
-     * @param line
-     * @return true if line matches 5 asterisks, 2 spaces, any text, 2 spaces, 5 asterisks
+     * Most relevant VSS entry headers will be 5 asterisks, 2 spaces, file name, 2 spaces, 5 asterisks. However, if
+     * adding to the root, there are apparently 17 asterisks, 2 spaces, version name, 2 spaces, 17 asterisks.
      */
-    private boolean isVssEntryHeader(String line) {
+    private boolean isRelevantVssEntryHeader(String line) {
         // This can still fail if the entry has a comment containing something of the form '***** some text *****' but
-        // is probably not worth handling at this point. If it does come up, we'll need to look at implementing some
+        // is probably not worth handling at this point. If it does come up, we may need to look at implementing some
         // form of state machine.
 
-        return line.matches("\\*{5} {2}.+ {2}\\*{5}");
+        return line.matches("\\*+ {2}.+ {2}\\*+");
     }
 
-    protected String[] getCommandLine(Date lastBuild, Date now) throws CruiseControlException {
+    protected String[] getCommandLine(Date lastBuild, Date now) throws IOException {
         Commandline commandline = new Commandline();
-        String execCommand;
-        try {
-            execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
-        } catch (IOException e) {
-            throw new CruiseControlException(e);
-        }
+        String execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
 
         commandline.setExecutable(execCommand);
         commandline.createArgument().setValue("history");
@@ -299,15 +310,9 @@ public class Vss implements SourceControl {
         commandline.createArgument().setValue("-I-N");
         commandline.createArgument().setValue("-O" + getTempFile().getName());
 
-        String[] line = commandline.getCommandline();
+        LOG.info("Command line to execute: " + commandline);
 
-        LOG.debug(" ");
-        for (int i = 0; i < line.length; i++) {
-            LOG.debug("Vss command line arguments: " + line[i]);
-        }
-        LOG.debug(" ");
-
-        return line;
+        return commandline.getCommandline();
     }
 
     /**
@@ -315,21 +320,19 @@ public class Vss implements SourceControl {
      * <code>12/21/2000;8:14A</code> (vss doesn't like the m in am or pm). This format can be changed with
      * <code>setDateFormat()</code>
      * 
-     * @param d
+     * @param date
      *            Date to format.
      * @return String of date in format that VSS requires.
      * @see #setDateFormat
      */
-    private String formatDateForVSS(Date d) {
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat + ";" + timeFormat, Locale.US);
-        String vssFormattedDate = sdf.format(d);
+    private String formatDateForVSS(Date date) {
+        String vssFormattedDate = new SimpleDateFormat(dateFormat + ";" + timeFormat, Locale.US).format(date);
         if (timeFormat.endsWith("a")) {
             return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
         }
+
         return vssFormattedDate;
     }
-
-    // ***** the rest of this is just parsing the vss output *****
 
     /**
      * Parse individual VSS history entry
@@ -343,136 +346,116 @@ public class Vss implements SourceControl {
         }
         LOG.debug("VSS history entry END");
 
-        try {
-            final String labelDelimiter = "**********************";
-            boolean isLabelEntry = labelDelimiter.equals(entry.get(0));
+        final String labelDelimiter = "**********************";
+        boolean isLabelEntry = labelDelimiter.equals(entry.get(0));
 
-            if (isLabelEntry) {
-                LOG.debug("this is a label; ignoring this entry");
+        if (isLabelEntry) {
+            LOG.debug("this is a label; ignoring this entry");
+            return null;
+        }
+
+        // but need to adjust for cases where Label: line exists
+        //
+        // ***** DateChooser.java *****
+        // Version 8
+        // Label: "Completely new version!"
+        // User: Arass Date: 10/21/02 Time: 12:48p
+        // Checked in $/code/development/src/org/ets/cbtidg/common/gui
+        // Comment: This is where I add a completely new, but alot nicer
+        // version of the date chooser.
+        // Label comment:
+
+        int nameAndDateIndex = 2;
+        if (((String) entry.get(0)).startsWith("***************** ")) {
+            nameAndDateIndex = 1;
+        }
+        String nameAndDateLine = (String) entry.get(nameAndDateIndex);
+        if (nameAndDateLine.startsWith("Label:")) {
+            nameAndDateIndex++;
+            nameAndDateLine = (String) entry.get(nameAndDateIndex);
+            LOG.debug("adjusting for the line that starts with Label");
+        }
+
+        Modification modification = new Modification("vss");
+        modification.userName = parseUser(nameAndDateLine);
+        modification.modifiedTime = parseDate(nameAndDateLine);
+
+        String folderLine = (String) entry.get(0);
+        int fileIndex = nameAndDateIndex + 1;
+        String fileLine = (String) entry.get(fileIndex);
+        LOG.debug("File line is: " + fileLine);
+
+        if (fileLine.startsWith("Checked in")) {
+            LOG.debug("this is a checkin");
+            int commentIndex = fileIndex + 1;
+            modification.comment = parseComment(entry, commentIndex);
+            String fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+            String folderName = fileLine.substring(12);
+
+            Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
+            modfile.action = "checkin";
+        } else if (fileLine.endsWith("Created")) {
+            modification.type = "create";
+            LOG.debug("this folder was created");
+        } else {
+            String fileName;
+            String folderName;
+
+            if (nameAndDateIndex == 1) {
+                folderName = vssPath;
+            } else {
+                folderName = vssPath + "\\" + folderLine.substring(7, folderLine.indexOf("  *"));
+            }
+            int lastSpace = fileLine.lastIndexOf(" ");
+            if (lastSpace != -1) {
+                fileName = fileLine.substring(0, lastSpace);
+            } else {
+                fileName = fileLine;
+                if (fileName.equals("Branched")) {
+                    LOG.debug("Branched file, ignoring as branch directory is handled separately");
+                    return null;
+                }
+            }
+
+            Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
+
+            if (fileLine.endsWith("added")) {
+                modfile.action = "add";
+            } else if (fileLine.endsWith("deleted")) {
+                modfile.action = "delete";
+                addPropertyOnDelete();
+            } else if (fileLine.endsWith("destroyed")) {
+                modfile.action = "destroy";
+                addPropertyOnDelete();
+            } else if (fileLine.endsWith("recovered")) {
+                modfile.action = "recover";
+            } else if (fileLine.endsWith("shared")) {
+                modfile.action = "share";
+            } else if (fileLine.endsWith("branched")) {
+                modfile.action = "branch";
+            } else if (fileLine.indexOf(" renamed to ") != -1) {
+                modfile.fileName = fileLine;
+                modfile.action = "rename";
+                addPropertyOnDelete();
+            } else if (fileLine.startsWith("Labeled")) {
+                return null;
+            } else {
+                LOG.warn("Don't know how to handle this line: " + fileLine);
                 return null;
             }
-
-            // but need to adjust for cases where Label: line exists
-            //
-            // ***** DateChooser.java *****
-            // Version 8
-            // Label: "Completely new version!"
-            // User: Arass Date: 10/21/02 Time: 12:48p
-            // Checked in $/code/development/src/org/ets/cbtidg/common/gui
-            // Comment: This is where I add a completely new, but alot nicer
-            // version of the date chooser.
-            // Label comment:
-
-            int nameAndDateIndex = 2;
-            if (((String) entry.get(0)).startsWith("***************** ")) {
-                nameAndDateIndex = 1;
-            }
-            String nameAndDateLine = (String) entry.get(nameAndDateIndex);
-            if (nameAndDateLine.startsWith("Label:")) {
-                nameAndDateIndex++;
-                nameAndDateLine = (String) entry.get(nameAndDateIndex);
-                LOG.debug("adjusting for the line that starts with Label");
-            }
-
-            Modification modification = new Modification("vss");
-            modification.userName = parseUser(nameAndDateLine);
-            modification.modifiedTime = parseDate(nameAndDateLine);
-
-            String folderLine = (String) entry.get(0);
-            int fileIndex = nameAndDateIndex + 1;
-            String fileLine = (String) entry.get(fileIndex);
-
-            if (fileLine.startsWith("Checked in")) {
-
-                LOG.debug("this is a checkin");
-                int commentIndex = fileIndex + 1;
-                modification.comment = parseComment(entry, commentIndex);
-                String fileName = folderLine.substring(7, folderLine.indexOf("  *"));
-                String folderName = fileLine.substring(12);
-
-                Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
-                modfile.action = "checkin";
-
-            } else if (fileLine.endsWith("Created")) {
-                modification.type = "create";
-                LOG.debug("this folder was created");
-            } else {
-                String fileName;
-                String folderName;
-
-                if (nameAndDateIndex == 1) {
-                    folderName = vssPath;
-                } else {
-                    folderName = vssPath + "\\" + folderLine.substring(7, folderLine.indexOf("  *"));
-                }
-                int lastSpace = fileLine.lastIndexOf(" ");
-                if (lastSpace != -1) {
-                    fileName = fileLine.substring(0, lastSpace);
-                } else {
-                    fileName = fileLine;
-                    if (fileName.equals("Branched")) {
-                        LOG.debug("Branched file, ignoring as branch directory is handled separately");
-                        return null;
-                    }
-                }
-
-                Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
-
-                if (fileLine.endsWith("added")) {
-                    modfile.action = "add";
-                    LOG.debug("this file was added");
-                } else if (fileLine.endsWith("deleted")) {
-                    modfile.action = "delete";
-                    LOG.debug("this file was deleted");
-                    addPropertyOnDelete();
-                } else if (fileLine.endsWith("destroyed")) {
-                    modfile.action = "destroy";
-                    LOG.debug("this file was destroyed");
-                    addPropertyOnDelete();
-                } else if (fileLine.endsWith("recovered")) {
-                    modfile.action = "recover";
-                    LOG.debug("this file was recovered");
-                } else if (fileLine.endsWith("shared")) {
-                    modfile.action = "share";
-                    LOG.debug("this file was shared");
-                } else if (fileLine.endsWith("branched")) {
-                    modfile.action = "branch";
-                    LOG.debug("this file was branched");
-                } else if (fileLine.indexOf(" renamed to ") != -1) {
-                    modfile.fileName = fileLine;
-                    modfile.action = "rename";
-                    LOG.debug("this file was renamed");
-                    addPropertyOnDelete();
-                } else if (fileLine.startsWith("Labeled")) {
-                    LOG.debug("this is a label; ignoring this entry");
-                    return null;
-                } else {
-                    LOG.debug("action for this vss entry (" + fileLine + ") is unknown");
-                }
-            }
-
-            if (property != null) {
-                properties.put(property, "true");
-                LOG.debug("setting property " + property + " to be true");
-            }
-
-            LOG.debug(" ");
-
-            return modification;
-
-        } catch (RuntimeException e) {
-            LOG.fatal("RuntimeException handling VSS entry:");
-            for (int i = 0; i < entry.size(); i++) {
-                LOG.fatal(entry.get(i));
-            }
-            throw e;
         }
+
+        if (property != null) {
+            properties.put(property, "true");
+            LOG.debug("setting property " + property + " to be true");
+        }
+
+        return modification;
     }
 
     private void addPropertyOnDelete() {
         if (propertyOnDelete != null) {
             properties.put(propertyOnDelete, "true");
-            LOG.debug("setting property " + propertyOnDelete + " to be true");
         }
     }
 
@@ -523,7 +506,7 @@ public class Vss implements SourceControl {
 
             return lastModifiedDate;
         } catch (ParseException pe) {
-            LOG.warn(pe);
+            LOG.warn("Could not parse date", pe);
             return null;
         }
     }
