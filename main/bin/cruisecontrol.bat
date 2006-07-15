@@ -37,9 +37,6 @@ REM # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 REM # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 REM ################################################################################
 
-REM Set this if you're using SSH-based CVS
-REM set CVS_RSH=
-
 REM Uncomment the following line if you have OutOfMemoryError errors
 REM set CC_OPTS=-Xms128m -Xmx256m
 
@@ -57,7 +54,7 @@ set DEFAULT_CCDIR=
 
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
-set JAVA_PATH="%JAVA_HOME%\bin\java"
+set JAVA_PATH=%JAVA_HOME%\bin\java
 goto setCruise
 
 :noJavaHome
