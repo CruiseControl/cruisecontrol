@@ -74,7 +74,7 @@ if [ "$JAVABIN" = "" ] ; then
   JAVABIN=${JAVA_HOME}/bin/java
 fi
 
-CLASSPATH=lib/ant/ant-launcher.jar:lib/junit.jar:lib/xercesImpl-2.7.0.jar:lib/xml-apis-2.7.0.jar
+CLASSPATH=lib/ant/ant-launcher.jar:lib/junit-3.8.2.jar:lib/xercesImpl-2.7.0.jar:lib/xml-apis-2.7.0.jar
 
 # Try to include tools.jar for compilation
 if test -f ${JAVA_HOME}/lib/tools.jar ; then
