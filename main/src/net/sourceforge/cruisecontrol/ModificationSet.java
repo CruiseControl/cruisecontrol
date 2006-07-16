@@ -155,7 +155,11 @@ public class ModificationSet {
                 }
             }
         }
-        LOG.debug("Last modification: " + formatter.format(timeOfLastModification));
+        if (modificationList.size() > 0) {
+            LOG.debug("Last modification: " + formatter.format(timeOfLastModification));
+        } else {
+            LOG.debug("list has no modifications; returning new Date(0).getTime()");
+        }
         return timeOfLastModification.getTime();
     }
 
