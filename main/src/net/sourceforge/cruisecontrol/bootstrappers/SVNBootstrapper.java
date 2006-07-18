@@ -173,7 +173,8 @@ public class SVNBootstrapper implements Bootstrapper {
         p.waitFor();
         p.getInputStream().close();
         p.getOutputStream().close();
-        p.getErrorStream().close();
+        // closing the error stream handled by logErrorStream(p);
+        // p.getErrorStream().close();
     }
 
     private void logErrorStream(Process p) {
