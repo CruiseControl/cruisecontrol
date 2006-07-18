@@ -54,7 +54,7 @@ LIBDIR=${PROJECTDIR}/lib
 # No need to edit anything past here
 #--------------------------------------------
 
-CLASSPATH=lib/ant.jar:lib/ant-junit.jar:lib/ant-launcher.jar:lib/junit.jar:lib/xercesImpl-2.7.0.jar:lib/xml-apis-2.7.0.jar
+CLASSPATH=lib/ant.jar:lib/ant-junit.jar:lib/ant-launcher.jar:lib/junit-3.8.2.jar:lib/xercesImpl-2.7.0.jar:lib/xml-apis-2.7.0.jar
 
 # Try to find Java Home directory, from JAVA_HOME environment 
 # or java executable found in PATH
