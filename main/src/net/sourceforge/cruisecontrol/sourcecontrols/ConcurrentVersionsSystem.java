@@ -329,7 +329,8 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 p.waitFor();
                 p.getInputStream().close();
                 p.getOutputStream().close();
-                p.getErrorStream().close();
+                // closing the error stream handled by logErrorStream(p);
+                // p.getErrorStream().close();
             } catch (IOException e) {
                 log.error("Failed reading cvs server version", e);
             } catch (CruiseControlException e) {
@@ -503,7 +504,8 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 p.waitFor();
                 p.getInputStream().close();
                 p.getOutputStream().close();
-                p.getErrorStream().close();
+                // closing the error stream handled by logErrorStream(p);
+                // p.getErrorStream().close();
             } catch (Exception e) {
                 log.error("Failed reading mail aliases", e);
             }
@@ -641,7 +643,8 @@ public class ConcurrentVersionsSystem implements SourceControl {
         p.waitFor();
         p.getInputStream().close();
         p.getOutputStream().close();
-        p.getErrorStream().close();
+        // closing the error stream handled by logErrorStream(p);
+        // p.getErrorStream().close();
 
         return mods;
     }

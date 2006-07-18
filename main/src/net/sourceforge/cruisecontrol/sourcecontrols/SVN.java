@@ -252,7 +252,8 @@ public class SVN implements SourceControl {
         p.waitFor();
         p.getInputStream().close();
         p.getOutputStream().close();
-        p.getErrorStream().close();
+        // closing the error stream handled by logErrorStream(p);
+        // p.getErrorStream().close();
 
         return modifications;
     }

@@ -31,6 +31,10 @@ CMSynergy
 ----------------------
 * Use a four part project name for projects (CC-370). Reported by Antek Baranski.  Patch by Robert J. Smith and Antek Baranski.
 
+ConcurrentVersionSystem
+----------------------
+* Remove race condition on closing error stream.
+
 cruisecontrol.bat
 ----------------------
 * Was failing to execute java when JAVA_HOME wasn't set (CC-492).
@@ -71,6 +75,7 @@ PropertyLabelIncrementer
 SVN
 ----------------------
 * Reset modified property to null if no modifications. Patch by Paul Hammant
+* Remove race condition on closing error stream.
 
 UCM
 ----------------------
