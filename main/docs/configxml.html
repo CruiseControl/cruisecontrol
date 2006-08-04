@@ -773,7 +773,11 @@
                 <td>0 .. *</td>
                 <td>Monitors and starts CM Synergy sessions as needed</td>
             </tr>
-            </tbody>
+            <tr>
+                <td><a href="#lockfilelistener">&lt;lockfilelistener&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Responsible for deleting the lock file when a project goes IDLE</td>
+            </tr>
         </table>
         </div>
 
@@ -1143,6 +1147,11 @@ password=P@ssW0rd!
                 <td><a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CVS</td>
+            </tr>
+            <tr>
+                <td><a href="#lockfilebootstrapper">&lt;lockfilebootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Creates the lock file if it doesn't already exist</td>
             </tr>
             <tr>
                 <td><a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a></td>
