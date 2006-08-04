@@ -36,14 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.DateFormatFactory;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -51,26 +53,27 @@ import java.util.Date;
  */
 public final class CurrentBuildFileWriter {
 
+    private static final Logger LOG = Logger.getLogger(CurrentBuildFileWriter.class);
+
     private CurrentBuildFileWriter() {
     }
 
     public static void writefile(String info, Date date, String fileName) throws CruiseControlException {
         DateFormat formatter = DateFormatFactory.getDateFormat();
-        StringBuffer sb = new StringBuffer();
-        sb.append(info);
-        sb.append(formatter.format(date));
+        StringBuffer buffer = new StringBuffer(info).append(formatter.format(date));
 
-        FileWriter fw = null;
+        FileWriter writer = null;
         try {
-            fw = new FileWriter(fileName);
-            fw.write(sb.toString());
-        } catch (IOException ioe) {
-            throw new CruiseControlException("Error writing file: " + fileName, ioe);
+            writer = new FileWriter(fileName);
+            writer.write(buffer.toString());
+        } catch (IOException e) {
+            throw new CruiseControlException("Error writing file: " + fileName, e);
         } finally {
-            if (fw != null) {
+            if (writer != null) {
                 try {
-                    fw.close();
-                } catch (IOException ignore) {
+                    writer.close();
+                } catch (IOException e) {
+                    LOG.error("Failed closing writer", e);
                 }
             }
         }
@@ -80,8 +83,8 @@ public final class CurrentBuildFileWriter {
         File file = new File(fileName);
         File dir = file.getParentFile();
         if (dir != null && !dir.isDirectory()) {
-            ValidationHelper.assertTrue(dir.mkdirs(),
-                "directory for file " + fileName + " doesn't exist and couldn't be created.");
+            ValidationHelper.assertTrue(dir.mkdirs(), "directory for file " + fileName
+                    + " doesn't exist and couldn't be created.");
         }
     }
 }
