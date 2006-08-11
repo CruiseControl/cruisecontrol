@@ -50,7 +50,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -260,24 +259,7 @@ public class UCM implements SourceControl {
     }
 
     private String[] getDetails(String line) {
-        // replacing line.split("~#~") for jdk 1.3
-        ArrayList details = new ArrayList();
-        String delimiter = "~#~";
-        int startIndex = 0;
-        int index = 0;
-        while (index != -1) {
-            String detail;
-            index = line.indexOf(delimiter, startIndex);
-            if (index == -1) {
-                detail = line.substring(startIndex, line.length());
-            } else {
-                detail = line.substring(startIndex, index);
-            }
-            details.add(detail);
-            startIndex = index + delimiter.length();
-        }
-
-        return (String[]) details.toArray(new String[] {});
+        return line.split("~#~");
     }
 
     /*
@@ -435,13 +417,7 @@ public class UCM implements SourceControl {
     }
 
     private String[] splitOnSpace(String string) {
-        // replacing line.split(" ") for jdk 1.3
-        ArrayList parts = new ArrayList();
-        StringTokenizer tokenizer = new StringTokenizer(string, " ");
-        while (tokenizer.hasMoreTokens()) {
-            parts.add(tokenizer.nextToken());
-        }
-        return (String[]) parts.toArray(new String[] {});
+        return string.split(" ");
     }
 
     /*

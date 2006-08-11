@@ -37,13 +37,12 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -134,9 +133,7 @@ import org.apache.log4j.Logger;
     }
 
     private String[] getVobsFromList(String voblist) {
-        //  replacing voblist.split(","); for jdk 1.3 compatibility
-        ArrayList vobs = simpleSplitReplacement(voblist, ',');
-        return (String[]) vobs.toArray(new String[]{});
+        return voblist.split(",");
     }
 
     /*
@@ -177,59 +174,27 @@ import org.apache.log4j.Logger;
      */
     private String getViewName() {
         String viewname = "";
-        try {
-            if (isWindows()) {
-                viewname = getWindowsViewname(viewpath);
-            } else {
-                viewname = getUnixViewname(viewpath);
-            }
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            
+        if (isWindows()) {
+            viewname = getWindowsViewname(viewpath);
+        } else {
+            viewname = getUnixViewname(viewpath);
         }
         return viewname;
     }
 
     //  second part after /view, i.e. /view/viewname
     private String getUnixViewname(String viewpath) {
-//      replacing the following for jdk 1.3 compatibility  
-//      String[] details = viewpath.split("/");
-//      viewname = details[2];  
-        ArrayList parts = simpleSplitReplacement(viewpath, '/');
-       return (String) parts.get(1);
+        String[] details = viewpath.split("/", 4);
+        return details.length < 3 ? null : details[2];
     }
 
     //  first part after M: drive, i.e. M:\viewname
     private String getWindowsViewname(String viewpath) {
-//      replacing the following for jdk 1.3 compatibility  
-//        String[] details = viewpath.split("\\\\");
-//        viewname = details[1];  
-        ArrayList parts = simpleSplitReplacement(viewpath, '\\');
-        return (String) parts.get(1);
+        String[] details = viewpath.split("\\\\", 3);
+        return details.length < 2 ? null : details[1];
     }
-    
-    private ArrayList simpleSplitReplacement(String string, char tokenizeOn) {
-        ArrayList parts = new ArrayList();
-        StringTokenizer tokenizer = new StringTokenizer(string, String.valueOf(tokenizeOn));
-        while (tokenizer.hasMoreTokens()) {
-            parts.add(tokenizer.nextToken());
-        }
-        return parts;
-    }
-    
+
     protected boolean isWindows() {
-        return getOsName().indexOf("Windows") >= 0;
+        return Util.isWindows();
     }
-
-    protected String getOsName() {
-        return System.getProperty("os.name");
-    }
-
-    /** for testing */
-    public static void main(String[] args) {
-        ClearCaseViewstrapper bootstrapper = new ClearCaseViewstrapper();
-        bootstrapper.setViewpath("M:\\RatlBankModel_rel\\RatlBankSources");
-        bootstrapper.setVoblist("\\RatlBankSources,\\RatlBankReleases");
-        bootstrapper.bootstrap();
-    }
-
 }

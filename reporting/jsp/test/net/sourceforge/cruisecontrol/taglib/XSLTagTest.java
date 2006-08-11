@@ -94,9 +94,7 @@ public class XSLTagTest extends TestCase {
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
-
-        // JDK1.4 use File.toURI().toURL() instead
-        tag.transform(new LogFile(log3), log1.toURL(), out);
+        tag.transform(new LogFile(log3), log1.toURI().toURL(), out);
         assertEquals("test=3.1", out.toString());
     }
 
@@ -124,8 +122,7 @@ public class XSLTagTest extends TestCase {
 
         XSLTag tag = createXSLTag();
 
-        // JDK1.4 use File.toURI().toURL() instead
-        tag.transform(new LogFile(log3), log2.toURL(), out);
+        tag.transform(new LogFile(log3), log2.toURI().toURL(), out);
         assertEquals("test=3.1", out.toString());
     }
     

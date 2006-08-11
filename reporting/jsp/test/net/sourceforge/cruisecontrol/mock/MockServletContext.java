@@ -88,9 +88,7 @@ public class MockServletContext implements ServletContext {
     }
 
     public URL getResource(String s) throws MalformedURLException {
-
-        // JDK1.4 use File.toURI().toURL() instead
-        return new URL(baseResourceDir.toURL(), s);
+        return new File(baseResourceDir, s).toURI().toURL();
     }
 
     public InputStream getResourceAsStream(String resourceName) {

@@ -87,8 +87,7 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
         }
 
         String timeString = getTimeString();
-        // JDK1.4
-        // assert timeString != null && timeString.length() > 0;
+        assert timeString != null && timeString.length() > 0;
         urlBuffer.append("/");
         urlBuffer.append(timeString);
         return urlBuffer.toString();
