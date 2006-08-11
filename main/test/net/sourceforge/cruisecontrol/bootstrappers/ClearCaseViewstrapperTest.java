@@ -91,6 +91,10 @@ public class ClearCaseViewstrapperTest extends TestCase {
             this.osName = osName;
         }
 
+        public boolean isWindows() {
+            return getOsName().indexOf("Windows") != -1;
+        }
+
         public String getOsName() {
             return osName;
         }

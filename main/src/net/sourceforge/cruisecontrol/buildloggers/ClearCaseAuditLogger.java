@@ -41,8 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.BuildLogger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -155,13 +153,7 @@ public class ClearCaseAuditLogger implements BuildLogger {
     }
     
     private String[] splitOnComma(String doFiles) {
-        // replacing doFiles.split(",") for jdk 1.3
-        ArrayList parts = new ArrayList();
-        StringTokenizer tokenizer = new StringTokenizer(doFiles, ",");
-        while (tokenizer.hasMoreTokens()) {
-            parts.add(tokenizer.nextToken());
-        }
-        return (String[]) parts.toArray(new String[]{});
+        return doFiles.split(",");
     }
 
     /*
