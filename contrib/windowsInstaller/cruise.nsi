@@ -24,7 +24,7 @@ UninstPage instfiles
 
   Function .onInstSuccess
     MessageBox MB_YESNO "CruiseControl installed successfully. View readme?" IDNO NoReadme
-      Exec "notepad.exe $INSTDIR/RELEASENOTES.txt"
+      Exec "notepad.exe $INSTDIR/README.txt"
     NoReadme:
   FunctionEnd
 
@@ -67,6 +67,19 @@ SectionEnd
 
 ;--------------------------------
 
+Section "Windows Service"
+  ;
+   SetOutPath $INSTDIR
+   File wrapper.conf
+   File  "..\JavaServiceWrapper\bin\wrapper.exe"
+   SetOutPath $INSTDIR\lib\wrapper
+   File /r /x .svn "..\JavaServiceWrapper\lib\*.*"
+   MessageBox MB_OK "Start the CruiseControl service from the Services Control Panel"   
+
+   Exec '"$INSTDIR\Wrapper.exe" -i "$INSTDIR\wrapper.conf"'
+     
+SectionEnd
+
 ; Uninstaller
 
 Section "Uninstall"
@@ -74,18 +87,18 @@ Section "Uninstall"
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\CruiseControl"
   DeleteRegKey HKLM SOFTWARE\CruiseControl
-
-  ; Remove files and uninstaller
-  Delete $INSTDIR\*.*
-  RMDir /r $INSTDIR\lib
-  RMDir /r $INSTDIR\docs
-  RMDir /r $INSTDIR\webapps
   
+  ;SetOutPath $TEMP
+  CopyFiles $INSTDIR/logs $TEMP\CruiseControlArtifacts\logs
+  CopyFiles $INSTDIR/artifacts $TEMP\CruiseControlArtifacts\artifacts
+  MessageBox MB_OK "Your log files and artifacts are in $TEMP\CruiseControlArtifacts"
 
-  ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\CruiseControl\*.*"
-
-  ; Remove directories used
-  RMDir /r "$SMPROGRAMS\CruiseControl\*.*"
+  ; remove service
+  Exec "net stop cruisecontrol"
+  Exec '"$INSTDIR\Wrapper.exe" -u "$INSTDIR\wrapper.conf"'
+  
+  RMDir /r $PROGRAMFILES\CruiseControl
+  ; Remove shortcut
+  RMDir /r $SMPROGRAMS\CruiseControl
   
 SectionEnd
