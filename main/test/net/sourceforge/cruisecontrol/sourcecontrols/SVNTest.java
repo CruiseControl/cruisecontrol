@@ -135,7 +135,7 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}"};
+                "'{" + SVN.formatSVNDate(lastBuild) + "}':'{" + SVN.formatSVNDate(checkTime) + "}'"};
         String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
@@ -149,7 +149,7 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}",
+                "'{" + SVN.formatSVNDate(lastBuild) + "}':'{" + SVN.formatSVNDate(checkTime) + "}'",
                 "http://svn.collab.net/repos/svn" };
         actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
@@ -165,7 +165,7 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}",
+                "'{" + SVN.formatSVNDate(lastBuild) + "}':'{" + SVN.formatSVNDate(checkTime) + "}'",
                 "--username",
                 "lee",
                 "--password",
@@ -282,7 +282,7 @@ public class SVNTest extends TestCase {
         Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(0, modifications.length);
     }
-
+    
     public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported()
           throws ParseException, JDOMException, IOException {
         String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
