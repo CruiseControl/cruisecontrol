@@ -76,7 +76,7 @@ public class Launcher {
     public static final String CCHOME_PROPERTY = "cc.home";
 
     /** The property containing the CruiseControl dist directory */
-   public static final String CCDISTDIR_PROPERTY = "cc.dist.dir";
+    public static final String CCDISTDIR_PROPERTY = "cc.dist.dir";
 
     /** The property containing the CruiseControl library directory */
     public static final String CCLIBDIR_PROPERTY = "cc.library.dir";
@@ -202,12 +202,12 @@ public class Launcher {
             System.setProperty(CCLIBDIR_PROPERTY, ccLibDir.getAbsolutePath());
         }
         URL[] supportJars = Locator.getLocationURLs(ccLibDir);
+        URL[] antJars = Locator.getLocationURLs(new File(ccLibDir, "ant"));
 
         // Locate any jars in the per-user lib directory
         File userLibDir = new File(System.getProperty(USER_HOMEDIR),
                 USER_LIBDIR);
-        URL[] userJars = noUserLib ? new URL[0] : Locator
-                .getLocationURLs(userLibDir);
+        URL[] userJars = noUserLib ? new URL[0] : Locator.getLocationURLs(userLibDir);
 
         // Locate the Java tools jar
         File toolsJar = Locator.getToolsJar();
@@ -216,18 +216,16 @@ public class Launcher {
         // specified on the command line followed by jars in the per-user
         // lib directory and finally those jars found in the dist and lib
         // folders of CruiseControl home.
-        int numJars = libJars.length + userJars.length + distJars.length
-                + supportJars.length;
+        int numJars = libJars.length + userJars.length + distJars.length + supportJars.length + antJars.length;
         if (toolsJar != null) {
             numJars++;
         }
         URL[] jars = new URL[numJars];
-        System.arraycopy(libJars, 0, jars, 0, libJars.length);
-        System.arraycopy(userJars, 0, jars, libJars.length, userJars.length);
-        System.arraycopy(distJars, 0, jars, userJars.length + libJars.length,
-                distJars.length);
-        System.arraycopy(supportJars, 0, jars, userJars.length + libJars.length
-                + distJars.length, supportJars.length);
+        copyJarUrls(libJars, jars, 0);
+        copyJarUrls(userJars, jars, libJars.length);
+        copyJarUrls(distJars, jars, userJars.length + libJars.length);
+        copyJarUrls(supportJars, jars, userJars.length + libJars.length + distJars.length);
+        copyJarUrls(antJars, jars, userJars.length + libJars.length + distJars.length + supportJars.length);
         if (toolsJar != null) {
             jars[jars.length - 1] = toolsJar.toURI().toURL();
         }
@@ -245,6 +243,12 @@ public class Launcher {
         }
         baseClassPath.append(File.pathSeparatorChar);
         baseClassPath.append(".");
+        // adding the homedirectory to the classpath
+        if (ccHomeProperty.length() > 0) {
+            ccHomeProperty = ccHomeProperty.replace('\\', '/');
+            baseClassPath.append(File.pathSeparatorChar);
+            baseClassPath.append(ccHomeProperty + "/");
+        }
         System.setProperty("java.class.path", baseClassPath.toString());
         System.out.println("Classpath: " + baseClassPath.toString());
 
@@ -260,6 +264,10 @@ public class Launcher {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    private void copyJarUrls(URL[] sourceArray, URL[] destinationArray, int destinationStartIndex) {
+        System.arraycopy(sourceArray, 0, destinationArray, destinationStartIndex, sourceArray.length);
     }
     
     /**
