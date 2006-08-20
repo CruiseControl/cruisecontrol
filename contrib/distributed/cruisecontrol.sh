@@ -72,15 +72,9 @@ fi
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
 DISTRIBDIR=$CCDIR/../contrib/distributed
-LIBS_JINI=$DISTRIBDIR/lib/jini-core.jar:$DISTRIBDIR/lib/jini-ext.jar:$DISTRIBDIR/lib/jsk-platform.jar:$DISTRIBDIR/lib/reggie.jar:$DISTRIBDIR/lib/reggie-dl.jar:$DISTRIBDIR/lib/start.jar:$DISTRIBDIR/lib/tools.jar:$DISTRIBDIR/conf
+DISTRIB_LIBDIR=$DISTRIBDIR/lib 
+DISTRIB_CONFDIR=$DISTRIBDIR/conf 
 
-CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$DISTDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant/ant.jar:$LIBDIR/ant/ant-launcher.jar:$LIBDIR/xml-apis-2.8.0.jar:$LIBDIR/xercesImpl-2.8.0.jar:$LIBDIR/xalan-2.7.0.jar:$LIBDIR/serializer-2.7.0.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$LIBDIR/fast-md5.jar:$LIBDIR/maven-embedder-2.0.3-dep.jar:$DISTRIBDIR/dist/agent/lib/cc-agent.jar:$LIBS_JINI:.
-
-# convert the existing path to unix
-if [ `uname | grep -n CYGWIN` ]; then
-  CRUISE_PATH=`cygpath --path --windows "$CRUISE_PATH"`
-fi
-
-EXEC="$JAVA_HOME/bin/java $CC_OPTS -cp $CRUISE_PATH -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy CruiseControl $@" 
+EXEC="$JAVA_HOME/bin/java -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar -lib $JAVA_HOME/lib/tools.jar -lib $DISTRIBDIR/dist/agent/lib/cc-agent.jar -lib $DISTRIB_LIBDIR -lib $DISTRIB_CONFDIR $@" 
 echo $EXEC
 exec $EXEC
