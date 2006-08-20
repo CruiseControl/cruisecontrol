@@ -74,6 +74,7 @@ MavenSnapshotDependency
 P4
 ----------------------
 * Command to correct for server time wasn't using the optional values such as the port (CC-469). Reported by Terri Paik
+* Fix problem where very short interval time (30 seconds) was causing system to run out of file handles. Fix by Jared Richardson
 
 PropertyLabelIncrementer
 ----------------------

@@ -299,7 +299,6 @@ public class P4 implements SourceControl {
 
         String[] changelistNumbers = parseChangelistNumbers(p4Stream);
 
-        getRidOfLeftoverData(p4Stream);
         p.waitFor();
         p.getInputStream().close();
         p.getOutputStream().close();
