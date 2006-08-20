@@ -118,13 +118,14 @@ public class SVNBootstrapper implements Bootstrapper {
 
     /**
      * Update the specified file from the subversion repository.
+     * @throws CruiseControlException 
      */
-    public void bootstrap() {
+    public void bootstrap() throws CruiseControlException {
         try {
             Commandline commandLine = buildUpdateCommand();
             execUpdateCommand(commandLine);
         } catch (Exception e) {
-            LOG.error("Error executing svn update command", e);
+            throw new CruiseControlException("Error executing svn update command", e);
         }
     }
 

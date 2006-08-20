@@ -150,11 +150,7 @@ public class CMSynergyBootstrapper implements Bootstrapper {
         this.sessionName = sessionName;
     }
  
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.Bootstrapper#bootstrap()
-     */
-    public void bootstrap() {
-        
+    public void bootstrap() throws CruiseControlException {
         LOG.info("Reconfiguring project \"" + projectSpec + "\".");
 
         // Create a managed command line
@@ -171,9 +167,7 @@ public class CMSynergyBootstrapper implements Bootstrapper {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.error(
-                "Could not reconfigure the project \"" + projectSpec + "\"." ,
-                e);
+            throw new CruiseControlException("Could not reconfigure the project \"" + projectSpec + "\".", e);
         }
     }
 

@@ -78,8 +78,9 @@ public class SnapshotCMBootstrapper implements Bootstrapper {
 
     /**
      *  Update the specified file.
+     * @throws CruiseControlException 
      */
-    public void bootstrap() {
+    public void bootstrap() throws CruiseControlException {
         Commandline commandLine = buildUpdateCommand();
         
         if (LOG.isDebugEnabled()) {
@@ -95,7 +96,7 @@ public class SnapshotCMBootstrapper implements Bootstrapper {
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (Exception e) {
-            LOG.error("Error executing SnapshotCM update command", e);
+            throw new CruiseControlException("Error executing SnapshotCM update command", e);
         }
     }
 
