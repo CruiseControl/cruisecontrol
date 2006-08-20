@@ -30,10 +30,10 @@ public class AlienBrainBootstrapper extends AlienBrainCore implements Bootstrapp
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(getPath(), "path", this.getClass());
         ValidationHelper.assertTrue("skip".equals(overwriteWritable) || "replace".equals(overwriteWritable),
-                             "overwritewritable must be one of 'skip' or 'replace' in AlienBrainBootstrapper");
+                "overwritewritable must be one of 'skip' or 'replace' in AlienBrainBootstrapper");
     }
 
-    public void bootstrap() {
+    public void bootstrap() throws CruiseControlException {
         try {
             if (getBranch() != null) {
                 setActiveBranch(getBranch());
@@ -41,18 +41,12 @@ public class AlienBrainBootstrapper extends AlienBrainCore implements Bootstrapp
 
             ManagedCommandline cmdLine = buildBootstrapCommand();
             cmdLine.execute();
-            LOG.debug(cmdLine.getStdoutAsString());
-            LOG.debug(cmdLine.getStderrAsString());
         } catch (IOException e) {
-            LOG.error("Error executing AlienBrain bootstrap." + e);
-        } catch (CruiseControlException e) {
-            LOG.error("Error executing AlienBrain bootstrap." + e);
+            throw new CruiseControlException("Error executing AlienBrain bootstrap", e);
         }
-
     }
 
     public ManagedCommandline buildBootstrapCommand() {
-
         ManagedCommandline cmdLine = buildCommonCommand();
 
         cmdLine.createArgument().setValue("getlatest");

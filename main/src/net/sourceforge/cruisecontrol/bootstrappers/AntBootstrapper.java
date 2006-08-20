@@ -47,11 +47,9 @@ import org.jdom.Element;
 import java.util.HashMap;
 
 /**
- * A thin wrapper around the AntBuilder class, this class allows you to
- * call an Ant script as a bootstrapper.
- *
- * @see net.sourceforge.cruisecontrol.builders.AntBuilder
+ * A thin wrapper around the AntBuilder class, this class allows you to call an Ant script as a bootstrapper.
  * 
+ * @see net.sourceforge.cruisecontrol.builders.AntBuilder
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
 public class AntBootstrapper implements Bootstrapper {
@@ -66,16 +64,13 @@ public class AntBootstrapper implements Bootstrapper {
     public void bootstrap() throws CruiseControlException {
         Element result = delegate.build(new HashMap());
         if (result == null) {
-            LOG.error("Bootstrap failed.\n\n");
+            throw new CruiseControlException("Build returned null.  Bootstrap failed.");
         } else {
             Attribute error = result.getAttribute("error");
-            if (error == null) {
-                LOG.info("Bootstrap successful.");
-            } else {
-                LOG.error("Bootstrap failed.\n\n"
-                        + error.getValue()
-                        + "\n");
+            if (error != null) {
+                throw new CruiseControlException("Bootstrap failed with error: " + error.getValue());
             }
+            LOG.info("Bootstrap successful.");
         }
     }
 

@@ -46,6 +46,8 @@ public interface Bootstrapper {
 
     /**
      *  Perform the bootstrapping.
+     *  
+     *  @throws CruiseControlException if bootstrap fails
      */
     public void bootstrap() throws CruiseControlException;
 

@@ -92,8 +92,9 @@ public class CVSBootstrapper implements Bootstrapper {
 
     /**
      *  Update the specified file.
+     * @throws CruiseControlException 
      */
-    public void bootstrap() {
+    public void bootstrap() throws CruiseControlException {
         try {
             Commandline commandLine = buildUpdateCommand();
             Process p = commandLine.execute();
@@ -121,7 +122,7 @@ public class CVSBootstrapper implements Bootstrapper {
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (Exception e) {
-            LOG.error("Error executing CVS update command", e);
+            throw new CruiseControlException("Error executing CVS update command", e);
         }
     }
 

@@ -47,24 +47,15 @@ import org.apache.log4j.Logger;
 import java.io.PrintWriter;
 
 /**
- * Since we rely on our build.xml to handle updating our source code, there has
- * always been a problem with what happens when the build.xml file itself
- * changes.  Previous workarounds have included writing a wrapper build.xml that
- * will check out the "real" build.xml.  This class is a substitute for that
- * practice.
- *
- * The ClearCaseBootstrapper will handle updating a single file from
- * ClearCase before the build begins.
- *
- * Usage:
- *
- *     &lt;clearcasebootstrapper file="" viewpath=""/&gt;
- *
+ * Since we rely on our build.xml to handle updating our source code, there has always been a problem with what happens
+ * when the build.xml file itself changes. Previous workarounds have included writing a wrapper build.xml that will
+ * check out the "real" build.xml. This class is a substitute for that practice. The ClearCaseBootstrapper will handle
+ * updating a single file from ClearCase before the build begins. Usage: &lt;clearcasebootstrapper file=""
+ * viewpath=""/&gt;
  */
 public class ClearCaseBootstrapper implements Bootstrapper {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ClearCaseBootstrapper.class);
+    private static final Logger LOG = Logger.getLogger(ClearCaseBootstrapper.class);
 
     private String filename;
     private String viewpath;
@@ -78,23 +69,22 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     }
 
     /**
-     *  Update the specified file.
+     * Update the specified file.
      */
-    public void bootstrap() {
+    public void bootstrap() throws CruiseControlException {
         Commandline commandLine = buildUpdateCommand();
 
-        log.debug("Executing: " + commandLine);
+        LOG.debug("Executing: " + commandLine);
         try {
             Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             p.waitFor();
             p.getInputStream().close();
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (Exception e) {
-            log.error("Error executing ClearCase update command", e);
+            throw new CruiseControlException("Error executing ClearCase update", e);
         }
     }
 
@@ -116,9 +106,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     }
 
     private String getFullPathFileName() {
-        return viewpath == null
-            ? filename
-            : new StringBuffer(viewpath).append("/").append(filename).toString();
+        return viewpath == null ? filename : new StringBuffer(viewpath).append("/").append(filename).toString();
     }
 
     protected boolean isWindows() {
@@ -127,14 +115,6 @@ public class ClearCaseBootstrapper implements Bootstrapper {
 
     protected String getOsName() {
         return System.getProperty("os.name");
-    }
-
-    /** for testing */
-    public static void main(String[] args) {
-        ClearCaseBootstrapper bootstrapper = new ClearCaseBootstrapper();
-        bootstrapper.setViewpath("C:/views/integration_view/project");
-        bootstrapper.setFile("build.xml");
-        bootstrapper.bootstrap();
     }
 
 }

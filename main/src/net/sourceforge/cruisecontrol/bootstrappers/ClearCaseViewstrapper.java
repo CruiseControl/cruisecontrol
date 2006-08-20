@@ -48,85 +48,77 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
 
 /**
- * This class allows you to start up ClearCase dynamic views and mount VOBs before
- * you initiate your build. If your view has been stopped, a VOB unmounted or your
- * machine rebooted, the likelihood is that your build will fail when using dynamic
- * views. The class therefore allows you to specify a viewpath, from which it works
- * out the view tag and starts it, optionally you can specify voblist, a comma 
- * separated list of VOBs to mount.
+ * This class allows you to start up ClearCase dynamic views and mount VOBs before you initiate your build. If your view
+ * has been stopped, a VOB unmounted or your machine rebooted, the likelihood is that your build will fail when using
+ * dynamic views. The class therefore allows you to specify a viewpath, from which it works out the view tag and starts
+ * it, optionally you can specify voblist, a comma separated list of VOBs to mount. The reason a viewpath is used rather
+ * than just the view path is that you can reuse a CruiseControl property which defines the source of your build. You
+ * should always specify the viewpath via the root location, i.e. M:\... on Windows or /view/... on Unix Usage:
+ * &lt;clearcaseviewstrapper viewpath="M:\dynamic_view\some_vob\src" voblist="\SourceVOB,\ReleaseVOB"/%gt;
  * 
- * The reason a viewpath is used rather than just the view path is that you can reuse
- * a CruiseControl property which defines the source of your build. You should always
- * specify the viewpath via the root location, i.e. M:\... on Windows or /view/... on Unix
- * 
- * Usage:
- * 
- *     &lt;clearcaseviewstrapper viewpath="M:\dynamic_view\some_vob\src"
- *         voblist="\SourceVOB,\ReleaseVOB"/%gt;
- * 
- * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a> 
+ * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
- public class ClearCaseViewstrapper implements Bootstrapper {
+public class ClearCaseViewstrapper implements Bootstrapper {
 
-    /** enable logging for this class */
-    private static Logger log = Logger.getLogger(ClearCaseViewstrapper.class);
+    private static final Logger LOG = Logger.getLogger(ClearCaseViewstrapper.class);
 
     private String viewpath;
     private String voblist;
 
     /**
      * set the path to the view to be started
-     * @param path path to view to be started
+     * 
+     * @param path
+     *            path to view to be started
      */
     public void setViewpath(String path) {
         viewpath = path;
     }
-    
+
     /**
      * set the list of VOBs to mount, the list is comma separated
-     * @param list comma separated list of VOBs to mount
+     * 
+     * @param list
+     *            comma separated list of VOBs to mount
      */
     public void setVoblist(String list) {
         voblist = list;
     }
 
     /*
-     *  start the specified view and VOBs.
+     * start the specified view and VOBs.
      */
-    public void bootstrap() {
-        
+    public void bootstrap() throws CruiseControlException {
         Commandline commandLine = buildStartViewCommand();
-        log.debug("Executing: " + commandLine);
+        LOG.debug("Executing: " + commandLine);
         try {
             Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             p.waitFor();
             p.getInputStream().close();
             p.getOutputStream().close();
             p.getErrorStream().close();
         } catch (Exception e) {
-            log.error("Error executing ClearCase startview command", e);
+            throw new CruiseControlException("Error executing ClearCase startview command", e);
         }
-      
+
         // have we got some VOBs to mount
         if (voblist != null) {
             String[] vobs = getVobsFromList(voblist);
             for (int i = 0; i < vobs.length; i++) {
                 commandLine = buildMountVOBCommand(vobs[i]);
-                log.debug("Executing: " + commandLine);
+                LOG.debug("Executing: " + commandLine);
                 try {
                     Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-                    StreamPumper errorPumper =
-                        new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+                    StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
                     new Thread(errorPumper).start();
                     p.waitFor();
                     p.getInputStream().close();
                     p.getOutputStream().close();
                     p.getErrorStream().close();
                 } catch (Exception e) {
-                    log.error("Error executing ClearCase mount command", e);
+                    throw new CruiseControlException("Error executing ClearCase mount command", e);
                 }
             }
         }
@@ -155,7 +147,7 @@ import org.apache.log4j.Logger;
 
         return commandLine;
     }
-    
+
     /*
      * build a command line for starting a VOB
      */
@@ -182,13 +174,13 @@ import org.apache.log4j.Logger;
         return viewname;
     }
 
-    //  second part after /view, i.e. /view/viewname
+    // second part after /view, i.e. /view/viewname
     private String getUnixViewname(String viewpath) {
         String[] details = viewpath.split("/", 4);
         return details.length < 3 ? null : details[2];
     }
 
-    //  first part after M: drive, i.e. M:\viewname
+    // first part after M: drive, i.e. M:\viewname
     private String getWindowsViewname(String viewpath) {
         String[] details = viewpath.split("\\\\", 3);
         return details.length < 2 ? null : details[1];
