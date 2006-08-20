@@ -11,10 +11,10 @@ general
 * Add Ant-style launcher (CC-268).  Patch by Robert J. Smith.
 * Add documentation for lockfilebootstrapper and lockfilelistener (CC-507).  Patch by Allan Wick.
 * Fixes for installer (CC-505).  Patch by Julian Simpson:
-** displays README instead of RELEASENOTES
-** now with Windows service
-** backs up logs and artifacts to your Windows profile temp dir when removing
-** cleans out install dir
+  - displays README instead of RELEASENOTES
+  - now with Windows service
+  - backs up logs and artifacts to your Windows profile temp dir when removing
+  - cleans out install dir
 
 contrib
 ======================
