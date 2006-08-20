@@ -95,6 +95,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
+import org.apache.log4j.Logger;
+
 /**
  * Class to pump the error stream during Process's runtime. Copied from
  * the Ant built-in task.
@@ -108,7 +110,9 @@ public class StreamPumper implements Runnable {
     private BufferedReader in;
     private StreamConsumer consumer = null;
     private PrintWriter out = new PrintWriter(System.out);
+
     private static final int SIZE = 1024;
+    private static final Logger LOG = Logger.getLogger(StreamPumper.class);
 
     public StreamPumper(InputStream in, PrintWriter writer) {
         this(in);
@@ -165,7 +169,11 @@ public class StreamPumper implements Runnable {
 
     private void consumeLine(String line) {
         if (consumer != null) {
-            consumer.consumeLine(line);
+            try {
+                consumer.consumeLine(line);
+            } catch (RuntimeException e) {
+                LOG.error("Problem consuming line [" + line + "]", e);
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ general
   - now with Windows service
   - backs up logs and artifacts to your Windows profile temp dir when removing
   - cleans out install dir
-* Update all bootstrappers to throw CruiseControlExceptions on errors instead of log and continue.  Reported by Sylvain Benoist.
+* Update all bootstrappers to throw CruiseControlExceptions on errors instead of log and continue (CC-449).  Reported by Sylvain Benoist.
 
 contrib
 ======================
@@ -85,6 +85,10 @@ PropertyLabelIncrementer
 SCPPublisher
 ----------------------
 * Add attribute "executableName" to specify alternative executable.
+
+StreamPumper
+----------------------
+* Log if consuming line fails (CC-199).  Reported by Kaloyan Enimanev.
 
 SVN
 ----------------------
