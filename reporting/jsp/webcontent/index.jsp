@@ -124,7 +124,20 @@
 <%
   String name = System.getProperty("ccname", "");
   String hostname = InetAddress.getLocalHost().getHostName();
-  String fullhostname = InetAddress.getLocalHost().getCanonicalHostName(); 
+  String jmxhostname = application.getInitParameter("cruisecontrol.jmxhost");
+  if (jmxhostname == null) {
+    try {
+      jmxhostname = InetAddress.getLocalHost().getCanonicalHostName(); 
+    }
+    catch(IOException e) {
+	  try {
+        jmxhostname = InetAddress.getLocalHost().getHostName();
+      }
+      catch(IOException e2) {
+        jmxhostname = "localhost";
+      }
+    }
+  }
   String port = System.getProperty("cruisecontrol.jmxport");
   String webXmlPort = application.getInitParameter("cruisecontrol.jmxport");
   if (port == null && webXmlPort != null) {
@@ -133,7 +146,7 @@
       port = "8000";
   }
   boolean jmxEnabled = true;//port != null;
-  String jmxURLPrefix = "http://" + fullhostname + ":" + port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
+  String jmxURLPrefix = "http://" + jmxhostname + ":" + port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
 
   final String statusFileName = application.getInitParameter("currentBuildStatusFile");
 

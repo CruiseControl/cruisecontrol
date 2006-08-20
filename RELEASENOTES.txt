@@ -103,6 +103,7 @@ index.jsp
 ----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
 * Use fully qualified hostname for JMX server (CC-362). Patch by Sven Strohschein
+* Use cruisecontrol.jmxhost parameter if it is set in web.xml.
 
 controlpanel.jsp
 ----------------------
