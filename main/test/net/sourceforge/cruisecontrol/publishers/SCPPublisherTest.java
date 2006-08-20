@@ -68,30 +68,46 @@ public class SCPPublisherTest extends TestCase {
         assertTrue(testpublisher.getLogFileNameWasCalled);        
     }
     
-    public void testValidate() {
+    public void testValidate() throws CruiseControlException {
         publisher.setSourceUser("user1");
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions when only user is set.");
         } catch (CruiseControlException e) {
         }
+        
         publisher.setSourceUser(null);
         publisher.setSourceHost("host1");
-
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions when only host is set.");
         } catch (CruiseControlException e) {
         }
+        
         publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
-        publisher.setSourceUser(null);
+        publisher.validate();        
+    }
+    
+    public void testValidateShouldFailWithInvalidExecutableName() throws CruiseControlException {
+        publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
+        publisher.setExecutableName(null);
         try {
             publisher.validate();
-            fail("SCPPublisher should throw exceptions when only user is set.");
+            fail("SCPPublisher should throw exceptions with null executableName.");
         } catch (CruiseControlException e) {
         }
+        
+        publisher.setExecutableName("");
+        try {
+            publisher.validate();
+            fail("SCPPublisher should throw exceptions with empty executableName.");
+        } catch (CruiseControlException e) {
+        }
+        
+        publisher.setExecutableName("plink");
+        publisher.validate();
     }
 
     public void testCreateCommandline() {
@@ -132,6 +148,21 @@ public class SCPPublisherTest extends TestCase {
                 + "home"
                 + File.separator
                 + "httpd"
+                + File.separator,
+            publisher.createCommandline("filename").toString());
+    }
+    
+    public void testCreateCommandlineWithAlternateExectuable() {
+        publisher.setExecutableName("plink");
+        publisher.setSourceUser("user1");
+        publisher.setSourceHost("host1");
+        publisher.setTargetUser("user2");
+        publisher.setTargetHost("host2");
+        assertEquals(
+            "plink -S ssh user1@host1:."
+                + File.separator
+                + "filename "
+                + "user2@host2:."
                 + File.separator,
             publisher.createCommandline("filename").toString());
     }

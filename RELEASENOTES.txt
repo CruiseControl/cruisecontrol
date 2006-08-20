@@ -79,6 +79,10 @@ PropertyLabelIncrementer
 ----------------------
 * Add attribute "defaultlabel" which is returned when property file doesn't exist (CC-470).
 
+SCPPublisher
+----------------------
+* Add attribute "executableName" to specify alternative executable.
+
 SVN
 ----------------------
 * Reset modified property to null if no modifications. Patch by Paul Hammant

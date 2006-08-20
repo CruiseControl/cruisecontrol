@@ -60,6 +60,7 @@ public class SCPPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(SCPPublisher.class);
 
+    private String executableName = "scp";
     private String sourceUser;
     private String sourceHost;
     private String sourceDir = ".";
@@ -71,6 +72,10 @@ public class SCPPublisher implements Publisher {
     private String file;
     private String targetSeparator = File.separator;
     private String sourceSeparator = File.separator;
+
+    public void setExecutableName(String executableName) {        
+        this.executableName = executableName;
+    }
 
     public void setSourceUser(String sourceUser) {
         this.sourceUser = sourceUser;
@@ -123,6 +128,8 @@ public class SCPPublisher implements Publisher {
      *  @throws CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
+        ValidationHelper.assertIsSet(executableName, "executableName", this.getClass());
+        ValidationHelper.assertNotEmpty(executableName, "executableName", this.getClass());
         ValidationHelper.assertFalse(sourceUser == null && sourceHost != null,
             "'sourceuser' not specified in configuration file");
 
@@ -189,7 +196,7 @@ public class SCPPublisher implements Publisher {
         String targetfile = targetSeparator;
 
         Commandline command = new Commandline();
-        command.setExecutable("scp");
+        command.setExecutable(executableName);
         command.createArgument().setLine(options);
         command.createArgument().setValue("-S");
         command.createArgument().setValue(ssh);
