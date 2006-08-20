@@ -9,6 +9,7 @@ general
 * End of support for compiling/running Cruise with JDK 1.3. New earliest supported JDK is 1.4.x.
 * Replace Xalan with Saxon.
 * Add Ant-style launcher (CC-268).  Patch by Robert J. Smith.
+* Fix CCDist startup scripts to work with new launcher.  Patch by Dan Rollo.
 * Add documentation for lockfilebootstrapper and lockfilelistener (CC-507).  Patch by Allan Wick.
 * Fixes for installer (CC-505).  Patch by Julian Simpson:
   - displays README instead of RELEASENOTES
