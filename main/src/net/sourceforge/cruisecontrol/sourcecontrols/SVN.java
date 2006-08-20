@@ -212,8 +212,8 @@ public class SVN implements SourceControl {
         command.createArgument().setValue("--xml");
         command.createArgument().setValue("-v");
         command.createArgument().setValue("-r");
-        command.createArgument().setValue("{" + formatSVNDate(lastBuild) + "}" + ":"
-                + "{" + formatSVNDate(checkTime) + "}");
+        command.createArgument().setValue("'{" + formatSVNDate(lastBuild) + "}'" + ":"
+                + "'{" + formatSVNDate(checkTime) + "}'");
 
         if (userName != null) {
             command.createArgument().setValue("--username");
