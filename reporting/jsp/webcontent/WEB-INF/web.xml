@@ -101,6 +101,15 @@
       </description>
     </context-param>
 
+               <!--
+    <context-param>
+      <param-name>cruisecontrol.jmxhost</param-name>
+      <param-value>192.168.254.30</param-value>
+      <description>If your server doesn't know it's own proper IP address or it's name isn't resolvable by other machines on the network, set the IP address or resolvable name here. This will enable things like the "Force Builds" button to work.
+                       </description>
+    </context-param>
+               -->
+
     <!--
     <context-param>
       <param-name>xslt.pmd.warning.threshold</param-name>

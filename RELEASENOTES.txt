@@ -102,11 +102,12 @@ reporting application
 index.jsp
 ----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
-* Use fully qualified hostname for JMX server (CC-362). Index fix by Sven Strohschein
+* Use fully qualified hostname for JMX server (CC-362). Patch by Sven Strohschein
 
 controlpanel.jsp
 ----------------------
-* Use fully qualified hostname for JMX server (CC-362). Control Panel fix by Rajesh Patel
+* Use fully qualified hostname for JMX server (CC-362). Patch by Rajesh Patel
+* Use cruisecontrol.jmxhost parameter if it is set in web.xml. Patch by Jared Richardson
 
 FileServlet
 ----------------------

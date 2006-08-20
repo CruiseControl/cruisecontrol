@@ -38,20 +38,20 @@
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <%
     String hostname = "";
-    try
-    {
-    	hostname = InetAddress.getLocalHost().getCanonicalHostName(); 
-    }
-    catch(IOException e)
-    {
-	    try
-    	{
-        	hostname = InetAddress.getLocalHost().getHostName();
-    	}
-    	catch(IOException e2)
-    	{
-        	hostname = "localhost";
-    	}
+    hostname = application.getInitParameter("cruisecontrol.jmxhost");
+    if (hostname == null) {
+        try {
+            hostname = InetAddress.getLocalHost().getCanonicalHostName(); 
+        }
+        catch(IOException e) {
+	        try {
+        	    hostname = InetAddress.getLocalHost().getHostName();
+    	    }
+    	    catch(IOException e2)
+    	    {
+        	    hostname = "localhost";
+    	    }
+        }
     }
     String port = System.getProperty("cruisecontrol.jmxport");
     String webXmlPort = application.getInitParameter("cruisecontrol.jmxport");
