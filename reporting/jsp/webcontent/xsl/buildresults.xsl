@@ -64,10 +64,10 @@
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="errors"/></p>
     <!--
       for traditional cc display of only compile errors and warnings
-      comment out mode="errors" and uncomment mode="compile"
+      comment out mode="errors" and uncomment mode="compile" and mode="javadoc"
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="compile"/></p>
-    -->
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="javadoc"/></p>
+    -->
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="unittests"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="fittests"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="modifications"/></p>

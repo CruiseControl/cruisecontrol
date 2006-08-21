@@ -112,6 +112,10 @@ VSS
 reporting application
 ======================
 
+buildresults.xsl
+----------------------
+* Comment out javadoc.xsl since the information is already in the errors and warnings section.
+
 index.jsp
 ----------------------
 * Fix invalid comment syntax in index.jsp (CC-486). Reported by Andy Stevens
