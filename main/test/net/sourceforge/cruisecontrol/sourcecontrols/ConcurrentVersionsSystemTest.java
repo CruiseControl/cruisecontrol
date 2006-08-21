@@ -891,5 +891,18 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         assertEquals("assuming old format upon broken output", false, cvs.isCvsNewOutputFormat());
         input.close();
     }
+    
+    public void testUseHead() {
+        ConcurrentVersionsSystem cvs = new ConcurrentVersionsSystem();
+        assertTrue(cvs.useHead());
+        cvs.setTag("");
+        assertTrue(cvs.useHead());
+        cvs.setTag(null);
+        assertTrue(cvs.useHead());
+        cvs.setTag("HEAD");
+        assertTrue(cvs.useHead());
+        cvs.setTag("tagName");
+        assertFalse(cvs.useHead());
+    }
 
 }

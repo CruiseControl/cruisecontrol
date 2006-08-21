@@ -558,14 +558,13 @@ public class ConcurrentVersionsSystem implements SourceControl {
             commandLine.createArgument().setValue("rlog");
         }
 
-        boolean useHead = tag == null || tag.equals(CVS_HEAD_TAG) || tag.equals("");
-        if (useHead) {
+        if (useHead()) {
             commandLine.createArgument().setValue("-N");
         }
         String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
         commandLine.createArgument().setValue("-d" + dateRange);
 
-        if (!useHead) {
+        if (!useHead()) {
             // add -b and -rTAG to list changes relative to the current branch,
             // not relative to the default branch, which is HEAD
 
@@ -697,7 +696,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
         }
 
-        String branchRevisionName = parseBranchRevisionName(reader, tag);
+        String branchRevisionName = parseBranchRevisionName(reader);
         boolean newCVSVersion = isCvsNewOutputFormat();
         while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
@@ -709,7 +708,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             StringTokenizer tokens = new StringTokenizer(nextLine, " ");
             tokens.nextToken();
             String revision = tokens.nextToken();
-            if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
+            if (!useHead()) {
                 if (!revision.equals(branchRevisionName)) {
                     // Indeed this is a branch, not just a regular tag
                     String itsBranchRevisionName = revision.substring(0, revision.lastIndexOf('.'));
@@ -837,10 +836,10 @@ public class ConcurrentVersionsSystem implements SourceControl {
      * @return the branch revision name, or <code>null</code> if not applicable or none was found.
      * @throws IOException
      */
-    private static String parseBranchRevisionName(BufferedReader reader, final String tag) throws IOException {
+    private String parseBranchRevisionName(BufferedReader reader) throws IOException {
         String branchRevisionName = null;
 
-        if (tag != null && !tag.equals(CVS_HEAD_TAG)) {
+        if (!useHead()) {
             // Look for the revision of the form "tag: *.(0.)y ". this doesn't work for HEAD
             // get line with branch revision on it.
 
@@ -887,6 +886,10 @@ public class ConcurrentVersionsSystem implements SourceControl {
         }
 
         return nextLine;
+    }
+
+    boolean useHead() {
+        return tag == null || tag.equals(CVS_HEAD_TAG) || tag.equals("");
     }
 
 }
