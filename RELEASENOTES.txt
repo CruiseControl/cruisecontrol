@@ -66,6 +66,10 @@ LdapMapper
 ----------------------
 * Support authentication (CC-453). Submitted by Lars Gehrken
 
+LockFileListener
+----------------------
+* Fix problem where listener was incorrectly deleting the lockfile.
+
 MavenSnapshotDependency
 ----------------------
 * Modifications to MavenSnapshotDependency (CC-484). Submitted by Jarkko Viinamäki
