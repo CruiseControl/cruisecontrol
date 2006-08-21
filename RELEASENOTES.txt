@@ -43,6 +43,7 @@ CMSynergy
 ConcurrentVersionSystem
 ----------------------
 * Remove race condition on closing error stream.
+* Make empty string in tag an alias for HEAD (CC-511). Fix by Benjamin Burgess
 
 cruisecontrol.bat
 ----------------------
