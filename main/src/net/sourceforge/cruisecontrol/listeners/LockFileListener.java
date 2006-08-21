@@ -25,6 +25,7 @@ public class LockFileListener implements Listener {
         }
         
         if (newState.equals(ProjectState.IDLE) && needToDeleteLock) {
+            needToDeleteLock = false;
             boolean deletedFile = attemptToDeleteLock();
             if (!deletedFile) {
                 throw new CruiseControlException("project " + event.getProjectName()
