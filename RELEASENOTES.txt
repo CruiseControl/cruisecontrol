@@ -131,6 +131,10 @@ FileServlet
 ----------------------
 * Fix problem where urls in directory might have double slashes. Fix by Edward Kuns
 
+nant.xsl
+----------------------
+* Update to work with nested builds.
+
 rss.jsp
 ----------------------
 * Use RFC-822 format for dates (CC-473). Patch by Brian Egge

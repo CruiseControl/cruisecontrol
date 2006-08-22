@@ -42,7 +42,7 @@
 
     <xsl:output method="html"/>
 
-    <xsl:variable name="task" select="/cruisecontrol/build/buildresults//task"/>
+    <xsl:variable name="task" select="/cruisecontrol/build//buildresults//task"/>
 
     <xsl:template match="/" mode="nant">
 	
