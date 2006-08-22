@@ -30,7 +30,7 @@ build loop
 AntBuilder
 ----------------------
 * Add optional attribute "keepgoing" to invoke ant with -keep-going flag. Submitted by Stephen George
-* Can once again use optional tasks with internal version of ant (CC-400). Patch via Dan Rollo
+* Can once again use optional tasks with internal version of ant (CC-400). Patch by Frederic Mockel
 
 BuildStatus
 ----------------------
