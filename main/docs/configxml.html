@@ -673,6 +673,20 @@
                 build fails because of outside dependencies (like temporary
                 failing database connection).</td>
             </tr>
+            <tr>
+               <td>requireModification</td>
+               <td>No (defaults to true)</td>
+               <td>Is a modification required for the build to continue? 
+               Default value is true. Useful to set to false when the schedule 
+               has only time based builds or if you want to run tests to verify 
+               an external resource (such as a database).<br /></td>
+            </tr>
+            <tr>
+              <td>forceOnly</td>
+              <td>No (defaults to false)</td>
+              <td>Indicate that the build for the project only occurs when forced.  Note that if the buildAfterFailed attribute is true, then
+              builds will continue to occur based upon the the rules on <a href="#schedule">&lt;schedule&gt;</a> until the build is successful.</td>
+            </tr>
             </tbody>
         </table>
 
@@ -2184,10 +2198,12 @@ password=P@ssW0rd!
             <tr>
                <td>requiremodification</td>
                <td>No (defaults to true)</td>
-               <td>Is a modification required for the build to continue?
-               Default value is true. Useful to set to false when the schedule
-               has only time based builds or if you want to run tests to verify
-               an external resource (such as a database).</td>
+               <td>Is a modification required for the build to continue? 
+               Default value is true. Useful to set to false when the schedule 
+               has only time based builds or if you want to run tests to verify 
+               an external resource (such as a database).  <b>NOTE - This attribute
+               will be going away.</b>  Use the requireModification attribute that is on the 
+               project tag instead.<br /></td>
             </tr>
             <tr>
                <td>quietperiod</td>

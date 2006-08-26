@@ -55,6 +55,8 @@ public class ProjectConfig implements Serializable {
 
     private String name;
     private boolean buildAfterFailed = true;
+    private boolean forceOnly = false;
+    private boolean requiremodification = true;
     private CCDateFormat dateFormat;
 
     private Bootstrappers bootstrappers;
@@ -231,5 +233,33 @@ public class ProjectConfig implements Serializable {
             }
 
         }
+    }
+
+    /**
+     * @param forceOnly the forceOnly to set
+     */
+    public void setForceOnly(boolean forceOnly) {
+        this.forceOnly = forceOnly;
+    }
+
+    /**
+     * @return the forceOnly
+     */
+    public boolean isForceOnly() {
+        return forceOnly;
+    }
+
+    /**
+     * @return the requiremodification
+     */
+    public boolean isRequiremodification() {
+        return requiremodification;
+    }
+
+    /**
+     * @param requiremodification the requiremodification to set
+     */
+    public void setRequiremodification(boolean requiremodification) {
+        this.requiremodification = requiremodification;
     }
 }

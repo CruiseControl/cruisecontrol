@@ -312,8 +312,15 @@ public class ModificationSet {
     int getQuietPeriod() {
         return quietPeriod;
     }
-
+        
+    /**
+     * @param isModifiedAccurate
+     * 
+     * @deprecated
+     */
     public void setRequireModification(boolean isModifiedAccurate) {
+        LOG.warn("<modificationset requiremodification=\"true|false\" is deprecated. "
+                + "Use <project requiremodification=\"true|false\".");
         lieOnIsModified = !isModifiedAccurate;
     }
 }
