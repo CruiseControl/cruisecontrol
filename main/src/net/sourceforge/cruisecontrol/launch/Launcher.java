@@ -244,7 +244,7 @@ public class Launcher {
         baseClassPath.append(File.pathSeparatorChar);
         baseClassPath.append(".");
         // adding the homedirectory to the classpath
-        if (ccHomeProperty.length() > 0) {
+        if (ccHomeProperty != null && ccHomeProperty.length() > 0) {
             ccHomeProperty = ccHomeProperty.replace('\\', '/');
             baseClassPath.append(File.pathSeparatorChar);
             baseClassPath.append(ccHomeProperty + "/");
