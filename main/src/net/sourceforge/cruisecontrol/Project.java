@@ -98,6 +98,8 @@ public class Project implements Serializable, Runnable {
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
     private boolean stopped = true;
+    private boolean forceOnly = false;
+    private boolean requiremodification = true;
 
     public Project() {
         initializeTransientFields();
@@ -132,7 +134,7 @@ public class Project implements Serializable, Runnable {
                 return;
             }
         }
-
+        
         try {
             init();
             build();
@@ -156,6 +158,14 @@ public class Project implements Serializable, Runnable {
             return;
         }
         
+        // If the force only flag is set, only build if forced
+        // or if the last build faild and we want to build on failures
+        if (forceOnly && !buildForced && !(!wasLastBuildSuccessful && buildAfterFailed)) {
+            info("not building because project is forceOnly and build not forced.");
+            return;
+        }
+
+
         try {
             setBuildStartTime(new Date());
             Schedule schedule = projectConfig.getSchedule();
@@ -378,10 +388,14 @@ public class Project implements Serializable, Runnable {
             info("No modifications found, build not necessary.");
 
             // Sometimes we want to build even though we don't have any
-            // modifications. This is in fact current default behaviour.
-            // Set by <project buildafterfailed="true/false">
+            // modifications:
+            //   * last build failed & buildaferfailed="true"
+            //   * requiremodifications="false"
+            //   * build forced
             if (buildAfterFailed && !wasLastBuildSuccessful) {
                 info("Building anyway, since buildAfterFailed is true and last build failed.");
+            } else if (!requiremodification) {
+                info("Building anyway, since modifications not required");
             } else {
                 if (buildWasForced) {
                     info("Building anyway, since build was explicitly forced.");
@@ -607,6 +621,8 @@ public class Project implements Serializable, Runnable {
         }
 
         buildAfterFailed = projectConfig.shouldBuildAfterFailed();
+        forceOnly = projectConfig.isForceOnly();
+        requiremodification = projectConfig.isRequiremodification();
         
         if (lastBuild == null) {
             lastBuild = DateUtil.getMidnight();
@@ -623,6 +639,8 @@ public class Project implements Serializable, Runnable {
             debug("buildInterval          = [" + getBuildInterval() + "]");
             debug("buildForced            = [" + buildForced + "]");
             debug("buildAfterFailed       = [" + buildAfterFailed + "]");
+            debug("requireModifcation     = [" + requiremodification + "]");
+            debug("forceOnly              = [" + forceOnly + "]");
             debug("buildCounter           = [" + buildCounter + "]");
             debug("isPaused               = [" + isPaused + "]");
             debug("label                  = [" + label + "]");

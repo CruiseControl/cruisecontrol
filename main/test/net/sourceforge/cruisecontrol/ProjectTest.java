@@ -260,6 +260,35 @@ public class ProjectTest extends TestCase {
             mockProject.stopLooping();
         }
     }
+    /*
+     * With forceonly true, the build should not be called even with a modification
+     */
+    public void testBuild_forceOnly() throws CruiseControlException {
+        MockProject mockProject = new MockProject() {
+            public void run() {
+                loop();
+            }
+            void setBuildStartTime(Date date) {
+                throw new RuntimeException("Should not run");
+            }
+        };
+        MockModificationSet modSet = new MockModificationSet();
+
+        mockProject.setName("MockProject");
+        mockProject.setProjectConfig(projectConfig);
+//      Element modifications = modSet.getModifications(null);
+        projectConfig.add(modSet);
+        projectConfig.setForceOnly(true);
+        modSet.setModified(true);
+        mockProject.start();
+        mockProject.init();
+        try {
+            mockProject.build();
+        } finally {
+            mockProject.stopLooping();
+        }
+    }
+    
     
     public void testBuildWithMinimumConfig() throws CruiseControlException {
         Schedule schedule = new Schedule();
@@ -358,6 +387,28 @@ public class ProjectTest extends TestCase {
         assertNull(project.getModifications(false));
         project.setBuildForced(true);
         assertNotNull(project.getModifications(true));
+    }
+    
+    public void testGetModifications_requireModificationsTrue() throws CruiseControlException {
+        MockModificationSet modSet = new MockModificationSet();
+//        Element modifications = modSet.getModifications(null);
+        projectConfig.add(modSet);
+        projectConfig.setRequiremodification(true);
+        project.init();
+
+        modSet.setModified(false);
+        assertNull(project.getModifications(false));
+    }
+
+    public void testGetModifications_requireModificationsFalse() throws CruiseControlException {
+        MockModificationSet modSet = new MockModificationSet();
+//        Element modifications = modSet.getModifications(null);
+        projectConfig.add(modSet);
+        projectConfig.setRequiremodification(false);
+        project.init();
+
+        modSet.setModified(false);
+        assertNotNull(project.getModifications(false));
     }
 
     public void testCheckOnlySinceLastBuild() throws CruiseControlException {

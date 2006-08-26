@@ -87,6 +87,10 @@ P4
 * Command to correct for server time wasn't using the optional values such as the port (CC-469). Reported by Terri Paik
 * Fix problem where very short interval time (30 seconds) was causing system to run out of file handles. Fix by Jared Richardson
 
+Project
+----------------------
+* Add requireModifications and forceOnly attributes (CC-501). Patch by Chris Erskine
+
 PropertyLabelIncrementer
 ----------------------
 * Add attribute "defaultlabel" which is returned when property file doesn't exist (CC-470).
