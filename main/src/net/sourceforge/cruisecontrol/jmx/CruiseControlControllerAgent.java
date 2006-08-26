@@ -52,6 +52,8 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 
+import mx4j.log.Log;
+import mx4j.log.Log4JLogger;
 import mx4j.tools.adaptor.http.HttpAdaptor;
 import mx4j.tools.naming.NamingService;
 import mx4j.tools.naming.NamingServiceMBean;
@@ -86,6 +88,9 @@ public class CruiseControlControllerAgent {
         CruiseControlControllerJMXAdaptor controllerAdaptor = new CruiseControlControllerJMXAdaptor(controller);
         this.user = user;
         this.password = password;
+
+        // Redirect MX4J logging to the Log4j system
+        Log.redirectTo(new Log4JLogger());
 
         Iterator i = MBeanServerFactory.findMBeanServer(null).iterator();
         MBeanServer server = i.hasNext() ? (MBeanServer) i.next() : MBeanServerFactory.createMBeanServer();
