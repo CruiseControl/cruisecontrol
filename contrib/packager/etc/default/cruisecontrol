@@ -1,0 +1,18 @@
+# Run CruiseControl as this user ID (default: ccontrol)
+#
+# Set this to an empty string to prevent CruiseControl from starting 
+# automatically. Think to stop CruiseControl before setting an empty string ;o)
+#
+CRUISE_USER="cruise"
+
+# Port used for the JMX Http Console
+CRUISE_PORT=8000
+
+# The home directory of the Java development kit (JDK).
+#JAVA_HOME="/usr/local/j2sdk1.3.1"
+#JAVA_HOME="/usr/local/j2sdk1.4.0"
+#JAVA_HOME="/usr/java/jdk1.5.0_06"
+
+# Arguments to pass to the CruiseControl script
+#CRUISE_OPTS="-Xmx512m"
+

@@ -1,0 +1,28 @@
+<cruisecontrol>
+    <project name="connectfour" buildafterfailed="false">
+
+        <labelincrementer defaultLabel="${project.name}-1" separator="-"/>
+
+        <listeners>
+            <currentbuildstatuslistener file="/var/spool/cruisecontrol/logs/${project.name}/currentbuildstatus.txt"/>
+        </listeners>
+
+        <modificationset quietperiod="30">
+            <svn LocalWorkingCopy="/var/spool/cruisecontrol/checkout/${project.name}"/>
+        </modificationset>
+
+        <schedule interval="60">
+            <ant antWorkingDir="/var/spool/cruisecontrol/checkout/${project.name}"
+                 buildfile="build.xml"
+                 target="cruise"
+                 uselogger="true"
+                 tempfile="${project.name}-log.xml"
+            />
+        </schedule>
+
+        <log>
+            <merge dir="/var/spool/cruisecontrol/${project.name}/test"/>
+        </log>
+
+    </project>
+</cruisecontrol>
