@@ -67,7 +67,7 @@ public final class CruiseControlWithJetty {
 
     public static void main(final String[] args) throws Exception {
         //A Thread for Jetty...
-        new Thread(new Runnable() {
+        Thread jetty = new Thread(new Runnable() {
             public void run() {
                 Server server = new Server();
                 SocketListener listener = new SocketListener();
@@ -91,7 +91,9 @@ public final class CruiseControlWithJetty {
                     throw new RuntimeException();
                 }
             }
-        }).start();
+        });
+        jetty.setDaemon(true);
+        jetty.start();
 
         //A Thread for CruiseControl
         new Thread(new Runnable() {
