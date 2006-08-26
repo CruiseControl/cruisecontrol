@@ -62,6 +62,10 @@ EmailPublisher
 * Add <ignore ..> child element (CC-489). Patch by Jarkko Viinamäki
 * Fixed bug where using SSL but not specifying mailPort would result in a NullPointerException. Reported by Michael Clark
 
+AllFusionHarvestCM511
+----------------------
+* AllFusion Harvest CM 5.1.1 source control implementation, registered as "harvest" in the default plugins. Submitted by Larry Liberto. 
+
 LdapMapper
 ----------------------
 * Support authentication (CC-453). Submitted by Lars Gehrken

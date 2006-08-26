@@ -68,7 +68,7 @@ public class MergeLoggerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         logger = null;
-        IO.deleteFile(tempSubdir);
+        IO.delete(tempSubdir);
         tempSubdir = null;
         log = null;
     }
