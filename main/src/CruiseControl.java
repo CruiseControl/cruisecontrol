@@ -35,11 +35,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
-import net.sourceforge.cruisecontrol.Main;
+import net.sourceforge.cruisecontrol.launch.Launcher;
 
 /**
  * This class wraps the MasterBuild process to snazzify the command line.
- * (instead of "java net.sourceforge.cruisecontrol.Main" the command line is
+ * (instead of "java net.sourceforge.cruisecontrol.launch.Launcher" the command line is
  * snazzier, in the form of "java CruiseControl")
  * 
  * @author <a href="mailto:alden@mac.com">alden almagro</a>
@@ -55,7 +55,7 @@ public final class CruiseControl {
     }
 
     public static void main(String[] args) {
-        new Main().start(args);
+        Launcher.main(args);
     }
 
 }
