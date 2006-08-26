@@ -63,6 +63,9 @@ import org.apache.log4j.Logger;
 public class ThreadQueue extends Thread {
     private static final Logger LOG = Logger.getLogger(ThreadQueue.class);
 
+    // A ThreadGroup that logs uncaught exception using Log4J
+    private final ThreadGroup loggingGroup = new Log4jThreadGroup("Logging group", LOG);
+
     /**
      * The list of WorkerThreads that are waiting to run (currently idle)
      */
@@ -148,7 +151,7 @@ public class ThreadQueue extends Thread {
     private void handleWaitingTask() {
         synchronized (busyTasks) {
             WorkerThread worker = (WorkerThread) idleTasks.remove(0);
-            Thread thisThread = new Thread(worker);
+            Thread thisThread = new Thread(loggingGroup, worker);
             busyTasks.add(worker);
             runningThreads.put(worker, thisThread);
             if (!ThreadQueue.terminate) {
