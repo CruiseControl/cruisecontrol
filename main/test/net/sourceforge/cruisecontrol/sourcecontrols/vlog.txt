@@ -27,7 +27,7 @@ Rev 1.0
 Checked in:     Mar 17 2006 11:57:12
 Last modified:  Mar 16 2006 14:46:34
 Author id: steve     lines deleted/added/moved: 0/0/0
-Intial revision
+Initial revision
 ===================================
 
 Archive:          \\filesrv1\pvcsrep\archives\Services\src\java\com\draftmanagement\bas\servlet\CBDServlet.java-arc
@@ -64,7 +64,8 @@ Locked by:      jeff
 Checked in:     Mar 17 2006 16:27:40
 Last modified:  Mar 17 2006 16:26:44
 Author id: jeff     lines deleted/added/moved: 2/23/0
-Add code for Sections
+Add code for 
+Sections
 -----------------------------------
 Rev 1.243
 Checked in:     Mar 17 2006 14:59:10
