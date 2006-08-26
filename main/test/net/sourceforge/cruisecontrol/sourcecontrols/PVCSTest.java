@@ -37,11 +37,15 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
 public class PVCSTest extends TestCase {
 
@@ -178,12 +182,18 @@ public class PVCSTest extends TestCase {
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand);
     }
     
-    public void testMakeModifications() {
+    public void testMakeModifications() throws URISyntaxException {
         Calendar cal = Calendar.getInstance();
         cal.set(2004, 11, 23);
         Date date = cal.getTime();
         pvcs.setLastBuild(date);
         pvcs.setPvcsproject("Services");
-        pvcs.makeModificationsList(new File("test/net/sourceforge/cruisecontrol/sourcecontrols/vlog.txt"));
+        List mods = pvcs.makeModificationsList(new File(new URI(getClass().getResource("vlog.txt").toExternalForm())));
+        assertEquals(7, mods.size());
+        Modification mod1 = (Modification) mods.get(0);
+        assertEquals("Initial revision", mod1.comment);
+        Modification mod2 = (Modification) mods.get(1);
+        assertEquals("Add code for " + System.getProperty("line.separator") + "Sections", mod2.comment);
+        
     }
 }

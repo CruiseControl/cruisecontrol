@@ -91,6 +91,10 @@ PropertyLabelIncrementer
 ----------------------
 * Add attribute "defaultlabel" which is returned when property file doesn't exist (CC-470).
 
+PVCS
+----------------------
+* Add support for multiline comments (CC-440). Patch by Scott Heaberlin
+
 SCPPublisher
 ----------------------
 * Add attribute "executableName" to specify alternative executable.

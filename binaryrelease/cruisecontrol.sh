@@ -51,7 +51,7 @@ if [ `uname | grep -n CYGWIN` ]; then
    JAVA_HOME=`cygpath --path --unix "$JAVA_HOME"`
 fi
 
-CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$LIBDIR/cruisecontrol.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant.jar:$LIBDIR/ant-launcher.jar:$LIBDIR/jasper-compiler.jar:$LIBDIR/jasper-runtime.jar:$LIBDIR/xercesImpl-2.8.0.jar:$LIBDIR/xml-apis-2.8.0.jar:$LIBDIR/xmlrpc-2.0.1.jar:$LIBDIR/saxon8.jar:$LIBDIR/saxon8-dom.jar:$LIBDIR/serializer-2.7.0.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$LIBDIR/comm.jar:$LIBDIR/x10.jar:$LIBDIR/fast-md5.jar:$LIBDIR/maven-embedder-2.0.3-dep.jar:$LIBDIR/javax.servlet.jar:$LIBDIR/org.mortbay.jetty.jar:$LIBDIR/commons-logging.jar:$LIBDIR/commons-el.jar:.
+CRUISE_PATH=$JAVA_HOME/lib/tools.jar:$LIBDIR/cruisecontrol.jar:$LIBDIR/cruisecontrol-launcher.jar:$LIBDIR/log4j.jar:$LIBDIR/jdom.jar:$LIBDIR/ant.jar:$LIBDIR/ant-launcher.jar:$LIBDIR/jasper-compiler.jar:$LIBDIR/jasper-runtime.jar:$LIBDIR/xercesImpl-2.8.0.jar:$LIBDIR/xml-apis-2.8.0.jar:$LIBDIR/xmlrpc-2.0.1.jar:$LIBDIR/saxon8.jar:$LIBDIR/saxon8-dom.jar:$LIBDIR/serializer-2.7.0.jar:$LIBDIR/jakarta-oro-2.0.3.jar:$LIBDIR/mail.jar:$LIBDIR/junit.jar:$LIBDIR/activation.jar:$LIBDIR/commons-net-1.1.0.jar:$LIBDIR/starteam-sdk.jar:$LIBDIR/mx4j.jar:$LIBDIR/mx4j-tools.jar:$LIBDIR/mx4j-remote.jar:$LIBDIR/smack.jar:$LIBDIR/comm.jar:$LIBDIR/x10.jar:$LIBDIR/fast-md5.jar:$LIBDIR/maven-embedder-2.0.3-dep.jar:$LIBDIR/javax.servlet.jar:$LIBDIR/org.mortbay.jetty.jar:$LIBDIR/commons-logging.jar:$LIBDIR/commons-el.jar:.
 
 # convert the existing path to unix
 if [ `uname | grep -n CYGWIN` ]; then

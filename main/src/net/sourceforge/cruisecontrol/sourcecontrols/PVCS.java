@@ -353,11 +353,18 @@ public class PVCS implements SourceControl {
                 }
             } else if (nextLineIsComment) {
                 // used boolean because don't know what comment will startWith....
-                modification.comment = line;
-                // comment is last line we need, so add this mod to list,
-                //  then set indicator to ignore future lines till next new item
-                modificationList.add(modification);
-                waitingForNextValidStart = true;
+                boolean isDashesLine = line.startsWith("----------");
+                boolean isEqualsLine = line.startsWith("==========");
+                boolean isEndOfCommentsLine = isDashesLine || isEqualsLine;
+                if (modification.comment == null || modification.comment.length() == 0) {
+                    modification.comment = line;
+                } else if (!isEndOfCommentsLine)  {
+                    modification.comment = modification.comment + System.getProperty("line.separator") + line;
+                } else {
+                    //  then set indicator to ignore future lines till next new item
+                    modificationList.add(modification);
+                    waitingForNextValidStart = true;
+                }
             } else if (line.startsWith("Author id:")) {
                 // if this is the newest revision...
                 if (firstUserName) {
