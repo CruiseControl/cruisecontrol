@@ -98,7 +98,7 @@ public class ZipUtilTest extends TestCase {
     }
 
     public void tearDown() {
-        IO.deleteFile(rootTempDir);
+        IO.delete(rootTempDir);
         if (rootTempDir.exists()) {
             final String msg = "Delete file failed: rootTempDir: " + rootTempDir.getAbsolutePath()
                     + "\n\tContents:\n"
@@ -122,7 +122,7 @@ public class ZipUtilTest extends TestCase {
         assertTrue(tempFile.exists());
         assertTrue(tempFile.isFile());
 
-        IO.deleteFile(rootTempDir);
+        IO.delete(rootTempDir);
         File tempDir = new File(rootTempDirPath);
         assertFalse(tempDir.exists());
     }
