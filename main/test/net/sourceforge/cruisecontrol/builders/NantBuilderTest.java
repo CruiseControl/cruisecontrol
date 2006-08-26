@@ -124,7 +124,7 @@ public class NantBuilderTest extends TestCase {
         builder = null;
         properties = null;
 
-        IO.deleteFile(rootTempDir);
+        IO.delete(rootTempDir);
     }
 
     public void testValidate() {

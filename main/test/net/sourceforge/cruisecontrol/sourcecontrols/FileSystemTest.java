@@ -85,7 +85,7 @@ public class FileSystemTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("FileSystem should not throw exceptions when required attributes are set.");
         } finally {
-            IO.deleteFile(tempDirectory);
+            IO.delete(tempDirectory);
         }
     }
 
@@ -162,7 +162,7 @@ public class FileSystemTest extends TestCase {
             assertEquals(tempFile.getParent(), modification.getFolderName());
             assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
         } finally {
-            IO.deleteFile(tempDirectory);
+            IO.delete(tempDirectory);
         }
     }
 

@@ -128,6 +128,7 @@
 <a href="#forceonly">&lt;forceonly&gt;</a>
 <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
 <a href="#gzip">&lt;gzip&gt;</a>
+<a href="#harvest">&lt;harvest&gt;</a>
 <a href="#htmlemail">&lt;htmlemail&gt;</a>
 <a href="#httpfile">&lt;httpfile&gt;</a>
 <a href="#jabber">&lt;jabber&gt;</a>
@@ -253,6 +254,7 @@
          <a href="#cvs">&lt;cvs/&gt;</a>
          <a href="#filesystem">&lt;filesystem/&gt;</a>
          <a href="#forceonly">&lt;forceonly/&gt;</a>
+         <a href="#harvest">&lt;harvest/&gt;</a>
          <a href="#httpfile">&lt;httpfile/&gt;</a>
          <a href="#maven2snapshotdependency">&lt;maven2snapshotdependency/&gt;</a>
          <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency/&gt;</a>
@@ -2274,6 +2276,11 @@ password=P@ssW0rd!
                 <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
             </tr>
             <tr>
+                <td><a href="#harvest">&lt;harvest&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in an All Fusion Harvest CM511 repository.</td>
+            </tr>
+            <tr>
                 <td><a href="#httpfile">&lt;httpfile&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a remote file via http.</td>
@@ -3242,6 +3249,79 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="harvest">&lt;harvest&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;harvest&gt;</pre>
+        </div>
+
+        <p>Checks a AllFusion Harvest CM 5.1.1 repository for changes.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>userName</td>
+                <td>Yes</td>
+                <td>user name used for authentication to the AllFusion Harvest server.</td>
+            </tr>
+            <tr>
+               <td>password</td>
+               <td>Yes</td>
+               <td>password used for authentication to the AllFusion Harvest server.</td>
+            </tr>
+            <tr>
+                <td>brokerName</td>
+                <td>Yes</td>
+                <td>name of the AllFusion Harvest server.</td>
+            </tr>
+            <tr>
+               <td>projectName</td>
+               <td>Yes</td>
+               <td>name of the project/repository under source control within the
+                AllFusion Harvest server.</td>
+            </tr>
+            <tr>
+               <td>repositoryName</td>
+               <td>No</td>
+               <td>name of the project/repository under source control within the
+                 AllFusion Harvest server.<br /><small><em>Note:</em>This parameter can be used in place
+                 of the <code>projectName</code> parameter.</small></td>
+            </tr>
+            <tr>
+               <td>timeAdjustmentFactor</td>
+               <td>No</td>
+               <td>a value representing the milliseconds needed to adjust any item's
+                 modification time due to time differences between the cc Server and the AllFusion Harvest server.</td>
+            </tr>
+            <tr>
+               <td>debug</td>
+               <td>No</td>
+               <td><code>true</code> or <code>false</code> used to display
+                 additional information within the cc Server log.</td>
+            </tr>
+            </tbody>
+        </table>
+        <pre>
+ &#60harvest userName="myUserName" password="myPassword"
+    brokerName="myHarvestBrokerName" projectName="myHarvestPackage"/&#62
+        </pre>
         </div>
 
         <div class="elementdocumentation">
