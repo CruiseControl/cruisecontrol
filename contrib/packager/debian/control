@@ -1,0 +1,9 @@
+Package: cruisecontrol
+Version: @VERSION@-@RELEASE@
+Section: devel
+Priority: optional
+Architecture: all
+Essential: no
+Maintainer: Chris Read <cread@thoughtworks.com>
+Description: @SUMMARY@
+ @DESCRIPTION@

@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# Init file for CruiseControl server daemon
+#
+# chkconfig: 2345 20 80
+# description: CruiseControl server daemon
+#
+### BEGIN INIT INFO
+# Provides: cruisecontrol
+# Required-Start: $local_fs $network $syslog
+# Should-Start: java
+# Required-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 2 6
+# Short-Description: CruiseControl
+# Description: CruiseControl
+### END INIT INFO
+
+# source function library
+if [ -f /lib/lsb/init-functions ]; then 
+	. /lib/lsb/init-functions
+fi
+
+if [ -f /etc/default/cruisecontrol ]; then
+	. /etc/default/cruisecontrol
+fi
+
+start() {
+	CMD="JAVA_HOME=${JAVA_HOME:-/usr} PATH=${JAVA_HOME:-/usr}/bin:$PATH CC_OPTS=${CRUISE_OPTS:-} /usr/bin/cruisecontrol -configfile /etc/cruisecontrol/cruisecontrol.xml -jmxport ${CRUISE_PORT:-8000} >/var/log/cruisecontrol/cruisecontrol.out 2>&1" 
+
+	if [ "`whoami`" == "${CRUISE_USER:-cruise}" ]; then
+		eval ${CMD}
+	elif [ "`whoami`" == "root" ]; then
+		su - ${CRUISE_USER:-cruise} -c "${CMD}"
+	else
+		echo "You are not root or ${CRUISE_USER:-cruise}, not starting"
+	fi
+}
+
+stop() {
+	if [ -f /var/run/cruisecontrol.pid ]; then
+		PID=`cat /var/run/cruisecontrol.pid`
+	fi
+
+	if [ ! -z $PID ]; then
+		kill $PID
+	fi
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	force-reload)
+		;;
+	status)
+		
+		;;
+	*)
+		echo "Usage: $0 [start|stop|restart|force-reload|status]"
+		exit 1
+esac
+
+exit 0
+
