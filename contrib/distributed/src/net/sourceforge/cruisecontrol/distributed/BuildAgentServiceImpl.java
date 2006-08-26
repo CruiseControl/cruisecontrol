@@ -420,26 +420,26 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         try {
             if (logDir != null) {
                 logPrefixDebug("Deleting contents of " + logDir);
-                IO.deleteFile(new File(logDir));
+                IO.delete(new File(logDir));
             } else {
                 logPrefixDebug("Skip delete agent logDir: " + logDir);                
             }
             if (logsFilePath != null) {
                 logPrefixDebug("Deleting log zip " + logsFilePath);
-                IO.deleteFile(new File(logsFilePath));
+                IO.delete(new File(logsFilePath));
             } else {
                 logPrefixError("Skipping delete of log zip, file path is null.");
             }
 
             if (outputDir != null) {
                 logPrefixDebug("Deleting contents of " + outputDir);
-                IO.deleteFile(new File(outputDir));
+                IO.delete(new File(outputDir));
             } else {
                 logPrefixDebug("Skip delete agent outputDir: " + outputDir);                
             }
             if (outputFilePath != null) {
                 logPrefixDebug("Deleting output zip " + outputFilePath);
-                IO.deleteFile(new File(outputFilePath));
+                IO.delete(new File(outputFilePath));
             } else {
                 logPrefixError("Skipping delete of output zip, file path is null.");
             }

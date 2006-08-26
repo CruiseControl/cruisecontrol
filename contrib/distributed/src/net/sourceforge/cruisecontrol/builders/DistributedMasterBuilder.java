@@ -470,7 +470,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             try {
                 LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDir);
                 ZipUtil.unzipFileToLocation(zipFilePath, masterDir);
-                IO.deleteFile(new File(zipFilePath));
+                IO.delete(new File(zipFilePath));
             } catch (IOException e) {
                 // Empty zip for log results--ignore
                 LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
