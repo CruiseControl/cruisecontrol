@@ -37,14 +37,14 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.util.IO;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
-import java.util.Iterator;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * User: jfredrick Date: Jan 31, 2004 Time: 5:18:43 PM
@@ -115,7 +115,7 @@ public class StatusHelperTest extends TestCase {
         files.delete();
     }
 
-    public void testGetLastBuildResult() throws IOException {
+    public void testGetLastBuildResult() throws IOException, CruiseControlException {
         assertNull(helper.getLastBuildResult());
 
         helper.setProjectDirectory(logDir);
@@ -127,7 +127,7 @@ public class StatusHelperTest extends TestCase {
         assertEquals("passed", helper.getLastBuildResult());
     }
 
-    public void testGetLastBuildTimeString() throws IOException {
+    public void testGetLastBuildTimeString() throws IOException, CruiseControlException {
         assertNull(helper.getLastBuildTimeString(Locale.US));
 
         helper.setProjectDirectory(logDir);
@@ -139,7 +139,7 @@ public class StatusHelperTest extends TestCase {
         assertEquals("02/03/2004 04:05:06", helper.getLastBuildTimeString(Locale.US));
     }
 
-    public void testGetLastSuccessfulBuildLabel() throws IOException {
+    public void testGetLastSuccessfulBuildLabel() throws IOException, CruiseControlException {
         assertNull(helper.getLastSuccessfulBuildLabel());
 
         helper.setProjectDirectory(logDir);
@@ -151,7 +151,7 @@ public class StatusHelperTest extends TestCase {
         assertEquals("build.2", helper.getLastSuccessfulBuildLabel());
     }
 
-    public void testGetLastSuccessfulBuildTimeString() throws IOException {
+    public void testGetLastSuccessfulBuildTimeString() throws IOException, CruiseControlException {
         assertNull(helper.getLastSuccessfulBuildTimeString(Locale.US));
 
         helper.setProjectDirectory(logDir);
@@ -167,12 +167,12 @@ public class StatusHelperTest extends TestCase {
         String logDirPath = logDir.getAbsolutePath();
         String actual = helper.getCurrentStatus("true", logDirPath, PROJECT_NAME, STATUS_FILENAME);
         assertEquals("testing single project: ", HTML_TEXT, actual);
-        
+
         actual = helper.getCurrentStatus("false", logDirPath, PROJECT_NAME, STATUS_FILENAME);
         assertEquals("testing multi project: ", HTML_TEXT, actual);
     }
 
-    public void testWithXmlLoggerWithStatusOutput() throws IOException {
+    public void testWithXmlLoggerWithStatusOutput() throws IOException, CruiseControlException {
         File projectLogDir = new File(logDir, "xmlusingproject");
         projectLogDir.mkdir();
         File file = new File(projectLogDir, "status.txt");
@@ -182,10 +182,8 @@ public class StatusHelperTest extends TestCase {
         assertEquals(HTML_TEXT, actual);
     }
 
-    private void prepareFile(File file, String body) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        writer.write(body);
-        writer.close();
+    private void prepareFile(File file, String body) throws CruiseControlException {
+        IO.write(file, body);
         files.addFile(file);
     }
 

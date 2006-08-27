@@ -36,27 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.BufferedWriter;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.IO;
+import org.jdom.Element;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
-import org.jdom.Element;
 
 public class AntBuilderTest extends TestCase {
     private final List filesToClear = new ArrayList();
     private AntBuilder builder;
-    private AntBuilder unixBuilder;
-    private AntBuilder windowsBuilder;
-    private Hashtable properties;
     private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/log4j.jar:"
@@ -103,18 +97,15 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("target");
         builder.setBuildFile("buildfile");
         
-        properties = new Hashtable();
-        properties.put("label", "200.1.23");
-        
-        unixBuilder = new AntBuilder() {
+        AntBuilder unixBuilder = new AntBuilder() {
             protected String getSystemClassPath() {
                 return UNIX_PATH;
             }
         };
         unixBuilder.setTarget("target");
         unixBuilder.setBuildFile("buildfile");
-        
-        windowsBuilder = new AntBuilder() {
+
+        AntBuilder windowsBuilder = new AntBuilder() {
             protected String getSystemClassPath() {
                 return WINDOWS_PATH;
             }
@@ -132,9 +123,6 @@ public class AntBuilderTest extends TestCase {
         }
         
         builder = null;
-        unixBuilder = null;
-        windowsBuilder = null;
-        properties = null;
     }
 
     public void testValidate() {
@@ -233,12 +221,9 @@ public class AntBuilderTest extends TestCase {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempAntLog.xml");
         filesToClear.add(logFile);
-        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile));
-        bw2.write(
+        IO.write(logFile,
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");
-        bw2.flush();
-        bw2.close();
 
         assertEquals(
                 buildLogElement.toString(),

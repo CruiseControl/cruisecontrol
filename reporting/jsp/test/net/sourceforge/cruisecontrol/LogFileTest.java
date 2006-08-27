@@ -37,9 +37,9 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.Serializable;
 
 /**
@@ -74,18 +74,18 @@ public class LogFileTest extends TestCase {
     }
 
     public void testGetLatestLog() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
+        IO.write(log1, "");
+        IO.write(log2, "");
+        IO.write(log3, "");
 
         File result = LogFile.getLatestLogFile(logDir).getFile();
         assertEquals(log3.getName(), result.getName());
     }
 
     public void testIsCompressed() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
+        IO.write(log1, "");
+        IO.write(log2, "");
+        IO.write(log3, "");
 
         assertFalse(new LogFile(log1).isCompressed());
         assertFalse(new LogFile(log2).isCompressed());
@@ -93,24 +93,18 @@ public class LogFileTest extends TestCase {
     }
 
     public void testGetLatestSuccessfulLog() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
-        writeFile(log3, "");
+        IO.write(log1, "");
+        IO.write(log2, "");
+        IO.write(log3, "");
 
         File result = LogFile.getLatestSuccessfulLogFile(logDir).getFile();
         assertEquals(log2, result);
     }
 
     public void testSerializable() throws Exception {
-        writeFile(log1, "");
+        IO.write(log1, "");
 
         assertTrue("LogFile class must be serializable for Metrics Tab (charting) to work",
                 Serializable.class.isAssignableFrom(LogFile.class));
-    }
-
-    private void writeFile(File file, String body) throws Exception {
-        FileWriter writer = new FileWriter(file);
-        writer.write(body);
-        writer.close();
     }
 }

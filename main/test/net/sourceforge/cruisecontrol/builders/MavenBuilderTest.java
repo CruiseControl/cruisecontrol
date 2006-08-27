@@ -36,19 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.List;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-
 import org.jdom.Element;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.List;
 
 public class MavenBuilderTest extends TestCase {
 
@@ -59,7 +57,7 @@ public class MavenBuilderTest extends TestCase {
     /**
      * void validate()
      */
-    public void testValidate() throws IOException {
+    public void testValidate() throws IOException, CruiseControlException {
         MavenBuilder mb = new MavenBuilder();
         try {
             mb.validate();
@@ -113,7 +111,7 @@ public class MavenBuilderTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("MavenBuilder should not throw exceptions when required fields are set. Exception ["
                     + e.getMessage() + "].");
-        }        
+        }
     }
 
     public void testBuild_Success() throws IOException {
@@ -225,6 +223,8 @@ public class MavenBuilderTest extends TestCase {
                 e.printStackTrace();
                 fail("MavenBuilder should not throw exceptions when build()-ing.");
             }
+        } catch (CruiseControlException e) {
+            e.printStackTrace();
         } finally {
             if (testScript != null) {
                 //PJ: May 08, 2005: The following statement is breaking the build on the cclive box.
@@ -273,15 +273,8 @@ public class MavenBuilderTest extends TestCase {
     /**
      * Make a test file with specified content. Assumes the file does not exist.
      */
-    private void makeTestFile(File testFile, String content, boolean onWindows) {
-        try {
-            BufferedWriter bwr = new BufferedWriter(new FileWriter(testFile));
-            bwr.write(content);
-            bwr.flush();
-            bwr.close();
-        } catch (IOException ioex) {
-            fail("Unexpected IOException while preparing " + testFile.getAbsolutePath() + " test file");
-        }
+    private void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
+        IO.write(testFile, content);
         if (!onWindows) {
             Commandline cmdline = new Commandline();
             cmdline.setExecutable("chmod");

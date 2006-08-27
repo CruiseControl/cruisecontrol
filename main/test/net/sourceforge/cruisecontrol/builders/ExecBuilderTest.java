@@ -36,17 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.File;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Hashtable;
 import junit.framework.TestCase;
-import java.util.List;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import org.jdom.Element;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Exec builder test class.
@@ -233,15 +233,8 @@ public class ExecBuilderTest extends TestCase {
       /*
        * Make a test file with specified content. Assumes the file does not exist.
        */
-      private void makeTestFile(File testFile, String content, boolean onWindows) {
-          try {
-              BufferedWriter bwr = new BufferedWriter(new FileWriter(testFile));
-              bwr.write(content);
-              bwr.flush();
-              bwr.close();
-          } catch (IOException ioex) {
-              fail("Unexpected IOException while preparing " + testFile.getAbsolutePath() + " test file");
-          }
+      private void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
+          IO.write(testFile, content);
           if (!onWindows) {
               Commandline cmdline = new Commandline();
               cmdline.setExecutable("chmod");

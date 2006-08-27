@@ -1,13 +1,13 @@
 package net.sourceforge.cruisecontrol;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.util.IO;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
-import junit.framework.TestCase;
 
 /**
  * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
@@ -22,10 +22,10 @@ public class BuildStatusTest extends TestCase {
 
     private static final String XML_LOGGER_DATA = TIME + " [" + PROJECT_NAME + "]\n";
     private static final String XML_LOGGER_TEXT = "<br>" + XML_LOGGER_DATA;
-    
+
     private static final String PLAIN_TEXT = TEXT + "\n" + TIME + "\n";
     private static final String PLAIN_WITH_LOGGER = TEXT + "\n" + TIME + XML_LOGGER_TEXT;
-    
+
     private static final String HTML_TEXT = TEXT + "\n<br/>" + TIME + "\n<br/>";
     private static final String HTML_WITH_LOGGER = HTML_TEXT + XML_LOGGER_DATA + "<br/>";
 
@@ -61,7 +61,7 @@ public class BuildStatusTest extends TestCase {
         files.delete();
     }
 
-    public void testStatusFileNotFound() {      
+    public void testStatusFileNotFound() {
         String status = BuildStatus.getStatusHtml(SINGLE_PROJECT_MODE,
             logDir.getAbsolutePath(),
             PROJECT_NAME,
@@ -75,7 +75,7 @@ public class BuildStatusTest extends TestCase {
         assertEquals("(build status file not found)", status);
     }
 
-    public void testShouldThrowExceptionWithDirectory() {      
+    public void testShouldThrowExceptionWithDirectory() {
         try {
             BuildStatus.getStatusHtml(SINGLE_PROJECT_MODE,
                 logDir.getAbsolutePath(),
@@ -91,7 +91,7 @@ public class BuildStatusTest extends TestCase {
     public void testGetCurrentStatusSingleProject() {
         coreTestPlain("status only: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, PLAIN_TEXT);
         coreTestHtml("status only: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, HTML_TEXT);
-        
+
         coreTestPlain("all lines: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, PLAIN_TEXT + XML_LOGGER_DATA);
         coreTestHtml("all lines: ", SINGLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, HTML_WITH_LOGGER);
     }
@@ -99,7 +99,7 @@ public class BuildStatusTest extends TestCase {
     public void testGetCurrentStatusMultiProject() {
         coreTestPlain("status only: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, PLAIN_TEXT);
         coreTestHtml("status only: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ONLY_STATUS_LINES, HTML_TEXT);
-        
+
         coreTestPlain("all lines: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, PLAIN_TEXT + XML_LOGGER_DATA);
         coreTestHtml("all lines: ", MULTIPLE_PROJECT_MODE, BuildStatus.READ_ALL_LINES, HTML_WITH_LOGGER);
     }
@@ -122,10 +122,8 @@ public class BuildStatusTest extends TestCase {
         assertEquals("html:" + msg, expected, actual);
     }
 
-    private void prepareFile(File file, String body) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        writer.write(body);
-        writer.close();
+    private void prepareFile(File file, String body) throws IOException, CruiseControlException {
+        IO.write(file, body);
         files.addFile(file);
     }
 

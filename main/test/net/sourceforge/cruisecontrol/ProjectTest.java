@@ -36,23 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
@@ -64,10 +47,25 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class ProjectTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(ProjectTest.class);
@@ -656,7 +654,7 @@ public class ProjectTest extends TestCase {
         Calendar cal = Calendar.getInstance();
         cal.set(2001, Calendar.NOVEMBER, 22);
         cal.set(Calendar.HOUR_OF_DAY, 12);
-        cal.set(Calendar.MINUTE, 00);
+        cal.set(Calendar.MINUTE, 0);
         Date noonBuild = cal.getTime();
         project.setBuildStartTime(noonBuild);
         
@@ -669,13 +667,11 @@ public class ProjectTest extends TestCase {
         assertEquals(Schedule.ONE_DAY, time);
     }
 
-    private void writeFile(String fileName, String contents) throws IOException {
+    private void writeFile(String fileName, String contents) throws CruiseControlException {
 
-        File theFile = new File(fileName);
-        filesToClear.add(theFile);
-        FileWriter fw = new FileWriter(theFile);
-        fw.write(contents);
-        fw.close();
+        File f = new File(fileName);
+        filesToClear.add(f);
+        IO.write(f, contents);
     }
 
     private static String formatTime(Date time) {

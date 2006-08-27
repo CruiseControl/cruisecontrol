@@ -36,24 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.DateFormatFactory;
 
-import org.apache.log4j.Logger;
+import java.io.File;
+import java.text.DateFormat;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @version $Id$
  */
 public final class CurrentBuildFileWriter {
-
-    private static final Logger LOG = Logger.getLogger(CurrentBuildFileWriter.class);
 
     private CurrentBuildFileWriter() {
     }
@@ -62,15 +56,7 @@ public final class CurrentBuildFileWriter {
         DateFormat formatter = DateFormatFactory.getDateFormat();
         StringBuffer buffer = new StringBuffer(info).append(formatter.format(date));
 
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(fileName);
-            writer.write(buffer.toString());
-        } catch (IOException e) {
-            throw new CruiseControlException("Error writing file: " + fileName, e);
-        } finally {
-            IO.close(writer);
-        }
+        IO.write(fileName, buffer.toString());
     }
 
     public static void validate(String fileName) throws CruiseControlException {
