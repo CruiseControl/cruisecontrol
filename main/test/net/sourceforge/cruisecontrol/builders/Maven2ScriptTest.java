@@ -54,9 +54,16 @@ public class Maven2ScriptTest extends TestCase {
         final Element buildLogElement = new Element("testBuild");
         final Maven2Script script = new Maven2Script(buildLogElement, null, null, null, null, null, null);
 
-
         int contentIdx = 0;
         Element currElement;
+
+        script.consumeLine("[ERROR] FATAL ERROR");
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        assertNotNull("fatal error not detected", buildLogElement.getAttribute("error"));
+        assertEquals("FATAL ERROR detected", buildLogElement.getAttribute("error").getValue());
+        assertNull(buildLogElement.getAttribute("success"));
+        assertEquals("message", currElement.getName());
+        assertEquals("error", currElement.getAttribute("priority").getValue());
 
         script.consumeLine("[ERROR] BUILD ERROR");
         currElement = ((Element) buildLogElement.getContent().get(contentIdx++));

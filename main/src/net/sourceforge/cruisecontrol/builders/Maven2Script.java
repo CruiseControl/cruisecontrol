@@ -166,6 +166,8 @@ public class Maven2Script implements Script, StreamConsumer {
                 buildLogElement.setAttribute(ERROR, "BUILD FAILURE detected");
             } else if (infoLine.startsWith("BUILD ERROR")) {
                 buildLogElement.setAttribute(ERROR, "BUILD ERROR detected");
+            } else if (infoLine.startsWith("FATAL ERROR")) {
+                buildLogElement.setAttribute(ERROR, "FATAL ERROR detected");
             /*} else if (line.startsWith("org.apache.maven.MavenException")) {
              buildLogElement.setAttribute("error", "You have encountered an unknown error running Maven: " + line);
              } else if (line.startsWith("The build cannot continue")) {
