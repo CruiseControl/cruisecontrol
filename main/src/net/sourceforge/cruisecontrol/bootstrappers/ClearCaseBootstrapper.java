@@ -39,13 +39,10 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Processes;
 
 import org.apache.log4j.Logger;
-
-import java.io.PrintWriter;
 
 /**
  * Since we rely on our build.xml to handle updating our source code, there has always been a problem with what happens
@@ -77,11 +74,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
 
         LOG.debug("Executing: " + commandLine);
         try {
-            Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
-            p.waitFor();
-            IO.close(p);
+            Processes.executeFully(commandLine);            
         } catch (Exception e) {
             throw new CruiseControlException("Error executing ClearCase update", e);
         }
