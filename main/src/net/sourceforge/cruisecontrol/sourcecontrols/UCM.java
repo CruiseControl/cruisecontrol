@@ -46,7 +46,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +72,8 @@ public class UCM implements SourceControl {
 
     private String stream;
     private String viewPath;
-    private String property;
     private boolean contributors = true;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /*  Date format required by commands passed to ClearCase */
     private final SimpleDateFormat inDateFormatter = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
@@ -82,7 +81,6 @@ public class UCM implements SourceControl {
     /*  Date format returned in the output of ClearCase commands. */
     private final SimpleDateFormat outDateFormatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
-    private Hashtable properties = new Hashtable();
 
     /**
      * get the properties created via the sourcecontrol
@@ -90,7 +88,7 @@ public class UCM implements SourceControl {
      * @return Hastable containing properties
      */
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     /**
@@ -163,16 +161,7 @@ public class UCM implements SourceControl {
      * @param property The name of the property to set
      */
     public void setProperty(String property) {
-        this.property = property;
-    }
-
-    /**
-     * get the name of the property that will be set if modifications are found
-     *
-     * @return the property name
-     */
-    public String getProperty() {
-        return this.property;
+        properties.assignPropertyName(property);
     }
 
     /**
@@ -203,8 +192,8 @@ public class UCM implements SourceControl {
         }
 
         // If modifications were found, set the property
-        if (!mods.isEmpty() && getProperty() != null) {
-            properties.put(getProperty(), "true");
+        if (!mods.isEmpty()) {
+            properties.modificationFound();
         }
 
         return mods;

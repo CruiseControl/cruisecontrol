@@ -36,7 +36,26 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.cli.ConsoleDownloadMonitor;
 import org.apache.maven.embedder.MavenEmbedder;
 import org.apache.maven.embedder.MavenEmbedderConsoleLogger;
 import org.apache.maven.embedder.MavenEmbedderException;
@@ -44,29 +63,9 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.cli.ConsoleDownloadMonitor;
 import org.apache.maven.wagon.events.TransferEvent;
 import org.apache.maven.wagon.events.TransferListener;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.io.File;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * Checks snapshot dependencies listed in a Maven2 pom against the local repositorty.
@@ -81,8 +80,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
     /** enable logging for this class */
     private static final Logger LOG = Logger.getLogger(Maven2SnapshotDependency.class);
 
-    private final Map properties = new HashMap();
-    private String property;
+    private SourceControlProperties properties = new SourceControlProperties();
     private List modifications;
     private File pomFile;
     private String user;
@@ -120,11 +118,11 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
 
@@ -189,10 +187,8 @@ public class Maven2SnapshotDependency  implements SourceControl {
         newMod.modifiedTime = new Date(dependency.lastModified());
         newMod.comment = comment;
         modifications.add(newMod);
-
-        if (property != null) {
-            properties.put(property, "true");
-        }
+        
+        properties.modificationFound();
     }
 
 

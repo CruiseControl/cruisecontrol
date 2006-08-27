@@ -36,16 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,14 +46,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The
@@ -108,9 +109,6 @@ public class P4 implements SourceControl {
     private final SimpleDateFormat p4ServerDateFormatter =
             new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
 
-
-    private Hashtable properties = new Hashtable();
-
     public void setPort(String p4Port) {
         this.p4Port = p4Port;
     }
@@ -151,7 +149,7 @@ public class P4 implements SourceControl {
     }
 
     public Map getProperties() {
-        return properties;
+        return Collections.EMPTY_MAP;
     }
 
     public void validate() throws CruiseControlException {

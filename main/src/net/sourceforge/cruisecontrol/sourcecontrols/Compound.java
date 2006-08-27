@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -86,14 +85,13 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  */
 public class Compound implements SourceControl {
     
-    private Hashtable properties = new Hashtable();
-
+    private SourceControlProperties properties = new SourceControlProperties();
     private Triggers triggers = null;
     private Targets targets = null;
     private boolean includeTriggerChanges = false;
     
     public Map getProperties() {
-        return this.properties;
+        return properties.getPropertiesAndReset();
     }
     
     /**
@@ -186,8 +184,7 @@ public class Compound implements SourceControl {
      */
     protected static class Entry implements SourceControl {
         
-        private Hashtable properties = new Hashtable();
-
+        private SourceControlProperties properties = new SourceControlProperties();
         private List sourceControls = new ArrayList();
         private Compound parent;
         
@@ -210,7 +207,7 @@ public class Compound implements SourceControl {
         }
         
         public Map getProperties() {
-            return this.properties;
+            return properties.getPropertiesAndReset();
         }
 
         /**

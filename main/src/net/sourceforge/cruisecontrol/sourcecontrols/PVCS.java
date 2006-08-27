@@ -43,8 +43,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -68,7 +68,6 @@ public class PVCS implements SourceControl {
     private static final Logger LOG = Logger.getLogger(PVCS.class);
     private static final String DOUBLE_QUOTE = "\"";
 
-    private Map properties = new HashMap();
     private Date lastBuild;
 
     private String archiveFileSuffix = "-arc";
@@ -139,7 +138,7 @@ public class PVCS implements SourceControl {
     }
 
     public Map getProperties() {
-        return properties;
+        return Collections.EMPTY_MAP;
     }
 
     public void validate() throws CruiseControlException {

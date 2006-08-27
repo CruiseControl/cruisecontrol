@@ -46,7 +46,7 @@ import java.util.Map;
  * gathering information about the changes made to whatever source control tool
  * that you choose.
  *
- * SourceControl implementations may define 2 special properties:
+ * SourceControl implementations commonly define 2 special properties:
  * <ul>
  * <li> <code>void setProperty(String property)</code>:
  * name of property to define if a modification is detected.

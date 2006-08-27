@@ -42,7 +42,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -82,9 +81,7 @@ public class VssJournal implements SourceControl {
     private String ssDir = "$/";
     private String journalFile;
 
-    private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     private Date lastBuild;
 
@@ -128,7 +125,7 @@ public class VssJournal implements SourceControl {
      * @param property
      */
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     /**
@@ -137,7 +134,7 @@ public class VssJournal implements SourceControl {
      * @param propertyOnDelete the name of the property to set
      */
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
+        properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
     
     /**
@@ -180,7 +177,7 @@ public class VssJournal implements SourceControl {
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
@@ -223,8 +220,8 @@ public class VssJournal implements SourceControl {
             LOG.warn(e);
         }
 
-        if (property != null && modifications.size() > 0) {
-            properties.put(property, "true");
+        if (modifications.size() > 0) {
+            properties.modificationFound();
         }
 
         LOG.info("Found " + modifications.size() + " modified files");
@@ -303,13 +300,10 @@ public class VssJournal implements SourceControl {
             }
         }
 
-        if (propertyOnDelete != null && setPropertyOnDelete) {
-            properties.put(propertyOnDelete, "true");
+        if (setPropertyOnDelete) {
+            properties.deletionFound();
         }
 
-        if (property != null) {
-            properties.put(property, "true");
-        }
         return mod;
     }
 

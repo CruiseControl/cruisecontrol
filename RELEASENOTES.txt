@@ -120,6 +120,10 @@ SCPPublisher
 ----------------------
 * Add attribute "executableName" to specify alternative executable.
 
+SourceControlProperties
+----------------------
+* Create delegate to fix problem where properties set by the source controls persisted across builds (CC-508).
+
 StreamPumper
 ----------------------
 * Log if consuming line fails (CC-199).  Reported by Kaloyan Enimanev.

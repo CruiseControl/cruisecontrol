@@ -36,13 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +51,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods for a Clear Case
@@ -75,9 +75,7 @@ public class ClearCase implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(ClearCase.class);
 
-    private Hashtable properties = new Hashtable();
-
-    private String property;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * The path of the clear case view
@@ -163,11 +161,11 @@ public class ClearCase implements SourceControl {
     }
 
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
@@ -367,10 +365,7 @@ public class ClearCase implements SourceControl {
         mod.attributes = attributes;
 
         mod.comment = comment;
-
-        if (property != null) {
-            properties.put(property, "true");
-        }
+        properties.modificationFound();
 
         // TODO: check if operation type is a delete
 
