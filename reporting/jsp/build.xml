@@ -135,6 +135,7 @@
             <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
             <fileset dir="${src}" includes="**/*.java"/>
             <fileset dir="${test}" includes="**/*.java"/>
+            <property key="checkstyle.cache.file" file="${checkstyle.cache}"/>
         </checkstyle>
     </target>
 
@@ -207,6 +208,24 @@
         </war>
     </target>
 
+    <target name="jsp-precompile" depends="war">
+        <mkdir dir="target/jsp-precompile/exploded-war"/>
+        <unzip src="${deploy.dir}/cruisecontrol.war" dest="target/jsp-precompile/exploded-war"/>
+
+        <mkdir dir="target/jsp-precompile/src"/>
+        <taskdef classname="org.apache.jasper.JspC" name="jasper2">
+            <classpath id="jspc.classpath">
+                <fileset dir="../../binaryrelease/lib">
+                    <include name="*.jar"/>
+                </fileset>
+                <path refid="project.runtime.classpath"/>
+            </classpath>
+        </taskdef>
+        <jasper2 compile="true" outputdir="${basedir}/target/jsp-precompile/src"
+                 listerrors="true" validatexml="true" verbose="2"
+                 uriroot="${basedir}/target/jsp-precompile/exploded-war"/>
+    </target>
+
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
         <mkdir dir="${docs}"/>
         <copy todir="${docs}">
@@ -226,7 +245,7 @@
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>
     
-    <target name="all" depends="init,compile,checkstyle,check-duplication,test,war" 
+    <target name="all" depends="init,compile,checkstyle,check-duplication,test,war, jsp-precompile"
             description="Performs a build, runs tests, and builds war" />
 
 </project>

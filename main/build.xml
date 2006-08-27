@@ -62,6 +62,7 @@
     <property name="xsl" value="${basedir}/xsl" />
 
     <property name="checkstyle.fail.on.violation" value="true" />
+    <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar" />
 
     <property name="clover.home" value="${env.CLOVER_HOME}" />
@@ -194,6 +195,7 @@
             <formatter type="plain" tofile="${target}/checkstyleResults.txt" />
             <fileset dir="${src}" includes="net/sourceforge/cruisecontrol/**/*.java" />
             <fileset dir="${test}" includes="net/sourceforge/cruisecontrol/**/*.java" />
+            <property key="checkstyle.cache.file" file="${checkstyle.cache}"/>
         </checkstyle>
     </target>
 
