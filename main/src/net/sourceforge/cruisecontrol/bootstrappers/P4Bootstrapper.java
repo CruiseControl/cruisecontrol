@@ -132,25 +132,20 @@ public class P4Bootstrapper implements Bootstrapper {
         validate();
         Commandline cmd = new Commandline();
         cmd.setExecutable("p4");
-        cmd.createArgument().setValue("-s");
+        cmd.createArgument("-s");
         if (port != null) {
-            cmd.createArgument().setValue("-p");
-            cmd.createArgument().setValue(port);
+            cmd.createArguments("-p", port);
         }
         if (client != null) {
-            cmd.createArgument().setValue("-c");
-            cmd.createArgument().setValue(client);
+            cmd.createArguments("-c", client);
         }
         if (user != null) {
-            cmd.createArgument().setValue("-u");
-            cmd.createArgument().setValue(user);
+            cmd.createArguments("-u", user);
         }
         if (passwd != null) {
-            cmd.createArgument().setValue("-P");
-            cmd.createArgument().setValue(passwd);
+            cmd.createArguments("-P", passwd);
         }
-        cmd.createArgument().setValue("sync");
-        cmd.createArgument().setValue(view);
+        cmd.createArguments("sync", view);
 
         return cmd;
     }

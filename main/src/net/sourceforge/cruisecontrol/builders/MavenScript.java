@@ -88,24 +88,23 @@ public class MavenScript implements Script, StreamConsumer {
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
             String key = (String) propertiesIterator.next();
-            cmdLine.createArgument().setValue("-D" + key + "=" + buildProperties.get(key));
+            cmdLine.createArgument("-D" + key + "=" + buildProperties.get(key));
         }
 
         if (LOG.isDebugEnabled()) {
-            cmdLine.createArgument().setValue("-X");
+            cmdLine.createArgument("-X");
         }
 
-        cmdLine.createArgument().setValue("-b"); // no banner
+        cmdLine.createArgument("-b"); // no banner
         if (projectFile != null) {
             // we need only the name of the file
             File pFile = new File(projectFile);
-            cmdLine.createArgument().setValue("-p");
-            cmdLine.createArgument().setValue(pFile.getName());
+            cmdLine.createArguments("-p", pFile.getName());
         }
         if (goalset != null) {
             StringTokenizer stok = new StringTokenizer(goalset, " \t\r\n");
             while (stok.hasMoreTokens()) {
-                cmdLine.createArgument().setValue(stok.nextToken());
+                cmdLine.createArgument(stok.nextToken());
             }
         }
 

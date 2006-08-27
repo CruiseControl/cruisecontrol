@@ -155,7 +155,7 @@ public class AlienBrainCore {
      */
     protected void addFlagIfSet(Commandline cmdLine, boolean flagValue, String flagName) {
         if (flagValue) {
-            cmdLine.createArgument().setValue(flagName);
+            cmdLine.createArgument(flagName);
         }
     }
 
@@ -168,8 +168,7 @@ public class AlienBrainCore {
      */
     protected void addArgumentIfSet(Commandline cmdLine, String argument, String flag) {
         if (argument != null) {
-            cmdLine.createArgument().setValue(flag);
-            cmdLine.createArgument().setValue(argument);
+            cmdLine.createArguments(flag, argument);
         }
     }
 
@@ -197,8 +196,7 @@ public class AlienBrainCore {
      */
     protected void setActiveBranch(String branch) throws IOException, CruiseControlException {
         ManagedCommandline cmdLine = buildCommonCommand();
-        cmdLine.createArgument().setValue("setactivebranch");
-        cmdLine.createArgument().setValue(branch);
+        cmdLine.createArguments("setactivebranch", branch);
         LOG.debug("Executing: " + cmdLine.toString());
         cmdLine.execute();
         cmdLine.assertExitCode(0);

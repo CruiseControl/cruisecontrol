@@ -198,8 +198,7 @@ public class SCPPublisher implements Publisher {
         Commandline command = new Commandline();
         command.setExecutable(executableName);
         command.createArgument().setLine(options);
-        command.createArgument().setValue("-S");
-        command.createArgument().setValue(ssh);
+        command.createArguments("-S", ssh);
 
         createFileArgument(
             command.createArgument(),

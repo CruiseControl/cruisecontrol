@@ -151,10 +151,9 @@ public class CVSBootstrapper implements Bootstrapper {
         commandLine.setExecutable("cvs");
 
         if (cvsroot != null) {
-            commandLine.createArgument().setValue("-d");
-            commandLine.createArgument().setValue(cvsroot);
+            commandLine.createArguments("-d", cvsroot);
         }
-        commandLine.createArgument().setValue("update");
+        commandLine.createArgument("update");
         
         StringBuffer flags = new StringBuffer("-dP");
         if (resetStickyTags) {
@@ -163,10 +162,10 @@ public class CVSBootstrapper implements Bootstrapper {
         if (overwriteChanges) {
             flags.append("C");
         }
-        commandLine.createArgument().setValue(flags.toString());
+        commandLine.createArgument(flags.toString());
 
         if (filename != null) {
-            commandLine.createArgument().setValue(filename);
+            commandLine.createArgument(filename);
         }
 
         return commandLine;

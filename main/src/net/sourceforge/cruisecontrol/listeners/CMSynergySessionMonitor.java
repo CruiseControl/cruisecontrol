@@ -333,7 +333,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         // Get a list of currently running CM Synergy sessions
         ManagedCommandline cmd = new ManagedCommandline(ccmExe);
-        cmd.createArgument().setValue("status");
+        cmd.createArgument("status");
         String availableSessions;
         try {
             cmd.execute();
@@ -385,21 +385,16 @@ public class CMSynergySessionMonitor implements Listener {
 
         // Create CM Synergy startup command
         ManagedCommandline cmd = new ManagedCommandline(ccmExe);
-        cmd.createArgument().setValue("start");
-        cmd.createArgument().setValue("-q");
-        cmd.createArgument().setValue("-nogui");
-        cmd.createArgument().setValue("-m");
-        cmd.createArgument().setValue("-d");
-        cmd.createArgument().setValue(session.getDatabase());
-        cmd.createArgument().setValue("-r");
-        cmd.createArgument().setValue(session.getRole());
-        cmd.createArgument().setValue("-n");
-        cmd.createArgument().setValue(session.getUser());
-        cmd.createArgument().setValue("-pw");
-        cmd.createArgument().setValue(session.getPassword());
+        cmd.createArgument("start");
+        cmd.createArgument("-q");
+        cmd.createArgument("-nogui");
+        cmd.createArgument("-m");
+        cmd.createArguments("-d", session.getDatabase());
+        cmd.createArguments("-r", session.getRole());
+        cmd.createArguments("-n", session.getUser());
+        cmd.createArguments("-pw", session.getPassword());
         if (session.getHost() != null) {
-            cmd.createArgument().setValue("-h");
-            cmd.createArgument().setValue(session.getHost());
+            cmd.createArguments("-h", session.getHost());
         }
 
         try {

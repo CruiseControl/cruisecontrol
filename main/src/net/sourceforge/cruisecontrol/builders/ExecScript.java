@@ -85,7 +85,7 @@ public class ExecScript implements Script, StreamConsumer {
         if (execArgs != null) {
             StringTokenizer stok = new StringTokenizer(execArgs, " \t\r\n");
             while (stok.hasMoreTokens()) {
-                cmdLine.createArgument().setValue(stok.nextToken());
+                cmdLine.createArgument(stok.nextToken());
             }
         }
 

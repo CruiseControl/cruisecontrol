@@ -217,17 +217,15 @@ public class ClearCaseBaselinePublisher implements Publisher {
         // create the "cleartool mkbl" command line
         ManagedCommandline cmd = new ManagedCommandline();
         cmd.setExecutable("cleartool");
-        cmd.createArgument().setValue("mkbl");
-        cmd.createArgument().setValue("-view");
-        cmd.createArgument().setValue(getViewtag());
+        cmd.createArgument("mkbl");
+        cmd.createArguments("-view", getViewtag());
         if (getFull()) {
-            cmd.createArgument().setValue("-full");
+            cmd.createArgument("-full");
         }
         if (getComponent() != null) {
-            cmd.createArgument().setValue("-component");
-            cmd.createArgument().setValue(getComponent());
+            cmd.createArguments("-component", getComponent());
         }
-        cmd.createArgument().setValue(baselinename);
+        cmd.createArgument(baselinename);
 
         // execute it
         try {

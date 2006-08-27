@@ -144,22 +144,18 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
         
-        cmd.createArgument().setValue("baseline");
-        cmd.createArgument().setValue("-create");
+        cmd.createArgument("baseline");
+        cmd.createArgument("-create");
         if (baselineName != null) {
-            cmd.createArgument().setValue(baselineName);
+            cmd.createArgument(baselineName);
         }
         if (description != null) {
-            cmd.createArgument().setValue("-description");
-            cmd.createArgument().setValue(description);
+            cmd.createArguments("-description", description);
         }
-        cmd.createArgument().setValue("-release");
-        cmd.createArgument().setValue(getProjectRelease());
-        cmd.createArgument().setValue("-purpose");
-        cmd.createArgument().setValue(purpose);
-        cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(getProject());
-        cmd.createArgument().setValue("-subprojects");
+        cmd.createArguments("-release", getProjectRelease());
+        cmd.createArguments("-purpose", purpose);
+        cmd.createArguments("-project", getProject());
+        cmd.createArgument("-subprojects");
 
         // Create the baseline
         try {
@@ -200,11 +196,9 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         // Create the CM Synergy command line
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
-        cmd.createArgument().setValue("attribute");
-        cmd.createArgument().setValue("-show");
-        cmd.createArgument().setValue("release");
-        cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(getProject());
+        cmd.createArgument("attribute");
+        cmd.createArguments("-show", "release");
+        cmd.createArguments("-project", getProject());
 
         try {
             cmd.execute();

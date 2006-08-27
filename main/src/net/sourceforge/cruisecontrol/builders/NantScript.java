@@ -73,43 +73,43 @@ public class NantScript implements Script {
 
         cmdLine.setExecutable("NAnt.exe");
         if (useLogger) {
-            cmdLine.createArgument().setValue("-logger:" + getLoggerClassName());
-            cmdLine.createArgument().setValue("-logfile:" + tempFileName);
+            cmdLine.createArgument("-logger:" + getLoggerClassName());
+            cmdLine.createArgument("-logfile:" + tempFileName);
         } else {
-            cmdLine.createArgument().setValue("-listener:" + getLoggerClassName());
-            cmdLine.createArgument().setValue("-D:XmlLogger.file=" + tempFileName);
+            cmdLine.createArgument("-listener:" + getLoggerClassName());
+            cmdLine.createArgument("-D:XmlLogger.file=" + tempFileName);
         }
         /*
         if (useVerbose) {
-            cmdLine.createArgument().setValue("-verbose");
+            cmdLine.createArgument("-verbose");
         }
         */
         if (useDebug) {
-            cmdLine.createArgument().setValue("-debug+");
+            cmdLine.createArgument("-debug+");
         } else if (useQuiet) {
-            cmdLine.createArgument().setValue("-quiet+");
+            cmdLine.createArgument("-quiet+");
         }
         if (targetFramework != null) {
-            cmdLine.createArgument().setValue("-t:" + targetFramework);
+            cmdLine.createArgument("-t:" + targetFramework);
         }
 
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext();) {
             Map.Entry property = (Map.Entry) propertiesIter.next();
             String value = (String) property.getValue();
             if (!"".equals(value)) {
-                cmdLine.createArgument().setValue("-D:" + property.getKey() + "=" + value);
+                cmdLine.createArgument("-D:" + property.getKey() + "=" + value);
             }
         }
         for (Iterator nantPropertiesIterator = nantProperties.iterator(); nantPropertiesIterator.hasNext(); ) {
             Property property = (Property) nantPropertiesIterator.next();
-            cmdLine.createArgument().setValue("-D:" + property.getName() + "=" + property.getValue());
+            cmdLine.createArgument("-D:" + property.getName() + "=" + property.getValue());
         }
 
-        cmdLine.createArgument().setValue("-buildfile:" + buildFile);
+        cmdLine.createArgument("-buildfile:" + buildFile);
 
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
-            cmdLine.createArgument().setValue(targets.nextToken());
+            cmdLine.createArgument(targets.nextToken());
         }
         return cmdLine;
     }

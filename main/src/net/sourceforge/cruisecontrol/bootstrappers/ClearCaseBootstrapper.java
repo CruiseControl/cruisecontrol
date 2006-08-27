@@ -74,7 +74,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
 
         LOG.debug("Executing: " + commandLine);
         try {
-            Processes.executeFully(commandLine);            
+            Processes.executeFully(commandLine);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing ClearCase update", e);
         }
@@ -88,11 +88,10 @@ public class ClearCaseBootstrapper implements Bootstrapper {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
 
-        commandLine.createArgument().setValue("update");
-        commandLine.createArgument().setValue("-force");
-        commandLine.createArgument().setValue("-log");
-        commandLine.createArgument().setValue(isWindows() ? "NUL" : "/dev/null");
-        commandLine.createArgument().setValue(getFullPathFileName());
+        commandLine.createArgument("update");
+        commandLine.createArgument("-force");
+        commandLine.createArguments("-log", isWindows() ? "NUL" : "/dev/null");
+        commandLine.createArgument(getFullPathFileName());
 
         return commandLine;
     }

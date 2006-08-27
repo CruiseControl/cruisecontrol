@@ -144,18 +144,16 @@ public class SVNBootstrapper implements Bootstrapper {
             command.setWorkingDirectory(localWorkingCopy);
         }
 
-        command.createArgument().setValue("update");
-        command.createArgument().setValue("--non-interactive");
+        command.createArgument("update");
+        command.createArgument("--non-interactive");
         if (userName != null) {
-            command.createArgument().setValue("--username");
-            command.createArgument().setValue(userName);
+            command.createArguments("--username", userName);
         }
         if (password != null) {
-            command.createArgument().setValue("--password");
-            command.createArgument().setValue(password);
+            command.createArguments("--password", password);
         }
         if (fileName != null) {
-            command.createArgument().setValue(fileName);
+            command.createArgument(fileName);
         }
 
         LOG.debug("SVNBootstrapper: Executing command = " + command);

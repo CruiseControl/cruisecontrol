@@ -156,11 +156,10 @@ public class CMSynergyBootstrapper implements Bootstrapper {
         // Create a managed command line
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 ccmExe, sessionName, sessionFile);
-        cmd.createArgument().setValue("reconfigure");
-        cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(projectSpec);
+        cmd.createArgument("reconfigure");
+        cmd.createArguments("-project", projectSpec);
         if (recurse) {
-            cmd.createArgument().setValue("-recurse");
+            cmd.createArgument("-recurse");
         }
 
         try {

@@ -124,7 +124,9 @@ public class Commandline implements Cloneable {
     private static final Logger LOG = Logger.getLogger(Commandline.class);
 
     private Vector arguments = new Vector();
+
     private String executable = null;
+
     private File workingDir = null;
 
     public Commandline(String toProcess) {
@@ -146,7 +148,7 @@ public class Commandline implements Cloneable {
     public Commandline() {
         super();
     }
-    
+
     protected File getWorkingDir() {
       return workingDir;
     }
@@ -155,7 +157,6 @@ public class Commandline implements Cloneable {
      * Used for nested xml command line definitions.
      */
     public static class Argument {
-
         private String[] parts;
 
         /**
@@ -199,6 +200,7 @@ public class Commandline implements Cloneable {
         public String[] getParts() {
             return parts;
         }
+
     }
 
     /**
@@ -208,8 +210,8 @@ public class Commandline implements Cloneable {
     // elements of &lt;execon&gt; and &lt;transform&gt; - don't know
     // whether there might be additional use cases.</p> --SB
     public class Marker {
-
         private int position;
+
         private int realPos = -1;
 
         Marker(int position) {
@@ -232,6 +234,7 @@ public class Commandline implements Cloneable {
             }
             return realPos;
         }
+
     }
 
     /**
@@ -266,6 +269,25 @@ public class Commandline implements Cloneable {
         }
         return argument;
     }
+
+    /**
+     * Same as calling createArgument().setValue(value), but much more convenient.
+     */
+    public Argument createArgument(String value) {
+        Argument arg = this.createArgument();
+        arg.setValue(value);
+        return arg;
+    }
+
+    /**
+     * Same as calling createArgument twice in a row, but can be used to make
+     * more obvious a relationship between to command line arguments, like "-folder c:\myfolder".
+     */
+    public void createArguments(String first, String second) {
+        createArgument(first);
+        createArgument(second);
+    }
+
 
     /**
      * Sets the executable to run.
@@ -440,7 +462,7 @@ public class Commandline implements Cloneable {
 
     public Object clone() throws CloneNotSupportedException {
         super.clone();
-        
+
         Commandline c = new Commandline();
         c.setExecutable(executable);
         c.addArguments(getArguments());
@@ -484,10 +506,10 @@ public class Commandline implements Cloneable {
             workingDir = null;
         }
     }
-   
-    /** 
+
+    /**
      * Sets exeuction directory
-     */ 
+     */
     public void setWorkingDir(File workingDir) throws CruiseControlException {
         checkWorkingDir(workingDir);
         this.workingDir = workingDir;

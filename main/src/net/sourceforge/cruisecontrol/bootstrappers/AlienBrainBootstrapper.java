@@ -49,8 +49,7 @@ public class AlienBrainBootstrapper extends AlienBrainCore implements Bootstrapp
     public ManagedCommandline buildBootstrapCommand() {
         ManagedCommandline cmdLine = buildCommonCommand();
 
-        cmdLine.createArgument().setValue("getlatest");
-        cmdLine.createArgument().setValue(getPath());
+        cmdLine.createArguments("getlatest", getPath());
         addArgumentIfSet(cmdLine, localPath, "-localpath");
         addFlagIfSet(cmdLine, forceFileUpdate, "-forcefileupdate");
         addArgumentIfSet(cmdLine, overwriteWritable, "-overwritewritable");

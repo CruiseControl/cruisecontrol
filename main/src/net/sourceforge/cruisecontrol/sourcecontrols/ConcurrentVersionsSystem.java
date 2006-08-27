@@ -303,8 +303,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             commandLine.setExecutable("cvs");
 
             if (cvsroot != null) {
-                commandLine.createArgument().setValue("-d");
-                commandLine.createArgument().setValue(cvsroot);
+                commandLine.createArguments("-d", cvsroot);
             }
 
             commandLine.createArgument().setLine("version");
@@ -474,8 +473,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             commandLine.setExecutable("cvs");
 
             if (cvsroot != null) {
-                commandLine.createArgument().setValue("-d");
-                commandLine.createArgument().setValue(cvsroot);
+                commandLine.createArguments("-d", cvsroot);
             }
 
             commandLine.createArgument().setLine("-q co -p CVSROOT/users");
@@ -538,37 +536,36 @@ public class ConcurrentVersionsSystem implements SourceControl {
         commandLine.setExecutable("cvs");
 
         if (cvsroot != null) {
-            commandLine.createArgument().setValue("-d");
-            commandLine.createArgument().setValue(cvsroot);
+            commandLine.createArguments("-d", cvsroot);
         }
-        commandLine.createArgument().setValue("-q");
+        commandLine.createArgument("-q");
 
         if (local != null) {
             commandLine.setWorkingDirectory(local);
-            commandLine.createArgument().setValue("log");
+            commandLine.createArgument("log");
         } else {
-            commandLine.createArgument().setValue("rlog");
+            commandLine.createArgument("rlog");
         }
 
         if (useHead()) {
-            commandLine.createArgument().setValue("-N");
+            commandLine.createArgument("-N");
         }
         String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
-        commandLine.createArgument().setValue("-d" + dateRange);
+        commandLine.createArgument("-d" + dateRange);
 
         if (!useHead()) {
             // add -b and -rTAG to list changes relative to the current branch,
             // not relative to the default branch, which is HEAD
 
             // note: -r cannot have a space between itself and the tag spec.
-            commandLine.createArgument().setValue("-r" + tag);
+            commandLine.createArgument("-r" + tag);
         } else {
             // This is used to include the head only if a Tag is not specified.
-            commandLine.createArgument().setValue("-b");
+            commandLine.createArgument("-b");
         }
 
         if (local == null) {
-            commandLine.createArgument().setValue(module);
+            commandLine.createArgument(module);
         }
 
         return commandLine;

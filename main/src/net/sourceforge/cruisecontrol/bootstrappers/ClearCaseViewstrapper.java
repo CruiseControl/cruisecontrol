@@ -128,8 +128,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
 
-        commandLine.createArgument().setValue("startview");
-        commandLine.createArgument().setValue(getViewName());
+        commandLine.createArguments("startview", getViewName());
 
         return commandLine;
     }
@@ -141,8 +140,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
 
-        commandLine.createArgument().setValue("mount");
-        commandLine.createArgument().setValue(vob);
+        commandLine.createArguments("mount", vob);
 
         return commandLine;
     }

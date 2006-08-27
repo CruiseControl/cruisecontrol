@@ -92,59 +92,53 @@ public class AntScript implements Script {
                 String arg = ((AntBuilder.JVMArg) argsIterator.next()).getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
-                    cmdLine.createArgument().setValue(arg);
+                    cmdLine.createArgument(arg);
                 }
             }
 
-            cmdLine.createArgument().setValue("-classpath");
-            cmdLine.createArgument().setValue(getAntLauncherJarLocation(systemClassPath, isWindows));
-            cmdLine.createArgument().setValue("org.apache.tools.ant.launch.Launcher");
-            cmdLine.createArgument().setValue("-lib");
-            cmdLine.createArgument().setValue(systemClassPath);
+            cmdLine.createArguments("-classpath", getAntLauncherJarLocation(systemClassPath, isWindows));
+            cmdLine.createArgument("org.apache.tools.ant.launch.Launcher");
+            cmdLine.createArguments("-lib", systemClassPath);
         }
 
         if (useLogger) {
-            cmdLine.createArgument().setValue("-logger");
-            cmdLine.createArgument().setValue(getLoggerClassName());
-            cmdLine.createArgument().setValue("-logfile");
-            cmdLine.createArgument().setValue(tempFileName);
+            cmdLine.createArguments("-logger", getLoggerClassName());
+            cmdLine.createArguments("-logfile", tempFileName);
         } else {
-            cmdLine.createArgument().setValue("-listener");
-            cmdLine.createArgument().setValue(getLoggerClassName());
-            cmdLine.createArgument().setValue("-DXmlLogger.file=" + tempFileName);
+            cmdLine.createArguments("-listener", getLoggerClassName());
+            cmdLine.createArgument("-DXmlLogger.file=" + tempFileName);
         }
 
         // -debug and -quiet only affect loggers, not listeners: when we use the loggerClassName as
         // a listener, they will affect the default logger that writes to the console
         if (useDebug) {
-            cmdLine.createArgument().setValue("-debug");
+            cmdLine.createArgument("-debug");
         } else if (useQuiet) {
-            cmdLine.createArgument().setValue("-quiet");
+            cmdLine.createArgument("-quiet");
         }
 
         if (keepGoing) {
-            cmdLine.createArgument().setValue("-keep-going");
+            cmdLine.createArgument("-keep-going");
         }
 
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
             Map.Entry property = (Map.Entry) propertiesIter.next();
             String value = (String) property.getValue();
             if (!"".equals(value)) {
-                cmdLine.createArgument().setValue("-D" + property.getKey() + "=" + value);
+                cmdLine.createArgument("-D" + property.getKey() + "=" + value);
             }
         }
 
         for (Iterator antPropertiesIterator = properties.iterator(); antPropertiesIterator.hasNext(); ) {
             Property property = (Property) antPropertiesIterator.next();
-            cmdLine.createArgument().setValue("-D" + property.getName() + "=" + property.getValue());
+            cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
 
-        cmdLine.createArgument().setValue("-buildfile");
-        cmdLine.createArgument().setValue(buildFile);
+        cmdLine.createArguments("-buildfile", buildFile);
 
         StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
-            cmdLine.createArgument().setValue(targets.nextToken());
+            cmdLine.createArgument(targets.nextToken());
         }
         return cmdLine;
     }
