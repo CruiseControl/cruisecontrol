@@ -51,6 +51,7 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -73,7 +74,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
     private SSCMCLIBoolParam fparamRecursive = new SSCMCLIBoolParam("recursive", "-r", false);
 
     private SourceControlProperties properties = new SourceControlProperties();
-    
+
     public void validate() throws CruiseControlException { /* nothing is required */ }
 
     public void setBranch(String str) {
@@ -180,9 +181,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
                 process.waitFor();
 
-                process.getInputStream().close();
-                process.getOutputStream().close();
-                process.getErrorStream().close();
+                IO.close(process);
             } catch (IOException e) {
                 LOG.error("Problem trying to execute command line process", e);
             } catch (InterruptedException e) {

@@ -150,11 +150,7 @@ public class StreamPumper implements Runnable {
         } catch (IOException e) {
             // do nothing
         } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                // do nothing
-            }
+            IO.close(in);
         }
     }
 

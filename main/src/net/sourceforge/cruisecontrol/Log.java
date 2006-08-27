@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -263,13 +264,7 @@ public class Log {
         } catch (IOException e) {
             throw new CruiseControlException(e);
         } finally {
-            if (logStream != null) {
-                try {
-                    logStream.close();
-                } catch (IOException e) {
-                    // nevermind, then
-                }
-            }
+            IO.close(logStream);
         }
         
         callManipulators();

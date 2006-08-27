@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -118,9 +119,7 @@ public class CVSBootstrapper implements Bootstrapper {
             p.waitFor();
             errorPumperThread.join();
             outPumperThread.join();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing CVS update command", e);
         }

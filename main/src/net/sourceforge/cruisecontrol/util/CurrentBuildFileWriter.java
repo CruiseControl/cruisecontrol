@@ -69,13 +69,7 @@ public final class CurrentBuildFileWriter {
         } catch (IOException e) {
             throw new CruiseControlException("Error writing file: " + fileName, e);
         } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    LOG.error("Failed closing writer", e);
-                }
-            }
+            IO.close(writer);
         }
     }
 

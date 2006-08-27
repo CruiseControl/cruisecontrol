@@ -44,6 +44,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -128,14 +129,10 @@ public class ScriptRunner  {
             killer.interrupt();
             stderr.join();
             stdout.join();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (InterruptedException e) {
             LOG.info("Was interrupted while waiting for script to finish."
                     + " CruiseControl will continue, assuming that it completed");
-        } catch (IOException ie) {
-            LOG.info("Exception trying to close Process streams.", ie);
         }
 
         outPumper.flush();

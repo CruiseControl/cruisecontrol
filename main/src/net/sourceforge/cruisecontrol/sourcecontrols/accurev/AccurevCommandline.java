@@ -49,6 +49,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.Accurev;
 import net.sourceforge.cruisecontrol.util.EnvCommandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -245,20 +246,12 @@ public class AccurevCommandline extends EnvCommandline implements AccurevInputPa
             new Thread(errorPumper).start();
             InputStream input = proc.getInputStream();
             try {
-                try {
-                    try {
-                        if (inputParser != null) {
-                            error = !inputParser.parseStream(input);
-                        }
-                        returnCode = proc.waitFor();
-                    } finally {
-                        proc.getInputStream().close();
-                    }
-                } finally {
-                    proc.getOutputStream().close();
+                if (inputParser != null) {
+                    error = !inputParser.parseStream(input);
                 }
+                returnCode = proc.waitFor();
             } finally {
-                proc.getErrorStream().close();
+                IO.close(proc);
             }
         } catch (IOException e) {
             LOG.error(e);

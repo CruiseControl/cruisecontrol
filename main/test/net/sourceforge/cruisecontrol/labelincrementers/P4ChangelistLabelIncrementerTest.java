@@ -53,6 +53,7 @@ import org.apache.tools.ant.types.PatternSet.NameEntry;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
 
 /**
  * This test references several resources from the same package.  It also
@@ -69,14 +70,14 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         public String exceptionText;
         public InputStream in;
         public Commandline cmd;
-        
+
         protected void runP4Cmd(Commandline cmd, P4CmdParser parser)
                 throws CruiseControlException {
             this.cmd = cmd;
             if (exceptionText != null) {
                 throw new CruiseControlException(exceptionText);
             }
-            
+
             if (in == null) {
                 in = new ByteArrayInputStream(inputText.getBytes());
             }
@@ -85,11 +86,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
             } catch (IOException e) {
                 fail("Unexpected exception " + e);
             } finally {
-                try {
-                    in.close();
-                } catch (IOException ioe) {
-                    fail("Unable to read stream: " + ioe);
-                }
+                IO.close(in);
             }
         }
     }
@@ -109,14 +106,10 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
             } catch (IOException e) {
                 fail("Unexpected exception " + e);
             } finally {
-                try {
-                    i.close();
-                } catch (IOException ioe) {
-                    fail("Unable to read stream: " + ioe);
-                }
+                IO.close(i);
             }
         }
-        
+
         protected Delete createDelete(Project p) throws CruiseControlException {
             Delete sd = super.createDelete(p);
             assertNotNull("Created null delete object", sd);
@@ -124,7 +117,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
             d.setProject(p);
             return d;
         }
-        
+
         protected FileSet createFileSet(Project p) throws CruiseControlException {
             FileSet sfs = super.createFileSet(p);
             assertNotNull("Created null fileset object", sfs);
@@ -133,8 +126,8 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
             return fs;
         }
     }
-    
-    
+
+
     public static class MockDelete extends Delete {
         public FileSet fs;
         public boolean executed = false;
@@ -143,35 +136,35 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
             this.fs = fs;
             super.addFileset(fs);
         }
-        
+
         public void execute() {
             // don't do anything for real
             executed = true;
         }
     }
-    
-    
+
+
     public static class MockFileSet extends FileSet {
         public List excludes = new LinkedList();
         public List includes = new LinkedList();
-        
+
         public NameEntry createExclude() {
             NameEntry ne = super.createExclude();
             excludes.add(ne);
             return ne;
         }
-        
+
         public NameEntry createInclude() {
             NameEntry ne = super.createInclude();
             includes.add(ne);
             return ne;
         }
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     public void testValidate() {
         P4ChangelistLabelIncrementer p4 = new P4ChangelistLabelIncrementer();
 
@@ -196,7 +189,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
     public void testBuildBaseP4Command() throws ParseException {
         MockP4ChangelistLabelIncrementer p4 =
             new MockP4ChangelistLabelIncrementer();
-        
+
         p4.setUser("x-user");
         p4.setPasswd("x-passwd");
         p4.setPort("x-port");
@@ -210,9 +203,9 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
     public void testParseChangelists1() throws Exception {
         MockP4ChangelistLabelIncrementer p4 =
             new MockP4ChangelistLabelIncrementer();
-        
+
         p4.in = loadTestLog("p4_changes1.txt");
-        
+
         try {
             p4.getCurrentChangelist();
             fail("Did not throw CCE");
@@ -228,7 +221,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
             new MockP4ChangelistLabelIncrementer();
         p4.setClient("y-client");
         p4.in = loadTestLog("p4_changes2.txt");
-        
+
         String c = p4.getCurrentChangelist();
         assertEquals("Returned wrong number of changelists",
                 "1138",
@@ -240,9 +233,9 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
     public void testParseChangelists3() throws Exception {
         MockP4ChangelistLabelIncrementer p4 =
             new MockP4ChangelistLabelIncrementer();
-        
+
         p4.in = loadTestLog("p4_changes2.txt");
-        
+
         String c = p4.getCurrentChangelist();
         assertEquals("Returned wrong number of changelists",
                 "1138",
@@ -258,9 +251,9 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         List inp = new LinkedList();
         inp.add(loadTestLog("p4_where1.txt"));
         p4.in = inp.iterator();
-        
+
         p4.deleteView();
-        
+
         assertNotNull("Didn't create a Delete object", p4.d);
         assertNotNull("Didn't create a FileSet object", p4.fs);
         assertTrue("Didn't run the delete object", p4.d.executed);
@@ -272,8 +265,8 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
                 "c:\\p4\\cc\\main" + File.separator + "**",
                 ((NameEntry) (p4.fs.includes.iterator().next())).getName());
     }
-    
-    
+
+
     public void testGetWhereView1() throws Exception {
         MockP4ChangelistLabelIncrementer2 p4 =
             new MockP4ChangelistLabelIncrementer2();
@@ -281,9 +274,9 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         List inp = new LinkedList();
         inp.add(loadTestLog("p4_where2.txt"));
         p4.in = inp.iterator();
-        
+
         p4.getWhereView(p4.createProject());
-        
+
         assertNotNull("Didn't create a FileSet object", p4.fs);
         assertEquals("Didn't add the right number of includes to fileset",
                 3, p4.fs.includes.size());
@@ -307,8 +300,8 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
                 "c:\\p4-test\\main\\core" + File.separator + "**",
                 ((NameEntry) ex.next()).getName());
     }
-    
-    
+
+
     public void testGetWhereView2() throws Exception {
         MockP4ChangelistLabelIncrementer2 p4 =
             new MockP4ChangelistLabelIncrementer2();
@@ -316,9 +309,9 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         List inp = new LinkedList();
         inp.add(loadTestLog("p4_where3.txt"));
         p4.in = inp.iterator();
-        
+
         p4.getWhereView(p4.createProject());
-        
+
         assertNotNull("Didn't create a FileSet object", p4.fs);
         assertEquals("Didn't add the right number of includes to fileset",
                 3, p4.fs.includes.size());
@@ -348,8 +341,8 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
                 "c:\\p4-test\\my root\\main\\build" + File.separator + "**",
                 ((NameEntry) ex.next()).getName());
     }
-    
-    
+
+
     private String concatCommand(Commandline cmdLine) {
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
@@ -365,7 +358,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         assertNotNull("failed to load resource " + name + " in class " + getClass().getName(), testStream);
         return testStream;
     }
-    
+
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(P4ChangelistLabelIncrementerTest.class);

@@ -45,7 +45,6 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.input.SAXBuilder;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -151,7 +150,7 @@ public class MergeLoggerTest extends TestCase {
         logger.validate();
     }
 
-    public void testGetElement() throws IOException {
+    public void testGetElement() throws IOException, CruiseControlException {
         String withProperties = "<testsuite><properties /></testsuite>";
         String withoutProperties = "<testsuite />";
 
@@ -184,15 +183,9 @@ public class MergeLoggerTest extends TestCase {
         return saxBuilder.build(new StringReader(BASIC_LOG_CONTENT)).getRootElement();
     }
 
-    private static void writeFileContents(File theFile, String contents) throws IOException {
-        FileWriter fw = new FileWriter(theFile);
-        fw.write(contents);
-        fw.close();
-    }
-
-    private File createFile(String content) throws IOException {
+    private File createFile(String content) throws IOException, CruiseControlException {
         File fileToMerge = File.createTempFile(MergeLoggerTest.class.getName(), ".xml", tempSubdir);
-        writeFileContents(fileToMerge, content);
+        IO.write(fileToMerge, content);
         return fileToMerge;
     }
 

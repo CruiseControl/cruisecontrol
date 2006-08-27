@@ -206,14 +206,14 @@ public class SFEEFrsPublisherTest extends TestCase {
 
         final File tempFile = File.createTempFile(SFEEFrsPublisherTest.class.getName(), "temp");
         tempFile.deleteOnExit();
-        TestUtil.write("run 1", tempFile);
+        TestUtil.write(tempFile, "run 1");
         publisher.setFile(tempFile.getAbsolutePath());
 
         publisher.validate();
         publisher.publish(null);
         assertOneFileExistsInRelease(uploadname, SERVER_URL, USERNAME, PASSWORD, RELEASE_ID);
 
-        TestUtil.write("run 2", tempFile);
+        TestUtil.write(tempFile, "run 2");
         publisher.publish(null);
         assertOneFileExistsInRelease(uploadname, SERVER_URL, USERNAME, PASSWORD, RELEASE_ID);
         String contents = getReleaseFileContents(uploadname, SERVER_URL, USERNAME, PASSWORD, RELEASE_ID);

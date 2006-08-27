@@ -54,6 +54,7 @@ import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -442,12 +443,7 @@ public class Project implements Serializable, Runnable {
             LOG.warn("Error serializing project to [" + name + ".ser]: "
                     + e.getMessage(), e);
         } finally {
-           if (s != null) {
-               try {
-                   s.close();
-               } catch (Exception ignore) {
-               }
-           }
+            IO.close(s);
         }
     }
 

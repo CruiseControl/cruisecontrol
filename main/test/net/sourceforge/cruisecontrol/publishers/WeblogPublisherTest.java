@@ -36,19 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.transform.TransformerFactory;
-
+import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
-import junit.framework.TestCase;
+import javax.xml.transform.TransformerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit tests for
@@ -419,7 +416,7 @@ public class WeblogPublisherTest extends TestCase {
         assertEquals("Testing", buf.toString());
     }
 
-    private File createTempXslFile() throws IOException {
+    private File createTempXslFile() throws IOException, CruiseControlException {
         File f = createTempFile();
         StringBuffer buf = new StringBuffer();
         buf.append("<?xml version='1.0'?>").append('\n');
@@ -432,19 +429,13 @@ public class WeblogPublisherTest extends TestCase {
         buf.append("</xsl:template>").append('\n');
         buf.append("</xsl:stylesheet>");
 
-        Writer out = new FileWriter(f);
-        out.write(buf.toString());
-        out.flush();
-        out.close();
+        IO.write(f, buf.toString());
         return f;
     }
 
-    private File createTempXmlFile() throws IOException {
+    private File createTempXmlFile() throws CruiseControlException, IOException {
         File f = createTempFile();
-        Writer out = new FileWriter(f);
-        out.write("<?xml version='1.0'?><just>Testing</just>");
-        out.flush();
-        out.close();
+        IO.write(f, "<?xml version='1.0'?><just>Testing</just>");
         return f;
     }
 
@@ -454,16 +445,14 @@ public class WeblogPublisherTest extends TestCase {
         return tempFile;
     }
 
-    private File createTempFile(File parent, String name) throws IOException {
+    private File createTempFile(File parent, String name) throws CruiseControlException {
         File tempFile = new File(parent, name);
         tempFile.deleteOnExit();
-        FileWriter fw = new FileWriter(tempFile);
-        fw.write("");
-        fw.close();
+        IO.write(tempFile, "");
         return tempFile;
     }
 
-    private File createTempDir() throws IOException {
+    private File createTempDir() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         tempDir = new File(tempDir, "tempdir_" + (counter++));
         tempDir.mkdirs();

@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.BuildException;
@@ -488,9 +489,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
                 parseStream(p4Stream, parser);
             } finally {
                 p.waitFor();
-                p.getInputStream().close();
-                p.getOutputStream().close();
-                p.getErrorStream().close();
+                IO.close(p);
             }
         } catch (IOException e) {
             throw new CruiseControlException("Problem trying to execute command line process", e);

@@ -40,6 +40,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.net.URL;
+import java.net.MalformedURLException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -83,6 +84,20 @@ public class HttpFileTest extends TestCase {
         assertEquals("", modif.comment);
         assertEquals(timestamp, modif.modifiedTime.getTime());
         assertEquals("User", modif.userName);
+    }
+
+    public void testShouldGetEmptyModificationListWhenURLNotAvailable() throws MalformedURLException {
+        HttpFile httpFile = new HttpFile();
+        String urlString = "http://NOTAREALURL" + System.currentTimeMillis() + ".com";
+        new URL(urlString);
+        httpFile.setURL(urlString);
+        assertEquals(0, httpFile.getModifications(new Date(), new Date()).size());
+    }
+
+    public void testShouldGetEmptyModificationnListWhenURLMalformed() throws MalformedURLException {
+        HttpFile httpFile = new HttpFile();
+        httpFile.setURL("THISISAMALFORMEDURL");
+        assertEquals(0, httpFile.getModifications(new Date(), new Date()).size());
     }
 
     public void testGetModificationsInvalidURL() throws Exception {

@@ -134,7 +134,7 @@ public class CurrentBuildStatusPageListener
         HistoryItem hist = new HistoryItem(newState);
         String result = substituteText(hist, stateChanged.getProjectName());
         history.add(0, hist);
-        IO.writeFile(result, dstFileName);
+        IO.write(dstFileName, result);
     }
 
 

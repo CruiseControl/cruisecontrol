@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -92,9 +93,7 @@ public class SnapshotCMBootstrapper implements Bootstrapper {
                 new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
             new Thread(errorPumper).start();
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing SnapshotCM update command", e);
         }

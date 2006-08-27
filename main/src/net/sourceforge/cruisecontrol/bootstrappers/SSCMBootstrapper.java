@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.SSCM;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 import java.io.IOException;
 
@@ -132,9 +133,7 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
 
         process.waitFor();
 
-        process.getInputStream().close();
-        process.getOutputStream().close();
-        process.getErrorStream().close();
+          IO.close(process);
       } catch (IOException e) {
          throw new CruiseControlException("Problem trying to execute command line process", e);
       } catch (InterruptedException e) {

@@ -72,6 +72,18 @@ public final class IO {
         }
     }
 
+    public static void close(Process p) {
+        try {
+            close(p.getInputStream());
+            close(p.getOutputStream());
+            close(p.getErrorStream());
+        } finally {
+            if (p != null) {
+                p.destroy();
+            }
+        }
+    }
+
     public static void output(File to, Element xml, String encoding) throws CruiseControlException {
         OutputStream logStream = null;
         try {
@@ -147,17 +159,22 @@ public final class IO {
     }
 
     /**
-     * Write the content to the output file.
+     * Write the content to the file.
      */
-    public static void writeFile(String content, String fileName)
-        throws CruiseControlException {
+    public static void write(String fileName, String content) throws CruiseControlException {
+        write(new File(fileName), content);
+    }
 
+    /**
+     * Write the content to the file.
+     */
+    public static void write(File f, String contents) throws CruiseControlException {
         FileWriter fw = null;
         try {
-            fw = new FileWriter(fileName);
-            fw.write(content);
+            fw = new FileWriter(f);
+            fw.write(contents);
         } catch (IOException ioe) {
-            throw new CruiseControlException("Error writing file: " + fileName, ioe);
+            throw new CruiseControlException("Error writing file: " + f.getAbsolutePath(), ioe);
         } finally {
             close(fw);
         }
@@ -185,4 +202,5 @@ public final class IO {
 
         return result;
     }
+
 }

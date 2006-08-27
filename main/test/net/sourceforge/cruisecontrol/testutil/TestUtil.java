@@ -37,19 +37,16 @@
 
 package net.sourceforge.cruisecontrol.testutil;
 
+import junit.framework.Assert;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.IO;
+import org.jdom.Document;
+import org.jdom.Element;
+
+import java.io.File;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import junit.framework.Assert;
-
-import org.jdom.Element;
-import org.jdom.Document;
 
 public final class TestUtil {
 
@@ -177,10 +174,10 @@ public final class TestUtil {
         Assert.assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
     }
 
-    public static void write(String text, File file) throws IOException {
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-        out.print(text);
-        out.flush();
-        out.close();
+    /**
+     * @deprecated Use IO.write instead
+     */
+    public static void write(File file, String text) throws CruiseControlException {
+        IO.write(file, text);
     }
 }

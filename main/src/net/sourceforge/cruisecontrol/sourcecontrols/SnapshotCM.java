@@ -55,6 +55,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -163,9 +164,7 @@ public class SnapshotCM implements SourceControl {
                 InputStream input = p.getInputStream();
                 modificationList.addAll(parseStream(input));
 
-                p.getInputStream().close();
-                p.getOutputStream().close();
-                p.getErrorStream().close();
+                IO.close(p);
             } catch (Exception e) {
                 LOG.error("Error in executing the SnapshotCM command : ", e);
             }
