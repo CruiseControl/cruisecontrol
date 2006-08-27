@@ -41,11 +41,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.IO;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -116,11 +112,11 @@ public class FileSystemTest extends TestCase {
             File tempFile;
 
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-            writeContent(tempFile, "testing");
+            IO.write(tempFile, "testing");
             tempFile.setLastModified(timeOne.getTime());
     
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-            writeContent(tempFile, "testing 2");
+            IO.write(tempFile, "testing 2");
             tempFile.setLastModified(timeOne.getTime());
     
             //Check for mods...there should be some, one for each file written.
@@ -130,15 +126,15 @@ public class FileSystemTest extends TestCase {
     
             //Write some new files...
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-            writeContent(tempFile, "testing 3");
+            IO.write(tempFile, "testing 3");
             tempFile.setLastModified(timeTwo.getTime());
     
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-            writeContent(tempFile, "testing 4");
+            IO.write(tempFile, "testing 4");
             tempFile.setLastModified(timeTwo.getTime());
     
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-            writeContent(tempFile, "testing 5");
+            IO.write(tempFile, "testing 5");
             tempFile.setLastModified(timeTwo.getTime());
     
             //Checking for mods again should turn up only the new files.
@@ -148,7 +144,7 @@ public class FileSystemTest extends TestCase {
     
             //Create one modified file.
             tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
-            writeContent(tempFile, "testing 6");
+            IO.write(tempFile, "testing 6");
             tempFile.setLastModified(timeThree.getTime());
     
             //Checking for mods again should turn up only the one file
@@ -164,14 +160,5 @@ public class FileSystemTest extends TestCase {
         } finally {
             IO.delete(tempDirectory);
         }
-    }
-
-    private static void writeContent(File file, String content)
-            throws IOException {
-        PrintWriter writer =
-                new PrintWriter(new BufferedWriter(new FileWriter(file)));
-        writer.print(content);
-        writer.flush();
-        writer.close();
     }
 }

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -80,12 +81,7 @@ public class PropertyFileLabelIncrementer implements LabelIncrementer {
             LOG.error(msg, ex);
             throw new RuntimeException(msg);
         } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (Exception ex) {
-            }
+            IO.close(is);
         }
     }
 

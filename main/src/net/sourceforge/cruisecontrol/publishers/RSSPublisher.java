@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import net.sourceforge.cruisecontrol.publishers.rss.CruiseControlFeed;
 import net.sourceforge.cruisecontrol.publishers.rss.CruiseControlItem;
@@ -145,12 +146,7 @@ public class RSSPublisher implements Publisher {
         } catch (IOException ioe) {
             throw new CruiseControlException("Error writing file: " + fileName, ioe);
         } finally {
-            if (fw != null) {
-                try {
-                    fw.close();
-                } catch (IOException ignore) {
-                }
-            }
+            IO.close(fw);
         }
     }
 

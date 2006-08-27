@@ -115,9 +115,7 @@ public final class Util {
                             + file.getAbsolutePath() + ". It does not exist.",
                     e);
         } finally {
-            if (bis != null) {
-                bis.close();
-            }
+            IO.close(bis);
         }
 
         return properties;
@@ -153,9 +151,7 @@ public final class Util {
                             + file.getAbsolutePath() + ". It does not exist.",
                     e);
         } finally {
-            if (bos != null) {
-                bos.close();
-            }
+            IO.close(bos);
         }
     }
 
@@ -196,13 +192,7 @@ public final class Util {
                 size = fr.read(buff, 0, 4096);
             }
         } finally {
-            if (fr != null) {
-                try {
-                    fr.close();
-                } catch (IOException ioe) {
-                    // ignore
-                }
-            }
+            IO.close(fr);
         }
     }
 }

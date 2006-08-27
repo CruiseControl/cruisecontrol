@@ -36,14 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.rss;
 
-import java.io.BufferedOutputStream;
-import java.io.FileWriter;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.File;
-
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.util.IO;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
@@ -131,15 +131,8 @@ public class FeedTest extends TestCase {
             + "  by jefferson (deploy the mock object dll)</li></ul>",
                 item.getDescription());
         } finally {
-            if (fw != null) {
-                try {
-                    fw.close();
-                } catch (IOException ignore) {
-                }
-            }
-            if (outFile != null) {
-                outFile.delete();
-            }
+            IO.close(fw);
+            IO.delete(outFile);
         }
     }
 }

@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -274,10 +275,7 @@ public class MavenSnapshotDependency implements SourceControl {
                 log.error("failed to load project properties file ["
                            + propertiesFile.getAbsolutePath() + "]", ex);
             } finally {
-                try {
-                   in.close();
-                } catch (IOException ex) {
-                }
+                IO.close(in);
             }
         }
         

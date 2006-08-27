@@ -47,6 +47,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -143,9 +144,7 @@ public class ClearCaseAuditLogger implements BuildLogger {
                      LOG.error("Error executing ClearCase catcr command", ioe);  
                  }
                  p.waitFor();
-                 p.getInputStream().close();
-                 p.getOutputStream().close();
-                 p.getErrorStream().close();
+                 IO.close(p);
              } catch (Exception e) {
                  LOG.error("Error executing ClearCase catcr command", e);
              }

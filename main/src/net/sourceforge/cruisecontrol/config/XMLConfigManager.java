@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,12 +125,7 @@ public class XMLConfigManager implements ConfigManager {
         } catch (CruiseControlException e) {
             LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
         } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException ignore) {
-                }
-            }
+            IO.close(stream);
         }
         return md5;
     }

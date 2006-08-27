@@ -60,6 +60,7 @@ import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -324,10 +325,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 log.debug("cvs server version: " + cvsServerVersion);
 
                 p.waitFor();
-                p.getInputStream().close();
-                p.getOutputStream().close();
-                // closing the error stream handled by logErrorStream(p);
-                // p.getErrorStream().close();
+                IO.close(p);
             } catch (IOException e) {
                 log.error("Failed reading cvs server version", e);
             } catch (CruiseControlException e) {
@@ -499,10 +497,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 }
 
                 p.waitFor();
-                p.getInputStream().close();
-                p.getOutputStream().close();
-                // closing the error stream handled by logErrorStream(p);
-                // p.getErrorStream().close();
+                IO.close(p);
             } catch (Exception e) {
                 log.error("Failed reading mail aliases", e);
             }
@@ -637,10 +632,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
         getRidOfLeftoverData(cvsLogStream);
         p.waitFor();
-        p.getInputStream().close();
-        p.getOutputStream().close();
-        // closing the error stream handled by logErrorStream(p);
-        // p.getErrorStream().close();
+        IO.close(p);
 
         return mods;
     }

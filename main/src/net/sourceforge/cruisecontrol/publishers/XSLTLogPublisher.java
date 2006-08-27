@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.transform.JDOMSource;
@@ -219,20 +220,8 @@ public class XSLTLogPublisher implements Publisher {
         } catch (Exception ioe) {
             throw new CruiseControlException("An unexpected exception occurred, unable to publish the log file.", ioe);
         } finally {
-            try {
-                if (xslFileStream != null) {
-                    xslFileStream.close();
-                }
-            } catch (IOException e) {
-                //Do nothing
-            }
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                //Do Nothing
-            }
+            IO.close(xslFileStream);
+            IO.close(out);
         }
     }
 }

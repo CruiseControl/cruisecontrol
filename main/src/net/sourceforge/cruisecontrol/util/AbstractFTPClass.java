@@ -223,13 +223,7 @@ public abstract class AbstractFTPClass {
         } catch (IOException ioe) {
             throw new CruiseControlException(ioe.getMessage());
         } finally {
-            if (instream != null) {
-                try {
-                    instream.close();
-                } catch (IOException ex) {
-                    // ignore it
-                }
-            }
+            IO.close(instream);
         }
     }
     

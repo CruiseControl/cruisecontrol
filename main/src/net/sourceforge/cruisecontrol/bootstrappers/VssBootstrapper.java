@@ -41,6 +41,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.VSSHelper;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -76,9 +77,7 @@ public class VssBootstrapper implements Bootstrapper {
             new Thread(errorPumper).start();
             new Thread(stdPumper).start();
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (IOException ex) {
             LOG.debug("exception trying to exec ss.exe", ex);
             throw new CruiseControlException(ex);

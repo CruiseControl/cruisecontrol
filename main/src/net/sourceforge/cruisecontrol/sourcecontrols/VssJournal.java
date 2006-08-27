@@ -50,6 +50,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -214,7 +215,7 @@ public class VssJournal implements SourceControl {
                     }
                 }
             } finally {
-                br.close();
+                IO.close(br);
             }
         } catch (Exception e) {
             LOG.warn(e);

@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -213,10 +214,7 @@ public class MKS implements SourceControl {
                 properties.modificationFound();
             }
             proc.waitFor();
-            proc.getInputStream().close();
-            proc.getOutputStream().close();
-            proc.getErrorStream().close();
-
+            IO.close(proc);
         } catch (Exception ex) {
             LOG.warn(ex.getMessage(), ex);
         }
@@ -275,9 +273,7 @@ public class MKS implements SourceControl {
             modification.comment = line.substring(idx + 1);
             
             proc.waitFor();
-            proc.getInputStream().close();
-            proc.getOutputStream().close();
-            proc.getErrorStream().close();
+            IO.close(proc);
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
             modification.userName = "";

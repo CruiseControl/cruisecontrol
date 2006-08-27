@@ -49,6 +49,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -190,19 +191,7 @@ public class Vss implements SourceControl {
             LOG.error("Problem occurred while attempting to get VSS modifications.  Returning empty modifications.", e);
             return Collections.EMPTY_LIST;
         } finally {
-            if (p != null) {
-                try {
-                    p.getInputStream().close();
-                    p.getOutputStream().close();
-                    p.getErrorStream().close();
-                } catch (IOException e) {
-                    LOG.error("Could not close process streams.  Destroying anyway...", e);
-                } finally {
-                    if (p != null) {
-                        p.destroy();
-                    }
-                }
-            }
+            IO.close(p);
         }
 
         if (modifications.size() > 0) {
@@ -235,7 +224,7 @@ public class Vss implements SourceControl {
             parseHistoryEntries(modifications, reader);
             tempFile.delete();
         } finally {
-            reader.close();
+            IO.close(reader);
         }
     }
 

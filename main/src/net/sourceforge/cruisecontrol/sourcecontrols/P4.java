@@ -62,6 +62,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -204,9 +205,7 @@ public class P4 implements SourceControl {
         }
 
         p.waitFor();
-        p.getInputStream().close();
-        p.getOutputStream().close();
-        p.getErrorStream().close();
+        IO.close(p);
 
         return mods;
     }
@@ -278,9 +277,7 @@ public class P4 implements SourceControl {
         getRidOfLeftoverData(p4Stream);
 
         p.waitFor();
-        p.getInputStream().close();
-        p.getOutputStream().close();
-        p.getErrorStream().close();
+        IO.close(p);
 
         return (emailaddr);
     }
@@ -298,9 +295,7 @@ public class P4 implements SourceControl {
         String[] changelistNumbers = parseChangelistNumbers(p4Stream);
 
         p.waitFor();
-        p.getInputStream().close();
-        p.getOutputStream().close();
-        p.getErrorStream().close();
+        IO.close(p);
 
         return changelistNumbers;
     }

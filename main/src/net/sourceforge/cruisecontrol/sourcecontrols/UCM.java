@@ -56,6 +56,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -235,9 +236,7 @@ public class UCM implements SourceControl {
             }
 
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (IOException e) {
             LOG.error("IO Error executing ClearCase lshistory command", e);
         } catch (InterruptedException e) {
@@ -342,9 +341,7 @@ public class UCM implements SourceControl {
             }
 
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (IOException e) {
             LOG.error("IO Error executing ClearCase describe command", e);
         } catch (InterruptedException e) {
@@ -393,9 +390,7 @@ public class UCM implements SourceControl {
             }
 
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
+            IO.close(p);
         } catch (IOException e) {
             LOG.error("IO Error executing ClearCase describe contributors command", e);
         } catch (InterruptedException e) {
