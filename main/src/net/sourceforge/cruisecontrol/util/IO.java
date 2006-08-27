@@ -18,8 +18,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.io.FileWriter;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * This class provides helper methods for interacting with Input/Output classes.
@@ -141,6 +144,45 @@ public final class IO {
         } finally {
             close(in);
         }
+    }
 
+    /**
+     * Write the content to the output file.
+     */
+    public static void writeFile(String content, String fileName)
+        throws CruiseControlException {
+
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(fileName);
+            fw.write(content);
+        } catch (IOException ioe) {
+            throw new CruiseControlException("Error writing file: " + fileName, ioe);
+        } finally {
+            close(fw);
+        }
+    }
+
+    /**
+     * @return List of lines of text (String objects)
+     */
+    public static List readLines(File source)
+        throws CruiseControlException {
+
+        List result = new ArrayList();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(source));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.add(line);
+            }
+        } catch (IOException ioe) {
+            throw new CruiseControlException("Error reading file: " + source.getAbsolutePath(), ioe);
+        } finally {
+            close(reader);
+        }
+
+        return result;
     }
 }

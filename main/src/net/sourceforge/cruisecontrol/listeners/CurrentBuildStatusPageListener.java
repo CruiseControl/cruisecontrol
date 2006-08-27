@@ -36,11 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.listeners;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,6 +50,7 @@ import net.sourceforge.cruisecontrol.ProjectEvent;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -123,8 +120,7 @@ public class CurrentBuildStatusPageListener
     }
 
 
-    public void handleEvent(ProjectEvent event)
-        throws CruiseControlException {
+    public void handleEvent(ProjectEvent event) throws CruiseControlException {
         if (!(event instanceof ProjectStateChangedEvent)) {
             // ignore other ProjectEvents
             LOG.debug("ignoring event " + event.getClass().getName() + " for project " + event.getProjectName());
@@ -138,7 +134,7 @@ public class CurrentBuildStatusPageListener
         HistoryItem hist = new HistoryItem(newState);
         String result = substituteText(hist, stateChanged.getProjectName());
         history.add(0, hist);
-        writeFile(result);
+        IO.writeFile(result, dstFileName);
     }
 
 
@@ -227,7 +223,7 @@ public class CurrentBuildStatusPageListener
 
         result.append(src); // Pick up any leftover text
 
-        return (result.toString());
+        return result.toString();
     }
 
 
@@ -237,7 +233,7 @@ public class CurrentBuildStatusPageListener
      * @param msecs number of milliseconds
      * @return String of the form HH:MM:SS.sss representing the given milliseconds
      */
-    private String formatDuration(long msecs) {
+    public static String formatDuration(long msecs) {
         StringBuffer buf = new StringBuffer();
         long hours = msecs / (60 * 60 * 1000);
         msecs %= (60 * 60 * 1000);
@@ -280,8 +276,7 @@ public class CurrentBuildStatusPageListener
     }
 
 
-    public void validate()
-        throws CruiseControlException {
+    public void validate() throws CruiseControlException {
 
         ValidationHelper.assertIsSet(dstFileName, "file", this.getClass());
         CurrentBuildFileWriter.validate(dstFileName);
@@ -291,71 +286,8 @@ public class CurrentBuildStatusPageListener
                                                              + sourceFile.getAbsolutePath());
             ValidationHelper.assertTrue(sourceFile.isFile(), dstFileName + " is not a file: "
                                                              + sourceFile.getAbsolutePath());
-
-            sourceText = readSource();
+            sourceText = IO.readLines(sourceFile);
         }
-    }
-
-
-    /**
-     * Write the resulting substituted text to the output file.
-     *
-     * @param content New content for the output file.
-     * @throws CruiseControlException
-     */
-    private void writeFile(String content)
-        throws CruiseControlException {
-
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(dstFileName);
-            fw.write(content);
-        } catch (IOException ioe) {
-            throw new CruiseControlException("Error writing file: " + dstFileName, ioe);
-        } finally {
-            if (fw != null) {
-                try {
-                    fw.close();
-                } catch (IOException ignore) {
-
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Read the source text file
-     *
-     * @return List of lines of text (String objects)
-     * @throws CruiseControlException
-     */
-    private List readSource()
-        throws CruiseControlException {
-
-        List result = new ArrayList();
-        BufferedReader reader = null;
-
-        try {
-            reader = new BufferedReader(new FileReader(sourceFile));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
-            }
-        } catch (IOException ioe) {
-            throw new CruiseControlException("Error reading file: " + sourceFile, ioe);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ignore) {
-
-                }
-            }
-        }
-
-        return result;
     }
 
 
