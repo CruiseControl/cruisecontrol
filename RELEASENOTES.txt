@@ -87,6 +87,10 @@ MavenSnapshotDependency
   - added echo for detected snapshot dependencies
   - added support for build.properties or other similiar properties file which contains key=value tags to replace ${key} type strings in project.xml 
 
+ModificationSet
+----------------------
+* now calls validate() on all child source controls.
+
 P4
 ----------------------
 * Command to correct for server time wasn't using the optional values such as the port (CC-469). Reported by Terri Paik
