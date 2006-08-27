@@ -64,6 +64,8 @@ public class CruiseControlController {
 
     private List listeners = new ArrayList();
     private ConfigManager configManager;
+    
+    private ParsingConfigMutex parsingConfigMutex = new ParsingConfigMutex();
 
     public CruiseControlController() {
         buildQueue.addListener(new BuildQueueListener());
@@ -249,23 +251,28 @@ public class CruiseControlController {
      */ 
     public boolean parseConfigFileIfNecessary() {
         boolean reloaded = false;
-        try {
-            reloaded = configManager.reloadIfNecessary();
-        } catch (CruiseControlException e) {
-            LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
-            return reloaded;
+        if (parsingConfigMutex.getPermissionToParse()) {
+            try {
+                try {
+                    reloaded = configManager.reloadIfNecessary();
+                } catch (CruiseControlException e) {
+                    LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
+                    return reloaded;
+                }
+        
+                if (reloaded) {
+                    LOG.debug("config file changed");
+                    loadConfigFromConfigManager();
+                } else {
+                    LOG.debug("config file didn't change.");
+                }
+            } finally {
+                parsingConfigMutex.doneParsing();
+            }
         }
-
-        if (reloaded) {
-            LOG.debug("config file changed");
-            loadConfigFromConfigManager();
-        } else {
-            LOG.debug("config file didn't change.");
-        }
-
         return reloaded;
     }
-    
+
     private void loadConfigFromConfigManager() {
         try {
             List projectsFromFile = parseConfigFile();
@@ -356,5 +363,27 @@ public class CruiseControlController {
         }
 
         return (PluginDetail[]) plugins.toArray(new PluginDetail[plugins.size()]);
+    }
+    
+    private class ParsingConfigMutex {
+        private Object mutex = new Object();
+        private boolean inUse;
+        
+        boolean getPermissionToParse() {
+            synchronized (mutex) {
+                if (inUse) {
+                    LOG.debug("permission denied to parse config");
+                    return false;
+                }
+                inUse = true;
+                LOG.debug("permission granted to parse config");
+                return true;
+            }
+        }
+        
+        void doneParsing() {
+            LOG.debug("done parsing, allow next request permission to parse");
+            inUse = false;
+        }
     }
 }
