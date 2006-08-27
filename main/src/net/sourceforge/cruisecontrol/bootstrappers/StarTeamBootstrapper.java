@@ -138,9 +138,9 @@ public class StarTeamBootstrapper implements Bootstrapper {
 
     private Commandline buildCheckoutCommand() {
         Commandline commandLine = new Commandline();
-        commandLine.createArgument().setValue("co");
-        commandLine.createArgument().setValue("-p");
-        commandLine.createArgument().setValue(
+        commandLine.createArgument("co");
+        commandLine.createArgument("-p");
+        commandLine.createArgument(
             username
                 + ':'
                 + password
@@ -155,11 +155,10 @@ public class StarTeamBootstrapper implements Bootstrapper {
                 + '/'
                 + foldername);
         if (localfoldername != null) {
-            commandLine.createArgument().setValue("-fp");
-            commandLine.createArgument().setValue(localfoldername);
+            commandLine.createArguments("-fp", localfoldername);
         }
-        commandLine.createArgument().setValue("-o");
-        commandLine.createArgument().setValue("-x");
+        commandLine.createArgument("-o");
+        commandLine.createArgument("-x");
         commandLine.createArgument().setLine(filenames);
         return commandLine;
     }

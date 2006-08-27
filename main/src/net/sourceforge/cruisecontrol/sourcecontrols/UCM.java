@@ -252,16 +252,13 @@ public class UCM implements SourceControl {
     public Commandline buildListStreamCommand(String lastBuildDate) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
-        commandLine.createArgument().setValue("lshistory");
-        commandLine.createArgument().setValue("-branch");
-        commandLine.createArgument().setValue(getStream());
-        commandLine.createArgument().setValue("-r");
-        commandLine.createArgument().setValue("-nco");
-        commandLine.createArgument().setValue("-since");
-        commandLine.createArgument().setValue(lastBuildDate);
-        commandLine.createArgument().setValue("-fmt");
-        commandLine.createArgument().setValue("%o~#~%[activity]Xp~#~%Nd\n");
-        commandLine.createArgument().setValue(getViewPath());
+        commandLine.createArgument("lshistory");
+        commandLine.createArguments("-branch", getStream());
+        commandLine.createArgument("-r");
+        commandLine.createArgument("-nco");
+        commandLine.createArguments("-since", lastBuildDate);
+        commandLine.createArguments("-fmt", "%o~#~%[activity]Xp~#~%Nd\n");
+        commandLine.createArgument(getViewPath());
         return commandLine;
     }
 
@@ -351,10 +348,9 @@ public class UCM implements SourceControl {
     public Commandline buildDescribeActivityCommand(String activityID) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
-        commandLine.createArgument().setValue("describe");
-        commandLine.createArgument().setValue("-fmt");
-        commandLine.createArgument().setValue("%[crm_record_id]p~#~%[crm_record_type]p~#~%u~#~%[headline]p~#~");
-        commandLine.createArgument().setValue(activityID);
+        commandLine.createArgument("describe");
+        commandLine.createArguments("-fmt", "%[crm_record_id]p~#~%[crm_record_type]p~#~%u~#~%[headline]p~#~");
+        commandLine.createArgument(activityID);
         return commandLine;
     }
 
@@ -402,10 +398,9 @@ public class UCM implements SourceControl {
     public Commandline buildListContributorsCommand(String activityID) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
-        commandLine.createArgument().setValue("describe");
-        commandLine.createArgument().setValue("-fmt");
-        commandLine.createArgument().setValue("\"%[contrib_acts]Xp\"");
-        commandLine.createArgument().setValue(activityID);
+        commandLine.createArgument("describe");
+        commandLine.createArguments("-fmt", "\"%[contrib_acts]Xp\"");
+        commandLine.createArgument(activityID);
         return commandLine;
     }
 

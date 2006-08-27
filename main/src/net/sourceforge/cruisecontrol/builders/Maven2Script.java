@@ -72,39 +72,36 @@ public class Maven2Script implements Script, StreamConsumer {
         cmdLine.setExecutable(mvn);
 
         //Run in non-interactive mode.
-        cmdLine.createArgument().setValue("-B");
+        cmdLine.createArgument("-B");
 
         //If log is enabled for CC, enable it for mvn
         if (LOG.isDebugEnabled()) {
-            cmdLine.createArgument().setValue("-X");
+            cmdLine.createArgument("-X");
         }
 
         //Alternate path for the user settings file
         if (settingsFile != null) {
-            cmdLine.createArgument().setValue("-s");
-            cmdLine.createArgument().setValue(settingsFile);
+            cmdLine.createArguments("-s", settingsFile);
         }
 
         if (pomFile != null) {
-            cmdLine.createArgument().setValue("-f");
-            cmdLine.createArgument().setValue(new File(pomFile).getName());
+            cmdLine.createArguments("-f", new File(pomFile).getName());
         }
 
         //activate specified profiles
         if (activateProfiles != null) {
-            cmdLine.createArgument().setValue("-P");
-            cmdLine.createArgument().setValue(activateProfiles);
+            cmdLine.createArguments("-P", activateProfiles);
         }
 
         if (flags != null) {
-            cmdLine.createArgument().setValue(flags);
+            cmdLine.createArgument(flags);
         }
 
 
         if (goalset != null) {
             StringTokenizer stok = new StringTokenizer(goalset, " \t\r\n");
             while (stok.hasMoreTokens()) {
-                cmdLine.createArgument().setValue(stok.nextToken());
+                cmdLine.createArgument(stok.nextToken());
             }
         }
 
@@ -114,7 +111,7 @@ public class Maven2Script implements Script, StreamConsumer {
             String value = (String) buildProperties.get(key);
             // TODO doesn't work when properties contains spaces.
             if (value.indexOf(' ') == -1) {
-                cmdLine.createArgument().setValue("-D" + key + "=" + value);
+                cmdLine.createArgument("-D" + key + "=" + value);
             } else {
                 LOG.error("Maven2Script ignoring property with space. Key:" + key + "; Value:" + value);
             }

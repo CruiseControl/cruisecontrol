@@ -120,7 +120,7 @@ public class MKS implements SourceControl {
     }
 
     public void setDoNothing(String doNothing) {
-        this.doNothing = new Boolean(doNothing).booleanValue();
+        this.doNothing = Boolean.valueOf(doNothing).booleanValue();
     }
 
     public void validate() throws CruiseControlException {
@@ -154,7 +154,7 @@ public class MKS implements SourceControl {
         if (!new File(projectFilePath).exists()) {
             throw new RuntimeException("project file not found at " + projectFilePath);
         }
-        cmd = new String("si resync -f -R -S " + projectFilePath);
+        cmd = "si resync -f -R -S " + projectFilePath;
 
         /* Sample output:
          * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
@@ -243,13 +243,12 @@ public class MKS implements SourceControl {
                 commandLine.setWorkingDirectory(localWorkingDir.getAbsolutePath());
             }
     
-            commandLine.createArgument().setValue("rlog");
-            commandLine.createArgument().setValue("--format={author};{description}");
-            commandLine.createArgument().setValue("--noHeaderFormat");
-            commandLine.createArgument().setValue("--noTrailerFormat");
-            commandLine.createArgument().setValue("-r");
-            commandLine.createArgument().setValue(modification.revision);
-            commandLine.createArgument().setValue(folderName + File.separator + fileName);
+            commandLine.createArgument("rlog");
+            commandLine.createArgument("--format={author};{description}");
+            commandLine.createArgument("--noHeaderFormat");
+            commandLine.createArgument("--noTrailerFormat");
+            commandLine.createArguments("-r", modification.revision);
+            commandLine.createArgument(folderName + File.separator + fileName);
               
             LOG.debug(commandLine.toString());
             

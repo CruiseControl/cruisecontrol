@@ -252,9 +252,9 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     protected String getCurrentChangelist()
             throws CruiseControlException {
         Commandline cmd = buildBaseP4Command();
-        cmd.createArgument().setValue("changes");
-        cmd.createArgument().setValue("-m1");
-        cmd.createArgument().setValue("-ssubmitted");
+        cmd.createArgument("changes");
+        cmd.createArgument("-m1");
+        cmd.createArgument("-ssubmitted");
         
         ParseChangelistNumbers pcn = new ParseChangelistNumbers();
         runP4Cmd(cmd, pcn);
@@ -271,8 +271,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     
     protected void syncTo(String viewArg) throws CruiseControlException {
         Commandline cmd = buildBaseP4Command();
-        cmd.createArgument().setValue("sync");
-        cmd.createArgument().setValue(p4View + viewArg);
+        cmd.createArguments("sync", p4View + viewArg);
         
         runP4Cmd(cmd, new P4CmdParserAdapter());
     }
@@ -314,8 +313,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             return null;
         }
         Commandline cmd = buildBaseP4Command();
-        cmd.createArgument().setValue("where");
-        cmd.createArgument().setValue(view);
+        cmd.createArguments("where", view);
         
         ParseOutputParam pop = new ParseOutputParam("");
         runP4Cmd(cmd, pop);
@@ -451,26 +449,22 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     protected Commandline buildBaseP4Command() {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
-        commandLine.createArgument().setValue("-s");
+        commandLine.createArgument("-s");
 
         if (p4Client != null) {
-            commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(p4Client);
+            commandLine.createArguments("-c", p4Client);
         }
 
         if (p4Port != null) {
-            commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(p4Port);
+            commandLine.createArguments("-p", p4Port);
         }
 
         if (p4User != null) {
-            commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(p4User);
+            commandLine.createArguments("-u", p4User);
         }
 
         if (p4Passwd != null) {
-            commandLine.createArgument().setValue("-P");
-            commandLine.createArgument().setValue(p4Passwd);
+            commandLine.createArguments("-P", p4Passwd);
         }
         return commandLine;
     }

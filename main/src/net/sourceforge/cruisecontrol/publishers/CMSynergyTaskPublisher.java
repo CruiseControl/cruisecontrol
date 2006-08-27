@@ -111,11 +111,10 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
         // Create our CM Synergy command
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
-        cmd.createArgument().setValue("folder");
-        cmd.createArgument().setValue("-modify");
-        cmd.createArgument().setValue("-add_tasks");
-        cmd.createArgument().setValue(tasks.toString());
-        cmd.createArgument().setValue(folderNumber);
+        cmd.createArgument("folder");
+        cmd.createArgument("-modify");
+        cmd.createArguments("-add_tasks", tasks.toString());
+        cmd.createArgument(folderNumber);
 
         try {
             cmd.execute();
@@ -158,14 +157,13 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
         // Get a list of folders in the project
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
-        cmd.createArgument().setValue("reconfigure_properties");
-        cmd.createArgument().setValue("-u");
-        cmd.createArgument().setValue("-f");
-        cmd.createArgument().setValue(
+        cmd.createArgument("reconfigure_properties");
+        cmd.createArgument("-u");
+        cmd.createArgument("-f");
+        cmd.createArgument(
                 "%description" + CMSynergy.CCM_ATTR_DELIMITER + "%name");
-        cmd.createArgument().setValue("-show");
-        cmd.createArgument().setValue("folders");
-        cmd.createArgument().setValue(project);
+        cmd.createArguments("-show", "folders");
+        cmd.createArgument(project);
 
         try {
             cmd.execute();

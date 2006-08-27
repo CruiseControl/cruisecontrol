@@ -101,8 +101,7 @@ public class SnapshotCMBootstrapper implements Bootstrapper {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("wco");
 
-        commandLine.createArgument().setValue("-fR");
-        commandLine.createArgument().setValue(filename);
+        commandLine.createArguments("-fR", filename);
 
         return commandLine;
     }

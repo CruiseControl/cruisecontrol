@@ -87,7 +87,7 @@ public class AlienBrainCoreTest extends TestCase {
         ab.setPassword(TESTING_PASSWORD);
 
         net.sourceforge.cruisecontrol.util.ManagedCommandline cmdLine = ab.buildCommonCommand();
-        cmdLine.createArgument().setValue("getactivebranch");
+        cmdLine.createArgument("getactivebranch");
         
         cmdLine.execute();
         return cmdLine.getStdoutAsString();        

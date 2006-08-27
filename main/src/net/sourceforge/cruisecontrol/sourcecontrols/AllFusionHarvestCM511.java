@@ -318,13 +318,10 @@ public class AllFusionHarvestCM511 implements SourceControl {
         Commandline command = new Commandline();
         command.setExecutable("hsql");
 
-        command.createArgument().setValue("-t");
-        command.createArgument().setValue("-b");
-        command.createArgument().setValue(brokerName);
-        command.createArgument().setValue("-usr");
-        command.createArgument().setValue(userName);
-        command.createArgument().setValue("-pw");
-        command.createArgument().setValue(password);
+        command.createArgument("-t");
+        command.createArguments("-b", brokerName);
+        command.createArguments("-usr", userName);
+        command.createArguments("-pw", password);
 
         if (isDebug()) {
             LOG.info("Executing command: " + command);
@@ -392,7 +389,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
             rsltsFile.deleteOnExit(); //Make sure we attempt to clean up the temp file.
 
             //Add the temp file to the arguments
-            c.createArgument().setValue("-o " + rsltsFile.getAbsolutePath());
+            c.createArgument("-o " + rsltsFile.getAbsolutePath());
 
             //execute the harvest command.
             cmd = "hsql -t -b " + brokerName + " -usr " + userName + " -pw " + password

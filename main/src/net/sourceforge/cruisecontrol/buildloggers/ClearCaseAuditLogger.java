@@ -156,9 +156,9 @@ public class ClearCaseAuditLogger implements BuildLogger {
     protected Commandline buildConfigRecCommand(String file) {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
-        commandLine.createArgument().setValue("catcr");
-        commandLine.createArgument().setValue("-union");
-        commandLine.createArgument().setValue(file);
+        commandLine.createArgument("catcr");
+        commandLine.createArgument("-union");
+        commandLine.createArgument(file);
         return commandLine;
     }      
     

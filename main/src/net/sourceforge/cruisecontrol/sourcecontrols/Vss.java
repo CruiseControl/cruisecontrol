@@ -292,13 +292,13 @@ public class Vss implements SourceControl {
         String execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
 
         commandline.setExecutable(execCommand);
-        commandline.createArgument().setValue("history");
-        commandline.createArgument().setValue(vssPath);
-        commandline.createArgument().setValue("-R");
-        commandline.createArgument().setValue("-Vd" + formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild));
-        commandline.createArgument().setValue("-Y" + login);
-        commandline.createArgument().setValue("-I-N");
-        commandline.createArgument().setValue("-O" + getTempFile().getName());
+        commandline.createArgument("history");
+        commandline.createArgument(vssPath);
+        commandline.createArgument("-R");
+        commandline.createArgument("-Vd" + formatDateForVSS(now) + "~" + formatDateForVSS(lastBuild));
+        commandline.createArgument("-Y" + login);
+        commandline.createArgument("-I-N");
+        commandline.createArgument("-O" + getTempFile().getName());
 
         LOG.info("Command line to execute: " + commandline);
 

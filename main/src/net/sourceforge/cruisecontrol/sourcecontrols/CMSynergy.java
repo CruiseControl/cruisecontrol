@@ -416,7 +416,7 @@ public class CMSynergy implements SourceControl {
 
         // Attempt to get the database delimiter
         cmd = createCcmCommand(ccmExe, sessionName, sessionFile);
-        cmd.createArgument().setValue("delimiter");
+        cmd.createArgument("delimiter");
         try {
             cmd.execute();
             cmd.assertExitCode(0);
@@ -474,9 +474,8 @@ public class CMSynergy implements SourceControl {
     private void refreshReconfigureProperties() {
         // Construct the CM Synergy command
         cmd.clearArgs();
-        cmd.createArgument().setValue("reconfigure_properties");
-        cmd.createArgument().setValue("-refresh");
-        cmd.createArgument().setValue(projectFourPartName);
+        cmd.createArgument("reconfigure_properties");
+        cmd.createArguments("-refresh", projectFourPartName);
         try {
             cmd.execute();
             cmd.assertExitCode(0);
@@ -502,19 +501,19 @@ public class CMSynergy implements SourceControl {
 
         // Construct the CM Synergy command
         cmd.clearArgs();
-        cmd.createArgument().setValue("query");
-        cmd.createArgument().setValue("-u");
+        cmd.createArgument("query");
+        cmd.createArgument("-u");
 
         // Set up the output format
-        cmd.createArgument().setValue("-f");
-        cmd.createArgument().setValue("%displayname" + CCM_ATTR_DELIMITER + // 0
+        cmd.createArgument("-f");
+        cmd.createArgument("%displayname" + CCM_ATTR_DELIMITER + // 0
                 "%release" + CCM_ATTR_DELIMITER + // 1
                 "%owner" + CCM_ATTR_DELIMITER + // 2
                 "%completion_date" + CCM_ATTR_DELIMITER + // 3
                 "%task_synopsis" + CCM_END_OBJECT); // 4
 
         // Construct the query string
-        cmd.createArgument().setValue(
+        cmd.createArgument(
                 "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName + "')) and completion_date>time('"
                         + toCcmDate.format(lastBuild) + "')");
 
@@ -599,13 +598,12 @@ public class CMSynergy implements SourceControl {
     private void getModifiedObjects(CMSynergyModification mod) {
         // Construct the CM Synergy command
         cmd.clearArgs();
-        cmd.createArgument().setValue("task");
-        cmd.createArgument().setValue("-show");
-        cmd.createArgument().setValue("objects");
+        cmd.createArgument("task");
+        cmd.createArguments("-show", "objects");
 
         // Set up the output format
-        cmd.createArgument().setValue("-f");
-        cmd.createArgument().setValue("%name" + CCM_ATTR_DELIMITER + // 0
+        cmd.createArgument("-f");
+        cmd.createArgument("%name" + CCM_ATTR_DELIMITER + // 0
                 "%version" + CCM_ATTR_DELIMITER + // 1
                 "%type" + CCM_ATTR_DELIMITER + // 2
                 "%instance" + CCM_ATTR_DELIMITER + // 3
@@ -613,7 +611,7 @@ public class CMSynergy implements SourceControl {
                 "%comment" + CCM_END_OBJECT); // 5
 
         // Construct the query string
-        cmd.createArgument().setValue(mod.taskNumber);
+        cmd.createArgument(mod.taskNumber);
 
         // Execute the command
         try {
@@ -651,15 +649,14 @@ public class CMSynergy implements SourceControl {
     private void getAssociatedCRs(CMSynergyModification mod) {
         // Construct the CM Synergy command
         cmd.clearArgs();
-        cmd.createArgument().setValue("query");
-        cmd.createArgument().setValue("-u");
+        cmd.createArgument("query");
+        cmd.createArgument("-u");
 
         // Set up the output format
-        cmd.createArgument().setValue("-f");
-        cmd.createArgument().setValue("%displayname");
+        cmd.createArguments("-f", "%displayname");
 
         // Construct the query string
-        cmd.createArgument().setValue(
+        cmd.createArgument(
                 "cvtype='problem' and has_associated_task('task" + mod.taskNumber + ccmDelimiter + "1:task:probtrac')");
 
         // Execute the command
@@ -699,11 +696,9 @@ public class CMSynergy implements SourceControl {
 
         // Get the literal workarea from Synergy
         cmd.clearArgs();
-        cmd.createArgument().setValue("attribute");
-        cmd.createArgument().setValue("-show");
-        cmd.createArgument().setValue("wa_path");
-        cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(projectFourPartName);
+        cmd.createArgument("attribute");
+        cmd.createArguments("-show", "wa_path");
+        cmd.createArguments("-project", projectFourPartName);
 
         try {
             cmd.execute();
@@ -740,12 +735,11 @@ public class CMSynergy implements SourceControl {
 
         // Construct the CM Synergy command
         cmd.clearArgs();
-        cmd.createArgument().setValue("reconfigure");
+        cmd.createArgument("reconfigure");
         if (recurse) {
-            cmd.createArgument().setValue("-recurse");
+            cmd.createArgument("-recurse");
         }
-        cmd.createArgument().setValue("-project");
-        cmd.createArgument().setValue(projectFourPartName);
+        cmd.createArguments("-project", projectFourPartName);
 
         try {
             cmd.execute();
@@ -823,7 +817,7 @@ public class CMSynergy implements SourceControl {
         }
 
         // Load the persisted session information from file
-        Properties sessionProperties = null;
+        Properties sessionProperties;
         try {
             sessionProperties = Util.loadPropertiesFromFile(sessionFile);
         } catch (IOException e) {

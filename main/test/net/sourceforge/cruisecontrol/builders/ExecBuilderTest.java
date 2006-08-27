@@ -238,8 +238,8 @@ public class ExecBuilderTest extends TestCase {
           if (!onWindows) {
               Commandline cmdline = new Commandline();
               cmdline.setExecutable("chmod");
-              cmdline.createArgument().setValue("755");
-              cmdline.createArgument().setValue(testFile.getAbsolutePath());
+              cmdline.createArgument("755");
+              cmdline.createArgument(testFile.getAbsolutePath());
               try {
                   Process p = cmdline.execute();
                   p.waitFor();

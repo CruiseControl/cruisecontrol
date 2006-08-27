@@ -452,10 +452,9 @@ public class P4 implements SourceControl {
 
         Commandline commandLine = buildBaseP4Command();
 
-        commandLine.createArgument().setValue("changes");
-        commandLine.createArgument().setValue("-s");
-        commandLine.createArgument().setValue("submitted");
-        commandLine.createArgument().setValue(p4View
+        commandLine.createArgument("changes");
+        commandLine.createArguments("-s", "submitted");
+        commandLine.createArgument(p4View
                 + "@"
                 + p4RevisionDateFormatter.format(lastBuildTime)
                 + ",@"
@@ -472,11 +471,11 @@ public class P4 implements SourceControl {
 
         //        execP4Command("describe -s " + changeNumber.toString(),
 
-        commandLine.createArgument().setValue("describe");
-        commandLine.createArgument().setValue("-s");
+        commandLine.createArgument("describe");
+        commandLine.createArgument("-s");
 
         for (int i = 0; i < changelistNumbers.length; i++) {
-            commandLine.createArgument().setValue(changelistNumbers[i]);
+            commandLine.createArgument(changelistNumbers[i]);
         }
 
         return commandLine;
@@ -487,9 +486,8 @@ public class P4 implements SourceControl {
      */
     public Commandline buildUserCommand(String username) {
         Commandline commandLine = buildBaseP4Command();
-        commandLine.createArgument().setValue("user");
-        commandLine.createArgument().setValue("-o");
-        commandLine.createArgument().setValue(username);
+        commandLine.createArgument("user");
+        commandLine.createArguments("-o", username);
 
         return commandLine;
     }
@@ -514,7 +512,7 @@ public class P4 implements SourceControl {
 
     Commandline buildInfoCommand() {
         Commandline command = buildBaseP4Command(false);
-        command.createArgument().setValue("info");
+        command.createArgument("info");
         return command;
     }
 
@@ -557,27 +555,23 @@ public class P4 implements SourceControl {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
         if (prependField) {
-            commandLine.createArgument().setValue("-s");
+            commandLine.createArgument("-s");
         }
 
         if (p4Client != null) {
-            commandLine.createArgument().setValue("-c");
-            commandLine.createArgument().setValue(p4Client);
+            commandLine.createArguments("-c", p4Client);
         }
 
         if (p4Port != null) {
-            commandLine.createArgument().setValue("-p");
-            commandLine.createArgument().setValue(p4Port);
+            commandLine.createArguments("-p", p4Port);
         }
 
         if (p4User != null) {
-            commandLine.createArgument().setValue("-u");
-            commandLine.createArgument().setValue(p4User);
+            commandLine.createArguments("-u", p4User);
         }
 
         if (p4Passwd != null) {
-            commandLine.createArgument().setValue("-P");
-            commandLine.createArgument().setValue(p4Passwd);
+            commandLine.createArguments("-P", p4Passwd);
         }
         return commandLine;
     }

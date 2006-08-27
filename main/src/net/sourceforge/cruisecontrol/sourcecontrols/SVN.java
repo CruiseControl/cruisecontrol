@@ -205,24 +205,22 @@ public class SVN implements SourceControl {
             command.setWorkingDirectory(localWorkingCopy);
         }
 
-        command.createArgument().setValue("log");
-        command.createArgument().setValue("--non-interactive");
-        command.createArgument().setValue("--xml");
-        command.createArgument().setValue("-v");
-        command.createArgument().setValue("-r");
-        command.createArgument().setValue("'{" + formatSVNDate(lastBuild) + "}'" + ":"
+        command.createArgument("log");
+        command.createArgument("--non-interactive");
+        command.createArgument("--xml");
+        command.createArgument("-v");
+        command.createArgument("-r");
+        command.createArgument("'{" + formatSVNDate(lastBuild) + "}'" + ":"
                 + "'{" + formatSVNDate(checkTime) + "}'");
 
         if (userName != null) {
-            command.createArgument().setValue("--username");
-            command.createArgument().setValue(userName);
+            command.createArguments("--username", userName);
         }
         if (password != null) {
-            command.createArgument().setValue("--password");
-            command.createArgument().setValue(password);
+            command.createArguments("--password", password);
         }
         if (repositoryLocation != null) {
-            command.createArgument().setValue(repositoryLocation);
+            command.createArgument(repositoryLocation);
         }
 
         LOG.debug("Executing command: " + command);

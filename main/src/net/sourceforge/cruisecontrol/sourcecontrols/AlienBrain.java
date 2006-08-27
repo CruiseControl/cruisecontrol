@@ -142,12 +142,9 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      */
     protected ManagedCommandline buildGetModificationsCommand(Date lastBuild, Date now) {
         ManagedCommandline cmdLine = buildCommonCommand();
-        cmdLine.createArgument().setValue("find");
-        cmdLine.createArgument().setValue(getPath());
-        cmdLine.createArgument().setValue("-regex");
-        cmdLine.createArgument().setValue("SCIT > " + dateToFiletime(lastBuild));
-        cmdLine.createArgument().setValue("-format");
-        cmdLine.createArgument().setValue("#SCIT#|#DbPath#|#Changed By#|#CheckInComment#");
+        cmdLine.createArguments("find", getPath());
+        cmdLine.createArguments("-regex", "SCIT > " + dateToFiletime(lastBuild));
+        cmdLine.createArguments("-format", "#SCIT#|#DbPath#|#Changed By#|#CheckInComment#");
         
         return cmdLine;
     }
