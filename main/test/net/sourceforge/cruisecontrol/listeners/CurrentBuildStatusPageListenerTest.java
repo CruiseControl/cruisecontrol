@@ -72,12 +72,6 @@ public class CurrentBuildStatusPageListenerTest extends TestCase {
         assertInvalid(new CurrentBuildStatusPageListener());
     }
 
-    public void testShouldBeInvalidWhenFileInDirThatCannotBeMkdired() {
-        CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
-        c.setFile("BADDRIVE:\\foo.file");
-        assertInvalid(c);
-    }
-
     public void testShouldBeValidWhenFileSet() throws Exception {
         File temp = File.createTempFile(getClass().getName(), "tmp");
         temp.deleteOnExit();
