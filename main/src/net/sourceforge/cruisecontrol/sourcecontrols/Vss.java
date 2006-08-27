@@ -220,12 +220,16 @@ public class Vss implements SourceControl {
         new Thread(errorPumper).start();
     }
 
-    private void parseTempFile(List modifications) throws IOException {
+    private void parseTempFile(List modifications) throws IOException, CruiseControlException {
+        File tempFile = getTempFile();
+        if (!getTempFile().isFile()) {
+            throw new CruiseControlException("vss failed to create output file " + tempFile.getPath());
+        }
+        
         if (LOG.isDebugEnabled()) {
             logVSSTempFile();
         }
 
-        File tempFile = getTempFile();
         BufferedReader reader = null;
 
         try {
