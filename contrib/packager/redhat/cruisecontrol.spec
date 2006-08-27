@@ -37,6 +37,7 @@ BuildRoot: @ROOT@
 %dir /var/spool/cruisecontrol/logs/
 %dir /var/spool/cruisecontrol/checkout/
 %dir /var/log/cruisecontrol
+%dir /var/cache/cruisecontrol
 
 %post
 

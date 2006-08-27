@@ -105,6 +105,7 @@
         <mkdir dir="${build.dir}/${reporting.cruise.build.artifacts.dir}"/>
         <mkdir dir="${build.dir}/${reporting.cruise.checkout.dir}"/>
 
+        <mkdir dir="${build.dir}/var/cache/cruisecontrol"/>
         <mkdir dir="${build.dir}/var/log/cruisecontrol"/>
         <mkdir dir="${build.dir}/var/run"/>
         <touch file="${build.dir}/var/run/cruisecontrol.pid"/>

@@ -6,6 +6,7 @@ grep -q "^cruise:" /etc/group || groupadd cruise
 grep -q "^cruise:" /etc/passwd || useradd -d /var/spool/cruisecontrol -g cruise cruise
 
 # Set the perms for cruise stuff
+chown -R cruise:cruise /var/cache/cruisecontrol
 chown -R cruise:cruise /var/spool/cruisecontrol
 chown -R cruise:cruise /var/log/cruisecontrol
 chown -R cruise:cruise /etc/cruisecontrol
