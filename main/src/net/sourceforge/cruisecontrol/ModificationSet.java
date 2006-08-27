@@ -37,13 +37,6 @@
 
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Logger;
-import org.apache.oro.io.GlobFilenameFilter;
-import org.apache.oro.text.MalformedCachePatternException;
-import org.jdom.Element;
-
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -52,6 +45,13 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.apache.oro.io.GlobFilenameFilter;
+import org.apache.oro.text.MalformedCachePatternException;
+import org.jdom.Element;
 
 /**
  * Set of modifications collected from included SourceControls
@@ -307,6 +307,11 @@ public class ModificationSet {
     public void validate() throws CruiseControlException {
         ValidationHelper.assertFalse(sourceControls.isEmpty(),
             "modificationset element requires at least one nested source control element");
+        
+        for (Iterator i = sourceControls.iterator(); i.hasNext(); ) {
+            SourceControl sc = (SourceControl) i.next();
+            sc.validate();
+        }
     }
 
     int getQuietPeriod() {

@@ -48,7 +48,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
-import net.sourceforge.cruisecontrol.sourcecontrols.Vss;
 
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -56,6 +55,15 @@ import org.jdom.output.XMLOutputter;
 public class ModificationSetTest extends TestCase {
 
     private ModificationSet modSet;
+
+    protected void setUp() throws Exception {
+        modSet = new ModificationSet();
+        modSet.setQuietPeriod(0);
+    }
+
+    protected void tearDown() throws Exception {
+        modSet = null;
+    }
 
     public void testIsLastModificationInQuietPeriod() throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -254,11 +262,20 @@ public class ModificationSetTest extends TestCase {
         try {
             modSet.validate();
             fail("modificationset should require at least one sourcecontrol");
-        } catch (CruiseControlException e) {
+        } catch (CruiseControlException expected) {
         }
 
-        modSet.add(new Vss());
-        modSet.validate();
+        SourceControl invalidSC = new MockSourceControl() {
+            public void validate() throws CruiseControlException {
+                throw new TestMockValidationFailedException();
+            }
+        };
+        modSet.add(invalidSC);
+        try {
+            modSet.validate();
+            fail("validate should be called on child source controls");
+        } catch (TestMockValidationFailedException expected) {
+        }
     }
 
     public void testSetRequireModification() {
@@ -326,14 +343,8 @@ public class ModificationSetTest extends TestCase {
         assertEquals ("The wrong modification has been filtered out", expectedModifications, modifications);
 
     }
-
-    protected void setUp() throws Exception {
-        modSet = new ModificationSet();
-        modSet.setQuietPeriod(0);
-    }
-
-    protected void tearDown() throws Exception {
-        modSet = null;
+    
+    class TestMockValidationFailedException extends CruiseControlException {        
     }
 
 }
