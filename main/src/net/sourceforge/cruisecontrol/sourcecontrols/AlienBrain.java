@@ -76,15 +76,13 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     private static final long HUNDRED_NANO_PER_MILLI_RATIO = 10000L;
     private static final String AB_NO_MODIFICATIONS = "No files or folders found!";
     private static final String AB_MODIFICATION_SUMMARY_PREFIX = "Total of ";
-    
-    private Hashtable properties = new Hashtable();
 
     /**
      * Any properties that have been set in this sourcecontrol. 
      * Currently, this would be none.
      */
     public Map getProperties() {
-        return properties;
+        return new Hashtable();
     }
    
     public void validate() throws CruiseControlException {

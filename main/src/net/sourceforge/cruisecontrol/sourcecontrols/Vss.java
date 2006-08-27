@@ -38,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -72,9 +71,7 @@ public class Vss implements SourceControl {
     private String login;
     private String dateFormat = "MM/dd/yy";
     private String timeFormat = "hh:mma";
-    private Map properties = new HashMap();
-    private String property;
-    private String propertyOnDelete;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     public Vss() {
         constructVssDateTimeFormat();
@@ -123,7 +120,7 @@ public class Vss implements SourceControl {
      * @param propertyName
      */
     public void setProperty(String propertyName) {
-        property = propertyName;
+        properties.assignPropertyName(propertyName);
     }
 
     /**
@@ -132,7 +129,7 @@ public class Vss implements SourceControl {
      * @param propertyName
      */
     public void setPropertyOnDelete(String propertyName) {
-        propertyOnDelete = propertyName;
+        properties.assignPropertyOnDeleteName(propertyName);
     }
 
     /**
@@ -160,7 +157,7 @@ public class Vss implements SourceControl {
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
@@ -208,8 +205,8 @@ public class Vss implements SourceControl {
             }
         }
 
-        if (property != null && modifications.size() > 0) {
-            properties.put(property, "true");
+        if (modifications.size() > 0) {
+            properties.modificationFound();
         }
 
         return modifications;
@@ -427,10 +424,10 @@ public class Vss implements SourceControl {
                 modfile.action = "add";
             } else if (fileLine.endsWith("deleted")) {
                 modfile.action = "delete";
-                addPropertyOnDelete();
+                properties.deletionFound();
             } else if (fileLine.endsWith("destroyed")) {
                 modfile.action = "destroy";
-                addPropertyOnDelete();
+                properties.deletionFound();
             } else if (fileLine.endsWith("recovered")) {
                 modfile.action = "recover";
             } else if (fileLine.endsWith("shared")) {
@@ -440,7 +437,7 @@ public class Vss implements SourceControl {
             } else if (fileLine.indexOf(" renamed to ") != -1) {
                 modfile.fileName = fileLine;
                 modfile.action = "rename";
-                addPropertyOnDelete();
+                properties.deletionFound();
             } else if (fileLine.startsWith("Labeled")) {
                 return null;
             } else {
@@ -449,18 +446,7 @@ public class Vss implements SourceControl {
             }
         }
 
-        if (property != null) {
-            properties.put(property, "true");
-            LOG.debug("setting property " + property + " to be true");
-        }
-
         return modification;
-    }
-
-    private void addPropertyOnDelete() {
-        if (propertyOnDelete != null) {
-            properties.put(propertyOnDelete, "true");
-        }
     }
 
     /**

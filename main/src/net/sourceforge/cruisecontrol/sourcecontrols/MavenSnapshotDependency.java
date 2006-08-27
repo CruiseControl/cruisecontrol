@@ -36,13 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.FileInputStream;
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +54,8 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.Namespace;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
 /**
@@ -79,8 +78,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class MavenSnapshotDependency implements SourceControl {
 
-    private Hashtable properties = new Hashtable();
-    private String property;
+    private SourceControlProperties properties = new SourceControlProperties();
     private List modifications;
     private File projectFile;
     private File propertiesFile;
@@ -122,11 +120,11 @@ public class MavenSnapshotDependency implements SourceControl {
     }
 
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
@@ -175,9 +173,7 @@ public class MavenSnapshotDependency implements SourceControl {
         mod.comment = "Maven project dependency: timestamp change detected.";
         modifications.add(mod);
 
-        if (property != null) {
-            properties.put(property, "true");
-        }
+        properties.modificationFound();
     }
 
     /**

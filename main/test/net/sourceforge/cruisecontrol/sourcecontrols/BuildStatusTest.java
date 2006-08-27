@@ -41,6 +41,8 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Log;
@@ -138,15 +140,16 @@ public class BuildStatusTest extends TestCase {
             modifications = buildStatus.getModifications(twoDaysAgo, null);
             assertEquals("Wrong number of modifications", 1, modifications.size());
 
+            Map properties = buildStatus.getProperties();
             // Verify properties were set correctly
             assertEquals("Property was not set correctly", tempDir.getAbsolutePath(),
-                         buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
+                         properties.get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
             assertEquals("Property was not set correctly", yesterdayLog2.getName(),
-                         buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
+                         properties.get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
             assertEquals("Property was not set correctly", DateUtil.getFormattedTime(yesterday),
-                         buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
+                         properties.get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
             assertEquals("Property was not set correctly", "good.1",
-                         buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
+                         properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
 
             // Verify date range works
             modifications = buildStatus.getModifications(today, null);
@@ -159,15 +162,16 @@ public class BuildStatusTest extends TestCase {
                 modifications = buildStatus.getModifications(twoDaysAgo, null);
                 assertEquals("Wrong number of modifications", 2, modifications.size());
 
+                properties = buildStatus.getProperties();
                 // Verify properties were set correctly
                 assertEquals("Property was not set correctly", tempDir.getAbsolutePath(),
-                             buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
+                             properties.get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
                 assertEquals("Property was not set correctly", todayLog.getName(),
-                             buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
+                             properties.get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
                 assertEquals("Property was not set correctly", DateUtil.getFormattedTime(today),
-                             buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
+                             properties.get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
                 assertEquals("Property was not set correctly", "good.2",
-                             buildStatus.getProperties().get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
+                             properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
             } finally {
                 todayLog.delete();
             }

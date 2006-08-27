@@ -43,7 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -52,9 +51,9 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -103,7 +102,7 @@ public class CMSynergy implements SourceControl {
      * A collection of properties which will be passed to and set within the
      * builder.
      */
-    private Hashtable properties = new Hashtable();
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * The name of the property which will be set and passed to the builder if
@@ -397,7 +396,7 @@ public class CMSynergy implements SourceControl {
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void setProperty(String property) {

@@ -59,7 +59,6 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class StarTeam implements SourceControl {
     private Server server;
     private TypeNames stTypeNames;
 
-    private Hashtable properties = new Hashtable();
+    private SourceControlProperties properties = new SourceControlProperties();
     private String property;
     private String propertyOnDelete;
 
@@ -134,7 +133,7 @@ public class StarTeam implements SourceControl {
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {

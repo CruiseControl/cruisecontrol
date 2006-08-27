@@ -36,11 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +45,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
 
 /**
  * This defines a child element for the ModificationSet element.
@@ -72,8 +72,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
     private SSCMCLIBoolParam fparamSearchRegExp = new SSCMCLIBoolParam("searchregexp", "-x", false);
     private SSCMCLIBoolParam fparamRecursive = new SSCMCLIBoolParam("recursive", "-r", false);
 
-    private Hashtable hashProperties = new Hashtable();
-    private String strProperty = null;
+    private SourceControlProperties properties = new SourceControlProperties();
     
     public void validate() throws CruiseControlException { /* nothing is required */ }
 
@@ -127,19 +126,20 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         if (listMods == null) {
             listMods = Collections.EMPTY_LIST;
         }
-        if (listMods.size() > 0 && strProperty != null) {
-            hashProperties.put(strProperty, "true");
+
+        if (!listMods.isEmpty()) {
+            properties.modificationFound();
         }
 
         return listMods;
     }
 
     public Map getProperties() {
-        return (hashProperties);
+        return properties.getPropertiesAndReset();
     }
 
     public void setProperty(String property) {
-        strProperty = property;
+        properties.assignPropertyName(property);
     }
 
     protected List executeCLICommand(java.util.List paramList, String strDTRangeParam) {
@@ -272,10 +272,6 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
                                     if (iRight > iLeft) {
                                         mod.emailAddress = str.substring(iLeft, iRight);
                                         fValid = true;
-
-                                        if (strProperty != null) {
-                                            hashProperties.put(strProperty, "true");
-                                        }
                                     }
                                 }
                             }

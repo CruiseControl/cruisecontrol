@@ -44,16 +44,15 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -74,12 +73,8 @@ import org.apache.log4j.Logger;
 public class MKS implements SourceControl {
     private static final Logger LOG = Logger.getLogger(MKS.class);
 
-    private Hashtable properties = new Hashtable();
-
-    private String property;
-
+    private SourceControlProperties properties = new SourceControlProperties();
     private String project;
-
     private File localWorkingDir;
 
     /**
@@ -116,11 +111,11 @@ public class MKS implements SourceControl {
     }
 
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void setDoNothing(String doNothing) {
@@ -149,9 +144,7 @@ public class MKS implements SourceControl {
         boolean printCR = false;
         
         if (doNothing) {
-            if (property != null) {
-                properties.put(property, "true");
-            }
+            properties.modificationFound();
             return listOfModifications;
         }
         String cmd;
@@ -217,9 +210,7 @@ public class MKS implements SourceControl {
 
                 line = reader.readLine();
 
-                if (property != null) {
-                    properties.put(property, "true");
-                }
+                properties.modificationFound();
             }
             proc.waitFor();
             proc.getInputStream().close();

@@ -36,6 +36,24 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -48,25 +66,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * This class implements the SourceControl methods for a Subversion repository.
@@ -90,9 +89,7 @@ public class SVN implements SourceControl {
     /** Date format returned by Subversion in XML output */
     private static final String SVN_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
-    private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /** Configuration parameters */
     private String repositoryLocation;
@@ -101,15 +98,15 @@ public class SVN implements SourceControl {
     private String password;
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
+        properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
     /**
@@ -272,20 +269,13 @@ public class SVN implements SourceControl {
     }
 
     void fillPropertiesIfNeeded(List modifications) {
-        if (property != null) {
-            if (modifications.size() > 0) {
-                properties.put(property, "true");
-            } else {
-                properties.remove(property);
-            }
-        }
-
-        if (propertyOnDelete != null) {
+        if (!modifications.isEmpty()) {
+            properties.modificationFound();
             for (int i = 0; i < modifications.size(); i++) {
                 Modification modification = (Modification) modifications.get(i);
                 Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
                 if (file.action.equals("deleted")) {
-                    properties.put(propertyOnDelete, "true");
+                    properties.deletionFound();
                     break;
                 }
             }

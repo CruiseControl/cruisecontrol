@@ -148,10 +148,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
         }
     }
 
-
-    private Hashtable properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * CVS allows for mapping user names to email addresses.
@@ -291,11 +288,11 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
+        properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
     protected Version getCvsServerVersion() {
@@ -423,7 +420,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
 
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     /**
@@ -811,17 +808,13 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)) {
                 modfile.action = "deleted";
-                if (propertyOnDelete != null) {
-                    properties.put(propertyOnDelete, "true");
-                }
+                properties.deletionFound();
             } else if (isAdded) {
                 modfile.action = "added";
             } else {
                 modfile.action = "modified";
             }
-            if (property != null) {
-                properties.put(property, "true");
-            }
+            properties.modificationFound();
             mods.add(nextModification);
         }
         return mods;

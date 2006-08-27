@@ -36,6 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -44,18 +54,8 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevInputParser;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.DateTimespec;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
-import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 
 /**
  * This class handles all Accurev aspects of determining the modifications since the last good
@@ -68,10 +68,9 @@ public class Accurev implements SourceControl, AccurevInputParser {
     private static final Logger LOG = Logger.getLogger(Accurev.class);
     private String stream;
     private boolean verbose;
-    private Hashtable properties = new Hashtable();
     private ArrayList modifications;
     private Runner runner;
-    private String property;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * Sets the Accurev stream to search for changes
@@ -97,14 +96,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
      * @param propertyName the name of the property
      */
     public void setProperty(String propertyName) {
-        property = propertyName;
-    }
-
-    public Map getProperties() {
-        Map rvalue = new Hashtable();
-        rvalue.putAll(properties);
-        properties.clear();
-        return rvalue;
+        properties.assignPropertyName(propertyName);
     }
 
     public void validate() throws CruiseControlException {
@@ -168,9 +160,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
                 modification.modifiedTime = DateTimespec.parse(parts[2].trim());
                 modification.userName = parts[3].substring(6).trim();
                 modifications.add(modification);
-                if (property != null) {
-                    properties.put(property, "true");
-                }
+                properties.modificationFound();
             } else if (line.startsWith("  #")) {
                 // # Comment
                 if (modification != null) {
@@ -210,5 +200,9 @@ public class Accurev implements SourceControl, AccurevInputParser {
 
     public void setRunner(Runner runner) {
         this.runner = runner;
-  }
+    }
+
+    public Map getProperties() {
+        return properties.getPropertiesAndReset();
+    }
 }

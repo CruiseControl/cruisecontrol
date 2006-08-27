@@ -45,7 +45,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,11 +83,7 @@ public class SnapshotCM implements SourceControl {
     /** enable logging for this class */
     private static final Logger LOG = Logger.getLogger(SnapshotCM.class);
 
-    private Hashtable props = new Hashtable();
-
-    private String property;
-
-    private String propertyOnDelete;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     /**
      *  List of source path values provided either with sourcePath="...",
@@ -96,22 +91,19 @@ public class SnapshotCM implements SourceControl {
      */
     private List sourcePaths = new ArrayList();
 
-    /**
-     *  From SourceControl interface.
-     */
     public void setProperty(String property) {
-        this.property = property;
+        properties.assignPropertyName(property);
     }
 
     /**
      *  From SourceControl interface.  n
      */
     public void setPropertyOnDelete(String propertyOnDelete) {
-        this.propertyOnDelete = propertyOnDelete;
+        properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
     public Map getProperties() {
-        return this.props;
+        return properties.getPropertiesAndReset();
     }
 
     public void setSourcePaths(String sourcePaths) {
@@ -179,10 +171,8 @@ public class SnapshotCM implements SourceControl {
             }
         }
 
-        if (!modificationList.isEmpty() && property != null) {
-            props.put(property, "true");
-        }
-
+        properties.modificationFound();
+        
         return modificationList;
     }
 
@@ -326,8 +316,8 @@ public class SnapshotCM implements SourceControl {
                 }
             } else if (line.startsWith("Change: ")) {  //e.g. Change: Content
                 mod.type = line.substring(8).trim();
-                if (mod.type.equals(CHANGE_DELETE) && propertyOnDelete != null) {
-                    props.put(propertyOnDelete, "true");
+                if (mod.type.equals(CHANGE_DELETE)) {
+                    properties.deletionFound();
                 }
             } else if (line.startsWith("Snapshot: ")) {
                 //ignore

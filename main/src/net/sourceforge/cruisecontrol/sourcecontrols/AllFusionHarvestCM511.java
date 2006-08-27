@@ -34,15 +34,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,12 +48,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControl methods for an AllFusion Harvest CM 5.1.1 repository.
@@ -133,10 +133,6 @@ public class AllFusionHarvestCM511 implements SourceControl {
         HARVEST_DATE_FORMAT_OUT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    private Map properties = new Hashtable();
-    private String property;
-    private String propertyOnDelete;
-
     /**
      * Configuration parameters
      */
@@ -147,6 +143,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
     private String stateName;
     private long timeAdjustmentFactor = 0;
     private boolean debug = false;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     public String getStateName() {
         return stateName;
@@ -194,31 +191,8 @@ public class AllFusionHarvestCM511 implements SourceControl {
         this.timeAdjustmentFactor = Long.parseLong(factor);
     }
 
-    /**
-     * The AllFusionHarvestCM511 properties.
-     *
-     * @return Contains all AllFusionHarvestCM511 properties.
-     */
-    public Map getProperties() {
-        return properties;
-    }
-
-    /**
-     * Set an AllFusionHarvestCM511 properties.
-     *
-     * @param p String representing the property to set.
-     */
     public void setProperty(String p) {
-        this.property = p;
-    }
-
-    /**
-     * Method to set the property on delete.
-     *
-     * @param p String representing the property to set.
-     */
-    public void setPropertyOnDelete(String p) {
-        this.propertyOnDelete = p;
+        properties.assignPropertyName(p);
     }
 
     /**
@@ -320,8 +294,6 @@ public class AllFusionHarvestCM511 implements SourceControl {
         } catch (Exception e) {
             LOG.error("Error executing harvest hsql command " + command, e);
         }
-
-        fillPropertiesIfNeeded(modifications);
 
         return modifications;
     }
@@ -559,6 +531,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
                         null);
                 modfile.action = "modified";
                 modfile.revision = modification.revision;
+                properties.modificationFound();
 
                 //Only Store the data in the list if the change has taken place since the last build.
 
@@ -624,32 +597,6 @@ public class AllFusionHarvestCM511 implements SourceControl {
     }
 
     /**
-     * Fills any properties if needed.
-     *
-     * @param modifications List of type <code>net.sourceforge.cruisecontrol.Modification</code>
-     */
-    void fillPropertiesIfNeeded(List modifications) {
-        if (property != null) {
-            if (modifications.size() > 0) {
-                properties.put(property, "true");
-            }
-        }
-
-        if (propertyOnDelete != null) {
-            for (int i = 0; i < modifications.size(); i++) {
-                Modification modification = (Modification) modifications.get(i);
-                Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
-
-                if (file.action.equals("deleted")) {
-                    properties.put(propertyOnDelete, "true");
-
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
      * Method used to create a date based on a string and a format
      *
      * @param dateStr       String representing the date
@@ -704,6 +651,10 @@ public class AllFusionHarvestCM511 implements SourceControl {
             LOG.warn("ERROR = " + e.toString());
         }
         LOG.info("Done");
+    }
+
+    public Map getProperties() {
+        return properties.getPropertiesAndReset();
     }
 
 }

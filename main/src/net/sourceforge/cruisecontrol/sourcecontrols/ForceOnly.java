@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -58,8 +57,6 @@ import net.sourceforge.cruisecontrol.SourceControl;
  */
 public class ForceOnly implements SourceControl {
 
-    private static final Hashtable EMPTY_HASHTABLE = new Hashtable();
-    
     public List getModifications(Date lastBuild, Date now) {
         return Collections.EMPTY_LIST;
     }
@@ -69,6 +66,6 @@ public class ForceOnly implements SourceControl {
     }
 
     public Map getProperties() {
-        return EMPTY_HASHTABLE;
+        return Collections.EMPTY_MAP;
     }
 }

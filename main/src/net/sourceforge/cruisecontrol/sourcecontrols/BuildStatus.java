@@ -39,26 +39,25 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Log;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.Log;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.jdom.input.SAXBuilder;
+
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import java.io.IOException;
+import org.jdom.input.SAXBuilder;
 
 /**
  * This class allows for starting builds based on the results of another
@@ -88,7 +87,7 @@ public class BuildStatus implements SourceControl {
      */
     public static final String MOST_RECENT_LOGLABEL_KEY = "most.recent.loglabel";
 
-    private Hashtable properties = new Hashtable();
+    private SourceControlProperties properties = new SourceControlProperties();
     private String logDir;
 
     /**
@@ -99,7 +98,7 @@ public class BuildStatus implements SourceControl {
      *         provided as constants on this class). Never returns null.
      */
     public Map getProperties() {
-        return properties;
+        return properties.getPropertiesAndReset();
     }
 
     /**
@@ -109,7 +108,6 @@ public class BuildStatus implements SourceControl {
      */
     public void setLogDir(String logDir) {
         this.logDir = logDir;
-        properties.put(MOST_RECENT_LOGDIR_KEY, logDir);
     }
 
     /**
@@ -136,6 +134,7 @@ public class BuildStatus implements SourceControl {
      *        (as per SourceControl interface) but we don't use it.
      */
     public List getModifications(Date lastBuild, Date unused) {
+        properties.put(MOST_RECENT_LOGDIR_KEY, logDir);
         List modifications = new ArrayList();
         File logDirectory = new File(logDir);
         final String filename = Log.formatLogFileName(lastBuild);
