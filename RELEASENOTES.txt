@@ -73,6 +73,7 @@ EmailPublisher
 ----------------------
 * Add <ignore ..> child element (CC-489). Patch by Jarkko Viinamäki
 * Fixed bug where using SSL but not specifying mailPort would result in a NullPointerException. Reported by Michael Clark
+* Added validation for nested alert, always, failure, success and ignore elements.
 
 AllFusionHarvestCM511
 ----------------------

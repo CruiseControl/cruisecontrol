@@ -129,13 +129,20 @@ public abstract class EmailPublisher implements Publisher {
             "'password' is required if 'username' is set for email.");
         ValidationHelper.assertFalse(getPassword() != null && getUsername() == null,
             "'username' is required if 'password' is set for email.");
+        
+        validateAddresses(alwaysAddresses);
+        validateAddresses(alertAddresses);
+        validateAddresses(failureAddresses);
+        validateAddresses(successAddresses);
+        
+        for (int i = 0; i < ignoreUsers.length; i++) {
+            ignoreUsers[i].validate();
+        }
+    }
 
-        for (int i = 0; i < alertAddresses.length; i++) {
-            try {
-                alertAddresses[i].fileFilter = new GlobFilenameFilter(alertAddresses[i].fileRegExpr);
-            } catch (MalformedCachePatternException mcpe) {
-                ValidationHelper.fail("invalid regexp '" + alertAddresses[i].fileRegExpr + "'", mcpe);
-            }
+    private void validateAddresses(Address[] addresses) throws CruiseControlException {
+        for (int i = 0; i < addresses.length; i++) {
+            addresses[i].validate();
         }
     }
 
@@ -612,6 +619,10 @@ public abstract class EmailPublisher implements Publisher {
             return user;
         }
 
+        public void validate() throws CruiseControlException {
+            ValidationHelper.assertIsSet(user, "user", getClass());
+        }
+
         public void setUser(String theUser) {
             user = theUser;
         }
@@ -626,6 +637,12 @@ public abstract class EmailPublisher implements Publisher {
 
         public void setAddress(String theAddress) {
             address = theAddress;
+        }
+
+        public void validate() throws CruiseControlException {
+            ValidationHelper.assertIsSet(address, "address", getClass());
+            ValidationHelper.assertFalse(address.equals(""),
+                    "empty string is not a valid value of address for " + getClass().getName());
         }
     }
 
@@ -653,6 +670,18 @@ public abstract class EmailPublisher implements Publisher {
 
 
     public static class Alert extends Address {
+        public void validate() throws CruiseControlException {
+            super.validate();
+            
+            ValidationHelper.assertIsSet(fileRegExpr, "fileregexpr", getClass());
+            
+            try {
+                fileFilter = new GlobFilenameFilter(fileRegExpr);
+            } catch (MalformedCachePatternException mcpe) {
+                ValidationHelper.fail("invalid regexp '" + fileRegExpr + "'", mcpe);
+            }
+        }
+
         /** 
          * A regExpr for the file you are interested in watching 
          * 
