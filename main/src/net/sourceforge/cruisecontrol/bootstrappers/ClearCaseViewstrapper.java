@@ -36,15 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import java.io.PrintWriter;
-
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Processes;
 
 import org.apache.log4j.Logger;
 
@@ -93,11 +90,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         Commandline commandLine = buildStartViewCommand();
         LOG.debug("Executing: " + commandLine);
         try {
-            Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
-            p.waitFor();
-            IO.close(p);
+            Processes.executeFully(commandLine);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing ClearCase startview command", e);
         }
@@ -109,11 +102,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
                 commandLine = buildMountVOBCommand(vobs[i]);
                 LOG.debug("Executing: " + commandLine);
                 try {
-                    Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-                    StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-                    new Thread(errorPumper).start();
-                    p.waitFor();
-                    IO.close(p);
+                    Processes.executeFully(commandLine);
                 } catch (Exception e) {
                     throw new CruiseControlException("Error executing ClearCase mount command", e);
                 }
@@ -162,7 +151,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
      * work out the view tag from the viewpath
      */
     private String getViewName() {
-        String viewname = "";
+        String viewname;
         if (isWindows()) {
             viewname = getWindowsViewname(viewpath);
         } else {

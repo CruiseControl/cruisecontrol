@@ -192,24 +192,22 @@ public class XMLLogHelper {
      *  @return the value of the ant property
      */
     public String getAntProperty(String propertyName) throws CruiseControlException {
-        Iterator propertyIterator = log.getChild("build").getChild("properties").getChildren("property")
-                .iterator();
-        while (propertyIterator.hasNext()) {
-            Element property = (Element) propertyIterator.next();
-            if (property.getAttributeValue("name").equals(propertyName)) { return property
-                    .getAttributeValue("value"); }
-        }
-        throw new CruiseControlException("Property: " + propertyName + " not found.");
+        Iterator props = log.getChild("build").getChild("properties").getChildren("property").iterator();
+        return findProperty(props, propertyName);
     }
 
-    public String getCruiseControlInfoProperty(String propertyName) throws CruiseControlException {
-        Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
-        while (propertyIterator.hasNext()) {
-            Element property = (Element) propertyIterator.next();
-            if (property.getAttributeValue("name").equals(propertyName)) { return property
+    private String findProperty(Iterator props, String expected) throws CruiseControlException {
+        while (props.hasNext()) {
+            Element property = (Element) props.next();
+            if (property.getAttributeValue("name").equals(expected)) { return property
                     .getAttributeValue("value"); }
         }
-        throw new CruiseControlException("Property: " + propertyName + " not found.");
+        throw new CruiseControlException("Property: " + expected + " not found.");
+    }
+
+    public String getCruiseControlInfoProperty(String name) throws CruiseControlException {
+        Iterator props = log.getChild("info").getChildren("property").iterator();
+        return findProperty(props, name);
     }
 
     public Set getModifications() {

@@ -36,21 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.buildloggers;
 
+import net.sourceforge.cruisecontrol.BuildLogger;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Processes;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-
-import net.sourceforge.cruisecontrol.BuildLogger;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * This ClearCaseAuditLogger will parse a specified configuration record (created as the
@@ -98,10 +96,7 @@ public class ClearCaseAuditLogger implements BuildLogger {
             Commandline commandLine = buildConfigRecCommand(doList[i]);
             LOG.debug("Executing: " + commandLine);
             try {
-                Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-                StreamPumper errorPumper =
-                    new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-                 new Thread(errorPumper).start();
+                Process p = Processes.execute(commandLine);
                  try {
                      InputStreamReader isr = new InputStreamReader(p.getInputStream());
                      BufferedReader br = new BufferedReader(isr);

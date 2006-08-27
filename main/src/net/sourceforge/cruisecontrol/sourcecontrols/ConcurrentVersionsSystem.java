@@ -816,10 +816,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
      * Find the CVS branch revision name, when the tag is not HEAD
      * The reader will consume all lines up to the next description.
      *
-     * @param reader the reader
-     * @param tag    may be null
      * @return the branch revision name, or <code>null</code> if not applicable or none was found.
-     * @throws IOException
      */
     private String parseBranchRevisionName(BufferedReader reader) throws IOException {
         String branchRevisionName = null;

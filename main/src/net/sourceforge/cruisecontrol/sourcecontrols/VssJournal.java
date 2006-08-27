@@ -264,25 +264,9 @@ public class VssJournal implements SourceControl {
             // TODO: This is a special case that is really two modifications: deleted and recovered.
             // For now I'll consider it a deleted to force a clean build.
             // I should really make this two modifications.
-            mod.comment = parseComment(historyEntry);
-
-            String fileName = fileLine.substring(0, fileLine.indexOf(" "));
-
-            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
-            modfile.action = "delete";
-            setPropertyOnDelete = true;
-
+            setPropertyOnDelete = deleteModification(historyEntry, mod, fileLine, folderLine);
         } else if (fileLine.indexOf(" moved to ") > -1) {
-            // TODO: This is a special case that is really two modifications: deleted and recovered.
-            // For now I'll consider it a deleted to force a clean build.
-            // I should really make this two modifications.
-            mod.comment = parseComment(historyEntry);
-            String fileName = fileLine.substring(0, fileLine.indexOf(" "));
-
-            Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
-            modfile.action = "delete";
-            setPropertyOnDelete = true;
-
+            setPropertyOnDelete = deleteModification(historyEntry, mod, fileLine, folderLine);
         } else {
             String fileName = fileLine.substring(0, fileLine.lastIndexOf(" "));
             Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
@@ -306,6 +290,16 @@ public class VssJournal implements SourceControl {
         }
 
         return mod;
+    }
+
+    private boolean deleteModification(List historyEntry, Modification mod, String fileLine, String folderLine) {
+        mod.comment = parseComment(historyEntry);
+
+        String fileName = fileLine.substring(0, fileLine.indexOf(" "));
+
+        Modification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderLine);
+        modfile.action = "delete";
+        return true;
     }
 
     /**

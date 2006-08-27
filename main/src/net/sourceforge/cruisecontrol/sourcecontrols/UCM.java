@@ -36,10 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Processes;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,17 +58,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for ClearCase UCM.
@@ -213,9 +211,7 @@ public class UCM implements SourceControl {
         LOG.debug("Executing: " + commandLine);
 
         try {
-            Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
+            Process p = Processes.execute(commandLine);
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
             String line;
@@ -314,9 +310,7 @@ public class UCM implements SourceControl {
         LOG.debug("Executing: " + commandLine);
 
         try {
-            Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
+            Process p = Processes.execute(commandLine);
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
             String line;
@@ -374,9 +368,7 @@ public class UCM implements SourceControl {
         LOG.debug("Executing: " + commandLine);
 
         try {
-            Process p = Runtime.getRuntime().exec(commandLine.getCommandline());
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-            new Thread(errorPumper).start();
+            Process p = Processes.execute(commandLine);
 
             InputStreamReader isr = new InputStreamReader(p.getInputStream());
             BufferedReader br = new BufferedReader(isr);
