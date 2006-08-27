@@ -37,34 +37,18 @@
 package net.sourceforge.cruisecontrol.util;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
- * Utility methods for interacting with Java processes.
- *
- * @see Process
+ * Delegates to the Runtime class in the Java SDK.
  */
-public final class Processes {
-    private static Executor runtime = new RuntimeExecutor();
+public class RuntimeExecutor implements Executor {
+    private final Runtime delegate;
 
-    private Processes() {
-        //utility methods only.
+    public RuntimeExecutor() {
+        delegate = Runtime.getRuntime();
     }
 
-    public static void executeFully(Commandline c) throws IOException, InterruptedException {
-        Process p = execute(c);
-        p.waitFor();
-        IO.close(p);
-    }
-
-    public static Process execute(Commandline c) throws IOException {
-        Process p = runtime.exec(c);
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-        new Thread(errorPumper).start();
-        return p;
-    }
-
-    static void setRuntime(Executor e) {
-        runtime = e;
+    public Process exec(Commandline c) throws IOException {
+        return delegate.exec(c.getCommandline());
     }
 }
