@@ -61,6 +61,10 @@ CruiseControlConfig
 ----------------------
 * Allow properties inside of preconfigured template projects. Patch by Jerome Lacoste
 
+CruiseControlController
+----------------------
+* Prevent ConcurrentModificationException by only allowing a single thread to be parsing the config file.
+
 default-plugins.properties
 ----------------------
 * Add ClearCaseViewstrapper (CC-482). Reported by Andy Stevens
