@@ -27,6 +27,10 @@ packager
 build loop
 ======================
 
+Accurev
+----------------------
+* Add fix property attribute and remove propertyOnDelete since I don't see an easy way to know if a file has been deleted.
+
 AntBuilder
 ----------------------
 * Add optional attribute "keepgoing" to invoke ant with -keep-going flag. Submitted by Stephen George
