@@ -36,19 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.List;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-
 import org.jdom.Element;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.List;
 
 public class Maven2BuilderTest extends TestCase {
 
@@ -110,17 +108,17 @@ public class Maven2BuilderTest extends TestCase {
         mb.validate();
     }
 
-    public void testBuild_Success() throws IOException {
+    public void testBuild_Success() throws IOException, CruiseControlException {
       Maven2Builder mb = new Maven2Builder();
       internalTestBuild(MOCK_SUCCESS, mb);
     }
 
-    public void testBuild_BuildFailure() throws IOException {
+    public void testBuild_BuildFailure() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
         internalTestBuild(MOCK_BUILD_FAILURE, mb);
     }
     
-    public void testBuild_DownloadFailure() throws IOException {
+    public void testBuild_DownloadFailure() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
         internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
     }
@@ -130,8 +128,8 @@ public class Maven2BuilderTest extends TestCase {
      *
      * @param statusType The exit status to be tested
      */
-    private void internalTestBuild(String statusType, Maven2Builder mb) throws IOException {
-        
+    private void internalTestBuild(String statusType, Maven2Builder mb) throws IOException, CruiseControlException {
+
         File testScript = null;
         boolean buildSuccessful = statusType.equals(MOCK_SUCCESS);
         String statusText = getStatusText(statusType);
@@ -267,15 +265,8 @@ public class Maven2BuilderTest extends TestCase {
     /**
      * Make a test file with specified content. Assumes the file does not exist.
      */
-    private void makeTestFile(File testFile, String content, boolean onWindows) {
-        try {
-            BufferedWriter bwr = new BufferedWriter(new FileWriter(testFile));
-            bwr.write(content);
-            bwr.flush();
-            bwr.close();
-        } catch (IOException ioex) {
-            fail("Unexpected IOException while preparing " + testFile.getAbsolutePath() + " test file");
-        }
+    private void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
+        IO.write(testFile, content);
         if (!onWindows) {
             Commandline cmdline = new Commandline();
             cmdline.setExecutable("chmod");

@@ -36,18 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import net.sourceforge.cruisecontrol.CruiseControlConfig;
+import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.PluginRegistry;
+import net.sourceforge.cruisecontrol.PluginType;
+import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -58,19 +58,16 @@ import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
-
-import net.sourceforge.cruisecontrol.CruiseControlConfig;
-import net.sourceforge.cruisecontrol.CruiseControlController;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.PluginDetail;
-import net.sourceforge.cruisecontrol.PluginRegistry;
-import net.sourceforge.cruisecontrol.PluginType;
-import net.sourceforge.cruisecontrol.Project;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -149,10 +146,8 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
             // ensure the file exists
             theConfigFile.mkdirs();
             theConfigFile.createNewFile();
-            
-            BufferedWriter out = new BufferedWriter(new FileWriter(theConfigFile));
-            out.write(contents);
-            out.close();
+
+            IO.write(theConfigFile, contents);
         } catch (FileNotFoundException fne) {
             LOG.error("Configuration file not found", fne);
         } catch (IOException ioe) {

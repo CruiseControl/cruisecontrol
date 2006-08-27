@@ -27,10 +27,19 @@
  ******************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.BufferedWriter;
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.MockCommandline;
+import net.sourceforge.cruisecontrol.util.MockProcess;
+import org.jdom.Attribute;
+import org.jdom.CDATA;
+import org.jdom.DataConversionException;
+import org.jdom.Element;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -38,27 +47,13 @@ import java.io.PipedOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.MockCommandline;
-import net.sourceforge.cruisecontrol.util.MockProcess;
-import net.sourceforge.cruisecontrol.util.IO;
-
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.DataConversionException;
-import org.jdom.Element;
 
 public class NantBuilderTest extends TestCase {
     
     private final List filesToClear = new ArrayList();
     private NantBuilder builder;
-    private Hashtable properties;
     private File rootTempDir = null;
     
     static class InputBasedMockCommandLineBuilder {
@@ -105,8 +100,6 @@ public class NantBuilderTest extends TestCase {
         // Must be a cleaner way to do this...
 //        builder.setNantWorkingDir(new File(
 //                new URI(ClassLoader.getSystemResource("test.build").toString())).getParent());
-        properties = new Hashtable();
-        properties.put("label", "200.1.23");
 
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         rootTempDir = new File(tempDir, "testRoot");
@@ -122,7 +115,6 @@ public class NantBuilderTest extends TestCase {
         }
 
         builder = null;
-        properties = null;
 
         IO.delete(rootTempDir);
     }
@@ -359,11 +351,9 @@ public class NantBuilderTest extends TestCase {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempNantLog.xml");
         filesToClear.add(logFile);
-        BufferedWriter bw2 = new BufferedWriter(new FileWriter(logFile));
-        bw2.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
+        IO.write(logFile,
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");
-        bw2.flush();
-        bw2.close();
 
         assertEquals(buildLogElement.toString(), builder.getNantLogAsElement(logFile).toString());
     }

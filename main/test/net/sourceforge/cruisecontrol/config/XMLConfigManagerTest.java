@@ -38,11 +38,10 @@ package net.sourceforge.cruisecontrol.config;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.ConfigManager;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.IO;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class XMLConfigManagerTest extends TestCase {
     private File configurationFile;
@@ -70,11 +69,9 @@ public class XMLConfigManagerTest extends TestCase {
         assertFalse(configManager.reloadIfNecessary());
     }
 
-    private void writeConfigurationFile(String contents) throws IOException {
+    private void writeConfigurationFile(String contents) throws CruiseControlException {
         StringBuffer configuration = new StringBuffer();
         configuration.append(contents);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(configurationFile));
-        writer.write(configuration.toString());
-        writer.close();
+        IO.write(configurationFile, configuration.toString());
     }
 }

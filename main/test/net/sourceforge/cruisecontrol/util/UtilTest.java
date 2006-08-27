@@ -37,14 +37,11 @@
 package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public class UtilTest extends TestCase {
 
@@ -61,9 +58,7 @@ public class UtilTest extends TestCase {
         props.append("property1=value1\n");
         props.append("property2 = value2\n");
         props.append("property3=value3\n");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(propsFile));
-        writer.write(props.toString());
-        writer.close();
+        IO.write(propsFile, props.toString());
 
         //Create a Properties object to test storing properties
         testProps = new Properties();

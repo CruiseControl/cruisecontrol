@@ -36,18 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.LogFile;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
+
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 
 public class XSLTagTest extends TestCase {
 
@@ -89,8 +90,8 @@ public class XSLTagTest extends TestCase {
                         + "test=<xsl:value-of select=\"/\" />.<xsl:value-of select=\"@sub\" />"
                     + "</xsl:template>"
                 + "</xsl:stylesheet>";
-        writeFile(log1, styleSheetText);
-        writeFile(log3, "<test sub=\"1\">3</test>");
+        IO.write(log1, styleSheetText);
+        IO.write(log3, "<test sub=\"1\">3</test>");
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
@@ -106,7 +107,7 @@ public class XSLTagTest extends TestCase {
                         + "test=<xsl:value-of select=\"/\" />.<xsl:value-of select=\"@sub\" />"
                     + "</xsl:template>"
                 + "</xsl:stylesheet>";
-        writeFile(log1, innerStyleSheetText);
+        IO.write(log1, innerStyleSheetText);
         final String outerStyleSheetText =
                 "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\" "
                         + "xmlns:lxslt=\"http://xml.apache.org/xslt\">"
@@ -116,8 +117,8 @@ public class XSLTagTest extends TestCase {
                         +  "<xsl:apply-templates />"
                     + "</xsl:template>"
                 + "</xsl:stylesheet>";
-        writeFile(log2, outerStyleSheetText);
-        writeFile(log3, "<test sub=\"1\">3</test>");
+        IO.write(log2, outerStyleSheetText);
+        IO.write(log3, "<test sub=\"1\">3</test>");
         OutputStream out = new ByteArrayOutputStream();
 
         XSLTag tag = createXSLTag();
@@ -135,8 +136,8 @@ public class XSLTagTest extends TestCase {
                          + "<xsl:value-of disable-output-escaping=\"yes\" select=\"'&#198;&#216;&#197;'\"/>"
                      + "</xsl:template>"
                  + "</xsl:stylesheet>";
-         writeFile(log1, styleSheetText);
-         writeFile(log2, "<test sub=\"1\">3</test>");
+         IO.write(log1, styleSheetText);
+         IO.write(log2, "<test sub=\"1\">3</test>");
 
          XSLTag tag = createXSLTag();
          tag.setXslFile(log1.getName());
@@ -154,15 +155,15 @@ public class XSLTagTest extends TestCase {
     }
 
     public void testIsNoCacheCurrent() throws Exception {
-        writeFile(log1, "");
+        IO.write(log1, "");
 
         XSLTag tag = createXSLTag();
         assertFalse(tag.isCacheFileCurrent(log1, log2));
     }
 
     public void testIsEmptyCacheCurrent() throws Exception {
-        writeFile(log1, "");
-        writeFile(log2, "");
+        IO.write(log1, "");
+        IO.write(log2, "");
 
         XSLTag tag = createXSLTag();
         assertFalse(tag.isCacheFileCurrent(log1, log2));
@@ -173,7 +174,7 @@ public class XSLTagTest extends TestCase {
     // the filesystem which can be as high as 2 seconds
 
     public void testServeCachedCopy() throws Exception {
-        writeFile(log3, "<test></test>");
+        IO.write(log3, "<test></test>");
         StringWriter out = new StringWriter();
         XSLTag tag = createXSLTag();
 
@@ -192,8 +193,8 @@ public class XSLTagTest extends TestCase {
                          + "<xsl:value-of select=\"$context.parameter\"/>"
                      + "</xsl:template>"
                  + "</xsl:stylesheet>";
-        writeFile(log1, styleSheetText);
-        writeFile(log2, "<test/>");
+        IO.write(log1, styleSheetText);
+        IO.write(log2, "<test/>");
 
         XSLTag tag = createXSLTag();
         MockServletConfig config = (MockServletConfig) tag.getPageContext().getServletConfig();
@@ -214,11 +215,5 @@ public class XSLTagTest extends TestCase {
         servletContext.setBaseResourceDir(logDir);
         tag.setPageContext(pageContext);
         return tag;
-    }
-
-    private void writeFile(File file, String body) throws Exception {
-        FileWriter writer = new FileWriter(file);
-        writer.write(body);
-        writer.close();
     }
 }
