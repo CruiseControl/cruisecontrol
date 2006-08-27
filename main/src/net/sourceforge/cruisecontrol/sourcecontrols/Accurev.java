@@ -69,9 +69,9 @@ public class Accurev implements SourceControl, AccurevInputParser {
     private String stream;
     private boolean verbose;
     private Hashtable properties = new Hashtable();
-    private String propertyOnDelete;
     private ArrayList modifications;
     private Runner runner;
+    private String property;
 
     /**
      * Sets the Accurev stream to search for changes
@@ -92,29 +92,19 @@ public class Accurev implements SourceControl, AccurevInputParser {
     }
 
     /**
-     * Choose a property to be set if the project has modifications if we have a change that only
-     * requires repackaging, i.e. jsp, we don't need to recompile everything, just rejar.
+     * Choose a property to be set if the project has modifications
      *
      * @param propertyName the name of the property
      */
     public void setProperty(String propertyName) {
-        if (propertyName != null) {
-            properties.put(propertyName, "true");
-        }
-    }
-
-    /**
-     * Choose a property to be set if the project has deletions
-     *
-     * @param propertyName the name of the property
-     */
-    public void setPropertyOnDelete(String propertyName) {
-        propertyOnDelete = propertyName;
-        addPropertyOnDelete();
+        property = propertyName;
     }
 
     public Map getProperties() {
-        return properties;
+        Map rvalue = new Hashtable();
+        rvalue.putAll(properties);
+        properties.clear();
+        return rvalue;
     }
 
     public void validate() throws CruiseControlException {
@@ -178,6 +168,9 @@ public class Accurev implements SourceControl, AccurevInputParser {
                 modification.modifiedTime = DateTimespec.parse(parts[2].trim());
                 modification.userName = parts[3].substring(6).trim();
                 modifications.add(modification);
+                if (property != null) {
+                    properties.put(property, "true");
+                }
             } else if (line.startsWith("  #")) {
                 // # Comment
                 if (modification != null) {
@@ -213,13 +206,6 @@ public class Accurev implements SourceControl, AccurevInputParser {
         String[] parts = new String[partsList.size()];
         partsList.toArray(parts);
         return parts;
-    }
-
-    private void addPropertyOnDelete() {
-        if (propertyOnDelete != null) {
-            properties.put(propertyOnDelete, "true");
-            LOG.debug("setting property " + propertyOnDelete + " to be true");
-        }
     }
 
     public void setRunner(Runner runner) {
