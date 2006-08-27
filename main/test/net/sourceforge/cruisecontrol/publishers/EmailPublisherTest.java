@@ -52,6 +52,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
+import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Alert;
+import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Always;
+import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Ignore;
 import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
 import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
@@ -145,14 +148,14 @@ public class EmailPublisherTest extends TestCase {
             xml.append("<alert fileRegExpr='basedir/subdirectory2/.*' address='subdir2@host.com' />");
             xml.append("<alert fileRegExpr='basedir/subdirectory3/filename3' address='filename3@host.com' />");
             xml.append("<alert fileRegExpr='basedir/subdirectory5/.*' address='basedirSubdirectory5@host.com' />");
-            xml.append("<alert fileRegExpr='' address='' />");
+            xml.append("<alert fileRegExpr='' address='empty' />");
         }
         xml.append("</email>");
         
         return xml.toString();
     }
 
-    public void testValidate() {
+    public void testValidate() throws CruiseControlException {
         EmailPublisher publisher = new MockEmailPublisher();
         try {
             publisher.validate();
@@ -162,14 +165,68 @@ public class EmailPublisherTest extends TestCase {
 
         publisher.setMailHost("mailhost");
         publisher.setReturnAddress("returnaddress");
-
-        try {
-            publisher.validate();
-        } catch (CruiseControlException e) {
-            fail("EmailPublisher should not throw exceptions when required fields are set.");
-        }
+        publisher.validate();
     }
+    
+    public void testValidateAlwaysAddresses() throws CruiseControlException {
+        Always always = emailPublisher.createAlways();
+        try {
+            emailPublisher.validate();
+            fail("unconfigured always elements should fail validation");
+        } catch (CruiseControlException expected) {
+        }
+        
+        always.setAddress("");
+        try {
+            emailPublisher.validate();
+            fail("empty string should not be a valid address");
+        } catch (CruiseControlException expected) {
+        }
 
+        always.setAddress("address");
+        emailPublisher.validate();
+    }
+    
+    public void testValidateAlerts() throws CruiseControlException {
+        Alert alert = emailPublisher.createAlert();
+        try {
+            emailPublisher.validate();
+            fail("unconfigured alert elements should fail validation");
+        } catch (CruiseControlException expected) {
+        }
+        
+        alert.setFileRegExpr("regex");
+        try {
+            emailPublisher.validate();
+            fail("alert elements without addresses should fail validation");
+        } catch (CruiseControlException expected) {
+        }
+        
+        alert.setAddress("address");
+        emailPublisher.validate();
+        
+        alert = emailPublisher.createAlert();
+        alert.setAddress("address");
+        try {
+            emailPublisher.validate();
+            fail("alert elements without file regex should fail validation");
+        } catch (CruiseControlException expected) {
+        }        
+        
+    }
+    
+    public void testValidateIgnore() throws CruiseControlException {
+        Ignore ignore = emailPublisher.createIgnore();
+        try {
+            emailPublisher.validate();
+            fail("unconfigured ignore elements should fail validation");
+        } catch (CruiseControlException expected) {
+        }        
+        
+        ignore.setUser("user");
+        emailPublisher.validate();
+    }
+    
     public void testShouldSend() throws Exception {
         //build not necessary, spam while broken=true
         emailPublisher.setSpamWhileBroken(true);
