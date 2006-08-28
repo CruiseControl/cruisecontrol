@@ -6,11 +6,11 @@
         </listeners>
 
         <bootstrappers>
-            <cvsbootstrapper localWorkingCopy="projects/${project.name}" />
+            <svnbootstrapper localWorkingCopy="projects/${project.name}" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <cvs localWorkingCopy="projects/${project.name}"/>
+            <svn localWorkingCopy="projects/${project.name}"/>
         </modificationset>
 
         <schedule interval="300">
