@@ -118,9 +118,8 @@
     </target>
 
     <target name="bin-zip" depends="build, website">
-        <defaultexcludes remove="**/CVS"/>
-        <defaultexcludes remove="**/CVS/**"/>
-        <defaultexcludes remove="**/.cvsignore"/>
+        <defaultexcludes remove="**/.svn"/>
+        <defaultexcludes remove="**/.svn/**"/>
 
         <copy todir="target/binzip">
             <fileset file="binaryrelease/README.txt"/>
@@ -142,9 +141,8 @@
                 <exclude name="cruisecontrol.sh"/>
                 <exclude name="config.xml"/>
                 <exclude name="*.zip"/>
-                <exclude name="**/CVS"/>
-                <exclude name="**/CVS/**"/>
-                <exclude name="**/.cvsignore"/>
+                <exclude name="**/.svn"/>
+                <exclude name="**/.svn/**"/>
             </zipfileset>
             <zipfileset file="binaryrelease/cruisecontrol.sh" filemode="755"
 	                prefix="${cc.bin.zip.prefix}"/>
