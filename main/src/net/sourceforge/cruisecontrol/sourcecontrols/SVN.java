@@ -195,7 +195,7 @@ public class SVN implements SourceControl {
      *
      * For example:
      *
-     * 'svn log --non-interactive --xml -v -r {lastbuildTime}:headRevision repositoryLocation'
+     * 'svn log --non-interactive --xml -v -r "{lastbuildTime}":"{checkTime}" repositoryLocation'
      */
     Commandline buildHistoryCommand(Date lastBuild, Date checkTime) throws CruiseControlException {
         Commandline command = new Commandline();
@@ -210,8 +210,8 @@ public class SVN implements SourceControl {
         command.createArgument("--xml");
         command.createArgument("-v");
         command.createArgument("-r");
-        command.createArgument("'{" + formatSVNDate(lastBuild) + "}'" + ":"
-                + "'{" + formatSVNDate(checkTime) + "}'");
+        command.createArgument("\"{" + formatSVNDate(lastBuild) + "}\"" + ":"
+                + "\"{" + formatSVNDate(checkTime) + "}\"");
 
         if (userName != null) {
             command.createArguments("--username", userName);
