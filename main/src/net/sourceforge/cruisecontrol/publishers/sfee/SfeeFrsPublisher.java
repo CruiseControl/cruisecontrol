@@ -100,7 +100,7 @@ public class SfeeFrsPublisher extends SfeePublisher {
                 frsApp.deleteFrsFile(sessionID, id);
             }
 
-            DataHandler dataHandler = new DataHandler(getFile().toURL());
+            DataHandler dataHandler = new DataHandler(getFile().toURI().toURL());
             IFileStorageAppSoap fileStorageApp =
                     (IFileStorageAppSoap) ClientSoapStubFactory.getSoapStub(IFileStorageAppSoap.class, getServerURL());
             String storedFileId = fileStorageApp.uploadFile(sessionID, dataHandler);
