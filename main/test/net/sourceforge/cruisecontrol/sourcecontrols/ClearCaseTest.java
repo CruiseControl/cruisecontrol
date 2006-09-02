@@ -211,13 +211,4 @@ public class ClearCaseTest extends TestCase {
         }
     }
 
-
-    public void testOutput() throws IOException {
-
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(ClearCaseTest.class);
-    }
-
 }
