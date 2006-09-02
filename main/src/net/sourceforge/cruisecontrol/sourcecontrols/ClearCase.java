@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import java.util.Vector;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -242,13 +244,12 @@ public class ClearCase implements SourceControl {
         List modifications = null;
         try {
             Process p = Runtime.getRuntime().exec(command, null, root);
-
-            StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-            new Thread(errorPumper).start();
-
+            logErrorStream(p.getErrorStream());
+            
             InputStream input = p.getInputStream();
             modifications = parseStream(input);
 
+            getRidOfLeftoverData(input);
             p.waitFor();
             IO.close(p);
         } catch (Exception e) {
@@ -262,6 +263,22 @@ public class ClearCase implements SourceControl {
         return modifications;
     }
 
+    private void logErrorStream(InputStream error) {
+        StreamConsumer warnLogger = new StreamConsumer() {
+            public void consumeLine(String line) {
+                LOG.warn(line);
+            }
+        };
+        StreamPumper errorPumper =
+                new StreamPumper(error, null, warnLogger);
+        new Thread(errorPumper).start();
+    }    
+    
+    private void getRidOfLeftoverData(InputStream stream) {
+        StreamPumper outPumper = new StreamPumper(stream, (PrintWriter) null);
+        new Thread(outPumper).start();
+    }
+    
     /**
      * Parses the input stream to construct the modifications list.
      * Package-private to make it available to the unit test.
