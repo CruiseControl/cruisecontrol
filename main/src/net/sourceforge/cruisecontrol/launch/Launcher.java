@@ -71,7 +71,7 @@ import net.sourceforge.cruisecontrol.launch.util.Locator;
  * @author <a href="mailto:rjmpsmith@gmail.com>Robert J. Smith</a>
  */
 public class Launcher {
-    
+
     /** The property containing the CruiseControl home directory */
     public static final String CCHOME_PROPERTY = "cc.home";
 
@@ -121,33 +121,15 @@ public class Launcher {
      * @exception MalformedURLException if the URLs required for the classloader
      *            cannot be created.
      */
-    private void run(String[] args) throws LaunchException, MalformedURLException {
+    void run(String[] args) throws LaunchException, MalformedURLException {
 
-        // If the CruiseControl home dir was provided as a system property,
-        // create a reference to it
-        File ccHome = null;
-        String ccHomeProperty = System.getProperty(CCHOME_PROPERTY);
-        if (ccHomeProperty != null) {
-            ccHome = new File(ccHomeProperty);
-        }
-        
-        // If the location was not specifed, or it does not exist, try to guess
-        // the location based upon the location of the launcher Jar.
-        File sourceJar = Locator.getClassSource(this.getClass());
-        File distJarDir = sourceJar.getParentFile();
-        if (ccHome == null || !ccHome.exists()) {
-            ccHome = distJarDir.getParentFile();
-            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
-        }
-        
-        // If none of the above worked, give up now.
-        if (!ccHome.exists()) {
-            throw new LaunchException(
-                    "CruiseControl home is not set or could not be located.");
-        }
+        final File sourceJar = Locator.getClassSource(this.getClass());
+        final File distJarDir = sourceJar.getParentFile();
 
-        // Process the command line arguments. We will handle the classpath 
-        // related switches ourself. All other arguments will be repackaged 
+        final File ccHome = getCCHomeDir(distJarDir);
+
+        // Process the command line arguments. We will handle the classpath
+        // related switches ourself. All other arguments will be repackaged
         // and passed on the the Main class for processing.
         List libPaths = new ArrayList();
         List argList = new ArrayList();
@@ -176,7 +158,7 @@ public class Launcher {
         URL[] libJars = (URL[]) libPathURLs.toArray(new URL[0]);
 
         // Determine the CruiseControl directory for the distribution jars.
-        // Use the system property if it was provided, otherwise make a guess 
+        // Use the system property if it was provided, otherwise make a guess
         // based upon the location of the launcher jar.
         File ccDistDir = null;
         String ccDistDirProperty = System.getProperty(CCDISTDIR_PROPERTY);
@@ -188,9 +170,9 @@ public class Launcher {
             System.setProperty(CCDISTDIR_PROPERTY, ccDistDir.getAbsolutePath());
         }
         URL[] distJars = Locator.getLocationURLs(ccDistDir);
-        
-        // Determine CruiseControl library directory for third party jars. 
-        // Use the system property if it was provided, otherwise make a guess 
+
+        // Determine CruiseControl library directory for third party jars.
+        // Use the system property if it was provided, otherwise make a guess
         // based upon the CruiseControl home dir we found earlier.
         File ccLibDir = null;
         String ccLibDirProperty = System.getProperty(CCLIBDIR_PROPERTY);
@@ -243,19 +225,18 @@ public class Launcher {
         }
         baseClassPath.append(File.pathSeparatorChar);
         baseClassPath.append(".");
+
         // adding the homedirectory to the classpath
-        if (ccHomeProperty != null && ccHomeProperty.length() > 0) {
-            ccHomeProperty = ccHomeProperty.replace('\\', '/');
-            baseClassPath.append(File.pathSeparatorChar);
-            baseClassPath.append(ccHomeProperty + "/");
-        }
+        baseClassPath.append(File.pathSeparatorChar);
+        baseClassPath.append(ccHome.getAbsolutePath()).append(File.separatorChar);
+
         System.setProperty("java.class.path", baseClassPath.toString());
         System.out.println("Classpath: " + baseClassPath.toString());
 
         // Create a new class loader which has access to our jars
         URLClassLoader loader = new URLClassLoader(jars);
         Thread.currentThread().setContextClassLoader(loader);
-        
+
         // Launch CruiseControl!
         try {
             Class mainClass = loader.loadClass(MAIN_CLASS);
@@ -264,6 +245,43 @@ public class Launcher {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    /** Exception message if CC Home directory couldn't be determined. */
+    static final String MSG_BAD_CCHOME = "CruiseControl home is not set or could not be located.";
+
+    /**
+     * Determine and return the CC Home directory, and reset the
+     * {@link #CCHOME_PROPERTY} to match if needed.
+     * @param distJarDir the main CC dist directory containing
+     * cruisecontrol.jar and cruisecontrol-launcher.jar, used to guess default home dir.
+     * @return CruiseControl home directory
+     * @throws LaunchException if CruiseControl home is not set or could not be located.
+     */
+    File getCCHomeDir(File distJarDir) throws LaunchException {
+        // If the CruiseControl home dir was provided as a system property,
+        // create a reference to it
+        final File ccHome;
+        final String ccHomeProperty = System.getProperty(CCHOME_PROPERTY);
+        if (ccHomeProperty != null && (new File(ccHomeProperty)).exists()) {
+            ccHome = new File(ccHomeProperty);
+
+        // If the location was not specifed, or it does not exist, try to guess
+        // the location based upon the location of the launcher Jar.
+        } else if (distJarDir.getParentFile() != null) {
+            ccHome = distJarDir.getParentFile();
+            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
+            System.out.println("WARNING: " + CCHOME_PROPERTY + " reset to "
+                    + System.getProperty(CCHOME_PROPERTY));
+        } else {
+            ccHome = null;
+        }
+
+        // If none of the above worked, give up now.
+        if (ccHome == null || !ccHome.exists()) {
+            throw new LaunchException(MSG_BAD_CCHOME);
+        }
+        return ccHome;
     }
 
     private void copyJarUrls(URL[] sourceArray, URL[] destinationArray, int destinationStartIndex) {

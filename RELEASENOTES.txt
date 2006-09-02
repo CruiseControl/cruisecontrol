@@ -86,6 +86,7 @@ AllFusionHarvestCM511
 Launcher
 ----------------------
 * Add Ant-style launcher (CC-268).  Patch by Robert J. Smith.
+  - Fix NPE if cc.home property not set (CC-516).  Patch by Dan Rollo.
 
 LdapMapper
 ----------------------

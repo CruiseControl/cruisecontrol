@@ -108,6 +108,12 @@ public final class Main implements CruiseControlMain {
         }
     }
 
+    /**
+     * System property name, when if true, bypasses the system.exit call when printing
+     * the usage message. Intended for unit tests only.
+     */
+    public static final String SYSPROP_CCMAIN_SKIP_USAGE_EXIT = "cc.main.skip.usage.exit";
+
     public static void printUsageAndExit() {
         System.out.println("");
         System.out.println("Usage:");
@@ -135,7 +141,10 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -cchome directory       location from which to start Cruise; default to .");
         System.out.println("  -ccname name            name for this Cruise instance; default to none");
         System.out.println("");
-        System.exit(1);
+
+        if (!Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE_EXIT)) {
+            System.exit(1);
+        }
     }
 
     /**
