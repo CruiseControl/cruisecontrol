@@ -1,0 +1,143 @@
+<!--********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001 ThoughtWorks, Inc.
+ * 651 W Washington Ave. Suite 600
+ * Chicago, IL 60661 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************-->
+<project name="mainAsWar" default="clean-all" basedir=".">
+    <property environment="env"/>
+    <property file="override.properties"/>
+
+    <!-- define version -->
+    <property file="../../build.properties"/>
+
+    <property name="dist" value="dist"/>
+    <property name="target" value="target"/>
+    <property name="deploy.dir" value="${dist}"/>
+    <property name="src" value="src"/>
+    <property name="classes" value="${target}/classes"/>
+	<property name="main.dir" value="../../main"/>
+	<property name="main.lib" value="${main.dir}/lib" />
+	<property name="main.jar" value="${main.dir}/dist/cruisecontrol.jar"/>
+    <property name="test.classes" value="${target}/test-classes"/>
+    <property name="test" value="test"/>
+    <property name="test.results" value="${target}/test-results"/>
+
+    <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
+    <property name="checkstyle.jar" value="${main.lib}/checkstyle-all-3.1.jar"/>
+
+    <target name="clean">
+        <delete dir="${target}"/>
+    </target>
+
+    <target name="init">
+        <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
+
+        <mkdir dir="${dist}"/>
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${test.classes}"/>
+        <mkdir dir="${test.results}"/>
+
+    	<tstamp/>
+        <property name="label" value="${cc.version} Compiled on ${TODAY} ${TSTAMP}"/>
+    </target>
+
+    <target name="checkstyle" depends="init" description="Generates a report of code convention violations.">
+        <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
+        <touch file="${checkstyle.cache}"/>
+        <checkstyle config="${main.dir}/checkstyle.xml" failOnViolation="true">
+            <property key="cacheFile" value="${checkstyle.cache}"/>
+            <formatter type="plain"/>
+            <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
+            <fileset dir="${src}" includes="**/*.java"/>
+            <fileset dir="${test}" includes="**/*.java"/>
+            <property key="checkstyle.cache.file" file="${checkstyle.cache}"/>
+        </checkstyle>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${classes}" debug="true" source="1.4" target="1.4">
+            <classpath>
+            	<pathelement path="../../reporting/jsp/lib/servlet.jar"/>
+            	<pathelement path="${main.jar}"/>
+            	<pathelement path="${main.dir}/dist/cruisecontrol-launcher.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="compile-test" depends="compile"
+        description="Compile test code">
+        <javac srcdir="${test}" destdir="${test.classes}" debug="true" source="1.4" target="1.4">
+            <classpath>
+            	<pathelement path="../../reporting/jsp/lib/servlet.jar"/>
+            	<pathelement path="${main.jar}"/>
+            	<pathelement path="${classes}"/>
+        	</classpath>
+        </javac>
+    </target>
+
+    <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
+            <classpath>
+            	<pathelement path="../../reporting/jsp/lib/servlet.jar"/>
+            	<pathelement path="${main.jar}"/>
+            	<pathelement path="${classes}"/>
+            	<pathelement path="${test.classes}"/>
+        	</classpath>
+            <formatter type="brief" usefile="false" />
+            <formatter type="xml"/>
+            <batchtest todir="${test.results}" >
+                <fileset dir="${test.classes}" includes="**/*Test.class" />
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="war">
+        <war warfile="${deploy.dir}/cruisecontrol-main.war" webxml="web.xml">
+            <classes dir="${classes}"/>
+            <lib file="${main.jar}"/>
+            <lib file="${main.dir}/dist/cruisecontrol-launcher.jar"/>
+            <lib dir="${main.lib}"/>
+            <lib dir="${main.lib}/ant"/>
+            <manifest>
+                <attribute name="Implementation-Version" value="${label}"/>
+            </manifest>
+        </war>
+    </target>
+
+    <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>
+    
+    <target name="all" depends="init,compile,checkstyle,test,war"
+            description="Performs a build, runs tests, and builds war" />
+
+</project>
