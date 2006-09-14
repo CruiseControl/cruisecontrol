@@ -64,5 +64,5 @@ public interface CruiseControlMain {
      *            Command line arguments to be handled directly by CruiseControl
      *            (passed through the launcher without processing)
      */
-    public void start(String[] args);
+    public boolean start(String[] args);
 }

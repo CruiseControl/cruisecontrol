@@ -241,9 +241,24 @@ public class Launcher {
         try {
             Class mainClass = loader.loadClass(MAIN_CLASS);
             CruiseControlMain main = (CruiseControlMain) mainClass.newInstance();
-            main.start((String[]) argList.toArray(new String[argList.size()]));
+            boolean normalExit = main.start((String[]) argList.toArray(new String[argList.size()]));
+            if (!normalExit) {
+                exitWithErrorCode();
+            }
         } catch (Throwable t) {
             t.printStackTrace();
+        }
+    }
+
+    /**
+     * System property name, when if true, bypasses the system.exit call when printing
+     * the usage message. Intended for unit tests only.
+     */
+    public static final String SYSPROP_CCMAIN_SKIP_USAGE_EXIT = "cc.main.skip.usage.exit";
+
+    private void exitWithErrorCode() {
+        if (!Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE_EXIT)) {
+            System.exit(1);
         }
     }
 
