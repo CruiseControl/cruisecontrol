@@ -1,11 +1,10 @@
 package net.sourceforge.cruisecontrol.launch;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.Main;
-import net.sourceforge.cruisecontrol.launch.util.Locator;
-
-import java.util.Properties;
 import java.io.File;
+import java.util.Properties;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.launch.util.Locator;
 
 /**
  * @author Dan Rollo
@@ -18,8 +17,6 @@ public class LauncherTest extends TestCase {
     protected void setUp() throws Exception {
         // shallow copy should be enough, but maybe deep copy would be better?
         origSysProps = (Properties) System.getProperties().clone();
-        // prevent system.exit calls from printUsage
-        System.setProperty(Main.SYSPROP_CCMAIN_SKIP_USAGE_EXIT, "true");
 
         origClassLoader = Thread.currentThread().getContextClassLoader();
     }
@@ -61,6 +58,9 @@ public class LauncherTest extends TestCase {
         final String[] args = new String[] { "-configfile", "bogusConfigFile" };
         final Launcher launcher = new Launcher();
         System.getProperties().remove(Launcher.CCHOME_PROPERTY);
+        // prevent system.exit calls from printUsage
+        System.setProperty(Launcher.SYSPROP_CCMAIN_SKIP_USAGE_EXIT, "true");
+
         // line below fails w/ NPE if sysprop "cc.home" doesn't exist
         launcher.run(args);
     }

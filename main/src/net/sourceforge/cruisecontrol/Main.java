@@ -64,42 +64,53 @@ public final class Main implements CruiseControlMain {
      * @deprecated Use the Launcher class instead
      */
     public static void main(String[] args) {
-        new Main().start(args);
+        boolean normalExit = new Main().start(args);
+        if (!normalExit) {
+            System.exit(1);
+        }
     }
 
     /**
      * Print the version, configure the project with serialized build info
      * and/or arguments and start the project build process.
+     * 
+     * @return true indicates normal return/exit.
      */
-    public void start(String[] args) {
+    public boolean start(String[] args) {
         Properties versionProperties = getBuildVersionProperties();
         printVersion(versionProperties);
         if (shouldPrintUsage(args)) {
-            printUsageAndExit();
+            printUsage();
+            return false;
         }
         try {
             checkDeprecatedArguments(args, LOG);
-
             if (MainArgs.findIndex(args, "debug") != MainArgs.NOT_FOUND) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
-            CruiseControlController controller = new CruiseControlController();
-            controller.setVersionProperties(versionProperties);
-            File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
-            controller.setConfigFile(configFile);
-            ServerXMLHelper helper = new ServerXMLHelper(configFile);
-            ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
-            if (shouldStartController(args)) {
-                CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller,
-                        parseJMXHttpPort(args), parseRmiPort(args), parseUser(args), parsePassword(args),
-                        parseXslPath(args));
-                agent.start();
-            }
-            controller.resume();
+            startController(args, versionProperties);
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
-            printUsageAndExit();
+            printUsage();
+            return false;
         }
+        return true;
+    }
+
+    private void startController(String[] args, Properties versionProperties) throws CruiseControlException {
+        CruiseControlController controller = new CruiseControlController();
+        controller.setVersionProperties(versionProperties);
+        File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
+        controller.setConfigFile(configFile);
+        ServerXMLHelper helper = new ServerXMLHelper(configFile);
+        ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
+        if (shouldStartController(args)) {
+            CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller,
+                    parseJMXHttpPort(args), parseRmiPort(args), parseUser(args), parsePassword(args),
+                    parseXslPath(args));
+            agent.start();
+        }
+        controller.resume();
     }
 
     protected static void checkDeprecatedArguments(String[] args, Logger logger) {
@@ -108,13 +119,7 @@ public final class Main implements CruiseControlMain {
         }
     }
 
-    /**
-     * System property name, when if true, bypasses the system.exit call when printing
-     * the usage message. Intended for unit tests only.
-     */
-    public static final String SYSPROP_CCMAIN_SKIP_USAGE_EXIT = "cc.main.skip.usage.exit";
-
-    public static void printUsageAndExit() {
+    public static void printUsage() {
         System.out.println("");
         System.out.println("Usage:");
         System.out.println("");
@@ -141,10 +146,6 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -cchome directory       location from which to start Cruise; default to .");
         System.out.println("  -ccname name            name for this Cruise instance; default to none");
         System.out.println("");
-
-        if (!Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE_EXIT)) {
-            System.exit(1);
-        }
     }
 
     /**
