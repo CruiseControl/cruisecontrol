@@ -75,6 +75,6 @@ DISTRIBDIR=$CCDIR/../contrib/distributed
 DISTRIB_LIBDIR=$DISTRIBDIR/lib 
 DISTRIB_CONFDIR=$DISTRIBDIR/conf 
 
-EXEC="$JAVA_HOME/bin/java -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar -lib $JAVA_HOME/lib/tools.jar -lib $DISTRIBDIR/dist/agent/lib/cc-agent.jar -lib $DISTRIB_LIBDIR -lib $DISTRIB_CONFDIR $@" 
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar -lib $JAVA_HOME/lib/tools.jar -lib $DISTRIBDIR/dist/agent/lib/cc-agent.jar -lib $DISTRIB_LIBDIR -lib $DISTRIB_CONFDIR $@"
 echo $EXEC
 exec $EXEC

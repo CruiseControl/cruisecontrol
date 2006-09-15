@@ -14,6 +14,7 @@ contrib
 * Update distributed CC code for refactoring in core (CC-485). Patch by Dan Rollo
 * Fix bug in distributed where empty results subdirectories cause exception (CC-458). Patch by Dan Rollo
 * Fix bug where distributed InteractiveBuildUtility always fails to build (CC-459). Patch by Dan Rollo
+* Pass CC_OPTS in cruisecontrol.sh for distributed CC.  Patch by Dan Rollo.
 * Fixes for windows installer (CC-505).  Patch by Julian Simpson:
   - displays README instead of RELEASENOTES
   - now with Windows service
