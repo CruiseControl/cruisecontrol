@@ -12,7 +12,6 @@ public class MainLoopRunner implements Runnable {
 
     public void run() {
         String[] args = {"-jmxport", jmxport.toString()};
-        System.setProperty("cc.main.skip.usage.exit", "true");
         new Main().start(args);
     }
 
