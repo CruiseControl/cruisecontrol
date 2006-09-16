@@ -103,21 +103,6 @@ public class ThreadQueue extends Thread {
     private static ThreadQueue threadPool;
 
     /**
-     * this variable is used to generate a unique name
-     * for tasks that are not named when they arrive in
-     * the queue
-     */
-
-    private static long nameCounter = Long.MIN_VALUE;
-
-    /**
-     * this variable is simple used to synchronize
-     * access to the nameCounter above
-     */
-
-    private static final Long NAME_COUNTER_SYNCH = new Long("0");
-
-    /**
      * tells the main process when to exit
      */
     private static boolean terminate = false;
@@ -198,10 +183,7 @@ public class ThreadQueue extends Thread {
      */
     public static void addTask(WorkerThread task) {
         LOG.debug("Preparing to add worker task " + task.getName());
-        if (task.getName().equals(WorkerThread.BLANK_NAME)) {
-            task.setName(nextName());
-        }
-        //System.out.println("adding worker task "+task.getName());
+
         if (isActive(task.getName())) {
             throw new RuntimeException("Duplicate task name!");
         }
@@ -560,21 +542,6 @@ public class ThreadQueue extends Thread {
             
             LOG.warn("Project is neither idle nor busy: " + taskName + "; taking no action");
         }
-    }
-
-    /**
-     * This call wraps the next unique name for a task
-     * that is inserted with no name
-     */
-
-    private static String nextName() {
-        synchronized (NAME_COUNTER_SYNCH) {
-            if (nameCounter == Long.MAX_VALUE) {
-                nameCounter = Long.MIN_VALUE;
-            }
-        }
-        nameCounter++;
-        return nameCounter + "";
     }
 
     /**

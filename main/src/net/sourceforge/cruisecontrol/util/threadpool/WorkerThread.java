@@ -46,20 +46,9 @@ package net.sourceforge.cruisecontrol.util.threadpool;
 
 public interface WorkerThread extends Runnable {
 
-  ///////////////////////////
-  // Interfaces
-  //////////////////////////
-
-  // TODO:
-  // add javadoc comments for each routine
-
   public Object getResult();
   public String getName();
-  public void setName(String name);
   public void terminate();
 
-  ///////////////////////////
-  // Constants
-  //////////////////////////
   public static final String BLANK_NAME = "blank name";
 }
