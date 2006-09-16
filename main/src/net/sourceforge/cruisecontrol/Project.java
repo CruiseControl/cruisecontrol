@@ -64,7 +64,7 @@ import org.jdom.Element;
  * be built.  Project is associated with bootstrappers that run before builds
  * and a Schedule that determines when builds occur.
  */
-public class Project implements Serializable, Runnable {
+public class Project implements Serializable, Runnable, ProjectInterface {
     static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 

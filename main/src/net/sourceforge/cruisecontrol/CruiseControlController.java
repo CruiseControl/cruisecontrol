@@ -63,7 +63,7 @@ public class CruiseControlController {
     private Properties versionProperties;
 
     private List listeners = new ArrayList();
-    private ConfigManager configManager;
+    private XMLConfigManager configManager;
     
     private ParsingConfigMutex parsingConfigMutex = new ParsingConfigMutex();
 
@@ -87,18 +87,15 @@ public class CruiseControlController {
         if (configFile == null) {
             throw new CruiseControlException("No config file");
         }
-        if (!configFile.exists()) {
+        if (!configFile.isFile()) {
             throw new CruiseControlException("Config file not found: " + configFile.getAbsolutePath());
         }
         
         if (!configFile.equals(this.configFile)) {
-            this.configFile = configFile;
-        
+            this.configFile = configFile;        
             configManager = new XMLConfigManager(configFile);
         }
 
-        // If we're setting the config file to the one
-        // that's already being used, then force a reload.
         loadConfigFromConfigManager();
     }
 
@@ -169,8 +166,8 @@ public class CruiseControlController {
         return Collections.unmodifiableList(projects);
     }
 
-    private List getAllProjects(ConfigManager configManager) throws CruiseControlException {
-        Set projectNames = configManager.getProjectNames();
+    private List getAllProjects(XMLConfigManager configManager) throws CruiseControlException {
+        Set projectNames = configManager.getCruiseControlConfig().getProjectNames();
         List allProjects = new ArrayList(projectNames.size());
         for (Iterator it = projectNames.iterator(); it.hasNext();) {
             String projectName = (String) it.next();
@@ -184,47 +181,45 @@ public class CruiseControlController {
     protected Project configureProject(String projectName) throws CruiseControlException {
         Project project = readProject(projectName);
         project.setName(projectName);
-        project.setProjectConfig(getConfigManager().getConfig(projectName));
+        project.setProjectConfig(getConfigManager().getProjectConfig(projectName));
         project.init();
         return project;
     }
 
-    protected ConfigManager getConfigManager() {
+    protected XMLConfigManager getConfigManager() {
         return configManager;
     }
 
     /**
-     * Reads project configuration from a previously serialized Project.  The
-     * name of the serialized project file is equivalent to the name of the
-     * project.
+     * Reads project configuration from a previously serialized Project or creates a new
+     * instance.  The name of the serialized project file is derived from the name of
+     * the project.
      *
-     * @param projectName name of the serialized project file
+     * @param projectName name of the serialized project
      * @return Deserialized Project or a new Project if there are any problems
      * reading the serialized Project; should never return null
      */
     Project readProject(String projectName) {
-        //look for fileName.ser first
         File serializedProjectFile = new File(projectName + ".ser");
         LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
 
         if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
-            //filename.ser doesn't exist, try finding fileName
-            serializedProjectFile = new File(projectName);
-            LOG.debug(projectName + ".ser not found, looking for serialized project file: " + projectName);
-            if (!serializedProjectFile.exists()
-                    || !serializedProjectFile.canRead()
-                    || serializedProjectFile.isDirectory()) {
-                Project temp = new Project();
-                temp.setName(projectName);
-                if (!projects.contains(temp)) {
-                    LOG.warn("No previously serialized project found ["
-                            + serializedProjectFile.getAbsolutePath()
-                            + ".ser], forcing a build.");
-                }
-                Project newProject = new Project();
-                newProject.setBuildForced(true);
-                return newProject;
+            serializedProjectFile = tryOldSerializedFileName(projectName);
+        }
+        
+        if (!serializedProjectFile.exists()
+                || !serializedProjectFile.canRead()
+                || serializedProjectFile.isDirectory()) {
+            Project temp = new Project();
+            temp.setName(projectName);
+            if (!projects.contains(temp)) {
+                LOG.warn("No previously serialized project found ["
+                        + serializedProjectFile.getAbsolutePath()
+                        + ".ser], forcing a build.");
             }
+            Project newProject = new Project();
+            newProject.setBuildForced(true);
+            return newProject;
         }
 
         try {
@@ -234,6 +229,14 @@ public class CruiseControlController {
             LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
             return new Project();
         }
+    }
+
+    private File tryOldSerializedFileName(String projectName) {
+        File serializedProjectFile;
+        serializedProjectFile = new File(projectName);
+        LOG.debug(projectName + ".ser not found, looking for serialized project file "
+                + serializedProjectFile.getAbsolutePath());
+        return serializedProjectFile;
     }
 
     public void addListener(Listener listener) {
@@ -311,7 +314,7 @@ public class CruiseControlController {
 
     private void updateProject(Project project) throws CruiseControlException {
         Project matchingProject = (Project) projects.get(projects.indexOf(project));
-        matchingProject.setProjectConfig(getConfigManager().getConfig(matchingProject.getName()));
+        matchingProject.setProjectConfig(getConfigManager().getProjectConfig(matchingProject.getName()));
         matchingProject.init();
     }
 

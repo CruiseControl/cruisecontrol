@@ -50,12 +50,12 @@ import org.apache.log4j.Logger;
 
 public class ProjectWrapper implements WorkerThread {
 
-  private Project myProject = null;
+  private ProjectInterface myProject = null;
   private static final Logger LOG = Logger.getLogger(ProjectWrapper.class);
   private boolean doneBuilding;
   private Object doneBuildingMutex = new Object();
 
-  public ProjectWrapper(Project thisProject) {
+  public ProjectWrapper(ProjectInterface thisProject) {
     if (thisProject == null) {
        throw new IllegalArgumentException("null thisProject");
     }
@@ -100,7 +100,4 @@ public class ProjectWrapper implements WorkerThread {
     return myProject.getName();
   }
 
-  public void setName(String newName) {
-    myProject.setName(newName);
-  }
 }

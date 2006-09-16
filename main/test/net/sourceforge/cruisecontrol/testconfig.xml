@@ -18,7 +18,7 @@
 
   <project name='project2' >
     <bootstrappers>
-      <vssbootstrapper vsspath='foo' localdirectory='tmp' />
+      <vssbootstrapper vsspath='foo' localdirectory='${test.properties.dir}' />
     </bootstrappers>
     <schedule interval='20' >
       <ant multiple='1' buildfile='tmp/foo/bar.xml' target='baz' />

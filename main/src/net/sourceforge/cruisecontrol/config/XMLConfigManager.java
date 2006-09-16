@@ -36,24 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
-import net.sourceforge.cruisecontrol.ConfigManager;
-import net.sourceforge.cruisecontrol.CruiseControlConfig;
-import net.sourceforge.cruisecontrol.ProjectConfig;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.IO;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.util.Set;
-import java.util.Collections;
 
+import net.sourceforge.cruisecontrol.CruiseControlConfig;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-import org.apache.log4j.Logger;
 import com.twmacinta.util.MD5OutputStream;
 
 /**
@@ -61,34 +57,36 @@ import com.twmacinta.util.MD5OutputStream;
  * @author jerome@coffeebreaks.org
  * @version $Id$
  */
-public class XMLConfigManager implements ConfigManager {
+public class XMLConfigManager {
 
     private static final Logger LOG = Logger.getLogger(XMLConfigManager.class);
-    private File configFile;
-    private CruiseControlConfig config =  new CruiseControlConfig();
+    private final File configFile;
+    private CruiseControlConfig config;
     private String hash;
 
     public XMLConfigManager(File file) throws CruiseControlException {
-        setConfigFile(file);
-    }
-
-    private void loadConfig(File file) throws CruiseControlException {
-        LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
-        Element element = Util.loadConfigFile(file);
-        config = new CruiseControlConfig();
-        config.configure(element);
-    }
-
-    public void setConfigFile(File fileName) throws CruiseControlException {
-        LOG.debug("Config file set to [" + fileName + "]");
-        configFile = fileName;
-        LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
+        configFile = file;
         hash = calculateMD5(configFile);
         loadConfig(configFile);
     }
 
-    public Set getProjectNames() {
-        return Collections.unmodifiableSet(config.getProjectNames());
+    private void loadConfig(File file) throws CruiseControlException {
+        LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
+        Element element = Util.loadRootElement(file);
+        config = new CruiseControlConfig(element);
+    }
+
+    public File getConfigFile() {
+        return configFile;
+    }
+
+    public CruiseControlConfig getCruiseControlConfig() {
+        return config;
+    }
+
+    public ProjectConfig getProjectConfig(String projectName) throws CruiseControlException {
+        LOG.info("using settings from config file [" + configFile.getAbsolutePath() + "]");
+        return config.getConfig(projectName);
     }
 
     public boolean reloadIfNecessary() throws CruiseControlException {
@@ -102,20 +100,12 @@ public class XMLConfigManager implements ConfigManager {
         return fileChanged;
     }
 
-    public ProjectConfig getConfig(String projectName) throws CruiseControlException {
-        LOG.info("using settings from config file [" + configFile.getAbsolutePath() + "]");
-        return config.getConfig(projectName);
-    }
-
-    public File getConfigFile() {
-        return configFile;
-    }
-
-    public static String calculateMD5(File file) {
+    private String calculateMD5(File file) {
+        LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
         String md5 = null;
         MD5OutputStream stream = null;
         try {
-            Element element = Util.loadConfigFile(file);
+            Element element = Util.loadRootElement(file);
             stream = new MD5OutputStream(new ByteArrayOutputStream());
             XMLOutputter outputter = new XMLOutputter();
             outputter.output(element, stream);
@@ -130,8 +120,4 @@ public class XMLConfigManager implements ConfigManager {
         return md5;
     }
 
-    /** For tests purposes. FIXME. move tests in same package */
-    public CruiseControlConfig getCruiseControlConfig() {
-        return config;
-    }
 }

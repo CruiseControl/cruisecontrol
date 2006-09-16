@@ -57,20 +57,20 @@ public final class Util {
     private Util() {
     }
 
-    public static Element loadConfigFile(File configFile) throws CruiseControlException {
+    public static Element loadRootElement(File configFile) throws CruiseControlException {
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
             return builder.build(configFile).getRootElement();
         } catch (Exception e) {
             throw new CruiseControlException(
-                    "failed to load config file [" + (configFile != null
+                    "failed to load file [" + (configFile != null
                     ? configFile.getName()
                     : "") + "]",
                     e);
         }
     }
     
-    public static Element parseConfig(InputStream in) throws CruiseControlException {
+    public static Element loadRootElement(InputStream in) throws CruiseControlException {
         try {
             SAXBuilder builder = new SAXBuilder();
             return builder.build(in).getRootElement();
