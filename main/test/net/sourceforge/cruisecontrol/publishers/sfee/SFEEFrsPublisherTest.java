@@ -1,22 +1,26 @@
 package net.sourceforge.cruisecontrol.publishers.sfee;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.rmi.RemoteException;
+
+import javax.activation.DataHandler;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.testutil.UnreadableMockFile;
+import net.sourceforge.cruisecontrol.util.IO;
+
+import org.apache.tools.ant.util.FileUtils;
+
 import com.vasoftware.sf.soap42.webservices.ClientSoapStubFactory;
 import com.vasoftware.sf.soap42.webservices.filestorage.IFileStorageAppSoap;
 import com.vasoftware.sf.soap42.webservices.frs.FrsFileSoapList;
 import com.vasoftware.sf.soap42.webservices.frs.FrsFileSoapRow;
 import com.vasoftware.sf.soap42.webservices.frs.IFrsAppSoap;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Publisher;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
-import net.sourceforge.cruisecontrol.testutil.UnreadableMockFile;
-import org.apache.tools.ant.util.FileUtils;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.rmi.RemoteException;
-import javax.activation.DataHandler;
 
 public class SFEEFrsPublisherTest extends TestCase {
     private static final String SERVER_URL = "http://tapestry.sourceforge.vasoftware.com";
@@ -206,14 +210,14 @@ public class SFEEFrsPublisherTest extends TestCase {
 
         final File tempFile = File.createTempFile(SFEEFrsPublisherTest.class.getName(), "temp");
         tempFile.deleteOnExit();
-        TestUtil.write(tempFile, "run 1");
+        IO.write(tempFile, "run 1");
         publisher.setFile(tempFile.getAbsolutePath());
 
         publisher.validate();
         publisher.publish(null);
         assertOneFileExistsInRelease(uploadname, SERVER_URL, USERNAME, PASSWORD, RELEASE_ID);
 
-        TestUtil.write(tempFile, "run 2");
+        IO.write(tempFile, "run 2");
         publisher.publish(null);
         assertOneFileExistsInRelease(uploadname, SERVER_URL, USERNAME, PASSWORD, RELEASE_ID);
         String contents = getReleaseFileContents(uploadname, SERVER_URL, USERNAME, PASSWORD, RELEASE_ID);

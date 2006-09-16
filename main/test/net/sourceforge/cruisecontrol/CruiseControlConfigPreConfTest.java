@@ -57,9 +57,8 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
         tempDirectory = configFile.getParentFile();
 
-        Element rootElement = Util.loadConfigFile(configFile);
-        config = new CruiseControlConfig();
-        config.configure(rootElement);
+        Element rootElement = Util.loadRootElement(configFile);
+        config = new CruiseControlConfig(rootElement);
     }
 
     protected void tearDown() {

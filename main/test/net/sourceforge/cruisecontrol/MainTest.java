@@ -164,13 +164,13 @@ public class MainTest extends TestCase {
         String[] neitherArg = new String[]{"-foo", "blah"};
         String[] deprecatedHttpPort = new String[]{"-port", "8085"};
 
-        assertTrue(Main.shouldStartController(bothArgs));
-        assertTrue(Main.shouldStartController(bothArgsWithDeprecated));
-        assertTrue(Main.shouldStartController(rmiPort));
-        assertTrue(Main.shouldStartController(httpPort));
-        assertTrue(Main.shouldStartController(httpPortWithDefault));
-        assertTrue(Main.shouldStartController(deprecatedHttpPort));
-        assertFalse(Main.shouldStartController(neitherArg));
+        assertTrue(Main.shouldStartJmxAgent(bothArgs));
+        assertTrue(Main.shouldStartJmxAgent(bothArgsWithDeprecated));
+        assertTrue(Main.shouldStartJmxAgent(rmiPort));
+        assertTrue(Main.shouldStartJmxAgent(httpPort));
+        assertTrue(Main.shouldStartJmxAgent(httpPortWithDefault));
+        assertTrue(Main.shouldStartJmxAgent(deprecatedHttpPort));
+        assertFalse(Main.shouldStartJmxAgent(neitherArg));
     }
 
     public void testDeprecatedArgs() {

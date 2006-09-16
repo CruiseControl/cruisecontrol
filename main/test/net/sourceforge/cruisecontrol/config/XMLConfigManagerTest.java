@@ -36,12 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import java.io.File;
+
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.ConfigManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.IO;
-
-import java.io.File;
 
 public class XMLConfigManagerTest extends TestCase {
     private File configurationFile;
@@ -57,7 +56,7 @@ public class XMLConfigManagerTest extends TestCase {
     }
 
     public void testShouldStoreUpdatedMD5HashWhenItChanges() throws Exception {
-        ConfigManager configManager = new XMLConfigManager(configurationFile);
+        XMLConfigManager configManager = new XMLConfigManager(configurationFile);
 
         assertFalse(configManager.reloadIfNecessary());
 

@@ -99,6 +99,19 @@ public class CruiseControlControllerTest extends TestCase {
             assertEquals("Config file not found: " + configFile.getAbsolutePath(), expected.getMessage());
         }
     }
+    
+    public void testSetFileFailsIfPassedDirectory() throws IOException {
+        File tempFile = File.createTempFile("temp", ".file");
+        tempFile.deleteOnExit();
+        
+        try {
+            ccController.setConfigFile(tempFile.getParentFile());
+            fail("Config file can't be directory");
+        } catch (CruiseControlException expected) {
+            assertEquals("Config file not found: " 
+                    + tempFile.getParentFile().getAbsolutePath(), expected.getMessage());            
+        }
+    }
 
     public void testLoadEmptyProjects() throws IOException, CruiseControlException {
         FileWriter configOut = new FileWriter(configFile);
@@ -368,7 +381,7 @@ public class CruiseControlControllerTest extends TestCase {
         writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
-        XMLConfigManager configManager = (XMLConfigManager) ccController.getConfigManager();
+        XMLConfigManager configManager = ccController.getConfigManager();
         CruiseControlConfig config = configManager.getCruiseControlConfig();
 
         PluginRegistry newRegistry = config.getRootPlugins();

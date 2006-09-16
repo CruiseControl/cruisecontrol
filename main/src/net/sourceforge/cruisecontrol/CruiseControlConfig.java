@@ -38,14 +38,16 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.List;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
@@ -56,7 +58,7 @@ import org.jdom.Element;
  * A plugin that represents the whole XML config file.
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
-public class CruiseControlConfig implements SelfConfiguringPlugin {
+public class CruiseControlConfig {
     private static final Logger LOG = Logger.getLogger(CruiseControlConfig.class);
 
     public static final String LABEL_INCREMENTER = "labelincrementer";
@@ -175,30 +177,21 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     /** Properties of a particular node. Mapped by the node name. Doesn't handle rootProperties yet */
     private Map templatePluginProperties = new HashMap();
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
-    private Map projectConfigs = new TreeMap();  // TODO: replace with LinkedHashMap when we drop 1.3 support
-    private ProjectNameSet projectNames = new ProjectNameSet();  // TODO: remove when we can use LinkedHashMap
+    private Map projectConfigs = new LinkedHashMap();
     // for test purposes only
     private Map projectPluginRegistries = new TreeMap();
 
-    public CruiseControlConfig() {
-    }
-
-    // for testing... Could be used if we had an external property file.
-    CruiseControlConfig(Properties globalProperties) {
-        this.rootProperties.putAll(globalProperties);
-    }
-
-    public void configure(Element rootElement) throws CruiseControlException {
+    public CruiseControlConfig(Element ccElement) throws CruiseControlException {
         // parse properties and plugins first, so their order in the config file doesn't matter
-        for (Iterator i = rootElement.getChildren("property").iterator(); i.hasNext(); ) {
+        for (Iterator i = ccElement.getChildren("property").iterator(); i.hasNext(); ) {
             handleRootProperty((Element) i.next());
         } 
-        for (Iterator i = rootElement.getChildren("plugin").iterator(); i.hasNext(); ) {
+        for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext(); ) {
             handleRootPlugin((Element) i.next());
         }
         
         // other childNodes must be projects or the <system> node
-        for (Iterator i = rootElement.getChildren().iterator(); i.hasNext(); ) {
+        for (Iterator i = ccElement.getChildren().iterator(); i.hasNext(); ) {
             Element childElement = (Element) i.next();
             final String nodeName = childElement.getName();
             if (isProject(nodeName)) {
@@ -207,6 +200,11 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
         }
+    }
+
+    // for testing... Could be used if we had an external property file.
+    CruiseControlConfig(Properties globalProperties) {
+        this.rootProperties.putAll(globalProperties);
     }
 
     private boolean isProject(String nodeName) throws CruiseControlException {
@@ -354,7 +352,6 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
         LOG.debug("**************** end configuring project" + projectName + " *******************");
 
         this.projectConfigs.put(projectName, projectConfig);
-        projectNames.add(projectName);
         this.projectPluginRegistries.put(projectName, projectPlugins);
     }
 
@@ -371,9 +368,7 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
     }
 
     public Set getProjectNames() {
-// TODO: can go to old implmentation when we drop 1.3 and can use LinkedHashMap
-//        return this.projectConfigs.keySet();
-        return projectNames;
+        return Collections.unmodifiableSet(this.projectConfigs.keySet());
     }
 
     PluginRegistry getRootPlugins() {
@@ -382,79 +377,6 @@ public class CruiseControlConfig implements SelfConfiguringPlugin {
 
     PluginRegistry getProjectPlugins(String name) {
         return (PluginRegistry) this.projectPluginRegistries.get(name);
-    }
-
-    /*
-     * Allows CC to build projects in the order they are added, which is the
-     * order they appear in the config file.
-     * 
-     * TODO: remove when we can drop 1.3 and use LinkedHashMap for projectConfigs
-     */
-    private class ProjectNameSet implements Set {
-        private ArrayList list = new ArrayList();
-
-        public int size() {
-            return list.size();
-        }
-
-        public void clear() {
-            list.clear();
-        }
-
-        public boolean isEmpty() {
-            return list.isEmpty();
-        }
-
-        public Object[] toArray() {
-            return list.toArray();
-        }
-
-        public boolean add(Object o) {
-            if (o == null) {
-                throw new IllegalArgumentException("null not a valid project name");
-            }
-            if (!(o instanceof String)) {
-                throw new IllegalArgumentException("project names must be strings");
-            }
-            if (list.contains(o)) {
-                return false;
-            }
-            list.add(o);
-            return true;
-        }
-
-        public boolean contains(Object o) {
-            return list.contains(o);
-        }
-
-        public boolean remove(Object o) {
-            return list.remove(o);
-        }
-
-        public boolean addAll(Collection c) {
-            return list.addAll(c);
-        }
-
-        public boolean containsAll(Collection c) {
-            return list.containsAll(c);
-        }
-
-        public boolean removeAll(Collection c) {
-            return list.removeAll(c);
-        }
-
-        public boolean retainAll(Collection c) {
-            return list.retainAll(c);
-        }
-
-        public Iterator iterator() {
-            return list.iterator();
-        }
-
-        public Object[] toArray(Object[] a) {
-            return list.toArray(a);
-        }
-
     }
 
 }

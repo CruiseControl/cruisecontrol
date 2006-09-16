@@ -74,11 +74,13 @@ public class CruiseControlConfigTest extends TestCase {
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
         tempDirectory = configFile.getParentFile();
 
-        Element rootElement = Util.loadConfigFile(configFile);
-        Properties globalProperties = new Properties();
-        globalProperties.put("test.properties.dir", propertiesFile.getParentFile().getAbsolutePath());
-        config = new CruiseControlConfig(globalProperties);
-        config.configure(rootElement);
+        Element ccElement = Util.loadRootElement(configFile);
+        Element testpropertiesdir = new Element("property");
+        testpropertiesdir.setAttribute("name", "test.properties.dir");
+        testpropertiesdir.setAttribute("value", propertiesFile.getParentFile().getAbsolutePath());
+        ccElement.addContent(0, testpropertiesdir);
+        
+        config = new CruiseControlConfig(ccElement);
     }
 
     protected void tearDown() {

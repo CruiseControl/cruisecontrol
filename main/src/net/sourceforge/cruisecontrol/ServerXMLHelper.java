@@ -58,7 +58,7 @@ public class ServerXMLHelper {
 
     public ServerXMLHelper(File configFile) {
         try {
-            Element configLogElement = Util.loadConfigFile(configFile);
+            Element configLogElement = Util.loadRootElement(configFile);
             Element systemElement = configLogElement.getChild("system");
             if (systemElement == null) {
                 LOG.debug("no system element found in config.xml");

@@ -278,6 +278,9 @@ public class ModificationSetTest extends TestCase {
         }
     }
 
+    /**
+     * @deprecated
+     */
     public void testSetRequireModification() {
         modSet.getModifications(new Date());
         assertFalse(modSet.isModified());
