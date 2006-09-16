@@ -225,8 +225,8 @@ public class Configuration {
 
     private ProjectConfig getProjectConfig(String project) throws CruiseControlException, AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, JDOMException {
-        CruiseControlConfig config = new CruiseControlConfig();
-        config.configure(Util.parseConfig(new ByteArrayInputStream(getConfiguration().getBytes())));
+        Element element = Util.loadRootElement(new ByteArrayInputStream(getConfiguration().getBytes()));
+        CruiseControlConfig config = new CruiseControlConfig(element);
         return config.getConfig(project);
     }
 
