@@ -94,7 +94,7 @@ public class InteractiveBuildUtility {
         Element rootElement = null;
         Element project = null;
         try {
-            rootElement = Util.loadConfigFile(configFile);
+            rootElement = Util.loadRootElement(configFile);
         } catch (CruiseControlException e) {
             System.err.println(e.getMessage());
             LOG.error(e.getMessage(), e);
