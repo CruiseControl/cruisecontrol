@@ -202,11 +202,6 @@ public class CruiseControlConfig {
         }
     }
 
-    // for testing... Could be used if we had an external property file.
-    CruiseControlConfig(Properties globalProperties) {
-        this.rootProperties.putAll(globalProperties);
-    }
-
     private boolean isProject(String nodeName) throws CruiseControlException {
         return rootPlugins.isPluginRegistered(nodeName)
             &&  ProjectConfig.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
