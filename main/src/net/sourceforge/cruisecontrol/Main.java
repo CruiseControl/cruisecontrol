@@ -104,7 +104,7 @@ public final class Main implements CruiseControlMain {
         controller.setConfigFile(configFile);
         ServerXMLHelper helper = new ServerXMLHelper(configFile);
         ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
-        if (shouldStartController(args)) {
+        if (shouldStartJmxAgent(args)) {
             CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller,
                     parseJMXHttpPort(args), parseRmiPort(args), parseUser(args), parsePassword(args),
                     parseXslPath(args));
@@ -166,7 +166,7 @@ public final class Main implements CruiseControlMain {
         return configFileName;
     }
 
-    static boolean shouldStartController(String[] args) {
+    static boolean shouldStartJmxAgent(String[] args) {
         return MainArgs.argumentPresent(args, "jmxport") || MainArgs.argumentPresent(args, "rmiport")
                 || MainArgs.argumentPresent(args, "port");
     }
