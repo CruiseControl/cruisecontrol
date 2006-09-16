@@ -551,7 +551,7 @@ public class BuildAgentServiceImplTest extends TestCase {
                                        final Map distributedAgentProps) 
             throws CruiseControlException, RemoteException {
         
-        final Element rootElement = Util.loadConfigFile(TEST_CONFIG_FILE);
+        final Element rootElement = Util.loadRootElement(TEST_CONFIG_FILE);
 
         final Element project = (Element) rootElement.getChildren("project").get(0);
         assertEquals("testproject", project.getAttributeValue("name"));

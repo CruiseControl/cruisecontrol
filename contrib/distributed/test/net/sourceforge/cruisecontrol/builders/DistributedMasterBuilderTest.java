@@ -275,7 +275,7 @@ public class DistributedMasterBuilderTest extends TestCase {
     private static Element getDistElement(final String projectName, final int projectIndex)
             throws CruiseControlException {
 
-        final Element rootElement = Util.loadConfigFile(BuildAgentServiceImplTest.TEST_CONFIG_FILE);
+        final Element rootElement = Util.loadRootElement(BuildAgentServiceImplTest.TEST_CONFIG_FILE);
 
         final List projects = rootElement.getChildren(ELM_NAME_PROJECT);
         final Element project = (Element) projects.get(projectIndex);
