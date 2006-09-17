@@ -37,8 +37,6 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
@@ -107,7 +105,7 @@ public class CruiseControlController {
         return allProjects;
     }
 
-    private void addProject(Project project) {
+    private void addProject(ProjectInterface project) {
         projects.add(project);
         for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
             LOG.debug("Informing listener of added project " + project.getName());
@@ -118,7 +116,7 @@ public class CruiseControlController {
         project.start();
     }
 
-    private void removeProject(Project project) {
+    private void removeProject(ProjectInterface project) {
         projects.remove(project);
         for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
             LOG.debug("Informing listener of removed project " + project.getName());
@@ -131,7 +129,7 @@ public class CruiseControlController {
     public void resume() {
         buildQueue.start();
         for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
-            Project currentProject = (Project) iterator.next();
+            ProjectInterface currentProject = (ProjectInterface) iterator.next();
             currentProject.setBuildQueue(buildQueue);
             currentProject.start();
         }
@@ -140,7 +138,7 @@ public class CruiseControlController {
     public void pause() {
         buildQueue.stop();
         for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
-            Project currentProject = (Project) iterator.next();
+            ProjectInterface currentProject = (ProjectInterface) iterator.next();
             currentProject.stop();
         }
     }
@@ -172,71 +170,20 @@ public class CruiseControlController {
         for (Iterator it = projectNames.iterator(); it.hasNext();) {
             String projectName = (String) it.next();
             LOG.info("projectName = [" + projectName + "]");
-            Project project = configureProject(projectName);
+            ProjectInterface project = configureProject(projectName);
             allProjects.add(project);
         }
         return allProjects;
     }
 
-    protected Project configureProject(String projectName) throws CruiseControlException {
-        Project project = readProject(projectName);
-        project.setName(projectName);
-        project.setProjectConfig(getConfigManager().getProjectConfig(projectName));
-        project.init();
+    protected ProjectInterface configureProject(String projectName) throws CruiseControlException {
+        ProjectConfig projectConfig = getConfigManager().getProjectConfig(projectName);
+        ProjectInterface project = projectConfig.configureProject();
         return project;
     }
 
     protected XMLConfigManager getConfigManager() {
         return configManager;
-    }
-
-    /**
-     * Reads project configuration from a previously serialized Project or creates a new
-     * instance.  The name of the serialized project file is derived from the name of
-     * the project.
-     *
-     * @param projectName name of the serialized project
-     * @return Deserialized Project or a new Project if there are any problems
-     * reading the serialized Project; should never return null
-     */
-    Project readProject(String projectName) {
-        File serializedProjectFile = new File(projectName + ".ser");
-        LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
-
-        if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
-            serializedProjectFile = tryOldSerializedFileName(projectName);
-        }
-        
-        if (!serializedProjectFile.exists()
-                || !serializedProjectFile.canRead()
-                || serializedProjectFile.isDirectory()) {
-            Project temp = new Project();
-            temp.setName(projectName);
-            if (!projects.contains(temp)) {
-                LOG.warn("No previously serialized project found ["
-                        + serializedProjectFile.getAbsolutePath()
-                        + ".ser], forcing a build.");
-            }
-            Project newProject = new Project();
-            newProject.setBuildForced(true);
-            return newProject;
-        }
-
-        try {
-            ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
-            return (Project) s.readObject();
-        } catch (Exception e) {
-            LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
-            return new Project();
-        }
-    }
-
-    private File tryOldSerializedFileName(String projectName) {
-        File serializedProjectFile;
-        serializedProjectFile = new File(projectName);
-        LOG.debug(projectName + ".ser not found, looking for serialized project file "
-                + serializedProjectFile.getAbsolutePath());
-        return serializedProjectFile;
     }
 
     public void addListener(Listener listener) {
@@ -292,19 +239,19 @@ public class CruiseControlController {
             //Handled removed projects
             Iterator removed = removedProjects.iterator();
             while (removed.hasNext()) {
-                removeProject((Project) removed.next());
+                removeProject((ProjectInterface) removed.next());
             }
 
             //Handle added projects
             Iterator added = newProjects.iterator();
             while (added.hasNext()) {
-                addProject((Project) added.next());
+                addProject((ProjectInterface) added.next());
             }
 
             //Handle retained projects
             Iterator retained = retainedProjects.iterator();
             while (retained.hasNext()) {
-                updateProject((Project) retained.next());
+                updateProject((ProjectInterface) retained.next());
             }
 
         } catch (CruiseControlException e) {
@@ -312,10 +259,9 @@ public class CruiseControlController {
         }
     }
 
-    private void updateProject(Project project) throws CruiseControlException {
-        Project matchingProject = (Project) projects.get(projects.indexOf(project));
-        matchingProject.setProjectConfig(getConfigManager().getProjectConfig(matchingProject.getName()));
-        matchingProject.init();
+    private void updateProject(ProjectInterface project) throws CruiseControlException {
+        ProjectConfig projectConfig = getConfigManager().getProjectConfig(project.getName());
+        projectConfig.update();
     }
 
     public static interface Listener extends EventListener {

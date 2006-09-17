@@ -13,4 +13,8 @@ public interface ProjectInterface {
 
     void register(MBeanServer server) throws JMException;
 
+    void setBuildQueue(BuildQueue buildQueue);
+
+    void start();
+
 }

@@ -36,6 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -44,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /** 
@@ -51,6 +56,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class ProjectConfig {
+    private static final Logger LOG = Logger.getLogger(ProjectConfig.class);
 
     private String name;
     private boolean buildAfterFailed = true;
@@ -67,6 +73,8 @@ public class ProjectConfig {
     private Schedule schedule;
 
     private Map properties;
+
+    private Project project;
 
     /**
      *  Called after the configuration is read to make sure that all the mandatory parameters
@@ -260,5 +268,69 @@ public class ProjectConfig {
      */
     public void setRequiremodification(boolean requiremodification) {
         this.requiremodification = requiremodification;
+    }
+    
+    public ProjectInterface configureProject() throws CruiseControlException {
+        Project myProject = readProject(name);
+        myProject.setName(name);
+        myProject.setProjectConfig(this);
+        myProject.init();
+        this.project = myProject;
+        return myProject;
+    }
+
+    /**
+     * Reads project configuration from a previously serialized Project or creates a new
+     * instance.  The name of the serialized project file is derived from the name of
+     * the project.
+     *
+     * @param projectName name of the serialized project
+     * @return Deserialized Project or a new Project if there are any problems
+     * reading the serialized Project; should never return null
+     */
+    Project readProject(String projectName) {
+        File serializedProjectFile = new File(projectName + ".ser");
+        LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
+    
+        if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
+            serializedProjectFile = ProjectConfig.tryOldSerializedFileName(projectName);
+        }
+        
+        if (!serializedProjectFile.exists()
+                || !serializedProjectFile.canRead()
+                || serializedProjectFile.isDirectory()) {
+            Project temp = new Project();
+            temp.setName(projectName);
+            LOG.warn("No previously serialized project found ["
+                    + serializedProjectFile.getAbsolutePath()
+                    + ".ser], forcing a build.");
+            Project newProject = new Project();
+            newProject.setBuildForced(true);
+            return newProject;
+        }
+    
+        try {
+            ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
+            return (Project) s.readObject();
+        } catch (Exception e) {
+            LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
+            return new Project();
+        }
+    }
+
+    private static File tryOldSerializedFileName(String projectName) {
+        File serializedProjectFile;
+        serializedProjectFile = new File(projectName);
+        LOG.debug(projectName + ".ser not found, looking for serialized project file "
+                + serializedProjectFile.getAbsolutePath());
+        return serializedProjectFile;
+    }
+
+    public void update() throws CruiseControlException {
+        if (project == null) {
+            configureProject();
+        } else {
+            project.init();
+        }
     }
 }
