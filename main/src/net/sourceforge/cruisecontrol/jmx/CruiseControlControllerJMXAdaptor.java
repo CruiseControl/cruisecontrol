@@ -42,7 +42,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginType;
-import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
@@ -238,17 +238,15 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         LOG.debug("Updating project mbeans");
         if (server != null) {
             for (Iterator iterator = controller.getProjects().iterator(); iterator.hasNext();) {
-                Project project = (Project) iterator.next();
+                ProjectInterface project = (ProjectInterface) iterator.next();
                 projectAdded(project);
             }
         }
     }
 
-    public void projectAdded(Project project) {
+    public void projectAdded(ProjectInterface project) {
         try {
-            LOG.debug("Registering project mbean");
-            ProjectController projectController = new ProjectController(project);
-            projectController.register(server);
+            project.register(server);
         } catch (JMException e) {
             LOG.error("Could not register project " + project.getName(), e);
         }
@@ -257,7 +255,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         notifyChanged("projectAdded", name);
     }
 
-    public void projectRemoved(Project project) {
+    public void projectRemoved(ProjectInterface project) {
         String name = "CruiseControl Project:name=" + project.getName();
         LOG.debug("Removing project " + name);
         try {

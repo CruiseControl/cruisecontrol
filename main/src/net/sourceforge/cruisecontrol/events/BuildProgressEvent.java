@@ -37,7 +37,7 @@
 
 package net.sourceforge.cruisecontrol.events;
 
-import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.ProjectState;
 
 import java.util.EventObject;
@@ -58,13 +58,13 @@ public class BuildProgressEvent extends EventObject {
      * @param project the project whose build loop has progressed
      * @param state indicates which step the build loop is in
      */
-    public BuildProgressEvent(Project project, ProjectState state) {
+    public BuildProgressEvent(ProjectInterface project, ProjectState state) {
         super(project);
         this.state = state;
     }
 
-    public Project getProject() {
-        return (Project) getSource();
+    public ProjectInterface getProject() {
+        return (ProjectInterface) getSource();
     }
 
     public ProjectState getState() {

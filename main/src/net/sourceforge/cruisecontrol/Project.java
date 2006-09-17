@@ -48,10 +48,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.JMException;
+import javax.management.MBeanServer;
+
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.jmx.ProjectController;
 import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -875,6 +879,12 @@ public class Project implements Serializable, Runnable, ProjectInterface {
 
     public int hashCode() {
         return name.hashCode();
+    }
+
+    public void register(MBeanServer server) throws JMException {
+        LOG.debug("Registering project mbean");
+        ProjectController projectController = new ProjectController(this);
+        projectController.register(server);
     }
 
 }

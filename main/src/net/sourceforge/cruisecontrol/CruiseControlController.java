@@ -319,8 +319,8 @@ public class CruiseControlController {
     }
 
     public static interface Listener extends EventListener {
-        void projectAdded(Project project);
-        void projectRemoved(Project project);
+        void projectAdded(ProjectInterface project);
+        void projectRemoved(ProjectInterface project);
     }
 
     private class BuildQueueListener implements BuildQueue.Listener {
