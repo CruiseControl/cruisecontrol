@@ -37,7 +37,7 @@
 
 package net.sourceforge.cruisecontrol.events;
 
-import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 
 import java.util.EventObject;
 
@@ -58,7 +58,7 @@ public class BuildResultEvent extends EventObject {
      * @param project the project whose build has completed
      * @param buildSuccessful indicating whether the build has passed or failed
      */
-    public BuildResultEvent(Project project, boolean buildSuccessful) {
+    public BuildResultEvent(ProjectInterface project, boolean buildSuccessful) {
         super(project);
 
         this.buildSuccessful = buildSuccessful;
@@ -68,7 +68,7 @@ public class BuildResultEvent extends EventObject {
         return buildSuccessful;
     }
 
-    public Project getProject() {
-        return (Project) getSource();
+    public ProjectInterface getProject() {
+        return (ProjectInterface) getSource();
     }
 }

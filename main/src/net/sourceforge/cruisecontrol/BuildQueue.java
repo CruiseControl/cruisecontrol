@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Provides an independent thread of execution that knows how to
- * build Projects.  Passes {@link Project} objects to a thread
+ * build Projects.  Passes {@link ProjectInterface} objects to a thread
  * queue.  The number of worker threads is defined in config.xml
  *
  * @author Peter Mei <pmei@users.sourceforge.net>
@@ -67,7 +67,7 @@ public class BuildQueue implements Runnable {
     /**
      * @param project
      */
-    public void requestBuild(Project project) {
+    public void requestBuild(ProjectInterface project) {
         LOG.debug("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
 
         notifyListeners();
@@ -81,7 +81,7 @@ public class BuildQueue implements Runnable {
      * @param project The project to find in the queues
      * @return String representing this project's position in the various queues, e.g. IDLE[ 5 / 24 ]
      */
-    public String findPosition(Project project) {
+    public String findPosition(ProjectInterface project) {
         int position;
         int length;
         synchronized (queue) {
@@ -97,9 +97,9 @@ public class BuildQueue implements Runnable {
 
     void serviceQueue() {
         while (!queue.isEmpty()) {
-            Project nextProject;
+            ProjectInterface nextProject;
             synchronized (queue) {
-                nextProject = (Project) queue.remove(0);
+                nextProject = (ProjectInterface) queue.remove(0);
             }
             if (nextProject != null) {
                 LOG.info("now adding to the thread queue: " + nextProject.getName());

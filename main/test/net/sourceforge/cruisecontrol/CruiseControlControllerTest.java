@@ -443,10 +443,10 @@ public class CruiseControlControllerTest extends TestCase {
             added.clear();
             removed.clear();
         }
-        public void projectAdded(Project project) {
+        public void projectAdded(ProjectInterface project) {
             added.add(project);
         }
-        public void projectRemoved(Project project) {
+        public void projectRemoved(ProjectInterface project) {
             removed.add(project);
         }
     }

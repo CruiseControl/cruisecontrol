@@ -1,5 +1,8 @@
 package net.sourceforge.cruisecontrol;
 
+import javax.management.JMException;
+import javax.management.MBeanServer;
+
 public interface ProjectInterface {
 
     String getName();
@@ -7,5 +10,7 @@ public interface ProjectInterface {
     void execute();
 
     void stop();
+
+    void register(MBeanServer server) throws JMException;
 
 }
