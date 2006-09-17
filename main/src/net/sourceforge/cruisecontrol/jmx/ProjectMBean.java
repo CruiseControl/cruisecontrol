@@ -66,22 +66,6 @@ public interface ProjectMBean {
      */
     public void serialize();
 
-
-//    /**
-//     * Returns the duration the managed project process has been executing.
-//     *
-//     * @return Execution duration.
-//     */
-//    public long getUpTime();
-//
-//    /**
-//     * Returns the number of successful builds performed by the managed
-//     * project.
-//     *
-//     * @return Successful build count.
-//     */
-//    public long getSuccessfulBuildCount();
-
     /**
      * Is the project paused?
      * 
