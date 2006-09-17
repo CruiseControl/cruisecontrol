@@ -91,6 +91,14 @@ public class ProjectConfigTest extends TestCase {
         assertTrue(publishers.validateWasCalled());
         assertTrue(log.validateWasCalled());
     }
+    
+    public void testReadProject() throws CruiseControlException {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        ProjectConfig projectConfig = new ProjectConfig();
+        Project project = projectConfig.readProject(tempDir);
+        assertNotNull(project);
+        assertTrue(project.getBuildForced());
+    }
 
     private static class MockBootstrappers extends ProjectConfig.Bootstrappers {
         private boolean validateWasCalled = false;

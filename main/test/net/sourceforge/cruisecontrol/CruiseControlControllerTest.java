@@ -365,13 +365,6 @@ public class CruiseControlControllerTest extends TestCase {
         assertTrue(ccController.parseConfigFileIfNecessary());
     }
 
-    public void testReadProject() {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        Project project = ccController.readProject(tempDir);
-        assertNotNull(project);
-        assertTrue(project.getBuildForced());
-    }
-
     public void testRegisterPlugins() throws IOException, CruiseControlException {
         FileWriter configOut = new FileWriter(configFile);
         writeHeader(configOut);
