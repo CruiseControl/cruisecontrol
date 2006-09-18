@@ -68,7 +68,7 @@ import org.jdom.Element;
  * be built.  Project is associated with bootstrappers that run before builds
  * and a Schedule that determines when builds occur.
  */
-public class Project implements Serializable, Runnable, ProjectInterface {
+public class Project implements Serializable, Runnable {
     static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 
@@ -215,7 +215,7 @@ public class Project implements Serializable, Runnable, ProjectInterface {
             projectConfig.getLog().addContent(buildLog.detach());
 
             boolean buildSuccessful = projectConfig.wasBuildSuccessful();
-            fireResultEvent(new BuildResultEvent(this, buildSuccessful));
+            fireResultEvent(new BuildResultEvent(projectConfig, buildSuccessful));
 
             if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
                 label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
@@ -280,7 +280,7 @@ public class Project implements Serializable, Runnable, ProjectInterface {
                     if (!stopped) {
                         setState(ProjectState.QUEUED);
                         synchronized (scheduleMutex) {
-                            queue.requestBuild(this);
+                            queue.requestBuild(projectConfig);
                             waitForBuildToFinish();
                         }
                     }
@@ -583,7 +583,7 @@ public class Project implements Serializable, Runnable, ProjectInterface {
 
     public String getStatusWithQueuePosition() {
         if (ProjectState.QUEUED.equals(getState())) {
-            return getState().getDescription() + " - " + queue.findPosition(this);
+            return getState().getDescription() + " - " + queue.findPosition(projectConfig);
         } else {
             return getState().getDescription();
         }
@@ -597,7 +597,7 @@ public class Project implements Serializable, Runnable, ProjectInterface {
         state = newState;
         info(getStatus());
         notifyListeners(new ProjectStateChangedEvent(name, getState()));
-        fireProgressEvent(new BuildProgressEvent(this, getState()));
+        fireProgressEvent(new BuildProgressEvent(projectConfig, getState()));
     }
 
     public void setBuildQueue(BuildQueue buildQueue) {

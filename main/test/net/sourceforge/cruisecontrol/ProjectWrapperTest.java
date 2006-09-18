@@ -11,8 +11,11 @@ import junit.framework.TestCase;
 public class ProjectWrapperTest extends TestCase {
 
     public void testGetResult() {
-        MockProject project = new MockProject();
-        ProjectWrapper wrapper = new ProjectWrapper(project);
+        ProjectConfig config = new ProjectConfig() {
+            public void execute() {
+            }
+        };
+        ProjectWrapper wrapper = new ProjectWrapper(config);
 
         assertNull(wrapper.getResult());
 
