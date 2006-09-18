@@ -368,6 +368,7 @@ public class CruiseControlControllerTest extends TestCase {
         
         assertEquals(30 * 1000, originalProject.getSchedule().getInterval());
         assertEquals(60 * 1000, modifiedProject.getSchedule().getInterval());
+        assertEquals(60 * 1000, modifiedProject.getProject().getBuildInterval());
     }
 
     public void testRegisterPlugins() throws IOException, CruiseControlException {

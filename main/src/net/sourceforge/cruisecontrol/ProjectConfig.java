@@ -348,6 +348,7 @@ public class ProjectConfig implements ProjectInterface {
     public void getStateFromOldProject(ProjectInterface oldProject) throws CruiseControlException {
         ProjectConfig oldProjectConfig = (ProjectConfig) oldProject;
         project = oldProjectConfig.project;
+        project.setProjectConfig(this);
         project.init();
     }
 
