@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.management.JMException;
+import javax.management.MBeanServer;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
@@ -90,6 +93,61 @@ public class CruiseControlConfigTest extends TestCase {
         //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
         File fooDirectory = new File(tempDirectory, "foo");
         fooDirectory.delete();
+    }
+    
+    public void testUseNonDefaultProjects() throws CruiseControlException {
+        Element root = new Element("cruisecontrol");
+
+        Element plugin = new Element("plugin");
+        plugin.setAttribute("name", "foo");
+        plugin.setAttribute("classname", DummyProject.class.getName());
+        root.addContent(0, plugin);
+        
+        Element dummy = new Element("foo");
+        dummy.setAttribute("name", "dummy");
+        root.addContent(dummy);
+        
+        config = new CruiseControlConfig(root);
+        assertEquals(1, config.getProjectNames().size());
+        assertNotNull(config.getProject("dummy"));
+    }
+    
+    public static class DummyProject implements ProjectInterface {
+
+        private String name;
+
+        public void configureProject() throws CruiseControlException {
+        }
+
+        public void execute() {
+        }
+        
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void getStateFromOldProject(ProjectInterface project) throws CruiseControlException {
+        }
+
+        public void register(MBeanServer server) throws JMException {
+        }
+
+        public void setBuildQueue(BuildQueue buildQueue) {
+        }
+
+        public void start() {
+        }
+
+        public void stop() {
+        }
+
+        public void validate() throws CruiseControlException {
+        }
+        
     }
     
     public void testProjectNamesShouldMatchOrderInFile() {

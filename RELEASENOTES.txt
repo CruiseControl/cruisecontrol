@@ -20,10 +20,7 @@ contrib
   - now with Windows service
   - backs up logs and artifacts to your Windows profile temp dir when removing
   - cleans out install dir
-
-packager
-----------------------
-* Based on the RpmPackager contributed earlier by Julian Simpson, but now works with rpm version 4 and also creates Debian packages. It is also done in such a way that building any other type of package should work. Contributed by Christoper Read and Julian Simpson.
+* packager: Based on the RpmPackager contributed earlier by Julian Simpson, but now works with rpm version 4 and also creates Debian packages. It is also done in such a way that building any other type of package should work. Contributed by Christoper Read and Julian Simpson.
 
 build loop
 ======================
@@ -65,6 +62,7 @@ cruisecontrol.bat
 CruiseControlConfig
 ----------------------
 * Allow properties inside of preconfigured template projects. Patch by Jerome Lacoste
+* Allow non-default projects to be registered as plugins. Alternative project implementations need to implement ProjectInterface.
 
 CruiseControlController
 ----------------------
