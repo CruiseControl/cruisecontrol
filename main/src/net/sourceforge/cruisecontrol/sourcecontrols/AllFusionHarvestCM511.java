@@ -42,7 +42,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -461,8 +460,6 @@ public class AllFusionHarvestCM511 implements SourceControl {
      * @param lastBuildTime
      * @return List of type <code>net.sourceforge.cruisecontrol.Modification</code>, or an empty list
      *  if we failed to retrieve the changes.
-     * @throws IOException
-     * @throws UnsupportedEncodingException
      */
     List parseFile(File harvestRsltsFile, Date lastBuildTime, Date ccSystemTime) {
         // Create a FileChannel, get the file size and map the file to a ByteBuffer
