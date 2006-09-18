@@ -17,4 +17,8 @@ public interface ProjectInterface {
 
     void start();
 
+    void getStateFromOldProject(ProjectInterface project) throws CruiseControlException;
+
+    void configureProject() throws CruiseControlException;
+
 }

@@ -227,7 +227,7 @@ public class Configuration {
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, JDOMException {
         Element element = Util.loadRootElement(new ByteArrayInputStream(getConfiguration().getBytes()));
         CruiseControlConfig config = new CruiseControlConfig(element);
-        return config.getConfig(project);
+        return (ProjectConfig) config.getProject(project);
     }
 
     private String loadConfiguration() throws MBeanException, AttributeNotFoundException, InstanceNotFoundException,

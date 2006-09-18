@@ -42,7 +42,7 @@ import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -84,9 +84,9 @@ public class XMLConfigManager {
         return config;
     }
 
-    public ProjectConfig getProjectConfig(String projectName) throws CruiseControlException {
+    public ProjectInterface getProject(String projectName) {
         LOG.info("using settings from config file [" + configFile.getAbsolutePath() + "]");
-        return config.getConfig(projectName);
+        return config.getProject(projectName);
     }
 
     public boolean reloadIfNecessary() throws CruiseControlException {
